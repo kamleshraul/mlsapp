@@ -264,6 +264,9 @@
 	$(document).ready(function(){
 		initControls();
 		loadActors($("#changeInternalStatus").val());
+		if($('#workflowstatus').val()=="PENDING") {
+			$("#answerP").hide();			
+		}
 		/*******Actor changes*************/
 		$("#actor").change(function(){
 		    var actor=$(this).val();
@@ -538,13 +541,20 @@
 				<input id="adjourningDate" name="adjourningDate" type="hidden"  value="${selectedAdjourningDate}">
 			</p>		
 			
-			<c:if test="${!(empty submissionDate)}">
-			<p>
+			<p style="display:none;">
 				<label class="small"><spring:message code="adjournmentmotion.submissionDate" text="Submitted On"/></label>
 				<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
 				<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
 			</p>
-			</c:if>
+			
+			<p>	
+				<label class="small"><spring:message code="adjournmentmotion.task.creationtime" text="Task Created On"/></label>
+				<input id="createdTime" name="createdTime" value="${taskCreationDate}" class="sText datetimemask" readonly="readonly">
+				<label class="small"><spring:message code="adjournmentmotion.lastDateFromDepartment" text="Last Date From Department"/></label>
+				<input id="formattedLastReplyReceivingDate" name="formattedLastReplyReceivingDate" class="datemask sText" value="${formattedLastReplyReceivingDate}" readonly="readonly"/>
+				<input type="hidden" id="lastDateOfReplyReceiving" name="setLastDateOfReplyReceiving" class="datemask sText" value="${formattedLastReplyReceivingDate}"/>
+				<form:errors path="lastDateOfReplyReceiving" cssClass="validationError"/>
+			</p>
 			
 			<p>
 				<label class="small"><spring:message code="standalonemotion.isTransferable" text="is adjournment motion to be transfered?"/></label>
@@ -813,14 +823,14 @@
 			
 			<c:choose>
 			<c:when test="${workflowstatus=='COMPLETED'}">
-				<p>
+				<p id="answerP">
 					<label class="wysiwyglabel"><spring:message code="adjournmentmotion.reply" text="Reply"/></label>
 					<form:textarea path="reply" cssClass="wysiwyg" readonly="true"></form:textarea>
 					<form:errors path="reply" cssClass="validationError"></form:errors>
 				</p>
 			</c:when>
 			<c:otherwise>
-				<p style="display:none;">
+				<p id="answerP">
 					<label class="wysiwyglabel"><spring:message code="adjournmentmotion.reply" text="Reply"/></label>
 					<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
 					<form:errors path="reply" cssClass="validationError"></form:errors>
@@ -828,13 +838,11 @@
 			</c:otherwise>
 			</c:choose>
 			
-			<c:if test="${not empty domain.reasonForLateReply}">
-				<p>
-					<label class="wysiwyglabel"><spring:message code="question.reasonForLateReply" text="Reason for Late Reply"/></label>
-					<form:textarea path="reasonForLateReply" cssClass="wysiwyg"></form:textarea>
-					<form:errors path="reasonForLateReply" cssClass="validationError"></form:errors>
-				</p>
-			</c:if>
+			<p id="lateReplyReasonDiv" style="display:none;">
+				<label class="wysiwyglabel"><spring:message code="adjournmentmotion.reasonForLateReply" text="Reason for Late Reply"/></label>
+				<form:textarea path="reasonForLateReply" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="reasonForLateReply" cssClass="validationError"></form:errors>
+			</p>
 			
 			<c:if test="${workflowstatus!='COMPLETED'}">
 				<p>
@@ -858,7 +866,7 @@
 			<form:hidden path="version"/>
 			<form:hidden path="workflowStarted"/>	
 			<form:hidden path="endFlag"/>
-			<form:hidden path="level"/>
+			<form:hidden path="level" value="${level}"/>
 			<form:hidden path="localizedActorName"/>
 			<form:hidden path="workflowDetailsId"/>
 			<form:hidden path="transferToDepartmentAccepted"/>
@@ -876,7 +884,7 @@
 			<input id="taskid" name="taskid" value="${taskid}" type="hidden">
 			<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 			<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
-			<input type="hidden" id="houseTypeType" value="${houseTypeType}" />
+			<input type="hidden" name="houseTypeType" id="houseTypeType" value="${houseTypeType}">
 			<input id="motionType" name= "motionType" type="hidden" value="${motionType}" />
 			<input id="oldInternalStatus" value="${internalStatus}" type="hidden">
 			<input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
@@ -888,6 +896,9 @@
 			<c:if test="${not empty formattedAnswerReceivedDate}">
 				<input type="hidden" id="answerReceivedDate" name="setAnswerReceivedDate" class="datetimemask sText" value="${formattedAnswerReceivedDate}"/>
 			</c:if>
+			<input type="hidden" id="lateReplyFillingFlag" name="lateReplyFillingFlag" value="${lateReplyFillingFlag}"/>
+			<input type="hidden" id="lastDateForReplyReceiving" value="${lastDateOfReplyReceiving}"/>
+			<input id="noLateReplyReasonProvidedMsg" value='<spring:message code="client.error.nolatereplyreason" text="Please provide reason for Late Reply"></spring:message>' type="hidden" />
 		</form:form>
 
 		<input id="ministrySelected" value="${ministrySelected }" type="hidden">

@@ -504,13 +504,20 @@
 				<input id="adjourningDate" name="adjourningDate" type="hidden"  value="${selectedAdjourningDate}">
 			</p>		
 			
-			<c:if test="${!(empty submissionDate)}">
-			<p>
+			<p style="display:none;">
 				<label class="small"><spring:message code="adjournmentmotion.submissionDate" text="Submitted On"/></label>
 				<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
 				<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
 			</p>
-			</c:if>
+			
+			<p>	
+				<label class="small"><spring:message code="adjournmentmotion.task.creationtime" text="Task Created On"/></label>
+				<input id="createdTime" name="createdTime" value="${taskCreationDate}" class="sText datetimemask" readonly="readonly">
+				<label class="small"><spring:message code="adjournmentmotion.lastDateFromDepartment" text="Last Date From Department"/></label>
+				<input id="formattedLastReplyReceivingDate" name="formattedLastReplyReceivingDate" class="datemask sText" value="${formattedLastReplyReceivingDate}" readonly="readonly"/>
+				<input type="hidden" id="lastDateOfReplyReceiving" name="setLastDateOfReplyReceiving" class="datemask sText" value="${formattedLastReplyReceivingDate}"/>
+				<form:errors path="lastDateOfReplyReceiving" cssClass="validationError"/>
+			</p>
 			
 			<p>
 				<label class="small"><spring:message code="standalonemotion.isTransferable" text="is adjournment motion to be transfered?"/></label>
@@ -670,7 +677,7 @@
 				<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 			</p>
 			
-			<table class="uiTable" style="margin-left:165px;">
+			<table class="uiTable" style="margin-left: 165px;width: 900px;">
 				<thead>
 					<tr>
 					<th>
@@ -796,7 +803,7 @@
 			
 			<c:if test="${not empty domain.reasonForLateReply}">
 				<p>
-					<label class="wysiwyglabel"><spring:message code="question.reasonForLateReply" text="Reason for Late Reply"/></label>
+					<label class="wysiwyglabel"><spring:message code="adjournmentmotion.reasonForLateReply" text="Reason for Late Reply"/></label>
 					<form:textarea path="reasonForLateReply" cssClass="wysiwyg"></form:textarea>
 					<form:errors path="reasonForLateReply" cssClass="validationError"></form:errors>
 				</p>
@@ -810,7 +817,7 @@
 				</p>	
 			</c:if>
 			
-			<c:if test="${workflowstatus!='COMPLETED' }">
+			<c:if test="${workflowstatus!='COMPLETED' and fn:contains(internalStatusType, 'final')}">
 			<div class="fields">
 				<h2></h2>				
 				<p class="tright">

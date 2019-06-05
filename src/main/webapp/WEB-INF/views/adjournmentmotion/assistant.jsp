@@ -391,6 +391,24 @@
 			}});			
 	        return false;  
 	    });
+		/**** On Update Validations If Any ****/
+		$("#submit").click(function(e){
+			var reply = $('#reply').val();
+			if(reply!=undefined && reply!='' && reply!='-' 
+					&& reply!='<p>-</p>' && reply!='<p></p>' && reply!='<p></p>-' && reply!='-<p></p>'
+					&& reply!='<br><p></p>' && reply!='<p><br></p>' && reply!='-<br><p></p>'
+					&& reply!='<p>-<br></p>' && reply!='<p><br>-</p>') {
+				if($('#replyRequestedDate').val()=='') {
+					$.prompt("Please update reply requested date for the adjournment motion!");
+					return false;
+				} else {
+					if($('#replyReceivedDate').val()=='') {
+						$.prompt("Please update reply received date for the adjournment motion!");
+						return false;
+					}
+				}
+			}			
+		});
 		/**** To show/hide viewClubbedAdjournmentMotionTextsDiv to view clubbed adjournment motion's text starts****/
 		$("#clubbedAdjournmentMotionTextsDiv").hide();
 		$("#hideClubMTDiv").hide();
@@ -819,7 +837,28 @@
 			<c:otherwise>
 				<form:hidden path="rejectionReason"/>
 			</c:otherwise>
-			</c:choose>			
+			</c:choose>		
+			
+			<c:choose>
+				<c:when test="${internalStatusType eq 'adjournmentmotion_final_admission'}">
+					<p>
+						<label class="small"><spring:message code="adjournmentmotion.replyRequestedDate" text="Reply Requested Date"/></label>
+						<input id="replyRequestedDate" name="setReplyRequestedDate" class="datetimemask sText" value="${formattedReplyRequestedDate}"/>
+					</p>
+					<p>
+						<label class="small"><spring:message code="adjournmentmotion.replyReceivedDate" text="Reply Received Date"/></label>
+						<input id="replyReceivedDate" name="setReplyReceivedDate" class="datetimemask sText" value="${formattedReplyReceivedDate}"/>
+					</p>
+				</c:when>
+				<c:otherwise>
+					<c:if test="${not empty formattedReplyRequestedDate}">
+						<input type="hidden" id="replyRequestedDate" name="setReplyRequestedDate" class="datetimemask sText" value="${formattedReplyRequestedDate}"/>
+					</c:if>
+					<c:if test="${not empty formattedReplyReceivedDate}">
+						<input type="hidden" id="replyReceivedDate" name="setReplyReceivedDate" class="datetimemask sText" value="${formattedReplyReceivedDate}"/>
+					</c:if>
+				</c:otherwise>
+			</c:choose>	
 			
 			<p>
 				<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="adjournmentmotion.viewcitation" text="View Citations"></spring:message></a>	
@@ -866,7 +905,10 @@
 			<form:hidden path="endFlag"/>
 			<form:hidden path="level"/>
 			<form:hidden path="localizedActorName"/>
-			<form:hidden path="workflowDetailsId"/>			
+			<form:hidden path="workflowDetailsId"/>		
+			<form:hidden path="transferToDepartmentAccepted"/>
+			<form:hidden path="mlsBranchNotifiedOfTransfer"/>
+			<form:hidden path="reasonForLateReply"/>
 			<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 			<input type="hidden" name="status" id="status" value="${status }">
 			<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
@@ -883,6 +925,7 @@
 			<input id="motionType" name= "motionType" type="hidden" value="${motionType}" />
 			<input id="oldInternalStatus" value="${internalStatus}" type="hidden">
 			<input id="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
+			<input type="hidden" id="replyReceivedMode" name="replyReceivedMode" value="${domain.replyReceivedMode}"/>
 		</form:form>
 
 		<input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='adjournmentmotion.startworkflowmessage' text='Do You Want To Put Up Adjournment Motion?'></spring:message>" type="hidden">

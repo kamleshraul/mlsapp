@@ -71,7 +71,6 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 	@Autowired
 	private IProcessService processService;
 	
-	@SuppressWarnings("unused")
 	@InitBinder(value = "domain")
 	private void initBinder(final WebDataBinder binder) {
 		/**** Date ****/
@@ -554,6 +553,10 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 		model.addAttribute("pv_mailflag", "off");
 		model.addAttribute("pv_reminderflag", "off");
 		model.addAttribute("pv_timerflag", "off");
+		
+		if(domain.getReplyReceivedDate()!=null) {
+			model.addAttribute("formattedReplyReceivedDate", FormaterUtil.formatDateToString(domain.getReplyReceivedDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+		}
 	}
 	
 	@SuppressWarnings("rawtypes")
