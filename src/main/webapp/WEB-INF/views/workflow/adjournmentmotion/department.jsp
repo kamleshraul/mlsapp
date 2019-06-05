@@ -855,17 +855,16 @@
 			<input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
 			<input id="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
 			<input id="workflowdetails" name="workflowdetails" value="${workflowdetails}" type="hidden">
-			<c:if test="${not empty formattedAnswerRequestedDate}">
-				<input type="hidden" id="answerRequestedDate" name="setAnswerRequestedDate" class="datetimemask sText" value="${formattedAnswerRequestedDate}"/>
+			<c:if test="${not empty formattedReplyRequestedDate}">
+				<input type="hidden" id="replyRequestedDate" name="setReplyRequestedDate" class="datetimemask sText" value="${formattedReplyRequestedDate}"/>
 			</c:if>
-			<c:if test="${not empty formattedAnswerReceivedDate}">
-				<input type="hidden" id="answerReceivedDate" name="setAnswerReceivedDate" class="datetimemask sText" value="${formattedAnswerReceivedDate}"/>
+			<c:if test="${not empty formattedReplyReceivedDate}">
+				<input type="hidden" id="replyReceivedDate" name="setReplyReceivedDate" class="datetimemask sText" value="${formattedReplyReceivedDate}"/>
 			</c:if>
 		</form:form>
 
 		<input id="ministrySelected" value="${ministrySelected }" type="hidden">
 		<input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
-		<input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">		
 		<input id="originalLevel" value="${ domain.level}" type="hidden">		
 		<input id="motionTypeType" value="${selectedMotionType}" type="hidden"/>
 		<input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
