@@ -2853,8 +2853,7 @@ public class QuestionWorkflowController  extends BaseController{
 								wfDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
 								wfDetails.setDecisionRecommendStatus(question.getRecommendationStatus().getName());
 								/** Temporary fix for removing previous remarks till monsoon session, 2019 end **/
-								if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)
-										&& wfDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPUTY_SECRETARY)) {									
+								if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {									
 									question.setRemarks("");
 									wfDetails.setRemarks("");
 								}

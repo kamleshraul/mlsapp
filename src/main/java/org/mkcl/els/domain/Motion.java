@@ -6,6 +6,8 @@ package org.mkcl.els.domain;
 import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -120,6 +122,11 @@ import org.springframework.transaction.annotation.Transactional;
 	/**** The question text. ****/
 	@Column(length=30000)
 	private String revisedDetails;
+	
+	/** The submission priority 
+     *  To be used for bulk submission by member
+     */
+    private Integer submissionPriority;
 	
 //	/** The sections. */
 //    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
@@ -383,6 +390,20 @@ import org.springframework.transaction.annotation.Transactional;
 			final Session session,final DeviceType type,final String locale) {
 		return getMotionRepository().assignMotionNo(houseType,
 				session,type,locale);
+	}
+	
+	public static int findReadyToSubmitCount(final Session session,
+			final Member primaryMember,
+			final DeviceType deviceType,
+			final String locale) {
+		return getMotionRepository().findReadyToSubmitCount(session, primaryMember, deviceType, locale);
+	}
+	
+	public static List<Motion> findReadyToSubmitMotions(final Session session,
+			final Member primaryMember,
+			final DeviceType deviceType,
+			final String locale) {
+		return getMotionRepository().findReadyToSubmitMotions(session, primaryMember, deviceType, locale);
 	}
 
 	public static Integer findMaxPostBallotNo(final HouseType houseType,
@@ -849,6 +870,14 @@ import org.springframework.transaction.annotation.Transactional;
 //		this.amendments = amendments;
 //	}
 
+	public Integer getSubmissionPriority() {
+		return submissionPriority;
+	}
+
+	public void setSubmissionPriority(Integer submissionPriority) {
+		this.submissionPriority = submissionPriority;
+	}
+
 	public Status getStatus() {
 		return status;
 	}
@@ -1162,6 +1191,44 @@ import org.springframework.transaction.annotation.Transactional;
 	public void setFactualPositionFromMember(String factualPositionFromMember) {
 		this.factualPositionFromMember = factualPositionFromMember;
 	}
+	
+	/**
+     * Sort the Motions as per @param sortOrder by submission priority. If multiple Motions
+     * have same submission priority, then their order is preserved.
+     *
+     * @param motions SHOULD NOT BE NULL
+     *
+     * Does not sort in place, returns a new list.
+     * @param sortOrder the sort order
+     * @return the list
+     */
+    public static List<Motion> sortBySubmissionPriority(final List<Motion> motions,
+            final String sortOrder) {
+        List<Motion> newMotionsList = new ArrayList<Motion>();
+        newMotionsList.addAll(motions);
+
+        if(sortOrder.equals(ApplicationConstants.ASC)) {
+            Comparator<Motion> c = new Comparator<Motion>() {
+
+                @Override
+                public int compare(final Motion m1, final Motion m2) {
+                    return m1.getSubmissionPriority().compareTo(m2.getSubmissionPriority());
+                }
+            };
+            Collections.sort(newMotionsList, c);
+        } else if(sortOrder.equals(ApplicationConstants.DESC)) {
+            Comparator<Motion> c = new Comparator<Motion>() {
+
+                @Override
+                public int compare(final Motion m1, final Motion m2) {
+                    return m2.getSubmissionPriority().compareTo(m1.getSubmissionPriority());
+                }
+            };
+            Collections.sort(newMotionsList, c);
+        }
+
+        return newMotionsList;
+    }
 
 	//************************Clubbing**********************
 	public static boolean club(final Long primary, final Long clubbing, final String locale) throws ELSException{

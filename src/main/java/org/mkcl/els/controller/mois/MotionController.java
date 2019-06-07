@@ -1,7 +1,6 @@
 package org.mkcl.els.controller.mois;
 
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -52,7 +51,6 @@ import org.mkcl.els.domain.ReferenceUnit;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
-import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
@@ -538,6 +536,12 @@ public class MotionController extends GenericController<Motion>{
 								model.addAttribute("constituency",constituency.getName());
 							}
 						}
+						//Submission Priority
+						model.addAttribute("defaultSubmissionPriority", ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
+						int currentReadyToSubmitCount = Motion.findReadyToSubmitCount(selectedSession, member, motionType, locale);
+						model.addAttribute("submissionPriorityMaximum", currentReadyToSubmitCount+1);
+						model.addAttribute("formater", new FormaterUtil());
+						model.addAttribute("locale", locale);
 					}
 					/**** Ministries ****/
 					Date rotationOrderPubDate=null;
@@ -846,6 +850,12 @@ public class MotionController extends GenericController<Motion>{
 			if(memberStatus!=null){				
 				model.addAttribute("formattedMemberStatus", memberStatus.getName());
 			}
+			//Submission Priority
+			model.addAttribute("defaultSubmissionPriority", ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
+			int currentReadyToSubmitCount = Motion.findReadyToSubmitCount(domain.getSession(), domain.getPrimaryMember(), domain.getType(), domain.getLocale());
+			model.addAttribute("submissionPriorityMaximum", currentReadyToSubmitCount+1);
+			model.addAttribute("formater", new FormaterUtil());
+			model.addAttribute("locale", domain.getLocale());
 		}
 		/**** Status,Internal Status and recommendation Status ****/
 		Status status=domain.getStatus();
@@ -1613,6 +1623,12 @@ public class MotionController extends GenericController<Motion>{
 			}
 		}
 		model.addAttribute("selectedSupportingMembersIfErrors", selectedSupportingMembersIfErrors);
+		//Submission Priority
+		model.addAttribute("defaultSubmissionPriority", ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
+		int currentReadyToSubmitCount = Motion.findReadyToSubmitCount(domain.getSession(), domain.getPrimaryMember(), domain.getType(), domain.getLocale());
+		model.addAttribute("submissionPriorityMaximum", currentReadyToSubmitCount+1);
+		model.addAttribute("formater", new FormaterUtil());
+		model.addAttribute("locale", domain.getLocale());
 		super.populateCreateIfErrors(model, domain, request);
 	}
 
@@ -1887,6 +1903,10 @@ public class MotionController extends GenericController<Motion>{
 		if(domain.getSubDepartment()!=null){
 			domain.setDepartment(domain.getSubDepartment().getDepartment());
 		}
+		//set submission priority to default value if not set explicitly
+		if(domain.getSubmissionPriority()==null) {
+			domain.setSubmissionPriority(ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
+		}
 	}
 
 	@Override
@@ -2067,6 +2087,10 @@ public class MotionController extends GenericController<Motion>{
 		if(strUserGroupType!=null){
 			UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, domain.getLocale());
 			domain.setEditedAs(userGroupType.getName());
+		}
+		//set submission priority to default value if not set explicitly
+		if(domain.getSubmissionPriority()==null) {
+			domain.setSubmissionPriority(ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
 		}
 		/**** updating submission date and creation date ****/
 		String strCreationDate=request.getParameter("setCreationDate");
@@ -2434,6 +2458,84 @@ public class MotionController extends GenericController<Motion>{
 		}
 		model.addAttribute("citations",citations);
 		return "motion/citation";
+	}
+	
+	@RequestMapping(value="/determine_ordering_for_submission", method=RequestMethod.GET)
+	public String determineOrderingForSubmissionInit(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		AuthUser authUser = this.getCurrentUser();
+		try {
+			HouseType houseType = MotionController.getHouseType(request, locale.toString());
+			SessionType sessionType = MotionController.getSessionType(request, locale.toString());
+			Integer sessionYear = MotionController.stringToIntegerYear(request, locale.toString());
+			DeviceType deviceType = MotionController.getDeviceTypeById(request, locale.toString());
+			Member primaryMember = Member.findMember(authUser.getFirstName(),
+					authUser.getMiddleName(), authUser.getLastName(), authUser.getBirthDate(), locale.toString());
+			
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+			List<Motion> motions = new ArrayList<Motion>();
+			if(session != null){
+				if(primaryMember != null){
+					motions = Motion.findReadyToSubmitMotions(session, primaryMember, deviceType, locale.toString());
+				}
+			}
+			
+			model.addAttribute("houseType", houseType.getId());
+			model.addAttribute("motionType", deviceType.getId());
+			model.addAttribute("deviceType", deviceType.getId());
+			model.addAttribute("motions", motions);
+			model.addAttribute("defaultSubmissionPriority", ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
+			model.addAttribute("locale", locale.toString());
+			model.addAttribute("formater", new FormaterUtil());
+			
+			return "motion/orderingforsubmission";
+		}
+		catch(ELSException elsx) {
+			elsx.printStackTrace();
+		}
+		catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}	
+	
+	@Transactional
+	@RequestMapping(value="determine_ordering_for_submission", method=RequestMethod.POST)
+	public String determineOrderingForSubmission(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		AuthUser authUser = this.getCurrentUser();
+		try {
+			String retVal = "motion/error";
+			String selectedItems = request.getParameter("items");
+			if(selectedItems != null && ! selectedItems.isEmpty()) {
+				String[] items = selectedItems.split(",");
+				List<Motion> motions = new ArrayList<Motion>();
+				for(String i : items) {				
+					Long id = Long.parseLong(i.split("_")[0]);
+					Motion motion = Motion.findById(Motion.class, id);
+					if(motion!=null) {
+						motion.setSubmissionPriority(Integer.parseInt(i.split("_")[1]));
+						motion.simpleMerge();
+						motions.add(motion);
+					}
+				}
+				motions = Motion.sortBySubmissionPriority(motions, ApplicationConstants.ASC);
+				model.addAttribute("motions", motions);
+				model.addAttribute("defaultSubmissionPriority", ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
+				model.addAttribute("formater", new FormaterUtil());
+				model.addAttribute("locale", locale.toString());
+				model.addAttribute("type","success");
+				
+				retVal = "motion/orderingforsubmissionack";
+			}
+			return retVal;
+		}
+		catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		return null;
 	}
 
 	/**** Bulk Submission ****/
@@ -4038,6 +4140,61 @@ public class MotionController extends GenericController<Motion>{
 		}else{
 			return false;
 		}
+	}
+	
+	public static HouseType getHouseType(final HttpServletRequest request,
+			final String locale) throws ELSException{
+		String strHouseType = request.getParameter("houseType");
+		
+		if(strHouseType == null || strHouseType.isEmpty()) {
+			throw new ELSException("MotionController.getHouseType/2", "HouseType is not set in the Request");
+		}
+		HouseType houseType = HouseType.findByType(strHouseType, locale);
+		
+		return houseType;
+	}
+	
+	public static SessionType getSessionType(final HttpServletRequest request,
+			final String locale) throws ELSException {
+		String strSessionType = request.getParameter("sessionType");
+		
+		if(strSessionType == null || strSessionType.isEmpty()) {
+			throw new ELSException("MotionController.getSessionType/2", "sessionType is not set in the Request");
+		}
+		SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+		
+		return sessionType;
+	}
+	
+	public static Integer stringToIntegerYear(final HttpServletRequest request,
+			final String locale) throws ELSException{
+		Integer sessionYear = null;
+		String selectedYear = request.getParameter("sessionYear");
+		if(selectedYear != null && !selectedYear.isEmpty()) {
+			sessionYear = Integer.parseInt(selectedYear);
+			return sessionYear;
+		}else{
+			throw new ELSException("MotionController.stringToIntegerYear/2", 
+					"Session Year is not set in request "); 
+		}
+		
+	}
+	
+	public static DeviceType getDeviceTypeById(HttpServletRequest request,
+			String locale) throws ELSException {
+		String deviceTypeId = request.getParameter("motionType");
+		
+		if(deviceTypeId == null){
+			deviceTypeId = (String)request.getSession().getAttribute("motionType");
+		}
+		
+		if(deviceTypeId == null || deviceTypeId.isEmpty()) {
+			throw new ELSException("MotionController.getDeviceType/2", 
+					"Device type is not set in the Request");
+		}
+		
+		DeviceType deviceType = DeviceType.findById(DeviceType.class,Long.parseLong(deviceTypeId));
+		return deviceType;
 	}
 
 }
