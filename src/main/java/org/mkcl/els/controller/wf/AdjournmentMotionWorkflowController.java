@@ -769,6 +769,68 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 			if(strSubmissionDate!=null){
 				domain.setSubmissionDate(FormaterUtil.formatStringToDate(strSubmissionDate, ApplicationConstants.SERVER_DATETIMEFORMAT));
 			}
+			/**** workflow started on date ****/
+			String strWorkflowStartedOnDate = request.getParameter("workflowStartedOnDate");
+			if(strWorkflowStartedOnDate != null && !strWorkflowStartedOnDate.isEmpty()){
+				domain.setWorkflowStartedOn(FormaterUtil.formatStringToDate(strWorkflowStartedOnDate, ApplicationConstants.SERVER_DATETIMEFORMAT));
+			}
+			/**** task received on date ****/
+			String strTaskReceivedOnDate = request.getParameter("taskReceivedOnDate");
+			if(strTaskReceivedOnDate != null && !strTaskReceivedOnDate.isEmpty()){
+				domain.setWorkflowStartedOn(FormaterUtil.formatStringToDate(strTaskReceivedOnDate, ApplicationConstants.SERVER_DATETIMEFORMAT));
+			}
+			/**** reply related processing and dates ****/
+			String operation = request.getParameter("operation");
+			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+					|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+
+				if(operation!=null && !operation.isEmpty()){
+
+					if(operation.equals("workflowsubmit")){
+						if(domain.getReply() == null || domain.getReply().isEmpty()){
+							result.rejectValue("reply", "ReplyEmpty");
+						} else if(domain.getReply() == null || domain.getReply().isEmpty()){
+							result.rejectValue("reply", "ReplyEmpty");
+						}
+					}
+					
+					if(result.getFieldErrorCount("reply")>0){
+						if(!model.containsAttribute("errorcode")){
+							model.addAttribute("errorcode","no_reply_provided_department");
+							return "workflow/myTasks/error";
+						}		
+					}
+				}
+			}
+			String strReplyRequestedDate = request.getParameter("setReplyRequestedDate");
+			if(strReplyRequestedDate != null && !strReplyRequestedDate.isEmpty()) {
+				domain.setReplyRequestedDate(FormaterUtil.formatStringToDate(strReplyRequestedDate, ApplicationConstants.SERVER_DATETIMEFORMAT));					
+			}
+			String strReplyReceivedDate = request.getParameter("setReplyReceivedDate");
+			if(strReplyReceivedDate !=null && !strReplyReceivedDate.isEmpty()) {
+				domain.setReplyReceivedDate(FormaterUtil.formatStringToDate(strReplyReceivedDate, ApplicationConstants.SERVER_DATETIMEFORMAT));
+			}
+			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
+					&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.ADJOURNMENTMOTION_FINAL_ADMISSION)
+					&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.ADJOURNMENTMOTION_PROCESSED_SENDTODEPARTMENT)
+					&& (domain.getReply()==null || domain.getReply().isEmpty())) {
+				domain.setReplyRequestedDate(new Date());
+			}
+			
+			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
+					&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.ADJOURNMENTMOTION_FINAL_ADMISSION)
+					&& domain.getReply()!=null && !domain.getReply().isEmpty() && domain.getReplyReceivedDate()==null) {					
+				domain.setReplyReceivedDate(new Date());
+				domain.setReplyReceivedMode(ApplicationConstants.REPLY_RECEIVED_MODE_ONLINE);
+			}
+			
+			String strLastDateOfReplyReceiving = request.getParameter("setLastDateOfReplyReceiving");
+			if(strLastDateOfReplyReceiving!=null && !strLastDateOfReplyReceiving.isEmpty()) {
+				Date lastDateOfReplyReceiving = FormaterUtil.getDateFormatter("en_US").parse(strLastDateOfReplyReceiving);
+				//Added the above code as the following code was giving exception of unparseble date
+				//Date lastDateOfReplyReceiving = FormaterUtil.formatStringToDate(strLastDateOfReplyReceiving, ApplicationConstants.DB_DATEFORMAT, locale.toString());
+				domain.setLastDateOfReplyReceiving(lastDateOfReplyReceiving);
+			}
 			/**** Edited On,Edited By and Edited As is set ****/
 			domain.setEditedOn(new Date());
 			domain.setEditedBy(this.getCurrentUser().getActualUsername());

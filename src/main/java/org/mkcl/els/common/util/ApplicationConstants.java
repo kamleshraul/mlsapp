@@ -2613,7 +2613,11 @@ public class ApplicationConstants {
 	
 	public static String ANSWER_RECEIVED_MODE_ONLINE = "ONLINE";
 	
+	public static String REPLY_RECEIVED_MODE_ONLINE = "ONLINE";
+	
 	public static String ANSWER_RECEIVED_MODE_OFFLINE = "OFFLINE";
+	
+	public static String REPLY_RECEIVED_MODE_OFFLINE = "OFFLINE";
 	
 	public static final String QUESTION_HALFHOURDISCUSSION_FROM_QUESTION_PROCESSED_SENDDISCUSSIONDATEINTIMATION = "question_halfHourFromQuestion_processed_sendDiscussionDateIntimation";
 	

@@ -3826,14 +3826,49 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			userGroupType=userGroup.getUserGroupType();
 			currentWorkflowActor=getWorkflowActor(workflowConfig,userGroupType,level);
 			allEligibleActors=getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.DESC);
+		} else if(status.equals(ApplicationConstants.ADJOURNMENTMOTION_PROCESSED_SENDTODESKOFFICER)
+				&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+			workflowConfig = getLatest(adjourn,adjourn.getInternalStatus().getType(),locale.toString());
+			UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale);
+			currentWorkflowActor = getWorkflowActor(workflowConfig,ugt,(level-1));
+			allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
 		} else{
 			workflowConfig=getLatest(adjourn,status,locale.toString());
 			userGroupType=userGroup.getUserGroupType();
 			currentWorkflowActor=getWorkflowActor(workflowConfig,userGroupType,level);
-			allEligibleActors=getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+			CustomParameter userGroupTypeToBeExcluded = null;
+			if(status.toUpperCase().contains("FINAL")){
+				userGroupTypeToBeExcluded = CustomParameter.
+				findByName(CustomParameter.class, ApplicationConstants.USERGROUPTYPE_TO_BE_EXCLUDED_FROM_WORKFLOWCONFIG_POSTFINAL_STATUS, "");
+			}else{
+				userGroupTypeToBeExcluded = CustomParameter.
+				findByName(CustomParameter.class, ApplicationConstants.USERGROUPTYPE_TO_BE_EXCLUDED_FROM_WORKFLOWCONFIG_PREFINAL_STATUS, "");
+			}
+			if(userGroupTypeToBeExcluded != null && 
+					(userGroupTypeToBeExcluded.getValue() != null  && !userGroupTypeToBeExcluded.getValue().isEmpty())){
+				String strUsergroupTypes = userGroupTypeToBeExcluded.getValue();
+				String[] arrUsergroupTypes = strUsergroupTypes.split(",");
+				List<Long> usergroupTypeIds = new ArrayList<Long>();
+				for(String s : arrUsergroupTypes){
+					UserGroupType ugt = UserGroupType.findByType(s, locale);
+					if(userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)){
+						if(!ugt.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+							usergroupTypeIds.add(ugt.getId());
+						}
+					}else{
+						usergroupTypeIds.add(ugt.getId());
+					}						
+				}
+				List<WorkflowActor> workflowActorsToBeExcluded = getWorkflowActors(workflowConfig,usergroupTypeIds,level);
+				allEligibleActors = getWorkflowActorsExcludingGivenActorList(workflowConfig, workflowActorsToBeExcluded, currentWorkflowActor, ApplicationConstants.ASC);
+			}else{
+				allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+			}
 		}
 		HouseType houseType=adjourn.getHouseType();
 		DeviceType deviceType=adjourn.getType();
+		Ministry ministry = adjourn.getMinistry();
+		SubDepartment subDepartment = adjourn.getSubDepartment();
 		for(WorkflowActor i:allEligibleActors){
 			UserGroupType userGroupTypeTemp=i.getUserGroupType();
 			List<UserGroup> userGroups=UserGroup.findAllByFieldName(UserGroup.class,"userGroupType",
@@ -3860,7 +3895,35 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					}else{
 						noOfComparisons++;
 					}
-				}					
+				}	
+				if(ministry!=null){
+					if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).isEmpty()){
+						String[] allowedMinistries = params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).split("##");
+						for(int k=0; k<allowedMinistries.length; k++) {
+							if(allowedMinistries[k].equals(ministry.getName())) {										
+								noOfSuccess++;
+								break;
+							}
+						}
+						noOfComparisons++;
+					}else{
+						noOfComparisons++;
+					}
+				}
+				if(subDepartment!=null){
+					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).isEmpty()){
+						String[] allowedSubdepartments = params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).split("##");
+						for(int k=0; k<allowedSubdepartments.length; k++) {
+							if(allowedSubdepartments[k].equals(subDepartment.getName())) {										
+								noOfSuccess++;
+								break;
+							}
+						}
+						noOfComparisons++;
+					}else{
+						noOfComparisons++;
+					}
+				}
 				Date fromDate=j.getActiveFrom();
 				Date toDate=j.getActiveTo();
 				Date currentDate=new Date();
@@ -3880,8 +3943,16 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 							+"#"+userGroupTypeTemp.getName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
 					reference.setName(userGroupTypeTemp.getName());
-					references.add(reference);
-					break;
+					reference.setState(params.get(ApplicationConstants.ACTORSTATE_KEY+"_"+locale));
+					reference.setRemark(params.get(ApplicationConstants.ACTORREMARK_KEY+"_"+locale));
+					if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+						if(!reference.getId().equals(adjourn.getActor())){
+							references.add(reference);
+						}
+					}else{
+						references.add(reference);
+						break;
+					}
 				}				
 			}
 		}				
@@ -3988,10 +4059,12 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		}else{
 			List<UserGroup> userGroups=UserGroup.findAllByFieldName(UserGroup.class,"userGroupType",
 					userGroupTypeTemp, "activeFrom",ApplicationConstants.DESC, locale);
-			if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT)){
-				ministry = adjournmentMotion.getMinistry();
-				subDepartment = adjournmentMotion.getSubDepartment();
-			}
+			/** uncomment below code if device has ballot **/
+//			if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT) 
+//					|| (userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))){
+//				ministry = adjournmentMotion.getMinistry();
+//				subDepartment = adjournmentMotion.getSubDepartment();
+//			}
 			for(UserGroup j : userGroups){
 				int noOfComparisons = 0;
 				int noOfSuccess = 0;
