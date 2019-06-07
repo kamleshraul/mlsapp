@@ -5044,8 +5044,14 @@ class QuestionReportHelper{
 //									}
 //								}
 //							}
-	
-							model.addAttribute("data", dataMap);
+							Map<String, Object[]> sortedDataMap = new LinkedHashMap<String, Object[]>();
+							for(WorkflowActor wfa:distinctActors){
+								UserGroupType ugt = wfa.getUserGroupType();
+								if(dataMap.containsKey(ugt.getType())){
+									sortedDataMap.put(ugt.getType(), dataMap.get(ugt.getType()));
+								}
+							}
+							model.addAttribute("data", sortedDataMap);
 							model.addAttribute("formatData", report.get(report.size()-1));
 						}
 					}
