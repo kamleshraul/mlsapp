@@ -1,5 +1,5 @@
 <%@ include file="/common/taglibs.jsp" %>
-<%@ page import="java.util.Date;" %>
+<%-- <%@ page import="java.util.Date;" %> --%>
 <html>
 <head>
 	<title>
@@ -880,7 +880,7 @@
 	</div>
 	<div id="clubbingResultDiv" style="display:none;"></div>
 	<!--To show the motion texts of the clubbed motions -->
-	<div id="clubbedAdjournmentMotionTextsDiv">
+	<div id="clubbedAdjournmentMotionTextsDiv" style="display: none;">
 		<h1>		
 			<spring:message code="adjournmentmotion.clubbedMotionTexts" text="Motion texts of clubbed motions:"></spring:message>
 		</h1>

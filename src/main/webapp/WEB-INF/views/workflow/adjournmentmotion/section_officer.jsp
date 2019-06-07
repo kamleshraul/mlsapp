@@ -961,12 +961,11 @@
 			<input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
 			<input id="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
 			<input id="workflowdetails" name="workflowdetails" value="${workflowdetails}" type="hidden">
-			<input type="hidden" id="answerReceivedMode" name="answerReceivedMode" value="${domain.answerReceivedMode}"/>
+			<input type="hidden" id="replyReceivedMode" name="replyReceivedMode" value="${domain.replyReceivedMode}"/>
 		</form:form>
 
 		<input id="ministrySelected" value="${ministrySelected }" type="hidden">
 		<input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
-		<input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">		
 		<input id="originalLevel" value="${ domain.level}" type="hidden">		
 		<input id="motionTypeType" value="${selectedMotionType}" type="hidden"/>
 		<input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
