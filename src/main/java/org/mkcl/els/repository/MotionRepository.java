@@ -129,7 +129,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 		if(itemsCount!=null && itemsCount.intValue() != -1) {
 			queryString += " LIMIT :itemsCount";
 		}
-		Query query = this.em().createNativeQuery(queryString, Question.class);
+		Query query = this.em().createNativeQuery(queryString, Motion.class);
 		query.setParameter("sessionId", session.getId());
 		query.setParameter("memberId", primaryMember.getId());
 		query.setParameter("deviceTypeId", deviceType.getId());		

@@ -471,7 +471,7 @@
 	<c:choose>
 		<c:when test="${! empty ministries}">
 			<tr>
-				<td>
+				<td style="vertical-align: top;">
 				<p>
 					<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
 					<select name="ministry" id="ministry" class="sSelect">
@@ -503,7 +503,28 @@
 					</select>
 					<form:errors path="subDepartment" cssClass="validationError"/>					
 				</p>
-			</td>			
+				</td>
+				<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<td style="vertical-align: top;">
+				<p>
+					<label class="small"><spring:message code="motion.submission_priority" text="Submission Priority"/></label>
+					<select id="submissionPriority" name="submissionPriority" class="sSelect">
+						<option value="${defaultSubmissionPriority}"><spring:message code="motion.default_ordering_for_submission" text="Creation Order"/></option>	
+						<c:forEach var="submissionOrder" begin="1" end="200" step="1">
+							<c:choose>
+								<c:when test="${not empty domain.submissionPriority and domain.submissionPriority!=defaultSubmissionPriority and submissionOrder==domain.submissionPriority}">
+									<option value="${submissionOrder}" selected="selected">${formater.formatNumberNoGrouping(submissionOrder, locale)}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${submissionOrder}">${formater.formatNumberNoGrouping(submissionOrder, locale)}</option>
+								</c:otherwise>
+							</c:choose>										
+						</c:forEach>
+					</select>
+				</p>
+				</td>
+				</security:authorize>				
+			</tr>			
 		</c:when>	
 		<c:otherwise>		
 		<div class="toolTip tpGreen clearfix">

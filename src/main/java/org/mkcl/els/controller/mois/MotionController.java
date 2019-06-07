@@ -291,6 +291,13 @@ public class MotionController extends GenericController<Motion>{
 				&& memberGridAllowedFor.getValue().contains(role)) {
 			
 			newUrlPattern = urlPattern + "?usergroup=member&houseType=" + houseType;
+			String selectedStatusId = request.getParameter("status");
+		    if(selectedStatusId!=null && !selectedStatusId.isEmpty()) {
+		    	Status selectedStatus = Status.findById(Status.class, Long.parseLong(selectedStatusId));
+			    if(selectedStatus!=null && selectedStatus.getType().equals(ApplicationConstants.MOTION_COMPLETE)) {
+			    	newUrlPattern=urlPattern+"_readyToSubmit?usergroup=member&houseType="+houseType;
+			    }
+		    }
 			
 		} else if (typistGridAllowedFor != null && role != null
 				&& !role.isEmpty() && houseType != null && !houseType.isEmpty()

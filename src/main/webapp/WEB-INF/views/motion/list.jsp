@@ -46,6 +46,11 @@
 			$("#discussionSelection").click(function(){
 				showDiscussionSelection();
 			});
+			/****Determine Ordering of Motions for Submission ****/
+			$("#determine_ordering_for_submission").click(function() {
+				$("#selectionDiv1").hide();
+				determineOrderingForSubmission();
+			});
 			/****Member's Motions View ****/
 			$("#member_motions_view").click(function() {
 				$("#selectionDiv1").hide();
@@ -99,6 +104,12 @@
 				<spring:message code="motion.search" text="Search"/>
 			</a> |
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<span id="determine_ordering_for_submission_span">
+				<a href="#" id="determine_ordering_for_submission" class="butSim">
+					<spring:message code="motion.determine_ordering_for_submission" text="Determine Ordering for Submission"/>
+				</a> |
+				</span>
+				<hr/>
 				<a href="#" id="member_motions_view" class="butSim">
 					<spring:message code="motion.member_motions_view" text="Member's Motions View"/>
 				</a> |

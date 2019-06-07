@@ -74,7 +74,8 @@
 			$("#selectedStatus").change(function(){
 				var value=$(this).val();
 				if(value!=""){				
-					reloadMotionGrid();
+					//reloadMotionGrid();
+					showMotionList();
 					$("#selectedFileCount").val("-");
 				}
 			});	
@@ -445,6 +446,16 @@
 						);
 				
 				loadSession();
+		}
+		
+		function determineOrderingForSubmission() {
+			var parameters = "houseType=" + $("#selectedHouseType").val()
+			+ "&sessionYear=" + $("#selectedSessionYear").val()
+			+ "&sessionType=" + $("#selectedSessionType").val()
+			+ "&motionType=" + $("#selectedMotionType").val()
+			+ "&createdBy=" + $("#ugparam").val()
+			+ "&locale="+$("#moduleLocale").val();
+			showTabByIdAndUrl('details_tab','motion/determine_ordering_for_submission?'+parameters);
 		}
 		
 		function memberMotionsView() {
