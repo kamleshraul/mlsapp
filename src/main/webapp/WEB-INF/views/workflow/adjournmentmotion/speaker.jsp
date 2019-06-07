@@ -877,6 +877,9 @@
 			<form:hidden path="localizedActorName"/>
 			<form:hidden path="workflowDetailsId"/>
 			<form:hidden path="reply"/>
+			<form:hidden path="transferToDepartmentAccepted"/>
+			<form:hidden path="mlsBranchNotifiedOfTransfer"/>
+			<form:hidden path="reasonForLateReply"/>
 			<form:hidden path="rejectionReason"/>
 			<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 			<input type="hidden" name="status" id="status" value="${status }">
@@ -896,6 +899,16 @@
 			<input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
 			<input id="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
 			<input id="workflowdetails" name="workflowdetails" value="${workflowdetails}" type="hidden">
+			<c:if test="${not empty formattedReplyRequestedDate}">
+				<input type="hidden" id="replyRequestedDate" name="setReplyRequestedDate" class="datetimemask sText" value="${formattedReplyRequestedDate}"/>
+			</c:if>
+			<c:if test="${not empty formattedReplyReceivedDate}">
+				<input type="hidden" id="replyReceivedDate" name="setReplyReceivedDate" class="datetimemask sText" value="${formattedReplyReceivedDate}"/>
+			</c:if>
+			<c:if test="${not empty formattedLastReplyReceivingDate}">
+				<input type="hidden" id="lastDateOfReplyReceiving" name="setLastDateOfReplyReceiving" class="datemask sText" value="${formattedLastReplyReceivingDate}"/>
+			</c:if>
+			<input type="hidden" id="replyReceivedMode" name="replyReceivedMode" value="${domain.replyReceivedMode}"/>
 		</form:form>
 
 		<input id="ministrySelected" value="${ministrySelected }" type="hidden">

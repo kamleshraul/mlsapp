@@ -925,6 +925,9 @@
 			<input id="motionType" name= "motionType" type="hidden" value="${motionType}" />
 			<input id="oldInternalStatus" value="${internalStatus}" type="hidden">
 			<input id="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
+			<c:if test="${not empty formattedLastReplyReceivingDate}">
+				<input type="hidden" id="lastDateOfReplyReceiving" name="setLastDateOfReplyReceiving" class="datemask sText" value="${formattedLastReplyReceivingDate}"/>
+			</c:if>
 			<input type="hidden" id="replyReceivedMode" name="replyReceivedMode" value="${domain.replyReceivedMode}"/>
 		</form:form>
 
