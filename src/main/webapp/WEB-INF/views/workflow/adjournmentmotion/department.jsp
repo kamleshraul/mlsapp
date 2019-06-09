@@ -363,17 +363,18 @@
 	    });
 		
 	    /********Submit Click*********/
-		$('#submit').click(function(){			
+		$('#submit').click(function(){					
 			if($('#changeInternalStatus').val()=="-") {
 				$.prompt("Please select the action");
 				return false;
-			}
+			}			
 			$(".wysiwyg").each(function(){
 				var wysiwygVal=$(this).val().trim();
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});			
+			});		
+			//alert("Clicked here..");
 			$.prompt($('#submissionMsg').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){				        	
@@ -520,7 +521,7 @@
 			</p>
 			
 			<p>
-				<label class="small"><spring:message code="standalonemotion.isTransferable" text="is adjournment motion to be transfered?"/></label>
+				<label class="small"><spring:message code="adjournmentmotion.isTransferable" text="is adjournment motion to be transfered?"/></label>
 				<input type="checkbox" name="isTransferable" id="isTransferable" class="sCheck">
 			</p>
 				
@@ -811,7 +812,7 @@
 			
 			<c:if test="${workflowstatus!='COMPLETED'}">
 				<p>
-					<label class="wysiwyglabel"><spring:message code="adjournmentmotion.remarks" text="Remarks"/></label>
+					<label class="centerlabel"><spring:message code="adjournmentmotion.remarks" text="Remarks"/></label>
 					<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
 					<form:hidden path="remarksAboutDecision"/>
 				</p>	
@@ -871,6 +872,7 @@
 		<input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 		<input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+		<input id="submissionMsg" value="<spring:message code='adjournmentmotion.submitForReply' text='Do you want to submit for the reply of adjournment motion?'></spring:message>" type="hidden">
 		
 		<ul id="contextMenuItems" >
 			<li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>

@@ -557,7 +557,7 @@
 			</p>
 			
 			<p>
-				<label class="small"><spring:message code="standalonemotion.isTransferable" text="is adjournment motion to be transfered?"/></label>
+				<label class="small"><spring:message code="adjournmentmotion.isTransferable" text="is adjournment motion to be transfered?"/></label>
 				<input type="checkbox" name="isTransferable" id="isTransferable" class="sCheck">
 			</p>
 				
@@ -846,7 +846,7 @@
 			
 			<c:if test="${workflowstatus!='COMPLETED'}">
 				<p>
-					<label class="wysiwyglabel"><spring:message code="adjournmentmotion.remarks" text="Remarks"/></label>
+					<label class="centerlabel"><spring:message code="adjournmentmotion.remarks" text="Remarks"/></label>
 					<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
 					<form:hidden path="remarksAboutDecision"/>
 				</p>	
