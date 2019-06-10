@@ -787,11 +787,13 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 				if(operation!=null && !operation.isEmpty()){
 
 					if(operation.equals("workflowsubmit")){
-						if(domain.getReply() == null || domain.getReply().isEmpty()){
-							result.rejectValue("reply", "ReplyEmpty");
-						} else if(domain.getReply() == null || domain.getReply().isEmpty()){
-							result.rejectValue("reply", "ReplyEmpty");
-						}
+						if(domain.getTransferToDepartmentAccepted()==null || domain.getTransferToDepartmentAccepted().equals(false)) {
+							if(domain.getReply() == null || domain.getReply().isEmpty()){
+								result.rejectValue("reply", "ReplyEmpty");
+							} else if(domain.getReply() == null || domain.getReply().isEmpty()){
+								result.rejectValue("reply", "ReplyEmpty");
+							}
+						}						
 					}
 					
 					if(result.getFieldErrorCount("reply")>0){
