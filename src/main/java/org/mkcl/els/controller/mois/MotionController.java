@@ -1997,12 +1997,19 @@ public class MotionController extends GenericController<Motion>{
 							if(domain.getSubmissionDate()==null){
 								domain.setSubmissionDate(new Date());
 							}
-							/**** Supporting Members who have approved request are included ****/
-							List<SupportingMember> supportingMembers=new ArrayList<SupportingMember>();
-							Status timeoutStatus=Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, domain.getLocale());
-							if(domain.getSupportingMembers()!=null){
-								if(!domain.getSupportingMembers().isEmpty()){
-									for(SupportingMember i:domain.getSupportingMembers()){
+							/**** Update Timed Out Supporting Members (can be disabled for starting hour of submission start time using custom parameter) ****/
+							Status timeoutStatus = Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, domain.getLocale());					
+							CustomParameter csptTimeoutOfSupportingMembersDisabled = CustomParameter.findByName(CustomParameter.class, "MOIS_SUPPORTINGMEMBERS_TIMEOUT_DISABLED", "");
+							if(csptTimeoutOfSupportingMembersDisabled!=null 
+									&& csptTimeoutOfSupportingMembersDisabled.getValue()!=null
+									&& csptTimeoutOfSupportingMembersDisabled.getValue().equals("YES")) {
+								System.out.println("Timeout of Pending/Unsent Supporting Members Disabled");
+							} else {
+								/**** Supporting Members who have approved request are included ****/
+								List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
+								List<SupportingMember> existingSupportingMembers = domain.getSupportingMembers();
+								if(existingSupportingMembers != null && ! existingSupportingMembers.isEmpty()) {
+									for(SupportingMember i: existingSupportingMembers){
 										if(i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)||
 												i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_PENDING)){
 											/**** Update Supporting Member ****/
@@ -2030,14 +2037,16 @@ public class MotionController extends GenericController<Motion>{
 											supportingMembers.add(i);
 										}									
 									}
-									domain.setSupportingMembers(supportingMembers);
+									domain.setSupportingMembers(supportingMembers);								
 								}
-							}
-							/**** Status,Internal status and recommendation status is set to complete ****/
-							Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, domain.getLocale());
-							domain.setStatus(newstatus);
-							domain.setInternalStatus(newstatus);
-							domain.setRecommendationStatus(newstatus);
+								//end pending supporting member tasks if removed manually by member
+								Motion.updateTimeoutSupportingMemberTasksForDevice(domain.getId(), new Date());
+							}							
+							/**** Status,Internal status and recommendation status is set to submit ****/
+							Status submitStatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, domain.getLocale());
+							domain.setStatus(submitStatus);
+							domain.setInternalStatus(submitStatus);
+							domain.setRecommendationStatus(submitStatus);
 						}
 					}else{
 						if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
@@ -2853,17 +2862,23 @@ public class MotionController extends GenericController<Motion>{
 //						}
 //					}
 					
-					
+					Status submitStatus = Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, domain.getLocale());
+					CustomParameter csptTimeoutOfSupportingMembersDisabled = CustomParameter.findByName(CustomParameter.class, "MOIS_SUPPORTINGMEMBERS_TIMEOUT_DISABLED", "");
+					Status timeoutStatus = Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
 					for(String i : items) {
 						Long id = Long.parseLong(i);
 						Motion motion = Motion.findById(Motion.class, id);
 
-						/**** Update Supporting Member ****/
-						List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
-						Status timeoutStatus=Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
-						if(motion.getSupportingMembers() != null) {
-							if(! motion.getSupportingMembers().isEmpty()) {
-								for(SupportingMember sm : motion.getSupportingMembers()) {
+						/**** Update Timed Out Supporting Members (can be disabled for starting hour of submission start time using custom parameter) ****/						
+						if(csptTimeoutOfSupportingMembersDisabled!=null 
+								&& csptTimeoutOfSupportingMembersDisabled.getValue()!=null
+								&& csptTimeoutOfSupportingMembersDisabled.getValue().equals("YES")) {
+							System.out.println("Timeout of Pending/Unsent Supporting Members Disabled");
+						} else {
+							List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
+							List<SupportingMember> existingSupportingMembers = motion.getSupportingMembers();
+							if(existingSupportingMembers != null && ! existingSupportingMembers.isEmpty()) {
+								for(SupportingMember sm : existingSupportingMembers) {
 									if(sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)||
 											sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_PENDING)){
 										/**** Update Supporting Member ****/
@@ -2871,7 +2886,7 @@ public class MotionController extends GenericController<Motion>{
 										sm.setApprovalDate(new Date());	
 										sm.setApprovedText(motion.getDetails());
 										sm.setApprovedSubject(motion.getSubject());
-										sm.setApprovalType("ONLINE");
+										sm.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_ONLINE);
 										/**** Update Workflow Details ****/
 										String strWorkflowdetails=sm.getWorkflowDetailsId();
 										if(strWorkflowdetails!=null&&!strWorkflowdetails.isEmpty()){
@@ -2891,13 +2906,12 @@ public class MotionController extends GenericController<Motion>{
 								}
 								motion.setSupportingMembers(supportingMembers);
 							}
-						}
+						}						
 
 						/**** Update Status(es) ****/
-						Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, motion.getLocale());
-						motion.setStatus(newstatus);
-						motion.setInternalStatus(newstatus);
-						motion.setRecommendationStatus(newstatus);
+						motion.setStatus(submitStatus);
+						motion.setInternalStatus(submitStatus);
+						motion.setRecommendationStatus(submitStatus);
 
 						/**** Edited On,Edited By and Edited As is set ****/
 						motion.setSubmissionDate(new Date());

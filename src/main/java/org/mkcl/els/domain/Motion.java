@@ -371,9 +371,11 @@ import org.springframework.transaction.annotation.Transactional;
 					
 					if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
             			this.setNumber(Motion.getCallingAttentionCurrentNumberLowerHouse() + 1);
+            			this.setSubmissionDate(new Date());
             			Motion.updateCallingAttentionCurrentNumberLowerHouse(Motion.getCallingAttentionCurrentNumberLowerHouse() + 1);
             		}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
             			this.setNumber(Motion.getCallingAttentionCurrentNumberUpperHouse() + 1);
+            			this.setSubmissionDate(new Date());
             			Motion.updateCallingAttentionCurrentNumberUpperHouse(Motion.getCallingAttentionCurrentNumberUpperHouse() + 1);
             		}
 					addMotionDraft();
@@ -518,9 +520,11 @@ import org.springframework.transaction.annotation.Transactional;
 					
 					if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
             			this.setNumber(Motion.getCallingAttentionCurrentNumberLowerHouse() + 1);
+            			this.setSubmissionDate(new Date());
             			Motion.updateCallingAttentionCurrentNumberLowerHouse(Motion.getCallingAttentionCurrentNumberLowerHouse() + 1);
             		}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
             			this.setNumber(Motion.getCallingAttentionCurrentNumberUpperHouse() + 1);
+            			this.setSubmissionDate(new Date());
             			Motion.updateCallingAttentionCurrentNumberUpperHouse(Motion.getCallingAttentionCurrentNumberUpperHouse() + 1);
             		}
 					addMotionDraft();
@@ -2619,4 +2623,8 @@ import org.springframework.transaction.annotation.Transactional;
     		this.simpleMerge();
     	}		
     }
+    
+    public static int updateTimeoutSupportingMemberTasksForDevice(final Long deviceId, final Date submissionDate) {
+		return getMotionRepository().updateTimeoutSupportingMemberTasksForDevice(deviceId, submissionDate);
+	}
 }
