@@ -80,6 +80,10 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
     /** The adjournment motion. */
     @ManyToOne(fetch=FetchType.LAZY)
     private AdjournmentMotion adjournmentMotion;
+    
+    /** The Rule Suspension motion. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    private RulesSuspensionMotion rulesSuspensionMotion;
 
 	@Autowired
     private transient ClubbedEntityRepository clubbedEntityRepository;
@@ -228,6 +232,15 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
     public DeviceType getDeviceType() {
         return deviceType;
     }    
+    
+	public RulesSuspensionMotion getRulesSuspensionMotion() {
+		return rulesSuspensionMotion;
+	}
+
+	public void setRulesSuspensionMotion(RulesSuspensionMotion rulesSuspensionMotion) {
+		this.rulesSuspensionMotion = rulesSuspensionMotion;
+	}
+    
     
     /**** Search questions for clubbing 
      * @throws ELSException ****/
@@ -444,4 +457,12 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
 			final Map<String, String[]> requestMap) {
 		return getClubbedEntityRepository().fullTextSearchClubbing(param, motion, start, noOfRecords, locale, requestMap);
 	}
+
+	public static List<MotionSearchVO> fullTextSearchClubbing(String param, 
+			RulesSuspensionMotion motion, 
+			int start, int noOfRecords, String locale, Map<String, String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchClubbing(param, motion, start, noOfRecords, locale, requestMap);
+	}
+
+    
 }

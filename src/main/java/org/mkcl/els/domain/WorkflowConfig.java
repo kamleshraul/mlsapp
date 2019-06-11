@@ -529,8 +529,26 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 					workflowName, level, locale);
 	}
 	/****************************** Prashnavali ***************************/
-
+	/****************************** RulesSuspension Motion 
+	 * @throws ELSException *********************/
+	public static List<Reference> findRulesSuspensionMotionActorsVO(
+			RulesSuspensionMotion motion, Status internalStatus,
+			UserGroup userGroup, int level, String locale) throws ELSException {
+		return getWorkflowConfigRepository().findRulesSuspensionMotionActors(motion, internalStatus, userGroup, level, locale);
+	}
 	
+	public static Reference findActorVOAtFirstLevel(final RulesSuspensionMotion rulesSuspensionMotion, final Workflow processWorkflow, final String locale) throws ELSException {
+		return getWorkflowConfigRepository().findActorVOAtFirstLevel(rulesSuspensionMotion, processWorkflow, locale);
+	}
+	
+	public static Reference findActorVOAtGivenLevel(final RulesSuspensionMotion rulesSuspensionMotion, final Workflow processWorkflow, final UserGroupType userGroupType, final int level, final String locale) throws ELSException {
+		return getWorkflowConfigRepository().findActorVOAtGivenLevel(rulesSuspensionMotion, processWorkflow, userGroupType, level, locale);
+	}
+	
+	public static WorkflowConfig getLatest(RulesSuspensionMotion rulesSuspensionMotion, String internalStatus, String locale) {
+		return getWorkflowConfigRepository().getLatest(rulesSuspensionMotion, internalStatus, locale);
+	}
+	/****************************** RulesSuspension Motion *********************/
 
 
 }

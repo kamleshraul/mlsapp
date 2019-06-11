@@ -180,6 +180,11 @@ public class UserGroup extends BaseDomain implements Serializable {
 		return getUserGroupRepository().findProprietyPointActor(motion, userGroupType, level, locale);
 	}
 	
+	public static Reference findRulesSuspensionMotionActor(RulesSuspensionMotion motion, String userGroupType, String level,
+			String locale) throws ELSException {
+		return getUserGroupRepository().findRulesSuspensionMotionActor(motion, userGroupType, level, locale);
+	}
+	
 	public static Map<String, String> findParametersByUserGroup(UserGroup userGroup) {
 		return getUserGroupRepository().findParametersByUserGroup(userGroup);
 	}
@@ -196,6 +201,7 @@ public class UserGroup extends BaseDomain implements Serializable {
 	public static UserGroup findActive(Credential credential, Date onDate, String locale) {
 		return getUserGroupRepository().findActive(credential, onDate, locale);
 	}
+	
 	
 	public static boolean isActiveInSession(final Session session,
 			final UserGroup userGroup,
@@ -347,6 +353,8 @@ public class UserGroup extends BaseDomain implements Serializable {
 
 	public void setDrafts(List<UserGroupDraft> drafts) {
 		this.drafts = drafts;
-	}	
+	}
+
+
 	
 }
