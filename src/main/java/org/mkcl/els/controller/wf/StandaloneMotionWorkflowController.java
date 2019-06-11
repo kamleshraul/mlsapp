@@ -1973,6 +1973,12 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 							bulkApprovalVO.setLastRemark("-");
 						}
 						bulkApprovalVO.setLastDecision(question.getInternalStatus().getName());
+						Map<String, String[]> requestMap=new HashMap<String, String[]>();			
+						requestMap.put("motionId",new String[]{String.valueOf(question.getId())});
+						requestMap.put("locale",new String[]{question.getLocale()});
+						List result=Query.findReport("STANDALONE_GET_REVISION", requestMap);
+						bulkApprovalVO.setRevisions(result);
+
 						bulkApprovalVO.setLastRemarkBy(question.getEditedAs());	
 						bulkApprovalVO.setCurrentStatus(i.getStatus());
 						bulkapprovals.add(bulkApprovalVO);
