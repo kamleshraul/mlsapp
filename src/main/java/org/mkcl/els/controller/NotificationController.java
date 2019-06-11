@@ -25,6 +25,7 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Session;
@@ -270,6 +271,16 @@ public class NotificationController extends GenericController<Notification> {
 		templateParameters.put("requestedField", new String[]{requestedField});
 		templateParameters.put("departmentUserName", new String[]{departmentUserName});
 		getNotificationService().sendNotificationWithTitleUsingTemplate(question.getType().getType().toUpperCase() + "_REQUEST_FOR_DEPARTMENT_PROCESSING", templateParameters, locale);
+	}
+	
+	public static void sendDepartmentProcessNotificationForMotion(final Motion motion, final String departmentUserName, final String copyType, final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("deviceNumber", new String[]{FormaterUtil.formatNumberNoGrouping(motion.getNumber(), locale)});
+		templateParameters.put("sessionId", new String[]{motion.getSession().getId().toString()});
+		templateParameters.put("requestedField", new String[]{copyType});
+		templateParameters.put("departmentUserName", new String[]{departmentUserName});
+		getNotificationService().sendNotificationWithTitleUsingTemplate(motion.getType().getType().toUpperCase() + "_REQUEST_FOR_DEPARTMENT_PROCESSING", templateParameters, locale);
 	}
 	
 	public static void sendReverseClubbingNotification(final String houseTypeName, final String parentDeviceNumber, final String childDeviceNumber, final String parentDeviceTypeName, final String childDeviceTypeName, final String parentSubdepartmentName, final String locale) {
