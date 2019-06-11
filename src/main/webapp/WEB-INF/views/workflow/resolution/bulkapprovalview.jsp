@@ -111,7 +111,7 @@
 					<th style="min-width:130px;text-align:center;"><spring:message code="resolution.member" text="Member"></spring:message></th>
 					<th style="min-width:350px;text-align:center;"><spring:message code="resolution.subject" text="Subject"></spring:message></th>
 					<th style="min-width:70px;text-align:center;"><spring:message code="resolution.lastdecision" text="Last Decision"></spring:message></th>
-					<th style="min-width:120px;text-align:center;"><spring:message code="resolution.lastremark" text="Last Remark"></spring:message></th>
+					<%-- <th style="min-width:120px;text-align:center;"><spring:message code="resolution.lastremark" text="Last Remark"></spring:message></th> --%>
 				</tr>			
 				<c:forEach items="${bulkapprovals}" var="i">
 					<tr>
@@ -125,11 +125,30 @@
 								<a href="#" class="readonly" id="edit${i.id}"><spring:message code="resolution.edit" text="Edit"></spring:message></a></td>
 								</c:otherwise>
 							</c:choose>
-								<td style="min-width:50px;text-align:center;">${i.deviceNumber}</td>
+								<%-- <td style="min-width:50px;text-align:center;">${i.deviceNumber}</td> --%>
+								<td>
+									<span>
+											${i.deviceNumber} 
+										</span>
+									
+										<br/> 
+										${i.member}
+										<br><br>
+										<%-- <spring:message code="resolution.lastdecision" text="Last Decision"/> : ${i.lastDecision}
+										<br>
+										<spring:message code="resolution.lastremarkby" text="Last Remark By"/> ${i.lastRemarkBy} : ${i.lastRemark} --%>
+										<c:forEach items="${i.revisions}" var="j">
+											<c:if test="${not empty j[7]}">
+												<b>${j[0]} : ${j[6]} </b> <spring:message code="resolution.remarks" text="Remark"/>: ${j[7]}
+												<br>
+											</c:if>
+										</c:forEach>
+								</td>
 								<td style="min-width:130px;">${i.member}</td>
 								<td style="text-align:justify;min-width:350px;">${i.subject}</td>
 								<td style="min-width:70px;text-align:justify;">${i.lastDecision}</td>	
-								<td style="text-align:justify;min-width:120px;">${i.lastRemarkBy} : ${i.lastRemark}</td>
+								<%-- <td style="text-align:justify;min-width:120px;">${i.lastRemarkBy} : ${i.lastRemark}</td> --%>
+								
 					</tr>
 				</c:forEach>
 			</table>

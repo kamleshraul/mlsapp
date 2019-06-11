@@ -105,13 +105,13 @@
 						<th></th>
 					</c:if>
 					<c:if test="${workflowSubType!='request_to_supporting_member'}">
-						<th style="min-width:130px;"><spring:message code="question.number" text="Number"></spring:message></th>
+						<th style="min-width:200px;"><spring:message code="question.number" text="Number"></spring:message></th>
 						<%-- <th style="min-width:130px;text-align:center;"><spring:message code="question.member" text="Member"></spring:message></th> --%>
 						<%-- <th style="min-width:150px;text-align:center;"><spring:message code="question.subject" text="Subject"></spring:message></th> --%>
-						<th style="min-width:200px;text-align:center;"><spring:message code="question.reason" text="Reason"></spring:message></th>
+						<th style="min-width:450px;text-align:center;"><spring:message code="question.reason" text="Reason"></spring:message></th>
 						<%-- <th style="min-width:200px;text-align:center;"><spring:message code="question.briefExplanation" text="Brief Explanation"></spring:message></th> --%>	
 						<th style="min-width:70px;text-align:center;"><spring:message code="question.lastremark" text="Last Remark"></spring:message></th>
-						<th style="min-width:120px;text-align:center;"><spring:message code="question.lastdecision" text="Last Decision"></spring:message></th>
+						<%-- <th style="min-width:120px;text-align:center;"><spring:message code="question.lastdecision" text="Last Decision"></spring:message></th> --%>
 					</c:if>									
 				</tr>			
 				<c:forEach items="${bulkapprovals}" var="i">
@@ -146,7 +146,25 @@
 								</c:otherwise>
 							</c:choose>
 															
-								<td style="min-width:130px;text-align:justify;">${i.deviceNumber} <br>  ${i.member}</td>
+						<%-- 		<td style="min-width:130px;text-align:justify;">${i.deviceNumber} <br>  ${i.member}</td> --%>
+						<td>
+									<span>
+											${i.deviceNumber} 
+										</span>
+									
+										<br/> 
+										${i.member}
+										<br><br>
+										<%-- <spring:message code="resolution.lastdecision" text="Last Decision"/> : ${i.lastDecision}
+										<br>
+										<spring:message code="resolution.lastremarkby" text="Last Remark By"/> ${i.lastRemarkBy} : ${i.lastRemark} --%>
+										<c:forEach items="${i.revisions}" var="j">
+											<c:if test="${not empty j[6]}">
+												<b>${j[1]} : ${j[3]} </b> <spring:message code="resolution.remarks" text="Remark"/>: ${j[6]}
+												<br>
+											</c:if>
+										</c:forEach>
+								</td>
 								<%-- <td style="min-width:130px;">${i.member}</td> --%>
 								<%-- <td style="text-align:justify;min-width:150px;">${i.subject}</td> --%>
 								<td style="text-align:justify;min-width:200px;">
@@ -156,7 +174,7 @@
 								</td>
 								<%-- <td style="text-align:justify;min-width:200px;">${i.briefExpanation}</td> --%>
 								<td style="min-width:70px;text-align:justify;">${i.lastDecision}</td>
-								<td style="text-align:justify;min-width:120px;">${i.lastRemarkBy} :${i.lastRemark} </td>
+								<%-- <td style="text-align:justify;min-width:120px;">${i.lastRemarkBy} :${i.lastRemark} </td> --%>
 						</c:otherwise>
 						</c:choose>									
 					</tr>
