@@ -14,6 +14,7 @@ import org.mkcl.els.domain.EventMotion;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.RulesSuspensionMotion;
 import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.User;
@@ -55,6 +56,9 @@ public class WorkflowService implements IWorkflowService{
  		        supportingMembers = motion.getSupportingMembers();
         	}else if(strDeviceType.startsWith(ApplicationConstants.ADJOURNMENT_MOTION)){
         		AdjournmentMotion motion = AdjournmentMotion.findById(AdjournmentMotion.class,Long.parseLong(strDeviceId));
+ 		        supportingMembers = motion.getSupportingMembers();
+        	}else if(strDeviceType.startsWith(ApplicationConstants.RULESSUSPENSION_MOTION)){
+        		RulesSuspensionMotion motion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class,Long.parseLong(strDeviceId));
  		        supportingMembers = motion.getSupportingMembers();
         	}else{
 		        Motion motion=Motion.findById(Motion.class,Long.parseLong(strDeviceId));
