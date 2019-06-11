@@ -186,6 +186,13 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	@Column(length=30000)
 	private String reply;
 	
+	/**** Reference Number *****/
+	private String referenceNumber;
+	
+	/**** Referred Number ****/
+	private String referredNumber;
+	
+	
 	
 	@Autowired
     private transient WorkflowDetailsRepository workflowDetailsRepository;
@@ -621,9 +628,20 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 			final String processDefinitionKey, 
 			final Workflow processWorkflow, 
 			final UserGroupType userGroupType, 
-			final int level, 
+			final int level,
 			final String locale) throws ELSException {
 		return getRepository().startProcessAtGivenLevel(motion, processDefinitionKey, processWorkflow, userGroupType, level, locale);
+	}
+	
+	public static WorkflowDetails startProcessAtGivenLevel(final Motion motion, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final UserGroupType userGroupType, 
+			final int level,
+			final String referenceNumber,
+			final String referredNumber,
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(motion, processDefinitionKey, processWorkflow, userGroupType, level, referenceNumber, referredNumber, locale);
 	}
 	
 	public static WorkflowDetails startProcess(final Motion motion, 
@@ -663,6 +681,11 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 			final String currentDeviceTypeWorkflowType,
 			final String level) throws ELSException {
 		return getRepository().create(motion, newtask, usergroupType, currentDeviceTypeWorkflowType, level);
+	}
+	
+	public static WorkflowDetails create(Motion motion, Task newtask, UserGroupType usergroupType,
+			String currentDeviceTypeWorkflowType, String level, String referenceNumber, String referredNumber) throws ELSException {
+		return getRepository().create(motion, newtask, usergroupType, currentDeviceTypeWorkflowType, level, referenceNumber, referredNumber);
 	}
 	/********************Motion*********************/	
 	
@@ -989,13 +1012,50 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return getRepository().findDepartmentAssemblyDeviceCountsByDeviceTypeFromWorkflowDetails(strHouseType, strSessionType, strSessionYear, strDeviceType, strSubdeartment, strStatus, strLocale);
 	}
 	
-	public static Long findRevisedMotionTextWorkflowCount(Motion motion, Status resendRevisedMotionText,
+	public static Long findRevisedMotionTextWorkflowCount(Motion motion, List<String> resendStatus,
 			WorkflowDetails workflowDetails) {
-		return getRepository().findRevisedMotionTextWorkflowCount(motion, resendRevisedMotionText, workflowDetails);
+		return getRepository().findRevisedMotionTextWorkflowCount(motion, resendStatus, workflowDetails);
 	}
 	
 	public static List<WorkflowDetails> findPendingWorkflowDetails(Motion motion, String workflowType) throws ELSException {
 		return getRepository().findPendingWorkflowDetails(motion, workflowType);
+	}
+	
+	public static WorkflowDetails startProcessAtGivenLevel(RulesSuspensionMotion rulesSuspensionMotion, String approvalWorkflow,
+			Workflow workflow, UserGroupType userGroupType, Integer level, String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(rulesSuspensionMotion, approvalWorkflow, workflow, userGroupType, level, locale);
+
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(RulesSuspensionMotion rulesSuspensionMotion) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(rulesSuspensionMotion);
+	}
+	
+	public static WorkflowDetails create(RulesSuspensionMotion rulesSuspensionMotion, Task task,
+			UserGroupType usergroupType, String workflowType, String assigneelevel) throws ELSException {
+		return getRepository().create(rulesSuspensionMotion, task, usergroupType, workflowType, assigneelevel);
+	}
+	
+	public static List<WorkflowDetails> create(RulesSuspensionMotion domain, List<Task> tasks,
+			String supportingMemberWorkflow, String assigneeLevel) throws ParseException, ELSException {
+		return getRepository().create(domain, tasks, supportingMemberWorkflow, assigneeLevel);
+	}
+	
+	public static List<WorkflowDetails> findAllForRulesSuspensionMotions(String strHouseType, String strSessionType,
+			String strSessionYear, String strMotionType, String mytaskPending, String strWorkflowSubType,
+			Date ruleSuspensionDate, String assignee, String strItemsCount, String strLocale) throws ELSException {
+		return getRepository().findAllForRulesSuspensionMotions(strHouseType, strSessionType, strSessionYear, strMotionType,
+				mytaskPending, strWorkflowSubType, ruleSuspensionDate, assignee, strItemsCount, strLocale);
+	}
+	
+	public static WorkflowDetails startProcess(RulesSuspensionMotion domain, String approvalWorkflow,
+			Workflow admitDueToReverseClubbingWorkflow, String locale) throws ELSException {
+		return getRepository().startProcess(domain, approvalWorkflow, admitDueToReverseClubbingWorkflow, locale);
+		
+	}
+	
+	public static WorkflowDetails findByDeviceAssignee(Motion motion, WorkflowDetails workflowDetails, String strUserGroupType, String locale) {
+		return getRepository().findByDeviceAssignee(motion, workflowDetails, strUserGroupType, locale);
 	}
 	// Getters and Setters
 	public String getProcessId() {
@@ -1470,4 +1530,20 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		this.reply = reply;
 	}
 
+	public String getReferenceNumber() {
+		return referenceNumber;
+	}
+
+	public void setReferenceNumber(String referenceNumber) {
+		this.referenceNumber = referenceNumber;
+	}
+
+	public String getReferredNumber() {
+		return referredNumber;
+	}
+
+	public void setReferredNumber(String referredNumber) {
+		this.referredNumber = referredNumber;
+	}
+		
 }
