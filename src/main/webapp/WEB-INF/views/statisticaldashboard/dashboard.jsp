@@ -91,10 +91,10 @@
       <!-- End Navbar -->
       <div class="content">
         <div class="container-fluid">
-	        <div class="row" style="background: rgba(255,255,255,0.3)">
-       	   		<embed src="./assets/img/mhv.svg?v=30810" type="" />
+	        <div class="row" style="background: rgba(255,255,255,0.8)">
+       	   		<embed src="./assets/img/mhv.svg?v=30812" type="" />
 	        	
-	        	<div id="districtwiseMemberList" class="row" style="background: rgba(255,255,255,0.3); ">
+	        	<div id="districtwiseMemberList" class="row" style="background: rgba(255,255,255,0.8); ">
 	        	</div>
 	        </div>
         </div>

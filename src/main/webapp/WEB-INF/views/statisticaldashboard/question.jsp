@@ -1,3 +1,4 @@
+<%@ include file="/common/taglibs.jsp" %>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,7 +6,7 @@
   <meta charset="utf-8" />
   <link rel="apple-touch-icon" sizes="76x76" href="./../assets/img/apple-icon.png">
   <link rel="icon" type="image/png" href="./../assets/img/favicon.png">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1; charset=UTF-8" />
   <title>
     Dashboard For MLS
   </title>
@@ -118,109 +119,121 @@
               </div>
             </div>
           <div class="row">
-            <div class="col-lg-3 col-md-6 col-sm-6">
-              <div class="card card-stats">
-                <div class="card-header card-header-warning card-header-icon">
-                  <div class="card-icon">
-                    <i class="material-icons">content_copy</i>
-                  </div>
-                  <p class="card-category">Used Space</p>
-                  <h3 class="card-title">49/50
-                    <small>GB</small>
-                  </h3>
-                </div>
-                <div class="card-footer">
-                  <div class="stats">
-                    <i class="material-icons text-danger">warning</i>
-                    <a href="#pablo">Get More Space...</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-6">
-              <div class="card card-stats">
-                <div class="card-header card-header-success card-header-icon">
-                  <div class="card-icon">
-                    <i class="material-icons">store</i>
-                  </div>
-                  <p class="card-category">Revenue</p>
-                  <h3 class="card-title">$34,245</h3>
-                </div>
-                <div class="card-footer">
-                  <div class="stats">
-                    <i class="material-icons">date_range</i> Last 24 Hours
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-6">
-              <div class="card card-stats">
-                <div class="card-header card-header-danger card-header-icon">
-                  <div class="card-icon">
-                    <i class="material-icons">info_outline</i>
-                  </div>
-                  <p class="card-category">Fixed Issues</p>
-                  <h3 class="card-title">75</h3>
-                </div>
-                <div class="card-footer">
-                  <div class="stats">
-                    <i class="material-icons">local_offer</i> Tracked from Github
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-6">
-              <div class="card card-stats">
-                <div class="card-header card-header-danger card-header-icon">
-                  <div class="card-icon">
-                    <i class="material-icons">info_outline</i>
-                  </div>
-                  <p class="card-category">Fixed Issues</p>
-                  <h3 class="card-title">75</h3>
-                </div>
-                <div class="card-footer">
-                  <div class="stats">
-                    <i class="material-icons">local_offer</i> Tracked from Github
-                  </div>
-                </div>
-              </div>
-            </div>
+
           </div>
           <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-8">
               <div class="card card-chart">
-                <div class="card-header card-header-success">
+                <div class="card-header bg-light">
                   <canvas id="chart-area"></canvas>
                 </div>
                 <div class="card-body">
-                  <h4 class="card-title">Daily Sales</h4>
-                  <p class="card-category">
-                    <span class="text-success"><i class="fa fa-long-arrow-up"></i> 55% </span> increase in today sales.</p>
+                  <h4 class="card-title">PartyWise Submission Statistics</h4>
+                  <!-- <p class="card-category">
+                    <span class="text-success"><i class="fa fa-long-arrow-up"></i> 55% </span> increase in today sales.</p> -->
                 </div>
                 <div class="card-footer">
-                  <div class="stats">
+                 <!--  <div class="stats">
                     <i class="material-icons">access_time</i> updated 4 minutes ago
-                  </div>
+                  </div> -->
                 </div>
               </div>
             </div>
-            <div class="col-md-4">
+             <div class="col-md-4">
+             	 <div class="row">
+             	 	<div>&nbsp;<br></div>
+             	 </div>
+	            <div class="row">
+		            <div class="col-lg-6 col-md-6 col-sm-6">
+		              <div class="card card-stats">
+		                <div class="card-header card-header-warning">
+		<!--                   <div class="card-icon">
+		                    <i class="material-icons">Submitted</i>
+		                  </div> -->
+		                  <p class="card-category" style="color:white"><spring:message code="device.submitted" text="submitted Count"/></p>
+		                  <h3 class="card-title" id="submittedCount">
+		                   
+		                  </h3>
+		                </div>
+		               <!--  <div class="card-footer">
+		                  <div class="stats">
+		                    <i class="material-icons text-danger">warning</i>
+		                  </div>
+		                </div> -->
+		                
+		              </div>
+		            </div>
+		            <div class="col-lg-6 col-md-6 col-sm-6">
+		              <div class="card card-stats">
+		                <div class="card-header card-header-success">
+		                 <!--  <div class="card-icon">
+		                    <i class="material-icons">Admitted</i>
+		                  </div> -->
+		                  <p class="card-category" style="color:white"><spring:message code="device.admitted" text="Admitted Count"/></p>
+		                  <h3 class="card-title" id="admittedCount"></h3>
+		                </div>
+		                <!-- <div class="card-footer">
+		                  <div class="stats">
+		                    <i class="material-icons">date_range</i> Last 24 Hours
+		                  </div>
+		                </div> -->
+		              </div>
+		            </div>
+	            </div>
+	            <div class="row">
+		            <div class="col-lg-6 col-md-6 col-sm-6">
+		              <div class="card card-stats">
+		                <div class="card-header card-header-danger">
+		                  <!-- <div class="card-icon">
+		                    <i class="material-icons">Rejected</i>
+		                  </div> -->
+		                  <p class="card-category" style="color:white"><spring:message code="device.rejected" text="Rejected Count"/></p>
+		                  <h3 class="card-title" id="rejectedCount"></h3>
+		                </div>
+		               <!--  <div class="card-footer">
+		                  <div class="stats">
+		                    <i class="material-icons">local_offer</i> Tracked from Github
+		                  </div>
+		                </div> -->
+		              </div>
+		            </div>
+		            <div class="col-lg-6 col-md-6 col-sm-6">
+		              <div class="card card-stats">
+		                <div class="card-header card-header-primary">
+		                  <!-- <div class="card-icon">
+		                    <i class="material-icons">U</i>
+		                  </div> -->
+		                  <p class="card-category" style="color:white"><spring:message code="device.unstarredAdmit" text="Unstarred Admit Count"/></p>
+		                  <h3 class="card-title" id="unstarredCount"></h3>
+		                </div>
+		               <!--  <div class="card-footer">
+		                  <div class="stats">
+		                    <i class="material-icons">local_offer</i> Tracked from Github
+		                  </div>
+		                </div> -->
+		              </div>
+		            </div>
+	            </div>
+	         </div>
+            </div>
+            <div class="row">
+             <div class="col-md-12">
               <div class="card card-chart">
-                <div class="card-header card-header-warning">
-                  <div class="ct-chart" id="websiteViewsChart"></div>
+                <div class="card-header" >
+                   <canvas id="bar-chart-area"></canvas>
                 </div>
                 <div class="card-body">
-                  <h4 class="card-title">Email Subscriptions</h4>
-                  <p class="card-category">Last Campaign Performance</p>
+                  <h4 class="card-title">Ministry wise Count</h4>
+                  <!-- <p class="card-category">Last Campaign Performance</p> -->
                 </div>
                 <div class="card-footer">
-                  <div class="stats">
+                  <!-- <div class="stats">
                     <i class="material-icons">access_time</i> campaign sent 2 days ago
-                  </div>
+                  </div> -->
                 </div>
               </div>
-            </div>
-            <div class="col-md-4">
+            </div> 
+<!--             <div class="col-md-4">
               <div class="card card-chart">
                 <div class="card-header card-header-danger">
                   <div class="ct-chart" id="completedTasksChart"></div>
@@ -235,17 +248,17 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
           <div class="row">
             <div class="col-lg-12 col-md-12">
               <div class="card">
                 <div class="card-header card-header-warning">
                   <h4 class="card-title">Memberwise Report</h4>
-                  <p class="card-category">New employees on 15th September, 2016</p>
+                  <!-- <p class="card-category">New employees on 15th September, 2016</p> -->
                 </div>
                 <div class="card-body table-responsive" >
-                	<table class="table table-hover">
+                	<table class="table table-hover" id="memberTable">
 	                    <thead class="text-warning">
 	                      <th>ID</th>
 	                      <th>Member Name</th>
@@ -519,6 +532,9 @@
 
         });
         $("#search").click(function(){
+        	 loadPartyWiseDetails($("#selectedSession").val());
+             loadMinistryWiseDetails($("#selectedSession").val());
+             loadDeviceDetails($("#selectedSession").val(),$("#deviceType").val())
     		url = "?house="+$("#selectedHouseType").val()
     				+"&session="+$("#selectedSession").val()
     		+"&deviceType="+$("#deviceType").val()
@@ -544,6 +560,8 @@
 
   			}
   			$("#membersSessionwise").html(text);
+  			$('#memberTable').DataTable();
+  		  	$('.dataTables_length').addClass('bs-select');
     		});
         });
       });
@@ -560,10 +578,11 @@
   </script>
   <script>
     $(document).ready(function() {
+    	
       // Javascript method's body can be found in assets/js/demos.js
       md.initDashboardPageCharts();
       loadHouseTypes();
-      loadPartyWiseDetails();
+     
     });
     
     function loadHouseTypes(){
@@ -590,55 +609,132 @@
     	});
     }
     
-    function loadPartyWiseDetails(){
+    function getRandomColor() {
+    	  var letters = '0123456789ABCDEF';
+    	  var color = '#';
+    	  for (var i = 0; i < 6; i++) {
+    	    color += letters[Math.floor(Math.random() * 16)];
+    	  }
+    	  return color;
+    }
+    
+    function loadDeviceDetails(sessionId, deviceTypeId){
+    	$.get("../statisticaldashboard/loadDeviceDetails?session="+sessionId+"&deviceType="+ deviceTypeId,function(data){
+    		if(data!=null && data!=''){
+    			/* for(var i=0;i<data.length;i++){
+    				
+    			} */
+    			$("#submittedCount").html(data[0].value);
+    			$("#admittedCount").html(data[0].name);
+    			$("#rejectedCount").html(data[0].formattedNumber);
+    			$("#unstarredCount").html(data[0].formattedOrder);
+    		}
+    		//$("#selectedSession").html(text);
+    	});
+    }
+    
+    function loadPartyWiseDetails(sessionId){
     	var pieLabels = [];
 	    var pieData = [];
-    	$.get("../statisticaldashboard/loadPartyDetails",function(data){
+	    var pieBackgroundColor= [];
+    	$.get("../statisticaldashboard/loadPartyDetails?session="+sessionId,function(data){
     		if(data!=null && data!=''){
     			for(var i=0;i<data.length;i++){
     				pieLabels.push(data[i].name);
-    				pieData.push(data[i].id)
+    				pieData.push(data[i].id);
+    				pieBackgroundColor.push(getRandomColor());
     			}
-    			
     			var config = {
     					type: 'pie',
     					data: {
     						datasets: [{
     							data: pieData,
-    							backgroundColor: [
-    								window.chartColors.red,
-    								window.chartColors.orange,
-    								window.chartColors.yellow,
-    								window.chartColors.green,
-    								window.chartColors.blue,
-    								window.chartColors.pink,
-    							],
+    							backgroundColor: pieBackgroundColor,
     							label: 'Dataset 1'
     						}],
-    						labels:pieLabels
-    					},
+    						labels:pieLabels,
+       					},
     					options: {
-    						responsive: true
-    					}
+    						responsive: true,
+    						legend: {
+    				            display: true,
+    				            position: 'right',
+    				            
+    				        },
+    				       
+    				        
+    					},
+    					
     				};
-
-    		}
+    			
+    			window.onload = function() {
+    				
+    			};
+    			var ctx = document.getElementById('chart-area').getContext('2d');
+    			window.myPie = new Chart(ctx, config);	
+	   		}
+       	});
+    }
+    
+    
+    function loadMinistryWiseDetails(sessionId){
+    	var barLabels = [];
+	    var barData = [];
+	    var barBackgroundColor= [];
+    	$.get("../statisticaldashboard/loadministriesdetails?session="+sessionId,function(data){
+    		if(data!=null && data!=''){
+    			for(var i=0;i<data.length;i++){
+    				barLabels.push(data[i].name);
+    				barData.push(data[i].id);
+    				//pieBackgroundColor.push(getRandomColor());
+    			}
+    			var config = {
+    					type: 'bar',
+    					data: {
+    						datasets: [{
+    							data: barData,
+    							//backgroundColor: pieBackgroundColor,
+    							label: 'Question Count'
+    						}],
+    						labels:barLabels,
+       					},
+    					options: {
+    						responsive: true,
+    					    scales: {
+    					        yAxes: [{
+    					            ticks: {
+    					                max: 2500,
+    					                min: 0,
+    					                stepSize: 250
+    					            }
+    					        }]
+    					    },
+    						legend: {
+    				            display: true,
+    				            position: 'right',
+    				            
+    				        },
+    					},
+    					
+    				};
+    			
+    			window.onload = function() {
+    				
+    			};
+    			var ctx = document.getElementById('bar-chart-area').getContext('2d');
+    			window.myPie = new Chart(ctx, config);	
+	   		}
        	});
     }
   </script>
   
-  	<script>
+  <script>
 	  
 		/* var randomScalingFactor = function() {
 			var pieData = [1,2,3,4]
 			return pieData;//Math.round(Math.random() * 100);
 		}; */
-		
-		
-		window.onload = function() {
-			var ctx = document.getElementById('chart-area').getContext('2d');
-			window.myPie = new Chart(ctx, config);
-		};
+
 
 		document.getElementById('randomizeData').addEventListener('click', function() {
 			config.data.datasets.forEach(function(dataset) {

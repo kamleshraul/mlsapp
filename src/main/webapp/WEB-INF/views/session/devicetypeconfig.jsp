@@ -69,6 +69,7 @@
 			  ||(deviceTypeSelected=="questions_shortnotice")
 			  ||(deviceTypeSelected=="motions_discussionmotion_lastweek")
 			  ||(deviceTypeSelected=="motions_discussionmotion_publicimportance")
+			  ||(deviceTypeSelected=="motions_rules_suspension")
 			  	  
 			) 
 			{
@@ -2556,6 +2557,71 @@
 					<label style="margin-left: 5px;">
 						(<b>Format</b> = &nbsp;<spring:message code="generic.hour" text="hours"/> <b>:</b> <spring:message code="generic.minute" text="minutes"/>)
 					</label>
+				</p>
+			</div>
+		</c:if>
+		
+		<c:if test="${i.type eq 'motions_rules_suspension'}">					
+			<div id="motions_rules_suspension" class="formDiv">	
+				<p>
+					<label class="small"><spring:message code="session.deviceType.submissionStartTime" text="Submission Start Time" /></label>
+					<input type="text" class="sText datetimemask" name="motions_rules_suspension_submissionStartTime" id="motions_rules_suspension_submissionStartTime" value="${motions_rules_suspension_submissionstarttime}" />
+				</p>
+				<p>
+					<label class="small"><spring:message code="session.deviceType.submissionEndTime" text="Submission End Time" /></label>
+					<input type="text" class="sText datetimemask" name="motions_rules_suspension_submissionEndTime" id="motions_rules_suspension_submissionEndTime" value="${motions_rules_suspension_submissionendtime}" />
+				</p>
+				<p>
+					<label class="small"><spring:message code="session.deviceType.numberOfMotions" text="Number of Motions" /></label>
+					<input type="text" class="sInteger" name="motions_rules_suspension_numberOfMotions" id="motions_rules_suspension_numberOfMotions" value="${motions_rules_suspension_numberofmotions}" />
+				</p>				
+		
+				<p>
+					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Supporting Members" /></label>
+					<select class="sSelect" name="motions_rules_suspension_numberofsupportingmemberscomparator" id="motions_rules_suspension_numberofsupportingmemberscomparator">
+						<option value="">---<spring:message code='client.prompt.select' text='Please Select'/>---</option>
+						<c:choose>
+							<c:when test="${motions_rules_suspension_numberofsupportingmemberscomparator=='equal'}">
+								<option value="equal" selected="selected">&#61;</option>
+							</c:when>
+							<c:otherwise>
+								<option value="equal">&#61;</option>
+							</c:otherwise>
+						</c:choose>
+						<c:choose>
+							<c:when test="${motions_rules_suspension_numberofsupportingmemberscomparator=='lessthan'}">
+								<option value="lessthan" selected="selected">&lt;</option>
+							</c:when>
+							<c:otherwise>
+								<option value="lessthan">&lt;</option>
+							</c:otherwise>
+						</c:choose>		
+						<c:choose>
+							<c:when test="${motions_rules_suspension_numberofsupportingmemberscomparator=='lessthanequal'}">
+								<option value="lessthanequal" selected="selected">&le;</option>						
+							</c:when>
+							<c:otherwise>
+								<option value="lessthanequal">&le;</option>						
+							</c:otherwise>
+						</c:choose>		
+						<c:choose>
+							<c:when test="${motions_rules_suspension_numberofsupportingmemberscomparator=='greaterthan'}">
+								<option value="greaterthan" selected="selected">&gt;</option>
+							</c:when>
+							<c:otherwise>
+								<option value="greaterthan">&gt;</option>
+							</c:otherwise>
+						</c:choose>		
+						<c:choose>
+							<c:when test="${motions_rules_suspension_numberofsupportingmemberscomparator=='greaterthanequal'}">
+								<option value="greaterthanequal" selected="selected">&ge;</option>
+							</c:when>
+							<c:otherwise>
+								<option value="greaterthanequal">&ge;</option>
+							</c:otherwise>
+						</c:choose>								
+					</select>
+					<input type="text" class="sText" name="motions_rules_suspension_numberOfSupportingMembers" id="motions_rules_suspension_numberOfSupportingMembers" value="${motions_rules_suspension_numberofsupportingmembers}"/>
 				</p>
 			</div>
 		</c:if>
