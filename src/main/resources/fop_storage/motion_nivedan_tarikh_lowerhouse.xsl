@@ -101,7 +101,7 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block font-weight="bold">
-																							क्रमांक :&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;/फ,
+																							क्रमांक :<xsl:value-of select="./element_5" />/फ,
 																						</fo:block>
 																					</fo:table-cell>										
 																				</fo:table-row>
@@ -197,7 +197,7 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block font-weight="bold">
-																							<xsl:value-of select="./element_1/element_1_8" />&#160;(<xsl:value-of select="./element_1/element_1_7" />) विभाग, 
+																							<xsl:value-of select="./element_1/element_1_8" />&#160; विभाग, 
 																						</fo:block>
 																					</fo:table-cell>
 																				</fo:table-row>
@@ -269,7 +269,7 @@
 																	<xsl:value-of select="./element_1/element_1_12" />
 																</xsl:otherwise>
 															</xsl:choose> 
-														</fo:inline> रोजी निवेदन करावयाचे आहे.
+														</fo:inline> रोजी निवेदन करावयाचे आहे.
 													</fo:inline>
 												</fo:block>
 												
@@ -394,7 +394,7 @@
 		            										मा.सदस्यांचे सुधारित प्रारूप व सुधारित नावे
 		            									</fo:block>
 		            									<fo:block font-weight="bold">
-		            										संदर्भ : या सचिवालयाचे पत्र क्र.&#160;&#160;&#160;&#160;&#160;&#160;&#160;/फ दिनांकित 
+		            										संदर्भ : या सचिवालयाचे पत्र क्र.<xsl:value-of select="./element_6" />/फ दिनांकित  <xsl:value-of select="./element_7" />
 		            									</fo:block>
             										</xsl:when>
             										<xsl:when test="./element_2='tentativeCopy'">
@@ -421,7 +421,7 @@
             										&#160;
             									</fo:block>
             									<fo:block font-weight="bold" text-align="justify">
-            										<xsl:value-of select="./element_1/element_1_9"></xsl:value-of>
+            										<xsl:value-of select="./element_1/element_1_9"></xsl:value-of> वि.स.स.
             									</fo:block>
 											</fo:block>
             							</fo:table-cell>
