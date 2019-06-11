@@ -636,16 +636,27 @@ public class MotionReportController extends BaseController{
 			String strId = request.getParameter("motionId");;
 			String strWorkflowId = request.getParameter("workflowDetailId");
 			WorkflowDetails workflowDetails = null;
+			String referenceNumber = null;
+			String referredNumber = null;
+			String strReferencedDate = null;
 			if(strWorkflowId != null && !strWorkflowId.isEmpty()){
 				workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
 				if(workflowDetails != null){
 					strId = workflowDetails.getDeviceId();
+					if(workflowDetails.getReferenceNumber() != null && !workflowDetails.getReferenceNumber().isEmpty()){
+						referenceNumber = FormaterUtil.formatNumberNoGrouping(Integer.parseInt(workflowDetails.getReferenceNumber()), locale.toString());
+					}
+					if(workflowDetails.getReferredNumber() != null && !workflowDetails.getReferredNumber().isEmpty()){
+						referredNumber = FormaterUtil.formatNumberNoGrouping(Integer.parseInt(workflowDetails.getReferredNumber()), locale.toString());
+					}
+					List<WorkflowDetails> wkfDetails = WorkflowDetails.findAllByFieldName(WorkflowDetails.class, "referenceNumber", workflowDetails.getReferenceNumber(), "assignmentTime", "ASC", locale.toString());
+					strReferencedDate = FormaterUtil.formatDateToStringUsingCustomParameterFormat(wkfDetails.get(0).getAssignmentTime(), "CALLINGATTENTIONMOTION_CALLINGATTENTIONDATEFORMAT", locale.toString());
 				}
 			}
 			
 			String strReportFormat = request.getParameter("outputFormat");	
 			String strCopyType = request.getParameter("copyType");
-			Long workflowDetailCount = (long) 0;
+			
 			Boolean isResendRevisedMotionTextWorkflow = false;
 			if(strId != null && !strId.isEmpty()){
 				Map<String, String[]> parameters = new HashMap<String, String[]>();
@@ -657,22 +668,19 @@ public class MotionReportController extends BaseController{
 				String templateName = "motion_nivedan_tarikh_lowerhouse";
 				
 				Motion motion = Motion.findById(Motion.class, Long.parseLong(strId));
-				Status resendRevisedMotionText = Status.findByType(ApplicationConstants.MOTION_PROCESSED_RESENDREVISEDMOTIONTEXTTODEPARTMENT, locale.toString());
-				if(workflowDetails != null && resendRevisedMotionText != null){
-					workflowDetailCount = WorkflowDetails.findRevisedMotionTextWorkflowCount(motion, resendRevisedMotionText, workflowDetails);
-					if(workflowDetails.getRecommendationStatus().equals(resendRevisedMotionText.getName())
-						|| workflowDetailCount > 0){
-						isResendRevisedMotionTextWorkflow = true;
+				String strRevisedMotionText = motion.getRevisedDetails();
+				if(workflowDetails != null){
+					if(workflowDetails.getReferredNumber() != null && !workflowDetails.getReferredNumber().isEmpty()){
+						strRevisedMotionText = workflowDetails.getText();
+						strCopyType = "revisedCopy";
 					}
 				}
-				String strRevisedMotionText = null;
-				if(isResendRevisedMotionTextWorkflow){
-					strRevisedMotionText = workflowDetails.getText();
-					strCopyType = "revisedCopy";
+				if(strCopyType != null && strCopyType == "advanceCopy"){
+					referenceNumber = FormaterUtil.formatNumberNoGrouping(motion.getId(), locale.toString());
 				}
 				File reportFile = null;
 				
-				reportFile = generateReportUsingFOP(new Object[] {reportData, strCopyType, isResendRevisedMotionTextWorkflow, strRevisedMotionText}, templateName, strReportFormat, "motionNivedanTarikh",locale.toString());
+				reportFile = generateReportUsingFOP(new Object[] {reportData, strCopyType, isResendRevisedMotionTextWorkflow, strRevisedMotionText, referenceNumber, referredNumber, strReferencedDate}, templateName, strReportFormat, "motionNivedanTarikh",locale.toString());
 				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
 				
 				model.addAttribute("info", "general_info");;
