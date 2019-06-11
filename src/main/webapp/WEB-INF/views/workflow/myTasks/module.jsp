@@ -69,6 +69,26 @@
 										$.prompt("some error..please contact administrator");
 									}
 								});
+							}else if(device=='motions_rules_suspension'){
+								$.get('ref/rulessuspensionmotion/rulesuspensiondatesforsession?houseType='+$('#selectedHouseType').val()
+										+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+									if(data.length>1) {
+										var defaultRuleSuspensionDate = data[data.length-1][0];
+										$('#selectedAdjourningDate').empty();
+										var htmlText = "";
+										for(var i=0; i<data.length-1; i++) {
+											htmlText += "<option value='"+data[i][0]+"'";
+											if(data[i][0]==defaultRuleSuspensionDate) {
+												htmlText += "selected='selected'";
+											}
+											htmlText += ">"+data[i][1]+"</option>";									
+										}	
+										$('#selectedAdjourningDate').html(htmlText);
+										prependOptionToSelectedAdjourningDate();
+									} else {
+										$.prompt("some error..please contact administrator");
+									}
+								});
 							}
 						}
 						reloadMyTaskGrid();
@@ -112,6 +132,26 @@
 									$.prompt("some error..please contact administrator");
 								}
 							});
+						}else if(device=='motions_rules_suspension'){
+							$.get('ref/rulessuspensionmotion/rulesuspensiondatesforsession?houseType='+$('#selectedHouseType').val()
+									+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+								if(data.length>1) {
+									var defaultRuleSuspensionDate = data[data.length-1][0];
+									$('#selectedAdjourningDate').empty();
+									var htmlText = "";
+									for(var i=0; i<data.length-1; i++) {
+										htmlText += "<option value='"+data[i][0]+"'";
+										if(data[i][0]==defaultRuleSuspensionDate) {
+											htmlText += "selected='selected'";
+										}
+										htmlText += ">"+data[i][1]+"</option>";									
+									}	
+									$('#selectedAdjourningDate').html(htmlText);
+									prependOptionToSelectedAdjourningDate();
+								} else {
+									$.prompt("some error..please contact administrator");
+								}
+							});
 						}
 					}
 					reloadMyTaskGrid();
@@ -134,6 +174,26 @@
 									for(var i=0; i<data.length-1; i++) {
 										htmlText += "<option value='"+data[i][0]+"'";
 										if(data[i][0]==defaultAdjourningDate) {
+											htmlText += "selected='selected'";
+										}
+										htmlText += ">"+data[i][1]+"</option>";									
+									}	
+									$('#selectedAdjourningDate').html(htmlText);
+									prependOptionToSelectedAdjourningDate();
+								} else {
+									$.prompt("some error..please contact administrator");
+								}
+							});
+						}else if(device=='motions_rules_suspension'){
+							$.get('ref/rulessuspensionmotion/rulesuspensiondatesforsession?houseType='+$('#selectedHouseType').val()
+									+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+								if(data.length>1) {
+									var defaultRuleSuspensionDate = data[data.length-1][0];
+									$('#selectedAdjourningDate').empty();
+									var htmlText = "";
+									for(var i=0; i<data.length-1; i++) {
+										htmlText += "<option value='"+data[i][0]+"'";
+										if(data[i][0]==defaultRuleSuspensionDate) {
 											htmlText += "selected='selected'";
 										}
 										htmlText += ">"+data[i][1]+"</option>";									
@@ -207,6 +267,27 @@
 						$("#adjourningDateDiv").show();
 						$("#departmentDiv").hide();
 					});												
+				}else if(device.indexOf('motions_rules_suspension')==0){
+						$('#bulkapproval_tab').hide();
+						$.get('ref/rulessuspensionmotion/rulesuspensiondatesforsession?houseType='+$('#selectedHouseType').val()
+								+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+							if(data.length>1) {
+								var defaultRuleSuspensionDate = data[data.length-1][0];
+								$('#selectedAdjourningDate').empty();
+								var htmlText = "";
+								for(var i=0; i<data.length-1; i++) {
+									htmlText += "<option value='"+data[i][0]+"'";
+									if(data[i][0]==defaultRuleSuspensionDate) {
+										htmlText += "selected='selected'";
+									}
+									htmlText += ">"+data[i][1]+"</option>";									
+								}	
+								$('#selectedAdjourningDate').html(htmlText);
+								prependOptionToSelectedAdjourningDate();
+							} else {
+								$.prompt("some error..please contact administrator");
+							}
+						});
 				}else{
 					$('#bulkapproval_tab').show();
 					$("#selectedAdjourningDate").val("");
@@ -595,6 +676,8 @@
 					resourceURL="workflow/eventmotion/bulkapproval/init";					
 				}else if($('#deviceTypeType').val().indexOf("motions_standalonemotion_")==0){
 					resourceURL="workflow/standalonemotion/bulkapproval/init";					
+				}else if($('#deviceTypeType').val().indexOf("motions_rules_suspension")==0){
+					resourceURL="workflow/rulessuspensionmotion/bulkapproval/init";					
 				}else{
 					resourceURL="workflow/motion/bulkapproval/init";
 				}				
@@ -642,6 +725,8 @@
 					resourceURL="workflow/standalonemotion/advancedbulkapproval";					
 				}else if($('#deviceTypeType').val().indexOf("motions_adjournment")==0){
 					resourceURL="workflow/adjournmentmotion/advancedbulkapproval";
+				}else if($('#deviceTypeType').val().indexOf("motions_rules_suspension")==0){
+					resourceURL="workflow/rulessuspensionmotion/advancedbulkapproval";
 				}else{
 					resourceURL="workflow/motion/advancedbulkapproval";
 				}				
@@ -777,6 +862,8 @@
 					showTabByIdAndUrl('details_tab', "adjournmentmotion/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
 				}else if(deviceType.indexOf('motions_discussionmotion_')==0){
 					
+				}else if(deviceType.indexOf('motions_rules_suspension')==0){
+					showTabByIdAndUrl('details_tab', "rulessuspensionmotion/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
 				}else{
 					showTabByIdAndUrl('details_tab', "motion/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
 				}

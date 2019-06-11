@@ -12,7 +12,7 @@
 				$("#advanceCopyDiv").hide();
 			}
 			$('.datetimemask').mask("99-99-9999,99:99:99");			
-			if($("#deviceTypeType").val() != 'motions_adjournment'){
+			if($("#deviceTypeType").val() != 'motions_adjournment' || $("#deviceTypeType").val() != 'motions_rules_suspension'){
 				$("#selectedAdjourningDate").val("");				
 			}
 			var selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
