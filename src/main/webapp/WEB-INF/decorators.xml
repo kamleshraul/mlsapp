@@ -621,6 +621,16 @@
 		<pattern>/discussionmotion/bulksubmission/assistant/update</pattern>
 		<pattern>/workflow/discussionmotion</pattern>
 		
+		
+		<pattern>/rulessuspensionmotion/new</pattern>
+		<pattern>/rulessuspensionmotion/*/edit</pattern>
+		<pattern>/rulessuspensionmotion/*/delete</pattern>
+		<pattern>/rulessuspensionmotion</pattern>
+		<pattern>/rulessuspensionmotion/bulksubmission/assistant/int</pattern>	
+		<pattern>/rulessuspensionmotion/bulksubmission/assistant/view</pattern>		
+		<pattern>/rulessuspensionmotion/bulksubmission/assistant/update</pattern>
+		<pattern>/workflow/rulessuspensionmotion</pattern>
+		
 		<pattern>/myprofile</pattern>
 		<pattern>/myprofile/password</pattern>
 	</decorator>
@@ -667,6 +677,10 @@
 		<pattern>/zillaparishad/new</pattern>
 		<pattern>/zillaparishad/*/edit</pattern>
 		<pattern>/zillaparishad/*/delete</pattern>
+		
+		<pattern>/statisticaldashboard</pattern>
+		<pattern>/statisticaldashboard/starredquestion</pattern>
+		
 		
 	</decorator>
 
