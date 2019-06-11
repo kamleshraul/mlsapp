@@ -62,13 +62,41 @@ public class StatisticalDashboardController extends BaseController{
 	
 	}
 	
+	@RequestMapping(value="/loadDeviceDetails",method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> loadDeviceDetails(final HttpServletRequest request,
+			final Locale locale,
+			final ModelMap model){
+
+		List<MasterVO> deviceDetails = new ArrayList<MasterVO>();
+		String session = request.getParameter("session");
+		String deviceType = request.getParameter("deviceType");
+		Map<String, String[]> parameters = new HashMap<String, String[]>();
+		parameters.put("locale", new String[]{locale.toString()});
+		parameters.put("session", new String[]{session.toString()});
+		parameters.put("deviceType", new String[]{deviceType.toString()});
+		List result = Query.findReport("STATISTICAL_DEVICE_COUNT_SESSIONWISE", parameters);
+		for(int i=0;i<result.size();i++){
+	       	 Object[] row = (Object[])result.get(i);
+	       	MasterVO masterVO = new MasterVO();
+	       	masterVO.setName(row[0].toString());
+	       	masterVO.setFormattedNumber(row[1].toString());
+	       	masterVO.setFormattedOrder(row[2].toString());
+	       	masterVO.setValue(row[3].toString());
+	       	deviceDetails.add(masterVO);
+		}
+		return deviceDetails;
+	
+	}
+	
 	@RequestMapping(value="/loadPartyDetails",method=RequestMethod.GET)
 	public @ResponseBody List<MasterVO> loadPartyDetails(final HttpServletRequest request,
 			final Locale locale,
 			final ModelMap model){
 		List<MasterVO> partyDetails = new ArrayList<MasterVO>();
+		String session = request.getParameter("session");
 		Map<String, String[]> parameters = new HashMap<String, String[]>();
 		parameters.put("locale", new String[]{locale.toString()});
+		parameters.put("session", new String[]{session.toString()});
 		List result = Query.findReport("STATISTICAL_PARTY_LIST_SESSIONWISE", parameters);
 		for(int i=0;i<result.size();i++){
 	       	 Object[] row = (Object[])result.get(i);
@@ -78,6 +106,27 @@ public class StatisticalDashboardController extends BaseController{
 	       	partyDetails.add(masterVO);
 		}
 		return partyDetails;
+	
+	}
+	
+	@RequestMapping(value="/loadministriesdetails",method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> loadministriesdetails(final HttpServletRequest request,
+			final Locale locale,
+			final ModelMap model){
+		List<MasterVO> ministryDetails = new ArrayList<MasterVO>();
+		String session = request.getParameter("session");
+		Map<String, String[]> parameters = new HashMap<String, String[]>();
+		parameters.put("locale", new String[]{locale.toString()});
+		parameters.put("session", new String[]{session.toString()});
+		List result = Query.findReport("STATISTICAL_MINISTRIES_LIST_SESSIONWISE", parameters);
+		for(int i=0;i<result.size();i++){
+	       	 Object[] row = (Object[])result.get(i);
+	       	MasterVO masterVO = new MasterVO();
+	       	masterVO.setName(row[0].toString());
+	       	masterVO.setId(Long.parseLong(row[3].toString()));
+	       	ministryDetails.add(masterVO);
+		}
+		return ministryDetails;
 	
 	}
 	
