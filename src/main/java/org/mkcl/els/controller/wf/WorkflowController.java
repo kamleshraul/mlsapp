@@ -627,6 +627,8 @@ public class WorkflowController extends BaseController {
 						newUrlPattern = newUrlPattern + "&usergroup="+ApplicationConstants.DEPARTMENT;
 					}
 				}				
+			}else if(deviceTypeForGrid.equals(ApplicationConstants.RULESSUSPENSION_MOTION)) {
+				newUrlPattern=urlPattern+"?devicetype="+ApplicationConstants.RULESSUSPENSION_MOTION;
 			}else {
 				if(strCurrentUserGroupType!=null && !strCurrentUserGroupType.isEmpty()) {
 					if(strCurrentUserGroupType.equals(ApplicationConstants.DEPARTMENT)
