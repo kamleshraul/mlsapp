@@ -657,6 +657,8 @@ public class MotionWorkflowController extends BaseController{
 	public String updateMyTask(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale,@Valid @ModelAttribute("domain") final Motion domain,final BindingResult result) {
+		String referenceNumber = null;
+		String referredNumber = null;
 		/*** Is Resubmission of Revised Motion Text***/
 		boolean boolResendRevisedMotionText = false; 
 		String resendRevisedMotionTextStatus = request.getParameter("resendMotionTextStatus");
@@ -812,10 +814,12 @@ public class MotionWorkflowController extends BaseController{
 						ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale.toString());	
 						assigneeLevel = assigneeLevel - 1;
 					}
+					referenceNumber = wfDetails.getReferenceNumber();
+					referredNumber = wfDetails.getReferredNumber();
 					Workflow workflow = Workflow.findByStatus(motion.getInternalStatus(), locale.toString());
 					//Motion in Post final status and pre ballot state can be group changed by Department 
 					//as well as assistant of Secretariat
-					WorkflowDetails.startProcessAtGivenLevel(motion, ApplicationConstants.APPROVAL_WORKFLOW, workflow, ugt, assigneeLevel, locale.toString());
+					WorkflowDetails.startProcessAtGivenLevel(motion, ApplicationConstants.APPROVAL_WORKFLOW, workflow, ugt, assigneeLevel, referenceNumber, referredNumber, locale.toString());
 					
 					/**** display message ****/
 					
@@ -858,9 +862,16 @@ public class MotionWorkflowController extends BaseController{
 									pendingWorkflow.setStatus("COMPLETED");
 									pendingWorkflow.setCompletionTime(new Date());
 									pendingWorkflow.merge();
+									/*String strReferenceNumber = pendingWorkflow.getReferenceNumber();
+									if(strReferenceNumber != null && !strReferenceNumber.isEmpty()){
+										String[] referenceNumberSplits = strReferenceNumber.split(motion.getId().toString());
+										Integer referenceNo = Integer.parseInt(referenceNumberSplits[1]) + 1;
+										referenceNumber= referenceNo.toString();
+										referredNumber = strReferenceNumber;
+									}*/
 								}
 								resendRevisedMotionTextWorkflowDetails = WorkflowDetails.
-										create(domain,resendRevisedMotionTextTask,usergroupType,currentDeviceTypeWorkflowType,level);
+										create(domain,resendRevisedMotionTextTask,usergroupType,currentDeviceTypeWorkflowType,level, referenceNumber, referredNumber);
 								domain.setWorkflowDetailsId(resendRevisedMotionTextWorkflowDetails.getId());
 								resendRevisedMotionTextWorkflowDetails.setPreviousWorkflowDetail(workflowDetails.getId());
 								resendRevisedMotionTextWorkflowDetails.merge();
@@ -885,8 +896,34 @@ public class MotionWorkflowController extends BaseController{
 							processService.completeTask(task,properties);
 							ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
 							Task newtask = processService.getCurrentTask(processInstance);
+							referenceNumber = workflowDetails.getReferenceNumber();
+							referredNumber = workflowDetails.getReferredNumber();
+//							Status recommendStatus = Status.findByType(ApplicationConstants.MOTION_PROCESSED_SEND_TO_DEPARTMENT, locale.toString());
+//							Status revisedRecommendStatus = Status.findByType(ApplicationConstants.MOTION_PROCESSED_RESENDREVISEDMOTIONTEXTTODEPARTMENT, locale.toString());
+							if(usergroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+									&& (domain.getRecommendationStatus().getType().equals(ApplicationConstants.MOTION_PROCESSED_SEND_TO_DEPARTMENT)
+											|| domain.getRecommendationStatus().getType().equals(ApplicationConstants.MOTION_PROCESSED_RESENDREVISEDMOTIONTEXTTODEPARTMENT))
+									&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
+								WorkflowDetails wfDetail = WorkflowDetails.findByDeviceAssignee(motion, null, ApplicationConstants.DEPARTMENT,  locale.toString());
+								if(wfDetail != null){
+									if(wfDetail.getReferenceNumber() != null && !wfDetail.getReferenceNumber().isEmpty()){
+										String strReferenceNumber = wfDetail.getReferenceNumber();
+										if(strReferenceNumber != null && !strReferenceNumber.isEmpty()){
+											String[] referenceNumberSplits = strReferenceNumber.split(motion.getId().toString());
+											Integer referenceNo = Integer.parseInt(referenceNumberSplits[1]) + 1;
+											referenceNumber= motion.getId().toString() + referenceNo.toString();
+											referredNumber = strReferenceNumber;
+										}
+									}else{
+										referenceNumber= motion.getId().toString() + "1";
+									}
+								}else{
+									referenceNumber= motion.getId().toString() + "1";
+								}
+								
+							}
 							/**** Workflow Detail entry made only if its not the end of workflow ****/
-							WorkflowDetails workflowDetails2 = WorkflowDetails.create(domain, newtask, usergroupType, currentDeviceTypeWorkflowType,level);
+							WorkflowDetails workflowDetails2 = WorkflowDetails.create(domain, newtask, usergroupType, currentDeviceTypeWorkflowType,level, referenceNumber, referredNumber);
 							
 							/**** FOr CLarificationFromMember and Department ****/
 							if(domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
@@ -1644,8 +1681,8 @@ public class MotionWorkflowController extends BaseController{
 							}
 							/**** Update Old Workflow Details ****/
 							wfDetails.setStatus("COMPLETED");
-							wfDetails.setInternalStatus(motion.getInternalStatus().getName());
-							wfDetails.setRecommendationStatus(motion.getRecommendationStatus().getName());
+							wfDetails.setDecisionInternalStatus(motion.getInternalStatus().getName());
+							wfDetails.setDecisionRecommendStatus(motion.getRecommendationStatus().getName());
 							wfDetails.setCompletionTime(new Date());
 							wfDetails.merge();
 							/**** Update Motion ****/
@@ -2250,8 +2287,8 @@ public class MotionWorkflowController extends BaseController{
 					}
 					/**** Update Old Workflow Details ****/
 					wfDetails.setStatus("COMPLETED");
-					wfDetails.setInternalStatus(motion.getInternalStatus().getName());
-					wfDetails.setRecommendationStatus(motion.getRecommendationStatus().getName());
+					wfDetails.setDecisionInternalStatus(motion.getInternalStatus().getName());
+					wfDetails.setDecisionRecommendStatus(motion.getRecommendationStatus().getName());
 					wfDetails.setCompletionTime(new Date());
 					if(!motion.getType().getType().startsWith("motions_halfhourdiscussion_") 
 ){
