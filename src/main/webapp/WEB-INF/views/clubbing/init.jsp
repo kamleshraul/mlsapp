@@ -705,6 +705,21 @@
 					postData['status']=$("#statusStarred").val();
 				}
 				resourceURL = "clubentity/searchresolution?filing="+$("#useforfiling").val();
+			}else if($('#whichDevice').val()=='motions_rules_suspension_'){
+				postData={param:$("#searchvalue").val(),motion:$("#deviceId").val(),record:record,start:start};
+				if($("#houseTypeCommon").length>0){
+					postData['houseType']=$("#houseTypeCommon").val();
+				}
+				if($("#sessionYearStarred").length>0){
+					postData['sessionYear']=$("#sessionYearStarred").val();
+				}
+				if($("#sessionTypeStarred").length>0){
+					postData['sessionType']=$("#sessionTypeStarred").val();
+				}				
+				if($("#statusStarred").length>0){
+					postData['status']=$("#statusStarred").val();
+				}
+				resourceURL = "clubentity/searchrulessuspensionmotion?filing="+$("#useforfiling").val();
 			}
 			
 			
@@ -779,6 +794,8 @@
 							}else if($('#whichDevice').val()=='motions_billamendment_') {
 								textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+$('#billAmendmentMotion_subjectline').html()+"</td>";
 							}else if($('#whichDevice').val()=='resolutions_'){
+								textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+data[i].subject+"</td>";
+							}else if($('#whichDevice').val()=='motions_rules_suspension_'){
 								textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+data[i].subject+"</td>";
 							}
 							
@@ -909,6 +926,11 @@
 							    }else{						     
 							    	textTemp+=","+data[i].subDepartment+" "+$('#subdepartmentValue').val()+"<br>"+ data[i].status;							     
 							    }
+							}else if($('#whichDevice').val()=='motions_rules_suspension_') {
+								textTemp+="<td class='expand' style='width: 420px; max-width: 420px;'>"+data[i].formattedPrimaryMember+" : "+data[i].noticeContent
+								+"<br/><strong>"
+								+data[i].sessionYear+","+data[i].sessionType+","+data[i].deviceType+"<br>"
+								+data[i].status
 							}
 							
 							
@@ -1091,6 +1113,8 @@
 				deviceTypeParameterName = "deviceType";
 			} else if($('#whichDevice'=='motions_billamendment_')){
 				deviceTypeParameterName = "deviceType";
+			}else if($('#whichDevice'=='motions_rules_suspension')){
+				deviceTypeParameterName = "deviceType";
 			}	
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			var parameters="houseType="+$("#selectedHouseType").val()
@@ -1123,6 +1147,8 @@
 				resourceURL='billamendmentmotion/'+clubId+'/edit?'+parameters;				
 			}else if($('#whichDevice').val()=='resolutions_') {
 				resourceURL='resolution/'+clubId+'/edit?'+parameters;				
+			}else if($('#whichDevice').val()=='motions_rules_suspension_') {
+				resourceURL='rulessuspensionmotion/'+clubId+'/edit?'+parameters;				
 			}
 			
 			$.get(resourceURL,function(data){
@@ -1683,6 +1709,9 @@ td>table{
 		<c:when test="${whichDevice=='resolutions_'}">
 			<th class="expand"><spring:message code="clubbing.subject" text="Subject"></spring:message></th>
 		</c:when>
+		<c:when test="${whichDevice=='motions_rules_suspension_'}">
+			<th class="expand"><spring:message code="clubbing.subject" text="Subject"></spring:message></th>
+		</c:when>
 	</c:choose>
 	<c:choose>
 		<c:when test="${whichDevice=='questions_'}">
@@ -1713,6 +1742,9 @@ td>table{
 			<th class="expand"><spring:message code="clubbing.amendingContent" text="Amending Content"></spring:message></th>
 		</c:when>
 		<c:when test="${whichDevice=='bills_'}">
+			<th class="expand"><spring:message code="clubbing.bill" text="Content Draft"></spring:message></th>
+		</c:when>
+		<c:when test="${whichDevice=='motions_rules_suspension_'}">
 			<th class="expand"><spring:message code="clubbing.bill" text="Content Draft"></spring:message></th>
 		</c:when>
 	</c:choose>
