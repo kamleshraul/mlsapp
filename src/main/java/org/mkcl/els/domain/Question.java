@@ -9571,12 +9571,14 @@ public class Question extends Device implements Serializable {
     			// Change status to "GROUP_CHANGED"
     			question.setInternalStatus(GROUP_CHANGED);
     			question.setRecommendationStatus(GROUP_CHANGED);
+    			question.setProcessed(false);
     			question.merge();
     		}
     		else if(qnState == STARRED_STATE.ON_CHART) {
     			// Change status to "GROUP_CHANGED"
     			question.setInternalStatus(GROUP_CHANGED);
     			question.setRecommendationStatus(GROUP_CHANGED);
+    			question.setProcessed(false);
     			question.merge();
     			
     			// Invoke Chart.groupChange/3
@@ -9592,6 +9594,7 @@ public class Question extends Device implements Serializable {
     			// Change status to "GROUP_CHANGED"
     			question.setInternalStatus(GROUP_CHANGED);
     			question.setRecommendationStatus(GROUP_CHANGED);
+    			question.setProcessed(false);
     			question.merge();
     			
     			// Invoke Chart.groupChange/3
