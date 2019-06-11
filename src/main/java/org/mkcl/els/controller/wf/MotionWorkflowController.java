@@ -27,6 +27,7 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
+import org.mkcl.els.controller.NotificationController;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
@@ -924,7 +925,16 @@ public class MotionWorkflowController extends BaseController{
 							}
 							/**** Workflow Detail entry made only if its not the end of workflow ****/
 							WorkflowDetails workflowDetails2 = WorkflowDetails.create(domain, newtask, usergroupType, currentDeviceTypeWorkflowType,level, referenceNumber, referredNumber);
-							
+							/**** SEND NOTIFICATION TO DEPARTMENT USER****/
+							if(usergroupType.getType().equals(ApplicationConstants.DEPARTMENT) || usergroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+								String copyType = null;
+								if(referredNumber!=null && !referredNumber.isEmpty()){
+									copyType = "revisedCopy";
+								}else{
+									copyType = "tentativeCopy";
+								}
+								NotificationController.sendDepartmentProcessNotificationForMotion(domain, workflowDetails2.getAssignee(), copyType, domain.getLocale());
+							}
 							/**** FOr CLarificationFromMember and Department ****/
 							if(domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
 									&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.MOTION_PROCESSED_SEND_TO_DEPARTMENT)){
