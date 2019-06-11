@@ -2806,6 +2806,8 @@ public class ApplicationConstants {
 	
 	public static final String JOINT_SECRETARY2 = "joint_secretary2";
 	
+	public static final String RULES_SUSPENSION_MOTION_CLUBBING_MODE = "RULES_SUSPENSION_MOTION_CLUBBING_MODE";
+	
 	
 	
 }
