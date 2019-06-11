@@ -31,6 +31,7 @@ import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Resolution;
+import org.mkcl.els.domain.RulesSuspensionMotion;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.StandaloneMotion;
@@ -246,6 +247,7 @@ public class ClubbedEntityController extends BaseController{
 				String strDiscussionMotionId = request.getParameter("discussionMotionId");
 				String strBillAmendmentMotionId = request.getParameter("billAmendmentMotionId");
 				String strAdjournmentMotionId = request.getParameter("adjournmentMotionId");
+				String strRulesSuspensionMotionId = request.getParameter("rulesSuspensionMotionId");
 				
 				if(strbillId!=null) {
 					if(!strbillId.isEmpty()) {
@@ -773,6 +775,55 @@ public class ClubbedEntityController extends BaseController{
 						model.addAttribute("flag","CLUBBING_NOT_ALLOWED");
 						return "clubbing/error";
 					}
+				}else if(strRulesSuspensionMotionId !=null && !strRulesSuspensionMotionId.isEmpty()) {
+					RulesSuspensionMotion rulesSuspensionMotion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, new Long(strRulesSuspensionMotionId));
+					/**** Advanced Search Options ****/
+					/**** First we will check if clubbing is allowed on the given motion ****/
+					Boolean isClubbingAllowed = isClubbingAllowed(rulesSuspensionMotion, request);
+					if(isClubbingAllowed){
+						/**** Adjournment Motion subject will be visible on the clubbing page ****/
+						if(rulesSuspensionMotion.getRevisedSubject()!=null){
+							if(!rulesSuspensionMotion.getRevisedSubject().isEmpty()){
+								model.addAttribute("subject",rulesSuspensionMotion.getRevisedSubject());
+							}else{
+								model.addAttribute("subject",rulesSuspensionMotion.getSubject());
+							}
+						}else{
+							model.addAttribute("subject",rulesSuspensionMotion.getSubject());
+						}
+						/**** Adjournment Motion number will also be visible ****/
+						model.addAttribute("id",Long.parseLong(strRulesSuspensionMotionId));
+						model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(rulesSuspensionMotion.getLocale()).format(rulesSuspensionMotion.getNumber()));
+						/**** Member Name will also be visible ****/
+						model.addAttribute("memberName",rulesSuspensionMotion.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
+						/**** Advanced Search Filters****/
+						String deviceType = rulesSuspensionMotion.getType().getType();
+						model.addAttribute("deviceType", deviceType);
+						model.addAttribute("houseType", rulesSuspensionMotion.getHouseType().getType());
+											
+						int year = rulesSuspensionMotion.getSession().getYear();
+						CustomParameter houseFormationYear = CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+						List<Reference> years = new ArrayList<Reference>();
+						if(houseFormationYear != null){
+							Integer formationYear = Integer.parseInt(houseFormationYear.getValue());
+							for(int i = year; i >= formationYear; i--){
+								Reference reference=new Reference(String.valueOf(i),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i));
+								years.add(reference);
+							}
+						}else{
+							model.addAttribute("flag", "houseformationyearnotset");
+							return "clubbing/error";
+						}
+						model.addAttribute("years", years);
+						model.addAttribute("sessionYear", year);
+						List<SessionType> sessionTypes = SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale.toString());
+						model.addAttribute("sessionTypes", sessionTypes);
+						model.addAttribute("sessionType", rulesSuspensionMotion.getSession().getType().getId());
+						model.addAttribute("whichDevice", "motions_rules_suspension_");
+					}else{
+						model.addAttribute("flag","CLUBBING_NOT_ALLOWED");
+						return "clubbing/error";
+					}
 				} else{ 
 					logger.error("**** Check request parameter for 'id of given device' for null value");
 					model.addAttribute("flag","REQUEST_PARAMETER_NULL");
@@ -786,6 +837,19 @@ public class ClubbedEntityController extends BaseController{
 	}
 	
 	
+
+	private Boolean isClubbingAllowed(RulesSuspensionMotion rulesSuspensionMotion, HttpServletRequest request) {
+		/**** Clubbing is allowed only if following requirement is met ****/
+		String usergroupType = request.getParameter("usergroupType");	
+		/****To enable the userGroups who can do clubbing ****/
+		CustomParameter clubbingAllowedUserGroups = CustomParameter.findByName(CustomParameter.class, "RSMOIS_ALLOWED_USERGROUP_TO_DO_CLUBBING", "");
+		if(clubbingAllowedUserGroups != null && clubbingAllowedUserGroups.getValue().contains(usergroupType)){
+			return true;
+		}		
+		return false;
+	}
+
+
 
 	private Boolean isClubbingAllowed(final Question question,final HttpServletRequest request) {
 		/**** Clubbing is allowed only if following requirement is met ****/
@@ -1507,6 +1571,25 @@ public class ClubbedEntityController extends BaseController{
 		return motionSearchVOs;
 	}
 	
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/searchrulessuspensionmotion",method=RequestMethod.POST)
+	public @ResponseBody List<MotionSearchVO> searchRulesSuspensionMotionForClubbing(final HttpServletRequest request, final Locale locale){
+		List<MotionSearchVO> motionSearchVOs = new ArrayList<MotionSearchVO>();
+		String param = request.getParameter("param").trim();
+		String rulesSuspensionMotionId = request.getParameter("motion");
+		String start = request.getParameter("start");
+		String noOfRecords = request.getParameter("record");
+		Map<String,String[]> requestMap = request.getParameterMap();
+		if(rulesSuspensionMotionId != null && start != null && noOfRecords != null){
+			if((!rulesSuspensionMotionId.isEmpty()) && (!start.isEmpty()) && (!noOfRecords.isEmpty())){
+				RulesSuspensionMotion motion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, Long.parseLong(rulesSuspensionMotionId));
+				motionSearchVOs = ClubbedEntity.fullTextSearchClubbing(param, motion, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
+			}
+		}       
+		return motionSearchVOs;
+	}
+	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/searchbillamendmentmotion",method=RequestMethod.POST)
 	public @ResponseBody List<MotionSearchVO> searchBillAmendmentMotionForClubbing(final HttpServletRequest request,
@@ -1707,6 +1790,31 @@ public class ClubbedEntityController extends BaseController{
 						clubbingMotion.setEditedBy(editedBy);
 						clubbingMotion.setEditedOn(new Date());
 						clubResult = BillAmendmentMotion.club(primaryMotion, clubbingMotion, locale.toString());
+					} catch (ELSException e) {
+						status = e.getParameter("error");
+						if(status!=null) {
+							return status;
+						} else {
+							e.printStackTrace();
+						}
+					}
+					if(clubResult) {
+						status = "CLUBBING_SUCCESS";
+					} else {
+						status = "CLUBBING_FAILURE";
+					}
+				}else if(whichDevice.equals("motions_rules_suspension_")) {					
+					RulesSuspensionMotion primaryMotion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, Long.parseLong(strpId));
+					RulesSuspensionMotion clubbingMotion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, Long.parseLong(strcId));
+					boolean clubResult = false;
+					try {
+						primaryMotion.setEditedAs(editedAs);
+						primaryMotion.setEditedBy(editedBy);
+						primaryMotion.setEditedOn(new Date());
+						clubbingMotion.setEditedAs(editedAs);
+						clubbingMotion.setEditedBy(editedBy);
+						clubbingMotion.setEditedOn(new Date());
+						clubResult = RulesSuspensionMotion.club(primaryMotion, clubbingMotion, locale.toString());
 					} catch (ELSException e) {
 						status = e.getParameter("error");
 						if(status!=null) {
@@ -1930,6 +2038,31 @@ public class ClubbedEntityController extends BaseController{
 						clubbingMotion.setEditedBy(editedBy);
 						clubbingMotion.setEditedOn(new Date());
 						clubResult = BillAmendmentMotion.unclub(primaryMotion, clubbingMotion, locale.toString());
+					} catch (ELSException e) {
+						status = e.getParameter("error");
+						if(status!=null) {
+							return status;
+						} else {
+							e.printStackTrace();
+						}
+					}
+					if(clubResult) {
+						status = "UNCLUBBING_SUCCESS";
+					} else {
+						status = "UNCLUBBING_FAILURE";
+					}
+				}else if(whichDevice.equals("motions_rules_suspension_")) {					
+					RulesSuspensionMotion primaryMotion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, Long.parseLong(strpId));
+					RulesSuspensionMotion clubbingMotion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, Long.parseLong(strcId));
+					boolean clubResult = false;
+					try {
+						primaryMotion.setEditedAs(editedAs);
+						primaryMotion.setEditedBy(editedBy);
+						primaryMotion.setEditedOn(new Date());
+						clubbingMotion.setEditedAs(editedAs);
+						clubbingMotion.setEditedBy(editedBy);
+						clubbingMotion.setEditedOn(new Date());
+						clubResult = RulesSuspensionMotion.unclub(clubbingMotion, locale.toString());
 					} catch (ELSException e) {
 						status = e.getParameter("error");
 						if(status!=null) {

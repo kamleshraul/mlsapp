@@ -119,6 +119,7 @@ import org.mkcl.els.domain.Reporter;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.River;
 import org.mkcl.els.domain.Roster;
+import org.mkcl.els.domain.RulesSuspensionMotion;
 import org.mkcl.els.domain.Sanctuary;
 import org.mkcl.els.domain.Section;
 import org.mkcl.els.domain.SectionOrderSeries;
@@ -7691,6 +7692,54 @@ public class ReferenceController extends BaseController {
 		return adjourningDates;
 	}
 
+	@RequestMapping(value = "/rulessuspensionmotion/rulesuspensiondatesforsession", method = RequestMethod.GET)	
+	public @ResponseBody List<Object[]> findRuleSuspensionDatesForSession(HttpServletRequest request, Locale locale) throws Exception{
+		String houseTypeStr = request.getParameter("houseType");
+		String sessionTypeStr= request.getParameter("sessionType");
+		String sessionYearStr= request.getParameter("sessionYear");
+		String usergroupType = request.getParameter("usergroupType");
+		if(houseTypeStr==null||houseTypeStr.isEmpty()||sessionTypeStr==null||sessionTypeStr.isEmpty()||sessionYearStr==null||sessionYearStr.isEmpty()||usergroupType==null||usergroupType.isEmpty()) {
+			throw new ELSException();
+		}
+		CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		if(csptDeployment!=null && csptDeployment.getValue()!=null){
+			if(csptDeployment.getValue().equals("TOMCAT")){
+				houseTypeStr = new String(houseTypeStr.getBytes("ISO-8859-1"),"UTF-8");
+				sessionTypeStr = new String(sessionTypeStr.getBytes("ISO-8859-1"),"UTF-8");
+				sessionYearStr = new String(sessionYearStr.getBytes("ISO-8859-1"),"UTF-8");
+			}
+		}
+		HouseType houseType = HouseType.findByType(houseTypeStr, locale.toString());		
+		if(houseType==null) {
+			houseType = HouseType.findByName(HouseType.class, houseTypeStr, locale.toString());
+		}
+		SessionType sessionType = null;
+		try {
+			sessionType = SessionType.findById(SessionType.class, Long.parseLong(sessionTypeStr));
+		} catch(NumberFormatException ne) {
+			sessionType = SessionType.findByFieldName(SessionType.class, "sessionType", sessionTypeStr, locale.toString());
+		}
+		Integer sessionYear = Integer.parseInt(sessionYearStr);
+		Session session = Session.find(sessionYear, sessionType.getType(), houseType.getType());
+		if(session==null || session.getId()==null) {
+			throw new ELSException();
+		}
+		/** populate session dates as possible adjourning dates **/
+		List<Date> sessionDates = session.findAllSessionDates();
+		List<Object[]> ruleSuspensionDates = this.populateDateListUsingCustomParameterFormat(sessionDates, "RULESSUSPENSIONMOTION_RULESUSPENSIONDATEFORMAT", locale.toString());
+		
+		/** populate default rules suspension session date for the session **/
+		Date defaultRuleSuspensionDate = null;
+		if(usergroupType.equals(ApplicationConstants.MEMBER)) {
+			defaultRuleSuspensionDate = RulesSuspensionMotion.findDefaultRuleSuspensionDateForSession(session, true);
+		} else {
+			defaultRuleSuspensionDate = RulesSuspensionMotion.findDefaultRuleSuspensionDateForSession(session, false);
+		}		
+		ruleSuspensionDates.add(new Object[]{FormaterUtil.formatDateToString(defaultRuleSuspensionDate, ApplicationConstants.SERVER_DATEFORMAT)});
+		
+		return ruleSuspensionDates;
+	}
+	
 	@RequestMapping(value = "/selectedStatusType", method = RequestMethod.GET)
 	public @ResponseBody String findStatusTypeById(HttpServletRequest request, Locale locale) {
 		String statusType = "";
@@ -10282,5 +10331,103 @@ public class ReferenceController extends BaseController {
 		return autoCompleteVOs;
 	}
 	
+	
+	@RequestMapping(value="/rulessuspensionmotion/actors",method=RequestMethod.POST)
+	public @ResponseBody List<Reference> findRulesSuspensionMotionActors(final HttpServletRequest request,
+			final ModelMap model, final Locale locale){
+		List<Reference> actors=new ArrayList<Reference>();
+		String strMotion=request.getParameter("motion");
+		String strInternalStatus=request.getParameter("status");
+		String strUserGroup=request.getParameter("usergroup");
+		String strLevel=request.getParameter("level");
+		if(strMotion!=null&&strInternalStatus!=null&&strUserGroup!=null&&strLevel!=null){
+			if((!strMotion.isEmpty())&&(!strInternalStatus.isEmpty())&&
+					(!strUserGroup.isEmpty())&&(!strLevel.isEmpty())){
+				Status internalStatus=Status.findById(Status.class,Long.parseLong(strInternalStatus));
+				RulesSuspensionMotion rulesSuspensionMotion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class,Long.parseLong(strMotion));
+				UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
+				try {
+					actors=WorkflowConfig.findRulesSuspensionMotionActorsVO(rulesSuspensionMotion,internalStatus,userGroup,Integer.parseInt(strLevel),locale.toString());
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return actors;
+	}
+	
+	@RequestMapping(value="/loadsessionsbyhousetype", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> loadSessionsByHouseType(HttpServletRequest request, HttpServletResponse response,
+			final Locale locale) {
+		List<MasterVO> sessionList = new ArrayList<MasterVO>();
+		try {String strHouseTypeId = request.getParameter("houseTypeId");
+			if(strHouseTypeId != null && !strHouseTypeId.isEmpty()){
+				HouseType houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseTypeId));
+				List<House> houses = House.findByHouseType(houseType.getType(), locale.toString());
+				for(House h : houses){
+					List<Session> sessions = Session.findAllByFieldName(Session.class, "house", h, "year", "desc", locale.toString());
+					for(Session s : sessions){
+						MasterVO masterVO = new MasterVO();
+						masterVO.setName(s.getType().getSessionType() + " " + s.getYear());
+						masterVO.setId(s.getId());
+						sessionList.add(masterVO);
+					}
+				}
+				
+			}
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return sessionList;
+		
+	}
+	
+	
+	/**** To get the clubbed adjournment motion's text ****/
+	@RequestMapping(value="/rulessuspensionmotion/{id}/clubbedmotiontext", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getClubbedRulesSuspensionMotionTexts(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+		
+		List<MasterVO> clubbedRulesSuspensionMotionsVO = new ArrayList<MasterVO>();
+		
+		try{
+			
+			RulesSuspensionMotion parent = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, id);
+			if(parent == null){
+				WorkflowDetails wfDetails = WorkflowDetails.findById(WorkflowDetails.class, id);
+				if(wfDetails != null){
+					parent = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, Long.parseLong(wfDetails.getDeviceId()));
+				}
+			}
+			
+			if(parent != null){
+				List<ClubbedEntity> clubbedRulesSuspensionMotions = parent.getClubbedEntities();
+				
+				for(ClubbedEntity ce : clubbedRulesSuspensionMotions){
+					RulesSuspensionMotion cRulesSuspensionMotion = ce.getRulesSuspensionMotion();
+					if(clubbedRulesSuspensionMotions != null){
+						MasterVO mVO = new MasterVO();
+						mVO.setId(cRulesSuspensionMotion.getId());
+						mVO.setName(FormaterUtil.formatNumberNoGrouping(cRulesSuspensionMotion.getNumber(), locale.toString()));
+						mVO.setDisplayName(cRulesSuspensionMotion.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
+//						if(cRulesSuspensionMotion.getRevisedNoticeContent() != null && !cRulesSuspensionMotion.getRevisedNoticeContent().isEmpty()){
+//							mVO.setValue(cRulesSuspensionMotion.getRevisedNoticeContent());
+//						}else{
+							mVO.setValue(cRulesSuspensionMotion.getNoticeContent());
+//						}
+						
+						clubbedRulesSuspensionMotionsVO.add(mVO);
+					}
+				}
+			}
+		}catch(Exception e){
+			logger.error(e.toString());
+		}
+		
+		
+		return clubbedRulesSuspensionMotionsVO;
+	}
 	
 }
