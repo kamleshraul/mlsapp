@@ -349,7 +349,7 @@ public class HomeController extends BaseController {
               	return "departmentsecretary_dashboard"; 
              }else if(isUserAllowedForStatisticalDashboardView){
             	populateStatisticalDashboard(model, request, locale);
-              	return "statisticaldashboard"; 
+              	return "statisticaldashboard/dashboard"; 
              }else {
              	return "home";
              }
