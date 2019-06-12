@@ -687,7 +687,9 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 				WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
 		String userGroupType = workflowDetails.getAssigneeUserGroupType();
 		try {
-			AdjournmentMotion adjournmentMotion = null;
+			AdjournmentMotion adjournmentMotion = AdjournmentMotion.findById(AdjournmentMotion.class,domain.getId());
+			Ministry prevMinistry = adjournmentMotion.getMinistry();
+			SubDepartment prevSubDepartment = adjournmentMotion.getSubDepartment();
 			if(workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)) {
 				/**** display message ****/
 				model.addAttribute("type","taskalreadycompleted");
@@ -697,12 +699,13 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 			/**** Binding Supporting Members ****/
 			String[] strSupportingMembers=request.getParameterValues("selectedSupportingMembers");
 			List<SupportingMember> members=new ArrayList<SupportingMember>();
-			if(domain.getId()!=null){
-				if(adjournmentMotion==null) {
-					adjournmentMotion=AdjournmentMotion.findById(AdjournmentMotion.class,domain.getId());
-				}			
-				members=adjournmentMotion.getSupportingMembers();
-			}
+//			if(domain.getId()!=null){
+//				if(adjournmentMotion==null) {
+//					adjournmentMotion=AdjournmentMotion.findById(AdjournmentMotion.class,domain.getId());
+//				}			
+//				members=adjournmentMotion.getSupportingMembers();
+//			}
+			members=adjournmentMotion.getSupportingMembers();
 			if(strSupportingMembers!=null){
 				if(strSupportingMembers.length>0){
 					List<SupportingMember> supportingMembers=new ArrayList<SupportingMember>();
@@ -781,26 +784,17 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 			}
 			/**** reply related processing and dates ****/
 			String operation = request.getParameter("operation");
-			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
-					|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
-
-				if(operation!=null && !operation.isEmpty()){
-
-					if(operation.equals("workflowsubmit")){
-						if(domain.getTransferToDepartmentAccepted()==null || domain.getTransferToDepartmentAccepted().equals(false)) {
-							if(domain.getReply() == null || domain.getReply().isEmpty()){
-								result.rejectValue("reply", "ReplyEmpty");
-							} else if(domain.getReply() == null || domain.getReply().isEmpty()){
-								result.rejectValue("reply", "ReplyEmpty");
+			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
+					&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.ADJOURNMENTMOTION_PROCESSED_SENDTOSECTIONOFFICER)){
+				if(operation!=null && operation.equals("workflowsubmit")){
+					if(domain.getTransferToDepartmentAccepted()==null || domain.getTransferToDepartmentAccepted().equals(false)) {
+						if(domain.getReply() == null || domain.getReply().isEmpty()){
+							result.rejectValue("reply", "ReplyEmpty");
+							if(!model.containsAttribute("errorcode")){
+								model.addAttribute("errorcode","no_reply_provided_department");								
 							}
-						}						
-					}
-					
-					if(result.getFieldErrorCount("reply")>0){
-						if(!model.containsAttribute("errorcode")){
-							model.addAttribute("errorcode","no_reply_provided_department");
 							return "workflow/myTasks/error";
-						}		
+						}
 					}
 				}
 			}
@@ -841,10 +835,13 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 			/**** added by dhananjayb.. required in case when domain is updated with start of new workflow before completion of current workflow ****/
 			String endFlagForCurrentWorkflow = domain.getEndFlag();				
 			
+//			if(domain.getDrafts()==null) {
+//				if(adjournmentMotion==null) {
+//					adjournmentMotion=AdjournmentMotion.findById(AdjournmentMotion.class,domain.getId());
+//				}
+//				domain.setDrafts(adjournmentMotion.getDrafts());
+//			}
 			if(domain.getDrafts()==null) {
-				if(adjournmentMotion==null) {
-					adjournmentMotion=AdjournmentMotion.findById(AdjournmentMotion.class,domain.getId());
-				}
 				domain.setDrafts(adjournmentMotion.getDrafts());
 			}
 			
@@ -857,6 +854,56 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 			}			
 			
 			performAction(domain, request);	
+			
+			boolean isMinistryChanged = false;
+			boolean isSubDepartmentChanged = false;
+			if(domain.getMinistry()!=null && !domain.getMinistry().equals(prevMinistry)){
+				isMinistryChanged = true;
+			}else if(domain.getSubDepartment()!=null && !domain.getSubDepartment().equals(prevSubDepartment)){
+				isSubDepartmentChanged = true;
+			}			
+			
+			if(isMinistryChanged || isSubDepartmentChanged){
+				Status sendToDepartmentStatus = Status.findByType(ApplicationConstants.ADJOURNMENTMOTION_PROCESSED_SENDTODEPARTMENT, locale.toString());
+				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+						|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+					domain.setRecommendationStatus(sendToDepartmentStatus);
+				} else {
+					domain.setRecommendationStatus(domain.getInternalStatus());
+				}
+				List<ClubbedEntity> clubbedEntities = AdjournmentMotion.findClubbedEntitiesByPosition(domain);
+				if(clubbedEntities!=null) {
+					for(ClubbedEntity ce: clubbedEntities) {
+						AdjournmentMotion clubbedAdjournmentMotion = ce.getAdjournmentMotion();
+						clubbedAdjournmentMotion.setMinistry(domain.getMinistry());
+						clubbedAdjournmentMotion.setSubDepartment(domain.getSubDepartment());
+						clubbedAdjournmentMotion.merge();
+					}
+				}			
+				domain.merge();
+				adjournmentMotion = AdjournmentMotion.findById(AdjournmentMotion.class,domain.getId()); //added in order to avoid optimistic lock exception
+				adjournmentMotion.removeExistingWorkflowAttributes();								
+				// Before ending wfDetails process collect information
+				// which will be useful for creating a new process later.
+				int assigneeLevel = 
+					Integer.parseInt(workflowDetails.getAssigneeLevel());
+				UserGroupType ugt = UserGroupType.findByType(userGroupType, locale.toString());				
+				WorkflowDetails.endProcess(workflowDetails);
+				if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+					ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale.toString());	
+					assigneeLevel = assigneeLevel - 1;
+				}
+				Workflow workflow = Workflow.findByStatus(adjournmentMotion.getInternalStatus(), locale.toString());
+				//Motion in Post final status and pre ballot state can be group changed by Department 
+				//as well as assistant of Secretariat
+				WorkflowDetails.startProcessAtGivenLevel(adjournmentMotion, ApplicationConstants.APPROVAL_WORKFLOW, workflow, ugt, assigneeLevel, locale.toString());
+				
+				/**** display message ****/
+				
+				model.addAttribute("type","taskcompleted");
+				return "workflow/info";
+			}
+			
 			domain.merge();
 			
 			/**** Complete Task ****/

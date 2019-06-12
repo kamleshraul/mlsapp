@@ -374,7 +374,21 @@
 					$(this).val("");
 				}
 			});		
-			//alert("Clicked here..");
+			if($('#isTransferable').is(':checked')) {
+				$('#isTransferable').val(true);		   	    
+			} else { 				
+				$('#isTransferable').val(false);				
+		   	};
+			if($('#transferToDepartmentAccepted').is(':checked')) {
+				$('#transferToDepartmentAccepted').val(true);		   	    
+			} else { 				
+				$('#transferToDepartmentAccepted').val(false);				
+		   	};
+		   	if($('#mlsBranchNotifiedOfTransfer').is(':checked')) {
+				$('#mlsBranchNotifiedOfTransfer').val(true);		   	    
+			} else { 				
+				$('#mlsBranchNotifiedOfTransfer').val(false);				
+		   	};
 			$.prompt($('#submissionMsg').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){				        	

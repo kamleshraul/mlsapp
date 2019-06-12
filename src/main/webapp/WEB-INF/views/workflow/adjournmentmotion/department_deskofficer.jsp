@@ -396,6 +396,21 @@
 					$(this).val("");
 				}
 			});	
+			if($('#isTransferable').is(':checked')) {
+				$('#isTransferable').val(true);		   	    
+			} else { 				
+				$('#isTransferable').val(false);				
+		   	};
+			if($('#transferToDepartmentAccepted').is(':checked')) {
+				$('#transferToDepartmentAccepted').val(true);		   	    
+			} else { 				
+				$('#transferToDepartmentAccepted').val(false);				
+		   	};
+		   	if($('#mlsBranchNotifiedOfTransfer').is(':checked')) {
+				$('#mlsBranchNotifiedOfTransfer').val(true);		   	    
+			} else { 				
+				$('#mlsBranchNotifiedOfTransfer').val(false);				
+		   	};
 			var sendToSectionOfficer=$("#internalStatusMaster option[value='adjournmentmotion_processed_sendToSectionOfficer']").text();
 			var changedInternalStatus = $("#changeInternalStatus").val();
 			if(changedInternalStatus == sendToSectionOfficer) {
@@ -869,8 +884,6 @@
 			<form:hidden path="level" value="${level}"/>
 			<form:hidden path="localizedActorName"/>
 			<form:hidden path="workflowDetailsId"/>
-			<form:hidden path="transferToDepartmentAccepted"/>
-			<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 			<form:hidden path="rejectionReason"/>
 			<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 			<input type="hidden" name="status" id="status" value="${status }">
@@ -909,6 +922,7 @@
 		<input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 		<input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+		<input id="submissionMsg" value="<spring:message code='adjournmentmotion.submitForReply' text='Do you want to submit for the reply of adjournment motion?'></spring:message>" type="hidden">
 		
 		<ul id="contextMenuItems" >
 			<li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
