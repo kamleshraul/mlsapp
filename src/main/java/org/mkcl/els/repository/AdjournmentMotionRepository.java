@@ -50,7 +50,7 @@ public class AdjournmentMotionRepository extends BaseRepository<AdjournmentMotio
 		}		
 	}
 	
-	public Integer findContinuationNumber(final AdjournmentMotion adjournmentMotion, final String locale) {
+	public Integer findContinuationNumber(final AdjournmentMotion adjournmentMotion) {
 		Integer continuationCount = null;
 		
 		String queryString = "SELECT COUNT(DISTINCT am.id) FROM adjournmentmotions am" +
@@ -61,7 +61,7 @@ public class AdjournmentMotionRepository extends BaseRepository<AdjournmentMotio
 		Query query = this.em().createNativeQuery(queryString, Integer.class);
 		query.setParameter("sessionId", adjournmentMotion.getSession().getId());
 		query.setParameter("adjourningDate", adjournmentMotion.getAdjourningDate());
-		query.setParameter("locale", locale);
+		query.setParameter("locale", adjournmentMotion.getLocale());
 		try {
 			Integer countBeforeAdjourningDate = (Integer) query.getSingleResult();
 			if(countBeforeAdjourningDate!=null && adjournmentMotion.getNumber()!=null) {
