@@ -105,7 +105,7 @@
 			var deviceType = $("#deviceType").val();
 			
 			if(proprietyPoint!=undefined && proprietyPoint!=''){
-				var params="proprietyPoint="+proprietyPoint+"&status=";
+				var params="proprietypoint="+proprietyPoint+"&status=";
 				if(($("#currentusergroupType").val()=='assistant' 
 						|| $("#currentusergroupType").val()=='section_officer') 
 						&& (value.indexOf("final")>-1)){

@@ -732,6 +732,8 @@
 				}				
 			}else if($('#deviceTypeType').val().indexOf("questions_")==0){
 				resourceURL="workflow/question/advancedbulkapproval";
+			}else if($('#deviceTypeType').val().indexOf("proprietypoint")==0){
+				resourceURL="workflow/proprietypoint/advancedbulkapproval";
 			}
 			$("#selectionDiv").hide();
 			var selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
@@ -869,6 +871,8 @@
 				}
 			}else if(deviceType.indexOf('resolutions_')==0){
 				showTabByIdAndUrl('details_tab', "resolution/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
+			}else if(deviceType.indexOf('proprietypoint')==0){
+				showTabByIdAndUrl('details_tab', "proprietypoint/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
 			}
 		}
 		

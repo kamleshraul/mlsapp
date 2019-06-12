@@ -192,6 +192,7 @@
 		
 		//save the state of propriety point
 		$("#submit").click(function(e){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			//removing <p><br></p>  from wysiwyg editor
 			$(".wysiwyg").each(function(){
 				var wysiwygVal=$(this).val().trim();
@@ -532,7 +533,7 @@
 				</select>						
 			</p>
 			
-			<p>
+			<p style="display: none;">
 				<label class="centerlabel"><spring:message code="proprietypoint.supportingMembers" text="Supporting Members"/></label>
 				<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
 				<%-- <label style="display: inline; border: 1px double blue; padding: 5px; background-color: #DCE4EF; font-weight: bold;" class="centerlabel" id="supportingMemberMessage"><spring:message code="proprietypoint.numberOfsupportingMembers" text="Number of Supporting Members"></spring:message>&nbsp;${numberOfSupportingMembersComparatorHTML}&nbsp;${numberOfSupportingMembers}</label> --%>										
@@ -586,9 +587,9 @@
 				<c:if test="${memberStatusType=='proprietypoint_complete' or memberStatusType=='proprietypoint_incomplete'}">
 				<p class="tright">
 					<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-					<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">	
+					<%-- <security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">	
 						<input id="sendforapproval" type="button" value="<spring:message code='proprietypoint.sendforapproval' text='Send For Approval'/>" class="butDef">
-					</security:authorize>
+					</security:authorize> --%>
 					<input id="submitdevice" type="button" value="<spring:message code='proprietypoint.submitdevice' text='Submit Propriety Point'/>" class="butDef">
 					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 				</p>
