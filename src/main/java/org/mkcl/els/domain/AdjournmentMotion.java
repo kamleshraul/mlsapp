@@ -63,6 +63,10 @@ public class AdjournmentMotion extends Device implements Serializable {
 	/** The number. */
 	private Integer number;
 	
+	/** The number in continuation. */
+	@Transient
+	private Integer continuationNumber;
+	
 	/** The primary member. */
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="member_id")
@@ -1672,6 +1676,10 @@ public class AdjournmentMotion extends Device implements Serializable {
 	 */
 	public void setNumber(Integer number) {
 		this.number = number;
+	}
+
+	public Integer findContinuationNumber() {
+		return continuationNumber;
 	}
 
 	/**
