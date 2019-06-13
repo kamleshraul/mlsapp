@@ -74,6 +74,11 @@
 				});
 			});
 			
+			$("#previewFinalBallot").click(function(){
+				alert("");
+				previewFinalBallot();
+			});
+			
 			$("#viewfinalballot").click(function(event, isHighSecurityValidationRequired) {
 				//isHighSecurityValidationRequired = false;
 				if(isHighSecurityValidationRequired!=false) {
@@ -463,7 +468,35 @@
 					}
 				}
 			});			 
-		}	
+		}
+		
+		function previewFinalBallot(){
+			alert("");
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var group=$("#mbGroup").val();
+			var answeringDate=$("#mbAnsweringDate").val();
+			if(group!="-"&&answeringDate!="-"){
+				var parameters = "session="+$("#session").val()
+				 +"&questionType="+$("#questionType").val()
+				 +"&group="+group+"&answeringDate="+answeringDate;
+				var resourceURL = 'ballot/memberballot/previewfinal?'+ parameters;
+				$.get(resourceURL,function(data){
+					$("#resultDiv").html(data);
+					$.unblockUI();				
+				},'html').fail(function(){
+					$.unblockUI();
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.");
+					}
+					scrollTop();
+				});
+			}else{
+				$.unblockUI();
+				$.prompt($("#selectGroupAnsweringDateMsg").val());		
+			}
+		}
 	</script>
 </head>
 <body>
@@ -541,7 +574,12 @@
 				<a href="#" id="viewfinalballot" class="butSim link">
 					<spring:message code="memberballot.viewfinalballot" text="View Final Ballot"/>
 				</a> |
-			</security:authorize>	
+			</security:authorize>
+			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY','QIS_SECTION_OFFICER')">
+				<a href="#" id="previewFinalBallot" class="butSim link">
+					<spring:message code="memberballot.previewFinalballot" text="Preview Final Ballot"/>
+				</a> |
+			</security:authorize>		
 			
 			<!-- </div> -->		
 			<a href="#" id="memberwise_report" class="butSim link">
