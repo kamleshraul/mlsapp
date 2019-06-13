@@ -487,13 +487,14 @@
 		function generateSubmittedMotionsReport() {
 			var selectedRuleSuspensionDate = $('#selectedRuleSuspensionDate').val();
 			if(selectedRuleSuspensionDate==undefined || selectedRuleSuspensionDate=="") {
-				$.prompt("Please select adjourning date of submitted motions");
+				$.prompt("Please select Rule Suspension date of submitted motions");
 				return false;
 			} else {
-				$("#amois_submitted_report").attr('href',
+				$("#rsmois_submitted_report").attr('href',
 						'rulessuspensionmotion/report/submittedmotions?'
 						+'ruleSuspensionDate=' + selectedRuleSuspensionDate
-						+'&reportQueryName=RSMOIS_SUBMITTED_MOTIONS_REPORT');
+						+'&reportQueryName=RSMOIS_SUBMITTED_MOTIONS_REPORT'
+						+'&sessionId=' + $("#loadedSession").val());
 			}			
 		}
 		/**** Admitted Motions Report Generation ****/
@@ -557,6 +558,12 @@
 			var selectedRuleSuspensionDate = $('#selectedRuleSuspensionDate').val();
 			$("#rsmois_decision_report").attr('href',
 					'rulessuspensionmotion/report/decisionreport?'
+					+'ruleSuspensionMotionId=' + motionId);
+		}
+		
+		function generateNoticeStatement(motionId){
+			$("#rsmois_notice_statement").attr('href',
+					'rulessuspensionmotion/report/noticestatement?'
 					+'ruleSuspensionMotionId=' + motionId);
 		}
 	</script>

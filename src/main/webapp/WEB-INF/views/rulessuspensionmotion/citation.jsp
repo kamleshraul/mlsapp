@@ -82,9 +82,9 @@ $(document).ready(function(){
 </c:if>
 <c:choose>
 	<c:when test="${!(empty citations) }">
+		<label class="small"><spring:message code="citation.text" text="Citation"></spring:message></label>
 		<p> 
-			<label class="small"><spring:message code="citation.text" text="Citation"></spring:message></label>
-			<select id="citations" name="citations" multiple="multiple">
+			<select id="citations" name="citations" multiple="multiple" >
 				<c:forEach items="${citations}" var="i" varStatus="cnt">
 					<option id="citation${cnt}" value="${i.text}">${i.text}</option>
 				</c:forEach>

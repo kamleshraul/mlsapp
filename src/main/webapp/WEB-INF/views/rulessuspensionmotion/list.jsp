@@ -51,8 +51,8 @@
 			$("#rsmois_current_status_report").click(function() {
 				/* $(this).attr('href','#');
 				generateCurrentStatusReport(); */
-				var selectedMotionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
-				
+				var selectedMotionId = $('#key').val();//$("#grid").jqGrid ('getGridParam', 'selarrrow');
+				//alert(selectedMotionId);
 				if(selectedMotionId.length>=1){
 					showCurrentStatusReport('multiple',selectedMotionId);
 				}else{
@@ -97,6 +97,10 @@
 			$("#rsmois_decision_report").click(function(){
 				$(this).attr('href','#');
 				generateDecisionReport($('#key').val());
+			});
+			$("#rsmois_notice_statement").click(function(){
+				$(this).attr('href','#');
+				generateNoticeStatement($('#key').val());
 			});
 		});
 		/**** double clicking record in grid handler ****/
@@ -173,6 +177,9 @@
 					</a> |
 					<a href="#" id="rsmois_register_report" class="butSim">
 						<spring:message code="rsmois.rejected_report" text="Register Report"/>
+					</a> |
+					<a href="#" id="rsmois_notice_statement" class="butSim">
+						<spring:message code="rsmois.notice_statement" text="Notice Statement"/>
 					</a> |
 					<security:authorize access="hasAnyRole('RSMOIS_SECRETARY')">
 						<a href="#" id="rsmois_decision_report" class="butSim">

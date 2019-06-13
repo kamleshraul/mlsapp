@@ -48,7 +48,7 @@
 			</td>
 		</tr>
 	
-		<tr style="font-weight: bold;">
+		<!-- <tr style="font-weight: bold;">
 			#if($formatData.get(28)=='yes')
 				<td style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;" >					
 					ह्या सूचनेशी जोडलेला आहे
@@ -88,7 +88,7 @@
 					
 				#end
 			</td>
-		</tr>
+		</tr> -->
 
 		<tr>
 			<td colspan="3">&nbsp;</td>

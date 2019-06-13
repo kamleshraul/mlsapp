@@ -227,7 +227,7 @@
 		/**** Citations ****/
 		$("#viewUserCitation").click(function(){
 			$.get('rulessuspensionmotion/usercitations/'+$("#type").val(),function(data){
-			    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
+			    $.fancybox.open(data, {autoSize: false, width: 800, height:800});
 		    },'html');
 		    return false;
 		});
@@ -248,6 +248,16 @@
 			}else{
 				$("#revisedNoticeContent").wysiwyg("setContent",$("#noticeContent").val());				
 			}				
+			return false;			
+		});
+		
+		/**** Add subject and text****/
+		$("#addSubject").click(function(){
+			$("#authorityDraft").wysiwyg("setContent",$("#authorityDraft").wysiwyg("getContent")+ " "+ $("#subject").val());							
+			return false;			
+		});	
+		$("#addNoticeContent").click(function(){
+			$("#authorityDraft").wysiwyg("setContent",$("#authorityDraft").wysiwyg("getContent") +"<br>" + $("#noticeContent").val());			
 			return false;			
 		});
 		/**** Revisions ****/
@@ -645,33 +655,82 @@
 			
 			<p>
 				<label class="centerlabel"><spring:message code="rulessuspensionmotion.subject" text="Subject"/>*</label>
-				<form:textarea path="subject" rows="2" cols="50"></form:textarea>
+				<form:textarea path="subject" rows="2" cols="50" readonly="true"></form:textarea>
 				<form:errors path="subject" cssClass="validationError" />	
 			</p>
 				
 			<p>
 				<label class="wysiwyglabel"><spring:message code="rulessuspensionmotion.noticeContent" text="Notice Content"/>*</label>
-				<form:textarea path="noticeContent" cssClass="wysiwyg"></form:textarea>
+				<form:textarea path="noticeContent" cssClass="wysiwyg" readonly="true"></form:textarea>
 				<form:errors path="noticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 			</p>	
 			
 			<p>
-				<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="rulessuspensionmotion.reviseSubject" text="Revise Subject"></spring:message></a>
-				<a href="#" id="reviseNoticeContent" style="margin-right: 20px;"><spring:message code="rulessuspensionmotion.reviseNoticeContent" text="Revise Notice Content"></spring:message></a>
-				<a href="#" id="viewRevision"><spring:message code="rulessuspensionmotion.viewrevisions" text="View Revisions"></spring:message></a>
+				<c:choose>
+					<c:when test="${usergroupType == 'secretary'}">
+						<a href="#" id="viewRevision" style="margin-left: 162px;margin-right: 20px;"><spring:message code="rulessuspensionmotion.viewrevisions" text="View Revisions"></spring:message></a>
+					</c:when>
+					<c:otherwise>
+						<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="rulessuspensionmotion.reviseSubject" text="Revise Subject"></spring:message></a>
+						<a href="#" id="reviseNoticeContent" style="margin-right: 20px;"><spring:message code="rulessuspensionmotion.reviseNoticeContent" text="Revise Notice Content"></spring:message></a>
+						<a href="#" id="viewRevision"><spring:message code="rulessuspensionmotion.viewrevisions" text="View Revisions"></spring:message></a>
+					</c:otherwise>
+				</c:choose>
+				
+				
 			</p>	
 			
 			<p style="display:none;" class="revise1" id="revisedSubjectDiv">
 				<label class="centerlabel"><spring:message code="rulessuspensionmotion.revisedSubject" text="Revised Subject"/></label>
-				<form:textarea path="revisedSubject" rows="4" cols="70"></form:textarea>
+				<c:choose>
+					<c:when test="${usergroupType == 'secretary'}">
+						<form:textarea path="revisedSubject" rows="4" cols="70" readonly="true"></form:textarea>
+					</c:when>
+					<c:otherwise>
+						<form:textarea path="revisedSubject" rows="4" cols="70"></form:textarea>
+					</c:otherwise>
+				</c:choose>
 				<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 			</p>
 			
 			<p style="display:none;" class="revise2" id="revisedNoticeContentDiv">
 				<label class="wysiwyglabel"><spring:message code="rulessuspensionmotion.revisedNoticeContent" text="Revised Notice Content"/></label>
-				<form:textarea path="revisedNoticeContent" cssClass="wysiwyg"></form:textarea>
+				<c:choose>
+					<c:when test="${usergroupType == 'secretary'}">
+						<form:textarea path="revisedNoticeContent" cssClass="wysiwyg" readonly="true"></form:textarea>
+					</c:when>
+					<c:otherwise>
+						<form:textarea path="revisedNoticeContent" cssClass="wysiwyg"></form:textarea>
+					</c:otherwise>
+				</c:choose>
 				<form:errors path="revisedNoticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 			</p>
+			
+			<p>
+				<c:choose>
+					<c:when test="${usergroupType == 'secretary'}">
+						<a href="#" id="addSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="rulessuspensionmotion.addSubject" text="Add Subject"></spring:message></a>
+						<a href="#" id="addNoticeContent" style="margin-right: 20px;"><spring:message code="rulessuspensionmotion.addNoticeContent" text="Add Notice Content"></spring:message></a>
+					</c:when>
+					<c:otherwise>
+						
+					</c:otherwise>
+				</c:choose>
+			</p>
+			
+			<c:choose>
+				<c:when test="${usergroupType == 'secretary'}">
+						<p>
+							<label class="wysiwyglabel"><spring:message code="rulessuspensionmotion.authorityDraft" text="Authority Draft"/></label>
+							<form:textarea path="authorityDraft" cssClass="wysiwyg"></form:textarea>
+							<form:errors path="authorityDraft" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+						</p>
+				</c:when>
+				<c:otherwise>
+					<form:hidden path="authorityDraft"/>
+				</c:otherwise>
+			</c:choose>
+
 			
 			<p id="internalStatusDiv">
 				<label class="small"><spring:message code="rulessuspensionmotion.currentStatus" text="Current Status"/></label>
