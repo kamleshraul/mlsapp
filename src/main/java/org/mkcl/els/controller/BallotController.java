@@ -15,6 +15,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -24,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,11 +36,13 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
+import org.mkcl.els.common.vo.BallotEntryVO;
 import org.mkcl.els.common.vo.BallotMemberVO;
 import org.mkcl.els.common.vo.BallotVO;
 import org.mkcl.els.common.vo.BillBallotVO;
 import org.mkcl.els.common.vo.GroupVO;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.MemberBallotFinalBallotQuestionVO;
 import org.mkcl.els.common.vo.MemberBallotFinalBallotVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseCountVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseQuestionVO;
@@ -3418,6 +3422,87 @@ public class BallotController extends BaseController{
 			return errorpage;
 		}
 		return "ballot/memberballotfinal";		
+	}
+	
+	
+	/****** Member Ballot(Council) Member Ballot Final Ballot Page ****/
+	@Transactional
+	@RequestMapping(value="/memberballot/previewfinal",method=RequestMethod.GET)
+	public String previewFinalMemberBallot(final HttpServletRequest request,
+			final ModelMap model,
+			final Locale locale){
+		String errorpage="ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		try{
+			String strSession=request.getParameter("session");
+			String strDeviceType=request.getParameter("questionType");
+			String strGroup=request.getParameter("group");
+			String strAnsweringDate=request.getParameter("answeringDate");
+			Boolean status=false;
+			List<MemberBallotFinalBallotVO> ballots=new ArrayList<MemberBallotFinalBallotVO>();
+			
+			if(strSession!=null&&strDeviceType!=null&&strGroup!=null&&strAnsweringDate!=null){
+				if((!strSession.isEmpty())&&(!strDeviceType.isEmpty())&&(!strGroup.isEmpty())&&(!strAnsweringDate.isEmpty())){
+					Session session=Session.findById(Session.class, Long.parseLong(strSession));
+					String firstBatchSubmissionDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME);
+					if(firstBatchSubmissionDate!=null){
+						if(!firstBatchSubmissionDate.isEmpty()){
+							QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
+							String ansDate=null;
+							CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_DATEFORMAT", "");
+							if(customParameter!=null){
+								ansDate=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US").format(questionDates.getAnsweringDate());;
+							}else{
+								model.addAttribute("type","DB_DATEFORMAT_NOTSET");
+								return errorpage;	
+							}
+							DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(strDeviceType));
+							Group group=Group.findById(Group.class,Long.parseLong(strGroup));
+							String totalRounds=session.getParameter(ApplicationConstants.QUESTION_STARRED_NO_OF_ROUNDS_MEMBERBALLOT_FINAL);
+							if(totalRounds==null){
+								model.addAttribute("type","TOTAL_ROUNDS_IN_BALLOT_UH_NOTSET");
+								return errorpage;	
+							}else if(totalRounds.isEmpty()){
+								model.addAttribute("type","TOTAL_ROUNDS_IN_BALLOT_UH_NOTSET");
+								return errorpage;	
+							}
+
+							ballots = MemberBallot.previewFinalBallotUH(session, deviceType, group, ansDate, questionDates.getAnsweringDate(), locale.toString(), firstBatchSubmissionDate, Integer.parseInt(totalRounds));
+							model.addAttribute("ballots",ballots);
+							model.addAttribute("answeringDate",FormaterUtil.getDateFormatter(locale.toString()).format(questionDates.getAnsweringDate()));
+							
+
+						}else{
+							model.addAttribute("type","FIRSTBATCH_SUBMISSIONDATE_NOTSET");
+							return errorpage;
+						}
+					}else{
+						model.addAttribute("type","FIRSTBATCH_SUBMISSIONDATE_NOTSET");
+						return errorpage;
+					}				
+				}else{
+					logger.error("**** Check request parameter 'session,deviceType,group,answering date' for null values ****");
+					model.addAttribute("type", "MEMBERBALLOTFINAL_REQUEST_PARAMETER_EMPTY");
+					return errorpage;
+				}	
+			}else{
+				logger.error("**** Check request parameter 'session,deviceType,group,answering date' for null values ****");
+				model.addAttribute("type", "MEMBERBALLOTFINAL_REQUEST_PARAMETER_NULL");
+				return errorpage;
+			}
+		}catch (ELSException e) {
+			logger.error("**** Check request parameter 'session,deviceType,group,answering date' for null values ****");
+			model.addAttribute("type", "MEMBERBALLOTFINAL_REQUEST_PARAMETER_NULL");
+			return errorpage;
+		}
+		return "ballot/previewballotfinal";		
 	}
 
 	/****** Member Ballot(Council) Member Ballot report in PDF or WORD using FOP ****//*

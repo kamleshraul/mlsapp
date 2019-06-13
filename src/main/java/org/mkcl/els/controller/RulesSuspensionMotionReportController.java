@@ -301,24 +301,55 @@ public class RulesSuspensionMotionReportController extends BaseController{
 		Boolean isError = false;
 		MessageResource errorMessage = null;
 		Map<String, String[]> requestMap = new HashMap<String, String[]>();
-		String adjourningDateStr = request.getParameter("adjourningDate");		
+		String strRuleSuspensionDate = request.getParameter("ruleSuspensionDate");		
 		String sessionId = request.getParameter("sessionId");
 		String reportQueryName = request.getParameter("reportQueryName");
-		if(adjourningDateStr==null || adjourningDateStr.isEmpty() 
+		if(strRuleSuspensionDate==null || strRuleSuspensionDate.isEmpty() 
 				|| sessionId==null || sessionId.isEmpty()
 				|| reportQueryName==null || reportQueryName.isEmpty()) {
 			logger.error("**** One of the request parameters is not set ****");
 			isError = true;
 			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "rsmois.submitted_motions_report.parameterNotSet", locale.toString());						
 		} else {
-			Date adjourningDate = FormaterUtil.formatStringToDate(adjourningDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
-			requestMap.put("adjourningDate", new String[] {FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.DB_DATEFORMAT)});
+			Date ruleSuspensionDate = FormaterUtil.formatStringToDate(strRuleSuspensionDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+			requestMap.put("rule_suspension_date", new String[] {FormaterUtil.formatDateToString(ruleSuspensionDate, ApplicationConstants.DB_DATEFORMAT)});
 			requestMap.put("sessionId", new String[] {sessionId});
 			requestMap.put("locale", new String[]{locale.toString()});
 			@SuppressWarnings("rawtypes")
-			List submittedMotions = Query.findReport(reportQueryName, requestMap, true);
+			List submittedMotions = Query.findReport(reportQueryName, requestMap);
+			List<Object[]> motions = new ArrayList<Object[]>();
+			for(int i = 0; i< submittedMotions.size(); i++){
+				Object[] obj = (Object[])submittedMotions.get(i);
+				Object[] newObject = new Object[obj.length + 2];
+				int count =0;
+				for(int j= 0;j<obj.length;j++){
+					newObject[j] = obj[j];
+					count++;
+				}
+				Map<String, String[]> cRequestMap = new HashMap<String, String[]>();
+				cRequestMap.put("locale", new String[]{locale.toString()});
+				cRequestMap.put("rulesSuspensionMotionId", new String[]{obj[0].toString()});
+				List clubbedRulesSuspensionMotions = Query.findReport("RSMOIS_CLUBBEDMOTIONS_DETAILS", cRequestMap);
+				String clubbedNumbers = "";
+				String strSubmissionTime = "";
+				if(clubbedRulesSuspensionMotions != null && !clubbedRulesSuspensionMotions.isEmpty()){
+					for(int k= 0; k<clubbedRulesSuspensionMotions.size(); k++){
+						Object[] cObj = (Object[])clubbedRulesSuspensionMotions.get(k);
+						if(k==clubbedRulesSuspensionMotions.size() -1){
+							clubbedNumbers = clubbedNumbers +" " + cObj[2] +" " + cObj[0].toString();
+							strSubmissionTime = strSubmissionTime +" " + cObj[2] +" " +  cObj[1].toString();
+						}else{
+							clubbedNumbers = clubbedNumbers +","+cObj[0].toString();
+							strSubmissionTime = strSubmissionTime +"," + cObj[1].toString();
+						}
+					}
+				}
+				newObject[count]= clubbedNumbers;
+				newObject[count+1]= strSubmissionTime;
+				motions.add(newObject);
+			}
 			try {
-				reportFile = generateReportUsingFOP(new Object[] {submittedMotions}, "rsmois_submitted_motions_template", "WORD", "rsmois_submitted_motions", locale.toString());
+				reportFile = generateReportUsingFOP(new Object[] {motions}, "rsmois_submitted_motions_template", "WORD", "rsmois_submitted_motions", locale.toString());
 			} catch (Exception e) {
 				e.printStackTrace();
 				logger.error("**** Some error occurred ****");
@@ -526,6 +557,64 @@ public class RulesSuspensionMotionReportController extends BaseController{
 		List rulesSuspensionMotions = Query.findReport("RSMOIS_DECISION_LETTER", requestMap);
 		try {
 			reportFile = generateReportUsingFOP(new Object[] {rulesSuspensionMotions}, "rsmois_decision_letter_template", "WORD", "rsmois_decisionletter", locale.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("**** Some error occurred ****");
+			isError = true;
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "rsmois.decisionreport.someErrorOccurred", locale.toString());
+		}
+		System.out.println("RSMOIS Decision Letter generated successfully in WORD format!");
+
+		openOrSaveReportFileFromBrowser(response, reportFile, "WORD");			
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {				
+				e.printStackTrace();
+			}
+		}		
+	}
+	
+	
+	@RequestMapping(value="/noticestatement" ,method=RequestMethod.GET)
+	public @ResponseBody void generateNoticeStatement(final HttpServletRequest request,
+			HttpServletResponse response, final Locale locale, final ModelMap model){
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		Map<String, String[]> requestMap = new HashMap<String, String[]>();
+		String strRuleSuspensionMotionId = request.getParameter("ruleSuspensionMotionId");
+		requestMap.put("rulesSuspensionMotionId", new String[] {strRuleSuspensionMotionId});
+		requestMap.put("locale", new String[]{locale.toString()});
+		@SuppressWarnings("rawtypes")
+		List rulesSuspensionMotions = Query.findReport("RSMOIS_NOTICE_STATEMENT_REPORT", requestMap);
+		List clubbedRulesSuspensionMotions = Query.findReport("RSMOIS_CLUBBEDMOTIONS_DETAILS", requestMap);
+		String clubbedNumbers = "";
+		String strSubmissionTime = "";
+		for(int i = 0; i<clubbedRulesSuspensionMotions.size(); i++){
+			Object[] obj = (Object[])clubbedRulesSuspensionMotions.get(i);
+			if(i==clubbedRulesSuspensionMotions.size() -1){
+				clubbedNumbers = clubbedNumbers +" " + obj[2] +" " + obj[0].toString();
+				strSubmissionTime = strSubmissionTime +" " + obj[2] +" " +  obj[1].toString();
+			}else{
+				clubbedNumbers = clubbedNumbers +","+obj[0].toString();
+				strSubmissionTime = strSubmissionTime +"," + obj[1].toString();
+			}
+			
+		}
+		try {
+			reportFile = generateReportUsingFOP(new Object[] {rulesSuspensionMotions, clubbedNumbers, strSubmissionTime}, "rsmois_notice_statement_template", "WORD", "rsmois_noticestatment", locale.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("**** Some error occurred ****");
