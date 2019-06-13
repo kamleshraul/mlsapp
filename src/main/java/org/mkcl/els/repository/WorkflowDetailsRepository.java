@@ -1264,21 +1264,21 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 			String strLocale) throws ELSException {
 		
 		StringBuffer buffer=new StringBuffer();
-		buffer.append("SELECT wd FROM WorkflowDetails wd" +
-				" WHERE houseType=:houseType"+
-				" AND sessionType=:sessionType" +
-				" AND sessionYear=:sessionYear"+
+		buffer.append("SELECT wd.* FROM workflow_details wd" +
+				" WHERE house_type=:houseType"+
+				" AND session_type=:sessionType" +
+				" AND session_year=:sessionYear"+
 				" AND assignee=:assignee" +
-				" AND deviceType=:deviceType"+
+				" AND device_type=:deviceType"+
 				" AND status=:status"+
-				" AND workflowSubType=:workflowSubType"+
-				" AND adjourningDate=:adjourningDate"+
+				" AND workflow_sub_type=:workflowSubType"+
+				" AND adjourning_date=:adjourningDate"+
 				" AND locale=:locale"+
-				" ORDER BY numericalDevice");
+				" ORDER BY CAST(numerical_device AS UNSIGNED)");
 		
 		List<WorkflowDetails> workflowDetails=new ArrayList<WorkflowDetails>();
 		try{
-			Query query=this.em().createQuery(buffer.toString());
+			Query query=this.em().createNativeQuery(buffer.toString(), WorkflowDetails.class);
 			query.setParameter("houseType",strHouseType);
 			query.setParameter("sessionType",strSessionType);
 			query.setParameter("sessionYear",strSessionYear);

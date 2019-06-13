@@ -1581,6 +1581,7 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 				|| domain.getRevisedNoticeContent().isEmpty()){			
 			domain.setRevisedNoticeContent(domain.getNoticeContent());
 		}
+		domain.setAdmissionNumber(AdjournmentMotion.assignAdmissionNumber(domain.getSession(), domain.getLocale()));
 		domain.simpleMerge(); 
 		// Hack (11Nov2014): Commenting the following line results in 
 		// OptimisticLockException.

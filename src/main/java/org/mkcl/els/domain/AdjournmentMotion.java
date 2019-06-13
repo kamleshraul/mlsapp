@@ -63,6 +63,9 @@ public class AdjournmentMotion extends Device implements Serializable {
 	/** The number. */
 	private Integer number;
 	
+	/** The number in sequence of admitted count for the session. */
+	private Integer admissionNumber;
+	
 	/** The primary member. */
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="member_id")
@@ -483,6 +486,10 @@ public class AdjournmentMotion extends Device implements Serializable {
 	
 	public static Integer assignMotionNo(final HouseType houseType, final Date adjourningDate, final String locale) {
 		return getAdjournmentMotionRepository().assignMotionNo(houseType, adjourningDate, locale);		
+	}
+	
+	public static Integer assignAdmissionNumber(final Session session, final String locale) {
+		return getAdjournmentMotionRepository().assignAdmissionNumber(session, locale);
 	}
 	
 	public String formatNumber() {
@@ -1676,6 +1683,14 @@ public class AdjournmentMotion extends Device implements Serializable {
 	 */
 	public void setNumber(Integer number) {
 		this.number = number;
+	}
+
+	public Integer getAdmissionNumber() {
+		return admissionNumber;
+	}
+
+	public void setAdmissionNumber(Integer admissionNumber) {
+		this.admissionNumber = admissionNumber;
 	}
 
 	/**

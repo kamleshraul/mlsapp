@@ -50,20 +50,44 @@ public class AdjournmentMotionRepository extends BaseRepository<AdjournmentMotio
 		}		
 	}
 	
+	public Integer assignAdmissionNumber(final Session session, final String locale) {
+		String strQuery = "SELECT m FROM AdjournmentMotion m" +
+				" JOIN m.status sta" +
+				" WHERE m.session.id=:sessionId" +
+				" AND sta.type=:admissionStatusType" +
+				" AND m.admissionNumber IS NOT NULL" +
+				" AND m.locale=:locale " +
+				" ORDER BY m.admissionNumber DESC";
+		TypedQuery<AdjournmentMotion> query = this.em().createQuery(strQuery, AdjournmentMotion.class);
+		query.setParameter("sessionId", session.getId());
+		query.setParameter("admissionStatusType", ApplicationConstants.ADJOURNMENTMOTION_FINAL_ADMISSION);
+		query.setParameter("locale", locale);
+		query.setMaxResults(1);
+		List<AdjournmentMotion> adjournmentMotions = query.getResultList();
+		if(adjournmentMotions==null || adjournmentMotions.isEmpty()) {
+			return 1;
+		} else {
+			return adjournmentMotions.get(0).getAdmissionNumber()==null? 1 : adjournmentMotions.get(0).getAdmissionNumber()+1;
+		}		
+	}
+	
 	public Integer findContinuationNumber(final AdjournmentMotion adjournmentMotion) {
 		Integer continuationCount = null;
 		
 		String queryString = "SELECT COUNT(DISTINCT am.id) FROM adjournmentmotions am" +
+				" INNER JOIN status sta ON (sta.id=am.status_id)" +
 				" WHERE am.session_id=:sessionId" +
 				" AND am.number IS NOT NULL" +
-				" AND q.adjourning_date<:adjourningDate" +
-				" AND q.locale=:locale";
-		Query query = this.em().createNativeQuery(queryString, Integer.class);
+				" AND sta.type LIKE '%\\final_admission'" +
+				" AND am.adjourning_date<:adjourningDate" +
+				" AND am.locale=:locale";
+		Query query = this.em().createNativeQuery(queryString);
 		query.setParameter("sessionId", adjournmentMotion.getSession().getId());
 		query.setParameter("adjourningDate", adjournmentMotion.getAdjourningDate());
 		query.setParameter("locale", adjournmentMotion.getLocale());
 		try {
-			Integer countBeforeAdjourningDate = (Integer) query.getSingleResult();
+			//Integer countBeforeAdjourningDate = (Integer) query.getSingleResult();
+			Integer countBeforeAdjourningDate = ((BigInteger) query.getSingleResult()).intValue();
 			if(countBeforeAdjourningDate!=null && adjournmentMotion.getNumber()!=null) {
 				continuationCount = countBeforeAdjourningDate.intValue() + adjournmentMotion.getNumber().intValue();
 			} else {
@@ -72,6 +96,10 @@ public class AdjournmentMotionRepository extends BaseRepository<AdjournmentMotio
 				}			
 			}
 		} catch(NoResultException nre) {
+			if(adjournmentMotion.getNumber()!=null) {
+				continuationCount = adjournmentMotion.getNumber();
+			}
+		} catch(Exception e) {
 			if(adjournmentMotion.getNumber()!=null) {
 				continuationCount = adjournmentMotion.getNumber();
 			}
