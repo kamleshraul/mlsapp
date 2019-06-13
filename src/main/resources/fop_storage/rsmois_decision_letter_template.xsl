@@ -26,7 +26,7 @@
 				<fo:simple-page-master master-name="first"
 	                  	page-height="29.7cm" page-width="21cm"
 	                  	margin-top="2.3cm" margin-bottom="1.5cm"
-	                  	margin-left="1.5cm" margin-right="1.5cm">
+	                  	margin-left="1.8cm" margin-right="1.8cm">
 			      	<fo:region-body margin-top="0cm"/>
 			      	<fo:region-before region-name="rb-first" extent="2cm"/>
 			      	<fo:region-after region-name="ra-first" extent="1.5cm"/>
@@ -34,7 +34,7 @@
 				<fo:simple-page-master master-name="others"
 	                  	page-height="29.7cm" page-width="21cm"
 	                  	margin-top="2cm" margin-bottom="2cm"
-	                  	margin-left="1.5cm" margin-right="1.5cm">
+	                  	margin-left="1.8cm" margin-right="1.8cm">
 			      	<fo:region-body margin-top="0cm"/>
 			      	<fo:region-before region-name="rb-common" extent="2cm"/>
 			      	<fo:region-after region-name="ra-common" extent="1.5cm"/>
@@ -72,42 +72,51 @@
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            	
-	            	<fo:block font-family="Mangal" font-size="12px">
+	            	<fo:block font-family="Kokila" font-size="26px">
 	            		<xsl:choose>
 	            			<xsl:when test="element_1">
-	            				<fo:block text-align="right" font-size="14px" font-weight="bold">
-			            			<xsl:value-of select="element_1[1]/element_1_7"></xsl:value-of>
+	            				<fo:block font-size="26px" font-weight="bold" margin-left="4cm" text-decoration="underline">
+	            			  		<xsl:value-of select="element_1[1]/element_1_7"></xsl:value-of>
 			            		</fo:block>
-			            		<fo:block text-align="right" font-size="14px" font-weight="bold">
-			            			<xsl:value-of select="element_1[1]/element_1_6"/> 
+			            		<fo:block font-size="26px" font-weight="bold" margin-left="4cm" text-decoration="underline">
+			            			<xsl:apply-templates select="element_1[1]/element_1_6"/>
 			            		</fo:block>
-			            		<fo:block font-size="20px" font-weight="bold">
-			            			<fo:inline text-align="left" font-size="20px">मा. सभापती</fo:inline>
-			            			<fo:inline text-align="center" font-size="20px">सूचना</fo:inline>
+			            		<fo:block font-size="8px">&#160;</fo:block> 
+			            		<fo:block>
+			            			<fo:inline font-size="32px" font-weight="bold" text-decoration="underline">मा. सभापती :-</fo:inline>
+			            			<fo:inline font-size="20px" font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:inline>
+			            			<fo:inline font-size="32px" font-weight="bold" text-decoration="underline">सूचना</fo:inline>
 			            		</fo:block>	
-			            		<fo:block font-size="14px">&#160;</fo:block>
+			            		
+			            		<fo:block font-size="8px">&#160;</fo:block>
 	            				<fo:block text-align="justify">
 	            					&#160;&#160;&#160;&#160;आज दिनांक <xsl:value-of select="element_1[1]/element_1_11"/> रोजी 
-	            					 <xsl:value-of select="element_1[1]/element_1_11"/> , <xsl:value-of select="element_1[1]/element_1_4"/> यांनी सकाळी 
+	            					<xsl:value-of select="element_1[1]/element_1_8"/> , <xsl:value-of select="element_1[1]/element_1_4"/> यांनी सकाळी 
 	            					<xsl:value-of select="element_1[1]/element_1_10"/>, <xsl:value-of select="element_1[1]/element_1_5"/>
 	            					<fo:inline text-decoration="underline">" <xsl:value-of select="element_1[1]/element_1_3"/> "</fo:inline> या विषयाबाबत म.वि.प. नियम २८९ अन्वये सूचना दिली आहे.
-	            				</fo:block>		
-			            		<fo:block text-align="center">
+	            				</fo:block>
+	            				<fo:block font-size="14px">&#160;</fo:block>
+			            		<fo:block font-size="22px" text-align="center" font-weight="bold">
 									(मा. सभापती यांनी अनुमती दिल्यास संबंधित सदस्यांनी म्हणणे मांडल्यानंतर)	            			
 			            		</fo:block>
-			            		<fo:block text-align="center">
-									मा. सभापती :-
-									<fo:inline > निर्णय</fo:inline>         			
-			            		</fo:block>    
 			            		<fo:block font-size="14px">&#160;</fo:block>
 			            		<fo:block>
+			            			<fo:inline font-size="32px" font-weight="bold" text-decoration="underline">मा. सभापती :-</fo:inline>
+			            			<fo:inline font-size="20px" font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:inline>
+			            			<fo:inline font-size="32px" font-weight="bold" text-decoration="underline">निर्णय</fo:inline>
+			
+			            		</fo:block>    
+			            		<fo:block font-size="8px">&#160;</fo:block>
+			            		<fo:block  text-align="justify">
 			            			&#160;&#160;&#160;महाराष्ट्र विधानपरिषद नियमांतील एखादा नियम स्थगित करणे या संबंधाचा नियम २८९ हा आहे. कोणत्याही सदस्यास मा. सभापतींच्या अनुमतीने कोणताही नियम स्थगित
 			            			करण्यासंदर्भात सूचना देता येईल.
-			            		</fo:block>  
-			            		<fo:block>
-			            			&#160;&#160;&#160;यावरून असे दिसून येते की, इतर सगळे कामकाज स्थगित करण्यासाठी त्या दिवसाच्या काम्क्काजाच्या क्रमात असे काम किंवा एखादा विशिष्ट प्रस्ताव सभागृहासमोर असणे आवश्यक आहे.
 			            		</fo:block>
-			            		<fo:block>
+			            		<fo:block font-size="8px">&#160;</fo:block>  
+			            		<fo:block  text-align="justify">
+			            			&#160;&#160;&#160;यावरून असे दिसून येते की, इतर सगळे कामकाज स्थगित करण्यासाठी त्या दिवसाच्या कामकाजाच्या क्रमात असे काम किंवा एखादा विशिष्ट प्रस्ताव सभागृहासमोर असणे आवश्यक आहे.
+			            		</fo:block>
+			            		<fo:block font-size="8px">&#160;</fo:block>
+			            		<fo:block  text-align="justify">
 			            			&#160;&#160;&#160;<xsl:value-of select="element_1[1]/element_1_9"/>
 			            		</fo:block>				
 	            			</xsl:when>
