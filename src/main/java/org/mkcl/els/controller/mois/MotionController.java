@@ -28,6 +28,7 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
+import org.mkcl.els.controller.NotificationController;
 import org.mkcl.els.controller.mis.MemberOtherController;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Citation;
@@ -4090,10 +4091,7 @@ public class MotionController extends GenericController<Motion>{
 					if(remark != null && !remark.isEmpty()){
 						motion.setRemarks(remark);
 					}
-					/**** Update Advance Copy Actor ****/
-					if(actor != null && !actor.isEmpty()){
-						motion.setAdvanceCopyActor(actor);	
-					}
+					
 					/***Ministry and Subdepartment ****/
 					if(strMinistry != null && !strMinistry.isEmpty()){
 						Ministry ministry = Ministry.findById(Ministry.class, Long.parseLong(strMinistry));
@@ -4110,6 +4108,11 @@ public class MotionController extends GenericController<Motion>{
 						motion.setMlsBranchNotifiedOfTransfer(true);
 						motion.setAdvanceCopyActor(null);
 						motion.setAdvanceCopyPrinted(false);
+					}
+					/**** Update Advance Copy Actor ****/
+					if(actor != null && !actor.isEmpty() && (strMlsNotified == null || strMlsNotified.equals(""))){
+						motion.setAdvanceCopyActor(actor);	
+						NotificationController.sendDepartmentProcessNotificationForMotion(motion, actor, "advanceCopy", motion.getLocale());
 					}
 					if(strStatus != null && !strStatus.isEmpty()){
 						Status advanceStatus = Status.findById(Status.class, Long.parseLong(strStatus));

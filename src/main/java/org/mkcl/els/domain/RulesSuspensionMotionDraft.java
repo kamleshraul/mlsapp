@@ -34,6 +34,10 @@ public class RulesSuspensionMotionDraft extends BaseDomain implements Serializab
     @Column(length=30000)
     private String noticeContent;
     
+    /** The authority Draft. */
+    @Column(length=30000)
+    private String authorityDraft;
+    
     /** The parent. */
 	@ManyToOne(fetch=FetchType.LAZY)
 	private RulesSuspensionMotion parent;
@@ -237,5 +241,15 @@ public class RulesSuspensionMotionDraft extends BaseDomain implements Serializab
 	public void setSubDepartments(List<SubDepartment> subDepartments) {
 		this.subDepartments = subDepartments;
 	}
+
+	public String getAuthorityDraft() {
+		return authorityDraft;
+	}
+
+	public void setAuthorityDraft(String authorityDraft) {
+		this.authorityDraft = authorityDraft;
+	}
+	
+	
 
 }

@@ -131,6 +131,10 @@ public class RulesSuspensionMotion extends Device implements Serializable{
     @Column(length=30000)
     private String revisedNoticeContent;
     
+    /** The revised notice content. */
+    @Column(length=30000)
+    private String authorityDraft;
+    
     /** The edited on. */
 	@Temporal(TemporalType.TIMESTAMP)
 	@JoinColumn(name="editedon")
@@ -435,6 +439,7 @@ public class RulesSuspensionMotion extends Device implements Serializable{
     		draft.setNoticeContent(this.getNoticeContent());
     	}
         
+    	draft.setAuthorityDraft(this.getAuthorityDraft());
         if(this.getId() != null) {
             RulesSuspensionMotion rulesSuspensionMotion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, this.getId());
             List<RulesSuspensionMotionDraft> originalDrafts = rulesSuspensionMotion.getDrafts();
@@ -1156,8 +1161,14 @@ public class RulesSuspensionMotion extends Device implements Serializable{
 		this.subDepartments = subDepartments;
 	}
 	
+	public String getAuthorityDraft() {
+		return authorityDraft;
+	}
 
-	
+	public void setAuthorityDraft(String authorityDraft) {
+		this.authorityDraft = authorityDraft;
+	}
+
 	public String getFormattedRuleSuspensionDate() {
 		if(this.ruleSuspensionDate!=null) {
 			try {

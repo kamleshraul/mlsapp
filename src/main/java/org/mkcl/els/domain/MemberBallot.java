@@ -26,6 +26,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.vo.BallotEntryVO;
 import org.mkcl.els.common.vo.MemberBallotFinalBallotVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.MemberBallotQuestionDistributionVO;
@@ -410,6 +411,13 @@ public class MemberBallot extends BaseDomain implements Serializable {
 			final DeviceType deviceType,final String answeringDate,
 			final String locale) throws ELSException{
 		return getMemberBallotRepository().viewBallot(session, deviceType,answeringDate, locale);
+	}
+	
+	public static List<MemberBallotFinalBallotVO> previewFinalBallotUH(final Session session,
+			final DeviceType deviceType, final Group group, final String strAnsweringDate,final Date answeringDate,
+			final String locale,final String firstBatchSubmissionDate,final int totalRounds) throws ELSException {
+		return getMemberBallotRepository().previewFinalBallotUH(session,
+				deviceType,group,strAnsweringDate,answeringDate,locale,firstBatchSubmissionDate,totalRounds);
 	}
 
 	public static Boolean deleteTempEntries() {
