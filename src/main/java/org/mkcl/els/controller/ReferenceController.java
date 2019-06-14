@@ -10430,4 +10430,27 @@ public class ReferenceController extends BaseController {
 		return clubbedRulesSuspensionMotionsVO;
 	}
 	
+	
+	
+	@RequestMapping(value="/rulessuspensionmotion/duplicatenumber", method=RequestMethod.GET)
+	public @ResponseBody Boolean isDuplicateNumberedRulesSuspensionMotion(HttpServletRequest request, Locale locale) throws ParseException, UnsupportedEncodingException{
+		Boolean flag=false;
+		String strRuleSuspensionDate=request.getParameter("ruleSuspensionDate");
+		String strNumber=request.getParameter("number");		
+		if(strNumber!=null && !strNumber.isEmpty() 
+			&& strRuleSuspensionDate!=null && !strRuleSuspensionDate.isEmpty()){
+			CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			if(csptDeployment!=null){
+				String server=csptDeployment.getValue();
+				if(server.equals("TOMCAT")){
+					strNumber = new String(strNumber.getBytes("ISO-8859-1"),"UTF-8");
+				}
+			}
+			Date ruleSuspensionDate = FormaterUtil.formatStringToDate(strRuleSuspensionDate, ApplicationConstants.SERVER_DATEFORMAT);
+			Integer ruleSuspensionMotionNumber=FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+			flag=RulesSuspensionMotion.isDuplicateNumberExist(ruleSuspensionDate, ruleSuspensionMotionNumber, null, locale.toString());
+		}
+		return flag;
+	}
+	
 }
