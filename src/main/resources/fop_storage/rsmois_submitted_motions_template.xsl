@@ -132,12 +132,12 @@
 				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
 				                                        <fo:block text-align="center">
 				                                        	<xsl:value-of select="element_1_11" />
-				                                        	<xsl:value-of select="element_1_12" />
+				                                        	<xsl:value-of select="element_1_13" />
 				                                        </fo:block> 
 				                                    </fo:table-cell>		                                    
 				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
 				                                        <fo:block text-align="left" font-weight="bold">
-				                                        	सकाळी <xsl:value-of select="element_1_13" />,
+				                                        	सकाळी <xsl:value-of select="element_1_12" /> <xsl:value-of select="element_1_14" />,
 				                                        </fo:block> 
 				                                    </fo:table-cell>		                                    
 				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
