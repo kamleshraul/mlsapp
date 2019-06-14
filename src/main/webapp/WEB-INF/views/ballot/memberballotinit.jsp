@@ -75,7 +75,6 @@
 			});
 			
 			$("#previewFinalBallot").click(function(){
-				alert("");
 				previewFinalBallot();
 			});
 			
@@ -471,7 +470,6 @@
 		}
 		
 		function previewFinalBallot(){
-			alert("");
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			var group=$("#mbGroup").val();
 			var answeringDate=$("#mbAnsweringDate").val();
