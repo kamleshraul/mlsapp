@@ -642,7 +642,7 @@ public class RulesSuspensionMotionController extends GenericController<RulesSusp
 				} else {
 					defaultRuleSuspensionDate = RulesSuspensionMotion.findDefaultRuleSuspensionDateForSession(selectedSession, false);
 				}
-				model.addAttribute("defaultAdjourningDate", FormaterUtil.formatDateToString(defaultRuleSuspensionDate, ApplicationConstants.SERVER_DATEFORMAT));
+				model.addAttribute("defaultRuleSuspensionDate", FormaterUtil.formatDateToString(defaultRuleSuspensionDate, ApplicationConstants.SERVER_DATEFORMAT));
 			}
 		} catch(ELSException elsx) {
 			elsx.printStackTrace();
@@ -1166,7 +1166,7 @@ public class RulesSuspensionMotionController extends GenericController<RulesSusp
 				if(submissionWindowValidationSkippedCP==null || submissionWindowValidationSkippedCP.getValue()==null
 						|| !submissionWindowValidationSkippedCP.getValue().equals("TRUE")) {
 					if(!domain.validateSubmissionDate()) {
-						result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
+						result.rejectValue("version","submissionWindowClosed","submission time window is closed for this rule suspension date motions!");
 						return;
 					}
 					CustomParameter csptOfflineSubmissionAllowedFlag = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_OFFLINE_SUBMISSION_ALLOWED_FLAG"+"_"+domain.getHouseType().getType().toUpperCase(), "");

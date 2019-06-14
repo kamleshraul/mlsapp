@@ -654,7 +654,7 @@ public class RulesSuspensionMotion extends Device implements Serializable{
     	//find submission end time part
     	String submissionEndTimePart = "00:00:00";
     	if(motionSession!=null) {
-    		String submissionEndTimeParameter = motionSession.getParameter(ApplicationConstants.RULESSUSPENSION_MOTION+"_submissionEndTime_"+ruleSuspensionDate);
+    		String submissionEndTimeParameter = motionSession.getParameter(ApplicationConstants.RULESSUSPENSION_MOTION+"_submissionEndTime_"+submissionEndDatePart);
     		if(submissionEndTimeParameter!=null && !submissionEndTimeParameter.isEmpty()) {
     			submissionEndTimePart = submissionEndTimeParameter + ":00";
     		} else {
