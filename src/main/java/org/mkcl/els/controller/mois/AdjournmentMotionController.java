@@ -849,6 +849,10 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 			if(domain.getNumber()!=null){
 				model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
 			}
+			/**** Admission Number ****/
+			if(domain.getAdmissionNumber()!=null){
+				model.addAttribute("formattedAdmissionNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getAdmissionNumber()));
+			}
 			/** populate session dates as possible adjourning dates **/
 			if(selectedSession!=null && selectedSession.getId()!=null) {
 				List<Date> sessionDates = selectedSession.findAllSessionDatesHavingNoHoliday();

@@ -5124,10 +5124,24 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				if(adjournmentMotion.getId()!=null){
 					workflowDetails.setDeviceId(String.valueOf(adjournmentMotion.getId()));
 				}
-				if(adjournmentMotion.getNumber()!=null){
-					workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(adjournmentMotion.getLocale()).format(adjournmentMotion.getNumber()));
-					workflowDetails.setNumericalDevice(adjournmentMotion.getNumber().toString());
-				}
+				if(userGroupType.equals(ApplicationConstants.DEPARTMENT) || userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+					if(adjournmentMotion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+						if(adjournmentMotion.getAdmissionNumber()!=null){
+							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(adjournmentMotion.getLocale()).format(adjournmentMotion.getAdmissionNumber()));
+							workflowDetails.setNumericalDevice(adjournmentMotion.getAdmissionNumber().toString());
+						}
+					} else {
+						if(adjournmentMotion.getNumber()!=null){
+							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(adjournmentMotion.getLocale()).format(adjournmentMotion.getNumber()));
+							workflowDetails.setNumericalDevice(adjournmentMotion.getNumber().toString());
+						}
+					}
+				} else {
+					if(adjournmentMotion.getNumber()!=null){
+						workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(adjournmentMotion.getLocale()).format(adjournmentMotion.getNumber()));
+						workflowDetails.setNumericalDevice(adjournmentMotion.getNumber().toString());
+					}
+				}				
 				if(adjournmentMotion.getAdjourningDate()!=null){
 					workflowDetails.setAdjourningDate(adjournmentMotion.getAdjourningDate());
 				}

@@ -662,7 +662,14 @@
 			<p>
 				<label class="small"><spring:message code="adjournmentmotion.submissionDate" text="Submitted On"/></label>
 				<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
-				<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
+				<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">				
+			
+				<c:if test="${internalStatusType=='adjournmentmotion_final_admission'}">
+				<label class="small"><spring:message code="adjournmentmotion.admissionNumber" text="Admission Number"/></label>
+				<input id="formattedAdmissionNumber" name="formattedAdmissionNumber" value="${formattedAdmissionNumber}" class="sText" readonly="readonly">		
+				<input id="admissionNumber" name="admissionNumber" value="${domain.admissionNumber}" type="hidden">
+				<form:errors path="admissionNumber" cssClass="validationError"/>	
+				</c:if>
 			</p>
 			</c:if>
 				

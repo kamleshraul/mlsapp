@@ -437,8 +437,21 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 		String memberNames = domain.getPrimaryMember().getFullname() + "," + supportingMemberNames;
 		model.addAttribute("memberNames",memberNames);
 		/**** Number ****/
-		if(domain.getNumber()!=null){
-			model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
+		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+				|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+			if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+				model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getAdmissionNumber()));
+			} else {
+				model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
+			}
+		} else {
+			if(domain.getNumber()!=null){
+				model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
+			}
+		}		
+		/**** Admission Number ****/
+		if(domain.getAdmissionNumber()!=null){
+			model.addAttribute("formattedAdmissionNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getAdmissionNumber()));
 		}
 		/** populate session dates as possible adjourning dates **/
 		if(selectedSession!=null && selectedSession.getId()!=null) {
