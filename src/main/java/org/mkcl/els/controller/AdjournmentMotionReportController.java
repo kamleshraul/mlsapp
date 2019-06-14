@@ -511,6 +511,50 @@ public class AdjournmentMotionReportController extends BaseController{
 			}
 		}		
 	}
+	
+	@RequestMapping(value ="/generateIntimationLetter", method = RequestMethod.GET)
+	private void generateIntimationLetter(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		
+		//String retVal = "adjournmentmotion/report";
+		try{
+			String strId = request.getParameter("motionId");
+			String strWorkflowId = request.getParameter("workflowDetailId");
+			WorkflowDetails workflowDetails = null;
+			if(strWorkflowId != null && !strWorkflowId.isEmpty()){
+				workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
+				if(workflowDetails != null){
+					strId = workflowDetails.getDeviceId();
+				}
+			}
+			
+			String strReportFormat = request.getParameter("outputFormat");
+//			String strCopyType = request.getParameter("copyType");
+//			Long workflowDetailCount = (long) 0;
+//			Boolean isResendRevisedMotionTextWorkflow = false;
+			if(strId != null && !strId.isEmpty()){
+				Map<String, String[]> parameters = new HashMap<String, String[]>();
+				parameters.put("locale", new String[]{locale.toString()});
+				parameters.put("motionId", new String[]{strId});
+				
+				@SuppressWarnings("rawtypes")
+				List reportData = Query.findReport("ADJOURNMENTMOTION_INTIMATION_LETTER", parameters);
+				String templateName = "adjournmentmotion_intimation_letter_template";
+				
+				
+				File reportFile = null;
+				
+				reportFile = generateReportUsingFOP(new Object[] {reportData}, templateName, strReportFormat, "adjournmentmotion_intimationletter",locale.toString());
+				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
+				
+				model.addAttribute("info", "general_info");
+				//retVal = "adjournmentmotion/info";
+			}			
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		//return retVal;
+	}
 }
 
 class AdjournmentMotionReportHelper{

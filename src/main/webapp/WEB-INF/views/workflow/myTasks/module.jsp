@@ -837,6 +837,8 @@
 					$('#generateIntimationLetter').attr('href', 'resolution/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
 				}else if(currentDevice.indexOf('motions_calling_attention')==0){
 					$('#generateIntimationLetter').attr('href', 'motion/report/commonadmissionreport?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val()+'&outputFormat=PDF&copyType=tentativeCopy');
+				}else if(currentDevice.indexOf('motions_adjournment')==0){
+					$('#generateIntimationLetter').attr('href', 'adjournmentmotion/report/generateIntimationLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
 				}
 				if(isNeededToResetLetterFilter == true) {
 					$("#intimationLetterFilter").val("-");
