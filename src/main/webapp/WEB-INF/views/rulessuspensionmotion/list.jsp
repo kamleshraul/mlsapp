@@ -167,9 +167,9 @@
 				</c:when>
 				<c:when test="${houseType=='upperhouse'}">
 					<a href="#" id="rsmois_submitted_report" class="butSim">
-						<spring:message code="rsmois.submitted_report" text="Submitted Motions Report"/>
+						<spring:message code="rsmois.submitted_report" text="Rule Suspension Motions Report"/>
 					</a> |
-					<a href="#" id="rsmois_admitted_report" class="butSim">
+					<%-- <a href="#" id="rsmois_admitted_report" class="butSim">
 						<spring:message code="rsmois.admitted_report" text="Admitted Motions Report"/>
 					</a> |
 					<a href="#" id="rsmois_rejected_report" class="butSim">
@@ -177,7 +177,7 @@
 					</a> |
 					<a href="#" id="rsmois_register_report" class="butSim">
 						<spring:message code="rsmois.rejected_report" text="Register Report"/>
-					</a> |
+					</a> | --%>
 					<a href="#" id="rsmois_notice_statement" class="butSim">
 						<spring:message code="rsmois.notice_statement" text="Notice Statement"/>
 					</a> |

@@ -440,6 +440,7 @@
 			<p>
 				<label class="centerlabel"><spring:message code="rulessuspensionmotion.subject" text="Subject"/>*</label>
 				<form:textarea path="subject" rows="2" cols="50"></form:textarea>
+				<label class="centerlabel"><spring:message code="rulessuspensionmotion.shortSubjectMessage" text="Please Write in summary form"/>*</label>
 				<form:errors path="subject" cssClass="validationError" />	
 			</p>
 				
@@ -455,7 +456,7 @@
 						<tr>
 							<td style="vertical-align: top;">
 								<p>
-									<label class="centerlabel"><spring:message code="rulessuspensionmotion.ministry" text="Ministry"/>*</label>
+									<label class="centerlabel"><spring:message code="rulessuspensionmotion.ministry" text="Ministry"/></label>
 									<select class="sSelectMultiple" name="ministries" id="ministries" multiple="multiple" size="5" style="width:250px;">
 										<c:forEach items="${ministries}" var="i">
 											<c:set var="selectedMinistry" value="no"></c:set>
@@ -543,7 +544,7 @@
 		<input id="supportingMembersEmptyMsg" value="<spring:message code='client.error.supportingmemberempty' text='Supporting Member is required to send for approval.'/>" type="hidden">
 		<input id="sendForApprovalMsg" value="<spring:message code='client.prompt.approve' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 		<input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
-		<input id="submissionMsg" value="<spring:message code='rulessuspensionmotion.submissionMsg' text='Do you want to submit the adjournment motion?'></spring:message>" type="hidden">
+		<input id="submissionMsg" value="<spring:message code='rulessuspensionmotion.submissionMsg' text='Do you want to submit the Rule Suspension motion?'></spring:message>" type="hidden">
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 	</div>
 </body>
