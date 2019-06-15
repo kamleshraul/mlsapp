@@ -9,8 +9,6 @@
  */
 package org.mkcl.els.common.util;
 
-import org.mkcl.els.domain.UserGroupType;
-
 // TODO: Auto-generated Javadoc
 /**
  * The Class ApplicationConstants.
@@ -2429,7 +2427,13 @@ public class ApplicationConstants {
 
 	public static final String ADJOURNMENTMOTION_FINAL_REJECT_NAMECLUBBING = "adjournmentmotion_final_reject_nameclubbing";
 	
-	/**** Processed status ****/ 
+	/**** Processed status ****/
+	public static final String ADJOURNMENTMOTION_PROCESSED_SENDTOSECTIONOFFICER = "adjournmentmotion_processed_sendToSectionOfficer";
+	
+	public static final String ADJOURNMENTMOTION_PROCESSED_SENDTODEPARTMENT = "adjournmentmotion_processed_sendToDepartment";
+	
+	public static final String ADJOURNMENTMOTION_PROCESSED_SENDTODESKOFFICER = "adjournmentmotion_processed_sendToDeskOfficer";
+	
 	public static final String ADJOURNMENTMOTION_PROCESSED_REJECTIONWITHREASON = "adjournmentmotion_processed_rejectionWithReason";
 	
 	public static final String ADJOURNMENTMOTION_PROCESSED_REPLY_RECEIVED = "adjournmentmotion_processed_replyReceived";
@@ -2617,7 +2621,11 @@ public class ApplicationConstants {
 	
 	public static String ANSWER_RECEIVED_MODE_ONLINE = "ONLINE";
 	
+	public static String REPLY_RECEIVED_MODE_ONLINE = "ONLINE";
+	
 	public static String ANSWER_RECEIVED_MODE_OFFLINE = "OFFLINE";
+	
+	public static String REPLY_RECEIVED_MODE_OFFLINE = "OFFLINE";
 	
 	public static final String QUESTION_HALFHOURDISCUSSION_FROM_QUESTION_PROCESSED_SENDDISCUSSIONDATEINTIMATION = "question_halfHourFromQuestion_processed_sendDiscussionDateIntimation";
 	
