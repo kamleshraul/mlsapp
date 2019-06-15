@@ -285,6 +285,7 @@
 		<pattern>workflow/billamendmentmotion</pattern>
 		<pattern>/workflow/adjournmentmotion/advancedbulkapproval</pattern>
 		<pattern>/workflow/proprietypoint/advancedbulkapproval</pattern>
+		<pattern>/workflow/specialmentionnotice/advancedbulkapproval</pattern>
 		<pattern>/workflow/myTasks/*/process</pattern>	
 		
 		<pattern>/holiday</pattern>
@@ -352,6 +353,15 @@
 		<pattern>/proprietypoint/bulksubmission/assistant/view</pattern>		
 		<pattern>/proprietypoint/bulksubmission/assistant/update</pattern>
 		<pattern>/workflow/proprietypoint</pattern>
+		
+		<pattern>/specialmentionnotice/new</pattern>
+		<pattern>/specialmentionnotice/*/edit</pattern>
+		<pattern>/specialmentionnotice/*/delete</pattern>
+		<pattern>/specialmentionnotice</pattern>
+		<pattern>/specialmentionnotice/bulksubmission/assistant/int</pattern>	
+		<pattern>/specialmentionnotice/bulksubmission/assistant/view</pattern>		
+		<pattern>/specialmentionnotice/bulksubmission/assistant/update</pattern>
+		<pattern>/workflow/specialmentionnotice</pattern>
 		
 		<pattern>/bill/new</pattern>
 		<pattern>/bill/*/edit</pattern>

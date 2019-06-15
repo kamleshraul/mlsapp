@@ -36,6 +36,7 @@ import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.RulesSuspensionMotion;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.SpecialMentionNotice;
 import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
@@ -1642,6 +1643,16 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		}
 	}
 	
+	//special mention notice
+	private void addClasification(MotionSearchVO motionSearchVO,SpecialMentionNotice notice) {
+		if(motionSearchVO.getStatusType().equals(ApplicationConstants.MOTION_FINAL_REJECTION)){
+			/**** Candidate For Referencing ****/
+			motionSearchVO.setClassification("Referencing");
+		}else{
+			motionSearchVO.setClassification("Clubbing");
+		}
+	}
+	
 	private void addClasification(MotionSearchVO motionSearchVO,CutMotion motion) {
 		if(motionSearchVO.getStatusType().equals(ApplicationConstants.CUTMOTION_FINAL_REJECTION)){
 			/**** Candidate For Referencing ****/
@@ -2671,6 +2682,66 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					buffer.append(" AND st.priority<(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.ADJOURNMENTMOTION_FINAL_ADMISSION+"')");
 				}else if(status.equals(ApplicationConstants.APPROVED_FILTER)){
 					buffer.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.ADJOURNMENTMOTION_FINAL_ADMISSION+"')");
+				}
+			}
+		}			
+		return buffer.toString();
+	}
+	
+	private String addFilterSpecialMentionNotice(Map<String, String[]> requestMap) {
+		StringBuffer buffer=new StringBuffer();
+		if(requestMap.get("deviceType")!=null){
+			String deviceType=requestMap.get("deviceType")[0];
+			if((!deviceType.isEmpty())&&(!deviceType.equals("-"))){
+				buffer.append(" AND dt.id="+deviceType);
+			}
+		}
+		if(requestMap.get("houseType")!=null){
+			String houseType=requestMap.get("houseType")[0];
+			if((!houseType.isEmpty())&&(!houseType.equals("-"))){
+				buffer.append(" AND ht.type='"+houseType+"'");
+			}
+		}
+		if(requestMap.get("sessionYear")!=null){
+			String sessionYear=requestMap.get("sessionYear")[0];
+			if((!sessionYear.isEmpty())&&(!sessionYear.equals("-"))){
+				buffer.append(" AND s.session_year="+sessionYear);
+			}
+		}
+		if(requestMap.get("sessionType")!=null){
+			String sessionType=requestMap.get("sessionType")[0];
+			if((!sessionType.isEmpty())&&(!sessionType.equals("-"))){
+				buffer.append(" AND sety.id="+sessionType);
+			}
+		}
+		if(requestMap.get("ministry")!=null){
+			String ministry=requestMap.get("ministry")[0];
+			if((!ministry.isEmpty())&&(!ministry.equals("-"))){
+				buffer.append(" AND mi.id="+ministry);
+			}
+		}
+		if(requestMap.get("department")!=null){
+			String department=requestMap.get("department")[0];
+			if((!department.isEmpty())&&(!department.equals("-"))){
+				buffer.append(" AND d.id="+department);
+			}
+		}
+		if(requestMap.get("subDepartment")!=null){
+			String subDepartment=requestMap.get("subDepartment")[0];
+			if((!subDepartment.isEmpty())&&(!subDepartment.equals("-"))){
+				buffer.append(" AND sd.id="+subDepartment);
+			}
+		}
+		if(requestMap.get("status")!=null){
+			String status=requestMap.get("status")[0];
+			if((!status.isEmpty())&&(!status.equals("-"))){
+				if(status.equals(ApplicationConstants.UNPROCESSED_FILTER)){
+					buffer.append(" AND st.type=(SELECT type FROM status as sst WHERE sst.type='"+ApplicationConstants.SPECIALMENTIONNOTICE_SYSTEM_ASSISTANT_PROCESSED+"')");
+				}else if(status.equals(ApplicationConstants.PENDING_FILTER)){
+					buffer.append(" AND st.priority>(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.SPECIALMENTIONNOTICE_SYSTEM_ASSISTANT_PROCESSED+"')");
+					buffer.append(" AND st.priority<(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.SPECIALMENTIONNOTICE_FINAL_ADMISSION+"')");
+				}else if(status.equals(ApplicationConstants.APPROVED_FILTER)){
+					buffer.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.SPECIALMENTIONNOTICE_FINAL_ADMISSION+"')");
 				}
 			}
 		}			
@@ -6129,6 +6200,152 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					motionSearchVO.setChartAnsweringDate(o[15].toString());
 				}
 				addClasification(motionSearchVO, motion);
+				motionSearchVOs.add(motionSearchVO);
+			}
+		}
+		return motionSearchVOs;
+	}
+	
+	/**** Free Text Search Begins ****/
+	@SuppressWarnings("rawtypes")
+	public List<MotionSearchVO> fullTextSearchClubbing(final String param, final SpecialMentionNotice notice,
+			final Integer start,final Integer noofRecords,
+			final String locale,final Map<String, String[]> requestMap) {
+		
+		String specialMentionNoticeDate = FormaterUtil.formatDateToString(notice.getSpecialMentionNoticeDate(), ApplicationConstants.DB_DATEFORMAT);
+		
+		StringBuffer deviceTypeQuery = new StringBuffer();
+		String orderByQuery="";		
+
+		/**** Condition 1 :must not contain processed motion ****/
+		/**** Condition 2 :parent must be null ****/
+		String selectQuery="SELECT q.id as id,q.number as number,"+
+				"  q.subject as subject,q.revised_subject as revisedSubject,"+
+				"  q.notice_content as details,q.revised_notice_content as revisedDetails,"+
+				"  st.name as status,dt.name as deviceType,s.session_year as sessionYear,"+
+				"  sety.session_type as sessionType ,'0' as groupnumber,"+
+				"  mi.name as ministry,sd.name as subdepartment,st.type as statustype," +
+				"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName, '0' as answeringDate"+
+				"  FROM specialmentionnotice as q "+
+				"  LEFT JOIN housetypes as ht ON(q.housetype_id=ht.id) "+
+				"  LEFT JOIN sessions as s ON(q.session_id=s.id) "+
+				"  LEFT JOIN sessiontypes as sety ON(s.sessiontype_id=sety.id) "+
+				"  LEFT JOIN status as st ON(q.internalstatus_id=st.id) "+
+				"  LEFT JOIN devicetypes as dt ON(q.devicetype_id=dt.id) "+
+				"  LEFT JOIN members as m ON(q.member_id=m.id) "+
+				"  LEFT JOIN titles as t ON(m.title_id=t.id) "+
+				"  LEFT JOIN ministries as mi ON(q.ministry_id=mi.id) "+
+				"  LEFT JOIN subdepartments as sd ON(q.subdepartment_id=sd.id) "+
+				"  WHERE q.id<>"+notice.getId()+" AND q.parent is NULL " +
+				"  AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.SPECIALMENTIONNOTICE_SUBMIT+"')" +
+				"  AND s.id=" + notice.getSession().getId() +
+				"  AND q.specialMentionNotice_date='" +specialMentionNoticeDate + "'"; 
+
+		
+		String filter = addFilterSpecialMentionNotice(requestMap);
+
+		/**** full text query ****/
+		String searchQuery = null;
+		if(!param.contains("+")&&!param.contains("-")){
+			searchQuery = " AND (( match(q.subject,q.notice_content,q.revised_subject,q.revised_notice_content) "+
+					"against('"+param+"' in natural language mode)"+
+					")||q.subject LIKE '"+param+"%'||q.notice_content LIKE '"+param+"%'||q.revised_notice_content LIKE '"+param+"%'||q.revised_subject LIKE '"+param+"%')";
+		}else if(param.contains("+")&&!param.contains("-")){
+			String[] parameters = param.split("\\+");
+			StringBuffer buffer=new StringBuffer();
+			for(String i:parameters){
+				buffer.append("+"+i+" ");
+			}
+			searchQuery=" AND match(q.subject,q.notice_content,q.revised_subject,q.revised_notice_content) "+
+					"against('"+buffer.toString()+"' in boolean  mode)";
+		}else if(!param.contains("+")&&param.contains("-")){
+			String[] parameters = param.split("-");
+			StringBuffer buffer = new StringBuffer();
+			for(String i:parameters){
+				buffer.append(i+" "+"-");
+			}
+			buffer.deleteCharAt(buffer.length()-1);
+			searchQuery=" AND match(q.subject,q.notice_content,q.revised_subject,q.revised_notice_content) "+
+					"against('"+buffer.toString()+"' in boolean  mode)";
+		}else if(param.contains("+")||param.contains("-")){
+			searchQuery=" AND match(q.subject,q.notice_content,q.revised_subject,q.revised_notice_content) "+
+					"against('"+param+"' in boolean  mode)";
+		}		
+		/**** Final Query ****/
+		String query=selectQuery+deviceTypeQuery.toString()+filter+searchQuery+orderByQuery;
+		String finalQuery="SELECT rs.id,rs.number,rs.subject,rs.revisedSubject,rs.details, "+
+				" rs.revisedDetails,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.groupnumber,rs.ministry,rs.subdepartment,rs.statustype,rs.memberName,rs.answeringDate FROM ("+query+") as rs LIMIT "+start+","+noofRecords;
+
+		List results = this.em().createNativeQuery(finalQuery).getResultList();
+		List<MotionSearchVO> motionSearchVOs = new ArrayList<MotionSearchVO>();
+		if(results!=null){
+			for(Object i:results){
+				Object[] o=(Object[]) i;
+				MotionSearchVO motionSearchVO = new MotionSearchVO();
+				if(o[0]!=null){
+					motionSearchVO.setId(Long.parseLong(o[0].toString()));
+				}
+				if(o[1]!=null){
+					motionSearchVO.setNumber(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[1].toString())));
+				}
+				if(o[3]!=null){
+					if(!o[3].toString().isEmpty()){
+						motionSearchVO.setSubject(higlightText(o[3].toString(),param));
+					}else{
+						if(o[2]!=null){
+							motionSearchVO.setSubject(higlightText(o[2].toString(),param));
+						}
+					}
+				}else{
+					if(o[2]!=null){
+						motionSearchVO.setSubject(higlightText(o[2].toString(),param));
+					}
+				}				
+				if(o[5]!=null){
+					if(!o[5].toString().isEmpty()){
+						motionSearchVO.setNoticeContent(higlightText(o[5].toString(),param));
+					}else{
+						if(o[4]!=null){
+							motionSearchVO.setNoticeContent(higlightText(o[4].toString(),param));
+						}
+					}
+				}else{
+					if(o[4]!=null){
+						motionSearchVO.setNoticeContent(higlightText(o[4].toString(),param));
+					}
+				}
+				if(o[6]!=null){
+					motionSearchVO.setStatus(o[6].toString());
+				}
+				if(o[7]!=null){
+					motionSearchVO.setDeviceType(o[7].toString());
+				}
+				if(o[8]!=null){
+					motionSearchVO.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[8].toString())));
+				}
+				if(o[9]!=null){
+					motionSearchVO.setSessionType(o[9].toString());
+				}
+				if(o[10]!=null){
+					motionSearchVO.setFormattedGroup(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[10].toString())));
+					motionSearchVO.setGroup(o[10].toString());
+				}
+				if(o[11]!=null){
+					motionSearchVO.setMinistry(o[11].toString());
+				}
+				if(o[12]!=null){
+					motionSearchVO.setSubDepartment(o[12].toString());
+				}
+				if(o[13]!=null){
+					motionSearchVO.setStatusType(o[13].toString());
+				}
+				if(o[14]!=null){
+					motionSearchVO.setFormattedPrimaryMember(o[14].toString());
+				}
+				if(o[15]!=null){
+					motionSearchVO.setChartAnsweringDate(o[15].toString());
+				}
+				addClasification(motionSearchVO, notice);
 				motionSearchVOs.add(motionSearchVO);
 			}
 		}

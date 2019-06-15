@@ -356,6 +356,23 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	return getRepository().create(proprietyPoint, tasks, workflowType, assigneeLevel);
 	}
 	
+	public static WorkflowDetails create(final SpecialMentionNotice specialMentionNotice, 
+			 final Task newtask,
+			 final UserGroupType usergroupType, 
+			 final String currentDeviceTypeWorkflowType,
+			 final String level) 
+			 throws ELSException {
+	return getRepository().create(specialMentionNotice, newtask, usergroupType, currentDeviceTypeWorkflowType, level);
+	}
+	
+	public static List<WorkflowDetails> create(final SpecialMentionNotice motion,
+					   final List<Task> tasks,
+					   final String workflowType,
+					   final String assigneeLevel) 
+					   throws ELSException, ParseException {
+	return getRepository().create(motion, tasks, workflowType, assigneeLevel);
+	}
+	
 	// Start Process
 	public static WorkflowDetails startProcess(final Question question, 
 			final String processDefinitionKey, 
@@ -513,6 +530,20 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 			final String strLocale) throws ELSException {
 		return getRepository().findAllForAdjournmentMotions(strHouseType, strSessionType, strSessionYear, strMotionType,
 				strStatus, strWorkflowSubType, adjourningDate, assignee, strItemsCount, strLocale);
+	}
+	
+	public static List<WorkflowDetails> findAllForSpecialMentionNotices(final String strHouseType,
+			final String strSessionType,
+			final String strSessionYear,
+			final String strMotionType,
+			final String strStatus,
+			final String strWorkflowSubType,
+			final Date specialmentionNoticeDate,
+			final String assignee,
+			final String strItemsCount,
+			final String strLocale) throws ELSException {
+		return getRepository().findAllForSpecialMentionNotices(strHouseType, strSessionType, strSessionYear, strMotionType,
+				strStatus, strWorkflowSubType, specialmentionNoticeDate, assignee, strItemsCount, strLocale);
 	}
 	
 	public static List<WorkflowDetails> findPendingWorkflowOfCurrentUser(final Map<String, String> parameters, 
@@ -942,6 +973,32 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 			final int level, 
 			final String locale) throws ELSException {
 		return getRepository().startProcessAtGivenLevel(adjournmentMotion, processDefinitionKey, processWorkflow, userGroupType, level, locale);
+	}
+	
+	/********************Special Mention Notice*********************/
+	public static WorkflowDetails findCurrentWorkflowDetail(final SpecialMentionNotice specialMentionNotice) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(specialMentionNotice);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final SpecialMentionNotice specialMentionNotice, 
+			final String workflowType) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(specialMentionNotice, workflowType);
+	}
+	
+	public static WorkflowDetails startProcess(final SpecialMentionNotice specialMentionNotice, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final String locale) throws ELSException {
+		return getRepository().startProcess(specialMentionNotice, processDefinitionKey, processWorkflow, locale);
+	}
+	
+	public static WorkflowDetails startProcessAtGivenLevel(final SpecialMentionNotice specialMentionNotice, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final UserGroupType userGroupType, 
+			final int level, 
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(specialMentionNotice, processDefinitionKey, processWorkflow, userGroupType, level, locale);
 	}
 	
 	/****************************** BillAmendment Motion ****************************/

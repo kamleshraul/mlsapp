@@ -45,6 +45,7 @@ import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.RulesSuspensionMotion;
 import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.SpecialMentionNotice;
 import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
@@ -1296,6 +1297,50 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 			logger.error(e.getMessage());
 			ELSException elsException=new ELSException();
 			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findAllForAdjourningMotions", "WorkflowDetails Not found");
+			throw elsException;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<WorkflowDetails> findAllForSpecialMentionNotices(String strHouseType,
+			String strSessionType, String strSessionYear, String strDeviceType,
+			String strStatus, String strWorkflowSubType, Date specialMentionNoticeDate, 
+			String assignee, String strItemsCount, 
+			String strLocale) throws ELSException {
+		
+		StringBuffer buffer=new StringBuffer();
+		buffer.append("SELECT wd FROM WorkflowDetails wd" +
+				" WHERE houseType=:houseType"+
+				" AND sessionType=:sessionType" +
+				" AND sessionYear=:sessionYear"+
+				" AND assignee=:assignee" +
+				" AND deviceType=:deviceType"+
+				" AND status=:status"+
+				" AND workflowSubType=:workflowSubType"+
+				" AND specialMentionNoticeDate=:specialMentionNoticeDate"+
+				" AND locale=:locale"+
+				" ORDER BY numericalDevice");
+		
+		List<WorkflowDetails> workflowDetails=new ArrayList<WorkflowDetails>();
+		try{
+			Query query=this.em().createQuery(buffer.toString());
+			query.setParameter("houseType",strHouseType);
+			query.setParameter("sessionType",strSessionType);
+			query.setParameter("sessionYear",strSessionYear);
+			query.setParameter("assignee",assignee);
+			query.setParameter("deviceType",strDeviceType);
+			query.setParameter("locale",strLocale);
+			query.setParameter("status",strStatus);
+			query.setParameter("workflowSubType",strWorkflowSubType);
+			query.setParameter("specialMentionNoticeDate", specialMentionNoticeDate);
+			query.setMaxResults(Integer.parseInt(strItemsCount));
+			workflowDetails=query.getResultList();
+			return workflowDetails;
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findAllForSpecialMentionNotices", "WorkflowDetails Not found");
 			throw elsException;
 		}
 	}
@@ -6650,6 +6695,380 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				workflowDetail = wfDetails.get(0);
 			}
 			return workflowDetail;
+		}
+		
+		//======================Special Mention Notice Methods=====================//
+		public WorkflowDetails create(final SpecialMentionNotice specialMentionNotice,
+									  final Task task,
+									  final UserGroupType usergroupType,
+									  final String workflowType,
+									  final String assigneeLevel) 
+									  throws ELSException {
+			WorkflowDetails workflowDetails=new WorkflowDetails();
+			try {
+				String userGroupId=null;
+				String userGroupType=null;
+				String userGroupName=null;				
+				String username=task.getAssignee();
+				if(username==null || username.isEmpty()){
+					throw new ELSException("WorkflowDetailsRepository_WorkflowDetail_create_adjournmentmotion_Task", "assignee is not set for the motion task");					
+				}
+				Credential credential=Credential.findByFieldName(Credential.class,"username",username,"");
+				//UserGroup userGroup=UserGroup.findByFieldName(UserGroup.class,"credential",credential, question.getLocale());
+				UserGroup userGroup = UserGroup.findActive(credential, usergroupType, new Date(), specialMentionNotice.getLocale());
+				if(userGroup == null){
+					throw new ELSException("WorkflowDetailsRepository_WorkflowDetail_create_adjournmentmotion_Task", "there is no active usergroup for the assignee");
+				}
+				userGroupId=String.valueOf(userGroup.getId());
+				userGroupType=userGroup.getUserGroupType().getType();
+				userGroupName=userGroup.getUserGroupType().getName();
+				workflowDetails.setAssignee(task.getAssignee());
+				workflowDetails.setAssigneeUserGroupId(userGroupId);
+				workflowDetails.setAssigneeUserGroupType(userGroupType);
+				workflowDetails.setAssigneeUserGroupName(userGroupName);
+				workflowDetails.setAssigneeLevel(assigneeLevel);
+				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP","");
+				if(customParameter!=null){
+					SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+					if(task.getCreateTime()!=null){
+						if(!task.getCreateTime().isEmpty()){
+							workflowDetails.setAssignmentTime(format.parse(task.getCreateTime()));
+						}
+					}
+				}	
+				if(specialMentionNotice!=null){
+					if(specialMentionNotice.getId()!=null){
+						workflowDetails.setDeviceId(String.valueOf(specialMentionNotice.getId()));
+					}
+					if(specialMentionNotice.getNumber()!=null){
+						workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(specialMentionNotice.getLocale()).format(specialMentionNotice.getNumber()));
+						workflowDetails.setNumericalDevice(specialMentionNotice.getNumber().toString());
+					}
+					if(specialMentionNotice.getSpecialMentionNoticeDate()!=null){
+						workflowDetails.setAdjourningDate(specialMentionNotice.getSpecialMentionNoticeDate());
+					}
+					if(specialMentionNotice.getPrimaryMember()!=null){
+						workflowDetails.setDeviceOwner(specialMentionNotice.getPrimaryMember().getFullname());
+					}
+					if(specialMentionNotice.getType()!=null){
+						workflowDetails.setDeviceType(specialMentionNotice.getType().getName());
+					}
+					if(specialMentionNotice.getHouseType()!=null){
+						workflowDetails.setHouseType(specialMentionNotice.getHouseType().getName());
+					}
+					if(specialMentionNotice.getInternalStatus()!=null){
+						workflowDetails.setInternalStatus(specialMentionNotice.getInternalStatus().getName());
+					}
+					workflowDetails.setLocale(specialMentionNotice.getLocale());
+					if(specialMentionNotice.getRecommendationStatus()!=null){
+						workflowDetails.setRecommendationStatus(specialMentionNotice.getRecommendationStatus().getName());
+					}
+					workflowDetails.setRemarks(specialMentionNotice.getRemarks());
+					if(specialMentionNotice.getSession()!=null){
+						if(specialMentionNotice.getSession().getType()!=null){
+							workflowDetails.setSessionType(specialMentionNotice.getSession().getType().getSessionType());
+						}
+						workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(specialMentionNotice.getLocale()).format(specialMentionNotice.getSession().getYear()));
+					}
+					if(specialMentionNotice.getRevisedSubject() != null && !specialMentionNotice.getRevisedSubject().isEmpty()){
+						workflowDetails.setSubject(specialMentionNotice.getRevisedSubject());
+					}else{
+						workflowDetails.setSubject(specialMentionNotice.getSubject());
+					}
+					
+					if(specialMentionNotice.getRevisedNoticeContent() != null && !specialMentionNotice.getRevisedNoticeContent().isEmpty()){
+						workflowDetails.setText(specialMentionNotice.getRevisedNoticeContent());
+					}else{
+						workflowDetails.setText(specialMentionNotice.getNoticeContent());
+					}
+					if(specialMentionNotice.getMinistry() != null){
+						workflowDetails.setMinistry(specialMentionNotice.getMinistry().getName());
+					}
+					if(specialMentionNotice.getSubDepartment() != null){
+						workflowDetails.setSubdepartment(specialMentionNotice.getSubDepartment().getName());
+					}
+					if(specialMentionNotice.getReply() != null && !specialMentionNotice.getReply().isEmpty()){
+						workflowDetails.setReply(specialMentionNotice.getReply());
+					}
+				}
+				workflowDetails.setProcessId(task.getProcessInstanceId());
+				workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
+				workflowDetails.setTaskId(task.getId());
+				workflowDetails.setWorkflowType(workflowType);
+				
+				if(workflowType.equals(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW)){
+					workflowDetails.setUrlPattern(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_SPECIALMENTIONNOTICE);
+					workflowDetails.setForm(workflowDetails.getUrlPattern());
+					Status requestStatus=Status.findByType(ApplicationConstants.REQUEST_TO_SUPPORTING_MEMBER, specialMentionNotice.getLocale());
+					if(requestStatus!=null){
+					workflowDetails.setWorkflowSubType(requestStatus.getType());
+					}
+				} else {
+					workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN_SPECIALMENTIONNOTICE);
+					workflowDetails.setForm(workflowDetails.getUrlPattern()+"/"+userGroupType);
+					if(workflowType.equals(ApplicationConstants.CLUBBING_POST_ADMISSION_WORKFLOW)
+							|| workflowType.equals(ApplicationConstants.UNCLUBBING_WORKFLOW)
+							|| workflowType.equals(ApplicationConstants.ADMIT_DUE_TO_REVERSE_CLUBBING_WORKFLOW)) {
+						workflowDetails.setWorkflowSubType(specialMentionNotice.getRecommendationStatus().getType());
+					} else {
+						workflowDetails.setWorkflowSubType(specialMentionNotice.getInternalStatus().getType());
+					}
+					workflowDetails.persist();
+				}
+			} catch (ParseException e) {
+				logger.error("Parse Exception",e);
+				return new WorkflowDetails();
+			} catch(Exception e){
+				e.printStackTrace();
+				logger.error(e.getMessage());
+				ELSException elsException=new ELSException();
+				elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_create_eventmotion", "WorkflowDetails cannot be created");
+				throw elsException;
+			}
+			return workflowDetails;
+		}
+		
+		public List<WorkflowDetails> create(final SpecialMentionNotice specialMentionNotice,
+											final List<Task> tasks,
+											final String workflowType,
+											final String assigneeLevel) 
+											throws ELSException, ParseException {		
+			List<WorkflowDetails> workflowDetailsList = new ArrayList<WorkflowDetails>();
+			Status requestStatus = Status.findByType(ApplicationConstants.REQUEST_TO_SUPPORTING_MEMBER, specialMentionNotice.getLocale());
+			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP","");
+			if(customParameter == null || customParameter.getValue()==null || customParameter.getValue().isEmpty()){
+				throw new ELSException("WorkflowDetailsRepository_WorkflowDetail_create_adjournmentmotion_List<Task>", "Custom Parameter 'DB_TIMESTAMP' is not set.");	
+			}
+			SimpleDateFormat format = FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+			for(Task i:tasks){
+				WorkflowDetails workflowDetails=new WorkflowDetails();
+				String userGroupId=null;
+				String userGroupType=null;
+				String userGroupName=null;				
+				String username=i.getAssignee();
+				if(username==null || username.isEmpty()) {
+					throw new ELSException("WorkflowDetailsRepository_WorkflowDetail_create_adjournmentmotion_List<Task>", "assignee is not set.");
+				}
+				Credential credential=Credential.findByFieldName(Credential.class,"username",username,"");
+				UserGroup userGroup=UserGroup.findActive(credential, new Date(), specialMentionNotice.getLocale());
+				userGroupId=String.valueOf(userGroup.getId());
+				userGroupType=userGroup.getUserGroupType().getType();
+				userGroupName=userGroup.getUserGroupType().getName();
+				workflowDetails.setAssignee(i.getAssignee());
+				workflowDetails.setAssigneeUserGroupId(userGroupId);
+				workflowDetails.setAssigneeUserGroupType(userGroupType);
+				workflowDetails.setAssigneeUserGroupName(userGroupName);
+				workflowDetails.setAssigneeLevel(assigneeLevel);
+				if(i.getCreateTime()!=null){
+					if(!i.getCreateTime().isEmpty()){
+						workflowDetails.setAssignmentTime(format.parse(i.getCreateTime()));
+					}
+				}
+				if(specialMentionNotice!=null){
+					if(specialMentionNotice.getId()!=null){
+						workflowDetails.setDeviceId(String.valueOf(specialMentionNotice.getId()));
+					}
+					if(specialMentionNotice.getNumber()!=null){
+						workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(specialMentionNotice.getLocale()).format(specialMentionNotice.getNumber()));
+						workflowDetails.setNumericalDevice(specialMentionNotice.getNumber().toString());
+					}
+					if(specialMentionNotice.getSpecialMentionNoticeDate()!=null){
+						workflowDetails.setAdjourningDate(specialMentionNotice.getSpecialMentionNoticeDate());
+					}
+					if(specialMentionNotice.getPrimaryMember()!=null){
+						workflowDetails.setDeviceOwner(specialMentionNotice.getPrimaryMember().getFullname());
+					}
+					if(specialMentionNotice.getType()!=null){
+						workflowDetails.setDeviceType(specialMentionNotice.getType().getName());
+					}
+					if(specialMentionNotice.getHouseType()!=null){
+						workflowDetails.setHouseType(specialMentionNotice.getHouseType().getName());
+					}
+					if(specialMentionNotice.getInternalStatus()!=null){
+						workflowDetails.setInternalStatus(specialMentionNotice.getInternalStatus().getName());
+					}
+					workflowDetails.setLocale(specialMentionNotice.getLocale());
+					if(specialMentionNotice.getRecommendationStatus()!=null){
+						workflowDetails.setRecommendationStatus(specialMentionNotice.getRecommendationStatus().getName());
+					}
+					workflowDetails.setRemarks(specialMentionNotice.getRemarks());
+					if(specialMentionNotice.getSession()!=null){
+						if(specialMentionNotice.getSession().getType()!=null){
+							workflowDetails.setSessionType(specialMentionNotice.getSession().getType().getSessionType());
+						}
+						workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(specialMentionNotice.getLocale()).format(specialMentionNotice.getSession().getYear()));
+					}
+					if(specialMentionNotice.getRevisedSubject() != null && !specialMentionNotice.getRevisedSubject().isEmpty()){
+						workflowDetails.setSubject(specialMentionNotice.getRevisedSubject());
+					}else{
+						workflowDetails.setSubject(specialMentionNotice.getSubject());
+					}
+					
+					if(specialMentionNotice.getRevisedNoticeContent() != null && !specialMentionNotice.getRevisedNoticeContent().isEmpty()){
+						workflowDetails.setText(specialMentionNotice.getRevisedNoticeContent());
+					}else{
+						workflowDetails.setText(specialMentionNotice.getNoticeContent());
+					}
+					if(specialMentionNotice.getMinistry() != null){
+						workflowDetails.setMinistry(specialMentionNotice.getMinistry().getName());
+					}
+					if(specialMentionNotice.getSubDepartment() != null){
+						workflowDetails.setSubdepartment(specialMentionNotice.getSubDepartment().getName());
+					}
+					if(specialMentionNotice.getReply() != null && !specialMentionNotice.getReply().isEmpty()){
+						workflowDetails.setReply(specialMentionNotice.getReply());
+					}
+				}
+				workflowDetails.setProcessId(i.getProcessInstanceId());
+				workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
+				workflowDetails.setTaskId(i.getId());
+				workflowDetails.setWorkflowType(workflowType);
+				if(workflowType.equals(ApplicationConstants.APPROVAL_WORKFLOW)){
+					workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN_SPECIALMENTIONNOTICE);
+					workflowDetails.setForm(workflowDetails.getUrlPattern()+"/"+userGroupType);
+					workflowDetails.setWorkflowSubType(specialMentionNotice.getInternalStatus().getType());					
+				} else if(workflowType.equals(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW)){
+					workflowDetails.setUrlPattern(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_SPECIALMENTIONNOTICE);
+					workflowDetails.setForm(workflowDetails.getUrlPattern());
+					if(requestStatus!=null){
+					workflowDetails.setWorkflowSubType(requestStatus.getType());
+					}
+				}
+				workflowDetailsList.add((WorkflowDetails) workflowDetails.persist());			
+			}
+
+			return workflowDetailsList;
+		}
+		
+		public WorkflowDetails findCurrentWorkflowDetail(final SpecialMentionNotice specialMentionNotice) throws ELSException{
+			WorkflowDetails workflowDetails = null;
+			try{
+				Workflow workflow = specialMentionNotice.findWorkflowFromStatus();
+				if(workflow!=null) {
+					workflowDetails = findCurrentWorkflowDetail(specialMentionNotice, workflow.getType());
+				}			
+			}catch (NoResultException e) {
+				e.printStackTrace();
+				logger.error(e.getMessage());
+			}catch(Exception e){	
+				e.printStackTrace();
+				logger.error(e.getMessage());
+				ELSException elsException=new ELSException();
+				elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findCurrentWorkflowDetail_adjournmentMotion", "WorkflowDetails Not Found");
+				throw elsException;
+			}		
+			
+			return workflowDetails;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public WorkflowDetails findCurrentWorkflowDetail(final SpecialMentionNotice specialMentionNotice, final String workflowType) throws ELSException{
+			WorkflowDetails workflowDetails = null;
+			try{
+				String strQuery="SELECT m FROM WorkflowDetails m" +
+						" WHERE m.deviceId=:deviceId"+
+						" AND m.workflowType=:workflowType" +
+						" AND m.status='PENDING'" +
+						" ORDER BY m.assignmentTime " + ApplicationConstants.DESC;
+				Query query=this.em().createQuery(strQuery);
+				query.setParameter("deviceId", specialMentionNotice.getId().toString());
+				query.setParameter("workflowType",workflowType);
+				List<WorkflowDetails> details = (List<WorkflowDetails>)query.getResultList();
+				if(details != null && !details.isEmpty()){
+					workflowDetails = details.get(0);
+				}
+			}catch (NoResultException e) {
+				e.printStackTrace();
+				logger.error(e.getMessage());
+			}catch(Exception e){	
+				e.printStackTrace();
+				logger.error(e.getMessage());
+				ELSException elsException=new ELSException();
+				elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findCurrentWorkflowDetail_adjournmentMotion", "WorkflowDetails Not Found");
+				throw elsException;
+			}		
+			
+			return workflowDetails;
+		}
+		
+		public WorkflowDetails startProcess(final SpecialMentionNotice specialMentionNotice, final String processDefinitionKey, final Workflow processWorkflow, final String locale) throws ELSException {
+			ProcessDefinition processDefinition = processService.findProcessDefinitionByKey(processDefinitionKey);
+			Map<String,String> properties = new HashMap<String, String>();
+			Reference actorAtGivenLevel = WorkflowConfig.findActorVOAtFirstLevel(specialMentionNotice, processWorkflow, locale);
+			if(actorAtGivenLevel==null) {
+				throw new ELSException();
+			}
+			String userAtGivenLevel = actorAtGivenLevel.getId();
+			String[] temp = userAtGivenLevel.split("#");
+			properties.put("pv_user",temp[0]);
+			properties.put("pv_endflag", "continue");	
+			properties.put("pv_deviceId", String.valueOf(specialMentionNotice.getId()));
+			properties.put("pv_deviceTypeId", String.valueOf(specialMentionNotice.getType().getId()));
+			if(processDefinitionKey.equals(ApplicationConstants.SPECIALMENTIONNOTICE_APPROVAL_WORKFLOW)) {
+				properties.put("pv_mailflag", null);
+				properties.put("pv_timerflag", null);
+			}		
+			ProcessInstance processInstance= processService.createProcessInstance(processDefinition, properties);
+			Task task= processService.getCurrentTask(processInstance);
+			String workflowType = processWorkflow.getType();
+			UserGroupType usergroupType = UserGroupType.findByType(temp[1], specialMentionNotice.getLocale());
+			//WorkflowDetails workflowDetails = WorkflowDetails.create(question,task,workflowType,"1");
+			WorkflowDetails workflowDetails = WorkflowDetails.create(specialMentionNotice, task, usergroupType, workflowType, "1");
+			specialMentionNotice.setEndFlag("continue");
+			specialMentionNotice.setTaskReceivedOn(new Date());
+			specialMentionNotice.setWorkflowDetailsId(workflowDetails.getId());
+			specialMentionNotice.setWorkflowStarted("YES");
+			specialMentionNotice.setWorkflowStartedOn(new Date());
+			
+			String actor = actorAtGivenLevel.getId();
+			specialMentionNotice.setActor(actor);
+			
+			String[] actorArr = actor.split("#");
+			specialMentionNotice.setLevel(actorArr[2]);
+			specialMentionNotice.setLocalizedActorName(actorArr[3] + "(" + actorArr[4] + ")");
+			
+			specialMentionNotice.simpleMerge();
+			return workflowDetails;	
+		}
+		
+		public WorkflowDetails startProcessAtGivenLevel(final SpecialMentionNotice specialMentionNotice, final String processDefinitionKey, final Workflow processWorkflow, final UserGroupType userGroupType, final int level, final String locale) throws ELSException {
+			ProcessDefinition processDefinition = processService.findProcessDefinitionByKey(processDefinitionKey);
+			Map<String,String> properties = new HashMap<String, String>();
+			Reference actorAtGivenLevel = WorkflowConfig.findActorVOAtGivenLevel(specialMentionNotice, processWorkflow, userGroupType, level, locale);
+			if(actorAtGivenLevel==null) {
+				throw new ELSException();
+			}
+			String userAtGivenLevel = actorAtGivenLevel.getId();
+			String[] temp = userAtGivenLevel.split("#");
+			properties.put("pv_user",temp[0]);
+			properties.put("pv_endflag", "continue");	
+			properties.put("pv_deviceId", String.valueOf(specialMentionNotice.getId()));
+			properties.put("pv_deviceTypeId", String.valueOf(specialMentionNotice.getType().getId()));
+			if(processDefinitionKey.equals(ApplicationConstants.SPECIALMENTIONNOTICE_APPROVAL_WORKFLOW)) {
+				properties.put("pv_mailflag", null);
+				properties.put("pv_timerflag", null);
+			}		
+			ProcessInstance processInstance= processService.createProcessInstance(processDefinition, properties);
+			Task task= processService.getCurrentTask(processInstance);
+			String workflowType = processWorkflow.getType();
+//					WorkflowDetails workflowDetails = WorkflowDetails.create(specialMentionNotice,task,workflowType,Integer.toString(level));
+			UserGroupType usergroupType = UserGroupType.findByType(temp[1], specialMentionNotice.getLocale());
+			WorkflowDetails workflowDetails = WorkflowDetails.create(specialMentionNotice, task, usergroupType, workflowType, Integer.toString(level));
+			specialMentionNotice.setEndFlag("continue");
+			specialMentionNotice.setTaskReceivedOn(new Date());
+			specialMentionNotice.setWorkflowDetailsId(workflowDetails.getId());
+			specialMentionNotice.setWorkflowStarted("YES");
+			specialMentionNotice.setWorkflowStartedOn(new Date());
+			
+			String actor = actorAtGivenLevel.getId();
+			specialMentionNotice.setActor(actor);
+			
+			String[] actorArr = actor.split("#");
+			specialMentionNotice.setLevel(actorArr[2]);
+			specialMentionNotice.setLocalizedActorName(actorArr[3] + "(" + actorArr[4] + ")");
+			
+			specialMentionNotice.simpleMerge();
+			return workflowDetails;		
 		}
 		
 }

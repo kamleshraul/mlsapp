@@ -629,6 +629,9 @@ public class WorkflowController extends BaseController {
 				}				
 			}else if(deviceTypeForGrid.equals(ApplicationConstants.RULESSUSPENSION_MOTION)) {
 				newUrlPattern=urlPattern+"?devicetype="+ApplicationConstants.RULESSUSPENSION_MOTION;
+			}
+			else if(deviceTypeForGrid.equals(ApplicationConstants.SPECIAL_MENTION_NOTICE)) {
+				newUrlPattern=urlPattern+"?devicetype="+ApplicationConstants.SPECIAL_MENTION_NOTICE;
 			}else {
 				if(strCurrentUserGroupType!=null && !strCurrentUserGroupType.isEmpty()) {
 					if(strCurrentUserGroupType.equals(ApplicationConstants.DEPARTMENT)

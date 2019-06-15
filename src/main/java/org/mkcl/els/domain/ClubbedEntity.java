@@ -77,6 +77,10 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
     @ManyToOne(fetch=FetchType.LAZY)
     private BillAmendmentMotion billAmendmentMotion;
     
+    /** The Special Mention Notice. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    private SpecialMentionNotice specialMentionNotice;
+    
     /** The adjournment motion. */
     @ManyToOne(fetch=FetchType.LAZY)
     private AdjournmentMotion adjournmentMotion;
@@ -222,6 +226,20 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
 	 */
 	public void setAdjournmentMotion(AdjournmentMotion adjournmentMotion) {
 		this.adjournmentMotion = adjournmentMotion;
+	}
+	
+	/**
+	 * @return the specialMentionNotice
+	 */
+	public SpecialMentionNotice getSpecialMentionNotice() {
+		return specialMentionNotice;
+	}
+
+	/**
+	 * @param specialMentionNotice the specialMentionNotice to set
+	 */
+	public void setSpecialMentionNotice(SpecialMentionNotice specialMentionNotice) {
+		this.specialMentionNotice = specialMentionNotice;
 	}
 
 	/**
@@ -463,6 +481,13 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
 			int start, int noOfRecords, String locale, Map<String, String[]> requestMap) {
 		return getClubbedEntityRepository().fullTextSearchClubbing(param, motion, start, noOfRecords, locale, requestMap);
 	}
-
-    
+	
+	public static List<MotionSearchVO> fullTextSearchClubbing(final String param,
+			final SpecialMentionNotice notice,
+			final int start,
+			final int noOfRecords,
+			final String locale,
+			final Map<String, String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchClubbing(param, notice, start, noOfRecords, locale, requestMap);
+	}
 }

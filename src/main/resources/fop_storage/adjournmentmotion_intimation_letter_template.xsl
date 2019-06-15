@@ -77,11 +77,11 @@
 	            		<fo:block text-align="center" font-weight="bold">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 	            		<fo:block text-align="left" font-weight="bold" text-decoration="underline">अतितात्काळ</fo:block>
 	            		<fo:block text-align="right">
-							<fo:block margin-right="0.45cm">क्रमांक - _____&#160;/म.वि.स./ई-२,
+							<fo:block margin-right="1.50cm">क्रमांक - _____&#160;/ई-२,
 							</fo:block>						
-							<fo:block margin-right="0.40cm">महाराष्ट्र विधानमंडळ सचिवालय,</fo:block>
-							<fo:block margin-right="2.30cm">विधान भवन, मुंबई.</fo:block>
-							<fo:block margin-right="1.82cm">दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
+							<fo:block margin-right="0.10cm">महाराष्ट्र विधानमंडळ सचिवालय,</fo:block>
+							<fo:block margin-right="2.00cm">विधान भवन, मुंबई.</fo:block>
+							<fo:block margin-right="1.65cm">दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
 						</fo:block>	
             				<fo:table>
             					<fo:table-body>
@@ -160,7 +160,7 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block font-weight="bold">
-																							प्रधान सचिव/सचिव,
+																							प्रधान सचिव / सचिव
 																						</fo:block>
 																					</fo:table-cell>										
 																				</fo:table-row>
@@ -174,7 +174,7 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block>
-																							<xsl:value-of select="./element_1/element_1_8" />&#160;(<xsl:value-of select="./element_1/element_1_7" />) विभाग, 
+																							<xsl:value-of select="./element_1/element_1_8" /> विभाग,
 																						</fo:block>
 																					</fo:table-cell>
 																				</fo:table-row>																																								
@@ -202,11 +202,11 @@
 													<xsl:choose>
 														<xsl:when test="./element_1/element_1_10='upperhouse'">
 															<fo:inline  font-weight="bold" ><xsl:value-of select="./element_1/element_1_9"/>,</fo:inline>
-															<fo:inline font-weight="bold">वि.प.स.</fo:inline> यांनी विधानपरिषदमध्ये विशेष उल्लेखाद्वारे उपस्थित केलेल्या सूचनेवर त्वरित कारवाई करण्यासंदर्भात.
+															<fo:inline font-weight="bold">वि.प.स.</fo:inline> यांनी विधानपरिषद नियम ९३ अन्वये दिलेली सूचना क्रमांक - <xsl:value-of select="./element_1/element_1_4"/> (प्रत संलग्न).
 														</xsl:when>
 														<xsl:otherwise>
 															<xsl:value-of select="./element_1/element_1_9" font-weight="bold"/>
-															वि.स.स. यांनी विधानपरिषदमध्ये विशेष उल्लेखाद्वारे उपस्थित केलेल्या सूचनेवर त्वरित कारवाई करण्यासंदर्भात.
+															वि.स.स. यांचा स्थगन प्रस्ताव सूचना क्रमांक - <xsl:value-of select="./element_1/element_1_4"/> (प्रत संलग्न).
 														</xsl:otherwise>
 													</xsl:choose> 
 													</fo:inline> 
@@ -216,29 +216,15 @@
             									</fo:block>
 												<fo:block text-align="left" font-weight="bold">महोदय/महोदया,</fo:block>
             									<fo:block text-align="justify">
-													&#160;&#160;&#160;&#160;&#160;&#160;
-													<fo:inline>निदेशानुसार, <fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_9"/></fo:inline>, वि.प.स.यांनी महाराष्ट्र विधानपरिषदेत दिनांक
-														<fo:inline font-weight="bold">
-																	<xsl:value-of select="./element_1/element_1_12" />,
-														</fo:inline>
-														<fo:block>
-														रोजी <fo:inline font-weight="bold">"विशेष उल्लेखाद्वारे"</fo:inline> उपस्थित केलेल्या विषयाच्या संदर्भातील कार्यवृत्ताची प्रत सोबत जोडली आहे.
-														</fo:block>
-													</fo:inline>
-												<fo:block>
-													&#160;&#160;&#160;&#160;&#160;&#160;महाराष्ट्र विधानपरिषद नियम "१०१-फ" मधील तरतुदिनुसार सभागृहात सदर सूचना उपस्थित केल्याचा
             										<fo:block>
-            										दिनंकापासून <fo:inline font-weight="bold">तीस दिवसांच्या </fo:inline>आत मंत्री महोदयानी त्या विषयीचे त्यांचे उत्तर संबंधित सदस्यांना परस्पर पठाविणे
-            										</fo:block>
-            										<fo:block>
-            										आवश्यक असून त्याची प्रत मा. सभापतींच्या अवलोकनार्थ या सचिवालयाला पाठविनयत यावी, अशी आपणास 
-            										</fo:block>
-            										<fo:block>
-            										विनंती करण्यात येत आहे. 
-            										</fo:block>
-            										
-            										</fo:block>
-											</fo:block>	
+														&#160;&#160;&#160;&#160;&#160;&#160;
+														निदेशानुसार 
+													</fo:block>
+													<fo:block>
+														&#160;&#160;&#160;&#160;&#160;&#160;
+															            										
+	            									</fo:block>
+												</fo:block>	
 												<fo:block>
 													<fo:block text-align="right">
 														<fo:block margin-right="3.1cm" font-weight="bold">आपली,</fo:block>
@@ -251,7 +237,7 @@
 												<fo:block font-size="6px">
             										&#160;
             									</fo:block>
-												<fo:block font-weight="bold">याची प्रत : </fo:block>
+												<fo:block font-weight="bold">याची प्रत :- </fo:block>
 												
 												<fo:block>
 													(१) &#160;मा. <xsl:value-of select="./element_1/element_1_7" />.
@@ -271,7 +257,7 @@
 												</fo:block>
 												
 												<fo:block>
-													(३) 	&#160;प्रधान सचिव/सचिव,संसदीय कार्य विभाग, महाराष्ट्र शासन, मंत्रालय, मुंबई.				
+													(३) 	&#160;प्रधान सचिव / सचिव,संसदीय कार्य विभाग, महाराष्ट्र शासन, मंत्रालय, मुंबई.
 												</fo:block>
 											
             								</fo:block>

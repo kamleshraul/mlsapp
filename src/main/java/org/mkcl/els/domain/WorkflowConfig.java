@@ -484,6 +484,26 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 	}
 	/****************************** Adjournment Motion *********************/
 	
+	/****************************** Special Mention Notice *********************/
+	public static List<Reference> findSpecialMentionNoticeActorsVO(
+			SpecialMentionNotice motion, Status internalStatus,
+			UserGroup userGroup, int level, String locale) {
+		return getWorkflowConfigRepository().findSpecialMentionNoticeActors(motion, internalStatus, userGroup, level, locale);
+	}
+	
+	public static Reference findActorVOAtFirstLevel(final SpecialMentionNotice specialMentionNotice, final Workflow processWorkflow, final String locale) throws ELSException {
+		return getWorkflowConfigRepository().findActorVOAtFirstLevel(specialMentionNotice, processWorkflow, locale);
+	}
+	
+	public static Reference findActorVOAtGivenLevel(final SpecialMentionNotice specialMentionNotice, final Workflow processWorkflow, final UserGroupType userGroupType, final int level, final String locale) throws ELSException {
+		return getWorkflowConfigRepository().findActorVOAtGivenLevel(specialMentionNotice, processWorkflow, userGroupType, level, locale);
+	}
+	
+	public static WorkflowConfig getLatest(SpecialMentionNotice splmentionnotice, String internalStatus, String locale) {
+		return getWorkflowConfigRepository().getLatest(splmentionnotice, internalStatus, locale);
+	}
+	/****************************** Special Mention Notice*********************/
+	
 	/****************************** Propriety Point *********************/
 	public static List<Reference> findProprietyPointActorsVO(
 			ProprietyPoint proprietyPoint, Status internalStatus,

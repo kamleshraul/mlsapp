@@ -141,6 +141,10 @@ public class UserGroup extends BaseDomain implements Serializable {
 		return getUserGroupRepository().findAdjournmentMotionActor(motion, userGroupType, level, locale);
 	}
 	
+	public static Reference findSpecialMentionNoticeActor(final SpecialMentionNotice notice,final String userGroupType,final String level,final String locale) throws ELSException {
+		return getUserGroupRepository().findSpecialMentionNoticeActor(notice, userGroupType, level, locale);
+	}
+	
 	public static Reference findEventMotionActor(final EventMotion motion,final String userGroupType,final String level,final String locale) throws ELSException {
 		return getUserGroupRepository().findEventMotionActor(motion, userGroupType, level, locale);
 	} 
@@ -201,7 +205,6 @@ public class UserGroup extends BaseDomain implements Serializable {
 	public static UserGroup findActive(Credential credential, Date onDate, String locale) {
 		return getUserGroupRepository().findActive(credential, onDate, locale);
 	}
-	
 	
 	public static boolean isActiveInSession(final Session session,
 			final UserGroup userGroup,
@@ -353,8 +356,6 @@ public class UserGroup extends BaseDomain implements Serializable {
 
 	public void setDrafts(List<UserGroupDraft> drafts) {
 		this.drafts = drafts;
-	}
-
-
+	}	
 	
 }

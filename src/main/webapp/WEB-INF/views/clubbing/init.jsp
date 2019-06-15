@@ -672,6 +672,30 @@
 					postData['status']=$("#statusStarred").val();
 				}
 				resourceURL = "clubentity/searchadjournmentmotion?filing="+$("#useforfiling").val();
+			}else if($('#whichDevice').val()=='notices_specialmention_'){
+				postData={param:$("#searchvalue").val(),motion:$("#deviceId").val(),record:record,start:start};
+				if($("#houseTypeCommon").length>0){
+					postData['houseType']=$("#houseTypeCommon").val();
+				}
+				if($("#sessionYearStarred").length>0){
+					postData['sessionYear']=$("#sessionYearStarred").val();
+				}
+				if($("#sessionTypeStarred").length>0){
+					postData['sessionType']=$("#sessionTypeStarred").val();
+				}				
+				if($("#ministryStarred").length>0){
+					postData['ministry']=$("#ministryStarred").val();
+				}
+				if($("#departmentStarred").length>0){
+					postData['department']=$("#departmentStarred").val();
+				}
+				if($("#subDepartmentStarred").length>0){    
+					postData['subDepartment']=$("#subDepartmentStarred").val();
+				}
+				if($("#statusStarred").length>0){
+					postData['status']=$("#statusStarred").val();
+				}
+				resourceURL = "clubentity/searchspecialmentionnotice?filing="+$("#useforfiling").val();
 			}else if($('#whichDevice').val()=='motions_billamendment_') {
 				postData={param:$("#searchvalue").val(),billAmendmentMotionId:$("#deviceId").val(),record:record,start:start};
 				if($("#languageAllowed").length>0){
@@ -791,6 +815,8 @@
 								textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+data[i].subject+"</td>";
 							}else if($('#whichDevice').val()=='motions_adjournment_'){
 								textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+data[i].subject+"</td>";
+							}else if($('#whichDevice').val()=='notices_specialmention_'){
+								textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+data[i].subject+"</td>";
 							}else if($('#whichDevice').val()=='motions_billamendment_') {
 								textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+$('#billAmendmentMotion_subjectline').html()+"</td>";
 							}else if($('#whichDevice').val()=='resolutions_'){
@@ -895,6 +921,17 @@
 							    	textTemp+=","+data[i].subDepartment+" "+$('#subdepartmentValue').val()+"<br>"+ data[i].status;							     
 							    }
 							}else if($('#whichDevice').val()=='motions_adjournment_') {
+								textTemp+="<td class='expand' style='width: 420px; max-width: 420px;'>"+data[i].formattedPrimaryMember+" : "+data[i].noticeContent
+								+"<br/><strong>"
+								+data[i].sessionYear+","+data[i].sessionType+","+data[i].deviceType+"<br>"
+								+data[i].ministry;
+								if(data[i].subDepartment==null||data[i].subdepartment==""){
+									textTemp+=","+data[i].status+"<br>";
+								   
+							    }else{						     
+							    	textTemp+=","+data[i].subDepartment+" "+$('#subdepartmentValue').val()+"<br>"+ data[i].status+"</strong>";							     
+							    }
+							}else if($('#whichDevice').val()=='notices_specialmention_') {
 								textTemp+="<td class='expand' style='width: 420px; max-width: 420px;'>"+data[i].formattedPrimaryMember+" : "+data[i].noticeContent
 								+"<br/><strong>"
 								+data[i].sessionYear+","+data[i].sessionType+","+data[i].deviceType+"<br>"
@@ -1111,6 +1148,8 @@
 				
 			} else if($('#whichDevice'=='motions_adjournment_')){
 				deviceTypeParameterName = "deviceType";
+			} else if($('#whichDevice'=='notices_specialmention_')){
+				deviceTypeParameterName = "deviceType";
 			} else if($('#whichDevice'=='motions_billamendment_')){
 				deviceTypeParameterName = "deviceType";
 			}else if($('#whichDevice'=='motions_rules_suspension')){
@@ -1143,6 +1182,8 @@
 				resourceURL='standalonemotion/'+clubId+'/edit?'+parameters;				
 			}else if($('#whichDevice').val()=='motions_adjournment_') {
 				resourceURL='adjournmentmotion/'+clubId+'/edit?'+parameters;				
+			}else if($('#whichDevice').val()=='notices_specialmention_') {
+				resourceURL='specialmentionnotice/'+clubId+'/edit?'+parameters;				
 			}else if($('#whichDevice').val()=='motions_billamendment_') {
 				resourceURL='billamendmentmotion/'+clubId+'/edit?'+parameters;				
 			}else if($('#whichDevice').val()=='resolutions_') {
@@ -1697,6 +1738,9 @@ td>table{
 		<c:when test="${whichDevice=='motions_adjournment_'}">
 			<th class="expand"><spring:message code="clubbing.subject" text="Subject"></spring:message></th>
 		</c:when>
+		<c:when test="${whichDevice=='notices_specialmention_'}">
+			<th class="expand"><spring:message code="clubbing.subject" text="Subject"></spring:message></th>
+		</c:when>
 		<c:when test="${whichDevice=='motions_billamendment_'}">
 			<th class="expand"><spring:message code="clubbing.subjectline" text="Subject Line"></spring:message></th>
 		</c:when>
@@ -1737,6 +1781,9 @@ td>table{
 		</c:when>
 		<c:when test="${whichDevice=='motions_adjournment_'}">
 			<th class="expand"><spring:message code="clubbing.motion" text="Adjournment Motion"></spring:message></th>
+		</c:when>
+		<c:when test="${whichDevice=='notices_specialmention_'}">
+			<th class="expand"><spring:message code="clubbing.motion" text="Special Mention Notice"></spring:message></th>
 		</c:when>
 		<c:when test="${whichDevice=='motions_billamendment_'}">
 			<th class="expand"><spring:message code="clubbing.amendingContent" text="Amending Content"></spring:message></th>

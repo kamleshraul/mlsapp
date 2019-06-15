@@ -839,6 +839,8 @@
 					$('#generateIntimationLetter').attr('href', 'motion/report/commonadmissionreport?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val()+'&outputFormat=PDF&copyType=tentativeCopy');
 				}else if(currentDevice.indexOf('motions_adjournment')==0){
 					$('#generateIntimationLetter').attr('href', 'adjournmentmotion/report/generateIntimationLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
+				}else if(currentDevice.indexOf('notices_specialmention')==0){
+					$('#generateIntimationLetter').attr('href', 'specialmentionnotice/report/generateIntimationLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val()+'&outputFormat=PDF&copyType=tentativeCopy');
 				}
 				if(isNeededToResetLetterFilter == true) {
 					$("#intimationLetterFilter").val("-");

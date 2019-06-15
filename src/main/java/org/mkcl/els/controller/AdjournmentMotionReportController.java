@@ -520,14 +520,28 @@ public class AdjournmentMotionReportController extends BaseController{
 			String strId = request.getParameter("motionId");
 			String strWorkflowId = request.getParameter("workflowDetailId");
 			WorkflowDetails workflowDetails = null;
+			String strReportFormat = request.getParameter("outputFormat");
 			if(strWorkflowId != null && !strWorkflowId.isEmpty()){
 				workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
 				if(workflowDetails != null){
 					strId = workflowDetails.getDeviceId();
+					if(strReportFormat==null || strReportFormat.isEmpty()) {
+						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+								|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+							strReportFormat = "PDF";
+						} else {
+							strReportFormat = "WORD";
+						}
+					}
+				} else {
+					strReportFormat = "WORD";
 				}
+			} else {
+				strReportFormat = "WORD";
 			}
 			
-			String strReportFormat = request.getParameter("outputFormat");
+			
+			
 //			String strCopyType = request.getParameter("copyType");
 //			Long workflowDetailCount = (long) 0;
 //			Boolean isResendRevisedMotionTextWorkflow = false;
