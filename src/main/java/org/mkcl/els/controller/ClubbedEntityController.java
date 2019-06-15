@@ -34,6 +34,7 @@ import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.RulesSuspensionMotion;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.SpecialMentionNotice;
 import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.WorkflowDetails;
@@ -247,6 +248,7 @@ public class ClubbedEntityController extends BaseController{
 				String strDiscussionMotionId = request.getParameter("discussionMotionId");
 				String strBillAmendmentMotionId = request.getParameter("billAmendmentMotionId");
 				String strAdjournmentMotionId = request.getParameter("adjournmentMotionId");
+				String strSpecialMentionNoticeId = request.getParameter("specialMentionNoticeId");
 				String strRulesSuspensionMotionId = request.getParameter("rulesSuspensionMotionId");
 				
 				if(strbillId!=null) {
@@ -639,6 +641,55 @@ public class ClubbedEntityController extends BaseController{
 						model.addAttribute("sessionTypes", sessionTypes);
 						model.addAttribute("sessionType", adjournmentMotion.getSession().getType().getId());
 						model.addAttribute("whichDevice", "motions_adjournment_");
+					}else{
+						model.addAttribute("flag","CLUBBING_NOT_ALLOWED");
+						return "clubbing/error";
+					}
+				}else if(strSpecialMentionNoticeId!=null && !strSpecialMentionNoticeId.isEmpty()) {
+					SpecialMentionNotice specialMentionNotice = SpecialMentionNotice.findById(SpecialMentionNotice.class, new Long(strSpecialMentionNoticeId));
+					/**** Advanced Search Options ****/
+					/**** First we will check if clubbing is allowed on the given motion ****/
+					Boolean isClubbingAllowed = isClubbingAllowed(specialMentionNotice, request);
+					if(isClubbingAllowed){
+						/**** Adjournment Motion subject will be visible on the clubbing page ****/
+						if(specialMentionNotice.getRevisedSubject()!=null){
+							if(!specialMentionNotice.getRevisedSubject().isEmpty()){
+								model.addAttribute("subject",specialMentionNotice.getRevisedSubject());
+							}else{
+								model.addAttribute("subject",specialMentionNotice.getSubject());
+							}
+						}else{
+							model.addAttribute("subject",specialMentionNotice.getSubject());
+						}
+						/**** Adjournment Motion number will also be visible ****/
+						model.addAttribute("id",Long.parseLong(strSpecialMentionNoticeId));
+						model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(specialMentionNotice.getLocale()).format(specialMentionNotice.getNumber()));
+						/**** Member Name will also be visible ****/
+						model.addAttribute("memberName",specialMentionNotice.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
+						/**** Advanced Search Filters****/
+						String deviceType = specialMentionNotice.getType().getType();
+						model.addAttribute("deviceType", deviceType);
+						model.addAttribute("houseType", specialMentionNotice.getHouseType().getType());
+											
+						int year = specialMentionNotice.getSession().getYear();
+						CustomParameter houseFormationYear = CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+						List<Reference> years = new ArrayList<Reference>();
+						if(houseFormationYear != null){
+							Integer formationYear = Integer.parseInt(houseFormationYear.getValue());
+							for(int i = year; i >= formationYear; i--){
+								Reference reference=new Reference(String.valueOf(i),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i));
+								years.add(reference);
+							}
+						}else{
+							model.addAttribute("flag", "houseformationyearnotset");
+							return "clubbing/error";
+						}
+						model.addAttribute("years", years);
+						model.addAttribute("sessionYear", year);
+						List<SessionType> sessionTypes = SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale.toString());
+						model.addAttribute("sessionTypes", sessionTypes);
+						model.addAttribute("sessionType", specialMentionNotice.getSession().getType().getId());
+						model.addAttribute("whichDevice", "notices_specialmention_");
 					}else{
 						model.addAttribute("flag","CLUBBING_NOT_ALLOWED");
 						return "clubbing/error";
@@ -1243,6 +1294,18 @@ public class ClubbedEntityController extends BaseController{
 		return false;
 	}
 	
+	private Boolean isClubbingAllowed(final SpecialMentionNotice specialMentionNotice,final HttpServletRequest request) {
+		/**** Clubbing is allowed only if following requirement is met ****/
+		String usergroupType=request.getParameter("usergroupType");	
+//		String internalStatusType = adjournmentMotion.getInternalStatus().getType();
+		/****To enable the userGroups who can do clubbing ****/
+		CustomParameter clubbingAllowedUserGroups = CustomParameter.findByName(CustomParameter.class, "SMIS_ALLOWED_USERGROUP_TO_DO_CLUBBING", "");
+		if(clubbingAllowedUserGroups != null && clubbingAllowedUserGroups.getValue().contains(usergroupType)){
+			return true;
+		}		
+		return false;
+	}
+	
 	private Boolean isClubbingAllowed(final BillAmendmentMotion billAmendmentMotion,final HttpServletRequest request) {
 		/**** Clubbing is allowed only if following requirement is met ****/
 		String usergroupType=request.getParameter("usergroupType");	
@@ -1591,6 +1654,24 @@ public class ClubbedEntityController extends BaseController{
 	}
 	
 	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/searchspecialmentionnotice",method=RequestMethod.POST)
+	public @ResponseBody List<MotionSearchVO> searchSpecialMentionNoticeForClubbing(final HttpServletRequest request, final Locale locale){
+		List<MotionSearchVO> motionSearchVOs = new ArrayList<MotionSearchVO>();
+		String param = request.getParameter("param").trim();
+		String specialMentionNoticeId = request.getParameter("motion");
+		String start = request.getParameter("start");
+		String noOfRecords = request.getParameter("record");
+		Map<String,String[]> requestMap = request.getParameterMap();
+		if(specialMentionNoticeId != null && start != null && noOfRecords != null){
+			if((!specialMentionNoticeId.isEmpty()) && (!start.isEmpty()) && (!noOfRecords.isEmpty())){
+				SpecialMentionNotice notice = SpecialMentionNotice.findById(SpecialMentionNotice.class, Long.parseLong(specialMentionNoticeId));
+				motionSearchVOs = ClubbedEntity.fullTextSearchClubbing(param, notice, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
+			}
+		}       
+		return motionSearchVOs;
+	}
+	
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/searchbillamendmentmotion",method=RequestMethod.POST)
 	public @ResponseBody List<MotionSearchVO> searchBillAmendmentMotionForClubbing(final HttpServletRequest request,
 			final Locale locale){
@@ -1765,6 +1846,31 @@ public class ClubbedEntityController extends BaseController{
 						clubbingMotion.setEditedBy(editedBy);
 						clubbingMotion.setEditedOn(new Date());
 						clubResult = AdjournmentMotion.club(primaryMotion, clubbingMotion, locale.toString());
+					} catch (ELSException e) {
+						status = e.getParameter("error");
+						if(status!=null) {
+							return status;
+						} else {
+							e.printStackTrace();
+						}
+					}
+					if(clubResult) {
+						status = "CLUBBING_SUCCESS";
+					} else {
+						status = "CLUBBING_FAILURE";
+					}
+				}else if(whichDevice.equals("notices_specialmention_")) {					
+					SpecialMentionNotice primaryMotion = SpecialMentionNotice.findById(SpecialMentionNotice.class, Long.parseLong(strpId));
+					SpecialMentionNotice clubbingMotion = SpecialMentionNotice.findById(SpecialMentionNotice.class, Long.parseLong(strcId));
+					boolean clubResult = false;
+					try {
+						primaryMotion.setEditedAs(editedAs);
+						primaryMotion.setEditedBy(editedBy);
+						primaryMotion.setEditedOn(new Date());
+						clubbingMotion.setEditedAs(editedAs);
+						clubbingMotion.setEditedBy(editedBy);
+						clubbingMotion.setEditedOn(new Date());
+						clubResult = SpecialMentionNotice.club(primaryMotion, clubbingMotion, locale.toString());
 					} catch (ELSException e) {
 						status = e.getParameter("error");
 						if(status!=null) {
@@ -2013,6 +2119,31 @@ public class ClubbedEntityController extends BaseController{
 						clubbingMotion.setEditedBy(editedBy);
 						clubbingMotion.setEditedOn(new Date());
 						clubResult = AdjournmentMotion.unclub(primaryMotion, clubbingMotion, locale.toString());
+					} catch (ELSException e) {
+						status = e.getParameter("error");
+						if(status!=null) {
+							return status;
+						} else {
+							e.printStackTrace();
+						}
+					}
+					if(clubResult) {
+						status = "UNCLUBBING_SUCCESS";
+					} else {
+						status = "UNCLUBBING_FAILURE";
+					}
+				}else if(whichDevice.equals("notices_specialmention_")) {					
+					SpecialMentionNotice primaryMotion = SpecialMentionNotice.findById(SpecialMentionNotice.class, Long.parseLong(strpId));
+					SpecialMentionNotice clubbingMotion = SpecialMentionNotice.findById(SpecialMentionNotice.class, Long.parseLong(strcId));
+					boolean clubResult = false;
+					try {
+						primaryMotion.setEditedAs(editedAs);
+						primaryMotion.setEditedBy(editedBy);
+						primaryMotion.setEditedOn(new Date());
+						clubbingMotion.setEditedAs(editedAs);
+						clubbingMotion.setEditedBy(editedBy);
+						clubbingMotion.setEditedOn(new Date());
+						clubResult = SpecialMentionNotice.unclub(primaryMotion, clubbingMotion, locale.toString());
 					} catch (ELSException e) {
 						status = e.getParameter("error");
 						if(status!=null) {
