@@ -126,6 +126,7 @@ import org.mkcl.els.domain.SectionOrderSeries;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Slot;
+import org.mkcl.els.domain.SpecialMentionNotice;
 import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.State;
 import org.mkcl.els.domain.Status;
@@ -7803,6 +7804,151 @@ public class ReferenceController extends BaseController {
 		return flag;
 	}
 	
+	@RequestMapping(value = "/specialmentionnotice/specialmentionnoticedatesforsession", method = RequestMethod.GET)	
+	public @ResponseBody List<Object[]> findSpecialMentionNoticeDatesForSession(HttpServletRequest request, Locale locale) throws Exception{
+		String houseTypeStr = request.getParameter("houseType");
+		String sessionTypeStr= request.getParameter("sessionType");
+		String sessionYearStr= request.getParameter("sessionYear");
+		String usergroupType = request.getParameter("usergroupType");
+		if(houseTypeStr==null||houseTypeStr.isEmpty()||sessionTypeStr==null||sessionTypeStr.isEmpty()||sessionYearStr==null||sessionYearStr.isEmpty()||usergroupType==null||usergroupType.isEmpty()) {
+			throw new ELSException();
+		}
+		CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		if(csptDeployment!=null && csptDeployment.getValue()!=null){
+			if(csptDeployment.getValue().equals("TOMCAT")){
+				houseTypeStr = new String(houseTypeStr.getBytes("ISO-8859-1"),"UTF-8");
+				sessionTypeStr = new String(sessionTypeStr.getBytes("ISO-8859-1"),"UTF-8");
+				sessionYearStr = new String(sessionYearStr.getBytes("ISO-8859-1"),"UTF-8");
+			}
+		}
+		HouseType houseType = HouseType.findByType(houseTypeStr, locale.toString());		
+		if(houseType==null) {
+			houseType = HouseType.findByName(HouseType.class, houseTypeStr, locale.toString());
+		}
+		SessionType sessionType = null;
+		try {
+			sessionType = SessionType.findById(SessionType.class, Long.parseLong(sessionTypeStr));
+		} catch(NumberFormatException ne) {
+			sessionType = SessionType.findByFieldName(SessionType.class, "sessionType", sessionTypeStr, locale.toString());
+		}
+		Integer sessionYear = Integer.parseInt(sessionYearStr);
+		Session session = Session.find(sessionYear, sessionType.getType(), houseType.getType());
+		if(session==null || session.getId()==null) {
+			throw new ELSException();
+		}
+		/** populate session dates as possible adjourning dates **/
+		List<Date> sessionDates = session.findAllSessionDates();
+		List<Object[]> specialmentionnoticeDates = this.populateDateListUsingCustomParameterFormat(sessionDates, "SPECIALMENTIONNOTICE_SPECIALMENTIONNOTICEDATEFORMAT", locale.toString());
+		
+		/** populate default specialmentionnotice session date for the session **/
+		Date defaultSpecialMentionNoticeDate = null;
+		if(usergroupType.equals(ApplicationConstants.MEMBER)) {
+			defaultSpecialMentionNoticeDate = SpecialMentionNotice.findDefaultSpecialMentionNoticeDateForSession(session, true);
+		} else {
+			defaultSpecialMentionNoticeDate = SpecialMentionNotice.findDefaultSpecialMentionNoticeDateForSession(session, false);
+		}		
+		specialmentionnoticeDates.add(new Object[]{FormaterUtil.formatDateToString(defaultSpecialMentionNoticeDate, ApplicationConstants.SERVER_DATEFORMAT)});
+		
+		return specialmentionnoticeDates;
+	}
+	
+	/**
+	 * Find actors.
+	 *
+	 * @param request the request
+	 * @param model the model
+	 * @param locale the locale
+	 * @return the list< reference>
+	 * @since v1.0.0
+	 */
+	@RequestMapping(value="/specialmentionnotice/actors",method=RequestMethod.POST)
+	public @ResponseBody List<Reference> findSpecialMentionNoticeActors(final HttpServletRequest request,
+			final ModelMap model, final Locale locale){
+		List<Reference> actors=new ArrayList<Reference>();
+		String strMotion=request.getParameter("motion");
+		String strInternalStatus=request.getParameter("status");
+		String strUserGroup=request.getParameter("usergroup");
+		String strLevel=request.getParameter("level");
+		if(strMotion!=null&&strInternalStatus!=null&&strUserGroup!=null&&strLevel!=null){
+			if((!strMotion.isEmpty())&&(!strInternalStatus.isEmpty())&&
+					(!strUserGroup.isEmpty())&&(!strLevel.isEmpty())){
+				Status internalStatus=Status.findById(Status.class,Long.parseLong(strInternalStatus));
+				SpecialMentionNotice specialMentionNotice=SpecialMentionNotice.findById(SpecialMentionNotice.class,Long.parseLong(strMotion));
+				UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
+				try {
+					actors=WorkflowConfig.findSpecialMentionNoticeActorsVO(specialMentionNotice,internalStatus,userGroup,Integer.parseInt(strLevel),locale.toString());
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return actors;
+	}
+	
+	/**** To get the special mention notice's notice content text ****/
+	@RequestMapping(value="/specialmentionnotice/{id}/notice_content_text", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+	public @ResponseBody String getspecialMentionNoticeContentText(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+		
+		String noticeContentText = "";
+		
+		SpecialMentionNotice specialMentionNotice = SpecialMentionNotice.findById(SpecialMentionNotice.class, id);
+		if(specialMentionNotice!=null) {
+			if(specialMentionNotice.getNoticeContent()!=null) {
+				if(specialMentionNotice.getRevisedNoticeContent()!=null && specialMentionNotice.getRevisedNoticeContent().length()>specialMentionNotice.getNoticeContent().length()) {
+					noticeContentText = specialMentionNotice.getRevisedNoticeContent();
+				} else {
+					noticeContentText = specialMentionNotice.getNoticeContent();
+				}
+			} else {
+				if(specialMentionNotice.getRevisedNoticeContent()!=null) {
+					noticeContentText = specialMentionNotice.getRevisedNoticeContent();
+				}
+			}
+		}
+		
+		return noticeContentText;
+	}
+	
+	/**** To get the clubbed special mention notice's text ****/
+	@RequestMapping(value="/specialmentionnotice/{id}/clubbedmotiontext", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getClubbedSpecialMentionNoticeTexts(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+		
+		List<MasterVO> clubbedSpecialMentionNoticesVO = new ArrayList<MasterVO>();
+		
+		try{
+			
+			SpecialMentionNotice parent = SpecialMentionNotice.findById(SpecialMentionNotice.class, id);
+			
+			if(parent != null){
+				List<ClubbedEntity> clubbedSpecialMentionNotices = parent.getClubbedEntities();
+				
+				for(ClubbedEntity ce : clubbedSpecialMentionNotices){
+					SpecialMentionNotice cSpecialMentionNotice = ce.getSpecialMentionNotice();
+					if(cSpecialMentionNotice != null){
+						MasterVO mVO = new MasterVO();
+						mVO.setId(cSpecialMentionNotice.getId());
+						mVO.setName(FormaterUtil.formatNumberNoGrouping(cSpecialMentionNotice.getNumber(), locale.toString()));
+						mVO.setDisplayName(cSpecialMentionNotice.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
+						if(cSpecialMentionNotice.getRevisedNoticeContent() != null && !cSpecialMentionNotice.getRevisedNoticeContent().isEmpty()){
+							mVO.setValue(cSpecialMentionNotice.getRevisedNoticeContent());
+						}else{
+							mVO.setValue(cSpecialMentionNotice.getNoticeContent());
+						}
+						
+						clubbedSpecialMentionNoticesVO.add(mVO);
+					}
+				}
+			}
+		}catch(Exception e){
+			logger.error(e.toString());
+		}
+		
+		
+		return clubbedSpecialMentionNoticesVO;
+	}
+	
 	/**
 	 * Find actors.
 	 *
@@ -9634,6 +9780,107 @@ public class ReferenceController extends BaseController {
 				parameters.put("adjourningDate", new String[]{strAdjourningDate});
 				
 				data = Query.findReport("AMOIS_STATUS_REPORT_DEVICES_DV", parameters);
+			}
+			
+			if(data != null){
+				for(Object o : data){
+					Object[] objx = (Object[]) o;
+					MasterVO vo = new MasterVO();
+					if(objx[0] != null){
+						vo.setValue(objx[0].toString());
+						vo.setNumber(Integer.parseInt(objx[2].toString()));
+						vos.add(vo);
+					}
+				}
+			}
+			
+		} catch (ELSException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		if(vos!=null && !vos.isEmpty() && vos.size()>1) {
+			vos = MasterVO.sort(vos, "number", ApplicationConstants.ASC); //order by number
+		}
+		
+		return vos;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/pendingtasksdevicessmis", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getPendingTasksDevicesSMIS(HttpServletRequest request, Locale locale){
+		String strSessionYear = request.getParameter("sessionYear");
+		String strSessionType = request.getParameter("sessionType");
+		String strHouseType = request.getParameter("houseType");
+		String strDeviceType = request.getParameter("deviceType");
+		String strStatus = request.getParameter("status");
+		String strWfSubType = request.getParameter("wfSubType");
+		String strGrid = request.getParameter("grid");
+		String strSubdepartment = request.getParameter("subdepartment");
+		String strSpecialMentionNoticeDate = request.getParameter("specialMentionNoticeDate");
+		
+		CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		List<MasterVO> vos = new ArrayList<MasterVO>();
+				
+		try {
+			String server=csptDeployment.getValue();
+			SessionType sessionType = null;
+			HouseType houseType = null;
+			Integer year = null;
+			Session session = null;					
+			DeviceType deviceType = null;
+			
+			Map<String, String[]> parameters = new HashMap<String, String[]>();
+			List data = null;
+			
+			if(strGrid.equals("workflow")){
+				if(csptDeployment!=null){
+					if(server.equals("TOMCAT")){
+						strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
+						strSessionType = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
+						strHouseType = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
+						strDeviceType = new String(strDeviceType.getBytes("ISO-8859-1"),"UTF-8");
+						strStatus = new String(strStatus.getBytes("ISO-8859-1"),"UTF-8");
+						strWfSubType = new String(strWfSubType.getBytes("ISO-8859-1"),"UTF-8");
+					}
+				}
+				
+				sessionType = SessionType.findByFieldName(SessionType.class, "sessionType", strSessionType, locale.toString());
+				houseType = HouseType.findByName(strHouseType, locale.toString());
+				year = new Integer(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strSessionYear).intValue());
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);					
+				deviceType = DeviceType.findByName(DeviceType.class, strDeviceType, locale.toString());
+				
+				parameters.put("sessionId", new String[]{session.getId().toString()});
+				parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+				parameters.put("status", new String[]{strStatus});
+				parameters.put("workflowSubType", new String[]{strWfSubType});
+				parameters.put("assignee", new String[]{this.getCurrentUser().getActualUsername()});
+				parameters.put("locale", new String[]{locale.toString()});
+				parameters.put("specialMentionNoticeDate", new String[]{strSpecialMentionNoticeDate});
+				
+				data = Query.findReport("SMIS_STATUS_REPORT_DEVICES_WF", parameters);
+				
+			}else if(strGrid.equals("device")){
+				sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
+				houseType = HouseType.findByType(strHouseType, locale.toString());
+				year = new Integer(Integer.parseInt(strSessionYear));
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);					
+				deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+				
+				parameters.put("sessionId", new String[]{session.getId().toString()});
+				parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+				parameters.put("status", new String[]{strStatus});
+				parameters.put("subdepartment", new String[]{strSubdepartment});
+				parameters.put("locale", new String[]{locale.toString()});
+				parameters.put("specialMentionNoticeDate", new String[]{strSpecialMentionNoticeDate});
+				
+				data = Query.findReport("SMIS_STATUS_REPORT_DEVICES_DV", parameters);
 			}
 			
 			if(data != null){
