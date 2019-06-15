@@ -57,7 +57,7 @@
 	    <script type="text/javascript" src="./resources/js/ui.multiselect.js?q=123?v=5"></script>
 	    <script type="text/javascript" src="./resources/js/jquery.tmpl.1.1.1.js?q=123?v=5"></script>	    
 	    
-	    <script type="text/javascript" src="./resources/js/crosstab_handling_homepage.js?v=5"></script>
+	    <!-- <script type="text/javascript" src="./resources/js/crosstab_handling_homepage.js?v=5"></script> -->
 	    
 		<!-- <link rel="stylesheet" rel="stylesheet" href="./resources/js/skins/lightgray/content.min.css?v=6"  /> -->
 		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/reset.css?v=3" />
