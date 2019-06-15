@@ -945,7 +945,12 @@ public class ApplicationConstants {
 	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_PROPRIETYPOINT="workflow/proprietypoint/supportingmember";
 	
 	public static final String APPROVAL_WORKFLOW_URLPATTERN_PROPRIETYPOINT="workflow/proprietypoint";
-
+	
+	public static final String APPROVAL_WORKFLOW_URLPATTERN_SPECIALMENTIONNOTICE="workflow/specialmentionnotice";
+	
+	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_SPECIALMENTIONNOTICE="workflow/specialmentionnotice/supportingmember";
+	
+	public static final String SPECIALMENTIONNOTICE_APPROVAL_WORKFLOW = "SPECIALMENTIONNOTICE_APPROVAL_WORKFLOW";
 	/**** Advanced Search Status Filter ****/
 	public static final String UNPROCESSED_FILTER="UNPROCESSED";
 
@@ -1097,6 +1102,9 @@ public class ApplicationConstants {
 
 	/** Prefix of resolutions **/
 	public static final String DEVICE_RESOLUTIONS="resolutions_";
+	
+	/**** Prefix of special mention notice ****/
+	public static final String DEVICE_SPECIALMENTIONNOTICES="notices_specialmention_";
 
 	/** Prefix of bills **/
 	public static final String DEVICE_BILLS="bills_";
@@ -2422,12 +2430,6 @@ public class ApplicationConstants {
 	public static final String ADJOURNMENTMOTION_FINAL_REJECT_NAMECLUBBING = "adjournmentmotion_final_reject_nameclubbing";
 	
 	/**** Processed status ****/ 
-	public static final String ADJOURNMENTMOTION_PROCESSED_SENDTOSECTIONOFFICER = "adjournmentmotion_processed_sendToSectionOfficer";
-	
-	public static final String ADJOURNMENTMOTION_PROCESSED_SENDTODEPARTMENT = "adjournmentmotion_processed_sendToDepartment";
-	
-	public static final String ADJOURNMENTMOTION_PROCESSED_SENDTODESKOFFICER = "adjournmentmotion_processed_sendToDeskOfficer";
-	
 	public static final String ADJOURNMENTMOTION_PROCESSED_REJECTIONWITHREASON = "adjournmentmotion_processed_rejectionWithReason";
 	
 	public static final String ADJOURNMENTMOTION_PROCESSED_REPLY_RECEIVED = "adjournmentmotion_processed_replyReceived";
@@ -2554,7 +2556,9 @@ public class ApplicationConstants {
 	public static final String QUERYNAME_STATUS_RECOMMENDATIONS_FOR_INIT_FLOW = "STATUS_RECOMMENDATIONS_FOR_INIT_FLOW";
 	
 	public static final String ADJOURNMENT_MOTION_CLUBBING_MODE = "ADJOURNMENT_MOTION_CLUBBING_MODE";
-	
+
+	public static final String SPECIALMENTIONNOTICE_CLUBBING_MODE = "SPECIALMENTIONNOTICE_CLUBBING_MODE";
+
 	public static final String CLUBBING_MODE_APPROVAL_WORKFLOW = "approval_workflow";	
 	
 	public static final String PASSWORD_ENCRYPTION_REQUIRED = "PASSWORD_ENCRYPTION_REQUIRED";
@@ -2613,11 +2617,7 @@ public class ApplicationConstants {
 	
 	public static String ANSWER_RECEIVED_MODE_ONLINE = "ONLINE";
 	
-	public static String REPLY_RECEIVED_MODE_ONLINE = "ONLINE";
-	
 	public static String ANSWER_RECEIVED_MODE_OFFLINE = "OFFLINE";
-	
-	public static String REPLY_RECEIVED_MODE_OFFLINE = "OFFLINE";
 	
 	public static final String QUESTION_HALFHOURDISCUSSION_FROM_QUESTION_PROCESSED_SENDDISCUSSIONDATEINTIMATION = "question_halfHourFromQuestion_processed_sendDiscussionDateIntimation";
 	
@@ -2718,7 +2718,7 @@ public class ApplicationConstants {
 	public static long isUserSessionActive_URL_HIT_COUNT = 0; //remove once not needed
 	
 	public static int DEFAULT_SUBMISSION_PRIORITY = 1000;
-			
+	
 	public static final String MOTION_SYSTEM_ADVANCECOPYRECEIVED = "motion_system_advanceCopyReceived";
 	
 	public static final String MOTION_PROCESSED_RESENDREVISEDMOTIONTEXTTODEPARTMENT = "motion_processed_resendRevisedMotionTexttoDepartment";
@@ -2808,6 +2808,94 @@ public class ApplicationConstants {
 	
 	public static final String RULES_SUSPENSION_MOTION_CLUBBING_MODE = "RULES_SUSPENSION_MOTION_CLUBBING_MODE";
 	
+	/**************** Special Mention Notice ********************/
+	public static final String SPECIAL_MENTION_NOTICE = "notices_specialmention";
 	
+	/**** System status  ****/	
+	public static final String  SPECIALMENTIONNOTICE_SYSTEM_CLUBBED_WITH_PENDING="specialmentionnotice_system_clubbedwithpending";
+	
+	/**** Recommendation status ****/	
+	public static final String SPECIALMENTIONNOTICE_RECOMMEND_ADMISSION="specialmentionnotice_recommend_admission";
+
+	public static final String SPECIALMENTIONNOTICE_RECOMMEND_REJECTION="specialmentionnotice_recommend_rejection";
+
+	public static final String SPECIALMENTIONNOTICE_RECOMMEND_NAMECLUBBING="specialmentionnotice_recommend_nameclubbing";
+
+	public static final String SPECIALMENTIONNOTICE_RECOMMEND_REJECT_NAMECLUBBING="specialmentionnotice_recommend_reject_nameclubbing";
+
+	public static final String SPECIALMENTIONNOTICE_RECOMMEND_SENDBACK="specialmentionnotice_recommend_sendback";	
+
+	public static final String SPECIALMENTIONNOTICE_RECOMMEND_DISCUSS="specialmentionnotice_recommend_discuss";
+
+	/**** Final status ****/ 
+	public static final String SPECIALMENTIONNOTICE_FINAL_ADMISSION="specialmentionnotice_final_admission";    
+
+	public static final String SPECIALMENTIONNOTICE_FINAL_REJECTION="specialmentionnotice_final_rejection";
+	
+	public static final String  SPECIALMENTIONNOTICE_FINAL_NAMECLUBBING = "specialmentionnotice_final_nameclubbing";
+
+	public static final String  SPECIALMENTIONNOTICE_FINAL_REJECT_NAMECLUBBING = "specialmentionnotice_final_reject_nameclubbing";
+	
+	/**** Processed status ****/ 
+	public static final String  SPECIALMENTIONNOTICE_PROCESSED_REJECTIONWITHREASON = "specialmentionnotice_processed_rejectionWithReason";
+	
+	public static final String  SPECIALMENTIONNOTICE_PROCESSED_REPLY_RECEIVED = "specialmentionnotice_processed_replyReceived";
+	
+	/**** Put Up ****/
+	public static final String  SPECIALMENTIONNOTICE_PUTUP_NAMECLUBBING="specialmentionnotice_putup_nameclubbing";
+	
+	public static final String  SPECIALMENTIONNOTICE_PUTUP_REJECTION="specialmentionnotice_putup_rejection";
+	
+	/**** member status  ****/	
+	public static final String SPECIALMENTIONNOTICE_INCOMPLETE="specialmentionnotice_incomplete";
+
+	public static final String SPECIALMENTIONNOTICE_COMPLETE="specialmentionnotice_complete";
+
+	public static final String SPECIALMENTIONNOTICE_SUBMIT="specialmentionnotice_submit";
+
+	public static final String SPECIALMENTIONNOTICE_SYSTEM_ASSISTANT_PROCESSED="specialmentionnotice_system_assistantprocessed";
+	
+	public static final String SPECIALMENTIONNOTICE_SYSTEM_CLUBBED="specialmentionnotice_system_clubbed";
+	
+	/**** Clubbing related statuses ****/
+	public static final String SPECIALMENTIONNOTICE_PUTUP_CLUBBING="specialmentionnotice_putup_clubbing";
+	
+	public static final String SPECIALMENTIONNOTICE_RECOMMEND_CLUBBING="specialmentionnotice_recommend_clubbing";
+	
+	public static final String SPECIALMENTIONNOTICE_RECOMMEND_REJECT_CLUBBING="specialmentionnotice_recommend_reject_clubbing";
+	
+	public static final String SPECIALMENTIONNOTICE_FINAL_CLUBBING = "specialmentionnotice_final_clubbing";
+
+	public static final String SPECIALMENTIONNOTICE_FINAL_REJECT_CLUBBING = "specialmentionnotice_final_reject_clubbing";
+	
+	public static final String SPECIALMENTIONNOTICE_PUTUP_CLUBBING_POST_ADMISSION="specialmentionnotice_putup_clubbingPostAdmission";
+
+	public static final String SPECIALMENTIONNOTICE_RECOMMEND_CLUBBING_POST_ADMISSION="specialmentionnotice_recommend_clubbingPostAdmission";
+
+	public static final String SPECIALMENTIONNOTICE_RECOMMEND_REJECT_CLUBBING_POST_ADMISSION="specialmentionnotice_recommend_reject_clubbingPostAdmission";
+	
+	public static final String SPECIALMENTIONNOTICE_FINAL_CLUBBING_POST_ADMISSION = "specialmentionnotice_final_clubbingPostAdmission";
+
+	public static final String SPECIALMENTIONNOTICE_FINAL_REJECT_CLUBBING_POST_ADMISSION = "specialmentionnotice_final_reject_clubbingPostAdmission";
+
+	public static final String SPECIALMENTIONNOTICE_PUTUP_ADMIT_DUE_TO_REVERSE_CLUBBING = "specialmentionnotice_putup_admitDueToReverseClubbing";
+	
+	public static final String SPECIALMENTIONNOTICE_RECOMMEND_ADMIT_DUE_TO_REVERSE_CLUBBING = "specialmentionnotice_recommend_admitDueToReverseClubbing";
+	
+	public static final String SPECIALMENTIONNOTICE_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING = "specialmentionnotice_final_admitDueToReverseClubbing";
+	
+	public static final String SPECIALMENTIONNOTICE_PUTUP_UNCLUBBING="specialmentionnotice_putup_unclubbing";
+	
+	public static final String SPECIALMENTIONNOTICE_RECOMMEND_UNCLUBBING="specialmentionnotice_recommend_unclubbing";
+	
+	public static final String SPECIALMENTIONNOTICE_RECOMMEND_REJECT_UNCLUBBING = "specialmentionnotice_recommend_reject_unclubbing";
+	
+	public static final String SPECIALMENTIONNOTICE_FINAL_UNCLUBBING="specialmentionnotice_final_unclubbing";
+	
+	public static final String SPECIALMENTIONNOTICE_FINAL_REJECT_UNCLUBBING = "specialmentionnotice_final_reject_unclubbing";	
+
+	/**** Other constants ****/
+	public static final String SPECIALMENTIONNOTICEN_GET_REVISION = "SPECIALMENTIONNOTICE_GET_REVISION";
+	/**************** Special Mention Notice Completed ********************/
 	
 }
