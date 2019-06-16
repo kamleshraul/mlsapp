@@ -2626,6 +2626,25 @@
 			</div>
 		</c:if>
 		
+		<c:if test="${i.type eq 'notices_specialmention'}">
+			<div id="notices_specialmention" class="formDiv">
+				<p >
+					<label class="small"><spring:message code="session.deviceType.submissionStartTime" text="Submission Start Time"></spring:message></label>
+					<input type="text" class="sText" maxlength="5" name="notices_specialmention_submissionStartTime" id="notices_specialmention_submissionStartTime" value="${notices_specialmention_submissionstarttime}" />
+					<label style="margin-left: 5px;">
+						(<b>Format</b> = &nbsp;<spring:message code="generic.hour" text="hours"/> <b>:</b> <spring:message code="generic.minute" text="minutes"/>)
+					</label>
+				</p>
+				<p >
+					<label class="small"><spring:message code="session.deviceType.submissionEndTime" text="Submission End Time"></spring:message></label>
+					<input type="text" class="sText" maxlength="5" name="notices_specialmention_submissionEndTime" id="notices_specialmention_submissionEndTime" value="${notices_specialmention_submissionendtime}" />
+					<label style="margin-left: 5px;">
+						(<b>Format</b> = &nbsp;<spring:message code="generic.hour" text="hours"/> <b>:</b> <spring:message code="generic.minute" text="minutes"/>)
+					</label>
+				</p>
+			</div>
+		</c:if>
+		
 		</c:forEach>
 		<div class="fields">
 			<h2></h2>
