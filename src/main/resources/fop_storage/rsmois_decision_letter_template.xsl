@@ -75,10 +75,10 @@
 	            	<fo:block font-family="Kokila" font-size="26px">
 	            		<xsl:choose>
 	            			<xsl:when test="element_1">
-	            				<fo:block font-size="26px" font-weight="bold" margin-left="4cm" text-decoration="underline">
+	            				<fo:block font-size="26px" font-weight="bold" margin-left="3.5cm" text-decoration="underline">
 	            			  		<xsl:value-of select="element_1[1]/element_1_7"></xsl:value-of>
 			            		</fo:block>
-			            		<fo:block font-size="26px" font-weight="bold" margin-left="4cm" text-decoration="underline">
+			            		<fo:block font-size="26px" font-weight="bold" margin-left="3.5cm" text-decoration="underline">
 			            			<xsl:apply-templates select="element_1[1]/element_1_6"/>
 			            		</fo:block>
 			            		<fo:block font-size="8px">&#160;</fo:block> 
