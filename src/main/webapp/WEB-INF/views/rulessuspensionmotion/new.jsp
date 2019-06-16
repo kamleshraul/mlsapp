@@ -431,7 +431,7 @@
 				<label class="small"><spring:message code="rulessuspensionmotion.selectrulessuspensiondate" text="Rules Suspension Date"/></label>
 				<select name="ruleSuspensionDate" id="ruleSuspensionDate" style="width:130px;height: 25px;" disabled="disabled">
 					<c:forEach items="${sessionDates}" var="i">
-						<option value="${i[0]}" ${i[0]==defaultRulesSuspensionDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
+						<option value="${i[0]}" ${i[0]==defaultRuleSuspensionDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
 					</c:forEach>
 				</select>
 				<a href="#" id="changeRulesSuspensionDate" style="margin-left: 10px;"><spring:message code="rulessuspensionmotion.changeRulesSuspensionDate" text="Change Rules Suspension Date"/></a>

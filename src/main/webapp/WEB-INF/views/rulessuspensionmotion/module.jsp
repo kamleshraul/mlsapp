@@ -148,7 +148,7 @@
 			$("#selectedSessionType").change(function(){
 				var value=$(this).val();
 				if(value!=""){			
-					$.get('ref/rulessuspensionmotion/rulessuspensiondatesforsession?houseType='+$('#selectedHouseType').val()
+					$.get('ref/rulessuspensionmotion/rulesuspensiondatesforsession?houseType='+$('#selectedHouseType').val()
 							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
 						if(data.length>1) {
 							var defaultRulesSuspensionDate = data[data.length-1][0];
@@ -218,7 +218,10 @@
 				}				
 			});
 			/**** Submission Time Window ****/
-			$("#submission_time_window").click(function(event, isHighSecurityValidationRequired){			
+			$("#submission_time_window").click(function(event, isHighSecurityValidationRequired){
+				if($("#currentusergroupType").val() == 'member'){
+					isHighSecurityValidationRequired = false;
+				}
 				if(isHighSecurityValidationRequired!=false) {
 					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
 					return false;

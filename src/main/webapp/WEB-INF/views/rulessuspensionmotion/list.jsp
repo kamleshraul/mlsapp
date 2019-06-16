@@ -51,7 +51,7 @@
 			$("#rsmois_current_status_report").click(function() {
 				/* $(this).attr('href','#');
 				generateCurrentStatusReport(); */
-				var selectedMotionId = $('#key').val();//$("#grid").jqGrid ('getGridParam', 'selarrrow');
+				var selectedMotionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
 				//alert(selectedMotionId);
 				if(selectedMotionId.length>=1){
 					showCurrentStatusReport('multiple',selectedMotionId);
