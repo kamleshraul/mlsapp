@@ -1009,6 +1009,8 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 						result.rejectValue("number", "NonUnique","Duplicate Parameter");
 						return;
 					}
+				} else {
+					domain.setNumber(null);
 				}
 			}
 		}

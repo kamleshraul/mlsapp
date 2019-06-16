@@ -586,10 +586,10 @@
 				<h2></h2>
 				<c:if test="${memberStatusType=='proprietypoint_complete' or memberStatusType=='proprietypoint_incomplete'}">
 				<p class="tright">
-					<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-					<%-- <security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">	
-						<input id="sendforapproval" type="button" value="<spring:message code='proprietypoint.sendforapproval' text='Send For Approval'/>" class="butDef">
-					</security:authorize> --%>
+					<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+						<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+						<%-- <input id="sendforapproval" type="button" value="<spring:message code='proprietypoint.sendforapproval' text='Send For Approval'/>" class="butDef"> --%>
+					</security:authorize>
 					<input id="submitdevice" type="button" value="<spring:message code='proprietypoint.submitdevice' text='Submit Propriety Point'/>" class="butDef">
 					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 				</p>

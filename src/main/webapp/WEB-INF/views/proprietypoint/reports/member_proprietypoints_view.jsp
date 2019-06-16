@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="adjournmentmotion.member_adjournmentmotions_view" text="Member's Adjournment Motions View"/>
+	<spring:message code="proprietypoint.member_proprietypoints_view" text="Member's Propriety Points View"/>
 	</title>
 	<link rel="stylesheet" type="text/css" media="print" href="./resources/css/printerfriendly.css?v=31" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
@@ -138,7 +138,7 @@
 				</div>
 			</c:when>
 			<c:otherwise>
-				<spring:message code="member_adjournmentmotions_view.nodatafound" text="No Data Found"/>
+				<spring:message code="member_proprietypoints_view.nodatafound" text="No Data Found"/>
 			</c:otherwise>
 		</c:choose>
 	</div>
