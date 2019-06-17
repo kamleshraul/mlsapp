@@ -636,9 +636,9 @@
 			
 			<p>
 				<c:if test="${bulkedit!='yes' and domain.internalStatus.type!='specialmentionnotice_system_clubbed'}">
-				<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="adjournmentmotion.clubbing" text="Clubbing"></spring:message></a>
+				<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="specialmentionnotice.clubbing" text="Clubbing"></spring:message></a>
 				<%-- <a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="adjournmentmotion.referencing" text="Referencing"></spring:message></a> --%>
-				<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="adjournmentmotion.refresh" text="Refresh"></spring:message></a>
+				<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="specialmentionnotice.refresh" text="Refresh"></spring:message></a>
 				</c:if>	
 			</p>
 			
@@ -663,7 +663,7 @@
 						<c:forEach items="${clubbedMotions }" var="i">
 							<a href="#" id="cq${i.number}" class="clubbedRefMotions" onclick="viewMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
 						</c:forEach>
-						<a href="javascript:void(0);" id="viewClubbedSpecialMentionNoticeTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="adjournmentmotion.clubbed.texts" text="C"></spring:message></a>
+						<a href="javascript:void(0);" id="viewClubbedSpecialMentionNoticeTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="specialmentionnotice.clubbed.texts" text="C"></spring:message></a>
 					</c:when>
 					<c:otherwise>
 						<c:out value="-"></c:out>
@@ -690,8 +690,8 @@
 			
 			<p>
 				<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="specialmentionnotice.reviseSubject" text="Revise Subject"></spring:message></a>
-				<a href="#" id="reviseNoticeContent" style="margin-right: 20px;"><spring:message code="adjournmentmotion.reviseNoticeContent" text="Revise Notice Content"></spring:message></a>
-				<a href="#" id="viewRevision"><spring:message code="adjournmentmotion.viewrevisions" text="View Revisions"></spring:message></a>
+				<a href="#" id="reviseNoticeContent" style="margin-right: 20px;"><spring:message code="specialmentionnotice.reviseNoticeContent" text="Revise Notice Content"></spring:message></a>
+				<a href="#" id="viewRevision"><spring:message code="specialmentionnotice.viewrevisions" text="View Revisions"></spring:message></a>
 			</p>	
 			
 			<p style="display:none;" class="revise1" id="revisedSubjectDiv">
@@ -769,7 +769,7 @@
 			<c:choose>
 			<c:when test="${not empty domain.rejectionReason}">
 			<p>
-				<label class="wysiwyglabel"><spring:message code="adjournmentmotion.rejectionReason" text="Reply"/></label>
+				<label class="wysiwyglabel"><spring:message code="specialmentionnotice.rejectionReason" text="Reply"/></label>
 				<form:textarea path="rejectionReason" cssClass="wysiwyg" readonly="true"></form:textarea>
 				<form:errors path="rejectionReason" cssClass="validationError"></form:errors>
 			</p>
@@ -779,12 +779,12 @@
 			</c:otherwise>
 			</c:choose>			
 			
-			<p>
-				<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="adjournmentmotion.viewcitation" text="View Citations"></spring:message></a>	
-			</p>
+		<%-- 	<p>
+				<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="specialmentionnotice.viewcitation" text="View Citations"></spring:message></a>	
+			</p> --%>
 			
 			<p>
-			<label class="centerlabel"><spring:message code="adjournmentmotion.remarks" text="Remarks"/></label>
+			<label class="centerlabel"><spring:message code="specialmentionnotice.remarks" text="Remarks"/></label>
 			<form:textarea path="remarks" rows="4" cols="70"></form:textarea>
 			<form:hidden path="remarksAboutDecision"/>
 			</p>	
@@ -804,7 +804,7 @@
 								|| recommendationStatusType == 'specialmentionnotice_putup_admitDueToReverseClubbing'}">
 								<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 								<security:authorize access="hasAnyRole('SMIS_ASSISTANT','SMIS_SECTION_OFFICER')">
-									<input id="startworkflow" type="button" value="<spring:message code='adjournmentmotion.putupadjournmentmotion' text='Put Up Motion'/>" class="butDef">
+									<input id="startworkflow" type="button" value="<spring:message code='specialmentionnotice.putupspecialmentionnotice' text='Put Up Motion'/>" class="butDef">
 								</security:authorize>					
 							</c:if>							
 						</c:when>						
@@ -843,22 +843,22 @@
 			<input id="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
 		</form:form>
 
-		<input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='adjournmentmotion.startworkflowmessage' text='Do You Want To Put Up Special Mention Notice?'></spring:message>" type="hidden">
+		<input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='specialmentionnotice.startworkflowmessage' text='Do You Want To Put Up Special Mention Notice?'></spring:message>" type="hidden">
 		<input id="ministrySelected" value="${ministrySelected }" type="hidden">
 		<input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 		<input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">		
 		<input id="originalLevel" value="${ domain.level}" type="hidden">		
 		<input id="motionTypeType" value="${selectedMotionType}" type="hidden"/>
-		<input id="primaryMemberEmptyMsg" value='<spring:message code="client.error.adjournmentmotion.primaryMemberEmpty" text="Primary Member can not be empty."></spring:message>' type="hidden">
-		<input id="subjectEmptyMsg" value='<spring:message code="client.error.adjournmentmotion.subjectEmpty" text="Subject can not be empty."></spring:message>' type="hidden">
-		<input id="noticeContentEmptyMsg" value='<spring:message code="client.error.adjournmentmotion.noticecontentEmptyMsg" text="Notice Content can not be empty."></spring:message>' type="hidden">
+		<input id="primaryMemberEmptyMsg" value='<spring:message code="client.error.specialmentionnotice.primaryMemberEmpty" text="Primary Member can not be empty."></spring:message>' type="hidden">
+		<input id="subjectEmptyMsg" value='<spring:message code="client.error.specialmentionnotice.subjectEmpty" text="Subject can not be empty."></spring:message>' type="hidden">
+		<input id="noticeContentEmptyMsg" value='<spring:message code="client.error.specialmentionnotice.noticecontentEmptyMsg" text="Notice Content can not be empty."></spring:message>' type="hidden">
 		<input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 		<input id="subDepartmentEmptyMsg" value='<spring:message code="client.error.subDepartmentEmptyMsg" text="SubDepartment can not be empty."></spring:message>' type="hidden">
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 		
 		<ul id="contextMenuItems" >
 			<li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
-			<li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
+		<%-- 	<li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li> --%>
 		</ul>
 	</div>
 	</div>
@@ -866,7 +866,7 @@
 	<!--To show the motion texts of the clubbed motions -->
 	<div id="clubbedSpecialMentionNoticeTextsDiv">
 		<h1>		
-			<spring:message code="adjournmentmotion.clubbedMotionTexts" text="Motion texts of clubbed motions:"></spring:message>
+			<spring:message code="specialmentionnotice.clubbedMotionTexts" text="Motion texts of clubbed motions:"></spring:message>
 		</h1>
 	</div>
 	<div id="hideClubMTDiv" style="background: #FF0000; color: #FFF; position: fixed; bottom: 0; right: 10px; width: 15px; border-radius: 10px; cursor: pointer;">&nbsp;X&nbsp;</div>
