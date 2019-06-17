@@ -196,33 +196,45 @@
 												
 												<fo:block font-size="6px">&#160;</fo:block>
 												
-												<fo:block>
-													<fo:inline font-weight="bold">विषय:- </fo:inline>
-													<fo:inline>
-													<xsl:choose>
-														<xsl:when test="./element_1/element_1_10='upperhouse'">
-															<fo:inline  font-weight="bold" ><xsl:value-of select="./element_1/element_1_9"/>,</fo:inline>
-															<fo:inline font-weight="bold">वि.प.स.</fo:inline> यांनी विधानपरिषद नियम ९३ अन्वये दिलेली सूचना क्रमांक - <xsl:value-of select="./element_1/element_1_4"/> (प्रत संलग्न).
-														</xsl:when>
-														<xsl:otherwise>
-															<xsl:value-of select="./element_1/element_1_9" font-weight="bold"/>
+												<fo:block font-weight="bold">
+												<xsl:choose>
+													<xsl:when test="./element_1/element_1_10='upperhouse'">
+														<fo:block margin-left="3.5cm">
+															विषय : <xsl:value-of select="./element_1/element_1_9"/>, वि.प.स. यांनी विधानपरिषद नियम ९३ अन्वये
+														</fo:block>	
+														<fo:block margin-left="4.8cm">
+															दिलेली सूचना क्रमांक - <xsl:value-of select="./element_1/element_1_4"/> (प्रत संलग्न).
+														</fo:block>
+													</xsl:when>
+													<xsl:otherwise>
+														<fo:block margin-left="3.5cm">
+															विषय : <xsl:value-of select="./element_1/element_1_9"/>
 															वि.स.स. यांचा स्थगन प्रस्ताव सूचना क्रमांक - <xsl:value-of select="./element_1/element_1_4"/> (प्रत संलग्न).
-														</xsl:otherwise>
-													</xsl:choose> 
-													</fo:inline> 
+														</fo:block>
+													</xsl:otherwise>
+												</xsl:choose>												
 												</fo:block>
+												
 												<fo:block font-size="10px">
             										&#160;
             									</fo:block>
 												<fo:block text-align="left" font-weight="bold">महोदय/महोदया,</fo:block>
             									<fo:block text-align="justify">
+            										<fo:block>&#160;</fo:block>
             										<fo:block>
-														&#160;&#160;&#160;&#160;&#160;&#160;
-														निदेशानुसार 
+														&#160;&#160;&#160;&#160;&#160;&#160;निदेशानुसार आपणांस कळविण्यात येत आहे की, सन २०१९ च्या दुसऱ्या (पावसाळी) 
+														अधिवेशनात <fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_12"/> रोजी</fo:inline>  
+														महाराष्ट्र विधानपरिषदेत उपस्थित करण्यात आलेल्या नियम ९३ अन्वये सूचनेच्या <fo:inline font-weight="bold">(प्रत संलग्न)</fo:inline> संदर्भात 
+														शासनाने ५ दिवसांत निवेदन करावे असे मा. सभापतींनी निदेश दिले असून त्या अनुषंगाने 
+														<fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_13"/> 
+														या तारखेपर्यंत विधानपरिषदेत निवेदन करण्यासंदर्भात मा.मंत्री महोदयांना अवगत करण्यात यावे.</fo:inline> 
+														तसेच सदर निवेदनाच्या ३०० प्रती या सचिवालयाच्या “ई-२” शाखेकडे मा.मंत्री महोदयांनी विधानपरिषद सभागृहात निवेदन करावयाच्या 
+														<fo:inline font-weight="bold">एक दिवस अगोदर सकाळी १०.००</fo:inline> वाजेपर्यंत पाठविण्याची व्यवस्था करावी. 
 													</fo:block>
 													<fo:block>
-														&#160;&#160;&#160;&#160;&#160;&#160;
-															            										
+														&#160;&#160;&#160;&#160;&#160;&#160;त्याचप्रमाणे या निवेदनांच्या प्रतींवर सन २०१८ चे पहिले (अर्थसंकल्पीय) अधिवेशन 
+														तसेच वर नमूद केलेला सूचना क्रमांक, निवेदन करणाऱ्या मा.मंत्री मोहोद्यांचे नाव व विभागाचा स्पष्टपणे उल्लेख करून, निवेदन करण्याबाबतचे 
+														मा. मंत्री मोहोद्यांचे पत्र, महाराष्ट्र विधानपरिषद, विधान भवन, मुंबई यांना अग्रेषित करण्यात यावे, आशी आपणांस विनंती करण्यात येत आहे.													      										
 	            									</fo:block>
 												</fo:block>	
 												<fo:block>
