@@ -849,8 +849,10 @@
 		}
 		
 		function showCurrentStatusReport(val, wfdId){
+
 			$("#selectionDiv1").hide();
 			var deviceType = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+		
 			var device = deviceType.split("_")[0];
 			if(deviceType.indexOf("questions_")==0){
 				showTabByIdAndUrl('details_tab', "question/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
@@ -877,6 +879,9 @@
 				showTabByIdAndUrl('details_tab', "resolution/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
 			}else if(deviceType.indexOf('proprietypoint')==0){
 				showTabByIdAndUrl('details_tab', "proprietypoint/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
+			}else if (deviceType.indexOf('notices_specialmention')==0){
+				alert("specialmentionnotice/report/currentstatusreport?device="+ device +"&reportType="+val+"&moId="+moId)
+				showTabByIdAndUrl('details_tab', "specialmentionnotice/report/currentstatusreport?device="+ device +"&reportType="+val+"&moId="+moId);
 			}
 		}
 		

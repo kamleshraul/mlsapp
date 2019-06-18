@@ -109,6 +109,7 @@ mentionnotice" text="Special Mention Notice"/>
 		
 		//save the state of special mention notice
 		$("#submit").click(function(e){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			$('#specialMentionNoticeDate').removeAttr('disabled');
 			//removing <p><br></p>  from wysiwyg editor
 			$(".wysiwyg").each(function(){
@@ -287,7 +288,7 @@ mentionnotice" text="Special Mention Notice"/>
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
 			<p>
 				<label class="small"><spring:message code="specialmentionnotice.primaryMember" text="Primary Member"/>*</label>
-				<input id="formattedPrimaryMember" name="formattedPrimaryMember"  value="${formattedPrimaryMember}" type="text" class="sText"  readonly="readonly" class="sText">
+				<input id="formattedPrimaryMember" name="formattedPrimaryMember"  value="${formattedPrimaryMember}" type="text" class="sText"  readonly="readonly" >
 				<input name="primaryMember" id="primaryMember" value="${primaryMember}" type="hidden">		
 				<form:errors path="primaryMember" cssClass="validationError"/>	
 				<label class="small"><spring:message code="specialmentionnotice.primaryMemberConstituency" text="Constituency"/>*</label>
@@ -310,6 +311,7 @@ mentionnotice" text="Special Mention Notice"/>
 			
 			<p>
 				<label class="small"><spring:message code="specialmentionnotice.selectSpecialMentionNoticedate" text="Special Mention Notice Date"/></label>
+				<%-- <input name="specialMentionNoticeDate" id="specialMentionNoticeDate" value="${defaultSpecialMentionNoticeDate}" style="width:130px;height: 40px;background-color:white;" readonly="readonly"> --%>		
 				<select name="specialMentionNoticeDate" id="specialMentionNoticeDate" style="width:130px;height: 25px;" disabled="disabled">
 				<c:forEach items="${sessionDates}" var="i">
 					<option value="${i[0]}" ${i[0]==defaultSpecialMentionNoticeDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
@@ -371,9 +373,11 @@ mentionnotice" text="Special Mention Notice"/>
 				<h2></h2>
 				<p class="tright">
 					<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-					<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">	
+					
+<%-- 					<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">	
 						<input id="sendforapproval" type="button" value="<spring:message code='specialmentionnotice.sendforapproval' text='Send For Approval'/>" class="butDef">
-					</security:authorize>
+					</security:authorize> --%>
+					
 					<input id="submitmotion" type="button" value="<spring:message code='specialmentionnotice.submitmotion' text='Submit Motion'/>" class="butDef">
 					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 				</p>
@@ -394,7 +398,7 @@ mentionnotice" text="Special Mention Notice"/>
 		<input id="subDepartmentEmptyMsg" value='<spring:message code="client.error.subDepartmentEmptyMsg" text="SubDepartment can not be empty."></spring:message>' type="hidden">
 		<input id="sendForApprovalMsg" value="<spring:message code='client.prompt.approve' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 		<input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
-		<input id="submissionMsg" value="<spring:message code='adjournmentmotion.submissionMsg' text='Do you want to submit the specialmention notice?'></spring:message>" type="hidden">
+		<input id="submissionMsg" value="<spring:message code='specialmentionnotice.submissionMsg' text='Do you want to submit the specialmention notice?'></spring:message>" type="hidden">
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 	</div>
 </body>

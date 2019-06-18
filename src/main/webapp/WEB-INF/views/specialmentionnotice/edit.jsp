@@ -102,6 +102,7 @@
 		
 		//save the state of adjournment motion
 		$("#submit").click(function(e){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			$('#specialMentionNoticeDate').removeAttr('disabled');
 			//removing <p><br></p>  from wysiwyg editor
 			$(".wysiwyg").each(function(){
@@ -375,6 +376,7 @@
 			
 			<p>
 				<label class="small"><spring:message code="specialmentionnotice.selectSpecialMentionNoticedate" text="SpecialMentionNotice Date"/></label>
+				<%-- <input name="specialMentionNoticeDate" id="specialMentionNoticeDate" value="${selectedSpecialMentionNoticeDate}"  style="width:130px;height: 40px;" readonly="readonly"> --%>		
 				<select name="specialMentionNoticeDate" id="specialMentionNoticeDate" style="width:130px;height: 25px;" disabled="disabled">
 				<c:forEach items="${sessionDates}" var="i">
 					<option value="${i[0]}" ${i[0]==selectedSpecialMentionNoticeDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		

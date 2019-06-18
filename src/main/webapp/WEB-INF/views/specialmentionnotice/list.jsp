@@ -123,12 +123,12 @@
 			<a href="#" id="search" class="butSim">
 				<spring:message code="motion.search" text="Search"/>
 			</a> |	
-		<%-- 	<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+		 	<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 				<hr/>
 				<a href="#" id="member_specialmentionnotices_view" class="butSim">
-					<spring:message code="question.member_adjournmentmotions_view" text="Member's Adjournment Motions View"/>
+					<spring:message code="question.member_specialmentionnotice_view" text="Member's Special Mention Notices View"/>
 				</a> |
-			</security:authorize>	 --%>
+			</security:authorize>	 
 			<security:authorize access="hasAnyRole('SMIS_CLERK', 'SMIS_ASSISTANT', 'SMIS_SECTION_OFFICER')">
 			<a href="#" id="smis_current_status_report" class="butSim">
 				<spring:message code="smis.current_status_report" text="Current Status Report"/>

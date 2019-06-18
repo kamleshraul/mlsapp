@@ -126,7 +126,7 @@
 </div>
 <br/>
 <div style="width: 750px; border-top: 2px dotted black;">&nbsp;</div>
-#**
+
 <div style="width: 750px;">	
 	<table style="width: 750px; font-weight: bold; border: 2px solid black; font-size: 16px;" class="uiTable">
 		#foreach($r in $data)
@@ -173,6 +173,6 @@
 		</tr>
 	</table>
 </div>
-*#
+
 <span class='page-break-before-forced'>&nbsp;</span>
 <hr>

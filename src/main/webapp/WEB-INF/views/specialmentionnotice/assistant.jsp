@@ -779,9 +779,9 @@
 			</c:otherwise>
 			</c:choose>			
 			
-		<%-- 	<p>
+		 	<p>
 				<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="specialmentionnotice.viewcitation" text="View Citations"></spring:message></a>	
-			</p> --%>
+			</p> 
 			
 			<p>
 			<label class="centerlabel"><spring:message code="specialmentionnotice.remarks" text="Remarks"/></label>

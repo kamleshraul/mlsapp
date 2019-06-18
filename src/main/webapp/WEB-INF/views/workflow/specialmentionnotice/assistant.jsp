@@ -643,21 +643,21 @@
 				</select>
 					<form:errors path="subDepartment" cssClass="validationError"/>							
 			</p>
-		<%-- 	
+		 	
 			<p>
 				<label class="centerlabel"><spring:message code="specialmentionnotice.members" text="Members"/></label>
 				<textarea id="members" class="sTextarea" readonly="readonly" rows="2" cols="50">${memberNames}</textarea>
 				<c:if test="${!(empty primaryMember)}">
 					<input id="primaryMember" name="primaryMember" value="${primaryMember}" type="hidden">
 				</c:if>
-				<c:if test="${!(empty supportingMembers)}">
+				<%-- <c:if test="${!(empty supportingMembers)}">
 			    <select  name="selectedSupportingMembers" id="selectedSupportingMembers" multiple="multiple" style="display:none;">
 					<c:forEach items="${supportingMembers}" var="i">
 					<option value="${i.id}" selected="selected"></option>
 					</c:forEach>		
 					</select>
-				</c:if>
-			</p> --%>
+				</c:if> --%>
+			</p> 
 			
 			<p>
 				<label class="small"><spring:message code="specialmentionnotice.primaryMemberConstituency" text="Constituency"/>*</label>
