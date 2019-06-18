@@ -826,26 +826,34 @@
 				<h2></h2>
 				<p class="tright">
 					<c:choose>
-						<c:when test="${(internalStatusType eq'rulessuspensionmotion_final_admission' || internalStatusType eq 'rulessuspensionmotion_final_rejection') && empty parent}">
+						<c:when test="${usergroupType == 'secretary'}">
 							<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 						</c:when>
-						<c:when test="${bulkedit!='yes'}">
-							<c:if test="${internalStatusType=='rulessuspensionmotion_submit' || internalStatusType=='rulessuspensionmotion_system_assistantprocessed' || internalStatusType=='rulessuspensionmotion_system_putup'
-								|| internalStatusType=='rulessuspensionmotion_putup_rejection' || internalStatusType == 'rulessuspensionmotion_putup_clubbing' || internalStatusType == 'rulessuspensionmotion_putup_nameclubbing' 
-								|| recommendationStatusType == 'rulessuspensionmotion_putup_clubbingPostAdmission' || recommendationStatusType == 'rulessuspensionmotion_putup_unclubbing' 
-								|| recommendationStatusType == 'rulessuspensionmotion_putup_admitDueToReverseClubbing'}">
-								<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-								<security:authorize access="hasAnyRole('RSMOIS_ASSISTANT','RSMOIS_SECTION_OFFICER')">
-									<input id="startworkflow" type="button" value="<spring:message code='rulessuspensionmotion.putuprulessuspensionmotion' text='Put Up Motion'/>" class="butDef">
-								</security:authorize>					
-							</c:if>							
-						</c:when>						
 						<c:otherwise>
-							<c:if test="${bulkedit=='yes'}">
-								<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
-							</c:if>
+							<c:choose>
+								<c:when test="${(internalStatusType eq'rulessuspensionmotion_final_admission' || internalStatusType eq 'rulessuspensionmotion_final_rejection') && empty parent}">
+									<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+								</c:when>
+								<c:when test="${bulkedit!='yes'}">
+									<c:if test="${internalStatusType=='rulessuspensionmotion_submit' || internalStatusType=='rulessuspensionmotion_system_assistantprocessed' || internalStatusType=='rulessuspensionmotion_system_putup'
+										|| internalStatusType=='rulessuspensionmotion_putup_rejection' || internalStatusType == 'rulessuspensionmotion_putup_clubbing' || internalStatusType == 'rulessuspensionmotion_putup_nameclubbing' 
+										|| recommendationStatusType == 'rulessuspensionmotion_putup_clubbingPostAdmission' || recommendationStatusType == 'rulessuspensionmotion_putup_unclubbing' 
+										|| recommendationStatusType == 'rulessuspensionmotion_putup_admitDueToReverseClubbing'}">
+										<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+										<security:authorize access="hasAnyRole('RSMOIS_ASSISTANT','RSMOIS_SECTION_OFFICER')">
+											<input id="startworkflow" type="button" value="<spring:message code='rulessuspensionmotion.putuprulessuspensionmotion' text='Put Up Motion'/>" class="butDef">
+										</security:authorize>					
+									</c:if>							
+								</c:when>						
+								<c:otherwise>
+									<c:if test="${bulkedit=='yes'}">
+										<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
+									</c:if>
+								</c:otherwise>
+							</c:choose>
 						</c:otherwise>
 					</c:choose>
+
 				</p>
 			</div>
 			
