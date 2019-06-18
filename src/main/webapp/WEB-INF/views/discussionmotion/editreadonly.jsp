@@ -44,7 +44,7 @@
 		
 	<p>		
 	<label class="small"><spring:message code="discussionmotion.submissionDate" text="Submitted On"/></label>
-	<input id="formattedSubmissionDateEdit" name="formattedSubmissionDateEdit" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
+	<input id="formattedSubmissionDateEdit" name="formattedSubmissionDateEdit" value="${formattedSubmissionDate}" class="sText" readonly="readonly">
 	</p>
 	
 	<p>

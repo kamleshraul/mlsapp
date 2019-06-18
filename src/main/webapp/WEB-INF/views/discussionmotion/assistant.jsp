@@ -481,8 +481,9 @@
 	
 		<c:if test="${(internalStatusType=='discussionmotion_final_admission')}">
 		<label class="small"><spring:message code="discussionmotion.discussionDate" text="Discussion Date"/></label>
-		<input id="formattedDiscussionDate" value="${formattedDiscussionDateSelected}" class="datemask sText" />
-		<input id="discussionDate" name="discussionDate" value="${discussionDateSelected}" class="sText" type="hidden" />
+		
+		<input id="formattedDiscussionDate" name="formattedDiscussionDate" value="${formattedDiscussionDate}" class="datemask sText" />
+		<input id="discussionDate" name="discussionDate" value="${discussionDate}" class="sText" type="hidden" />
 		<form:errors path="discussionDate" cssClass="validationError"/>
 	</c:if>
 	</p>
@@ -710,9 +711,11 @@
 							||(internalStatusType=='discussionmotion_system_putup')
 							||(internalStatusType=='discussionmotion_final_admission')}">
 					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+					<c:if test="${(internalStatusType !='discussionmotion_final_admission')}">
 					<security:authorize access="hasAnyRole('DMOIS_ASSISTANT')">
 					<input id="startworkflow" type="button" value="<spring:message code='discussionmotion.putupmotion' text='Put Up Motion'/>" class="butDef">
-					</security:authorize>					
+					</security:authorize>	
+					</c:if>				
 				</c:if>
 			</c:when>
 			<c:otherwise>
