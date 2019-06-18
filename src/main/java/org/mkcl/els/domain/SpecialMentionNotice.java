@@ -1444,7 +1444,8 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 	    		} else {
 	    			String submissionStartTimeDefaultSessionParameter = motionSession.getParameter(ApplicationConstants.SPECIAL_MENTION_NOTICE+"_submissionStartTime");
 	        		if(submissionStartTimeDefaultSessionParameter!=null && !submissionStartTimeDefaultSessionParameter.isEmpty()) {
-	        			submissionStartTimePart = submissionStartTimeDefaultSessionParameter + ":00";
+	        			String[] submissionStartTimeDefaultSessionParameters =  submissionStartTimeDefaultSessionParameter.split(" ");
+	    				submissionStartTimePart = submissionStartTimeDefaultSessionParameters[1];
 	        		} else {
 	        			CustomParameter csptsubmissionStartTime = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.SPECIAL_MENTION_NOTICE.toUpperCase()+"_SUBMISSIONSTARTTIME_"+motionSession.getHouse().getType().getType().toUpperCase(), "");
 	            		if(csptsubmissionStartTime!=null && csptsubmissionStartTime.getValue()!=null && !csptsubmissionStartTime.getValue().isEmpty()) {
@@ -1476,7 +1477,8 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 	    		} else {
 	    			String submissionEndTimeDefaultSessionParameter = motionSession.getParameter(ApplicationConstants.SPECIAL_MENTION_NOTICE+"_submissionEndTime");
 	        		if(submissionEndTimeDefaultSessionParameter!=null && !submissionEndTimeDefaultSessionParameter.isEmpty()) {
-	        			submissionEndTimePart = submissionEndTimeDefaultSessionParameter + ":00";
+	        			String[] submissionEndTimeDefaultSessionParameters =  submissionEndTimeDefaultSessionParameter.split(" ");
+	        			submissionEndTimePart = submissionEndTimeDefaultSessionParameters[1];
 	        		} else {
 	        			CustomParameter csptsubmissionEndTime = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.SPECIAL_MENTION_NOTICE.toUpperCase()+"_SUBMISSIONENDTIME_"+motionSession.getHouse().getType().getType().toUpperCase(), "");
 	            		if(csptsubmissionEndTime!=null && csptsubmissionEndTime.getValue()!=null && !csptsubmissionEndTime.getValue().isEmpty()) {

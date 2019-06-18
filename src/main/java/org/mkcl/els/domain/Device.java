@@ -47,6 +47,7 @@ public abstract class Device extends BaseDomain {
             	DeviceType supplementaryCutMotionDeviceType = DeviceType.findByType(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY, ApplicationConstants.DEFAULT_LOCALE);
             	DeviceType adjournmentMotionDeviceType = DeviceType.findByType(ApplicationConstants.ADJOURNMENT_MOTION, ApplicationConstants.DEFAULT_LOCALE);
             	DeviceType proprietyPointDeviceType = DeviceType.findByType(ApplicationConstants.PROPRIETY_POINT, ApplicationConstants.DEFAULT_LOCALE);
+            	DeviceType specialMentionNoticeDeviceType = DeviceType.findByType(ApplicationConstants.SPECIAL_MENTION_NOTICE, ApplicationConstants.DEFAULT_LOCALE);
             	
             	Integer number = null;
             	
@@ -196,6 +197,15 @@ public abstract class Device extends BaseDomain {
 					ProprietyPoint.updateCurrentNumberUpperHouse(number);
         		}
             	
+            	/** update upperhouse static current number for special mention notices **/
+            	if (SpecialMentionNotice.getCurrentNumberUpperHouse() == 0) {
+            		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, specialMentionNoticeDeviceType);
+            		Date defaultSpecialMentionNoticeDate = SpecialMentionNotice.findDefaultSpecialMentionNoticeDateForSession(latestUpperHouseSession, true);
+            		number = SpecialMentionNotice.assignMotionNo(upperHouseType, defaultSpecialMentionNoticeDate, ApplicationConstants.DEFAULT_LOCALE);
+            		SpecialMentionNotice.updateCurrentNumberUpperHouse(number);
+            		SpecialMentionNotice.updateCurrentSpecialMentionNoticeDateUpperHouse(defaultSpecialMentionNoticeDate);
+        		}
+            	
             	Device.isCurrentNumberForDevicesUpdateRequired(false);
         	} catch (ELSException e) {
     			// TODO Auto-generated catch block
@@ -236,6 +246,12 @@ public abstract class Device extends BaseDomain {
 		
 		}
 		
+		else if(deviceName.split("_")[0].toUpperCase().equals("SPECIALMENTIONNOTICE")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
+		SpecialMentionNotice specialMentionNotice = SpecialMentionNotice.findById(SpecialMentionNotice.class, deviceId);
+		specialMentionNotice.startWorkflow(specialMentionNotice, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
+		}
+	
+		
 	}
 	
 	public static void endDeviceWorkflow(String deviceName, Long deviceId, String workflowHouseType, String locale) throws ELSException {
@@ -267,6 +283,12 @@ public abstract class Device extends BaseDomain {
 		} else if(deviceName.split("_")[0].toUpperCase().equals("PROPRIETYPOINT")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
 			ProprietyPoint proprietyPoint = ProprietyPoint.findById(ProprietyPoint.class, deviceId);
 			proprietyPoint.endWorkflow(proprietyPoint, workflowHouseType, locale);
+		
+		}	
+		
+		 else if(deviceName.split("_")[0].toUpperCase().equals("SPECIALMENTIONNOTICE")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
+			 SpecialMentionNotice specialMentionNotice = SpecialMentionNotice.findById(SpecialMentionNotice.class, deviceId);
+			 specialMentionNotice.endWorkflow(specialMentionNotice, workflowHouseType, locale);
 		
 		}
 		

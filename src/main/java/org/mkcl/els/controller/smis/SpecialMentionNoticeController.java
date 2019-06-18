@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,6 +24,7 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.controller.question.QuestionController;
+import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
@@ -51,7 +53,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 @RequestMapping("specialmentionnotice")
@@ -245,6 +249,18 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 					defaultSpecialMentionNoticeDate = SpecialMentionNotice.findDefaultSpecialMentionNoticeDateForSession(session, false);
 				}
 				model.addAttribute("defaultSpecialMentionNoticeDate", FormaterUtil.formatDateToString(defaultSpecialMentionNoticeDate, ApplicationConstants.SERVER_DATEFORMAT));
+				
+				
+			/*	Calendar c = Calendar.getInstance();
+				c.add(Calendar.DATE, 1); 
+				Date currentDatePlusOne = c.getTime();
+				
+				 if (currentDatePlusOne.compareTo(defaultSpecialMentionNoticeDate) < 0){
+				model.addAttribute("defaultSpecialMentionNoticeDate", FormaterUtil.formatDateToString(defaultSpecialMentionNoticeDate, ApplicationConstants.SERVER_DATEFORMAT));
+				 }
+				 else{
+				model.addAttribute("defaultSpecialMentionNoticeDate", FormaterUtil.formatDateToString(currentDatePlusOne, ApplicationConstants.SERVER_DATEFORMAT));
+				 }*/
 				/**** Motion Status Allowed ****/
 				CustomParameter allowedStatus = CustomParameter.findByName(CustomParameter.class,
 								"SPECIALMENTIONNOTICE_GRID_STATUS_ALLOWED_"+ userGroupType.getType().toUpperCase(),"");
@@ -1127,7 +1143,7 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 		}*/
 		/**** Number Validation ****/
 		if(role.equals("SMIS_TYPIST")){							
-			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "AMOIS_TYPIST_AUTO_NUMBER_GENERATION_REQUIRED", "");
+			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "SMIS_TYPIST_AUTO_NUMBER_GENERATION_REQUIRED", "");
 			if(customParameter != null){
 				String value = customParameter.getValue();
 				if(!value.equals("yes")){
@@ -1292,6 +1308,24 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 			if(selectedSession!=null && selectedSession.getId()!=null) {
 				List<Date> sessionDates = selectedSession.findAllSessionDatesHavingNoHoliday();
 				model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "SPECIALMENTIONNOTICE_SPECIALMENTIONNOTICEDATEFORMAT", domain.getLocale()));
+				
+				Date defaultSpecialMentionNoticeDate = null;
+				if(usergroupType.equals(ApplicationConstants.MEMBER)) {
+					defaultSpecialMentionNoticeDate = SpecialMentionNotice.findDefaultSpecialMentionNoticeDateForSession(selectedSession, true);
+				} else {
+					defaultSpecialMentionNoticeDate = SpecialMentionNotice.findDefaultSpecialMentionNoticeDateForSession(selectedSession, false);
+				}
+				
+				Calendar c = Calendar.getInstance();
+				c.add(Calendar.DATE, 1); 
+				Date currentDatePlusOne = c.getTime();
+				
+				 if (currentDatePlusOne.compareTo(defaultSpecialMentionNoticeDate) < 0){
+				model.addAttribute("defaultSpecialMentionNoticeDate", FormaterUtil.formatDateToString(defaultSpecialMentionNoticeDate, ApplicationConstants.SERVER_DATEFORMAT));
+				 }
+				 else{
+				model.addAttribute("defaultSpecialMentionNoticeDate", FormaterUtil.formatDateToString(currentDatePlusOne, ApplicationConstants.SERVER_DATEFORMAT));
+				 }
 			}
 			/**** populate specialMentionNotice date ****/
 			model.addAttribute("selectedSpecialMentionNoticeDate", FormaterUtil.formatDateToString(domain.getSpecialMentionNoticeDate(), ApplicationConstants.SERVER_DATEFORMAT, "en_US"));
@@ -1887,6 +1921,30 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 			}
 		}
 	}
+	
+	@RequestMapping(value="/citations/{deviceType}",method=RequestMethod.GET)
+	public String getCitations(final HttpServletRequest request, final Locale locale,@PathVariable("deviceType")  final Long type,
+			final ModelMap model){
+		DeviceType deviceType=DeviceType.findById(DeviceType.class,type);
+		List<Citation> deviceTypeBasedcitations=Citation.findAllByFieldName(Citation.class,"deviceType",deviceType, "text",ApplicationConstants.ASC, locale.toString());
+		Status status=null;
+		if(request.getParameter("status")!=null){
+			status=Status.findById(Status.class, Long.parseLong(request.getParameter("status")));
+		}
+		List<Citation> citations=new ArrayList<Citation>();
+		if(status!=null){
+			for(Citation i:deviceTypeBasedcitations){
+				if(i.getStatus()!=null){
+					if(i.getStatus().equals(status.getType())){
+						citations.add(i);
+					}
+				}
+			}
+		}
+		model.addAttribute("citations",citations);
+		return "specialmentionnotice/citation";
+	}
+	
 	
 	//extra methods
 	public static List<Reference> populateClubbedEntityReferences(SpecialMentionNotice domain, String locale) {
