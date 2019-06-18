@@ -25,6 +25,13 @@
 			</td>
 			<td colspan="3" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
 				$formatData.get(10)
+				#if($formatData.get(32))
+						$formatData.get(32)
+				#else
+					वि.प.स
+				#end
+				
+				
 			</td>
 		</tr>
 		<tr style="font-weight: bold;">
