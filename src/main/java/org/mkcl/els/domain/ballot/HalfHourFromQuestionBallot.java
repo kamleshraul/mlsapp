@@ -666,38 +666,49 @@ public class HalfHourFromQuestionBallot {
 			
 			List<Question> randomizedList = HalfHourFromQuestionBallot.randomizeQuestions(newComputedList);
 			List<Question> selectedList = HalfHourFromQuestionBallot.selectQuestionsForBallot(randomizedList, Integer.valueOf(councilBallotCount.getValue()));
-			
-			boolean isUniqueDataInSelectedList = false;
-			long prevMember = 0L;
-			for(Question qq : selectedList){
-				if(prevMember != 0){
-					if(prevMember != qq.getPrimaryMember().getId().longValue()){
-						isUniqueDataInSelectedList = true;
-					}else{
-						selectedList.remove(qq);
-						isUniqueDataInSelectedList = false;
+			List<BallotEntry> ballotEntries = new ArrayList<BallotEntry>();
+			if(csptUniqueFlagForNoticeBallot!= null && csptUniqueFlagForNoticeBallot.getValue().equalsIgnoreCase("YES")){
+				boolean isUniqueDataInSelectedList = false;
+				long prevMember = 0L;
+				for(Question qq : selectedList){
+					if(prevMember != 0){
+						if(prevMember != qq.getPrimaryMember().getId().longValue()){
+							isUniqueDataInSelectedList = true;
+						}else{
+							selectedList.remove(qq);
+							isUniqueDataInSelectedList = false;
+						}
+					}
+					prevMember = qq.getPrimaryMember().getId().longValue();
+				}
+				
+				List<Question> newSelectedList = new ArrayList<Question>();
+				for(Question sm : selectedList){
+					if(sm != null){
+						newSelectedList.add(sm);
 					}
 				}
-				prevMember = qq.getPrimaryMember().getId().longValue();
-			}
-			
-			List<Question> newSelectedList = new ArrayList<Question>();
-			for(Question sm : selectedList){
-				if(sm != null){
-					newSelectedList.add(sm);
-				}
-			}
-			
-			if(!isUniqueDataInSelectedList && (newSelectedList.size() < outputCount)){
-				for(Question qq : newComputedList){
-					if(isUniqueQuestion(qq, newSelectedList)){
-						newSelectedList.add(qq);
-						break;
+				
+				if(!isUniqueDataInSelectedList && (newSelectedList.size() < outputCount)){
+					for(Question qq : newComputedList){
+						if(isUniqueQuestion(qq, newSelectedList)){
+							newSelectedList.add(qq);
+							break;
+						}
 					}
 				}
+				
+				ballotEntries = HalfHourFromQuestionBallot.createQuestionNoticeBallotEntries(newSelectedList, b.getLocale());
+			}else{
+				List<Question> newSelectedList = new ArrayList<Question>();
+				for(Question sm : selectedList){
+					if(sm != null){
+						newSelectedList.add(sm);
+					}
+				}
+				ballotEntries = HalfHourFromQuestionBallot.createQuestionNoticeBallotEntries(newSelectedList, b.getLocale());
 			}
-			
-			List<BallotEntry> ballotEntries = HalfHourFromQuestionBallot.createQuestionNoticeBallotEntries(newSelectedList, b.getLocale());
+
 			b.setBallotEntries(ballotEntries);
 			ballot = (Ballot) b.persist();	
 		}
