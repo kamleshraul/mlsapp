@@ -1934,6 +1934,7 @@ public class ApplicationConstants {
 	
 	public static final String DISCUSSIONMOTION_PROCESSED_SENDTOSECTIONOFFICER = "discussionmotion_processed_sendToSectionOfficer";
 	public static final String DISCUSSIONMOTION_PROCESSED_SENDTODEPARTMENT = "discussionmotion_processed_sendToDepartment";
+	public static final String DISCUSSIONMOTION_PROCESSED_SENDTODESKOFFICER = "discussionmotion_processed_sendToDeskOfficer";
 	public static final String DISCUSSIONMOTION_PROCESSED_ANSWERRECEIVED = "discussionmotion_processed_answerReceived";
 	public static final String DISCUSSIONMOTION_PROCESSED_REJECTIONWITHREASON ="discussionmotion_processed_rejectionWithReason";
 	
