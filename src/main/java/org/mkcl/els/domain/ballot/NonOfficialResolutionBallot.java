@@ -3,7 +3,9 @@ package org.mkcl.els.domain.ballot;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.mkcl.els.common.exception.ELSException;
@@ -18,6 +20,7 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
@@ -113,12 +116,43 @@ public class NonOfficialResolutionBallot {
 					preBallotResolution.setBallotEntries(preBallotEntries);
 					preBallotResolution.persist();
 				}else{
-					preBallotEntries = preBallot.getBallotEntries();
-					preBallotVOs = PreBallot.getBallotVOFromBallotEntries(preBallotEntries, locale);
+					Map<String, String[]> params = new HashMap<String, String[]>();
+					params.put("locale", new String[]{locale});
+					params.put("preBallotId", new String[]{preBallot.getId().toString()});
+					List devices = Query.findReport("RESOLUTION_PREBALLOT_DEVICES", params);
+					
+					if(devices != null && !devices.isEmpty()){
+						for(Object o : devices){
+							Object[] obj = (Object[])o;
+							
+							BallotVO preBallotVO = new BallotVO();
+							preBallotVO.setMemberName(obj[2].toString());
+							preBallotVO.setQuestionNumber(new Integer(obj[1].toString()));
+							preBallotVO.setQuestionSubject(obj[3].toString());
+							preBallotVOs.add(preBallotVO);
+						}
+					}
+//					preBallotEntries = preBallot.getBallotEntries();
+//					preBallotVOs = PreBallot.getBallotVOFromBallotEntries(preBallotEntries, locale);
 				}
 			}else{
-				preBallotEntries = preBallot.getBallotEntries();
-				preBallotVOs = PreBallot.getBallotVOFromBallotEntries(preBallotEntries, locale);
+				Map<String, String[]> params = new HashMap<String, String[]>();
+				params.put("locale", new String[]{locale});
+				params.put("preBallotId", new String[]{preBallot.getId().toString()});
+				List devices = Query.findReport("RESOLUTION_PREBALLOT_DEVICES", params);
+				
+				if(devices != null && !devices.isEmpty()){
+					for(Object o : devices){
+						Object[] obj = (Object[])o;
+						
+						BallotVO preBallotVO = new BallotVO();
+						preBallotVO.setMemberName(obj[2].toString());
+						preBallotVO.setQuestionNumber(new Integer(obj[1].toString()));
+						preBallotVOs.add(preBallotVO);
+					}
+				}
+//				preBallotEntries = preBallot.getBallotEntries();
+//				preBallotVOs = PreBallot.getBallotVOFromBallotEntries(preBallotEntries, locale);
 			}
 		}
 
