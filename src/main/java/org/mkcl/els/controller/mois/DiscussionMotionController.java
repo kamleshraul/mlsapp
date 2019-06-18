@@ -736,6 +736,10 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 			if(domain.getCreationDate()!=null){
 				model.addAttribute("creationDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getCreationDate()));
 			}
+			if(domain.getDiscussionDate()!=null){
+				model.addAttribute("discussionDate",FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT,"en_US").format(domain.getDiscussionDate()));
+				model.addAttribute("formattedDiscussionDate",FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT,locale).format(domain.getDiscussionDate()));
+			}
 			if(domain.getWorkflowStartedOn()!=null){
 				model.addAttribute("workflowStartedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getWorkflowStartedOn()));
 			}
@@ -1066,7 +1070,7 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 							result.rejectValue("subject","SubjectEmpty");
 						}
 						if(domain.getNoticeContent().isEmpty()){
-							result.rejectValue("details","DetailsEmpty");
+							result.rejectValue("noticeContent","NoticeContentEmpty");
 						}
 						
 						//submission date limit validations (configurable through custom parameters)
