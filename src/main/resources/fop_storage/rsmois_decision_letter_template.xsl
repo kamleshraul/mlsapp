@@ -76,7 +76,15 @@
 	            		<xsl:choose>
 	            			<xsl:when test="element_1">
 	            				<fo:block  font-weight="bold" margin-left="3.5cm" text-decoration="underline">
-	            			  		<xsl:value-of select="element_1[1]/element_1_7"></xsl:value-of>
+	            					<xsl:choose>
+	            						<xsl:when test="element_1[1]/element_1_10">
+	            							<xsl:value-of select="element_1[1]/element_1_7"></xsl:value-of> व इतर वि.प.स.
+	            						</xsl:when>
+	            						<xsl:otherwise>
+	            							<xsl:value-of select="element_1[1]/element_1_7"></xsl:value-of> वि.प.स
+	            						</xsl:otherwise>
+	            					</xsl:choose>
+	            			  		
 			            		</fo:block>
 			            		<fo:block  font-weight="bold" margin-left="3.5cm" text-decoration="underline">
 			            			<xsl:apply-templates select="element_1[1]/element_1_6"/>
