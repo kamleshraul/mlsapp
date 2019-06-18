@@ -6,6 +6,18 @@
 	<title><spring:message code="proprietypoint.list" text="List Of Propriety Points"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
+		/**** Load Session ****/
+		function loadSession(){
+			$.get("ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+				+ "/" + $("#selectedSessionYear").val() + "/" + $("#selectedSessionType").val(),
+				function(data){
+					if(data){
+						$("#loadedSession").val(data.id);
+						loadMembers();
+						//loadParties();
+					}
+				});
+		}
 		$(document).ready(function(){	
 			/**** On Page Load ****/
 			var currentDeviceType = $("#currentDeviceType").val();
@@ -95,6 +107,7 @@
 					+"&usergroupType="+$("#currentusergroupType").val()				
 					+"&subDepartment="+$("#selectedSubDepartment").val()
 			);
+			loadSession();
 		}	
 		function memberProprietyPointsView() {
 			var parameters = "houseType=" + $("#selectedHouseType").val()
@@ -189,6 +202,8 @@
 			newURL=baseURL+"?"+$("#gridURLParams").val();
 			$("#grid").setGridParam({"url":newURL});
 			$("#grid").trigger("reloadGrid");
+			
+			loadSession();
 		}
 		/**** Bulk putup(Member)****/
 		function bulkPutup(){
@@ -229,6 +244,20 @@
 			$("#selectionDiv1").hide();
 			var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text().split("_")[0];
 			showTabByIdAndUrl('details_tab', "proprietypoint/report/currentstatusreport?device="+ device +"&reportType="+val+"&deviceId="+deviceId);
+		}
+		/**** To Be Admitted Report Generation ****/
+		function generateToBeAdmittedReport() {
+			$("#prois_tobeadmitted_report").attr('href',
+					'proprietypoint/report/tobeadmitted?'
+					+'sessionId=' + $("#loadedSession").val()
+					+'&reportQueryName=PROIS_TOBEADMITTED_REPORT');
+		}
+		/**** To Be Rejected Report Generation ****/
+		function generateToBeRejectedReport() {
+			$("#prois_toberejected_report").attr('href',
+					'proprietypoint/report/toberejected?'
+					+'&sessionId=' + $("#loadedSession").val()
+					+'&reportQueryName=PROIS_TOBEREJECTED_REPORT');
 		}
 	</script>
 </head>
@@ -439,5 +468,6 @@
 		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" />
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 		<input type="hidden" id="moduleLocale" value="${moduleLocale}" />
+		<input type="hidden" id="loadedSession" value="" />
 </body>
 </html>

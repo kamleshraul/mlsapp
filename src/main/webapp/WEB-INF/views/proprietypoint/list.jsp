@@ -56,15 +56,15 @@
 					showCurrentStatusReport('all','');
 				}
 			});
-			/**** Bhag 1 Report Generation ****/
-			$("#prois_bhag_1_report").click(function() {
+			/**** To Be Admitted Report Generation ****/
+			$("#prois_tobeadmitted_report").click(function() {
 				$(this).attr('href','#');
-				generateBhag1Report();
+				generateToBeAdmittedReport();
 			});
-			/**** Bhag 2 Report Generation ****/
-			$("#prois_bhag_2_report").click(function() {
+			/**** To Be Rejected Report Generation ****/
+			$("#prois_toberejected_report").click(function() {
 				$(this).attr('href','#');
-				generateBhag2Report();
+				generateToBeRejectedReport();
 			});
 		});
 		/**** double clicking record in grid handler ****/
@@ -117,11 +117,11 @@
 			<a href="#" id="prois_current_status_report" class="butSim">
 				<spring:message code="prois.current_status_report" text="Current Status Report"/>
 			</a> |
-			<%-- <a href="#" id="prois_bhag_1_report" class="butSim">
-				<spring:message code="prois.bhag_1_report" text="Bulk Current Status for Admission"/>
-			</a> | --%>
-			<a href="#" id="prois_bhag_2_report" class="butSim">
-				<spring:message code="prois.bhag_2_report" text="Bulk Current Status for Rejection"/>
+			<a href="#" id="prois_tobeadmitted_report" class="butSim">
+				<spring:message code="prois.tobeadmitted_report" text="Bulk Current Status for Admission"/>
+			</a> |
+			<a href="#" id="prois_toberejected_report" class="butSim">
+				<spring:message code="prois.toberejected_report" text="Bulk Current Status for Rejection"/>
 			</a> |
 			</security:authorize>		
 			<p>&nbsp;</p>

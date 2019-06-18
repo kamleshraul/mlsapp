@@ -149,6 +149,18 @@
 						<label class="small"><spring:message code="adjournmentmotion.submissionDate" text="Submitted On"/></label>
 						<input id="readonly_formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
 						<input id="readonly_setSubmissionDate" type="hidden"  value="${submissionDate}">	
+						
+						<c:choose>
+						<c:when test="${internalStatusType=='adjournmentmotion_final_admission'}">
+							<label class="small"><spring:message code="adjournmentmotion.admissionNumber" text="Admission Number"/></label>
+							<input id="readonly_formattedAdmissionNumber" name="formattedAdmissionNumber" value="${formattedAdmissionNumber}" class="sText" readonly="readonly">		
+							<input id="readonly_admissionNumber" name="admissionNumber" value="${domain.admissionNumber}" type="hidden">
+							<form:errors path="admissionNumber" cssClass="validationError"/>	
+						</c:when>
+						<c:otherwise">
+							<input id="admissionNumber" name="admissionNumber" value="${domain.admissionNumber}" type="hidden">
+						</c:otherwise>
+						</c:choose>
 					</p>
 					</c:if>
 						

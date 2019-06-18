@@ -97,6 +97,106 @@ public class ProprietyPointReportController extends BaseController{
 		response.setContentType("text/html; charset=utf-8");		
 		return ProprietyPointReportHelper.getCurrentStatusReportData(id, model, request, response, locale);
 	}
+	
+	@RequestMapping(value="/tobeadmitted" ,method=RequestMethod.GET)
+	public @ResponseBody void generateToBeAdmittedReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		Map<String, String[]> requestMap = new HashMap<String, String[]>();
+		String sessionId = request.getParameter("sessionId");
+		String reportQueryName = request.getParameter("reportQueryName");
+		if(sessionId==null || sessionId.isEmpty()
+				|| reportQueryName==null || reportQueryName.isEmpty()) {
+			logger.error("**** One of the request parameters is not set ****");
+			isError = true;
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "prois.tobeadmitted_report.parameterNotSet", locale.toString());						
+		} else {
+			requestMap.put("sessionId", new String[] {sessionId});
+			requestMap.put("locale", new String[]{locale.toString()});
+			@SuppressWarnings("rawtypes")
+			List toBeAdmittedProperietyPoints = Query.findReport(reportQueryName, requestMap);
+			try {
+				reportFile = generateReportUsingFOP(new Object[] {toBeAdmittedProperietyPoints}, "prois_tobeadmitted_template", "WORD", "prois_tobeadmitted_report", locale.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("**** Some error occurred ****");
+				isError = true;
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "prois.tobeadmitted_report.someErrorOccurred", locale.toString());
+			}
+			System.out.println("PROIS To Be Admitted Report generated successfully in WORD format!");
+
+			openOrSaveReportFileFromBrowser(response, reportFile, "WORD");			
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {				
+				e.printStackTrace();
+			}
+		}		
+	}
+	
+	@RequestMapping(value="/toberejected" ,method=RequestMethod.GET)
+	public @ResponseBody void generateToBeRejectedReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		Map<String, String[]> requestMap = new HashMap<String, String[]>();
+		String sessionId = request.getParameter("sessionId");
+		String reportQueryName = request.getParameter("reportQueryName");
+		if(sessionId==null || sessionId.isEmpty()
+				|| reportQueryName==null || reportQueryName.isEmpty()) {
+			logger.error("**** One of the request parameters is not set ****");
+			isError = true;
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "prois.toberejected_report.parameterNotSet", locale.toString());						
+		} else {
+			requestMap.put("sessionId", new String[] {sessionId});
+			requestMap.put("locale", new String[]{locale.toString()});
+			@SuppressWarnings("rawtypes")
+			List toBeRejectedProperietyPoints = Query.findReport(reportQueryName, requestMap, true);
+			try {
+				reportFile = generateReportUsingFOP(new Object[] {toBeRejectedProperietyPoints}, "prois_toberejected_template", "WORD", "prois_toberejected_report", locale.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("**** Some error occurred ****");
+				isError = true;
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "prois.toberejected_report.someErrorOccurred", locale.toString());
+			}
+			System.out.println("PROIS To Be Rejected Report generated successfully in WORD format!");
+
+			openOrSaveReportFileFromBrowser(response, reportFile, "WORD");			
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {				
+				e.printStackTrace();
+			}
+		}		
+	}
 }
 
 class ProprietyPointReportHelper{
