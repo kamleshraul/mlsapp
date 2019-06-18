@@ -81,7 +81,7 @@
 					$("#actor").html(text);
 					
 					/**** in case of sendback and discuss and departmentIntimated only recommendation status is changed ****/
-					if(value!=sendback && value!=discuss){
+					if(value!=sendback && value!=discuss && value!=sendToDepartment){
 						$("#internalStatus").val(value);
 					}					
 					$("#recommendationStatus").val(value);	

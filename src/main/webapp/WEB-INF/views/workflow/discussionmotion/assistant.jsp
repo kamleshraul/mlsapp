@@ -384,8 +384,8 @@
 	
 		<c:if test="${(internalStatusType =='discussionmotion_final_admission')}">
 		<label class="small"><spring:message code="discussionmotion.discussionDate" text="Discussion Date"/></label>
-		<input name="formattedDiscussionDate" id="formattedDiscussionDate" value="${formattedDiscussionDateSelected}" class="datemask sText" />
-		<input id="discussionDate" name="discussionDate" value="${discussionDateSelected}" class="sText" type="hidden" />
+		<input name="formattedDiscussionDate" id="formattedDiscussionDate" value="${formattedDiscussionDate}" class="datemask sText" />
+		<input id="discussionDate" name="discussionDate" value="${discussionDate}" class="sText" type="hidden" />
 		<form:errors path="discussionDate" cssClass="validationError"/>
 	</c:if>
 	</p>
