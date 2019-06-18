@@ -244,12 +244,12 @@
 					<form action="workflow/motion/advancedbulkapproval" method="POST">
 						<table class="uiTable">
 							<tr>					
-								<th style="min-width:75px;text-align:center;"><spring:message code="motion.submitall" text="Submit All"></spring:message>
+								<th style="min-width:50px;text-align:center;"><spring:message code="motion.submitall" text="Submit All"></spring:message>
 								<input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>					
 								<th style="min-width:140px;text-align:justify;"><spring:message code="motion.number" text="Number"></spring:message></th>
 								<%-- <th style="text-align:justify;min-width:150px;"><spring:message code="motion.member" text="Member"></spring:message></th> --%>
-								<th style="text-align:justify;min-width:200px;"><spring:message code="motion.subject" text="Subject"></spring:message></th>
-								<th style="text-align:justify;min-width:200px;"><spring:message code="motion.motiontext" text="Motion Text"></spring:message></th>
+								<%-- <th style="text-align:justify;min-width:200px;"><spring:message code="motion.subject" text="Subject"></spring:message></th> --%>
+								<th style="text-align:justify;min-width:425px;"><spring:message code="motion.motiontext" text="Motion Text"></spring:message></th>
 								<th style="min-width:70px;text-align:justify;"><spring:message code="motion.decision" text="Decision"></spring:message></th>
 								<%-- <th style="min-width:70px;text-align:justify;">
 									<spring:message code="motion.lastdecision" text="Last Decision"/>
@@ -261,10 +261,10 @@
 								<tr>
 									<c:choose>
 										<c:when test="${i.currentStatus=='PENDING'}">
-											<td style="min-width:75px;text-align:center;"> <input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
+											<td style="min-width:50px;text-align:center;"> <input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
 										</c:when>							
 										<c:otherwise>
-											<td style="min-width:75px;text-align:center;"><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
+											<td style="min-width:50px;text-align:center;"><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
 										</c:otherwise>
 									</c:choose>
 											<%-- <td>${i.deviceType}</td> --%>							
@@ -278,13 +278,6 @@
 										<br/> 
 										${i.member}
 										<br><br>
-										<spring:message code="motion.lastdecision" text="Last Decision"/> : ${i.lastDecision}
-										<br>
-										<spring:message code="motion.lastremarkby" text="Last Remark By"/> ${i.lastRemarkBy} : ${i.lastRemark}
-										
-									</td>
-									<%-- <td style="text-align:justify;min-width:150px;">${i.member}</td> --%>
-									<td style="text-align:justify;min-width:200px;">
 										<div class="editable" id="subject${j.index}">
 											${i.subject}
 										</div>
@@ -292,12 +285,31 @@
 										<b><spring:message code="motion.clubbingTitle" /> </b> : ${i.formattedClubbedNumbers}
 										<a href="javascript:void(0);" id="viewClubbedMotionTextsDiv${j.index}" class="viewClubbedMotionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="motion.clubbed.texts" text="C"></spring:message></a>
 										<br/><br/>
-										<%-- <b><spring:message code="motion.referencingTitle" text="Referenced Motion" /> </b> : ${i.formattedReferencedNumbers}
+										<b><spring:message code="motion.referencingTitle" text="Referenced Motion" /> </b> : ${i.formattedReferencedNumbers}
 										<a href="javascript:void(0);" id="viewReferencedMotionTextsDiv${j.index}" class="viewReferencedMotionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="motion.referenced.texts" text="R"></spring:message></a>
-										 --%><input type="hidden" id="motionId${j.index}" name="motionId${j.index}" value="${i.deviceId}"/>
+										<input type="hidden" id="motionId${j.index}" name="motionId${j.index}" value="${i.deviceId}"/>
 										<input type="hidden" id="workflowDetailsId${j.index}" name="workflowDetailsId${j.index}" value="${i.id}"/>
+										<br>
+										<spring:message code="motion.lastdecision" text="Last Decision"/> : ${i.lastDecision}
+										<br>
+										<spring:message code="motion.lastremarkby" text="Last Remark By"/> ${i.lastRemarkBy} : ${i.lastRemark}
+										
 									</td>
-									<td style="text-align:justify;min-width:200px;">
+									<%-- <td style="text-align:justify;min-width:150px;">${i.member}</td> --%>
+									<%-- <td style="text-align:justify;min-width:200px;">
+										<div class="editable" id="subject${j.index}">
+											${i.subject}
+										</div>
+										<br>
+										<b><spring:message code="motion.clubbingTitle" /> </b> : ${i.formattedClubbedNumbers}
+										<a href="javascript:void(0);" id="viewClubbedMotionTextsDiv${j.index}" class="viewClubbedMotionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="motion.clubbed.texts" text="C"></spring:message></a>
+										<br/><br/>
+										<b><spring:message code="motion.referencingTitle" text="Referenced Motion" /> </b> : ${i.formattedReferencedNumbers}
+										<a href="javascript:void(0);" id="viewReferencedMotionTextsDiv${j.index}" class="viewReferencedMotionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="motion.referenced.texts" text="R"></spring:message></a>
+										<input type="hidden" id="motionId${j.index}" name="motionId${j.index}" value="${i.deviceId}"/>
+										<input type="hidden" id="workflowDetailsId${j.index}" name="workflowDetailsId${j.index}" value="${i.id}"/>
+									</td> --%>
+									<td style="text-align:justify;min-width:425px;">
 										<div class="editable" id="motionText${j.index}">
 											${i.briefExpanation}
 										</div>
