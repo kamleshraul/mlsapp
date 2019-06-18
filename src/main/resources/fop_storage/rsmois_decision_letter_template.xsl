@@ -72,20 +72,20 @@
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            	
-	            	<fo:block font-family="Kokila" font-size="26px">
+	            	<fo:block font-family="Kokila" font-size="25px">
 	            		<xsl:choose>
 	            			<xsl:when test="element_1">
-	            				<fo:block font-size="26px" font-weight="bold" margin-left="3.5cm" text-decoration="underline">
+	            				<fo:block  font-weight="bold" margin-left="3.5cm" text-decoration="underline">
 	            			  		<xsl:value-of select="element_1[1]/element_1_7"></xsl:value-of>
 			            		</fo:block>
-			            		<fo:block font-size="26px" font-weight="bold" margin-left="3.5cm" text-decoration="underline">
+			            		<fo:block  font-weight="bold" margin-left="3.5cm" text-decoration="underline">
 			            			<xsl:apply-templates select="element_1[1]/element_1_6"/>
 			            		</fo:block>
 			            		<fo:block font-size="8px">&#160;</fo:block> 
 			            		<fo:block>
-			            			<fo:inline font-size="32px" font-weight="bold" text-decoration="underline">मा. सभापती :-</fo:inline>
-			            			<fo:inline font-size="20px" font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:inline>
-			            			<fo:inline font-size="32px" font-weight="bold" text-decoration="underline">सूचना</fo:inline>
+			            			<fo:inline font-size="30px" font-weight="bold" text-decoration="underline">मा. सभापती :-</fo:inline>
+			            			<fo:inline font-size="20px" font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:inline>
+			            			<fo:inline font-size="30px" font-weight="bold" text-decoration="underline">सूचना</fo:inline>
 			            		</fo:block>	
 			            		
 			            		<fo:block font-size="8px">&#160;</fo:block>
@@ -101,9 +101,9 @@
 			            		</fo:block>
 			            		<fo:block font-size="14px">&#160;</fo:block>
 			            		<fo:block>
-			            			<fo:inline font-size="32px" font-weight="bold" text-decoration="underline">मा. सभापती :-</fo:inline>
-			            			<fo:inline font-size="20px" font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:inline>
-			            			<fo:inline font-size="32px" font-weight="bold" text-decoration="underline">निर्णय</fo:inline>
+			            			<fo:inline font-size="30px" font-weight="bold" text-decoration="underline">मा. सभापती :-</fo:inline>
+			            			<fo:inline font-size="20px" font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:inline>
+			            			<fo:inline font-size="30px" font-weight="bold" text-decoration="underline">निर्णय</fo:inline>
 			
 			            		</fo:block>    
 			            		<fo:block font-size="8px">&#160;</fo:block>
