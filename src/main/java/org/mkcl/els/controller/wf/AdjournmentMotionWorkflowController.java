@@ -823,7 +823,9 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 					&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.ADJOURNMENTMOTION_FINAL_ADMISSION)
 					&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.ADJOURNMENTMOTION_PROCESSED_SENDTODEPARTMENT)
 					&& (domain.getReply()==null || domain.getReply().isEmpty())) {
-				domain.setReplyRequestedDate(new Date());
+				if(strReplyRequestedDate == null || strReplyRequestedDate.isEmpty()) {
+					domain.setReplyRequestedDate(new Date());
+				}				
 			}
 			
 			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)

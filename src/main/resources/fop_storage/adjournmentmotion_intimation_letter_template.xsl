@@ -74,6 +74,9 @@
 	            <fo:flow flow-name="xsl-region-body">		            	
 	            	<fo:block font-family="Mangal" font-size="10.5px">
 	            		<fo:block>
+	            		<fo:block text-align="right" font-size="18" font-weight="bold">
+	            			<xsl:value-of select="./element_1/element_1_4"/>
+	            		</fo:block>
 	            		<fo:block text-align="center" font-weight="bold">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 	            		<fo:block text-align="left" font-weight="bold" text-decoration="underline">अतितात्काळ</fo:block>
 	            		<fo:block text-align="right">
@@ -237,6 +240,7 @@
 														मा. मंत्री महोदयांचे पत्र, महाराष्ट्र विधानपरिषद, विधान भवन, मुंबई यांना अग्रेषित करण्यात यावे,</fo:inline> अशी आपणांस विनंती करण्यात येत आहे.												      										
 	            									</fo:block>
 												</fo:block>	
+												<fo:block>&#160;</fo:block>
 												<fo:block>
 													<fo:block text-align="right">
 														<fo:block margin-right="3.1cm" font-weight="bold">आपली,</fo:block>
