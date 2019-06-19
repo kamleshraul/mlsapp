@@ -256,7 +256,7 @@
 		function generateToBeRejectedReport() {
 			$("#prois_toberejected_report").attr('href',
 					'proprietypoint/report/toberejected?'
-					+'&sessionId=' + $("#loadedSession").val()
+					+'sessionId=' + $("#loadedSession").val()
 					+'&reportQueryName=PROIS_TOBEREJECTED_REPORT');
 		}
 	</script>
