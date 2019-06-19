@@ -71,6 +71,12 @@
 				$(this).attr('href','#');
 				generateAdmittedMotionsReport();
 			});
+			
+			/**** Admitted Motions Report Generation ****/
+			$("#smis_admitted_reportingbranch").click(function() {
+				$(this).attr('href','#');
+				generateAdmittedMotionsReportForReporting();
+			});
 			/**** Rejected Motions Report Generation ****/
 			$("#smis_rejected_report").click(function() {
 				$(this).attr('href','#');
@@ -157,6 +163,9 @@
 					</a> |
 					<a href="#" id="smis_register_report" class="butSim">
 						<spring:message code="smis.rejected_report" text="Register Report"/>
+					</a> |
+					<a href="#" id="smis_admitted_reportingbranch" class="butSim">
+						<spring:message code="smis.admitted_report" text="Admitted Notices Report For Reporters"/>
 					</a> |
 				</c:when>
 			</c:choose>				

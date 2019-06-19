@@ -453,6 +453,19 @@
 						+'&reportQueryName=SMIS_ADMITTED_MOTIONS_REPORT');
 			}			
 		}
+		/**** Admitted Motions Report Generation ****/
+		function generateAdmittedMotionsReportForReporting() {
+			var selectedSpecialMentionNoticeDate = $('#selectedSpecialMentionNoticeDate').val();
+			if(selectedSpecialMentionNoticeDate==undefined || selectedSpecialMentionNoticeDate=="") {
+				$.prompt("Please select special mention notice  date of admitted motions");
+				return false;
+			} else {
+				$("#smis_admitted_reportingbranch").attr('href',
+						'specialmentionnotice/report/admittedmotions?'
+						+'specialMentionNoticeDate=' + selectedSpecialMentionNoticeDate
+						+'&reportQueryName=SMIS_ADMITTED_MOTIONS_REPORT_REPORTING_BRANCH');
+			}			
+		}
 		/**** Rejected Motions Report Generation ****/
 		function generateRejectedMotionsReport() {
 			var selectedSpecialMentionNoticeDate = $('#selectedSpecialMentionNoticeDate').val();
