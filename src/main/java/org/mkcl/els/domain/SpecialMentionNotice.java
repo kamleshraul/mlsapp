@@ -1394,10 +1394,10 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 			this.simpleMerge();
 		}
 
-		
-	    //already added
+
 	    public Boolean validateSubmissionDate() {
-	    	if(DateUtil.compareDatePartOnly(this.getSpecialMentionNoticeDate(), new Date())==0
+	    	if(DateUtil.compareDatePartOnly(this.getSpecialMentionNoticeDate(), new Date()) > 0
+	    			&& (DateUtil.compareDatePartOnly(this.getSubmissionDate(), new Date())) == 0
 	    			&& !(Holiday.isHolidayOnDate(this.getSpecialMentionNoticeDate(), this.getLocale()))) {
 	    		return true;
 	    	} else {
@@ -1405,12 +1405,14 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 	    	}
 	    }
 	    
-	    public static Boolean validateSubmissionTime(final Session motionSession, Date specialMentionNoticeDate) {
-	    	CustomParameter csptSubmissionStartTimeValidationRequired = CustomParameter.findByName(CustomParameter.class, "AMOIS_SUBMISSION_START_TIME_VALIDATION_REQUIRED", "");
-	    	if(csptSubmissionStartTimeValidationRequired!=null && csptSubmissionStartTimeValidationRequired.getValue().equals("YES")) {
+	    public static Boolean validateSubmissionTime(final Session motionSession, Date specialMentionNoticeDate,Date submissionDate) {
+	    	CustomParameter csptSubmissionStartTimeValidationRequired = CustomParameter.findByName(CustomParameter.class, "SMIS_SUBMISSION_START_TIME_VALIDATION_REQUIRED", "");
+	    	if(csptSubmissionStartTimeValidationRequired!=null && csptSubmissionStartTimeValidationRequired.getValue().equals("YES")
+	    		&& (DateUtil.compareDatePartOnly(specialMentionNoticeDate, new Date()) > 0
+	    	    && (DateUtil.compareDatePartOnly(submissionDate, new Date())) == 0)) {
 	    		Date currentSubmissionTime = new Date();    	
-	        	Date submissionStartTime = SpecialMentionNotice.findSubmissionStartTime(motionSession, specialMentionNoticeDate);
-	        	Date submissionEndTime = SpecialMentionNotice.findSubmissionEndTime(motionSession, specialMentionNoticeDate);    	
+	        	Date submissionStartTime = SpecialMentionNotice.findSubmissionStartTime(motionSession, submissionDate);
+	        	Date submissionEndTime = SpecialMentionNotice.findSubmissionEndTime(motionSession, submissionDate);    	
 	        	if(currentSubmissionTime.compareTo(submissionStartTime)>=0 && currentSubmissionTime.compareTo(submissionEndTime)<=0) {
 	        		return true;
 	        	} else {
