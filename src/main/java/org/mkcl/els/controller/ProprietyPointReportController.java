@@ -165,7 +165,7 @@ public class ProprietyPointReportController extends BaseController{
 			requestMap.put("sessionId", new String[] {sessionId});
 			requestMap.put("locale", new String[]{locale.toString()});
 			@SuppressWarnings("rawtypes")
-			List toBeRejectedProperietyPoints = Query.findReport(reportQueryName, requestMap, true);
+			List toBeRejectedProperietyPoints = Query.findReport(reportQueryName, requestMap);
 			try {
 				reportFile = generateReportUsingFOP(new Object[] {toBeRejectedProperietyPoints}, "prois_toberejected_template", "WORD", "prois_toberejected_report", locale.toString());
 			} catch (Exception e) {

@@ -120,9 +120,9 @@
 			<a href="#" id="prois_tobeadmitted_report" class="butSim">
 				<spring:message code="prois.tobeadmitted_report" text="Bulk Admission Approval Report"/>
 			</a> |
-			<a href="#" id="prois_toberejected_report" class="butSim">
+			<%-- <a href="#" id="prois_toberejected_report" class="butSim">
 				<spring:message code="prois.toberejected_report" text="Bulk Rejection Approval Report"/>
-			</a> |
+			</a> | --%>
 			</security:authorize>
 			<p>&nbsp;</p>
 		</div>
