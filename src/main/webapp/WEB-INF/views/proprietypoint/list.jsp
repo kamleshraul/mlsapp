@@ -118,12 +118,12 @@
 				<spring:message code="prois.current_status_report" text="Current Status Report"/>
 			</a> |
 			<a href="#" id="prois_tobeadmitted_report" class="butSim">
-				<spring:message code="prois.tobeadmitted_report" text="Bulk Current Status for Admission"/>
+				<spring:message code="prois.tobeadmitted_report" text="Bulk Admission Approval Report"/>
 			</a> |
 			<a href="#" id="prois_toberejected_report" class="butSim">
-				<spring:message code="prois.toberejected_report" text="Bulk Current Status for Rejection"/>
+				<spring:message code="prois.toberejected_report" text="Bulk Rejection Approval Report"/>
 			</a> |
-			</security:authorize>		
+			</security:authorize>
 			<p>&nbsp;</p>
 		</div>
 	</div>
