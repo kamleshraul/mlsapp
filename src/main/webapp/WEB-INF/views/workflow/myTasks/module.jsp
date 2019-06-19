@@ -89,6 +89,26 @@
 										$.prompt("some error..please contact administrator");
 									}
 								});
+							}if(device=='notices_specialmention') {
+								$.get('ref/specialmentionnotice/specialmentionnoticedatesforsession?houseType='+$('#selectedHouseType').val()
+										+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+									if(data.length>1) {
+										var defaultSpecialMentionNoticeDate = data[data.length-1][0];
+										$('#selectedAdjourningDate').empty();
+										var htmlText = "";
+										for(var i=0; i<data.length-1; i++) {
+											htmlText += "<option value='"+data[i][0]+"'";
+											if(data[i][0]==defaultSpecialMentionNoticeDate) {
+												htmlText += "selected='selected'";
+											}
+											htmlText += ">"+data[i][1]+"</option>";									
+										}	
+										$('#selectedAdjourningDate').html(htmlText);
+										prependOptionToSelectedAdjourningDate();
+									} else {
+										$.prompt("some error..please contact administrator");
+									}
+								});
 							}
 						}
 						reloadMyTaskGrid();
@@ -152,6 +172,26 @@
 									$.prompt("some error..please contact administrator");
 								}
 							});
+						}else if(device=='notices_specialmention') {
+							$.get('ref/specialmentionnotice/specialmentionnoticedatesforsession?houseType='+$('#selectedHouseType').val()
+									+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+								if(data.length>1) {
+									var defaultSpecialMentionNoticeDate = data[data.length-1][0];
+									$('#selectedAdjourningDate').empty();
+									var htmlText = "";
+									for(var i=0; i<data.length-1; i++) {
+										htmlText += "<option value='"+data[i][0]+"'";
+										if(data[i][0]==defaultSpecialMentionNoticeDate) {
+											htmlText += "selected='selected'";
+										}
+										htmlText += ">"+data[i][1]+"</option>";									
+									}	
+									$('#selectedAdjourningDate').html(htmlText);
+									prependOptionToSelectedAdjourningDate();
+								} else {
+									$.prompt("some error..please contact administrator");
+								}
+							});
 						}
 					}
 					reloadMyTaskGrid();
@@ -194,6 +234,26 @@
 									for(var i=0; i<data.length-1; i++) {
 										htmlText += "<option value='"+data[i][0]+"'";
 										if(data[i][0]==defaultRuleSuspensionDate) {
+											htmlText += "selected='selected'";
+										}
+										htmlText += ">"+data[i][1]+"</option>";									
+									}	
+									$('#selectedAdjourningDate').html(htmlText);
+									prependOptionToSelectedAdjourningDate();
+								} else {
+									$.prompt("some error..please contact administrator");
+								}
+							});
+						}else if(device=='notices_specialmention'){
+							$.get('ref/specialmentionnotice/specialmentionnoticedatesforsession?houseType='+$('#selectedHouseType').val()
+									+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+								if(data.length>1) {
+									var defaultSpecialMentionNoticeDate = data[data.length-1][0];
+									$('#selectedAdjourningDate').empty();
+									var htmlText = "";
+									for(var i=0; i<data.length-1; i++) {
+										htmlText += "<option value='"+data[i][0]+"'";
+										if(data[i][0]==defaultSpecialMentionNoticeDate) {
 											htmlText += "selected='selected'";
 										}
 										htmlText += ">"+data[i][1]+"</option>";									
@@ -288,10 +348,31 @@
 								$.prompt("some error..please contact administrator");
 							}
 						});
+				}else if(device.indexOf('notices_specialmention')==0){
+					$('#bulkapproval_tab').hide();
+					$.get('ref/specialmentionnotice/specialmentionnoticedatesforsession?houseType='+$('#selectedHouseType').val()
+							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+						if(data.length>1) {
+							var defaultSpecialMentionNoticeDate = data[data.length-1][0];
+							$('#selectedSpecialMentionNoticeDate').empty();
+							var htmlText = "";
+							for(var i=0; i<data.length-1; i++) {
+								htmlText += "<option value='"+data[i][0]+"'";
+								if(data[i][0]==defaultSpecialMentionNoticeDate) {
+									htmlText += "selected='selected'";
+								}
+								htmlText += ">"+data[i][1]+"</option>";									
+							}	
+							$('#selectedSpecialMentionNoticeDate').html(htmlText);
+							prependOptionToSelectedSpecialMentionNoticeDate();
+						} else {
+							$.prompt("some error..please contact administrator");
+						}
+					});
 				}else{
 					$('#bulkapproval_tab').show();
-					$("#selectedAdjourningDate").val("");
-					$("#adjourningDateDiv").hide();
+					$("#selectedSpecialMentionNoticeDate").val("");
+					$("#specialMentionNoticeDateDiv").hide();
 					$("#departmentDiv").show();
 				}
 				//console.log($('#deviceTypeType').val());
@@ -381,6 +462,10 @@
 			});
 			
 			$("#selectedReplyStatus").change(function(){
+				reloadMyTaskGrid();
+			});
+			
+			$("#selectedSpecialMentionNoticeDate").change(function(){
 				reloadMyTaskGrid();
 			});
 			
@@ -678,6 +763,8 @@
 					resourceURL="workflow/standalonemotion/bulkapproval/init";					
 				}else if($('#deviceTypeType').val().indexOf("motions_rules_suspension")==0){
 					resourceURL="workflow/rulessuspensionmotion/bulkapproval/init";					
+				}else if($('#deviceTypeType').val().indexOf("notices_specialmention")==0){
+					resourceURL="workflow/specialmentionnotice/bulkapproval/init";					
 				}else{
 					resourceURL="workflow/motion/bulkapproval/init";
 				}				
@@ -727,6 +814,8 @@
 					resourceURL="workflow/adjournmentmotion/advancedbulkapproval";
 				}else if($('#deviceTypeType').val().indexOf("motions_rules_suspension")==0){
 					resourceURL="workflow/rulessuspensionmotion/advancedbulkapproval";
+				}else if($('#deviceTypeType').val().indexOf("notices_specialmention")==0){
+					resourceURL="workflow/specialmentionnotice/advancedbulkapproval";
 				}else{
 					resourceURL="workflow/motion/advancedbulkapproval";
 				}				
@@ -794,6 +883,12 @@
 			var optionValue = $('#pleaseSelectOption').val();
 			var option = "<option value=''>" + optionValue + "</option>";
 			$('#selectedAdjourningDate').prepend(option);
+		}
+		
+		function prependOptionToSelectedSpecialMentionNoticeDate() {
+			var optionValue = $('#pleaseSelectOption').val();
+			var option = "<option value=''>" + optionValue + "</option>";
+			$('#selectedSpecialMentionNoticeDate').prepend(option);
 		}
 		
 		/****Provide introduction date ****/
