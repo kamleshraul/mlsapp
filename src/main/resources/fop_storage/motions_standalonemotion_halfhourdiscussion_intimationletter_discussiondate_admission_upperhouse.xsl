@@ -87,12 +87,8 @@
 	            		<fo:block font-size="6px">&#160;</fo:block>    
 	            		<fo:block text-align="justify">
 	            			&#160;&#160;&#160;&#160;
-	            			<xsl:choose>
-	            				<xsl:when test="reason!='' and reason!='-' and reason!='--' and reason!='---' and reason!='----' and reason!='-----'">
-	            					<xsl:apply-templates select="reason"/>
-	            				</xsl:when>
-	            				<xsl:when test="bExplanation!=''"><xsl:apply-templates select="bExplanation"/></xsl:when>
-	            			</xsl:choose>	            			
+	            			<xsl:apply-templates select="bExplanation"/>
+	            			
 	            		</fo:block> 
 	            		<fo:block font-size="12px">&#160;</fo:block>      	
 	            		<fo:block text-decoration="underline">अति तात्काळ</fo:block>			
