@@ -159,7 +159,7 @@
 	            			</xsl:when>
 	            			<xsl:otherwise>
 	            				<fo:block text-align="center" font-size="14px" font-weight="bold">
-	            					सध्या एकही औचित्याचा मुद्दा स्वीकृतीसाठी उपलब्ध नाही.
+	            					सध्या एकही औचित्याचा मुद्दा अस्वीकृतीसाठी उपलब्ध नाही.
 	            				</fo:block>
 	            			</xsl:otherwise>
 	            		</xsl:choose>            		
