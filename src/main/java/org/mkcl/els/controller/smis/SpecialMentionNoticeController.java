@@ -1127,6 +1127,10 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 		if(domain.getSubDepartment()==null){
 			result.rejectValue("subDepartment","SubDepartmentEmpty.domain.subDepartment");
 		}
+		/****  submission date is set ****/
+		if(domain.getSubmissionDate()==null){
+			domain.setSubmissionDate(new Date());
+		}	
 		/*if(role.equals("AMOIS_TYPIST")){
 //			//Empty check for number
 //			if(domain.getNumber()==null){
@@ -1174,7 +1178,7 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 						result.rejectValue("subDepartment","SubDepartmentEmpty");
 					}
 				}
-				
+
 				//submission window validations
 				CustomParameter submissionWindowValidationSkippedCP = CustomParameter.findByName(CustomParameter.class, "SPECIALMENTIONNOTICE_SUBMISSION_WINDOW_VALIDATIONS_SKIPPED"+"_"+domain.getHouseType().getType().toUpperCase(), "");
 				if(submissionWindowValidationSkippedCP==null || submissionWindowValidationSkippedCP.getValue()==null
@@ -1188,14 +1192,14 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 							&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
 							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
 						if(!role.equals("SMIS_TYPIST")){
-							if(!SpecialMentionNotice.validateSubmissionTime(domain.getSession(), domain.getSpecialMentionNoticeDate())) {
-								result.rejectValue("version","specialmentionnotice.submissionWindowTimeClosed","submission time window is closed for this specialmentionnotice date motions!");
+							if(!SpecialMentionNotice.validateSubmissionTime(domain.getSession(), domain.getSpecialMentionNoticeDate(),domain.getSubmissionDate())) {
+								result.rejectValue("version","specialmentionnotice.submissionWindowTimeClosed","submission time window is closed for this specialmentionnotice date!");
 								return;
 							}
 						}
 					} else {
-						if(!SpecialMentionNotice.validateSubmissionTime(domain.getSession(), domain.getSpecialMentionNoticeDate())) {
-							result.rejectValue("version","specialmentionnotice.submissionWindowTimeClosed","submission time window is closed for this specialmentionnotice date motions!");
+						if(!SpecialMentionNotice.validateSubmissionTime(domain.getSession(), domain.getSpecialMentionNoticeDate(),domain.getSubmissionDate())) {
+							result.rejectValue("version","specialmentionnotice.submissionWindowTimeClosed","submission time window is closed for this specialmentionnotice date!");
 							return;
 						}
 					}					
@@ -1485,13 +1489,13 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 							&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
 							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
 						if(!role.equals("SMIS_TYPIST")){
-							if(!SpecialMentionNotice.validateSubmissionTime(domain.getSession(), domain.getSpecialMentionNoticeDate())) {
+							if(!SpecialMentionNotice.validateSubmissionTime(domain.getSession(), domain.getSpecialMentionNoticeDate(),domain.getSubmissionDate())) {
 								result.rejectValue("version","specialmentionnotice.submissionWindowTimeClosed","submission time window is closed for this special mention notice!");
 								return;
 							}
 						}
 					} else {
-						if(!SpecialMentionNotice.validateSubmissionTime(domain.getSession(), domain.getSpecialMentionNoticeDate())) {
+						if(!SpecialMentionNotice.validateSubmissionTime(domain.getSession(), domain.getSpecialMentionNoticeDate(),domain.getSubmissionDate())) {
 							result.rejectValue("version","specialmentionnotice.submissionWindowTimeClosed","submission time window is closed for this specialMentonNotice date motions!");
 							return;
 						}
