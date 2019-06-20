@@ -123,8 +123,8 @@
 	        	margin-top: 0px !important;
 	        }
 	        
-	        .page-break-before-forced{
-	        	page-break-before: always;
+	        .page-break-after-forced{
+	        	page-break-after: always;
 	        }     
 	        
 	        @page{

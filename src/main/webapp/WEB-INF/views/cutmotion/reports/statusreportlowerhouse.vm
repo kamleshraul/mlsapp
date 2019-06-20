@@ -59,18 +59,22 @@
 				#end				
 			</td>	
 		</tr>	
-		<tr style="font-weight: bold;">
-			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
-				बाब क्रमांक  
-			</td>
-			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				#if($formatData.get(29))
-					$formatData.get(29)
-				#else
-					-
-				#end				
-			</td>	
-		</tr>
+		#if($formatData.get(8)=='motions_cutmotion_supplementary')
+			<tr style="font-weight: bold;">
+				<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+					बाब क्रमांक  
+				</td>
+				<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+					#if($formatData.get(29))
+						$formatData.get(29)
+					#else
+						-
+					#end				
+				</td>	
+			</tr>
+		#else
+			
+		#end		
 		<tr style="font-weight: bold;">
 			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
 				मागणीचा पृष्ठ क्रमांक
@@ -190,5 +194,5 @@
 		</tr>
 	</table>
 </div>
-<span class='page-break-before-forced'>&nbsp;</span>
+<span class='page-break-after-forced'>&nbsp;</span>
 <hr>
