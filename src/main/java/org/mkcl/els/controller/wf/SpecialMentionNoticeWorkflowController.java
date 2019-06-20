@@ -1713,15 +1713,7 @@ public class SpecialMentionNoticeWorkflowController  extends BaseController {
 		model.addAttribute("clarificationNeededFromMember", clarificationNeededFromMemberMsg.toString());
 		populateBulkApprovalView(model,request,locale.toString());		
 		}
-		
-		redirectAttributes.addFlashAttribute("type", "success");
-        //this is done so as to remove the bug due to which update message appears even though there
-        //is a fresh new/edit request i.e after creating/updating records if we click on
-        //new /edit then success message appears
-        request.getSession().setAttribute("type","success");
-        redirectAttributes.addFlashAttribute("msg", "create_success");
-        return "redirect:/workflow/specialMentionNotice/"+"bulkapproval/init";
-		//return "workflow/specialMentionNotice/bulkapprovalview";
+		return "workflow/specialMentionNotice/bulkapprovalview";
 	}
 	
 	private void populateBulkApprovalView(final Model model,
