@@ -368,7 +368,10 @@
 						} else {
 							$.prompt("some error..please contact administrator");
 						}
-					});
+					}).done(function() {
+						$("#adjourningDateDiv").show();
+						$("#departmentDiv").hide();
+					});		
 				}else{
 					$('#bulkapproval_tab').show();
 					$("#selectedSpecialMentionNoticeDate").val("");
@@ -751,6 +754,7 @@
 		
 		/**** Bulk Approval ****/
 		function bulkApproval(){
+	
 			var resourceURL="";
 			if($('#deviceTypeType').val().indexOf("resolutions_")==0){
 				resourceURL="workflow/resolution/bulkapproval/init";					
@@ -763,13 +767,14 @@
 					resourceURL="workflow/standalonemotion/bulkapproval/init";					
 				}else if($('#deviceTypeType').val().indexOf("motions_rules_suspension")==0){
 					resourceURL="workflow/rulessuspensionmotion/bulkapproval/init";					
-				}else if($('#deviceTypeType').val().indexOf("notices_specialmention")==0){
-					resourceURL="workflow/specialmentionnotice/bulkapproval/init";					
 				}else{
 					resourceURL="workflow/motion/bulkapproval/init";
 				}				
 			}else if($('#deviceTypeType').val().indexOf("questions_")==0){
 				resourceURL="workflow/question/bulkapproval/init";
+			}else if($('#deviceTypeType').val().indexOf("notices_specialmention")==0){
+		
+				resourceURL="workflow/specialmentionnotice/bulkapproval/init";					
 			}
 			$("#selectionDiv").hide();
 			var file=$("#selectedFileCount").val();	
@@ -975,7 +980,7 @@
 			}else if(deviceType.indexOf('proprietypoint')==0){
 				showTabByIdAndUrl('details_tab', "proprietypoint/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
 			}else if (deviceType.indexOf('notices_specialmention')==0){
-				alert("specialmentionnotice/report/currentstatusreport?device="+ device +"&reportType="+val+"&moId="+moId)
+
 				showTabByIdAndUrl('details_tab', "specialmentionnotice/report/currentstatusreport?device="+ device +"&reportType="+val+"&moId="+moId);
 			}
 		}
@@ -1413,7 +1418,7 @@
 					</a>
 				</li>
 			</c:if>
-			<c:if test="${usergroupType=='section_officer' or usergroupType=='deputy_secretary' or usergroupType=='deputy_secretary1' or usergroupType=='deputy_secretary2' or usergroupType=='under_secretary' or usergroupType=='under_secretary_committee' or usergroupType=='secretary' or usergroupType=='principal_secretary' or usergroupType=='speaker' or usergroupType=='chairman'}">
+			<c:if test="${usergroupType=='deputy_secretary' or usergroupType=='deputy_secretary1' or usergroupType=='deputy_secretary2' or usergroupType=='under_secretary' or usergroupType=='secretary' or usergroupType=='principal_secretary' or usergroupType=='speaker' or usergroupType=='chairman'}">
 				<li>
 					<a id="advanced_bulkapproval_tab" href="#" class="tab">
 					   <spring:message code="generic.advancedbulkputup" text="Advance Bulk Putup"></spring:message>
