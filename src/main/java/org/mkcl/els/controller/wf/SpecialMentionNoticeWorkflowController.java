@@ -27,9 +27,7 @@ import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
 import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.controller.smis.SpecialMentionNoticeController;
-import org.mkcl.els.domain.SpecialMentionNotice;
 import org.mkcl.els.domain.ClubbedEntity;
-import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
@@ -38,13 +36,12 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Query;
-import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.SpecialMentionNotice;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
-import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.Workflow;
@@ -55,6 +52,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -1365,6 +1363,449 @@ public class SpecialMentionNoticeWorkflowController  extends BaseController {
 		domain.setWorkflowStarted("NO");
 		domain.setEndFlag(null);
 		WorkflowDetails.startProcessAtGivenLevel(domain, ApplicationConstants.APPROVAL_WORKFLOW, processWorkflow, assistantUGT, 6, domain.getLocale());
+	}
+	
+	/**** Bulk Approval(By Any Authority) ****/
+	@RequestMapping(value="/bulkapproval/init",method=RequestMethod.POST)
+	public String getBulkApprovalInit(final HttpServletRequest request,final Locale locale,
+			final ModelMap model){
+		/**** Request Params ****/
+		String strHouseType=request.getParameter("houseType");
+		String strSessionType=request.getParameter("sessionType");
+		String strSessionYear=request.getParameter("sessionYear");
+		String strDeviceType=request.getParameter("deviceType");
+		String strStatus=request.getParameter("status");
+		String strWorkflowSubType=request.getParameter("workflowSubType");
+		String strItemsCount=request.getParameter("itemsCount");
+		String strLocale=locale.toString();
+		/**** usergroup,usergroupType,role *****/
+		List<UserGroup> userGroups=this.getCurrentUser().getUserGroups();
+		Credential credential = Credential.findByFieldName(Credential.class, "username", this.getCurrentUser().getActualUsername(), null);
+		String strUserGroupType=null;
+		String strUsergroup=null;
+		if(userGroups!=null){
+			if(!userGroups.isEmpty()){
+				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"SMIS_ALLOWED_USERGROUPTYPES", "");
+				if(customParameter!=null){
+					String allowedUserGroups=customParameter.getValue(); 
+					for(UserGroup i:userGroups){
+						if(allowedUserGroups.contains(i.getUserGroupType().getType())){
+							UserGroup ug = UserGroup.findActive(credential, i.getUserGroupType(), new Date(), locale.toString());
+							if(ug != null){
+								strUsergroup=String.valueOf(i.getId());
+								strUserGroupType=i.getUserGroupType().getType();
+								break;
+							}
+						}
+					}
+				}								
+			}
+		}		
+		Set<Role> roles=this.getCurrentUser().getRoles();
+		String strRole=null;
+		for(Role i:roles){
+			if(i.getType().startsWith("MEMBER_")){
+				strRole=i.getType();
+				break;
+			}else if(i.getType().contains("SMIS_CLERK")){
+				strRole=i.getType();
+				break;
+			}else if(i.getType().startsWith("SMIS_")){
+				strRole=i.getType();
+				break;
+			}
+		}		
+		if(strHouseType!=null&&!(strHouseType.isEmpty())
+				&&strSessionType!=null&&!(strSessionType.isEmpty())
+				&&strSessionYear!=null&&!(strSessionYear.isEmpty())
+				&&strDeviceType!=null&&!(strDeviceType.isEmpty())
+				&&strStatus!=null&&!(strStatus.isEmpty())
+				&&strRole!=null&&!(strRole.isEmpty())
+				&&strUsergroup!=null&&!(strUsergroup.isEmpty())
+				&&strUserGroupType!=null&&!(strUserGroupType.isEmpty())
+				&&strItemsCount!=null&&!(strItemsCount.isEmpty())
+				&&strWorkflowSubType!=null&&!(strWorkflowSubType.isEmpty())){	
+			/**** List of Statuses ****/
+				List<Status> internalStatuses=new ArrayList<Status>();
+				HouseType houseType=HouseType.findByFieldName(HouseType.class,"name",strHouseType, strLocale);
+				DeviceType motionType=DeviceType.findByFieldName(DeviceType.class,"name",strDeviceType,strLocale);
+				Status internalStatus=Status.findByType(strWorkflowSubType, strLocale);
+				CustomParameter finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,motionType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+				CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "SPECIALMENTIONNOTICE_PUT_UP_OPTIONS_"+motionType.getType().toUpperCase()+"_"+internalStatus.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+				CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "SPECIALMENTIONNOTICE_PUT_UP_OPTIONS_"+motionType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+				CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "SPECIALMENTIONNOTICE_PUT_UP_OPTIONS_"+motionType.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+				if(finalApprovingAuthority!=null&&finalApprovingAuthority.getValue().contains(strUserGroupType)){
+					CustomParameter finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"SPECIALMENTIONNOTICE_PUT_UP_OPTIONS_"+strUserGroupType.toUpperCase(),"");
+					if(finalApprovingAuthorityStatus!=null){
+						try {
+							internalStatuses=Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), strLocale);
+						} catch (ELSException e) {							
+							e.printStackTrace();
+							model.addAttribute("error", e.getParameter());
+						}
+					}
+				}/**** SPECIALMENTIONNOTICE_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
+				else if(deviceTypeInternalStatusUsergroup!=null){
+					try {
+						internalStatuses=Status.findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), strLocale);
+					} catch (ELSException e) {						
+						e.printStackTrace();
+						model.addAttribute("error", e.getParameter());
+					}
+				}/**** SPECIALMENTIONNOTICE_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
+				else if(deviceTypeHouseTypeUsergroup!=null){
+					try {
+						internalStatuses=Status.findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), strLocale);
+					} catch (ELSException e) {
+						e.printStackTrace();
+						model.addAttribute("error", e.getParameter());
+					}
+				}	
+				/**** SPECIALMENTIONNOTICE_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
+				else if(deviceTypeUsergroup!=null){
+					try {
+						internalStatuses=Status.findStatusContainedIn(deviceTypeUsergroup.getValue(), strLocale);
+					} catch (ELSException e) {
+						e.printStackTrace();
+						model.addAttribute("error", e.getParameter());
+					}
+				}	
+				model.addAttribute("internalStatuses",internalStatuses);
+			}
+			/**** Request Params To Model Attribute ****/
+			model.addAttribute("houseType", strHouseType);
+			model.addAttribute("sessionType", strSessionType);
+			model.addAttribute("sessionYear", strSessionYear);
+			model.addAttribute("deviceType", strDeviceType);
+			model.addAttribute("status", strStatus);
+			model.addAttribute("role", strRole);
+			model.addAttribute("usergroup", strUsergroup);
+			model.addAttribute("usergroupType", strUserGroupType);
+			model.addAttribute("itemscount", strItemsCount);
+			model.addAttribute("workflowSubType",strWorkflowSubType);
+	
+	
+		return "workflow/specialmentionnotice/bulkapprovalinit";		
+	}	
+
+	@RequestMapping(value="/bulkapproval/view",method=RequestMethod.POST)
+	public String getBulkApprovalView(final HttpServletRequest request,final Locale locale,
+			final Model model){
+		populateBulkApprovalView(model,request,locale.toString());
+		return "workflow/specialmentionnotice/bulkapprovalview";		
+	}	
+	
+	@Transactional
+	@RequestMapping(value="/bulkapproval/update",method=RequestMethod.POST)
+	public String bulkApproval(final HttpServletRequest request,final Locale locale,
+			final Model model,
+			final RedirectAttributes redirectAttributes){			
+		String[] selectedItems = request.getParameterValues("items[]");
+		String strStatus=request.getParameter("status");
+		String strWorkflowSubType=request.getParameter("workflowSubType");
+		String remark = request.getParameter("remarks");
+		StringBuffer recommendAdmissionMsg=new StringBuffer();
+		StringBuffer recommendRejectionMsg=new StringBuffer();
+		StringBuffer recommendClarificationFromDepartmentMsg=new StringBuffer();
+		StringBuffer recommendClarificationFromMemberMsg=new StringBuffer();
+		StringBuffer admittedMsg=new StringBuffer();
+		StringBuffer rejectedMsg=new StringBuffer();
+		StringBuffer clarificationNeededFromDepartmentMsg=new StringBuffer();
+		StringBuffer clarificationNeededFromMemberMsg=new StringBuffer();
+		Status internalStatus=null;
+		if(selectedItems != null && (selectedItems.length >0)
+				&&strStatus!=null&&!strStatus.isEmpty()
+				&&strWorkflowSubType!=null&&!strWorkflowSubType.isEmpty()) {
+			Status status=null;
+			if(!strStatus.equals("-")){
+				status=Status.findById(Status.class,Long.parseLong(strStatus));
+			}
+			for(String i : selectedItems) {
+					HouseType houseType=null;
+					Long id = Long.parseLong(i);
+					WorkflowDetails wfDetails=WorkflowDetails.findById(WorkflowDetails.class,id);
+					
+					SpecialMentionNotice specialMentionNotice = SpecialMentionNotice.findById(SpecialMentionNotice.class,Long.parseLong(wfDetails.getDeviceId()));
+					houseType=specialMentionNotice.getHouseType();
+					String actor=request.getParameter("actor");
+					if(actor==null||actor.isEmpty()){
+						actor=specialMentionNotice.getActor();
+						String[] temp=actor.split("#");
+						actor=temp[1];
+					}
+					String level=request.getParameter("level");
+					if(level==null||level.isEmpty()){
+						level=specialMentionNotice.getLevel();
+					}
+					if(actor!=null&&!actor.isEmpty()
+							&&level!=null&&!level.isEmpty()){
+						Reference reference=null;
+						try {
+							reference=UserGroup.findSpecialMentionNoticeActor(specialMentionNotice,actor,level,locale.toString());
+						} catch (ELSException e) {
+							e.printStackTrace();
+							model.addAttribute("error", e.getParameter());
+						}
+						if(reference!=null
+								&&reference.getId()!=null&&!reference.getId().isEmpty()
+								&&reference.getName()!=null&&!reference.getName().isEmpty()){
+							//**** Update Actor ****//
+							String[] temp=reference.getId().split("#");
+							specialMentionNotice.setActor(reference.getId());
+							specialMentionNotice.setLocalizedActorName(temp[3]+"("+temp[4]+")");
+							specialMentionNotice.setLevel(temp[2]);
+							
+							//**** Update Internal Status and Recommendation Status ****//
+							if(status!=null){
+								specialMentionNotice.setInternalStatus(status);
+								specialMentionNotice.setRecommendationStatus(status);
+							}
+							String endFlag=null;
+							specialMentionNotice.setEndFlag("continue");
+							endFlag=specialMentionNotice.getEndFlag();
+							
+							//**** Complete Task ****//
+							Map<String,String> properties=new HashMap<String, String>();
+							properties.put("pv_deviceId",String.valueOf(specialMentionNotice.getId()));
+							properties.put("pv_deviceTypeId",String.valueOf(specialMentionNotice.getType().getId()));
+							properties.put("pv_user",temp[0]);
+							properties.put("pv_endflag",endFlag);
+							
+							CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "SERVERCONFIGURED", "");
+							String isServerConfigured=customParameter.getValue();
+							if(isServerConfigured!=null && !isServerConfigured.equals("")){
+								if(isServerConfigured.equals("yes")){
+									String mailflag=request.getParameter("mailflag");				
+									properties.put("pv_mailflag", mailflag);
+									if(mailflag!=null) {
+										if(mailflag.equals("set")) {
+											String mailfrom=request.getParameter("mailfrom");
+											properties.put("pv_mailfrom", mailfrom);
+											
+											String mailto=request.getParameter("mailto");
+											properties.put("pv_mailto", mailto);
+											
+											String mailsubject=request.getParameter("mailsubject");
+											properties.put("pv_mailsubject", mailsubject);
+											
+											String mailcontent=request.getParameter("mailcontent");
+											properties.put("pv_mailcontent", mailcontent);
+										}
+									}
+									
+									String timerflag=request.getParameter("timerflag");
+									properties.put("pv_timerflag", timerflag);
+									
+									if(timerflag!=null) {
+										if(timerflag.equals("set")) {
+											String timerduration=request.getParameter("timerduration");
+											properties.put("pv_timerduration", timerduration);
+											
+											String lasttimerduration=request.getParameter("lasttimerduration");
+											properties.put("pv_lasttimerduration", lasttimerduration);
+											
+											String reminderflag=request.getParameter("reminderflag");
+											properties.put("pv_reminderflag", reminderflag);
+											
+											if(reminderflag!=null) {
+												if(reminderflag.equals("set")) {
+													String reminderfrom=request.getParameter("reminderfrom");
+													properties.put("pv_reminderfrom", reminderfrom);
+													
+													String reminderto=request.getParameter("reminderto");
+													properties.put("pv_reminderto", reminderto);
+													
+													//String remindersubject=request.getParameter("remindersubject");
+													String remindersubject=specialMentionNotice.getSubject();
+													properties.put("pv_remindersubject", remindersubject);
+													
+													//String remindercontent=request.getParameter("remindercontent");
+													String remindercontent=specialMentionNotice.getNoticeContent();
+													properties.put("pv_remindercontent", remindercontent);
+												}
+											}
+										}
+									}
+								}else{
+									properties.put("pv_mailflag", "off");
+									properties.put("pv_timerflag", "off");
+								}
+							}
+
+							String strTaskId=wfDetails.getTaskId();
+							Task task=processService.findTaskById(strTaskId);
+							processService.completeTask(task,properties);	
+							UserGroupType usergroupType = UserGroupType.findByType(temp[1], locale.toString());
+							if(endFlag!=null&&!endFlag.isEmpty()
+									&&endFlag.equals("continue")){
+								//**** Create New Workflow Details ****//
+								ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+								Task newtask=processService.getCurrentTask(processInstance);
+								WorkflowDetails workflowDetails2;
+								try {
+									workflowDetails2 = WorkflowDetails.create(specialMentionNotice,newtask,usergroupType,ApplicationConstants.SPECIALMENTIONNOTICE_APPROVAL_WORKFLOW,level);
+									specialMentionNotice.setWorkflowDetailsId(workflowDetails2.getId());
+									specialMentionNotice.setTaskReceivedOn(new Date());
+								} catch (ELSException e) {
+									e.printStackTrace();
+									model.addAttribute("error", e.getParameter());
+								}
+																
+							}
+							//**** Update Old Workflow Details ****//
+							wfDetails.setStatus("COMPLETED");
+							wfDetails.setInternalStatus(specialMentionNotice.getInternalStatus().getName());
+							wfDetails.setRecommendationStatus(specialMentionNotice.getRecommendationStatus().getName());;	
+
+							wfDetails.setCompletionTime(new Date());
+							wfDetails.merge();
+							//**** Update Resolution ****//
+							specialMentionNotice.setEditedOn(new Date());
+							specialMentionNotice.setEditedBy(this.getCurrentUser().getActualUsername());
+							specialMentionNotice.setEditedAs(wfDetails.getAssigneeUserGroupName());	
+							
+							if(remark != null && !remark.isEmpty()){
+								specialMentionNotice.setRemarks(remark);
+							}
+													
+							try {
+								performAction(specialMentionNotice, request);
+							} catch (ELSException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							
+//							/***Setting the edited On , Edited By and Edited As**
+//							List<UserGroup> usergroups = this.getCurrentUser().getUserGroups();
+//							Credential credential = Credential.findByFieldName(Credential.class, "username", this.getCurrentUser().getUsername(), locale.toString());
+//							specialMentionNotice.setEditedBy(credential.getUsername());
+//							for(UserGroup u : usergroups){
+//								UserGroup userGroup = UserGroup.findActive(credential, u.getUserGroupType(), new Date(), locale.toString());
+//								if(userGroup != null){
+//									UserGroupType userGroupType = userGroup.getUserGroupType();
+//									if(userGroupType != null){
+//										specialMentionNotice.setEditedAs(userGroupType.getName());
+//									}
+//								}
+//							}
+							specialMentionNotice.setEditedOn(new Date());
+							specialMentionNotice.merge();
+							internalStatus=specialMentionNotice.getInternalStatus();	
+							if(internalStatus.getType().equals(ApplicationConstants.SPECIALMENTIONNOTICE_RECOMMEND_ADMISSION)){
+								recommendAdmissionMsg.append(specialMentionNotice.formatNumber()+",");
+							}else if(internalStatus.getType().equals(ApplicationConstants.SPECIALMENTIONNOTICE_RECOMMEND_REJECTION)){
+								recommendRejectionMsg.append(specialMentionNotice.formatNumber()+",");
+							}else if(internalStatus.getType().equals(ApplicationConstants.SPECIALMENTIONNOTICE_FINAL_ADMISSION)){
+								admittedMsg.append(specialMentionNotice.formatNumber()+",");
+							}else if(internalStatus.getType().equals(ApplicationConstants.SPECIALMENTIONNOTICE_FINAL_REJECTION)){
+								rejectedMsg.append(specialMentionNotice.formatNumber()+",");
+						}
+					}					
+				}			
+			}			
+		model.addAttribute("recommendAdmission", recommendAdmissionMsg.toString());
+		model.addAttribute("recommendRejection", recommendRejectionMsg.toString());
+		model.addAttribute("admitted", admittedMsg.toString());
+		model.addAttribute("rejected", rejectedMsg.toString());
+		model.addAttribute("recommendClarificationFromDepartment", recommendClarificationFromDepartmentMsg.toString());
+		model.addAttribute("recommendClarificationFromMember", recommendClarificationFromMemberMsg.toString());
+		model.addAttribute("clarificationNeededFromDepartment", clarificationNeededFromDepartmentMsg.toString());
+		model.addAttribute("clarificationNeededFromMember", clarificationNeededFromMemberMsg.toString());
+		populateBulkApprovalView(model,request,locale.toString());		
+		}
+		
+		redirectAttributes.addFlashAttribute("type", "success");
+        //this is done so as to remove the bug due to which update message appears even though there
+        //is a fresh new/edit request i.e after creating/updating records if we click on
+        //new /edit then success message appears
+        request.getSession().setAttribute("type","success");
+        redirectAttributes.addFlashAttribute("msg", "create_success");
+        return "redirect:/workflow/specialMentionNotice/"+"bulkapproval/init";
+		//return "workflow/specialMentionNotice/bulkapprovalview";
+	}
+	
+	private void populateBulkApprovalView(final Model model,
+			final HttpServletRequest request,final String locale){
+		/**** Request Params ****/
+		String strHouseType=request.getParameter("houseType");
+		String strSessionType=request.getParameter("sessionType");
+		String strSessionYear=request.getParameter("sessionYear");
+		String strDeviceType=request.getParameter("deviceType");			
+		String strStatus=request.getParameter("status");
+		String strRole=request.getParameter("role");
+		String strUsergroup=request.getParameter("usergroup");
+		String strUsergroupType=request.getParameter("usergroupType");
+		String strItemsCount=request.getParameter("itemscount");
+		String strWorkflowSubType=request.getParameter("workflowSubType");
+		String strLocale=locale.toString();	
+		String assignee=this.getCurrentUser().getActualUsername();
+				
+		if(strHouseType!=null&&!(strHouseType.isEmpty())
+				&&strSessionType!=null&&!(strSessionType.isEmpty())
+				&&strSessionYear!=null&&!(strSessionYear.isEmpty())
+				&&strDeviceType!=null&&!(strDeviceType.isEmpty())
+				&&strStatus!=null&&!(strStatus.isEmpty())
+				&&strRole!=null&&!(strRole.isEmpty())
+				&&strUsergroup!=null&&!(strUsergroup.isEmpty())
+				&&strUsergroupType!=null&&!(strUsergroupType.isEmpty())
+				&&strItemsCount!=null&&!(strItemsCount.isEmpty())
+				&&strWorkflowSubType!=null&&!(strWorkflowSubType.isEmpty())){	
+			model.addAttribute("workflowSubType", strWorkflowSubType);
+			/**** Workflow Details ****/
+			List<WorkflowDetails> workflowDetails = null;
+			try {
+				workflowDetails = WorkflowDetails.
+				findAll(strHouseType,strSessionType,strSessionYear,
+						strDeviceType,strStatus,strWorkflowSubType,
+						assignee,strItemsCount,strLocale);
+			} catch (ELSException e) {
+				model.addAttribute("error", e.getParameter());
+				e.printStackTrace();
+			}
+			/**** Populating Bulk Approval VOs ****/
+			List<BulkApprovalVO> bulkapprovals=new ArrayList<BulkApprovalVO>();
+			NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
+			for(WorkflowDetails i:workflowDetails){
+				BulkApprovalVO bulkApprovalVO=new BulkApprovalVO();				
+				SpecialMentionNotice specialMentionNotice=SpecialMentionNotice.findById(SpecialMentionNotice.class,Long.parseLong(i.getDeviceId()));
+				/**** Bulk Submission For Workflows ****/
+					/**** Status Wise Bulk Submission ****/
+					
+						bulkApprovalVO.setId(String.valueOf(i.getId()));
+						bulkApprovalVO.setDeviceId(String.valueOf(specialMentionNotice.getId()));				
+						if(specialMentionNotice.getNumber()!=null){
+							bulkApprovalVO.setDeviceNumber(format.format(specialMentionNotice.getNumber()));
+						}else{
+							bulkApprovalVO.setDeviceNumber("-");
+						}
+						bulkApprovalVO.setDeviceType(specialMentionNotice.getType().getName());
+						bulkApprovalVO.setMember(specialMentionNotice.getPrimaryMember().getFullname());
+						if(specialMentionNotice.getRevisedNoticeContent() != null && !specialMentionNotice.getRevisedNoticeContent().isEmpty()){
+							bulkApprovalVO.setSubject(specialMentionNotice.getRevisedNoticeContent());
+						}else{
+							bulkApprovalVO.setSubject(specialMentionNotice.getNoticeContent());
+						}
+						if(specialMentionNotice.getRemarks()!=null&&!specialMentionNotice.getRemarks().isEmpty()){
+							bulkApprovalVO.setLastRemark(specialMentionNotice.getRemarks());
+						}else{
+							bulkApprovalVO.setLastRemark("-");
+						}
+						bulkApprovalVO.setLastDecision(specialMentionNotice.getInternalStatus().getName());	
+						Map<String, String[]> requestMap=new HashMap<String, String[]>();			
+						requestMap.put("resolutionId",new String[]{String.valueOf(specialMentionNotice.getId())});
+						requestMap.put("locale",new String[]{specialMentionNotice.getLocale()});
+						List result=Query.findReport("SMIS_GET_REVISION", requestMap);
+						bulkApprovalVO.setRevisions(result);
+						bulkApprovalVO.setLastRemarkBy(specialMentionNotice.getEditedAs());	
+						bulkApprovalVO.setCurrentStatus(i.getStatus());
+						bulkapprovals.add(bulkApprovalVO);
+					
+				}		
+			model.addAttribute("bulkapprovals", bulkapprovals);
+			if(bulkapprovals!=null&&!bulkapprovals.isEmpty()){
+				model.addAttribute("resolutionId",bulkapprovals.get(0).getDeviceId());
+			}
+		}
 	}
 
 }
