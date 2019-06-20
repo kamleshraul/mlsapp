@@ -108,10 +108,10 @@
 				<spring:message code="proprietypoint.search" text="Search"/>
 			</a> |	
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
-				<%-- <hr/>
+				<hr/>
 				<a href="#" id="member_proprietypoints_view" class="butSim">
 					<spring:message code="proprietypoint.member_proprietypoints_view" text="Member's Propriety Points View"/>
-				</a> | --%>
+				</a> |
 			</security:authorize>	
 			<security:authorize access="hasAnyRole('PROIS_CLERK', 'PROIS_ASSISTANT', 'PROIS_SECTION_OFFICER')">
 			<a href="#" id="prois_current_status_report" class="butSim">

@@ -86,11 +86,10 @@
 					<table class="strippedTable" border="1" style="width: 750px;">
 						<thead>
 							<tr>
-								<th style="text-align: center; font-size: 12px; width: 60px; vertical-align: top;">${topHeader[3]}</th>
+								<th class="serialCount" style="text-align: left; font-size: 12px; width: 8px; vertical-align: top;">${topHeader[4]}</th>
 								<th style="text-align: center; font-size: 12px; width: 30px; vertical-align: top;">${topHeader[1]}</th>
-								<th style="text-align: center; font-size: 12px; width: 300px; vertical-align: top;">${topHeader[2]}</th>								
-								<th style="text-align: center; font-size: 12px; width: 90px; vertical-align: top;">${topHeader[5]}</th>
-								<th style="text-align: center; font-size: 12px; width: 60px; vertical-align: top;">${topHeader[4]}</th>
+								<th style="text-align: center; font-size: 12px; width: 300px; vertical-align: top;">${topHeader[2]}</th>
+								<th style="text-align: center; font-size: 12px; width: 60px; vertical-align: top;">${topHeader[3]}</th>
 							</tr>
 						
 							<tr>
@@ -104,31 +103,28 @@
 										<c:choose>
 											<c:when test="${counter.count > 1}">
 												<tr class="page-break-after-forced">
-													<td style="text-align: left; font-size: 12px; width: 60px; vertical-align: top;">${r[1]}</td>
-													<td style="text-align: center; font-size: 12px; width: 30px; vertical-align: top;">${r[2]}</td>
-													<td style="text-align: justify; font-size: 12px; width: 300px; vertical-align: top;">${r[3]}</td>													
-													<td style="text-align: left; font-size: 12px; width: 90px; vertical-align: top;">${r[5]}</td>
-													<td style="text-align: left; font-size: 12px; width: 60px; vertical-align: top;">${r[4]}</td>
+													<td class="serialCount" style="text-align: left; font-size: 12px; width: 8px; vertical-align: top;">${serialNumbers[counter.count-1]}</td>
+													<td style="text-align: left; font-size: 12px; width: 30px; vertical-align: top; padding-left: 20px;">${r[1]}</td>
+													<td style="text-align: center; font-size: 12px; width: 300px; vertical-align: top;">${r[2]}</td>
+													<td style="text-align: justify; font-size: 12px; width: 60px; vertical-align: top;">${r[3]}</td>
 												</tr>
 											</c:when>
 											<c:otherwise>
 												<tr>
-													<td style="text-align: left; font-size: 12px; width: 60px; vertical-align: top;">${r[1]}</td>
-													<td style="text-align: center; font-size: 12px; width: 30px; vertical-align: top;">${r[2]}</td>
-													<td style="text-align: justify; font-size: 12px; width: 300px; vertical-align: top;">${r[3]}</td>													
-													<td style="text-align: left; font-size: 12px; width: 90px; vertical-align: top;">${r[5]}</td>
-													<td style="text-align: left; font-size: 12px; width: 60px; vertical-align: top;">${r[4]}</td>
+													<td class="serialCount" style="text-align: left; font-size: 12px; width: 8px; vertical-align: top;">${serialNumbers[counter.count-1]}</td>
+													<td style="text-align: left; font-size: 12px; width: 30px; vertical-align: top; padding-left: 20px;">${r[1]}</td>
+													<td style="text-align: center; font-size: 12px; width: 300px; vertical-align: top;">${r[2]}</td>
+													<td style="text-align: justify; font-size: 12px; width: 60px; vertical-align: top;">${r[3]}</td>
 												</tr>
 											</c:otherwise>
 										</c:choose>	
 									</c:when>
 									<c:otherwise>
 										<tr>
-											<td style="text-align: left; font-size: 12px; width: 60px; vertical-align: top;">${r[1]}</td>
-											<td style="text-align: center; font-size: 12px; width: 30px; vertical-align: top;">${r[2]}</td>
-											<td style="text-align: justify; font-size: 12px; width: 300px; vertical-align: top;">${r[3]}</td>											
-											<td style="text-align: left; font-size: 12px; width: 90px; vertical-align: top;">${r[5]}</td>
-											<td style="text-align: left; font-size: 12px; width: 60px; vertical-align: top;">${r[4]}</td>
+											<td class="serialCount" style="text-align: left; font-size: 12px; width: 8px; vertical-align: top;">${serialNumbers[counter.count-1]}</td>
+											<td style="text-align: left; font-size: 12px; width: 30px; vertical-align: top; padding-left: 20px;">${r[1]}</td>
+											<td style="text-align: center; font-size: 12px; width: 300px; vertical-align: top;">${r[2]}</td>
+											<td style="text-align: justify; font-size: 12px; width: 60px; vertical-align: top;">${r[3]}</td>
 										</tr>
 									</c:otherwise>
 								</c:choose>			
