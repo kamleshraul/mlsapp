@@ -1413,7 +1413,7 @@
 					</a>
 				</li>
 			</c:if>
-			<c:if test="${usergroupType=='deputy_secretary' or usergroupType=='deputy_secretary1' or usergroupType=='deputy_secretary2' or usergroupType=='under_secretary' or usergroupType=='secretary' or usergroupType=='principal_secretary' or usergroupType=='speaker' or usergroupType=='chairman'}">
+			<c:if test="${usergroupType=='section_officer' or usergroupType=='deputy_secretary' or usergroupType=='deputy_secretary1' or usergroupType=='deputy_secretary2' or usergroupType=='under_secretary' or usergroupType=='under_secretary_committee' or usergroupType=='secretary' or usergroupType=='principal_secretary' or usergroupType=='speaker' or usergroupType=='chairman'}">
 				<li>
 					<a id="advanced_bulkapproval_tab" href="#" class="tab">
 					   <spring:message code="generic.advancedbulkputup" text="Advance Bulk Putup"></spring:message>
