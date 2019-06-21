@@ -57,6 +57,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.ibm.icu.util.Holiday;
+
 @Controller
 @RequestMapping("specialmentionnotice")
 public class SpecialMentionNoticeController extends GenericController<SpecialMentionNotice> {	
@@ -1323,8 +1325,7 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 				Calendar c = Calendar.getInstance();
 				c.add(Calendar.DATE, 1); 
 				Date currentDatePlusOne = c.getTime();
-				
-				 if (currentDatePlusOne.compareTo(defaultSpecialMentionNoticeDate) < 0){
+				 if (currentDatePlusOne.compareTo(defaultSpecialMentionNoticeDate) < 0 ){
 				model.addAttribute("defaultSpecialMentionNoticeDate", FormaterUtil.formatDateToString(defaultSpecialMentionNoticeDate, ApplicationConstants.SERVER_DATEFORMAT));
 				 }
 				 else{

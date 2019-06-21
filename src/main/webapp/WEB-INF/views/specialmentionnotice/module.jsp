@@ -215,7 +215,7 @@
 			});
 			$('#isSpecialMentionNoticeDateSelected').change(function(){	
 				if($("#isSpecialMentionNoticeDateSelected").is(":checked")) {
-					$('#selecteSpecialMentionNoticegDate').removeAttr('disabled');
+					$('#selecteSpecialMentionNoticeDate').removeAttr('disabled');
 					reloadSpecialMentionNoticeGrid();
 					$("#selectedFileCount").val("-");
 				} else {
@@ -251,24 +251,21 @@
 			
 		/**** displaying grid ****/					
 		function showSpecialMentionNoticeList() {
-			
 			var selectedSpecialMentionNoticeDate = "";
 			if($("#isSpecialMentionNoticeDateSelected").is(":checked")) {
 				selectedSpecialMentionNoticeDate = convertToDbFormat($('#selectedSpecialMentionNoticeDate').val());
 			}
 			showTabByIdAndUrl('list_tab','specialmentionnotice/list?houseType='+$('#selectedHouseType').val()
-					
-					+'&motionType='+$("#selectedMotionType").val()+'&sessionYear='
-					+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()
-					+"&ugparam="+$("#ugparam").val()
-					+"&status="+$("#selectedStatus").val()
-					+"&role="+$("#srole").val()
-					+"&usergroup="+$("#currentusergroup").val()
-					+"&usergroupType="+$("#currentusergroupType").val()				
-					+"&specialMentionNoticeDate="+selectedSpecialMentionNoticeDate
-			
-					+"&subDepartment="+$("#selectedSubDepartment").val()
-			);
+								+'&motionType='+$("#selectedMotionType").val()+'&sessionYear='
+								+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()
+								+"&ugparam="+$("#ugparam").val()
+								+"&status="+$("#selectedStatus").val()
+								+"&role="+$("#srole").val()
+								+"&usergroup="+$("#currentusergroup").val()
+								+"&usergroupType="+$("#currentusergroupType").val()				
+								+"&specialMentionNoticeDate="+selectedSpecialMentionNoticeDate
+								+"&subDepartment="+$("#selectedSubDepartment").val()
+							);
 			
 			loadSession();
 		}
