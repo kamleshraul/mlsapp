@@ -264,7 +264,7 @@ public class AdjournmentMotionReportController extends BaseController{
 			@SuppressWarnings("rawtypes")
 			List bhag2Motions = Query.findReport("AMOIS_BHAG2_REPORT", requestMap, true);
 			try {
-				reportFile = generateReportUsingFOP(new Object[] {bhag1Motions, bhag2Motions}, "amois_statement_template", "WORD", "amois_bhag2", locale.toString());
+				reportFile = generateReportUsingFOP(new Object[] {bhag1Motions, bhag2Motions}, "amois_statement_template", "WORD", "amois_statement", locale.toString());
 			} catch (Exception e) {
 				e.printStackTrace();
 				logger.error("**** Some error occurred ****");

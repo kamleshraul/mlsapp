@@ -401,8 +401,81 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});			
-			$.prompt($('#startWorkflowMessage').val(),{
+			});		
+			/**validate formatting in notice o */
+			var startworkflowAllowed = true;
+			if($("#revisedNoticeContent").val()!=null && $("#revisedNoticeContent").val()!="" && $("#revisedNoticeContent").val()!="<p></p>"){								
+				if($('#revisedNoticeContent').val().toLowerCase().indexOf("mso") >= 0 || $('#revisedNoticeContent').val().toLowerCase().indexOf("w:") >= 0){	
+					startworkflowAllowed = false
+					$.prompt($('#noInvalidFormattingInRevisedDeviceTextPrompt').val());
+					return false;						
+				} else if($('#revisedNoticeContent').val().toLowerCase().indexOf("o:p") >= 0){
+					startworkflowAllowed = false
+					$.prompt($('#noInvalidFormattingInRevisedDeviceTextPrompt').val());
+					return false;					
+				} if($('#revisedNoticeContent').val().toLowerCase().indexOf("ol style=") >= 0){	
+					startworkflowAllowed = false
+					$.prompt($('#noInvalidFormattingInRevisedDeviceTextPrompt').val());
+					return false;				
+				} else if($('#revisedNoticeContent').val().toLowerCase().indexOf("&lt;ol&gt;&lt;/ol&gt;") >= 0){	
+					startworkflowAllowed = false
+					$.prompt($('#noInvalidFormattingInRevisedDeviceTextPrompt').val());
+					return false;				
+				} else if($('#revisedNoticeContent').val().toLowerCase().indexOf("<ol></ol>") >= 0){
+					startworkflowAllowed = false
+					$.prompt($('#noInvalidFormattingInRevisedDeviceTextPrompt').val());
+					return false				
+				} else if($('#revisedNoticeContent').val().toLowerCase().indexOf("br style=") >= 0){	
+					startworkflowAllowed = false
+					$.prompt($('#noInvalidFormattingInRevisedDeviceTextPrompt').val());
+					return false;				
+				} else if($('#revisedNoticeContent').val().toLowerCase().indexOf("-webkit-text-stroke-widt") >= 0){	
+					startworkflowAllowed = false
+					$.prompt($('#noInvalidFormattingInRevisedDeviceTextPrompt').val());
+					return false;					
+				} else if($('#revisedNoticeContent').val().toLowerCase().indexOf("font-size: small") >= 0){	
+					startworkflowAllowed = false
+					$.prompt($('#noInvalidFormattingInRevisedDeviceTextPrompt').val());
+					return false;					
+				}
+			} else {
+				if($("#noticeContent").val()!=null && $("#noticeContent").val()!=""){			
+					if($('#noticeContent').val().toLowerCase().indexOf("mso") >= 0 || $('#noticeContent').val().toLowerCase().indexOf("w:") >= 0){	
+						startworkflowAllowed = false
+						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
+						return false;						
+					} else if($('#noticeContent').val().toLowerCase().indexOf("o:p") >= 0){
+						startworkflowAllowed = false
+						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
+						return false;					
+					} if($('#noticeContent').val().toLowerCase().indexOf("ol style=") >= 0){	
+						startworkflowAllowed = false
+						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
+						return false;				
+					} else if($('#noticeContent').val().toLowerCase().indexOf("&lt;ol&gt;&lt;/ol&gt;") >= 0){	
+						startworkflowAllowed = false
+						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
+						return false;				
+					} else if($('#noticeContent').val().toLowerCase().indexOf("<ol></ol>") >= 0){
+						startworkflowAllowed = false
+						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
+						return false				
+					} else if($('#noticeContent').val().toLowerCase().indexOf("br style=") >= 0){	
+						startworkflowAllowed = false
+						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
+						return false;				
+					} else if($('#noticeContent').val().toLowerCase().indexOf("-webkit-text-stroke-widt") >= 0){	
+						startworkflowAllowed = false
+						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
+						return false;					
+					} else if($('#noticeContent').val().toLowerCase().indexOf("font-size: small") >= 0){	
+						startworkflowAllowed = false
+						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
+						return false;					
+					}
+				}
+			}
+			/* $.prompt($('#startWorkflowMessage').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
@@ -415,7 +488,7 @@
 		    					$.unblockUI();	   				 	   				
 		    	            });
     	            }
-			}});			
+			}}); */			
 	        return false;  
 	    });
 	    /**** Right Click Menu ****/
