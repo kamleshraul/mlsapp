@@ -154,7 +154,7 @@
 			</tr>
 		#end
 	</table>
-	<table style="width: 750px; font-size: 17px;">
+	#*<table style="width: 750px; font-size: 17px;">
 		<tr><td colspan="3">&nbsp;</td></tr>
 		<tr>
 			<td style="width: 150px; font-size: 16px; word-wrap: break-word; padding-left: 5px; text-align: center;">
@@ -168,10 +168,10 @@
 				<br>
 				(&nbsp&nbsp;स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अस्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;चर्चा करावा&nbsp&nbsp;)<br>
 				<br><br>
-				मा. अध्यक्ष
+				मा. सभापती
 			</td>		
 		</tr>
-	</table>
+	</table>*#
 </div>
 
 <span class='page-break-before-forced'>&nbsp;</span>
