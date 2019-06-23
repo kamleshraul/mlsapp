@@ -406,90 +406,100 @@
 			var startworkflowAllowed = true;
 			if($("#revisedNoticeContent").val()!=null && $("#revisedNoticeContent").val()!="" && $("#revisedNoticeContent").val()!="<p></p>"){								
 				if($('#revisedNoticeContent').val().toLowerCase().indexOf("mso") >= 0 || $('#revisedNoticeContent').val().toLowerCase().indexOf("w:") >= 0){	
-					startworkflowAllowed = false
+					startworkflowAllowed = false;
 					$.prompt($('#noInvalidFormattingInRevisedDeviceTextPrompt').val());
 					return false;						
 				} else if($('#revisedNoticeContent').val().toLowerCase().indexOf("o:p") >= 0){
-					startworkflowAllowed = false
+					startworkflowAllowed = false;
 					$.prompt($('#noInvalidFormattingInRevisedDeviceTextPrompt').val());
 					return false;					
 				} if($('#revisedNoticeContent').val().toLowerCase().indexOf("ol style=") >= 0){	
-					startworkflowAllowed = false
+					startworkflowAllowed = false;
 					$.prompt($('#noInvalidFormattingInRevisedDeviceTextPrompt').val());
 					return false;				
 				} else if($('#revisedNoticeContent').val().toLowerCase().indexOf("&lt;ol&gt;&lt;/ol&gt;") >= 0){	
-					startworkflowAllowed = false
+					startworkflowAllowed = false;
 					$.prompt($('#noInvalidFormattingInRevisedDeviceTextPrompt').val());
 					return false;				
 				} else if($('#revisedNoticeContent').val().toLowerCase().indexOf("<ol></ol>") >= 0){
-					startworkflowAllowed = false
+					startworkflowAllowed = false;
 					$.prompt($('#noInvalidFormattingInRevisedDeviceTextPrompt').val());
-					return false				
+					return false;			
 				} else if($('#revisedNoticeContent').val().toLowerCase().indexOf("br style=") >= 0){	
-					startworkflowAllowed = false
+					startworkflowAllowed = false;
 					$.prompt($('#noInvalidFormattingInRevisedDeviceTextPrompt').val());
 					return false;				
 				} else if($('#revisedNoticeContent').val().toLowerCase().indexOf("-webkit-text-stroke-widt") >= 0){	
-					startworkflowAllowed = false
+					startworkflowAllowed = false;
 					$.prompt($('#noInvalidFormattingInRevisedDeviceTextPrompt').val());
 					return false;					
 				} else if($('#revisedNoticeContent').val().toLowerCase().indexOf("font-size: small") >= 0){	
-					startworkflowAllowed = false
+					startworkflowAllowed = false;
 					$.prompt($('#noInvalidFormattingInRevisedDeviceTextPrompt').val());
 					return false;					
 				}
 			} else {
 				if($("#noticeContent").val()!=null && $("#noticeContent").val()!=""){			
 					if($('#noticeContent').val().toLowerCase().indexOf("mso") >= 0 || $('#noticeContent').val().toLowerCase().indexOf("w:") >= 0){	
-						startworkflowAllowed = false
+						startworkflowAllowed = false;
 						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
 						return false;						
 					} else if($('#noticeContent').val().toLowerCase().indexOf("o:p") >= 0){
-						startworkflowAllowed = false
+						startworkflowAllowed = false;
 						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
 						return false;					
 					} if($('#noticeContent').val().toLowerCase().indexOf("ol style=") >= 0){	
-						startworkflowAllowed = false
+						startworkflowAllowed = false;
 						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
 						return false;				
 					} else if($('#noticeContent').val().toLowerCase().indexOf("&lt;ol&gt;&lt;/ol&gt;") >= 0){	
-						startworkflowAllowed = false
+						startworkflowAllowed = false;
 						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
 						return false;				
 					} else if($('#noticeContent').val().toLowerCase().indexOf("<ol></ol>") >= 0){
-						startworkflowAllowed = false
+						startworkflowAllowed = false;
 						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
 						return false				
 					} else if($('#noticeContent').val().toLowerCase().indexOf("br style=") >= 0){	
-						startworkflowAllowed = false
+						startworkflowAllowed = false;
 						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
 						return false;				
 					} else if($('#noticeContent').val().toLowerCase().indexOf("-webkit-text-stroke-widt") >= 0){	
-						startworkflowAllowed = false
+						startworkflowAllowed = false;
 						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
 						return false;					
 					} else if($('#noticeContent').val().toLowerCase().indexOf("font-size: small") >= 0){	
-						startworkflowAllowed = false
+						startworkflowAllowed = false;
 						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
 						return false;					
 					}
 				}
 			}
-			/* $.prompt($('#startWorkflowMessage').val(),{
-				buttons: {Ok:true, Cancel:false}, callback: function(v){
-		        if(v){
-					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
-		        	$.post($('form').attr('action')+'?operation=startworkflow',  
-		    	            $("form").serialize(),  
-		    	            function(data){
-		       					$('.tabContent').html(data);
-		       					$('html').animate({scrollTop:0}, 'slow');
-		       				 	$('body').animate({scrollTop:0}, 'slow');	
-		    					$.unblockUI();	   				 	   				
-		    	            });
-    	            }
-			}}); */			
-	        return false;  
+			if(startworkflowAllowed) {
+				$.prompt($('#startWorkflowMessage').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){
+						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+			        	$.post($('form').attr('action')+'?operation=startworkflow',  
+			    	            $("form").serialize(),  
+			    	            function(data){
+			       					$('.tabContent').html(data);
+			       					$('html').animate({scrollTop:0}, 'slow');
+			       				 	$('body').animate({scrollTop:0}, 'slow');	
+			    					$.unblockUI();	   				 	   				
+			    	            }).fail(function(){
+			    					$.unblockUI();
+			    					if($("#ErrorMsg").val()!=''){
+			    						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			    					}else{
+			    						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			    					}
+			    					scrollTop();
+			    				});
+	    	            }
+				}});
+			}
+	        return false;
 	    });
 	    /**** Right Click Menu ****/
 		$(".clubbedRefMotions").contextMenu({
