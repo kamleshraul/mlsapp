@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,6 +37,7 @@ import org.mkcl.els.common.vo.SessionVO;
 import org.mkcl.els.common.xmlvo.DeviceXmlVO;
 import org.mkcl.els.common.xmlvo.QuestionIntimationLetterXmlVO;
 import org.mkcl.els.common.xmlvo.QuestionYaadiSuchiXmlVO;
+import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.ballot.Ballot;
 import org.mkcl.els.domain.ActivityLog;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -2742,6 +2744,8 @@ public class QuestionReportController extends BaseController{
 					} else {
 						limitingDateForSession = new Date();
 					}
+					
+					
 					queryParameters.put("limitingDateForSession", new String[]{FormaterUtil.formatDateToString(limitingDateForSession, ApplicationConstants.DB_DATEFORMAT)});
 					queryParameters.put("locale", new String[]{locale.toString()});
 					List resultList = Query.findReport("MEMBERS_ELIGIBLE_FOR_QUESTION_SUBMISSION_IN_GIVEN_HOUSE", queryParameters);
@@ -2761,6 +2765,15 @@ public class QuestionReportController extends BaseController{
 					} else {
 						//error
 					}
+					
+					// Populate latest Session year
+					Integer latestYear = new GregorianCalendar().get(Calendar.YEAR);
+					if(session != null) {
+						latestYear = session.getYear();
+					}
+					// Populate Session years
+					List<Integer> sessionYears = QuestionController.getSessionYears(latestYear);
+					model.addAttribute("sessionYears", sessionYears);
 				}else{
 					logger.error("**** Check request parameter 'session,questionType' for empty values ****");
 					model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
@@ -2799,7 +2812,7 @@ public class QuestionReportController extends BaseController{
 			String strSession = request.getParameter("session");
 			String groups = request.getParameter("groups");
 			String status = request.getParameter("status");
-			
+
 			if(strMember!=null && strQuestionType!=null && strSession!=null){
 				if(!strMember.isEmpty() && !strQuestionType.isEmpty()&& !strSession.isEmpty()){					
 					/**** find all questions of members submitted in given session (questions from chart) ****/
@@ -2809,7 +2822,8 @@ public class QuestionReportController extends BaseController{
 					queryParameters.put("questionTypeId", new String[]{strQuestionType});
 					queryParameters.put("houseTypeId", new String[]{strHouseType});
 					queryParameters.put("sessionTypeId", new String[]{strSessionType});
-					queryParameters.put("sessionYear", new String[]{strSessionYear});							
+					queryParameters.put("sessionYear", new String[]{strSessionYear});
+
 					String groupNumberLimitParameter = ((CustomParameter) CustomParameter.findByName(CustomParameter.class, "DEFAULT_GROUP_NUMBER", "")).getValue();
 					if(groups==null || groups.isEmpty() || groups.equals("0")) {
 						for(Integer i=1; i<=Integer.parseInt(groupNumberLimitParameter); i++) {
@@ -2847,6 +2861,63 @@ public class QuestionReportController extends BaseController{
 					} else {
 						//error
 					}
+				}else{
+					logger.error("**** Check request parameter 'member,session,questionType' for empty values ****");
+					model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
+					return errorpage;
+				}
+			}else{
+				logger.error("**** Check request parameter 'member,session,questionType' for null values ****");
+				model.addAttribute("type", "REQUEST_PARAMETER_NULL");
+				return errorpage;
+			}						
+		}catch(Exception ex){
+			logger.error("failed",ex);
+			model.addAttribute("type","DB_EXCEPTION");
+			return errorpage;
+		}
+		return "question/reports/memberwise_questions_data";
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/membertermwisequestions/questions",method=RequestMethod.GET)
+	public String viewMemberTermWiseQuestionsReport(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		String errorpage="ballot/error";
+		try{
+			String strMember = request.getParameter("member");
+			String strSessionYear = request.getParameter("sessionYear");
+			String status = request.getParameter("status");
+			String questionType = request.getParameter("questionType");
+			if(strMember!=null && strSessionYear!=null){
+				if(!strMember.isEmpty() && !strSessionYear.isEmpty()){					
+					/**** find all questions of members submitted in given session (questions from chart) ****/
+					Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+					queryParameters.put("memberId", new String[]{strMember});
+					queryParameters.put("sessionYear", new String[]{strSessionYear});
+					queryParameters.put("statusId", new String[]{status});
+					queryParameters.put("locale", new String[]{locale.toString()});
+					queryParameters.put("deviceTypeId", new String[]{questionType});
+					List resultList = Query.findReport("QIS_MEMBERYEARWISE_QUESTIONS", queryParameters);
+					if(resultList!=null && !resultList.isEmpty()) {													
+						model.addAttribute("memberwiseQuestions", resultList);
+						model.addAttribute("formatter", new FormaterUtil());
+						model.addAttribute("locale", locale.toString());
+					} else {
+						//error
+					}
+//					List statisticalCountsList = Query.findReport("QIS_MEMBERWISE_QUESTIONS_STATISTICAL_COUNTS", queryParameters);
+//					if(statisticalCountsList!=null && !statisticalCountsList.isEmpty()) {													
+//						model.addAttribute("statisticalCountsList", statisticalCountsList);
+//					} else {
+//						//error
+//					}
 				}else{
 					logger.error("**** Check request parameter 'member,session,questionType' for empty values ****");
 					model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
