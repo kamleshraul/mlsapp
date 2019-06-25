@@ -824,11 +824,23 @@ public class CutMotion extends Device implements Serializable {
 		
 		List<CutMotion> admittedCutMotions = CutMotion.findFinalizedCutMotions(session, deviceType, subDepartment, admitted, ApplicationConstants.ASC, locale);
 		int admissionCounter = 0;
+		String reassignAdmission = null;
+		CustomParameter csptReassignAdmissionNumbers = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CUTMOTION_REASSIGN_ADMISSION_NUMBER, "");
+		if(csptReassignAdmissionNumbers != null && csptReassignAdmissionNumbers.getValue() != null && !csptReassignAdmissionNumbers.getValue().isEmpty()){
+			reassignAdmission = csptReassignAdmissionNumbers.getValue();
+		}
 		for(CutMotion cm : admittedCutMotions){
-			if(cm.getInternalNumber() == null){
+			if(reassignAdmission != null && !reassignAdmission.isEmpty() && reassignAdmission.equals("yes")){
 				++admissionCounter;
-				cm.setInternalNumber(currentAdmissionCount + admissionCounter);
+				cm.setInternalNumber(/*currentAdmissionCount + */admissionCounter);
 				cm.simpleMerge();
+				admittedMotionUpdated = true;
+			}else{
+				if(cm.getInternalNumber() == null){
+					++admissionCounter;
+					cm.setInternalNumber(currentAdmissionCount + admissionCounter);
+					cm.simpleMerge();					
+				}					
 				admittedMotionUpdated = true;
 			}
 		}

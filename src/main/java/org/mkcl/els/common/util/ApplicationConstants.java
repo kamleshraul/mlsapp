@@ -1860,6 +1860,7 @@ public class ApplicationConstants {
 	public static final String CUTMOTIONDATE_RECOMMEND_DATE_SENDBACK = "cutmotiondate_recommend_datesendback";
 	public static final String CUTMOTIONDATE_RECOMMEND_DATE_DISCUSS = "cutmotiondate_recommend_datediscuss";
 	
+	public static final String CUTMOTION_REASSIGN_ADMISSION_NUMBER = "CUTMOTION_REASSIGN_ADMISSION_NUMBER";
 	public static final String CUTMOTION_REASSIGN_REJECTION_NUMBER = "CUTMOTION_REASSIGN_REJECTION_NUMBER";
 	
 	public static final String CUTMOTION_PROCESSED_YAADILAID = "cutmotion_processed_yaadilaid";
