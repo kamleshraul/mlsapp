@@ -72,6 +72,7 @@
 								</td>
 							</c:if>
 							<td style="padding-left: 15px; font-weight: bold; text-align: center;vertical-align: top;">
+								${question[15]} <br>
 								<c:choose>
 									<c:when test="${question[7]=='questions_starred' and question[8]=='question_final_admission' and (empty question[5])}">
 										${question[3]}<br/><br/><spring:message code="generic.date" text="Date"/> ${question[4]}

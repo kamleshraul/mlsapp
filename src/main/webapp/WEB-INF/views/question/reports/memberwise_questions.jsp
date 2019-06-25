@@ -77,16 +77,34 @@
 	function generateHtmlReport() {
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });		
 		var value=$('#member').val();
+		var resource = '';
+		var parameters = '';
 		if(value!='-'){
-		var parameters="member="+$('#member').val()
-					+"&session="+$("#session").val()
-					+"&questionType="+$("#questionType").val()
-					+"&houseType="+$("#houseType").val()
-					+"&sessionType="+$("#sessionType").val()
-					+"&sessionYear="+$("#sessionYear").val()
-					+"&groups="+$('#groups').val()
-					+"&status="+$('#status').val();
-		var resource='question/report/memberwisequestions/questions';
+			console.log($("#sessionYear").val());
+			if($("#sYear").val()!= null & $("#sYear").val()!='-'){
+				resource='question/report/membertermwisequestions/questions';
+				parameters="member="+$('#member').val()
+				+"&session="+$("#session").val()
+				+"&questionType="+$("#questionType").val()
+				+"&houseType="+$("#houseType").val()
+				+"&sessionType="+$("#sessionType").val()
+				+"&sessionYear="+$("#sessionYear").val()
+				+"&groups="+$('#groups').val()
+				+"&status="+$('#status').val()
+				+"&sessionYear="+$("#sYear").val();
+			}else{
+				resource='question/report/memberwisequestions/questions';
+				parameters="member="+$('#member').val()
+				+"&session="+$("#session").val()
+				+"&questionType="+$("#questionType").val()
+				+"&houseType="+$("#houseType").val()
+				+"&sessionType="+$("#sessionType").val()
+				+"&sessionYear="+$("#sessionYear").val()
+				+"&groups="+$('#groups').val()
+				+"&status="+$('#status').val();
+			}
+		
+		
 		$.get(resource+'?'+parameters,function(data){
 			$("#listQuestionsDiv").empty();	
 			$("#listQuestionsDiv").html(data);
@@ -141,6 +159,13 @@
 </div>
 
 <p>
+	<label class="small"><spring:message code="memberwisereport.year" text="Year" /></label>
+	<select id="sYear" name="sYear" class="sSelect">
+		<option value="-"><spring:message code='please.select' text='Please Select'/></option>	
+		<c:forEach items="${sessionYears}" var="i">
+			<option value="${i}"><c:out value="${i}"></c:out></option>
+		</c:forEach>
+	</select>
 	<label style="margin: 10px;"><spring:message code="memberwisereport.member" text="Member" /></label>
 	<input type="text" class="autosuggest sText" id="memberOption" style="width: 200px;"/>
 	<select id="member" name="member" style="display: none;">
@@ -153,10 +178,10 @@
 		<spring:message code="memberwisereport.cumulativeMemberQuestionsReport" text="Cumulative Member Questions Report"/>
 	</a> --%>
 	<label style="margin: 10px;"><spring:message code="memberwisereport.groups" text="Groups"/></label>
-	<input type="text" class="sText" id="groupNumbers" name="groupNumbers" style="width: 200px;" value="<spring:message code='generic.allSelected' text='All Selected'/>"/>
+	<input type="text" class="sText" id="groupNumbers" name="groupNumbers" style="width: 50px;" value="<spring:message code='generic.allSelected' text='All Selected'/>"/>
 	<input type="hidden" id="groups" name="groups" value="0"/>
 	<label style="margin: 10px;"><spring:message code="memberwisereport.status" text="Status" /></label>
-	<select id="status" style="width: 250px;"></select>
+	<select id="status" style="width: 200px;" class="sSelect"></select>
 </p>
 <div id="listQuestionsDiv">
 </div>
