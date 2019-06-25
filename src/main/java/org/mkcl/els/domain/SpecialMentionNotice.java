@@ -27,6 +27,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
+import org.mkcl.els.common.vo.SearchVO;
 import org.mkcl.els.repository.SpecialMentionNoticeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -1605,6 +1606,11 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 	    		this.simpleMerge();
 	    	}		
 	    }
+	    
+	    public static List<SearchVO> fullTextSearchForSearching(String param, int start, int noOfRecords, String locale,
+				Map<String, String[]> requestMap) {
+			return getSpecialMentionNoticeRepository().fullTextSearchForSearching(param,start,noOfRecords, locale, requestMap);
+		}
 	   
 				
 	    /**** Getters and Setters ****/

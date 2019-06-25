@@ -89,7 +89,7 @@
 								<th style="text-align: center; font-size: 12px; width: 60px; vertical-align: top;">${topHeader[3]}</th>
 								<th style="text-align: center; font-size: 12px; width: 30px; vertical-align: top;">${topHeader[1]}</th>
 								<th style="text-align: center; font-size: 12px; width: 300px; vertical-align: top;">${topHeader[2]}</th>								
-								<th style="text-align: center; font-size: 12px; width: 90px; vertical-align: top;">${topHeader[5]}</th>
+								<!-- <th style="text-align: center; font-size: 12px; width: 90px; vertical-align: top;">${topHeader[5]}</th> -->
 								<th style="text-align: center; font-size: 12px; width: 60px; vertical-align: top;">${topHeader[4]}</th>
 							</tr>
 						
@@ -107,7 +107,7 @@
 													<td style="text-align: left; font-size: 12px; width: 60px; vertical-align: top;">${r[1]}</td>
 													<td style="text-align: center; font-size: 12px; width: 30px; vertical-align: top;">${r[2]}</td>
 													<td style="text-align: justify; font-size: 12px; width: 300px; vertical-align: top;">${r[3]}</td>													
-													<td style="text-align: left; font-size: 12px; width: 90px; vertical-align: top;">${r[5]}</td>
+													<!--<td style="text-align: left; font-size: 12px; width: 90px; vertical-align: top;">${r[5]}</td> -->
 													<td style="text-align: left; font-size: 12px; width: 60px; vertical-align: top;">${r[4]}</td>
 												</tr>
 											</c:when>
@@ -116,7 +116,7 @@
 													<td style="text-align: left; font-size: 12px; width: 60px; vertical-align: top;">${r[1]}</td>
 													<td style="text-align: center; font-size: 12px; width: 30px; vertical-align: top;">${r[2]}</td>
 													<td style="text-align: justify; font-size: 12px; width: 300px; vertical-align: top;">${r[3]}</td>													
-													<td style="text-align: left; font-size: 12px; width: 90px; vertical-align: top;">${r[5]}</td>
+											<!--    <td style="text-align: left; font-size: 12px; width: 90px; vertical-align: top;">${r[5]}</td> -->
 													<td style="text-align: left; font-size: 12px; width: 60px; vertical-align: top;">${r[4]}</td>
 												</tr>
 											</c:otherwise>
@@ -127,7 +127,7 @@
 											<td style="text-align: left; font-size: 12px; width: 60px; vertical-align: top;">${r[1]}</td>
 											<td style="text-align: center; font-size: 12px; width: 30px; vertical-align: top;">${r[2]}</td>
 											<td style="text-align: justify; font-size: 12px; width: 300px; vertical-align: top;">${r[3]}</td>											
-											<td style="text-align: left; font-size: 12px; width: 90px; vertical-align: top;">${r[5]}</td>
+										<!-- <td style="text-align: left; font-size: 12px; width: 90px; vertical-align: top;">${r[5]}</td> -->
 											<td style="text-align: left; font-size: 12px; width: 60px; vertical-align: top;">${r[4]}</td>
 										</tr>
 									</c:otherwise>

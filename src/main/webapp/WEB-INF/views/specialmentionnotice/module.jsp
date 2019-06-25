@@ -205,7 +205,14 @@
 					$("#selectedFileCount").val("-");
 				}
 			});
-			/**** adjourning date changes then reload grid ****/
+			
+			/**** Search Tab ****/
+			$('#search_tab').click(function() {
+				$("#selectionDiv1").hide();
+				searchInt();
+			});
+			
+			/**** special mention notice date changes then reload grid ****/
 			$("#selectedSpecialMentionNoticeDate").change(function(){
 				var value=$(this).val();
 				if(value!=""){				
@@ -215,7 +222,7 @@
 			});
 			$('#isSpecialMentionNoticeDateSelected').change(function(){	
 				if($("#isSpecialMentionNoticeDateSelected").is(":checked")) {
-					$('#selecteSpecialMentionNoticeDate').removeAttr('disabled');
+					$('#selectedSpecialMentionNoticeDate').removeAttr('disabled');
 					reloadSpecialMentionNoticeGrid();
 					$("#selectedFileCount").val("-");
 				} else {
@@ -268,6 +275,37 @@
 							);
 			
 			loadSession();
+		}
+		
+		/**** Search Facility ****/
+		function searchInt(id){
+			//$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var params="searchfacility=yes&usergroup="+$("#currentusergroup").val() +
+				        "&usergroupType="+$("#currentusergroupType").val() +
+				        "&houseType="+$("#selectedHouseType").val() +
+				        "&sessionType="+$("#selectedSessionType").val() +
+				        "&sessionYear="+$("#selectedSessionYear").val() +
+				        "&deviceType="+$("#selectedMotionType").val();		
+			/* $.get('clubentity/init?'+params,function(data){
+				//$.fancybox.open(data,{autoSize:false,width:750,height:700});
+				if(data){
+					$.unblockUI();
+				}
+				$("#clubbingResultDiv").html(data);
+				$("#clubbingResultDiv").show();
+				$("#referencingResultDiv").hide();
+				$("#assistantDiv").hide();
+				$("#backToQuestionDiv").show();			
+			},'html').fail(function(){
+				$.unblockUI();
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			}); */
+			showTabByIdAndUrl('search_tab','devicesearch/init?'+params);
 		}
 		
 		function memberSpecialMentionNoticesView() {
@@ -484,6 +522,27 @@
 					+'specialMentionNoticeDate=' + selectedSpecialMentionNoticeDate
 					+'&reportQueryName=SMIS_REGISTER_REPORT');
 		}
+		/**** Memberwise Devices Report Generation ****/
+		function memberWiseReport(memberId){
+			var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+			+ "/" + $("#selectedSessionYear").val()
+			+ "/" + $("#selectedSessionType").val();
+			$.get(url,function(data){
+				if(data){
+					
+					var selectedStatus = $("#selectedStatus").val();
+					var statusType = $("#statusMaster option[value='" + selectedStatus + "']").text().trim();
+					
+					showTabByIdAndUrl("details_tab","specialmentionnotice/report/generalreport?"
+							+"sessionId="+data.id
+							+"&deviceTypeId="+$("#selectedMotionType").val()
+							+"&memberId="+memberId 
+							+"&locale="+$("#moduleLocale").val()
+							+"&statusId="+selectedStatus
+							+"&report=SMIS_MEMBER_WISE_REPORT&reportout=specialMentionNoticeMemberReport");
+				}
+			});
+		}
 	</script>
 
 </head>
@@ -505,6 +564,15 @@
 				   </spring:message>
 				</a>
 			</li>
+			<security:authorize access="hasAnyRole('SMIS_CLERK','SMIS_ASSISTANT', 'SMIS_UNDER_SECRETARY',
+			'SMIS_DEPUTY_SECRETARY','SMIS_PRINCIPAL_SECRETARY','SMIS_SPEAKER', 'SMIS_JOINT_SECRETARY',
+			'SMIS_SECRETARY', 'SMIS_OFFICER_ON_SPECIAL_DUTY', 'SMIS_DEPUTY_SPEAKER', 'SMIS_CHAIRMAN',
+			'SMIS_DEPUTY_CHAIRMAN', 'SMIS_SECTION_OFFICER', 'SMIS_UNDER_SECRETARY_COMMITTEE',
+			'SUPER_ADMIN','SMIS_ADDITIONAL_SECRETARY')">
+			<li>
+				<a id="search_tab" href="#" class="tab"><spring:message code="question.searchT" text="Search"></spring:message></a>
+			</li>
+			</security:authorize>
 		<%-- 	<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">			
 			<li>
 				<a id="bulkputup_tab" href="#" class="tab">
@@ -651,7 +719,7 @@
 			</c:forEach>
 			</select> |
 			</security:authorize>
-			
+
 			<hr>
 			
 			<a href="#" id="select_specialmentionnoticedate" class="butSim"><spring:message code="specialmentionnotice.selectspecialmentionnoticedate" text="Select Special Mention Notice Date"/></a>
@@ -667,7 +735,7 @@
 			</a> |
 			</security:authorize>	 --%>
 			
-		<%-- 	<security:authorize access="hasAnyRole('SMIS_CLERK', 'SMIS_ASSISTANT', 'SMIS_SECTION_OFFICER', 'SMIS_SECRETARY')">					
+	 		<security:authorize access="hasAnyRole('SMIS_CLERK', 'SMIS_ASSISTANT', 'SMIS_SECTION_OFFICER', 'SMIS_SECRETARY')">					
 				<a href="javascript:void(0);" id="reports_link" class="butSim" style="float: right;">
 					<spring:message code="adjournmentmotion.reports" text="Reports"/>
 				</a>
@@ -677,14 +745,14 @@
 					</a>						
 					<select id="members" class="sSelect" style="display: inline; width:100px;">
 					</select>|
-					<a href="javascript:void(0);" id="party_report" class="butSim" >
+					<%-- <a href="javascript:void(0);" id="party_report" class="butSim" >
 						<spring:message code="generic.partyWiseReport" text="Party-wise Report"/>
 					</a>						
 					<select id="parties" class="sSelect" style="display: inline; width:100px;">
-					</select>|<br>
+					</select>|<br> --%>
 					<hr>
 				</div>
-			</security:authorize>	 --%>
+			</security:authorize>	 
 				
 			<%-- <security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','SMIS_ASSISTANT')">	
 			<a href="#" id="select_itemcount" class="butSim">

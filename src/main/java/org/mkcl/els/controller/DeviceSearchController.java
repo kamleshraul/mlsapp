@@ -25,6 +25,7 @@ import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.SpecialMentionNotice;
 import org.mkcl.els.domain.StandaloneMotion;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -181,6 +182,9 @@ public class DeviceSearchController extends BaseController{
 								fullTextSearchForSearching(param, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
 					}else if(deviceType.getDevice().equals("standalonemotion")){
 						searchVOs = StandaloneMotion.
+								fullTextSearchForSearching(param, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
+					}else if(deviceType.getDevice().equals("SpecialMentionNotice")){
+						searchVOs = SpecialMentionNotice.
 								fullTextSearchForSearching(param, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
 					}
 					
