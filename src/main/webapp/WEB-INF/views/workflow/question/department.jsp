@@ -411,7 +411,7 @@
 			}
 		});
 		
-		loadActors($("#changeInternalStatus").val());
+		//loadActors($("#changeInternalStatus").val());
 		$('#questionreferenceText-wysiwyg-iframe').css('max-height','50px');
 		$('#remarks-wysiwyg-iframe').css('max-height','50px');
 
