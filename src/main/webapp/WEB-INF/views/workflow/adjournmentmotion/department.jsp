@@ -243,7 +243,7 @@
 	
 	$(document).ready(function(){
 		initControls();
-		loadActors($("#changeInternalStatus").val());
+		//loadActors($("#changeInternalStatus").val());
 		$('#remarks-wysiwyg-iframe').css('max-height','50px');
 
 		$('#mlsBranchNotifiedOfTransfer').val(null);
