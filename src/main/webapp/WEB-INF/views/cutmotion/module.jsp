@@ -6,6 +6,17 @@
 <title><spring:message code="cutmotion.list" text="List Of Cut Motions" /></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
+	/**** Load Session ****/
+	function loadSession(){
+		$.get("ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+			+ "/" + $("#selectedSessionYear").val() + "/" + $("#selectedSessionType").val(),
+			function(data){
+				if(data){
+					$("#loadedSession").val(data.id);
+					//alert($("#loadedSession").val());
+				}
+			});
+	}
 	$(document).ready(function() {
 		/**** On Page Load ****/
 		/* var currentDeviceType = $("#currentDeviceType").val();
@@ -111,6 +122,8 @@
 				+ "&subDepartment="+$("#selectedSubDepartment").val()
 				+ "&status="+$("#selectedStatus").val());
 		
+		loadSession();
+		
 		//make grid visible again with refreshed data
 		//if gridDiv is hidden make it visible
 		/* if($("#gridDataSaverDiv").css('display')=='none'){
@@ -206,6 +219,8 @@
 		
 		$("#grid").setGridParam({"url" : newURL});
 		$("#grid").trigger("reloadGrid");
+		
+		loadSession();
 	}
 	
 	/**** Bulk putup(Member)****/
@@ -314,6 +329,7 @@
 				houseType				: $("#selectedHouseType").val(),
 				sessionYear				: $('#selectedSessionYear').val(), 
 				sessionType				: $("#selectedSessionType").val(), 
+				sessionId				: $("#loadedSession").val(),
 				subDepartment			: $("#selectedSubDepartment").val(),
 				cutMotionType			: $("#selectedCutMotionType").val(),
 				locale					: $("#moduleLocale").val(),
@@ -517,6 +533,7 @@
 		<input type="hidden" id="chartAnsweringDate" name="chartAnsweringDate" value="-"> 
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>" />
 		<input type="hidden" id="moduleLocale" value="${moduleLocale}" />
+		<input type="hidden" id="loadedSession" value="" />
 	</div>
 </body>
 </html>
