@@ -88,7 +88,6 @@
 				+"&questionType="+$("#questionType").val()
 				+"&houseType="+$("#houseType").val()
 				+"&sessionType="+$("#sessionType").val()
-				+"&sessionYear="+$("#sessionYear").val()
 				+"&groups="+$('#groups').val()
 				+"&status="+$('#status').val()
 				+"&sessionYear="+$("#sYear").val();
