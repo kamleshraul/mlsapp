@@ -265,7 +265,7 @@ public class SpecialMentionNoticeRepository  extends BaseRepository<SpecialMenti
 		if(strSessionType == null || (strSessionType != null && strSessionType[0].equals("-")) 
 				|| strSessionYear == null || (strSessionYear != null && strSessionYear[0].equals("-"))
 				|| (strSessionType == null && strSessionYear == null)){
-			CustomParameter csptUseCurrentSession = CustomParameter.findByName(CustomParameter.class, "STANDALONEMOTION_SEARCH_USE_CURRENT_SESSION", "");
+			CustomParameter csptUseCurrentSession = CustomParameter.findByName(CustomParameter.class, "SPECIALMENTIONNOTICE_SEARCH_USE_CURRENT_SESSION", "");
 			if(csptUseCurrentSession != null && csptUseCurrentSession.getValue() != null 
 					&& !csptUseCurrentSession.getValue().isEmpty() && csptUseCurrentSession.getValue().equalsIgnoreCase("yes")){
 				String[] strSession = requestMap.get("session");
