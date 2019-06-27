@@ -419,18 +419,21 @@ public class Session extends BaseDomain implements Serializable {
 	/** check if current date is in given session 
 	 * @throws ELSException **/
 	public static Boolean isCurrentDateInSession(final Session session) throws ELSException {	
+		Date currentDate = new Date();		
+		return isGivenDateInSession(currentDate, session);
+	}
+	
+	public static Boolean isGivenDateInSession(final Date date, final Session session) throws ELSException {
 		if(session==null || session.getId()==null) {
 			throw new ELSException();
 		}
-		Boolean isCurrentDateInSession = null;
-		Date currentDate = new Date();		
-		//if(currentDate.compareTo(session.getStartDate())>=0 && currentDate.compareTo(session.getEndDate())<=0) {
-		if(DateUtil.compareDatePartOnly(currentDate, session.getStartDate())>=0 && DateUtil.compareDatePartOnly(currentDate, session.getEndDate())<=0) {
-			isCurrentDateInSession = true;
+		Boolean isGivenDateInSession = null;
+		if(DateUtil.compareDatePartOnly(date, session.getStartDate())>=0 && DateUtil.compareDatePartOnly(date, session.getEndDate())<=0) {
+			isGivenDateInSession = true;
 		} else {
-			isCurrentDateInSession = false;
+			isGivenDateInSession = false;
 		}
-		return isCurrentDateInSession;
+		return isGivenDateInSession;
 	}
 	
 	public static List<SessionVO> findAllSessionDetailsForGivenHouseType(final HouseType houseType, final Date fromDate, final String locale) {

@@ -2,6 +2,7 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -454,11 +455,15 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 			if(session==null || session.getId()==null) {
 				throw new ELSException();
 			}
-			if(Session.isCurrentDateInSession(session)) {
-				if(!isForMemberLogin || SpecialMentionNotice.validateSubmissionEndTime(session, new Date())) {
-					return new Date();
+			Calendar c = Calendar.getInstance();
+			c.add(Calendar.DATE, 1); 
+			Date currentDatePlusOne = c.getTime();
+			
+			if(Session.isGivenDateInSession(currentDatePlusOne,session)) {
+				if(!isForMemberLogin || SpecialMentionNotice.validateSubmissionEndTime(session, new Date()) && !Holiday.isHolidayOnDate(currentDatePlusOne, session.getLocale())) {
+					return currentDatePlusOne;
 				} else {
-					Date nextSessionWorkingDay = session.getNextSessionDate(new Date(), 1, session.getLocale());
+					Date nextSessionWorkingDay = session.getNextSessionDate(currentDatePlusOne, 1, session.getLocale());
 					if(nextSessionWorkingDay!=null) {
 						return nextSessionWorkingDay;
 					} else {
@@ -466,7 +471,12 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 					}
 				}						
 			} else {
-				return session.getStartDate();
+				Date nextSessionWorkingDay = session.getNextSessionDate(currentDatePlusOne, 1, session.getLocale());
+				if(nextSessionWorkingDay!=null) {
+					return nextSessionWorkingDay;
+				} else {
+					return session.getEndDate();
+				}
 			}
 		}
 
