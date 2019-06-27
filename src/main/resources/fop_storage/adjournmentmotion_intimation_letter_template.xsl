@@ -275,13 +275,22 @@
             				</fo:table>
             			
  	
-            			<fo:block font-size="10px">
-            				&#160;
-            			</fo:block>
-            			
-	</fo:block>
-	</fo:block>
-											          
+	            			<fo:block font-size="10px">
+	            				&#160;
+	            			</fo:block>
+	            			
+						</fo:block>
+						
+						<fo:block break-before="page">
+							<fo:block font-weight="bold" text-align="center">
+								<xsl:value-of select="./element_1/element_1_9"/>, वि.प.स. यांनी विधानपरिषद नियम ९३ अन्वये दिलेली सूचना क्रमांक - <xsl:value-of select="./element_1/element_1_4"/>
+							</fo:block>
+							<fo:block>&#160;</fo:block><fo:block>&#160;</fo:block>
+							<fo:block>
+								<xsl:apply-templates select="./element_1/element_1_5"/>
+							</fo:block>
+						</fo:block>
+					</fo:block>											          
 	            </fo:flow>
 	        </fo:page-sequence>        
 	    </fo:root>

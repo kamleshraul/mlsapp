@@ -244,14 +244,15 @@ public abstract class Device extends BaseDomain {
 			ProprietyPoint proprietyPoint = ProprietyPoint.findById(ProprietyPoint.class, deviceId);
 			proprietyPoint.startWorkflow(proprietyPoint, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
 		
-		}
+		} else if(deviceName.split("_")[0].toUpperCase().equals("SPECIALMENTIONNOTICE")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
+			SpecialMentionNotice specialMentionNotice = SpecialMentionNotice.findById(SpecialMentionNotice.class, deviceId);
+			specialMentionNotice.startWorkflow(specialMentionNotice, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
 		
-		else if(deviceName.split("_")[0].toUpperCase().equals("SPECIALMENTIONNOTICE")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
-		SpecialMentionNotice specialMentionNotice = SpecialMentionNotice.findById(SpecialMentionNotice.class, deviceId);
-		specialMentionNotice.startWorkflow(specialMentionNotice, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
-		}
-	
+		} else if(deviceName.split("_")[0].toUpperCase().equals("RULESSUSPENSIONMOTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
+			RulesSuspensionMotion rulesSuspensionMotion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, deviceId);
+			rulesSuspensionMotion.startWorkflow(rulesSuspensionMotion, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
 		
+		}	
 	}
 	
 	public static void endDeviceWorkflow(String deviceName, Long deviceId, String workflowHouseType, String locale) throws ELSException {
@@ -284,11 +285,13 @@ public abstract class Device extends BaseDomain {
 			ProprietyPoint proprietyPoint = ProprietyPoint.findById(ProprietyPoint.class, deviceId);
 			proprietyPoint.endWorkflow(proprietyPoint, workflowHouseType, locale);
 		
-		}	
-		
-		 else if(deviceName.split("_")[0].toUpperCase().equals("SPECIALMENTIONNOTICE")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
+		} else if(deviceName.split("_")[0].toUpperCase().equals("SPECIALMENTIONNOTICE")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
 			 SpecialMentionNotice specialMentionNotice = SpecialMentionNotice.findById(SpecialMentionNotice.class, deviceId);
 			 specialMentionNotice.endWorkflow(specialMentionNotice, workflowHouseType, locale);
+		
+		} else if(deviceName.split("_")[0].toUpperCase().equals("RULESSUSPENSIONMOTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
+			RulesSuspensionMotion rulesSuspensionMotion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, deviceId);
+			rulesSuspensionMotion.endWorkflow(rulesSuspensionMotion, workflowHouseType, locale);
 		
 		}
 		

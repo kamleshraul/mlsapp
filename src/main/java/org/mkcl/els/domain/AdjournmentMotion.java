@@ -28,6 +28,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
+import org.mkcl.els.common.vo.SearchVO;
 import org.mkcl.els.domain.ballot.Ballot;
 import org.mkcl.els.repository.AdjournmentMotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -554,6 +555,11 @@ public class AdjournmentMotion extends Device implements Serializable {
     public static List<RevisionHistoryVO> getRevisions(final Long adjournmentMotionId, final String locale) {
         return getAdjournmentMotionRepository().getRevisions(adjournmentMotionId,locale);
     }
+    
+    public static List<SearchVO> fullTextSearchForSearching(String param, int start, int noOfRecords, String locale,
+			Map<String, String[]> requestMap) {
+		return getAdjournmentMotionRepository().fullTextSearchForSearching(param,start,noOfRecords, locale, requestMap);
+	}
     
     /**** Clubbing ****/
     public static boolean club(final AdjournmentMotion m1,final AdjournmentMotion m2,final String locale) throws ELSException{

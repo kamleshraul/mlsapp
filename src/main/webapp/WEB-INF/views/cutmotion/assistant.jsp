@@ -972,12 +972,15 @@
 		<h2></h2>
 		<p class="tright">		
 			<c:if test="${bulkedit!='yes'}">
-				<c:if test="${internalStatusType=='cutmotion_submit' || internalStatusType=='cutmotion_system_assistantprocessed' || fn:contains(internalStatusType, 'cutmotion_final')}">
+				<%-- <c:if test="${internalStatusType=='cutmotion_submit' || internalStatusType=='cutmotion_system_assistantprocessed' || fn:contains(internalStatusType, 'cutmotion_final')}">
 					<security:authorize access="hasAnyRole('CMOIS_CLERK','CMOIS_ASSISTANT')">
 						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					</security:authorize>
 					
-				</c:if>
+				</c:if> --%>
+				<security:authorize access="hasAnyRole('CMOIS_CLERK','CMOIS_ASSISTANT')">
+						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+					</security:authorize>
 				<c:if test="${internalStatusType=='cutmotion_system_assistantprocessed' || fn:contains(internalStatusType, 'cutmotion_putup')}">
 					<security:authorize access="hasAnyRole('CMOIS_ASSISTANT')">
 						<input id="startworkflow" type="button" value="<spring:message code='cutmotion.putupmotion' text='Put Up Motion'/>" class="butDef">

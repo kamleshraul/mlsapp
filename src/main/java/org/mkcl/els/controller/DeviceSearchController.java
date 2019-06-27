@@ -15,6 +15,7 @@ import org.mkcl.els.common.vo.MotionSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.SearchVO;
+import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
@@ -182,6 +183,9 @@ public class DeviceSearchController extends BaseController{
 								fullTextSearchForSearching(param, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
 					}else if(deviceType.getDevice().equals("standalonemotion")){
 						searchVOs = StandaloneMotion.
+								fullTextSearchForSearching(param, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
+					}else if(deviceType.getDevice().equalsIgnoreCase("AdjournmentMotion")){
+						searchVOs = AdjournmentMotion.
 								fullTextSearchForSearching(param, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
 					}else if(deviceType.getDevice().equals("SpecialMentionNotice")){
 						searchVOs = SpecialMentionNotice.

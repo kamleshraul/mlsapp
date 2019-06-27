@@ -238,7 +238,12 @@
 			$("#bulkputupassistant_tab").click(function(){
 				$("#selectionDiv1").hide();
 				bulkPutupAssistant();
-			});		
+			});	
+			/**** Search Tab ****/
+			$('#search_tab').click(function() {
+				$("#selectionDiv1").hide();
+				searchInit();
+			});
 			/**** show adjournmentmotion list method is called by default.****/
 			showAdjournmentMotionList();		
 			/**** Toggle Reports Div ****/
@@ -272,6 +277,17 @@
 			
 			loadSession();
 		}	
+		/**** Search Facility ****/
+		function searchInit(id){
+			var params="searchfacility=yes&usergroup="+$("#currentusergroup").val() +
+				        "&usergroupType="+$("#currentusergroupType").val() +
+				        "&houseType="+$("#selectedHouseType").val() +
+				        "&sessionType="+$("#selectedSessionType").val() +
+				        "&sessionYear="+$("#selectedSessionYear").val() +
+				        "&deviceType="+$("#selectedMotionType").val();
+			
+			showTabByIdAndUrl('search_tab','devicesearch/init?'+params);
+		}
 		function memberAdjournmentMotionsView() {
 			var parameters = "houseType=" + $("#selectedHouseType").val()
 			+ "&sessionYear=" + $("#selectedSessionYear").val()
@@ -577,12 +593,14 @@
 					<spring:message code="generic.list" text="List"></spring:message>
 				</a>
 			</li>	
+			
 			<li>
 				<a id="details_tab" href="#" class="tab">
 				   <spring:message code="generic.details" text="Details">
 				   </spring:message>
 				</a>
 			</li>
+			
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">			
 			<li>
 				<a id="bulkputup_tab" href="#" class="tab">
@@ -591,14 +609,25 @@
 				</a>
 			</li>
 			</security:authorize>
-			<security:authorize access="hasAnyRole('AMOIS_ASSISTANT')">			
+			
+			<%-- <security:authorize access="hasAnyRole('AMOIS_ASSISTANT')">			
 			<li>
 				<a id="bulkputupassistant_tab" href="#" class="tab">
 				   <spring:message code="generic.bulkputup" text="Bulk Putup">
 				   </spring:message>
 				</a>
 			</li>
-			</security:authorize>			
+			</security:authorize> --%>			
+			
+			<security:authorize access="hasAnyRole('AMOIS_CLERK','AMOIS_ASSISTANT', 'AMOIS_UNDER_SECRETARY',
+			'AMOIS_DEPUTY_SECRETARY','AMOIS_PRINCIPAL_SECRETARY','AMOIS_SPEAKER', 'AMOIS_JOINT_SECRETARY',
+			'AMOIS_SECRETARY', 'AMOIS_OFFICER_ON_SPECIAL_DUTY', 'AMOIS_DEPUTY_SPEAKER', 'AMOIS_CHAIRMAN',
+			'AMOIS_DEPUTY_CHAIRMAN', 'AMOIS_SECTION_OFFICER', 'AMOIS_UNDER_SECRETARY_COMMITTEE',
+			'SUPER_ADMIN','AMOIS_ADDITIONAL_SECRETARY')">
+			<li>
+				<a id="search_tab" href="#" class="tab"><spring:message code="question.searchT" text="Search"></spring:message></a>
+			</li>
+			</security:authorize>
 		</ul>
 		
 		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv1">		
