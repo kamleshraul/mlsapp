@@ -471,12 +471,13 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 					}
 				}						
 			} else {
-				Date nextSessionWorkingDay = session.getNextSessionDate(currentDatePlusOne, 1, session.getLocale());
-				if(nextSessionWorkingDay!=null) {
-					return nextSessionWorkingDay;
-				} else {
-					return session.getEndDate();
-				}
+//				Date nextSessionWorkingDay = session.getNextSessionDate(currentDatePlusOne, 1, session.getLocale());
+//				if(nextSessionWorkingDay!=null) {
+//					return nextSessionWorkingDay;
+//				} else {
+//					return session.getEndDate();
+//				}
+				return session.getStartDate();
 			}
 		}
 

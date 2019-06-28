@@ -296,7 +296,44 @@
 		    },'html');
 		    return false;
 		});	
-		
+		var demandNumberWithoutSpace = $('#demandNumber').val().replace(/ /g,''); //added in order to remove spaces in between.. to be removed if populated through master entries
+		$('#demandNumber').val(demandNumberWithoutSpace);
+		/**** Allow edit total amount demanded on click of revise link ****/
+		$('#reviseTotalAmoutDemanded').click(function(){
+			if($('#setTotalAmoutDemanded').is('[readonly]')) {
+				$('#setTotalAmoutDemanded').removeAttr('readonly');
+				$('#setTotalAmoutDemanded').val($('#totalAmountDemanded').val());
+			} else {
+				$('#setTotalAmoutDemanded').trigger('change');
+			}			
+		});
+		$('#setTotalAmoutDemanded').change(function(){			
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			$.get('ref/cutmotion/updatedTotalAmoutDemanded?value='+$('#setTotalAmoutDemanded').val(), function(data) {
+				if(data.length>0) {
+					$('#totalAmountDemanded').val($('#setTotalAmoutDemanded').val());
+					$('#setTotalAmoutDemanded').val(data);
+					$('#setTotalAmoutDemanded').attr('readonly', 'readonly');
+					$.unblockUI();
+				} else {
+					$.unblockUI();
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				}				
+			}).fail(function(){
+				$.unblockUI();
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});		
+		});
 		/**** Revise mainTitle and text****/
 		$("#reviseMainTitle").click(function(){
 			$(".revise1").toggle();
@@ -532,6 +569,21 @@
             display:none;
             }
         }
+        .imageLink{
+			width: 18px;
+			height: 18px;				
+				/* box-shadow: 2px 2px 5px #000000;
+				border-radius: 5px;
+				padding: 2px;
+				border: 1px solid #000000; */ 
+				display: block;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			min-height: 100%;
+			min-width: 100%;
+			transform: translate(-50%, -50%);
+		}
     </style>
 </head> 
 
@@ -599,7 +651,11 @@
 		
 		<p style="display: inline;">
 			<label class="small"><spring:message code="cutmotion.totalAmoutDemanded" text="Demanded Amount"/>*</label>
-			<input name="setTotalAmoutDemanded" type="text" class="sText" value="${formattedTotalAmoutDemanded}"/>
+			<input id="setTotalAmoutDemanded" name="setTotalAmoutDemanded" type="text" class="sText" value="${formattedTotalAmoutDemanded}" readonly="readonly"/>
+			<a href="#" id="reviseTotalAmoutDemanded" style="margin-left: 18px;position: relative;text-decoration: none;">
+				<img id="reviseTotalAmoutDemanded_icon" src="./resources/images/Revise.jpg" title="<spring:message code='cutmotion.reviseTotalAmoutDemanded' text='Revise Total Amount Demanded'></spring:message>" class="imageLink" />
+			</a>
+			<input type="hidden" id="totalAmountDemanded" value="${domain.totalAmoutDemanded}">
 			<form:errors path="totalAmoutDemanded" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 	</p>
@@ -613,7 +669,7 @@
 			
 		<p style="display: inline;">		
 			<label class="small"><spring:message code="cutmotion.demandNumber" text="Demand Number"/></label>
-			<input id="demandNumber" name="demandNumber" value="${domain.demandNumber}" type="text" class="sText">
+			<input id="demandNumber" name="demandNumber" value="${formater.formatNumbersInGivenText(domain.demandNumber, domain.locale)}" type="text" class="sText">
 			<form:errors path="demandNumber" cssClass="validationError"/>	
 		</p>
 	</p>

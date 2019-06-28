@@ -56,10 +56,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "sessions")
-
-//------------------added by vikasg----------------------
-@JsonIgnoreProperties({"parameters"})
-
+@JsonIgnoreProperties({"parameters", "drafts"})
 public class Session extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------

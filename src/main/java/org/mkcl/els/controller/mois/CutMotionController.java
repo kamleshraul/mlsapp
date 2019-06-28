@@ -628,7 +628,8 @@ public class CutMotionController extends GenericController<CutMotion>{
 		model.addAttribute("bulkedit",request.getParameter("bulkedit"));
 
 		/**** Locale ****/
-		String locale = domain.getLocale();		
+		String locale = domain.getLocale();
+		model.addAttribute("formater", new FormaterUtil());
 
 		/**** House Type ****/
 		HouseType houseType = domain.getHouseType();
@@ -1536,6 +1537,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 				e.printStackTrace();
 			}
 		}	
+		model.addAttribute("formater", new FormaterUtil());
 		super.populateUpdateIfErrors(model, domain, request);
 	}
 

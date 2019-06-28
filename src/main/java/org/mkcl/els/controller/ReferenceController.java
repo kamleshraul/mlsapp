@@ -13,6 +13,7 @@ package org.mkcl.els.controller;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -10678,7 +10679,6 @@ public class ReferenceController extends BaseController {
 	}
 	
 	
-	
 	@RequestMapping(value="/rulessuspensionmotion/duplicatenumber", method=RequestMethod.GET)
 	public @ResponseBody Boolean isDuplicateNumberedRulesSuspensionMotion(HttpServletRequest request, Locale locale) throws ParseException, UnsupportedEncodingException{
 		Boolean flag=false;
@@ -10698,6 +10698,24 @@ public class ReferenceController extends BaseController {
 			flag=RulesSuspensionMotion.isDuplicateNumberExist(ruleSuspensionDate, ruleSuspensionMotionNumber, null, locale.toString());
 		}
 		return flag;
+	}
+	
+	
+	@RequestMapping(value="/cutmotion/updatedTotalAmoutDemanded", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+	public @ResponseBody String updateTotalAmoutDemandedForCutMotion(final HttpServletRequest request, final Locale locale) throws UnsupportedEncodingException {
+		String revisedTotalAmountDemanded = "";
+		String strRevisedTotalAmoutDemanded=request.getParameter("value");
+		if(strRevisedTotalAmoutDemanded!=null && !strRevisedTotalAmoutDemanded.isEmpty()) {
+			CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			if(csptDeployment!=null){
+				String server=csptDeployment.getValue();
+				if(server!=null && server.equals("TOMCAT")){
+					strRevisedTotalAmoutDemanded = new String(strRevisedTotalAmoutDemanded.getBytes("ISO-8859-1"),"UTF-8");
+				}
+			}
+			revisedTotalAmountDemanded = FormaterUtil.formatNumberForIndianCurrencyWithSymbol(Long.parseLong(strRevisedTotalAmoutDemanded), locale.toString());
+		}		
+		return revisedTotalAmountDemanded;
 	}
 	
 }

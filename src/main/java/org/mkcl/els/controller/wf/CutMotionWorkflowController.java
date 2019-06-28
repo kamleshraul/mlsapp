@@ -283,6 +283,7 @@ public class CutMotionWorkflowController extends BaseController {
 
 		/**** Locale ****/
 		String locale = domain.getLocale();
+		model.addAttribute("formater", new FormaterUtil());
 
 		/**** House Type ****/
 		HouseType houseType = domain.getHouseType();
