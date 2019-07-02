@@ -38,6 +38,7 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.MenuItem;
+import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.PartySymbol;
 import org.mkcl.els.domain.Query;
@@ -210,6 +211,13 @@ public class HomeController extends BaseController {
         String timeFormat=((CustomParameter) CustomParameter.findByName(
                 CustomParameter.class, "DATEPICKER_TIMEFORMAT", "")).getValue();
         model.addAttribute("timeFormat",timeFormat);
+        /** populate special dash character to be replaced by normal dash character whenever it occurs  **/
+        MessageResource specialDashCharacterMsg = MessageResource.findByFieldName(MessageResource.class, "code", "special_dash_character", "en_US");
+        if(specialDashCharacterMsg!=null && specialDashCharacterMsg.getValue()!=null) {
+        	model.addAttribute("specialDashCharacter",specialDashCharacterMsg.getValue());
+        } else {
+        	model.addAttribute("specialDashCharacter", "-");
+        }
         //right now all menus are visible to all.
         Set<Role> roles=this.getCurrentUser().getRoles();
         StringBuffer buffer=new StringBuffer();

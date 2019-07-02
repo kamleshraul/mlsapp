@@ -199,6 +199,7 @@
         	<input type="hidden" id="pushNotificationsEnabled" value="${pushNotificationsEnabled}"/>
         	<input type="hidden" id="notification_alert" value="${notification_alert}"/>
         	<input type="hidden" id="notifications_visibleMaxCount" value="${notifications_visibleMaxCount}"/>
+        	<input type="hidden" id="specialDashCharacter" value="${specialDashCharacter}"/>
         	
         <div id="container" class="clearfix">
 			<div id="page">
