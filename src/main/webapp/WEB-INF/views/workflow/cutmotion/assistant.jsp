@@ -311,6 +311,9 @@
 		    return false;
 		});	
 		var demandNumberWithoutSpace = $('#demandNumber').val().replace(/ /g,''); //added in order to remove spaces in between.. to be removed if populated through master entries
+		demandNumberWithoutSpace = demandNumberWithoutSpace.replace($('#specialDashCharacter').val(), "-");
+		demandNumberWithoutSpace = demandNumberWithoutSpace.replace(",", "");
+		demandNumberWithoutSpace = demandNumberWithoutSpace.replace("'", "");
 		$('#demandNumber').val(demandNumberWithoutSpace);
 		/**** Allow edit total amount demanded on click of revise link ****/
 		$('#reviseTotalAmoutDemanded').click(function(){
