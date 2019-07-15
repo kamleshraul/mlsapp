@@ -15,7 +15,9 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.DepartmentDashboardVo;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberBiographyVO;
+import org.mkcl.els.domain.CommitteeName;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
@@ -33,7 +35,7 @@ public class StatisticalDashboardController extends BaseController{
 	
 	
 	
-	@RequestMapping(value = "/question", method = RequestMethod.GET)
+	@RequestMapping(value = "/device", method = RequestMethod.GET)
     public String guestHouseBooking(final ModelMap model, 
     		final HttpServletRequest request,
             final Locale locale) throws ELSException, ParseException {
@@ -74,7 +76,19 @@ public class StatisticalDashboardController extends BaseController{
 		parameters.put("locale", new String[]{locale.toString()});
 		parameters.put("session", new String[]{session.toString()});
 		parameters.put("deviceType", new String[]{deviceType.toString()});
-		List result = Query.findReport("STATISTICAL_DEVICE_COUNT_SESSIONWISE", parameters);
+		DeviceType objDeviceType = DeviceType.findById(DeviceType.class, Long.parseLong(deviceType));
+		String deviceTypeName=objDeviceType.getDevice().toUpperCase();
+		deviceTypeName=deviceTypeName.substring(0, (deviceTypeName.indexOf("_")>= 0) ? deviceTypeName.indexOf("_") : deviceTypeName.length());
+		/*int len=(deviceTypeName.indexOf("_")>= 0) ? deviceTypeName.indexOf("_") : deviceTypeName.length();
+		
+		if (deviceTypeName.indexOf("_")>= 0) {
+			deviceTypeName.indexOf("_");
+		}
+		else
+		{
+			deviceTypeName.length();
+		}*/
+		List result = Query.findReport("STATISTICAL_DEVICE_COUNT_SESSIONWISE_"+deviceTypeName, parameters);
 		for(int i=0;i<result.size();i++){
 	       	 Object[] row = (Object[])result.get(i);
 	       	MasterVO masterVO = new MasterVO();
@@ -94,10 +108,15 @@ public class StatisticalDashboardController extends BaseController{
 			final ModelMap model){
 		List<MasterVO> partyDetails = new ArrayList<MasterVO>();
 		String session = request.getParameter("session");
+		String deviceType = request.getParameter("deviceType");
 		Map<String, String[]> parameters = new HashMap<String, String[]>();
 		parameters.put("locale", new String[]{locale.toString()});
 		parameters.put("session", new String[]{session.toString()});
-		List result = Query.findReport("STATISTICAL_PARTY_LIST_SESSIONWISE", parameters);
+		parameters.put("deviceType", new String[]{deviceType.toString()});
+		DeviceType objDeviceType = DeviceType.findById(DeviceType.class, Long.parseLong(deviceType));
+		String deviceTypeName=objDeviceType.getDevice().toUpperCase();
+		deviceTypeName=deviceTypeName.substring(0, (deviceTypeName.indexOf("_")>= 0) ? deviceTypeName.indexOf("_") : deviceTypeName.length());
+		List result = Query.findReport("STATISTICAL_PARTY_LIST_SESSIONWISE_"+deviceTypeName, parameters);
 		for(int i=0;i<result.size();i++){
 	       	 Object[] row = (Object[])result.get(i);
 	       	MasterVO masterVO = new MasterVO();
@@ -115,10 +134,15 @@ public class StatisticalDashboardController extends BaseController{
 			final ModelMap model){
 		List<MasterVO> ministryDetails = new ArrayList<MasterVO>();
 		String session = request.getParameter("session");
+		String deviceType = request.getParameter("deviceType");
 		Map<String, String[]> parameters = new HashMap<String, String[]>();
 		parameters.put("locale", new String[]{locale.toString()});
 		parameters.put("session", new String[]{session.toString()});
-		List result = Query.findReport("STATISTICAL_MINISTRIES_LIST_SESSIONWISE", parameters);
+		parameters.put("deviceType", new String[]{deviceType.toString()});
+		DeviceType objDeviceType = DeviceType.findById(DeviceType.class, Long.parseLong(deviceType));
+		String deviceTypeName=objDeviceType.getDevice().toUpperCase();
+		deviceTypeName=deviceTypeName.substring(0, (deviceTypeName.indexOf("_")>= 0) ? deviceTypeName.indexOf("_") : deviceTypeName.length());
+		List result = Query.findReport("STATISTICAL_MINISTRIES_LIST_SESSIONWISE_"+deviceTypeName, parameters);
 		for(int i=0;i<result.size();i++){
 	       	 Object[] row = (Object[])result.get(i);
 	       	MasterVO masterVO = new MasterVO();
@@ -151,7 +175,10 @@ public class StatisticalDashboardController extends BaseController{
 			parameters.put("deviceType", new String[]{deviceType});
 			parameters.put("admitStatus", new String[]{admitStatus});
 			parameters.put("rejectStatus", new String[]{rejectStatus});
-			List result = Query.findReport("STATISTICAL_MEMBER_LIST_SESSIONWISE", parameters);
+			DeviceType objDeviceType = DeviceType.findById(DeviceType.class, Long.parseLong(deviceType));
+			String deviceTypeName=objDeviceType.getDevice().toUpperCase();
+			deviceTypeName=deviceTypeName.substring(0, (deviceTypeName.indexOf("_")>= 0) ? deviceTypeName.indexOf("_") : deviceTypeName.length());
+			List result = Query.findReport("STATISTICAL_MEMBER_LIST_SESSIONWISE_"+deviceTypeName, parameters);
 			for(int i=0;i<result.size();i++){
 		       	 Object[] row = (Object[])result.get(i);
 		       	MasterVO membersSessionwise = new MasterVO();
