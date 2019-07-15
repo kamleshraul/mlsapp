@@ -81,7 +81,8 @@
                   <a class="dropdown-item" href="#">Profile</a>
                   <a class="dropdown-item" href="#">Settings</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="#">Log out</a>
+           <!--        <a class="dropdown-item" href="#">Log out</a> -->
+                  <div><a id="logout" class="dropdown-item" href="<c:url value="/j_spring_security_logout" />"><spring:message code="logout" text="Logout"/></a></div>
                 </div>
               </li>
             </ul>

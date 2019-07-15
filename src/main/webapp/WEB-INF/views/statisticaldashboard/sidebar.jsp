@@ -28,27 +28,27 @@
 
     <div class="collapse" id="collapseQuestion">
 		   <li class="nav-item ">
-            <a class="nav-link" href="statisticaldashboard/question?deviceType=4&admitStatus=33&rejectStatus=34">
+            <a class="nav-link" href="statisticaldashboard/device?deviceType=4&admitStatus=33&rejectStatus=34">
               <i class="material-icons">label_important</i>
               <p>STARRED QUESTIONS</p>
             </a>
           </li>
 		     
 		   <li class="nav-item ">
-            <a class="nav-link" href="question?deviceType=5&admitStatus=637&rejectStatus=638">
+            <a class="nav-link" href="device?deviceType=5&admitStatus=637&rejectStatus=638">
               <i class="material-icons">label_important</i>
               <p>UNSTARRED QUESTIONS</p>
             </a>
           </li>
 		     <li class="nav-item ">
-            <a class="nav-link" href="question?deviceType=49&admitStatus=750&rejectStatus=751">
+            <a class="nav-link" href="device?deviceType=49&admitStatus=750&rejectStatus=751">
               <i class="material-icons">label_important</i>
               <p>QUESTION HALF HOUR</p>
             </a>
           </li>
 		
 		     <li class="nav-item ">
-            <a class="nav-link" href="question?deviceType=7&admitStatus=682&rejectStatus=683">
+            <a class="nav-link" href="device?deviceType=7&admitStatus=682&rejectStatus=683">
               <i class="material-icons">label_important</i>
               <p>SHORT NOTICE QUESTIONS</p>
             </a>
@@ -81,7 +81,7 @@
          
 
 		  <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
+           <a class="nav-link" href="device?deviceType=101&admitStatus=942&rejectStatus=943">
               <i class="material-icons">label_important</i>
               <p>CALLING ATTENTION</p>
             </a>
@@ -133,18 +133,7 @@
 	</div>
 
           
-          <li class="nav-item ">
-            <a class="nav-link" href="./tables.html">
-              <i class="material-icons">content_paste</i>
-              <p>Table List</p>
-            </a>
-          </li>
-          <li class="nav-item ">
-            <a class="nav-link" href="./icons">
-              <i class="material-icons">bubble_chart</i>
-              <p>Icons</p>
-            </a>
-          </li>
+        
        
         </ul>
       </div>
