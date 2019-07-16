@@ -14,7 +14,7 @@
 						$.prompt("Please enter existing password");
 						return false;
 					}
-					encryptPassword('existingPassword');
+					//encryptPassword('existingPassword');
 					$.get('ref/user/isAuthenticatedWithEnteredPassword?username='+$("#username").val()
 								+'&enteredPassword='+encodeURIComponent($("#existingPassword").val()), function(result) {
 						if(result==false) {
@@ -28,7 +28,7 @@
 							$('#newPassword').val("");
 						} */
 					}).done(function(){
-						decryptPassword('existingPassword');
+						//decryptPassword('existingPassword');
 						if(isPasswordValid==false) {
 							$.prompt("Incorrect Password!");
 							$('#existingPassword').val("");
@@ -97,7 +97,7 @@
 						$.prompt("New & Confirmed Passwords do not match");
 						return false;
 					}
-					encryptPassword('existingPassword');
+					//encryptPassword('existingPassword');
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 					$.post($('form').attr('action'), $("form").serialize(), function(data){
        					$('.tabbar').html(data);

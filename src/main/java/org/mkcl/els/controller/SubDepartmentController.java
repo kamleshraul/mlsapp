@@ -63,4 +63,34 @@ public class SubDepartmentController extends GenericController<SubDepartment> {
 	        List<Department> departments = Department.findAll(Department.class, "name", "asc", domain.getLocale());
 	        model.addAttribute("department", departments);
 	    }
+
+
+		@Override
+		protected void populateCreateIfNoErrors(ModelMap model,
+				SubDepartment domain, HttpServletRequest request)
+				throws Exception {
+			if(domain.getMinistryDisplayName()==null || domain.getMinistryDisplayName().isEmpty()) {
+				domain.setMinistryDisplayName(domain.getName());
+			}
+		}
+
+
+		@Override
+		protected void populateUpdateIfNoErrors(ModelMap model,
+				SubDepartment domain, HttpServletRequest request)
+				throws Exception {
+			SubDepartment originalSubDepartment = SubDepartment.findById(SubDepartment.class, domain.getId());
+			if(originalSubDepartment.getMinistryDisplayName()!=null 
+					&& originalSubDepartment.getMinistryDisplayName().equals(originalSubDepartment.getName())
+					&& !originalSubDepartment.getName().equals(domain.getName())) {
+				
+				domain.setMinistryDisplayName(domain.getName());
+			}
+			
+			if(originalSubDepartment.getMinistryDisplayName()==null || originalSubDepartment.getMinistryDisplayName().isEmpty()) {
+				domain.setMinistryDisplayName(domain.getName());
+			}
+		}
+	    
+	    
 }

@@ -179,53 +179,6 @@
 				generateUnstarredSuchiReport();
 			});
 			
-			/**** Generate Member's Questions Report ****/
-			$("#memberwise_questions_report").click(function(){
-				$("#selectionDiv1").hide();
-				memberwiseQuestionsReport();
-			});	
-			
-			/**** Generate Online Offline Submission Count Report ****/
-			$("#online_offline_submission_count_report").click(function(){
-				generateOnlineOfflineSubmissionCountReport();
-			});
-			
-			/**** Generate Partywise Questions Count Report ****/
-			$("#partywise_questions_count_report").click(function(){
-				$("#selectionDiv1").hide();
-				generatePartywiseQuestionsCountReport();
-			});
-			
-			/**** Generate Extended Grid Report ****/
-			$("#extended_grid_report").click(function(){
-				$("#selectionDiv1").hide();
-				generateExtendedGridReport();
-			});
-			
-			/**** Statistical Counts Report ****/
-			$("#statistical_counts_report").click(function(){
-				$("#selectionDiv1").hide();
-				generateStatisticalCountsReport();
-			});
-			
-			/**** Questions Bulletein Report ****/
-			$("#group_bulletein_report").click(function(){				
-				$(this).attr('href','#');
-				groupBulleteinReport();
-			});
-			
-			/**** Questions Bulletein Report ****/
-			$("#bulletein_report").click(function(){				
-				$(this).attr('href','#');
-				bulleteinReport();
-			});
-			
-			/**** Departmentwise Questions Report ****/
-			$("#departmentwise_report").click(function(){				
-				$("#selectionDiv1").hide();
-				departmentwiseQuestionsReport();
-			});			
-			
 			/**** Unstarred Admitted Questions Departmentwise Report ****/
 			$("#unstarred_admitted_departmentwise_report").click(function(){
 				if($('#selectedAnswerReceivedStatus').val()=='answerReceived') {
@@ -233,12 +186,6 @@
 				} else {
 					departmentwiseUnstarredAdmittedQuestionsReport();
 				}				
-			});
-			
-			/**** Sankshipt Ahwal Report ****/
-			$("#ahwal_report").click(function(){				
-				$("#selectionDiv1").hide();
-				sankshiptAhwalReport();
 			});
 			
 			//------stats reports as html-----------------------starts----------------
@@ -257,27 +204,6 @@
 				showAdmissionReport();
 			});
 			
-			$("#hdDays").hide();
-			
-			$("#showHDDayWiseReport").click(function(){
-				$("#hdDays").toggle();
-			});
-			
-			$("#showhddaywisereport").click(function(){
-				$("#selectionDiv1").hide();
-				showHDDaywisereport();
-			});
-			
-			$("#showHDStatAndAdmissionReport").click(function(){
-				$("#selectionDiv1").hide();
-				showHDStatAndAdmissionreport();
-			});
-			
-			$("#showHDGeneralReport").click(function(){
-				$("#selectionDiv1").hide();
-				showHDGeneralreport();
-			});
-			
 			$("#showDeptSessionReport").click(function(){
 				$("#selectionDiv1").hide();
 				deptSessionreport();
@@ -287,19 +213,6 @@
 				$("#selectionDiv1").hide();
 				showVivranReport();
 			});
-			
-			$("#showHDBallotChoiceOptionReport").click(function(){
-				$("#selectionDiv1").hide();
-				showBallotChoiceOptionReport();
-			});
-			
-			var selectedDeviceType = $("#deviceTypeMaster option[value='" 
-			                                                     + $("#selectedQuestionType").val() + "']").text();
-			if(selectedDeviceType.indexOf("questions_halfhourdiscussion_")==-1){
-				$("#hdReportsDiv").hide();
-			}else{
-				$("#hdReportsDiv").show();
-			}
 			
 			$("#starredAdmitUnstarred").click(function(){
 				showStarredAdmitUnstarredReport();
@@ -405,27 +318,7 @@
 				<a href="#" id="generateAdmissionReport" class="butSim">
 					<spring:message code="question.generateAdmissionReport" text="Generate Admission Report"/>
 				</a> |
-			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_TYPIST', 'QIS_CLERK', 'QIS_ASSISTANT')">
-				<div id="hdReportsDiv" style="display: inline;">
-					<hr>
-					<a href="#" id="showHDDayWiseReport" class="butSim">
-						<spring:message code="question.hdDayWiseReport" text="HD Day wise Report"/>
-					</a> <div id="hdDays" style="display: inline; width: 200px;">
-						<input type="text" value="0" id="hdDaysForReport" class="sText datemask" style="width: 60px; border: 1px solid black; border-radius: 2px;"/>
-						<a href="javascript:void(0);" id="showhddaywisereport" >Go</a>
-					</div>|
-					<a href="#" id="showHDStatAndAdmissionReport" class="butSim">
-						<spring:message code="question.hdStatAndAdmissionReport" text="HD Stat and Admission Report"/>
-					</a> |
-					<a href="#" id="showHDGeneralReport" class="butSim">
-						<spring:message code="question.hdGeneralReport" text="HD General Report"/>
-					</a> |
-					<a href="#" id="showHDBallotChoiceOptionReport" class="butSim">
-						<spring:message code="question.BallotChoiceOptionReport" text="HD Ballot Choice Option Report"/>
-					</a> |
-				</div>
-			</security:authorize>	
+			</security:authorize>				
 			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_CLERK')">
 				<a href="#" id="showDeptSessionReport" class="butSim">
 						<spring:message code="question.deptSessionReport" text="Department-Session-wise Report"/>
@@ -436,8 +329,8 @@
 					<spring:message code="question.vivranReport" text="Vivran Report"/>
 				</a> |
 			</security:authorize>	
+			<hr>
 			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','QIS_CLERK','HDS_CLERK','HDS_ASSISTANT')">
-				<hr>
 				<a href="#" id="generateIntimationLetter" class="butSim">
 					<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
 				</a> 				
@@ -467,52 +360,8 @@
 				<a href="#" id="unstarred_admitted_departmentwise_report" class="butSim link">
 					<spring:message code="question.unstarred_admitted_departmentwise_report" text="Unstarred Admitted Departmentwise Report"/>
 				</a> |
-				</span>
-				<hr> 
-				<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
-				<a href="#" id="memberwise_questions_report" class="butSim link">
-					<spring:message code="question.memberwisereport" text="Member's Questions Report"/>
-				</a> |		
-				<a href="#" id="online_offline_submission_count_report" class="butSim link">
-					<spring:message code="question.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
-				</a> |
-				<a href="#" id="partywise_questions_count_report" class="butSim link">
-					<spring:message code="question.partywise_questions_count_report" text="Partywise Questions Count Report"/>
-				</a> |
-				<a href="#" id="extended_grid_report" class="butSim link">
-					<spring:message code="question.extended_grid_report" text="Extended Grid Report"/>
-				</a> |
-				<hr> 
-				</security:authorize>
-				<security:authorize access="hasAnyRole('QIS_CLERK')">
-				<a href="#" id="online_offline_submission_count_report" class="butSim link">
-					<spring:message code="question.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
-				</a> |
-				</security:authorize>
-				<a href="#" id="group_bulletein_report" class="butSim link">
-					<spring:message code="question.group_bulletein_report" text="Group Bulletein Report"/>
-				</a> |
-				<a href="#" id="bulletein_report" class="butSim link">
-					<spring:message code="question.bulletein_report" text="Bulletein Report"/>
-				</a> |
-				<a href="#" id="departmentwise_report" class="butSim link">
-					<spring:message code="question.departmentwise_report" text="Department's Questions Report"/>
-				</a> |
-				<a href="#" id="ahwal_report" class="butSim link">
-					<spring:message code="question.ahwal_report" text="Sankshipt Ahwal Report"/>
-				</a> |
-				<%-- <a href="#" id="statistical_counts_report" class="butSim link">
-					<spring:message code="question.statistical_counts_report" text="Statistical Counts Report"/>
-				</a> | --%>
-			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY', 'QIS_JOINT_SECRETARY')">
-				<a href="#" id="memberwise_questions_report" class="butSim link">
-					<spring:message code="question.memberwisereport" text="Member's Questions Report"/>
-				</a> |	
-				<a href="#" id="online_offline_submission_count_report" class="butSim link">
-					<spring:message code="question.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
-				</a>	
-			</security:authorize>
+				</span>				
+			</security:authorize>			
 			<p>&nbsp;</p>
 		</div>
 	</div>
