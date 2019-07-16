@@ -372,6 +372,19 @@
 			loadChartAnsweringDateByGroup($("#selectedGroup").val());
 		}
 		
+		$("#generateMemberDraftReport").click(function(){
+			var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+			if(selectedQuestionId.length<1) {
+				$.prompt($('#selectRowFirstMessage').val());
+				return false;
+			} else if(selectedQuestionId.length>1) {
+				$.prompt("Please select only one question!");
+				return false;
+			} else {			
+				showMemberDraftReport(selectedQuestionId);
+			}
+		});
+		
 		/**** Generate Member's Questions Report ****/
 		$("#memberwise_questions_report").click(function(){
 			$("#selectionDiv1").hide();
@@ -472,6 +485,14 @@
 		                                         +$("#selectedQuestionType").val()+"']").text().split("_")[0];
 		showTabByIdAndUrl('details_tab', 
 				"question/report/currentstatusreport?device="+ device +"&reportType="+val+"&qId="+qId);
+	}
+	
+	function showMemberDraftReport(qId){
+		$("#selectionDiv1").hide();
+		var device = $("#deviceTypeMaster option[value='"
+		                                         +$("#selectedQuestionType").val()+"']").text().split("_")[0];
+		showTabByIdAndUrl('details_tab', 
+				"question/report/memberdraftreport?device="+device+"&qId="+qId);
 	}
 	
 	function loadProcessingMode(){
@@ -2140,7 +2161,10 @@
 						</a> | --%>
 						<a href="#" id="memberwise_admitted_questions_report" class="butSim link">
 							<spring:message code="question.memberwisereport.admitted" text="Member's Admitted Questions Report"/>
-						</a> |
+						</a> |						
+						<%-- <a href="#" id="generateMemberDraftReport" class="butSim">
+							<spring:message code="question.generateMemberDraftReport" text="Generate Member Draft Report"/>
+						</a> | --%>
 					</security:authorize>
 					<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY', 'QIS_JOINT_SECRETARY')">
 						<a href="#" id="memberwise_questions_report" class="butSim link">

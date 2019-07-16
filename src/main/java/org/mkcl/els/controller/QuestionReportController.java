@@ -270,6 +270,31 @@ public class QuestionReportController extends BaseController{
 		return QuestionReportHelper.getCurrentStatusReportData(id, model, request, response, locale);
 	}
 	
+	@RequestMapping(value="/memberdraftreport", method=RequestMethod.GET)
+	public String getMemberDraftReport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+
+		String strDevice = request.getParameter("device");
+		String strQid = request.getParameter("qId");
+		
+		if(strQid != null && !strQid.isEmpty()){
+			model.addAttribute("qId", strQid);
+		}
+		
+		if(strDevice != null && !strDevice.isEmpty()){
+			model.addAttribute("device", strDevice);
+		}
+
+		response.setContentType("text/html; charset=utf-8");
+		return "question/reports/memberdraftreport";
+	}
+	
+	@RequestMapping(value="/{qId}/memberdraftreportvm", method=RequestMethod.GET)
+	public String getMemberDraftReportVM(@PathVariable("qId") Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+
+		response.setContentType("text/html; charset=utf-8");		
+		return QuestionReportHelper.getCurrentStatusReportData(id, model, request, response, locale);
+	}
+	
 	@RequestMapping(value="/generateIntimationLetter" ,method=RequestMethod.GET)
 	public @ResponseBody void generateIntimationLetter(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
 		File reportFile = null; 
@@ -5417,6 +5442,102 @@ class QuestionReportHelper{
 		parameters.put("device", new String[]{device});
 
 		List list = Query.findReport("QIS_CURRENTSTATUS_REPORT", parameters);
+		for(Object o : list){
+			Object[] data = (Object[]) o;
+			String details = ((data[4] != null)? data[4].toString():"-");
+			String subject = ((data[5] != null)? data[5].toString():"-");
+			String remarks = ((data[6] != null)? data[6].toString():"-");
+			
+			((Object[])o)[17] = support;
+			((Object[])o)[4] = FormaterUtil.formatNumbersInGivenText(details, locale);
+			((Object[])o)[5] = FormaterUtil.formatNumbersInGivenText(subject, locale);
+			((Object[])o)[6] = FormaterUtil.formatNumbersInGivenText(remarks, locale);
+			try{
+				if(question.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+					Integer qNumber = new Integer(FormaterUtil.
+							getNumberFormatterNoGrouping(locale.toString()).parse(question.getHalfHourDiscusionFromQuestionReferenceNumber()).intValue());
+					Map<String, String[]> params = new HashMap<String, String[]>();
+					params.put("locale", new String[]{locale.toString()});
+					params.put("sessionId", new String[]{question.getSession().getId().toString()});
+					params.put("qNumber", new String[]{qNumber.toString()});
+					List data1 = Query.findReport("HDQ_REFER_QUESTION", params);
+					Question referredQuestion = null;
+					if(data1 != null && !data1.isEmpty()){
+						String strId = ((Object[])data1.get(0))[0].toString();
+						if(strId != null){
+							referredQuestion = Question.findById(Question.class, new Long(strId));
+						}
+					}
+					if(referredQuestion != null){
+						((Object[])o)[36] = FormaterUtil.formatNumberNoGrouping(referredQuestion.getNumber(), locale);
+						((Object[])o)[37] = referredQuestion.getType().getName();
+						((Object[])o)[38] = referredQuestion.getPrimaryMember().findFirstLastName();
+						if(referredQuestion.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
+							((Object[])o)[39] = FormaterUtil.formatDateToString(referredQuestion.getDiscussionDate(), ApplicationConstants.SERVER_DATEFORMAT, locale);
+						}else{
+							((Object[])o)[41] = FormaterUtil.formatNumberNoGrouping(referredQuestion.getYaadiNumber(), locale);
+							((Object[])o)[40] = FormaterUtil.formatDateToString(referredQuestion.getYaadiLayingDate(), ApplicationConstants.SERVER_DATEFORMAT, locale);
+						}
+					}
+				}
+			}catch(Exception e){
+				logger.error("error", e);
+			}
+			
+			data = null;
+		}
+		return list;  
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static String getMemberDraftReportData(final Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		String page = "question/error";
+		try{
+			String strDevice = request.getParameter("device"); 
+			if(strDevice != null && !strDevice.isEmpty()){
+				Question qt = Question.findById(Question.class, id);
+				List report = generatetMemberDraftReport(qt, strDevice, locale.toString());				
+				Map<String, Object[]> dataMap = new LinkedHashMap<String, Object[]>();	
+				if(report != null && !report.isEmpty()){
+					for(Object o : report){
+						Object[] objx = (Object[])o;
+						dataMap.put(ApplicationConstants.MEMBER, objx);								
+					}
+					model.addAttribute("data", dataMap);
+					model.addAttribute("formatData", report.get(report.size()-1));
+					page = (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))? "question/reports/memberdraftreportlowerhouse": "question/reports/memberdraftreportupperhouse";
+				}		
+	
+				model.addAttribute("qid", qt.getId());
+			}
+		}catch(Exception e){
+			logger.error(e.getMessage(),e);
+			e.printStackTrace();
+		}
+		
+		return page;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static List generatetMemberDraftReport(final Question question, final String device, final String locale){
+		CustomParameter memberNameFormatParameter = null;
+		if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+			memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "CURRENTSTATUSREPORT_MEMBERNAMEFORMAT_LOWERHOUSE", "");
+		} else if(question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+			memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "CURRENTSTATUSREPORT_MEMBERNAMEFORMAT_UPPERHOUSE", "");
+		}
+		String support = "";
+		if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
+			support = question.findAllMemberNames(memberNameFormatParameter.getValue());
+		} else {
+			support = question.findAllMemberNames(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
+		}		
+		Map<String, String[]> parameters = new HashMap<String, String[]>();
+		parameters.put("locale",new String[]{locale.toString()});
+		parameters.put("id",new String[]{question.getId().toString()});
+		parameters.put("device", new String[]{device});
+
+		List list = Query.findReport("QIS_MEMBERDRAFT_REPORT", parameters);
 		for(Object o : list){
 			Object[] data = (Object[]) o;
 			String details = ((data[4] != null)? data[4].toString():"-");

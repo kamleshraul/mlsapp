@@ -2167,6 +2167,63 @@ public class Question extends Device implements Serializable {
     	return format.format(this.getNumber());
     }
     
+    public Member findDeviceOwner(final Question question) {
+    	Member deviceOwner = null;
+    	if(question.getPrimaryMember().isSupportingOrClubbedMemberToBeAddedForDevice(question)) {
+    	    deviceOwner = question.getPrimaryMember();
+    	} else {
+    	    if(question.getSupportingMembers()!=null) {
+    	        for(SupportingMember sm: question.getSupportingMembers()) {
+    	            Member supportingMember = sm.getMember();
+    	            Status approvalStatus = sm.getDecisionStatus();
+    	            if(supportingMember!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+    	                if(supportingMember.isSupportingOrClubbedMemberToBeAddedForDevice(question)) {
+    	                    deviceOwner = supportingMember;
+    	                    break;
+    	                }
+    	            }
+    	        }
+    	    }
+    	    if(deviceOwner==null) {
+    	        List<ClubbedEntity> clubbedEntities = Question.findClubbedEntitiesByPosition(question);
+    	        if (clubbedEntities != null) {
+    	            for (ClubbedEntity ce : clubbedEntities) {
+    	            	if (ce.getQuestion().getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_SYSTEM_CLUBBED)
+    							|| ce.getQuestion().getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_FINAL_ADMISSION)
+    							|| ce.getQuestion().getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_FINAL_REJECTION)) {
+    						Member clubbedQuestionMember = ce.getQuestion().getPrimaryMember();
+    						if(clubbedQuestionMember!=null) {
+    							if(clubbedQuestionMember.isSupportingOrClubbedMemberToBeAddedForDevice(question)) {
+    								deviceOwner = clubbedQuestionMember;
+    	    	                    break;
+    							}
+    						}
+    						if(deviceOwner==null) {
+    							List<SupportingMember> clubbedSupportingMembers = ce.getQuestion().getSupportingMembers();
+        						if (clubbedSupportingMembers != null) {
+        							for (SupportingMember csm : clubbedSupportingMembers) {
+        								Member clubbedQuestionSupportingMember = csm.getMember();
+        								Status approvalStatus = csm.getDecisionStatus();
+        								if(clubbedQuestionSupportingMember!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+        									if(clubbedQuestionSupportingMember.isSupportingOrClubbedMemberToBeAddedForDevice(question)) {
+        										deviceOwner = clubbedQuestionSupportingMember;
+        	    	    	                    break;
+    										}								
+        								}
+        							}
+        							if(deviceOwner!=null) {
+        								break;
+        							}
+        						}
+    						}    						
+    					}
+    	            }
+    	        }
+    	    }
+    	}
+    	return deviceOwner;
+    }
+    
     /**
     * Find supporting members.
     *
