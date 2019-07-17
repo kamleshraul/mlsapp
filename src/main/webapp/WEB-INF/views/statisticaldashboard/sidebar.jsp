@@ -65,14 +65,14 @@
 
     <div class="collapse" id="collapseResolution">
 		   <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
+            <a class="nav-link" href="device?deviceType=100&admitStatus=100&rejectStatus=101">
               <i class="material-icons">label_important</i>
               <p>GOVEREMENT RESOLUTION</p>
             </a>
           </li>
 		    
 		   <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
+            <a class="nav-link" href="device?deviceType=50&admitStatus=100&rejectStatus=101">
               <i class="material-icons">label_important</i>
               <p>NON OFFICIAL RESOLUTION</p>
             </a>
@@ -88,7 +88,7 @@
           </li>
 		  
 		      <li class="nav-item " data-toggle="collapse" href="#collapseCutmotion"  aria-expanded="false" aria-controls="collapseExample">
-            <a class="nav-link">
+            <a class="nav-link" >
               <i class="material-icons">label_important</i>
               <p>CUT MOTION</p>
             </a>
@@ -96,14 +96,14 @@
 
     <div class="collapse" id="collapseCutmotion">
 		   <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
+            <a class="nav-link" href="device?deviceType=104&admitStatus=508&rejectStatus=509">
               <i class="material-icons">label_important</i>
               <p>BUDGETARY CUT MOTION</p>
             </a>
           </li>
 		    
 		   <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
+            <a class="nav-link" href="device?deviceType=105&admitStatus=508&rejectStatus=509">
               <i class="material-icons">label_important</i>
               <p>SUPPLEMENTARY CUT MOTION</p>
             </a>
@@ -118,14 +118,14 @@
 
     <div class="collapse" id="collapseDiscussionmotion">
 		   <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
+            <a class="nav-link" href="device?deviceType=2602&admitStatus=989&rejectStatus=990">
               <i class="material-icons">label_important</i>
               <p>PUBLIC IMPORTANCE</p>
             </a>
           </li>
 		    
 		   <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
+            <a class="nav-link" href="device?deviceType=2601&admitStatus=989&rejectStatus=990">
               <i class="material-icons">label_important</i>
               <p>LAST WEEK</p>
             </a>
