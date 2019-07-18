@@ -20,16 +20,14 @@
 </head>
 
 <body class="">
-  <div class="wrapper ">
-  	 <%@ include file="sidebar.jsp" %>
+ 	<%@ include file="sidebar.jsp" %>
     <div class="main-panel">
       <!-- Navbar -->
       <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
         <div class="container-fluid">
           <div class="navbar-wrapper">
-            <a class="navbar-brand" href="#pablo">Dashboard</a>
+            <a class="navbar-brand"><spring:message code="dashboard" text="dashboard"></spring:message></a>
           </div>
-          
           <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
             <span class="sr-only">Toggle navigation</span>
             <span class="navbar-toggler-icon icon-bar"></span>
@@ -37,40 +35,9 @@
             <span class="navbar-toggler-icon icon-bar"></span>
           </button>
           <div class="collapse navbar-collapse justify-content-end">
-            <form class="navbar-form">
-              <div class="input-group no-border">
-                <input type="text" value="" class="form-control" placeholder="Search...">
-                <button type="submit" class="btn btn-white btn-round btn-just-icon">
-                  <i class="material-icons">search</i>
-                  <div class="ripple-container"></div>
-                </button>
-              </div>
-            </form>
+           	
             <ul class="navbar-nav">
-              <li class="nav-item">
-                <a class="nav-link" href="#pablo">
-                  <i class="material-icons">dashboard</i>
-                  <p class="d-lg-none d-md-block">
-                    Stats
-                  </p>
-                </a>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <i class="material-icons">notifications</i>
-                  <span class="notification">5</span>
-                  <p class="d-lg-none d-md-block">
-                    Some Actions
-                  </p>
-                </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                  <a class="dropdown-item" href="#">Mike John responded to your email</a>
-                  <a class="dropdown-item" href="#">You have 5 new tasks</a>
-                  <a class="dropdown-item" href="#">You're now friend with Andrew</a>
-                  <a class="dropdown-item" href="#">Another Notification</a>
-                  <a class="dropdown-item" href="#">Another One</a>
-                </div>
-              </li>
+            
               <li class="nav-item dropdown">
                 <a class="nav-link" href="#pablo" id="navbarDropdownProfile" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   <i class="material-icons">person</i>
@@ -79,8 +46,7 @@
                   </p>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownProfile">
-                  <a class="dropdown-item" href="#">Profile</a>
-                  <a class="dropdown-item" href="#">Settings</a>
+
                   <div class="dropdown-divider"></div>
            <!--        <a class="dropdown-item" href="#">Log out</a> -->
                   <div><a id="logout" class="dropdown-item" href="<c:url value="/j_spring_security_logout" />"><spring:message code="logout" text="Logout"/></a></div>
@@ -94,20 +60,22 @@
       <div class="content">
         <div class="container-fluid">
            <div class="row">
-              <div class="col-md-4 mb-3">
-                <label for="state">House</label>
+         
+              
+                 <div class="col-md-4 mb-3">
+                <label for="state"><spring:message code="dashboard.house" text="HOUSE"></spring:message></label>
                 <select class="custom-select d-block w-50" id="selectedHouseType" required>
-                  <option value="">Choose...</option>
-                      <c:forEach items="${houses}" var="i">
-							<option value="${i.name}"><c:out value="${i.name}"></c:out></option>
-					 </c:forEach>
+                  <option value=""><spring:message code="dashboard.choose" text="Choose..."></spring:message></option>
+                 <c:forEach var="i" items="${houses}">
+					<option value="${i.name}"><c:out value="${i.name}"></c:out></option>
+				</c:forEach>
                 </select>
               </div>
               
               <div class="col-md-4 mb-3">
-                <label for="country">Session</label>
-                <select class="custom-select d-block w-50" id="selectedSession">
-                  <option value="">Choose...</option>
+                <label for="country"><spring:message code="dashboard.session" text="SESSION"></spring:message></label>
+                <select class="custom-select d-block w-50" id="selectedSession" required>
+                  <option value=""><spring:message code="dashboard.choose" text="Choose..."></spring:message></option>
                  <c:forEach var="i" items="${sessions}">
 					<option value="${i}"><c:out value="${i}"></c:out></option>
 				</c:forEach>
@@ -115,8 +83,8 @@
               </div>
               
               <div class="col-md-4 mb-3">
-                <label for="state">Search</label>
-                   <button type="submit" class="btn btn-secondary d-block w-50" id="search">Search</button>
+                <label for="state"><spring:message code="dashboard.search" text="SEARCH"></spring:message></label>
+                   <button type="submit" class="btn btn-secondary d-block w-50" id="search"><spring:message code="dashboard.search" text="SEARCH"></spring:message></button>
               </div>
             </div>
           <div class="row">
@@ -129,7 +97,8 @@
                   <canvas id="chart-area"></canvas>
                 </div>
                 <div class="card-body">
-                  <h4 class="card-title">PartyWise Submission Statistics</h4>
+                  <h4 class="card-title"><spring:message code="dashboard.partywisestats" text="PartyWise Submission Statistics"></spring:message></h4>
+                  
                   <!-- <p class="card-category">
                     <span class="text-success"><i class="fa fa-long-arrow-up"></i> 55% </span> increase in today sales.</p> -->
                 </div>
@@ -151,7 +120,7 @@
 		<!--                   <div class="card-icon">
 		                    <i class="material-icons">Submitted</i>
 		                  </div> -->
-		                  <p class="card-category" style="color:white"><spring:message code="device.submitted" text="submitted Count"/></p>
+		                  <p class="card-category" style="color:white"><spring:message code="dashboard.submitted" text="submitted Count"/></p>
 		                  <h3 class="card-title" id="submittedCount">
 		                   
 		                  </h3>
@@ -170,7 +139,7 @@
 		                 <!--  <div class="card-icon">
 		                    <i class="material-icons">Admitted</i>
 		                  </div> -->
-		                  <p class="card-category" style="color:white"><spring:message code="device.admitted" text="Admitted Count"/></p>
+		                  <p class="card-category" style="color:white"><spring:message code="dashboard.admitted" text="Admitted Count"/></p>
 		                  <h3 class="card-title" id="admittedCount"></h3>
 		                </div>
 		                <!-- <div class="card-footer">
@@ -188,7 +157,7 @@
 		                  <!-- <div class="card-icon">
 		                    <i class="material-icons">Rejected</i>
 		                  </div> -->
-		                  <p class="card-category" style="color:white"><spring:message code="device.rejected" text="Rejected Count"/></p>
+		                  <p class="card-category" style="color:white"><spring:message code="dashboard.rejected" text="Rejected Count"/></p>
 		                  <h3 class="card-title" id="rejectedCount"></h3>
 		                </div>
 		               <!--  <div class="card-footer">
@@ -204,7 +173,7 @@
 		                  <!-- <div class="card-icon">
 		                    <i class="material-icons">U</i>
 		                  </div> -->
-		                  <p class="card-category" style="color:white"><spring:message code="device.unstarredAdmit" text="Unstarred Admit Count"/></p>
+		                  <p class="card-category" style="color:white"><spring:message code="dashboard.unstarred" text="Unstarred Admit Count"/></p>
 		                  <h3 class="card-title" id="unstarredCount"></h3>
 		                </div>
 		               <!--  <div class="card-footer">
@@ -224,7 +193,9 @@
                    <canvas id="bar-chart-area"></canvas>
                 </div>
                 <div class="card-body">
-                  <h4 class="card-title">Ministry wise Count</h4>
+                 
+                  <h4 class="card-title"><spring:message code="dashboard.ministrywisestats" text="Ministry wise Count"></spring:message></h4>
+                 
                   <!-- <p class="card-category">Last Campaign Performance</p> -->
                 </div>
                 <div class="card-footer">
@@ -255,17 +226,19 @@
             <div class="col-lg-12 col-md-12">
               <div class="card">
                 <div class="card-header card-header-warning">
-                  <h4 class="card-title">Memberwise Report</h4>
+                  
+                   <h4 class="card-title"><spring:message code="dashboard.memeberwisestats" text="Memberwise Report"></spring:message></h4>
+                 
                   <!-- <p class="card-category">New employees on 15th September, 2016</p> -->
                 </div>
                 <div class="card-body table-responsive" >
                 	<table class="table table-hover" id="memberTable">
 	                    <thead class="text-warning">
-	                      <th>ID</th>
-	                      <th>Member Name</th>
-	                      <th>AdmittedCount</th>
-	                      <th>RejectedCount</th>
-	                      <th>SubmittedCout</th>
+	                     <th><spring:message code="dashboard.photo" text="Photo"/></th>
+	                      <th><spring:message code="dashboard.membername" text="Member Name"/></th>
+	                      <th><spring:message code="dashboard.admitted" text="Admitted Count"/></th>
+	                      <th><spring:message code="dashboard.rejected" text="Rejected Count"/></th>
+	                      <th><spring:message code="dashboard.submitted" text="submitted Count"/></th>
 	                    </thead>
                     <tbody id="membersSessionwise">
                     </tbody>
@@ -274,47 +247,38 @@
               </div>
             </div>
             
-            <div class="col-lg-6 col-md-12">
-			  <form class="form-inline">
-			    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-			    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-			  </form>
-            </div>
+           
           </div>
         </div>
       </div>
       <footer class="footer">
         <div class="container-fluid">
           <nav class="float-left">
-            <ul>
+           <ul>
               <li>
-                <a href="https://www.creative-tim.com">
-                  Creative Tim
+                <a href="https://www.mkcl.org/">
+                  MKCL
                 </a>
               </li>
               <li>
-                <a href="https://creative-tim.com/presentation">
+                <a href="https://www.mkcl.org/about-mkcl">
                   About Us
                 </a>
               </li>
               <li>
-                <a href="http://blog.creative-tim.com">
-                  Blog
+                <a href="https://www.mkcl.org/contact-us">
+                  Contact Us
                 </a>
               </li>
-              <li>
-                <a href="https://www.creative-tim.com/license">
-                  Licenses
-                </a>
-              </li>
+              
             </ul>
           </nav>
           <div class="copyright float-right">
             &copy;
             <script>
               document.write(new Date().getFullYear())
-            </script>, made with <i class="material-icons">favorite</i> by
-            <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a> for a better web.
+            </script>, made with <i class="material-icons">favorite</i> using
+            <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a>.
           </div>
         </div>
       </footer>
