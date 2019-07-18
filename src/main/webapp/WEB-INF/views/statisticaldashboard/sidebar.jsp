@@ -6,23 +6,23 @@
         Tip 2: you can also add an image using data-image tag
     -->
       <div class="logo">
-        <a href="http://www.creative-tim.com" class="simple-text logo-normal">
-         MAHARASHTRA <br>LEGISLATURE
+        <a href="http://mls.org.in" target="_blank" class="simple-text logo-normal">
+         <spring:message code="dashboard.vidhanmandalsachivalay" text=""></spring:message>
         </a>
-      </div>
+      </div>	
             <div class="sidebar-wrapper">
         <ul class="nav">
           <li class="nav-item active  ">
             <a class="nav-link" href="#">
               <i class="material-icons">dashboard</i>
-              <p>Dashboard</p>
+               <div><spring:message code="dashboard" text="dashboard"></spring:message></div>
             </a>
           </li>
 		  
-		       <li class="nav-item " data-toggle="collapse" href="#collapseQuestion"  aria-expanded="false" aria-controls="collapseExample">
+<li class="nav-item " data-toggle="collapse" href="#collapseQuestion"  aria-expanded="false" aria-controls="collapseExample">
             <a class="nav-link">
-              <i class="material-icons">label_important</i>
-              <p>QUESTIONS</p>
+              <i class="material-icons" href="#">label_important</i>
+              <p><spring:message code="dashboard.question" text="QUESTION"></spring:message></p>
             </a>
      </li>
 
@@ -30,27 +30,27 @@
 		   <li class="nav-item ">
             <a class="nav-link" href="statisticaldashboard/device?deviceType=4&admitStatus=33&rejectStatus=34">
               <i class="material-icons">label_important</i>
-              <p>STARRED QUESTIONS</p>
+                 <p><spring:message code="dashboard.starred" text="STARRED QUESTION"></spring:message></p>
             </a>
           </li>
 		     
 		   <li class="nav-item ">
             <a class="nav-link" href="device?deviceType=5&admitStatus=637&rejectStatus=638">
               <i class="material-icons">label_important</i>
-              <p>UNSTARRED QUESTIONS</p>
+                 <p><spring:message code="dashboard.unstarred" text="UNSTARRED QUESTION"></spring:message></p>
             </a>
           </li>
 		     <li class="nav-item ">
             <a class="nav-link" href="device?deviceType=49&admitStatus=750&rejectStatus=751">
               <i class="material-icons">label_important</i>
-              <p>QUESTION HALF HOUR</p>
+             <p><spring:message code="dashboard.questionhalfhour" text="QUESTION HALF HOUR"></spring:message></p>
             </a>
           </li>
 		
 		     <li class="nav-item ">
             <a class="nav-link" href="device?deviceType=7&admitStatus=682&rejectStatus=683">
               <i class="material-icons">label_important</i>
-              <p>SHORT NOTICE QUESTIONS</p>
+              <p><spring:message code="dashboard.questionshortnotice" text="SHORT NOTICE QUESTIONS"></spring:message></p>
             </a>
           </li>
 	</div>
@@ -59,7 +59,7 @@
     <li class="nav-item " data-toggle="collapse" href="#collapseResolution"  aria-expanded="false" aria-controls="collapseExample">
             <a class="nav-link">
               <i class="material-icons">label_important</i>
-              <p>RESOLUTIONS</p>
+              <p><spring:message code="dashboard.resolution" text="RESOLUTIONS"></spring:message></p>
             </a>
      </li>
 
@@ -67,30 +67,30 @@
 		   <li class="nav-item ">
             <a class="nav-link" href="device?deviceType=100&admitStatus=100&rejectStatus=101">
               <i class="material-icons">label_important</i>
-              <p>GOVEREMENT RESOLUTION</p>
+                <p><spring:message code="dashboard.resolutionsgovernment" text="GOVEREMENT RESOLUTION"></spring:message></p>
             </a>
           </li>
 		    
 		   <li class="nav-item ">
             <a class="nav-link" href="device?deviceType=50&admitStatus=100&rejectStatus=101">
               <i class="material-icons">label_important</i>
-              <p>NON OFFICIAL RESOLUTION</p>
+            
+              <p><spring:message code="dashboard.resolutionsnonofficial" text="NON OFFICIAL RESOLUTION"></spring:message></p>
             </a>
           </li>
 	</div>
          
-
 		  <li class="nav-item ">
            <a class="nav-link" href="device?deviceType=101&admitStatus=942&rejectStatus=943">
               <i class="material-icons">label_important</i>
-              <p>CALLING ATTENTION</p>
+              <p><spring:message code="dashboard.motionscallingattention" text="MOTION CALLING ATTENTION"></spring:message></p>
             </a>
           </li>
 		  
 		      <li class="nav-item " data-toggle="collapse" href="#collapseCutmotion"  aria-expanded="false" aria-controls="collapseExample">
-            <a class="nav-link" >
+            <a class="nav-link">
               <i class="material-icons">label_important</i>
-              <p>CUT MOTION</p>
+             <p><spring:message code="dashboard.cutmotion" text="CUT MOTION"></spring:message></p>
             </a>
      </li>
 
@@ -98,21 +98,21 @@
 		   <li class="nav-item ">
             <a class="nav-link" href="device?deviceType=104&admitStatus=508&rejectStatus=509">
               <i class="material-icons">label_important</i>
-              <p>BUDGETARY CUT MOTION</p>
+                <p><spring:message code="dashboard.cutmotionbudgetary" text="BUDGETARY CUT MOTION"></spring:message></p>
             </a>
           </li>
-		    
+	    
 		   <li class="nav-item ">
             <a class="nav-link" href="device?deviceType=105&admitStatus=508&rejectStatus=509">
               <i class="material-icons">label_important</i>
-              <p>SUPPLEMENTARY CUT MOTION</p>
+              <p><spring:message code="dashboard.cutmotionsupplementary" text="SUPPLEMENTARY CUT MOTION"></spring:message></p>
             </a>
           </li>
 	</div>
 	 <li class="nav-item " data-toggle="collapse" href="#collapseDiscussionmotion"  aria-expanded="false" aria-controls="collapseExample">
             <a class="nav-link">
               <i class="material-icons">label_important</i>
-              <p>DISCUSSION MOTION</p>
+              <p><spring:message code="dashboard.discussionmotion" text="DISCUSSION MOTION"></spring:message></p>
             </a>
      </li>
 
@@ -120,14 +120,14 @@
 		   <li class="nav-item ">
             <a class="nav-link" href="device?deviceType=2602&admitStatus=989&rejectStatus=990">
               <i class="material-icons">label_important</i>
-              <p>PUBLIC IMPORTANCE</p>
+               <p><spring:message code="dashboard.discussionmotionlastweek" text="LAST WEEK MOTION"></spring:message></p>
             </a>
           </li>
 		    
 		   <li class="nav-item ">
             <a class="nav-link" href="device?deviceType=2601&admitStatus=989&rejectStatus=990">
               <i class="material-icons">label_important</i>
-              <p>LAST WEEK</p>
+               <p><spring:message code="dashboard.discussionmotionpublicimportance" text="PUBLIC IMPORTANCE MOTION"></spring:message></p>
             </a>
          </li>
 	</div>
