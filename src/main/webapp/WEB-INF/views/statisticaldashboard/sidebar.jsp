@@ -132,9 +132,12 @@
          </li>
 	</div>
 
-          
-        
-       
-        </ul>
-      </div>
-    </div>
+     <li class="nav-item ">
+           <a class="nav-link" href="device?deviceType=2550&admitStatus=585&rejectStatus=586">
+              <i class="material-icons">label_important</i>
+              <p><spring:message code="dashboard.standalonemotion" text="STANDALONE MOTION"></spring:message></p>
+            </a>
+     </li>       
+    </ul>
+  </div>
+</div>

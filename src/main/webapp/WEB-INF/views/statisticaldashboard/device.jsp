@@ -589,10 +589,14 @@
     			/* for(var i=0;i<data.length;i++){
     				
     			} */
-    			$("#submittedCount").html(data[0].value);
+    			if(data[0].value!=null && data[0].value!=''){
+    				$("#submittedCount").html(data[0].value);
+    			}
     			$("#admittedCount").html(data[0].name);
     			$("#rejectedCount").html(data[0].formattedNumber);
-    			$("#unstarredCount").html(data[0].formattedOrder);
+    			if(data[0].formattedOrder!=null && data[0].formattedOrder!=''){
+    				$("#unstarredCount").html(data[0].formattedOrder);
+    			}
     		}
     		//$("#selectedSession").html(text);
     	});
