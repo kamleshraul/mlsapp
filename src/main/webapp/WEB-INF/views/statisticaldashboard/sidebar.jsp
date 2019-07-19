@@ -80,19 +80,47 @@
           </li>
 	</div>
          
-		  <li class="nav-item ">
-           <a class="nav-link" href="device?deviceType=101&admitStatus=942&rejectStatus=943">
+             <li class="nav-item " data-toggle="collapse" href="#collapseMotion"  aria-expanded="false" aria-controls="collapseExample">
+            <a class="nav-link">
               <i class="material-icons">label_important</i>
-              <p><spring:message code="dashboard.motionscallingattention" text="MOTION CALLING ATTENTION"></spring:message></p>
+              <p><spring:message code="dashboard.motion" text="MOTIONS"></spring:message></p>
+            </a>
+     </li>
+
+    <div class="collapse" id="collapseMotion">
+		   <li class="nav-item ">
+            <a class="nav-link" href="device?deviceType=101&admitStatus=942&rejectStatus=943">
+              <i class="material-icons">label_important</i>
+                <p><spring:message code="dashboard.motionscallingattention" text="MOTION CALLING ATTENTION"></spring:message></p>
             </a>
           </li>
+		    
+		   <li class="nav-item ">
+            <a class="nav-link" href="device?deviceType=2550&admitStatus=585&rejectStatus=586">
+              <i class="material-icons">label_important</i>
+            
+              <p><spring:message code="dashboard.motionstandalone" text="MOTION STANDALONE"></spring:message></p>
+            </a>
+          </li>
+          
+           <li class="nav-item ">
+            <a class="nav-link" href="device?deviceType=2552&admitStatus=853&rejectStatus=854">
+              <i class="material-icons">label_important</i>
+            
+              <p><spring:message code="dashboard.motionadjournment" text="MOTION ADJOURNMENT"></spring:message></p>
+            </a>
+          </li>
+          
+	</div>
+	
+	
 		  
 		      <li class="nav-item " data-toggle="collapse" href="#collapseCutmotion"  aria-expanded="false" aria-controls="collapseExample">
             <a class="nav-link">
               <i class="material-icons">label_important</i>
              <p><spring:message code="dashboard.cutmotion" text="CUT MOTION"></spring:message></p>
             </a>
-     </li>
+    		 </li>
 
     <div class="collapse" id="collapseCutmotion">
 		   <li class="nav-item ">
@@ -132,12 +160,9 @@
          </li>
 	</div>
 
-     <li class="nav-item ">
-           <a class="nav-link" href="device?deviceType=2550&admitStatus=585&rejectStatus=586">
-              <i class="material-icons">label_important</i>
-              <p><spring:message code="dashboard.standalonemotion" text="STANDALONE MOTION"></spring:message></p>
-            </a>
-     </li>       
-    </ul>
-  </div>
-</div>
+          
+        
+       
+        </ul>
+      </div>
+    </div>

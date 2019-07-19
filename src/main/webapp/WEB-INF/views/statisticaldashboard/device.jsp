@@ -26,7 +26,7 @@
       <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
         <div class="container-fluid">
           <div class="navbar-wrapper">
-            <a class="navbar-brand"><spring:message code="dashboard" text="dashboard"></spring:message></a>
+            <a class="navbar-brand"><spring:message code="dashboard" text="dashboard"></spring:message></a>:<h3 class="card-title" id="deviceName"></h3>
           </div>
           <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
             <span class="sr-only">Toggle navigation</span>
@@ -167,7 +167,7 @@
 		                </div> -->
 		              </div>
 		            </div>
-		            <div class="col-lg-6 col-md-6 col-sm-6">
+		            <div class="col-lg-6 col-md-6 col-sm-6" id="unstarred" style="display:none">
 		              <div class="card card-stats">
 		                <div class="card-header card-header-primary">
 		                  <!-- <div class="card-icon">
@@ -589,13 +589,14 @@
     			/* for(var i=0;i<data.length;i++){
     				
     			} */
-    			if(data[0].value!=null && data[0].value!=''){
-    				$("#submittedCount").html(data[0].value);
-    			}
+    			$("#deviceType").html(data[0].type);
+    			$("#deviceName").html(data[0].displayName);
+    			$("#submittedCount").html(data[0].formattedOrder);
     			$("#admittedCount").html(data[0].name);
     			$("#rejectedCount").html(data[0].formattedNumber);
-    			if(data[0].formattedOrder!=null && data[0].formattedOrder!=''){
-    				$("#unstarredCount").html(data[0].formattedOrder);
+    			if(data[0].type=="QUESTION"){
+    			$("#unstarredCount").html(data[0].value);
+    			document.getElementById("unstarred").style.display="block";
     			}
     		}
     		//$("#selectedSession").html(text);
