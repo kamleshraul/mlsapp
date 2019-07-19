@@ -92,10 +92,15 @@ public class StatisticalDashboardController extends BaseController{
 		for(int i=0;i<result.size();i++){
 	       	 Object[] row = (Object[])result.get(i);
 	       	MasterVO masterVO = new MasterVO();
-	       	masterVO.setName(row[0].toString());
-	       	masterVO.setFormattedNumber(row[1].toString());
-	       	masterVO.setFormattedOrder(row[2].toString());
-	       	masterVO.setValue(row[3].toString());
+	       	masterVO.setDisplayName(row[0].toString());
+	       	masterVO.setType(deviceTypeName);
+	       	masterVO.setName(row[2].toString());
+	       	masterVO.setFormattedNumber(row[3].toString());
+	       	masterVO.setFormattedOrder(row[4].toString());
+	       	if(deviceTypeName.equalsIgnoreCase("QUESTION"))
+	       	{
+	       	masterVO.setValue(row[5].toString());
+	       	}
 	       	deviceDetails.add(masterVO);
 		}
 		return deviceDetails;
