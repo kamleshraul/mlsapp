@@ -906,7 +906,21 @@ public class RosterController extends GenericController<Roster>{
 		}
 		/** set 'handled by' for the roster **/
 		domain.setHandledBy(this.getCurrentUser().getActualUsername());
-	}	
+	}
+	
+	@Override
+	protected void populateAfterUpdate(ModelMap model, Roster domain,
+			HttpServletRequest request) {
+		if(!domain.getAction().equals("save_without_creating_slots")){
+			CommitteeMeeting committeeMeeting = domain.getCommitteeMeeting();
+			if(committeeMeeting!=null) {
+				if(committeeMeeting.getId()!=null) {
+					NotificationController.sendCommitteeMeetingRosterEntryNotification(domain, domain.getLocale());
+				}
+			}		
+			
+		}
+	}
 	
 	
 	@RequestMapping(value="/{id}/roster_rep", method=RequestMethod.GET)
