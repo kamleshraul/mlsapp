@@ -903,47 +903,82 @@
 		
 		/**** To Generate Intimation Letter ****/
 		function generateIntimationLetter() {	
+			if($("#intimationLetterFilter").val()=='reminder1ToDepartmentForReply') { //for reminder letter 1
+				generateReminderLetter1();
+			} else if($("#intimationLetterFilter").val()=='reminder2ToDepartmentForReply') { //for reminder letter 1
+				//TODO: generateReminderLetter2();
+				alert("Yet to be provided!");
+			} else {
+				var currentDevice = $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text();
+				var workflowId = $("#grid").jqGrid ('getGridParam', 'selrow');
+				if(workflowId==undefined || workflowId=='') {
+					$.prompt($('#selectRowFirstMessage').val());
+					return false;
+				} else {	
+					var internalStatus = $("#grid").jqGrid('getCell', workflowId, 'internalStatus');
+					var clarificationNeededFromMemberAndDepartmentRecommendStatus = $("#selectedSubWorkflow option[value$='recommend_clarificationNeededFromMemberAndDepartment']").first().text();
+					var clarificationNeededFromMemberAndDepartmentFinalStatus = $("#selectedSubWorkflow option[value$='final_clarificationNeededFromMemberAndDepartment']").first().text();
+					var isNeededToResetLetterFilter = false;
+					if(internalStatus==clarificationNeededFromMemberAndDepartmentRecommendStatus
+							|| internalStatus==clarificationNeededFromMemberAndDepartmentFinalStatus) {
+						if($("#intimationLetterFilter").val()=='-') {
+							if($('#currentusergroupType').val()=='department' || $('#currentusergroupType').val()=='department_deskofficer') {
+								$("#intimationLetterFilter").val("department");
+								isNeededToResetLetterFilter = true;
+							} else if($('#currentusergroupType').val()=='member') {
+								$("#intimationLetterFilter").val("member");
+								isNeededToResetLetterFilter = true;
+							} else {
+								isNeededToResetLetterFilter = false;
+								$.prompt("Please select intimation letter filter from dropdown near the link ");
+								return false;
+							}
+						}
+					}				
+					if(currentDevice.indexOf('questions_')==0){
+						$('#generateIntimationLetter').attr('href', 'question/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
+					}else if(currentDevice.indexOf('motions_standalonemotion_')==0){
+						$('#generateIntimationLetter').attr('href', 'standalonemotion/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
+					}else if(currentDevice.indexOf('resolutions_')==0){
+						$('#generateIntimationLetter').attr('href', 'resolution/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
+					}else if(currentDevice.indexOf('motions_calling_attention')==0){
+						$('#generateIntimationLetter').attr('href', 'motion/report/commonadmissionreport?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val()+'&outputFormat=PDF&copyType=tentativeCopy');
+					}else if(currentDevice.indexOf('motions_adjournment')==0){
+						$('#generateIntimationLetter').attr('href', 'adjournmentmotion/report/generateIntimationLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
+					}else if(currentDevice.indexOf('notices_specialmention')==0){
+						$('#generateIntimationLetter').attr('href', 'specialmentionnotice/report/generateIntimationLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val()+'&outputFormat=WORD&copyType=tentativeCopy');
+					}
+					if(isNeededToResetLetterFilter == true) {
+						$("#intimationLetterFilter").val("-");
+					}
+				}
+			}			
+		}
+		
+		/**** To Generate Reminder Letter 1 ****/
+		function generateReminderLetter1() {
 			var currentDevice = $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text();
 			var workflowId = $("#grid").jqGrid ('getGridParam', 'selrow');
 			if(workflowId==undefined || workflowId=='') {
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
 			} else {	
-				var internalStatus = $("#grid").jqGrid('getCell', workflowId, 'internalStatus');
-				var clarificationNeededFromMemberAndDepartmentRecommendStatus = $("#selectedSubWorkflow option[value$='recommend_clarificationNeededFromMemberAndDepartment']").first().text();
-				var clarificationNeededFromMemberAndDepartmentFinalStatus = $("#selectedSubWorkflow option[value$='final_clarificationNeededFromMemberAndDepartment']").first().text();
-				var isNeededToResetLetterFilter = false;
-				if(internalStatus==clarificationNeededFromMemberAndDepartmentRecommendStatus
-						|| internalStatus==clarificationNeededFromMemberAndDepartmentFinalStatus) {
-					if($("#intimationLetterFilter").val()=='-') {
-						if($('#currentusergroupType').val()=='department' || $('#currentusergroupType').val()=='department_deskofficer') {
-							$("#intimationLetterFilter").val("department");
-							isNeededToResetLetterFilter = true;
-						} else if($('#currentusergroupType').val()=='member') {
-							$("#intimationLetterFilter").val("member");
-							isNeededToResetLetterFilter = true;
-						} else {
-							isNeededToResetLetterFilter = false;
-							$.prompt("Please select intimation letter filter from dropdown near the link ");
-							return false;
-						}
-					}
-				}				
-				if(currentDevice.indexOf('questions_')==0){
-					$('#generateIntimationLetter').attr('href', 'question/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
-				}else if(currentDevice.indexOf('motions_standalonemotion_')==0){
-					$('#generateIntimationLetter').attr('href', 'standalonemotion/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
-				}else if(currentDevice.indexOf('resolutions_')==0){
-					$('#generateIntimationLetter').attr('href', 'resolution/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
-				}else if(currentDevice.indexOf('motions_calling_attention')==0){
-					$('#generateIntimationLetter').attr('href', 'motion/report/commonadmissionreport?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val()+'&outputFormat=PDF&copyType=tentativeCopy');
-				}else if(currentDevice.indexOf('motions_adjournment')==0){
-					$('#generateIntimationLetter').attr('href', 'adjournmentmotion/report/generateIntimationLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
-				}else if(currentDevice.indexOf('notices_specialmention')==0){
-					$('#generateIntimationLetter').attr('href', 'specialmentionnotice/report/generateIntimationLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val()+'&outputFormat=WORD&copyType=tentativeCopy');
+				if(currentDevice.indexOf('motions_adjournment')==0){
+					$('#generateIntimationLetter').attr('href', 'adjournmentmotion/report/generateReminderLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
 				}
-				if(isNeededToResetLetterFilter == true) {
-					$("#intimationLetterFilter").val("-");
+			}
+		}
+		
+		/**** To Generate Reminder Letter 2 ****/
+		function generateReminderLetter2() {
+			var currentDevice = $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text();
+			var workflowId = $("#grid").jqGrid ('getGridParam', 'selrow');
+			if(workflowId==undefined || workflowId=='') {
+				$.prompt($('#selectRowFirstMessage').val());
+				return false;
+			} else {	
+				if(currentDevice.indexOf('motions_adjournment')==0){
+					$('#generateIntimationLetter').attr('href', 'adjournmentmotion/report/generateReminderLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
 				}
 			}
 		}

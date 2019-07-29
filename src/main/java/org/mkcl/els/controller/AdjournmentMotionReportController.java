@@ -569,6 +569,69 @@ public class AdjournmentMotionReportController extends BaseController{
 		
 		//return retVal;
 	}
+	
+	@RequestMapping(value ="/generateReminderLetter", method = RequestMethod.GET)
+	private void generateReminderLetter(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		
+		//String retVal = "adjournmentmotion/report";
+		try{
+			String strId = request.getParameter("motionId");
+			String strWorkflowId = request.getParameter("workflowDetailId");
+			WorkflowDetails workflowDetails = null;
+			String strReportFormat = request.getParameter("outputFormat");
+			if(strWorkflowId != null && !strWorkflowId.isEmpty()){
+				workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
+				if(workflowDetails != null){
+					strId = workflowDetails.getDeviceId();
+					if(strReportFormat==null || strReportFormat.isEmpty()) {
+						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+								|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+							strReportFormat = "PDF";
+						} else {
+							strReportFormat = "WORD";
+						}
+					}
+				} else {
+					strReportFormat = "WORD";
+				}
+			} else {
+				strReportFormat = "WORD";
+			}
+			
+			String queryName = "ADJOURNMENTMOTION_REMINDER1_LETTER";
+			String xsltTemplateName = "adjournmentmotion_reminder_letter1_template";
+			String reportFileName = "adjournmentmotion_reminderletter1";
+			
+			String intimationLetterFilter = request.getParameter("intimationLetterFilter");
+			if(intimationLetterFilter!=null && intimationLetterFilter.equals("reminder2ToDepartmentForReply")) {
+				queryName = "ADJOURNMENTMOTION_REMINDER2_LETTER";
+				xsltTemplateName = "adjournmentmotion_reminder_letter2_template";
+				reportFileName = "adjournmentmotion_reminderletter2";
+			}			
+			
+//			String strCopyType = request.getParameter("copyType");
+//			Long workflowDetailCount = (long) 0;
+//			Boolean isResendRevisedMotionTextWorkflow = false;
+			if(strId != null && !strId.isEmpty()){
+				Map<String, String[]> parameters = new HashMap<String, String[]>();
+				parameters.put("locale", new String[]{locale.toString()});
+				parameters.put("motionId", new String[]{strId});
+				
+				@SuppressWarnings("rawtypes")
+				List reportData = Query.findReport(queryName, parameters);
+				
+				File reportFile = generateReportUsingFOP(new Object[] {reportData}, xsltTemplateName, strReportFormat, reportFileName, locale.toString());
+				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
+				
+				model.addAttribute("info", "general_info");
+				//retVal = "adjournmentmotion/info";
+			}			
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		//return retVal;
+	}
 }
 
 class AdjournmentMotionReportHelper{

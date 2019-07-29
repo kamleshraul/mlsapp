@@ -91,7 +91,7 @@
             						<fo:table-row>
             							<fo:table-cell>
             								<fo:block>
-            									<fo:block font-size="10px">
+            									<!-- <fo:block font-size="10px">
 													&#160;
 												</fo:block>
             									<fo:block>
@@ -111,7 +111,7 @@
 															</fo:table-row>
 														</fo:table-body>
 													</fo:table>
-												</fo:block>
+												</fo:block> -->
 												
 												<fo:block text-align="left" font-weight="bold">प्रेषक : </fo:block>
             									
@@ -225,8 +225,15 @@
             									<fo:block text-align="justify">
             										<fo:block>&#160;</fo:block>
             										<fo:block>
-														&#160;&#160;&#160;&#160;&#160;&#160;निदेशानुसार आपणांस कळविण्यात येत आहे की, सन २०१९ च्या दुसऱ्या (पावसाळी) 
-														अधिवेशनात <fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_12"/> रोजी</fo:inline>  
+														&#160;&#160;&#160;&#160;&#160;&#160;निदेशानुसार आपणांस कळविण्यात येत आहे की, सन <xsl:value-of select="./element_1/element_1_14"/> च्या
+														<xsl:choose>
+															<xsl:when test="./element_1/element_1_15='1'">पहिल्या</xsl:when>
+															<xsl:when test="./element_1/element_1_15='2'">दुसऱ्या</xsl:when>
+															<xsl:when test="./element_1/element_1_15='3'">तिसऱ्या</xsl:when>
+															<xsl:when test="./element_1/element_1_15='4'">चौथ्या</xsl:when>
+															<xsl:when test="./element_1/element_1_15='5'">पाचव्या</xsl:when>
+														</xsl:choose>														  
+														(<xsl:value-of select="./element_1/element_1_16"/>) अधिवेशनात <fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_12"/> रोजी</fo:inline>  
 														महाराष्ट्र विधानपरिषदेत उपस्थित करण्यात आलेल्या नियम ९३ अन्वये सूचनेच्या <fo:inline font-weight="bold">(प्रत संलग्न)</fo:inline> संदर्भात 
 														शासनाने ५ दिवसांत निवेदन करावे असे मा. सभापतींनी निदेश दिले असून त्या अनुषंगाने 
 														<fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_13"/> 
@@ -235,7 +242,15 @@
 														<fo:inline font-weight="bold">एक दिवस अगोदर सकाळी १०.००</fo:inline> वाजेपर्यंत पाठविण्याची व्यवस्था करावी. 
 													</fo:block>
 													<fo:block>
-														&#160;&#160;&#160;&#160;&#160;&#160;त्याचप्रमाणे या <fo:inline font-weight="bold">निवेदनांच्या प्रतींवर सन २०१९ चे दुसरे (पावसाळी) अधिवेशन 
+														&#160;&#160;&#160;&#160;&#160;&#160;त्याचप्रमाणे या <fo:inline font-weight="bold">निवेदनांच्या प्रतींवर सन <xsl:value-of select="./element_1/element_1_14"/> चे
+														<xsl:choose>
+															<xsl:when test="./element_1/element_1_15='1'">पहिले</xsl:when>
+															<xsl:when test="./element_1/element_1_15='2'">दुसरे</xsl:when>
+															<xsl:when test="./element_1/element_1_15='3'">तिसरे</xsl:when>
+															<xsl:when test="./element_1/element_1_15='4'">चौथे</xsl:when>
+															<xsl:when test="./element_1/element_1_15='5'">पाचवे</xsl:when>
+														</xsl:choose> 
+														(<xsl:value-of select="./element_1/element_1_16"/>) अधिवेशन 
 														तसेच वर नमूद केलेला सूचना क्रमांक, निवेदन करणाऱ्या मा.मंत्री महोदयांचे नाव व विभागाचा स्पष्टपणे उल्लेख करून, निवेदन करण्याबाबतचे 
 														मा. मंत्री महोदयांचे पत्र, महाराष्ट्र विधानपरिषद, विधान भवन, मुंबई यांना अग्रेषित करण्यात यावे,</fo:inline> अशी आपणांस विनंती करण्यात येत आहे.												      										
 	            									</fo:block>
@@ -272,13 +287,7 @@
             							            	
             						</fo:table-row>
             					</fo:table-body>
-            				</fo:table>
-            			
- 	
-	            			<fo:block font-size="10px">
-	            				&#160;
-	            			</fo:block>
-	            			
+            				</fo:table>	            			
 						</fo:block>
 						
 						<fo:block break-before="page">

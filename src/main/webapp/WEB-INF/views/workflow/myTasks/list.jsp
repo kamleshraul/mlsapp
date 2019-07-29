@@ -15,6 +15,13 @@
 			if($("#deviceTypeType").val() != 'motions_adjournment' || $("#deviceTypeType").val() != 'motions_rules_suspension'){
 				$("#selectedAdjourningDate").val("");				
 			}
+			if($("#deviceTypeType").val() == 'motions_adjournment'){
+				$("#intimationLetterFilter option[class=adjournmentmotion]").show();
+				$("#intimationLetterFilter option[class=question]").hide();
+			} else {
+				$("#intimationLetterFilter option[class=adjournmentmotion]").hide();
+				$("#intimationLetterFilter option[class=question]").show();
+			}
 			var selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
 			/**** Initially we want to get only those tasks which belongs to current user and of selected status ****/
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
@@ -169,13 +176,15 @@
 					<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
 				</a> 				
 				<select id="intimationLetterFilter" size="1" style="height: 20px; font-size: 12px; min-width: 50px; vertical-align: middle;">
-						<option value="-">-</option>
-					 	<option value="member"><spring:message code='question.intimationletter.member' text='member' /></option>
-						<option value="department"><spring:message code='question.intimationletter.department' text='department' /></option>
-						<option value="prestatus"><spring:message code='question.intimationletter.prestatus' text='pre-status' /></option>
-						<option value="discussiondate"><spring:message code='question.intimationletter.discussiondate' text='discussion date' /></option>
-						<option value="groupChangedAfterBallot"><spring:message code='question.intimationletter.groupChangedAfterBallot' text='group changed after ballot' /></option>
-						<option value="answeringDateForwarded"><spring:message code='question.intimationletter.answeringDateForwarded' text='answering date forwarded' /></option>
+						<option class="all" value="-">-</option>
+					 	<option class="question" value="member"><spring:message code='question.intimationletter.member' text='member' /></option>
+						<option class="question" value="department"><spring:message code='question.intimationletter.department' text='department' /></option>
+						<option class="question" value="prestatus"><spring:message code='question.intimationletter.prestatus' text='pre-status' /></option>
+						<option class="question" value="discussiondate"><spring:message code='question.intimationletter.discussiondate' text='discussion date' /></option>
+						<option class="question" value="groupChangedAfterBallot"><spring:message code='question.intimationletter.groupChangedAfterBallot' text='group changed after ballot' /></option>
+						<option class="question" value="answeringDateForwarded"><spring:message code='question.intimationletter.answeringDateForwarded' text='answering date forwarded' /></option>
+						<option class="adjournmentmotion" value="reminder1ToDepartmentForReply"><spring:message code='intimationletter.reminder1ToDepartmentForReply' text='reminder 1 for reply' /></option>
+						<option class="adjournmentmotion" value="reminder2ToDepartmentForReply"><spring:message code='intimationletter.reminder2ToDepartmentForReply' text='reminder 2 for reply' /></option>
 				</select>				
 			</security:authorize>
 			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_SECRETARY','QIS_DEPUTY_SECRETARY','QIS_JOINT_SECRETARY','QIS_CHAIRMAN','QIS_SPEAKER','QIS_SECTION_OFFICER','ROIS_DEPUTYSECRETARY', 'AMOIS_SECTION_OFFICER', 'AMOIS_DEPUTY_SECRETARY')">
