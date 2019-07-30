@@ -406,7 +406,7 @@ public class QuestionReportController extends BaseController{
 				if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
 					memberNameFormat = memberNameFormatParameter.getValue();
 				}
-				Member primaryMember = question.getPrimaryMember();
+				Member primaryMember = Question.findDeviceOwner(question); //question.getPrimaryMember();
 				if(primaryMember!=null) {
 					String primaryMemberName = primaryMember.findNameInGivenFormat(memberNameFormat);
 					if(primaryMemberName!=null) {
