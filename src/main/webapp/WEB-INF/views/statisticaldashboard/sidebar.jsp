@@ -112,9 +112,7 @@
           </li>
           
 	</div>
-	
-	
-		  
+
 		      <li class="nav-item " data-toggle="collapse" href="#collapseCutmotion"  aria-expanded="false" aria-controls="collapseExample">
             <a class="nav-link">
               <i class="material-icons">label_important</i>
@@ -146,23 +144,20 @@
 
     <div class="collapse" id="collapseDiscussionmotion">
 		   <li class="nav-item ">
-            <a class="nav-link" href="device?deviceType=2602&admitStatus=989&rejectStatus=990">
+            <a class="nav-link" href="device?deviceType=2601&admitStatus=989&rejectStatus=990">
               <i class="material-icons">label_important</i>
                <p><spring:message code="dashboard.discussionmotionlastweek" text="LAST WEEK MOTION"></spring:message></p>
             </a>
           </li>
 		    
 		   <li class="nav-item ">
-            <a class="nav-link" href="device?deviceType=2601&admitStatus=989&rejectStatus=990">
+            <a class="nav-link" href="device?deviceType=2602&admitStatus=989&rejectStatus=990">
               <i class="material-icons">label_important</i>
                <p><spring:message code="dashboard.discussionmotionpublicimportance" text="PUBLIC IMPORTANCE MOTION"></spring:message></p>
             </a>
          </li>
 	</div>
-
-          
-        
-       
+	       
         </ul>
       </div>
     </div>
