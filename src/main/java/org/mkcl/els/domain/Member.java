@@ -1093,6 +1093,11 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return getMemberRepository().find(member,memberRole,date,locale);
 	}
 	
+	//For Grav website 
+		public static MemberBiographyVO findBiographyForGrav(final long id,final String strHouseType, final String locale) {
+			return getMemberRepository().findBiographyForGrav(id,strHouseType,locale);
+	}
+	
 	// ------------------------------------------Getters/Setters-----------------------------------
 	/**
 	 * Gets the title.
