@@ -275,6 +275,10 @@ public class MemberBiographyVO {
     private String votingDate;
 
     private String electionResultDate;
+    
+    private String memberRole;
+    
+    private String ministries;
 
     /**
      * Gets the educational cul act.
@@ -1819,4 +1823,20 @@ public class MemberBiographyVO {
     public void setElectionResultDate(final String electionResultDate) {
         this.electionResultDate = electionResultDate;
     }
+    
+    public String getMemberRole() {
+		return memberRole;
+	}
+
+	public void setMemberRole(String memberRole) {
+		this.memberRole = memberRole;
+	}
+
+	public String getMinistries() {
+		return ministries;
+	}
+
+	public void setMinistries(String ministries) {
+		this.ministries = ministries;
+	}
 	}
