@@ -57,7 +57,8 @@ public class MemberBiographyWebService {
     @RequestMapping(value = "/{id}/{locale}",method=RequestMethod.GET)
     public @ResponseBody MemberBiographyVO getBiography(@PathVariable("id") final long id ,
             @PathVariable("locale") final String locale,
-            final HttpServletRequest request){
+           HttpServletRequest request, HttpServletResponse response){
+    	response.setHeader("Access-Control-Allow-Origin", "*");
     	return Member.findBiography(id , locale);
     }
 
@@ -71,10 +72,11 @@ public class MemberBiographyWebService {
     @RequestMapping(value="/photo/{tag}")
     public @ResponseBody byte[] getPhoto(@PathVariable("tag")
             final String tag ,
-            final HttpServletResponse response){
+            final HttpServletResponse response,HttpServletRequest request){
         Document document;
 		try {
 			document = Document.findByTag(tag);
+			response.setHeader("Access-Control-Allow-Origin", "*");
 			return document.getFileData();
 		} catch (ELSException e) {
 			// TODO Auto-generated catch block
