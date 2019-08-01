@@ -119,7 +119,14 @@
 												<fo:block>क्रमांक - _____&#160;/ई-२,</fo:block>						
 												<fo:block>महाराष्ट्र विधानमंडळ सचिवालय,</fo:block>
 												<fo:block>विधान भवन, <xsl:value-of select="./element_1/element_1_11"/>.</fo:block>
-												<fo:block>दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
+												<xsl:choose>
+													<xsl:when test="boolean(reportDate)">
+														<fo:block>दिनांक : <xsl:value-of select="reportDate"></xsl:value-of></fo:block>
+													</xsl:when>
+													<xsl:otherwise>
+														<fo:block>दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
+													</xsl:otherwise>
+												</xsl:choose>
 											</fo:table-cell>
 										</fo:table-row>
 									</fo:table-body>
@@ -327,7 +334,17 @@
 	            						</fo:table-row>
 	            					</fo:table-body>
 	            				</fo:table>
-	           				</fo:block>	            			
+	           				</fo:block>	 
+	           				
+	           				<fo:block break-before="page">
+								<fo:block font-weight="bold" text-align="center">
+									<xsl:value-of select="./element_1/element_1_9"/>, वि.प.स. यांनी विधानपरिषद नियम ९३ अन्वये दिलेली सूचना क्रमांक - <xsl:value-of select="./element_1/element_1_4"/>
+								</fo:block>
+								<fo:block>&#160;</fo:block><fo:block>&#160;</fo:block>
+								<fo:block>
+									<xsl:apply-templates select="./element_1/element_1_5"/>
+								</fo:block>
+							</fo:block>           			
 						</fo:block>
 						
 						<!-- <fo:block break-before="page">

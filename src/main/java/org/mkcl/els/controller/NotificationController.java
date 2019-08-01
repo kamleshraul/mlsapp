@@ -341,6 +341,31 @@ public class NotificationController extends GenericController<Notification> {
 		getNotificationService().sendNotificationWithTitleUsingTemplate("COMMITTEE_MEETING_ROSTER_ENTRY_INTIMATION", templateParameters, locale);
 	}
 	
+	public static void sendReminderLetter1ForReplyFromDepartmentUsers(final String deviceNumber,
+					final HouseType houseType,
+					final DeviceType deviceType,
+					final String departmentUserName,
+					final String currentSubDepartment,
+					final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("deviceNumber", new String[]{deviceNumber});
+		if(deviceType.getName_lowerhouse()!=null && deviceType.getName_upperhouse()!=null
+				&& !deviceType.getName_lowerhouse().equals(deviceType.getName_upperhouse())) {
+			if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+				templateParameters.put("deviceTypeName", new String[]{deviceType.getName_lowerhouse()});
+			} else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+				templateParameters.put("deviceTypeName", new String[]{deviceType.getName_upperhouse()});
+			}
+		} else {
+			templateParameters.put("deviceTypeName", new String[]{deviceType.getName()});
+		}				
+		templateParameters.put("departmentUserName", new String[]{departmentUserName});
+		templateParameters.put("currentSubDepartment", new String[]{currentSubDepartment});
+		templateParameters.put("currentSubDepartmentLike", new String[]{"%"+currentSubDepartment+"##%"});		
+		getNotificationService().sendNotificationWithTitleUsingTemplate("DEPARTMENT_REPLY_REMINDER_LETTER1", templateParameters, locale);
+	}
+	
 	public static void sendNotificationFromAdminPage(final String notificationTitle, final String notificationMessage, final boolean isVolatile, final String receivers, final String locale) {
 		if(isVolatile) {
 			if(notificationTitle.equals(notificationMessage)) {

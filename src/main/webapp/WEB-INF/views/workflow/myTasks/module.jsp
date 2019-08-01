@@ -964,7 +964,7 @@
 				return false;
 			} else {	
 				if(currentDevice.indexOf('motions_adjournment')==0){
-					$('#generateIntimationLetter').attr('href', 'adjournmentmotion/report/generateReminderLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
+					$('#generateIntimationLetter').attr('href', 'adjournmentmotion/report/generateReminderLetter1?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
 				}
 			}
 		}
@@ -978,7 +978,7 @@
 				return false;
 			} else {	
 				if(currentDevice.indexOf('motions_adjournment')==0){
-					$('#generateIntimationLetter').attr('href', 'adjournmentmotion/report/generateReminderLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
+					$('#generateIntimationLetter').attr('href', 'adjournmentmotion/report/generateReminderLetter2?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
 				}
 			}
 		}

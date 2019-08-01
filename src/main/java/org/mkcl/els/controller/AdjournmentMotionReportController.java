@@ -570,15 +570,15 @@ public class AdjournmentMotionReportController extends BaseController{
 		//return retVal;
 	}
 	
-	@RequestMapping(value ="/generateReminderLetter", method = RequestMethod.GET)
+	@RequestMapping(value ="/generateReminderLetter1", method = RequestMethod.GET)
 	private void generateReminderLetter(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
 		
-		//String retVal = "adjournmentmotion/report";
 		try{
 			String strId = request.getParameter("motionId");
 			String strWorkflowId = request.getParameter("workflowDetailId");
 			WorkflowDetails workflowDetails = null;
 			String strReportFormat = request.getParameter("outputFormat");
+			boolean isDepartmentUser = false;
 			if(strWorkflowId != null && !strWorkflowId.isEmpty()){
 				workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
 				if(workflowDetails != null){
@@ -587,6 +587,7 @@ public class AdjournmentMotionReportController extends BaseController{
 						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
 								|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
 							strReportFormat = "PDF";
+							isDepartmentUser = true;
 						} else {
 							strReportFormat = "WORD";
 						}
@@ -602,16 +603,6 @@ public class AdjournmentMotionReportController extends BaseController{
 			String xsltTemplateName = "adjournmentmotion_reminder_letter1_template";
 			String reportFileName = "adjournmentmotion_reminderletter1";
 			
-			String intimationLetterFilter = request.getParameter("intimationLetterFilter");
-			if(intimationLetterFilter!=null && intimationLetterFilter.equals("reminder2ToDepartmentForReply")) {
-				queryName = "ADJOURNMENTMOTION_REMINDER2_LETTER";
-				xsltTemplateName = "adjournmentmotion_reminder_letter2_template";
-				reportFileName = "adjournmentmotion_reminderletter2";
-			}			
-			
-//			String strCopyType = request.getParameter("copyType");
-//			Long workflowDetailCount = (long) 0;
-//			Boolean isResendRevisedMotionTextWorkflow = false;
 			if(strId != null && !strId.isEmpty()){
 				Map<String, String[]> parameters = new HashMap<String, String[]>();
 				parameters.put("locale", new String[]{locale.toString()});
@@ -622,6 +613,17 @@ public class AdjournmentMotionReportController extends BaseController{
 				
 				File reportFile = generateReportUsingFOP(new Object[] {reportData}, xsltTemplateName, strReportFormat, reportFileName, locale.toString());
 				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
+				
+				/**** SEND NOTIFICATION TO DEPARTMENT USERS WHERE REPLY IS PENDING ****/
+				if(! isDepartmentUser) {
+					AdjournmentMotion domain = AdjournmentMotion.findById(AdjournmentMotion.class, Long.parseLong(strId));
+					WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(domain);
+					if(wfDetails!=null && (wfDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+							|| wfDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))
+					) {
+						NotificationController.sendReminderLetter1ForReplyFromDepartmentUsers(domain.getAdmissionNumber().toString(), domain.getHouseType(), domain.getType(), wfDetails.getAssignee(), domain.getSubDepartment().getName(), locale.toString());
+					}				
+				}
 				
 				model.addAttribute("info", "general_info");
 				//retVal = "adjournmentmotion/info";
