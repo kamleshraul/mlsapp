@@ -19,6 +19,7 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.MessageResource;
+import org.mkcl.els.domain.notification.PushMessage;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
@@ -611,18 +612,45 @@ public class AdjournmentMotionReportController extends BaseController{
 				@SuppressWarnings("rawtypes")
 				List reportData = Query.findReport(queryName, parameters);
 				
-				File reportFile = generateReportUsingFOP(new Object[] {reportData}, xsltTemplateName, strReportFormat, reportFileName, locale.toString());
+				AdjournmentMotion domain = AdjournmentMotion.findById(AdjournmentMotion.class, Long.parseLong(strId));
+				String reminderLetter1Date = "";
+				CustomParameter csptReminderLetter1NotificationKey = CustomParameter.findByName(CustomParameter.class, "AMOIS_" + domain.getHouseType().getType().toUpperCase() + "_REMINDER_LETTER1_NOTIFICATION_KEY", locale.toString());
+				if(csptReminderLetter1NotificationKey!=null && csptReminderLetter1NotificationKey.getValue()!=null) {
+					String reminderLetter1NotificationKey = csptReminderLetter1NotificationKey.getValue();
+//					String deviceTypeName = domain.getType().getName();
+//					if(domain.getType().getName_lowerhouse()!=null && domain.getType().getName_upperhouse()!=null
+//							&& !domain.getType().getName_lowerhouse().equals(domain.getType().getName_upperhouse())) {
+//						if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+//							deviceTypeName = domain.getType().getName_lowerhouse();
+//						} else if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+//							deviceTypeName = domain.getType().getName_lowerhouse();
+//						}
+//					}					
+					reminderLetter1NotificationKey = reminderLetter1NotificationKey.replace("${DEVICE_DETAILS}", FormaterUtil.formatNumberNoGrouping(domain.getAdmissionNumber(), locale.toString()));
+					List<PushMessage> pushMessageList = PushMessage.findAllByFieldName(PushMessage.class, "title", reminderLetter1NotificationKey, "sentOn", ApplicationConstants.ASC, locale.toString());
+					if(pushMessageList!=null && !pushMessageList.isEmpty()) {
+						for(PushMessage pm: pushMessageList) {
+							if(pm.getSentOn().after(domain.getReplyRequestedDate())) {
+								reminderLetter1Date = FormaterUtil.formatDateToString(pm.getSentOn(), ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_1, locale.toString());
+								break;
+							}
+						}						
+					}
+				}
+				
+				File reportFile = generateReportUsingFOP(new Object[] {reportData, reminderLetter1Date}, xsltTemplateName, strReportFormat, reportFileName, locale.toString());
 				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
 				
 				/**** SEND NOTIFICATION TO DEPARTMENT USERS WHERE REPLY IS PENDING ****/
-				if(! isDepartmentUser) {
-					AdjournmentMotion domain = AdjournmentMotion.findById(AdjournmentMotion.class, Long.parseLong(strId));
-					WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(domain);
-					if(wfDetails!=null && (wfDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
-							|| wfDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))
-					) {
-						NotificationController.sendReminderLetter1ForReplyFromDepartmentUsers(domain.getAdmissionNumber().toString(), domain.getHouseType(), domain.getType(), wfDetails.getAssignee(), domain.getSubDepartment().getName(), locale.toString());
-					}				
+				if(reminderLetter1Date==null || reminderLetter1Date.isEmpty()) {	
+					if(! isDepartmentUser) {
+						WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(domain);
+						if(wfDetails!=null && (wfDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+								|| wfDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))
+						) {
+							NotificationController.sendReminderLetter1ForReplyFromDepartmentUsers(domain.getAdmissionNumber().toString(), domain.getHouseType(), domain.getType(), wfDetails.getAssignee(), domain.getSubDepartment().getName(), locale.toString());
+						}
+					}									
 				}
 				
 				model.addAttribute("info", "general_info");
