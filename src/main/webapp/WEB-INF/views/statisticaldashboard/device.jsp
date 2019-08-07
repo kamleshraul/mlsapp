@@ -641,6 +641,8 @@
     				
     			};
     			var ctx = document.getElementById('chart-area').getContext('2d');
+    			if(window.myPie != undefined) 
+        		window.myPie.destroy();
     			window.myPie = new Chart(ctx, config);	
 	   		}
        	});
@@ -692,7 +694,9 @@
     				
     			};
     			var ctx = document.getElementById('bar-chart-area').getContext('2d');
-    			window.myPie = new Chart(ctx, config);	
+    			if(window.myBar != undefined) 
+    			window.myBar.destroy(); 
+    			window.myBar = new Chart(ctx, config);	
 	   		}
        	});
     }
