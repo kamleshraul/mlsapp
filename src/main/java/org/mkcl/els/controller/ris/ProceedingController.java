@@ -4502,19 +4502,19 @@ public class ProceedingController extends GenericController<Proceeding>{
 				if(notificationTitle!=null && !notificationTitle.isEmpty()
 						&& isVolatile!=null && !isVolatile.isEmpty()) {
 					try {
-						StringBuffer senderName = new StringBuffer("");
-						if(this.getCurrentUser().getTitle()!=null && !this.getCurrentUser().getTitle().isEmpty()) {
-							senderName.append(this.getCurrentUser().getTitle());
-							senderName.append(" ");
-						}
-						if(this.getCurrentUser().getFirstName()!=null && !this.getCurrentUser().getFirstName().isEmpty()) {
-							senderName.append(this.getCurrentUser().getFirstName());
-							senderName.append(" ");
-						}
-						if(this.getCurrentUser().getLastName()!=null && !this.getCurrentUser().getLastName().isEmpty()) {
-							senderName.append(this.getCurrentUser().getLastName());
-						}
-						NotificationController.sendNotificationFromUserPage(senderName.toString(), notificationTitle, notificationMessage, Boolean.parseBoolean(isVolatile), rosterHandledBy, locale.toString());
+//						StringBuffer senderName = new StringBuffer("");
+//						if(this.getCurrentUser().getTitle()!=null && !this.getCurrentUser().getTitle().isEmpty()) {
+//							senderName.append(this.getCurrentUser().getTitle());
+//							senderName.append(" ");
+//						}
+//						if(this.getCurrentUser().getFirstName()!=null && !this.getCurrentUser().getFirstName().isEmpty()) {
+//							senderName.append(this.getCurrentUser().getFirstName());
+//							senderName.append(" ");
+//						}
+//						if(this.getCurrentUser().getLastName()!=null && !this.getCurrentUser().getLastName().isEmpty()) {
+//							senderName.append(this.getCurrentUser().getLastName());
+//						}
+						NotificationController.sendNotificationFromUserPage(this.getCurrentUser().getActualUsername(), notificationTitle, notificationMessage, Boolean.parseBoolean(isVolatile), rosterHandledBy, locale.toString());
 											 
 						request.getSession().setAttribute("rosterHandledBy", rosterHandledBy);
 						request.getSession().setAttribute("isVolatile", isVolatile);
