@@ -64,7 +64,7 @@
 		    <span id="notificationViewerPopUp" class="fields clearfix">
 		    	 <p>
 		    	 	<label class="small"><spring:message code="notification.sender" text="Sender"/>:</label>
-					<input type="text" class="sText" v-bind:value="selectedNotification.sender" readonly="readonly">
+					<input type="text" class="sText" v-bind:value="selectedNotification.senderName" readonly="readonly">
 	    		 </p> 
 	    		 <template v-if="selectedNotification.title != selectedNotification.message">
 	    		 	 <p style="margin-top:20px;">
