@@ -306,7 +306,7 @@ $(function () {
         }        
 
         var date = typeof(pushmessage_json.time) == 'string' ? parseInt(pushmessage_json.time) : pushmessage_json.time;
-        addMessage(pushmessage_json.sender, pushmessage_json.title, new Date(date), pushmessage_json.isVolatile);    
+        addMessage(pushmessage_json.senderName, pushmessage_json.title, new Date(date), pushmessage_json.isVolatile);    
         
     };
 
@@ -327,8 +327,8 @@ $(function () {
 
     subSocket = socket.subscribe(request);
 
-    function addMessage(sender, message, datetime, isVolatile) {
-    	var toastMessage = sender + " @ " +
+    function addMessage(senderName, message, datetime, isVolatile) {
+    	var toastMessage = senderName + " @ " +
 				+ (datetime.getHours() < 10 ? '0' + datetime.getHours() : datetime.getHours()) + ':'
 		        + (datetime.getMinutes() < 10 ? '0' + datetime.getMinutes() : datetime.getMinutes())
 		        + '<br/>' + message;
@@ -392,6 +392,7 @@ $(function () {
         		'title': pushmessage_json.title, 
         		'message': pushmessage_json.message,
         		'sender': pushmessage_json.sender,
+        		'senderName': pushmessage_json.senderName,
         		'receiver': $('#authusername').val(),
         		'receivers': pushmessage_json.receivers,
         		'sentOn': sentOnMoment,

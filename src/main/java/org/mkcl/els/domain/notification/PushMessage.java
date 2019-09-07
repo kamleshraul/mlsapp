@@ -42,6 +42,10 @@ public class PushMessage extends BaseDomain implements Serializable {
     @Column(length=100)
     private String sender;
     
+    /** The sender's name. */
+    @Column(length=300)
+    private String senderName;
+    
     /** The receivers of notification. (decide later if multiple receivers can be required) 
      *  Comma separated list of usernames of the receivers
      *  If not set, the notification will be sent to all the active users
@@ -105,6 +109,14 @@ public class PushMessage extends BaseDomain implements Serializable {
 	 */
 	public void setSender(String sender) {
 		this.sender = sender;
+	}
+
+	public String getSenderName() {
+		return senderName;
+	}
+
+	public void setSenderName(String senderName) {
+		this.senderName = senderName;
 	}
 
 	/**

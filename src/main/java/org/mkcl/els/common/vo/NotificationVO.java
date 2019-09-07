@@ -28,6 +28,8 @@ public class NotificationVO {
 	
 	private String sender;
 	
+	private String senderName;
+	
 	private String receiver;
 	
 	private String receivers; //in case of many receivers present
@@ -57,6 +59,7 @@ public class NotificationVO {
 						String title,
 						String message, 
 						String sender, 
+						String senderName,
 						String receiver, 
 						String receivers,
 						String sentOn, 
@@ -71,6 +74,7 @@ public class NotificationVO {
 		this.title = title;
 		this.message = message;
 		this.sender = sender;
+		this.senderName = senderName;
 		this.receiver = receiver;
 		this.receivers = receivers;
 		this.sentOn = sentOn;
@@ -120,6 +124,14 @@ public class NotificationVO {
 
 	public void setSender(String sender) {
 		this.sender = sender;
+	}
+
+	public String getSenderName() {
+		return senderName;
+	}
+
+	public void setSenderName(String senderName) {
+		this.senderName = senderName;
 	}
 
 	public String getReceiver() {

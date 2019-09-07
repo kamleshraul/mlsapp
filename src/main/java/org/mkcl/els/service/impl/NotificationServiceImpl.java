@@ -7,6 +7,7 @@ import org.mkcl.els.atmosphere.NotificationHandler;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.MessageResource;
+import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.notification.Notification;
 import org.mkcl.els.domain.notification.NotificationTemplate;
 import org.mkcl.els.domain.notification.PushMessage;
@@ -119,14 +120,33 @@ public class NotificationServiceImpl implements INotificationService {
 		try {
 			/**** create and save pushmessage ****/
 			PushMessage pushMessage = new PushMessage();
-			if(sender!=null && !sender.isEmpty()) {
+			if(sender!=null && !sender.isEmpty()) {				
 				pushMessage.setSender(sender);
+				User senderUser = User.findByUserName(sender, locale);
+				if(senderUser!=null && senderUser.getId()!=null) {
+					StringBuffer senderName = new StringBuffer("");
+					if(senderUser.getTitle()!=null && !senderUser.getTitle().isEmpty()) {
+						senderName.append(senderUser.getTitle());
+						senderName.append(" ");
+					}
+					if(senderUser.getFirstName()!=null && !senderUser.getFirstName().isEmpty()) {
+						senderName.append(senderUser.getFirstName());
+						senderName.append(" ");
+					}
+					if(senderUser.getLastName()!=null && !senderUser.getLastName().isEmpty()) {
+						senderName.append(senderUser.getLastName());
+					}
+					
+				} else {
+					pushMessage.setSenderName(sender);
+				}
 			} else {
+				pushMessage.setSender("admin");
 				MessageResource notificationSystemUserName = MessageResource.findByFieldName(MessageResource.class, "code", "notification.system_username", locale);
 				if(notificationSystemUserName!=null) {
-					pushMessage.setSender(notificationSystemUserName.getValue());
+					pushMessage.setSenderName(notificationSystemUserName.getValue());
 				} else {
-					pushMessage.setSender("system_notifier");
+					pushMessage.setSenderName("system_notifier");
 				}				
 			}			
 			pushMessage.setMessage(message);			
