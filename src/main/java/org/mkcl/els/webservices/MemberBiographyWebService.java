@@ -9,6 +9,7 @@
  */
 package org.mkcl.els.webservices;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -171,7 +172,7 @@ public class MemberBiographyWebService {
     @RequestMapping(value="biographyforGrav/allMembersByHouseType/{houseType}/{locale}")
     public @ResponseBody MemberBiographiesVO getAllMembersByHouseTypeForGrav(@PathVariable("houseType") final String houseType, 
     			@PathVariable("locale") final String locale,
-    			HttpServletRequest request, HttpServletResponse response) throws ELSException{
+    			HttpServletRequest request, HttpServletResponse response) throws ELSException, UnsupportedEncodingException{
     		List<Member> members =
     		Member.findMembersWithHousetype(houseType, locale);
     		MemberBiographiesVO biographiesVOs = new MemberBiographiesVO();
@@ -179,14 +180,22 @@ public class MemberBiographyWebService {
     		for(Member member : members){
     			
     			Long memberId = member.getId();
-	    			try{
-	    				MemberBiographyVO biographyVO = Member.findBiographyForGrav(memberId.longValue(), houseType, locale);
-	    				biographiesVOs.getMemberBiographyVOs().add(biographyVO);
-	    				
-	    			} catch(IllegalArgumentException iae){
-	    				System.out.println(memberId);
-	    				iae.printStackTrace();
-	    			}
+    				String initialLetterParameter = request.getParameter("letter");
+    				if(initialLetterParameter!=null && !initialLetterParameter.isEmpty()) {
+    					initialLetterParameter = new String(initialLetterParameter.getBytes("ISO-8859-1"),"UTF-8");
+    				}
+    				if(initialLetterParameter!=null && !initialLetterParameter.isEmpty() && !member.getFirstName().startsWith(initialLetterParameter)  && !initialLetterParameter.startsWith("-")) {
+    					continue;
+    				} else {
+    					try{
+    	    				MemberBiographyVO biographyVO = Member.findBiographyForGrav(memberId.longValue(), houseType, locale);
+    	    				biographiesVOs.getMemberBiographyVOs().add(biographyVO);
+    	    				
+    	    			} catch(IllegalArgumentException iae){
+    	    				System.out.println(memberId);
+    	    				iae.printStackTrace();
+    	    			}
+    				}	    			
     		}
     		response.setHeader("Access-Control-Allow-Origin", "*");
     	   return biographiesVOs;
