@@ -2773,7 +2773,7 @@ public class QuestionReportController extends BaseController{
 					
 					queryParameters.put("limitingDateForSession", new String[]{FormaterUtil.formatDateToString(limitingDateForSession, ApplicationConstants.DB_DATEFORMAT)});
 					queryParameters.put("locale", new String[]{locale.toString()});
-					List resultList = Query.findReport("MEMBERS_ELIGIBLE_FOR_QUESTION_SUBMISSION_IN_GIVEN_HOUSE", queryParameters);
+					List resultList = Query.findReport("MEMBERS_ELIGIBLE_FOR_REPORTS_IN_GIVEN_HOUSE", queryParameters);
 					if(resultList!=null && !resultList.isEmpty()) {
 						for(Object o: resultList) {								
 							Object[] result = (Object[])o;
@@ -3030,7 +3030,7 @@ public class QuestionReportController extends BaseController{
 					
 					queryParameters.put("limitingDateForSession", new String[]{FormaterUtil.formatDateToString(limitingDateForSession, ApplicationConstants.DB_DATEFORMAT)});
 					queryParameters.put("locale", new String[]{locale.toString()});
-					List resultList = Query.findReport("MEMBERS_ELIGIBLE_FOR_QUESTION_SUBMISSION_IN_GIVEN_HOUSE", queryParameters);
+					List resultList = Query.findReport("MEMBERS_ELIGIBLE_FOR_REPORTS_IN_GIVEN_HOUSE", queryParameters);
 					if(resultList!=null && !resultList.isEmpty()) {
 						for(Object o: resultList) {								
 							Object[] result = (Object[])o;
