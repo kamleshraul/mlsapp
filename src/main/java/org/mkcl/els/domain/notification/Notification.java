@@ -51,6 +51,10 @@ public class Notification extends BaseDomain implements Serializable {
     /** The receiver of notification. */
     @Column(length=100)
     private String receiver;
+    
+    /** The receiver's name. */
+    @Column(length=300)
+    private String receiverName;
 	
 	/** The received time of notification. */
 	@Temporal(TemporalType.TIMESTAMP)
@@ -153,6 +157,16 @@ public class Notification extends BaseDomain implements Serializable {
 	public void setReceiver(String receiver) {
 		this.receiver = receiver;
 	}
+
+	public String getReceiverName() {
+		return receiverName;
+	}
+
+
+	public void setReceiverName(String receiverName) {
+		this.receiverName = receiverName;
+	}
+
 
 	/**
 	 * @return the receivedOn

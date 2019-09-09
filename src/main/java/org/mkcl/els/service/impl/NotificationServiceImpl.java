@@ -136,7 +136,7 @@ public class NotificationServiceImpl implements INotificationService {
 					if(senderUser.getLastName()!=null && !senderUser.getLastName().isEmpty()) {
 						senderName.append(senderUser.getLastName());
 					}
-					
+					pushMessage.setSenderName(senderName.toString());
 				} else {
 					pushMessage.setSenderName(sender);
 				}
@@ -186,6 +186,24 @@ public class NotificationServiceImpl implements INotificationService {
 						}						
 						notification.setPushMessage(pushMessage);
 						notification.setReceiver(receiver);		
+						User receiverUser = User.findByUserName(receiver, locale);
+						if(receiverUser!=null && receiverUser.getId()!=null) {
+							StringBuffer receiverName = new StringBuffer("");
+							if(receiverUser.getTitle()!=null && !receiverUser.getTitle().isEmpty()) {
+								receiverName.append(receiverUser.getTitle());
+								receiverName.append(" ");
+							}
+							if(receiverUser.getFirstName()!=null && !receiverUser.getFirstName().isEmpty()) {
+								receiverName.append(receiverUser.getFirstName());
+								receiverName.append(" ");
+							}
+							if(receiverUser.getLastName()!=null && !receiverUser.getLastName().isEmpty()) {
+								receiverName.append(receiverUser.getLastName());
+							}
+							notification.setReceiverName(receiverName.toString());
+						} else {
+							notification.setReceiverName(receiver);
+						}
 						notification.setMarkedAsReadByReceiver(false);
 						notification.setClearedByReceiver(false);
 						notification.setLocale(locale);
