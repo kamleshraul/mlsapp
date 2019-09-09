@@ -254,6 +254,12 @@
 					memberWiseReport($(this).val());
 				}
 			});
+			$("#department_report").click(function(e){
+				var dept = $("#selectedSubDepartment").val();
+				if(dept!="" && dept!='0'){
+					departmentWiseReport(dept);	
+				}
+			});
 		});
 			
 		/**** displaying grid ****/					
@@ -543,6 +549,23 @@
 				}
 			});
 		}
+		/**** Departmentwise Devices Report Generation ****/
+		function departmentWiseReport(dept){
+			var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+			+ "/" + $("#selectedSessionYear").val()
+			+ "/" + $("#selectedSessionType").val();
+			$.get(url,function(data){
+				if(data){
+					
+					showTabByIdAndUrl("details_tab","specialmentionnotice/report/generalreport?"
+							+"sessionId="+data.id
+							+"&deviceTypeId="+$("#selectedMotionType").val()
+							+"&subd="+dept 
+							+"&locale="+$("#moduleLocale").val()
+							+"&report=SMIS_DEPARTMENT_WISE_REPORT&reportout=specialMentionNoticeDepartmentReport");
+				}
+			});
+		}
 	</script>
 
 </head>
@@ -745,6 +768,9 @@
 					</a>						
 					<select id="members" class="sSelect" style="display: inline; width:100px;">
 					</select>|
+					<a href="javascript:void(0);" id="department_report" class="butSim" >
+						<spring:message code="generic.departmentWiseReport" text="Department-wise Report"/>
+					</a>|
 					<%-- <a href="javascript:void(0);" id="party_report" class="butSim" >
 						<spring:message code="generic.partyWiseReport" text="Party-wise Report"/>
 					</a>						
