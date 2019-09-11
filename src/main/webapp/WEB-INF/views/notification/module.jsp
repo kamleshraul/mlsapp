@@ -77,6 +77,16 @@
 				</a>
 			</li>			
 		</ul>
+		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv1">		
+			<a href="#" id="select_status" class="butSim">
+				<spring:message code="notification.status" text="Notification Status"/>
+			</a>
+			<select name="selectedStatus" id="selectedStatus" style="width:100px;height: 25px;">	
+				<option value="inbox"><spring:message code='notification.status.inbox' text='Inbox'/></option>
+				<option value="outbox"><spring:message code='notification.status.outbox' text='Outbox'/></option>
+			</select> |
+			<hr>
+		</div>
 		<div class="tabContent clearfix">
 		</div>
 		<input type="hidden" id="key" name="key">
