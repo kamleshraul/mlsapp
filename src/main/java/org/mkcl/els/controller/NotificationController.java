@@ -71,6 +71,18 @@ public class NotificationController extends GenericController<Notification> {
 	}
 	
 	@Override
+	protected String modifyURLPattern(final String urlPattern,
+			final HttpServletRequest request, final ModelMap model, final String locale) {
+		String newUrlPattern = urlPattern;
+		//Notification Type Parameter
+		String notificationType = request.getParameter("notification_type");
+		if(notificationType != null && notificationType.equals("outbox")){
+			newUrlPattern=urlPattern+"_outbox";
+		}
+		return newUrlPattern;
+	}
+	
+	@Override
 	protected String modifyEditUrlPattern(final String editUrlPattern,
 			final HttpServletRequest request, final ModelMap model, final String locale) {
 		String editServletPath = editUrlPattern;

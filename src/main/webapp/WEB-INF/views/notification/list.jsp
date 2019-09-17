@@ -5,10 +5,10 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function(){
-			//$("#selectionDiv1").show();		
+			$("#selectionDiv1").show();
 			
 			/**** grid params which is sent to load grid data being sent ****/		
-			$("#gridURLParams").val("receiver="+$("#authusername").val());
+			$("#gridURLParams").val("username="+$("#authusername").val());
 			
 			$('#view_record').click(function(){
 				viewRecord($('#key').val());

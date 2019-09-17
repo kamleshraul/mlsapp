@@ -12,7 +12,16 @@
 		//populate formatted sent on date
 		var formattedSentOnMoment = moment($('#notificationSentOn').text());
 		formattedSentOnMoment.locale('mr');
-		$('#notificationSentOn').text(formattedSentOnMoment.calendar());
+		$('#notificationSentOn').text(formattedSentOnMoment.format('DD/MM/YYYY hh:mm:ss a'));
+		
+		//alert($('#selectedNotificationType').val());
+		if($('#selectedNotificationType').val()=='outbox') {
+			$('#senderNameP').hide();
+			$('#receiverNameP').show();
+		} else {
+			$('#senderNameP').show();
+			$('#receiverNameP').hide();
+		}
 	});		
 </script>
 </head>
@@ -25,9 +34,13 @@
 	<h2><spring:message code="generic.view.heading" text="Details"/>
 		[<spring:message code="generic.id" text="Id"></spring:message>:${notificationVO.id}]
 	</h2>		
-	<p> 
-		<label class="small"><spring:message code="notification.sender" text="Sender"/></label>
-		<label id="notificationSender" style="margin-left: -10px;">${notificationVO.sender}</label>
+	<p id="senderNameP">
+		<label class="small"><spring:message code="notification.sender" text="Sender Name"/></label>
+		<label id="notificationSender" style="margin-left: -10px;">${notificationVO.senderName}</label>
+	</p>
+	<p id="receiverNameP">
+		<label class="small"><spring:message code="notification.receiver" text="Receiver Name"/></label>
+		<label id="notificationReceiver" style="margin-left: -10px;">${notificationVO.receiverName}</label>
 	</p>
 	<p style="margin-top:10px;">
     	<label class="small"><spring:message code="notification.sentOn" text="Sent On"/>:</label>

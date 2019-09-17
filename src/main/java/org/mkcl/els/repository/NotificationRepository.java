@@ -117,6 +117,7 @@ public class NotificationRepository extends BaseRepository<Notification, Seriali
 			notificationVO.setSender(pm.getSender());
 			notificationVO.setSenderName(pm.getSenderName());
 			notificationVO.setReceiver(notification.getReceiver());
+			notificationVO.setReceiverName(notification.getReceiverName());
 			notificationVO.setReceivers(pm.getReceivers());
 			
 			if(pm.getSentOn()!=null) {

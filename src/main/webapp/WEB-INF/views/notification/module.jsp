@@ -30,25 +30,36 @@
 					scrollRowsInGrid(e);
 		        }
 			});
-			showTabByIdAndUrl('list_tab','notification/list?receiver='+$('#authusername').val());	
+			showTabByIdAndUrl('list_tab','notification/list?username='+$('#authusername').val()+'&notification_type='+$('#selectedNotificationType').val());
+			
+			/**** notification type changes then reload grid****/
+			$("#selectedNotificationType").change(function() {
+				var value = $(this).val();
+				if (value != "") {
+					showTabByIdAndUrl('list_tab','notification/list?username='+$('#authusername').val()+'&notification_type='+$('#selectedNotificationType').val());
+				}
+			});
 		});	
 		function showList() {
-			showTabByIdAndUrl('list_tab','notification/list?receiver='+$('#authusername').val());
+			showTabByIdAndUrl('list_tab','notification/list?username='+$('#authusername').val()+'&notification_type='+$('#selectedNotificationType').val());
 		}
 		function viewRecord(row) {
-			var row=$("#masterKey").val();
-			if(this.id =='edit_record' && row==null){
+			//var row=$("#masterKey").val();
+			if(row==null || row==''){
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
-			}
-			$("#cancelFn").val("editRecord");
-			showTabByIdAndUrl('details_tab', 'notification/'+row+'/edit?edit=false');
+			} else {
+				$("#cancelFn").val("editRecord");
+				showTabByIdAndUrl('details_tab', 'notification/'+row+'/edit?edit=false');
+				$("#selectionDiv1").hide();
+			}			
 		}
 
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			var rowid=$("#masterKey").val();
 			$("#cancelFn").val("rowDblClickHandler");
 			showTabByIdAndUrl('details_tab', 'notification/'+rowid+'/edit?edit=false');
+			$("#selectionDiv1").hide();
 		}	
 
 		function rowSelectHandler(rowid,status){			
@@ -78,12 +89,12 @@
 			</li>			
 		</ul>
 		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv1">		
-			<a href="#" id="select_status" class="butSim">
-				<spring:message code="notification.status" text="Notification Status"/>
+			<a href="#" id="select_type" class="butSim">
+				<spring:message code="notification.type" text="Notification Type"/>
 			</a>
-			<select name="selectedStatus" id="selectedStatus" style="width:100px;height: 25px;">	
-				<option value="inbox"><spring:message code='notification.status.inbox' text='Inbox'/></option>
-				<option value="outbox"><spring:message code='notification.status.outbox' text='Outbox'/></option>
+			<select name="selectedNotificationType" id="selectedNotificationType" style="width:100px;height: 25px;">	
+				<option value="inbox"><spring:message code='notification.type.inbox' text='Inbox'/></option>
+				<option value="outbox"><spring:message code='notification.type.outbox' text='Outbox'/></option>
 			</select> |
 			<hr>
 		</div>
