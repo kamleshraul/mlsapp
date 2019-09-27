@@ -985,6 +985,17 @@ public class CutMotionController extends GenericController<CutMotion>{
 				}
 			}	
 		}
+		/**** Reply related Dates ****/
+		if(domain.getReplyRequestedDate() != null) {
+			model.addAttribute("formattedReplyRequestedDate",
+					FormaterUtil.formatDateToString(domain.getReplyRequestedDate(), 
+							ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+		}
+		if(domain.getReplyReceivedDate()!=null) {
+			model.addAttribute("formattedReplyReceivedDate", 
+					FormaterUtil.formatDateToString(domain.getReplyReceivedDate(),
+							ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+		}
 	}
 
 	private void populateInternalStatus(final ModelMap model,final CutMotion domain,final String usergroupType,final String locale) {
@@ -1537,6 +1548,17 @@ public class CutMotionController extends GenericController<CutMotion>{
 				e.printStackTrace();
 			}
 		}	
+		/**** Reply related Dates ****/
+		if(domain.getReplyRequestedDate() != null) {
+			model.addAttribute("formattedReplyRequestedDate",
+					FormaterUtil.formatDateToString(domain.getReplyRequestedDate(), 
+							ApplicationConstants.SERVER_DATETIMEFORMAT, domain.getLocale()));
+		}
+		if(domain.getReplyReceivedDate()!=null) {
+			model.addAttribute("formattedReplyReceivedDate", 
+					FormaterUtil.formatDateToString(domain.getReplyReceivedDate(),
+							ApplicationConstants.SERVER_DATETIMEFORMAT, domain.getLocale()));
+		}
 		model.addAttribute("formater", new FormaterUtil());
 		super.populateUpdateIfErrors(model, domain, request);
 	}
@@ -1767,6 +1789,15 @@ public class CutMotionController extends GenericController<CutMotion>{
 				domain.setRecommendationStatus(status);
 				domain.setWorkflowStarted("NO");
 			}
+		}
+		/**** reply related dates ****/
+		String strReplyRequestedDate = request.getParameter("setReplyRequestedDate");
+		if(strReplyRequestedDate != null && !strReplyRequestedDate.isEmpty()) {
+			domain.setReplyRequestedDate(FormaterUtil.formatStringToDate(strReplyRequestedDate, ApplicationConstants.SERVER_DATETIMEFORMAT));					
+		}
+		String strReplyReceivedDate = request.getParameter("setReplyReceivedDate");
+		if(strReplyReceivedDate !=null && !strReplyReceivedDate.isEmpty()) {
+			domain.setReplyReceivedDate(FormaterUtil.formatStringToDate(strReplyReceivedDate, ApplicationConstants.SERVER_DATETIMEFORMAT));					
 		}
 		/**** Edited On,Edited By and Edited As is set ****/
 		domain.setEditedOn(new Date());

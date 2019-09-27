@@ -241,6 +241,30 @@ public class CutMotion extends Device implements Serializable {
 	@Temporal(TemporalType.DATE)
 	private Date discussionDate;
 	
+	/** The date of reply requested to department. */
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date replyRequestedDate;
+    
+    /** The date of reply received from department. */
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date replyReceivedDate;
+    
+    /** The reply received mode (ONLINE/OFFLINE). */
+    @Column(name="reply_received_mode", length=50)
+    private String replyReceivedMode;
+    
+    /** The last date of reply receiving from department. */
+    @Temporal(TemporalType.DATE)
+    private Date lastDateOfReplyReceiving;
+    
+    /**** Fields for storing the confirmation of Group change ****/
+    private Boolean transferToDepartmentAccepted = false;
+    
+    private Boolean mlsBranchNotifiedOfTransfer = false;
+    
+    /**** Reason for Late Reply ****/
+    @Column(name="reason_for_late_reply",length=30000)
+    private String reasonForLateReply;
 	
 	private String workflowStarted;
 
@@ -2410,5 +2434,61 @@ public class CutMotion extends Device implements Serializable {
 
 	public void setDataEnteredBy(String dataEnteredBy) {
 		this.dataEnteredBy = dataEnteredBy;
+	}
+
+	public Date getReplyRequestedDate() {
+		return replyRequestedDate;
+	}
+
+	public void setReplyRequestedDate(Date replyRequestedDate) {
+		this.replyRequestedDate = replyRequestedDate;
+	}
+
+	public Date getReplyReceivedDate() {
+		return replyReceivedDate;
+	}
+
+	public void setReplyReceivedDate(Date replyReceivedDate) {
+		this.replyReceivedDate = replyReceivedDate;
+	}
+
+	public String getReplyReceivedMode() {
+		return replyReceivedMode;
+	}
+
+	public void setReplyReceivedMode(String replyReceivedMode) {
+		this.replyReceivedMode = replyReceivedMode;
+	}
+
+	public Date getLastDateOfReplyReceiving() {
+		return lastDateOfReplyReceiving;
+	}
+
+	public void setLastDateOfReplyReceiving(Date lastDateOfReplyReceiving) {
+		this.lastDateOfReplyReceiving = lastDateOfReplyReceiving;
+	}
+
+	public Boolean getTransferToDepartmentAccepted() {
+		return transferToDepartmentAccepted;
+	}
+
+	public void setTransferToDepartmentAccepted(Boolean transferToDepartmentAccepted) {
+		this.transferToDepartmentAccepted = transferToDepartmentAccepted;
+	}
+
+	public Boolean getMlsBranchNotifiedOfTransfer() {
+		return mlsBranchNotifiedOfTransfer;
+	}
+
+	public void setMlsBranchNotifiedOfTransfer(Boolean mlsBranchNotifiedOfTransfer) {
+		this.mlsBranchNotifiedOfTransfer = mlsBranchNotifiedOfTransfer;
+	}
+
+	public String getReasonForLateReply() {
+		return reasonForLateReply;
+	}
+
+	public void setReasonForLateReply(String reasonForLateReply) {
+		this.reasonForLateReply = reasonForLateReply;
 	}
 }

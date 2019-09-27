@@ -18,6 +18,7 @@ import javax.validation.Valid;
 import org.mkcl.els.common.editors.BaseEditor;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BulkApprovalVO;
 import org.mkcl.els.common.vo.MasterVO;
@@ -26,12 +27,14 @@ import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
+import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
@@ -434,7 +437,75 @@ public class CutMotionWorkflowController extends BaseController {
 		model.addAttribute("usergroupType", workflowDetails.getAssigneeUserGroupType());
 		model.addAttribute("userGroupName", workflowDetails.getAssigneeUserGroupName());
 		model.addAttribute("userName", this.getCurrentUser().getActualUsername());
+		
+		/** Set Last Date of Answer Receiving from Department **/
+		Date lastDateOfReplyReceiving = null;
+		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
+				&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)
+				&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_SENDTOSECTIONOFFICER)) {
+			
+			String daysCountForReceivingReplyFromDepartment = "30";
+			CustomParameter csptDaysCountForReceivingReplyFromDepartment = CustomParameter.findByName(CustomParameter.class, domain.getDeviceType().getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+ApplicationConstants.DAYS_COUNT_FOR_RECEIVING_ANSWER_FROM_DEPARTMENT, "");
+			if(csptDaysCountForReceivingReplyFromDepartment!=null
+					&& csptDaysCountForReceivingReplyFromDepartment.getValue()!=null) {
+				daysCountForReceivingReplyFromDepartment = csptDaysCountForReceivingReplyFromDepartment.getValue();
+			}
+			if(domain.getReplyRequestedDate()!=null) {
+				lastDateOfReplyReceiving = Holiday.getNextWorkingDateFrom(domain.getReplyRequestedDate(), Integer.parseInt(daysCountForReceivingReplyFromDepartment), locale);
+			} else {
+				lastDateOfReplyReceiving = Holiday.getNextWorkingDateFrom(new Date(), Integer.parseInt(daysCountForReceivingReplyFromDepartment), locale);
+			}
+			domain.setLastDateOfReplyReceiving(lastDateOfReplyReceiving);
+		} else {
+			if(domain.getLastDateOfReplyReceiving()!=null) {
+				lastDateOfReplyReceiving = domain.getLastDateOfReplyReceiving();
+			}
+		}
+		if(lastDateOfReplyReceiving!=null) {
+			model.addAttribute("lastDateOfReplyReceiving", lastDateOfReplyReceiving);
+			model.addAttribute("formattedLastReplyReceivingDate", FormaterUtil.formatDateToString(lastDateOfReplyReceiving, ApplicationConstants.SERVER_DATEFORMAT, locale));
+		}
+		/**** To have the task creation date and lateReplyFillingFlag if userGroup is department related ***/
+		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+				|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+			boolean canAdd = false;
 
+			try{	
+				/** validation for restricting late Reply filling **/				
+				if(domain.getStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)) {
+					//check validation flag
+					CustomParameter csptValidationFlagForLastReceivingDateFromDepartment = CustomParameter.findByName(CustomParameter.class, domain.getDeviceType().getType().toUpperCase()+"_"+domain.getHouseType().getType().toUpperCase()+"_"+ApplicationConstants.VALIDATION_FLAG_FOR_LAST_RECEIVING_DATE_FROM_DEPARTMENT, "");
+					if(csptValidationFlagForLastReceivingDateFromDepartment!=null) {
+						String validationFlagForLastReceivingDateFromDepartment = csptValidationFlagForLastReceivingDateFromDepartment.getValue();
+						if(validationFlagForLastReceivingDateFromDepartment!=null
+								&& !validationFlagForLastReceivingDateFromDepartment.isEmpty()) {
+							if(Boolean.valueOf(validationFlagForLastReceivingDateFromDepartment)) {
+								//perform validation
+								if(DateUtil.compareDatePartOnly(domain.getLastDateOfReplyReceiving(), new Date())<0) {
+									model.addAttribute("lateReplyFillingFlag", "set");
+								}
+							}
+						}
+					}
+				}
+				CustomParameter serverTimeStamp = 
+						CustomParameter.findByName(CustomParameter.class,"SERVER_TIMESTAMP","");
+				if(serverTimeStamp != null){
+					if(workflowDetails.getAssignmentTime() != null){	
+						String formattedTaskCreationDate = FormaterUtil.
+								getDateFormatter(serverTimeStamp.getValue(),locale).
+								format(workflowDetails.getAssignmentTime());
+						model.addAttribute("taskCreationDate", formattedTaskCreationDate);
+					}
+				}
+				canAdd = true;
+			}catch(Exception e){
+				logger.error("task creation date is missing.: " + e.getMessage());
+			}
+			if(!canAdd){
+				model.addAttribute("taskCreationDate", "");
+			}
+		}
 		/**** Status,Internal Status and recommendation Status ****/
 		Status status = domain.getStatus();
 		Status internalStatus = domain.getInternalStatus();
@@ -556,6 +627,13 @@ public class CutMotionWorkflowController extends BaseController {
 				domain.setLocalizedActorName(actorArr[3] + "(" + actorArr[4] + ")");
 			}
 		}
+		/**** Reply related Dates ****/
+		if(domain.getReplyRequestedDate()!=null) {
+			model.addAttribute("formattedReplyRequestedDate", FormaterUtil.formatDateToString(domain.getReplyRequestedDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+		}
+		if(domain.getReplyReceivedDate()!=null) {
+			model.addAttribute("formattedReplyReceivedDate", FormaterUtil.formatDateToString(domain.getReplyReceivedDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+		}
 		/**** add domain to model ****/
 		model.addAttribute("domain", domain);
 	}
@@ -651,7 +729,15 @@ public class CutMotionWorkflowController extends BaseController {
 			}
 			/**** Workflowdetails ****/
 			WorkflowDetails workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, domain.getWorkflowDetailsId());
+			if(workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)) {
+				/**** display message ****/
+				model.addAttribute("type","taskalreadycompleted");
+				return "workflow/info";
+			}
 			userGroupType = workflowDetails.getAssigneeUserGroupType();
+			CutMotion cutMotion = CutMotion.findById(CutMotion.class, domain.getId());
+			Ministry prevMinistry = cutMotion.getMinistry();
+			SubDepartment prevSubDepartment = cutMotion.getSubDepartment();
 			/**** Updating domain ****/
 			domain.setEditedOn(new Date());
 			domain.setEditedBy(this.getCurrentUser().getActualUsername());
@@ -703,7 +789,52 @@ public class CutMotionWorkflowController extends BaseController {
 				domain.setTotalAmoutDemanded(totalAmountDemanded);
 				System.out.println("totalAmountDemanded: " + domain.getTotalAmoutDemanded());
 			}
+			/**** reply related processing and dates ****/
+			String operation = request.getParameter("operation");
+			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
+					&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_SENDTOSECTIONOFFICER)){
+				if(operation!=null && operation.equals("workflowsubmit")){
+					if(domain.getTransferToDepartmentAccepted()==null || domain.getTransferToDepartmentAccepted().equals(false)) {
+						if(domain.getReply() == null || domain.getReply().isEmpty()){
+							result.rejectValue("reply", "ReplyEmpty");
+							if(!model.containsAttribute("errorcode")){
+								model.addAttribute("errorcode","no_reply_provided_department");								
+							}
+							return "workflow/myTasks/error";
+						}
+					}
+				}
+			}
+			String strReplyRequestedDate = request.getParameter("setReplyRequestedDate");
+			if(strReplyRequestedDate != null && !strReplyRequestedDate.isEmpty()) {
+				domain.setReplyRequestedDate(FormaterUtil.formatStringToDate(strReplyRequestedDate, ApplicationConstants.SERVER_DATETIMEFORMAT));					
+			}
+			String strReplyReceivedDate = request.getParameter("setReplyReceivedDate");
+			if(strReplyReceivedDate !=null && !strReplyReceivedDate.isEmpty()) {
+				domain.setReplyReceivedDate(FormaterUtil.formatStringToDate(strReplyReceivedDate, ApplicationConstants.SERVER_DATETIMEFORMAT));
+			}
+			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
+					&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)
+					&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_SENDTODEPARTMENT)
+					&& (domain.getReply()==null || domain.getReply().isEmpty())) {
+				if(strReplyRequestedDate == null || strReplyRequestedDate.isEmpty()) {
+					domain.setReplyRequestedDate(new Date());
+				}				
+			}			
+			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
+					&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)
+					&& domain.getReply()!=null && !domain.getReply().isEmpty() && domain.getReplyReceivedDate()==null) {					
+				domain.setReplyReceivedDate(new Date());
+				domain.setReplyReceivedMode(ApplicationConstants.REPLY_RECEIVED_MODE_ONLINE);
+			}
 			
+			String strLastDateOfReplyReceiving = request.getParameter("setLastDateOfReplyReceiving");
+			if(strLastDateOfReplyReceiving!=null && !strLastDateOfReplyReceiving.isEmpty()) {
+				Date lastDateOfReplyReceiving = FormaterUtil.getDateFormatter("en_US").parse(strLastDateOfReplyReceiving);
+				//Added the above code as the following code was giving exception of unparseble date
+				//Date lastDateOfReplyReceiving = FormaterUtil.formatStringToDate(strLastDateOfReplyReceiving, ApplicationConstants.DB_DATEFORMAT, locale.toString());
+				domain.setLastDateOfReplyReceiving(lastDateOfReplyReceiving);
+			}
 			//---new code
 			String currentDeviceTypeWorkflowType = null;
 			Workflow workflowFromUpdatedStatus = null;
@@ -739,6 +870,55 @@ public class CutMotionWorkflowController extends BaseController {
 			if(currentDeviceTypeWorkflowType==null) {
 				workflowFromUpdatedStatus = Workflow.findByStatus(domain.getInternalStatus(), domain.getLocale());
 				currentDeviceTypeWorkflowType = workflowFromUpdatedStatus.getType();
+			}
+			
+			boolean isMinistryChanged = false;
+			boolean isSubDepartmentChanged = false;
+			if(domain.getMinistry()!=null && !domain.getMinistry().equals(prevMinistry)){
+				isMinistryChanged = true;
+			}else if(domain.getSubDepartment()!=null && !domain.getSubDepartment().equals(prevSubDepartment)){
+				isSubDepartmentChanged = true;
+			}			
+			
+			if(isMinistryChanged || isSubDepartmentChanged){
+				Status sendToDepartmentStatus = Status.findByType(ApplicationConstants.CUTMOTION_PROCESSED_SENDTODEPARTMENT, locale.toString());
+				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+						|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+					domain.setRecommendationStatus(sendToDepartmentStatus);
+				} else {
+					domain.setRecommendationStatus(domain.getInternalStatus());
+				}
+				List<ClubbedEntity> clubbedEntities = CutMotion.findClubbedEntitiesByPosition(domain);
+				if(clubbedEntities!=null) {
+					for(ClubbedEntity ce: clubbedEntities) {
+						AdjournmentMotion clubbedAdjournmentMotion = ce.getAdjournmentMotion();
+						clubbedAdjournmentMotion.setMinistry(domain.getMinistry());
+						clubbedAdjournmentMotion.setSubDepartment(domain.getSubDepartment());
+						clubbedAdjournmentMotion.merge();
+					}
+				}			
+				domain.merge();
+				cutMotion = AdjournmentMotion.findById(AdjournmentMotion.class,domain.getId()); //added in order to avoid optimistic lock exception
+				cutMotion.removeExistingWorkflowAttributes();								
+				// Before ending wfDetails process collect information
+				// which will be useful for creating a new process later.
+				int assigneeLevel = 
+					Integer.parseInt(workflowDetails.getAssigneeLevel());
+				UserGroupType ugt = UserGroupType.findByType(userGroupType, locale.toString());				
+				WorkflowDetails.endProcess(workflowDetails);
+				if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+					ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale.toString());	
+					assigneeLevel = assigneeLevel - 1;
+				}
+				Workflow workflow = Workflow.findByStatus(cutMotion.getInternalStatus(), locale.toString());
+				//Motion in Post final status and pre ballot state can be group changed by Department 
+				//as well as assistant of Secretariat
+				WorkflowDetails.startProcessAtGivenLevel(cutMotion, ApplicationConstants.APPROVAL_WORKFLOW, workflow, ugt, assigneeLevel, locale.toString());
+				
+				/**** display message ****/
+				
+				model.addAttribute("type","taskcompleted");
+				return "workflow/info";
 			}
 			
 			CutMotion motion = CutMotion.findById(CutMotion.class, domain.getId());
@@ -810,6 +990,9 @@ public class CutMotionWorkflowController extends BaseController {
 			populateModel(domain, model, request, workflowDetails);
 		}catch(ELSException ex){
 			model.addAttribute("error", ex.getParameter());
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return "workflow/cutmotion/" + userGroupType;
 	}

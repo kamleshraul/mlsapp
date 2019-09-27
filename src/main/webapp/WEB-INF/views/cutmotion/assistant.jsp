@@ -542,6 +542,24 @@
 			}
 	        return false;
 	    });
+		/**** On Update Validations If Any ****/
+		$("#submit").click(function(e){
+			var reply = $('#reply').val();
+			if(reply!=undefined && reply!='' && reply!='-' 
+					&& reply!='<p>-</p>' && reply!='<p></p>' && reply!='<p></p>-' && reply!='-<p></p>'
+					&& reply!='<br><p></p>' && reply!='<p><br></p>' && reply!='-<br><p></p>'
+					&& reply!='<p>-<br></p>' && reply!='<p><br>-</p>') {
+				if($('#replyRequestedDate').val()=='') {
+					$.prompt("Please update reply requested date for the cutmotion!");
+					return false;
+				} else {
+					if($('#replyReceivedDate').val()=='') {
+						$.prompt("Please update reply received date for the cutmotion!");
+						return false;
+					}
+				}
+			}			
+		});
 	    /**** Right Click Menu ****/
 		$(".clubbedRefMotions").contextMenu({
 	        menu: 'contextMenuItems'
@@ -1021,6 +1039,56 @@
 		</p>
 	</c:if>
 	
+	<c:if test="${fn:contains(internalStatusType, 'cutmotion_final')}">
+		<form:hidden path="actor"/>
+	</c:if>
+	
+	<c:choose>
+		<c:when test="${internalStatusType eq 'cutmotion_final_admission'}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="cutmotion.reply" text="Reply"/></label>
+			<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="reply" cssClass="validationError"></form:errors>
+		</p>
+		</c:when>
+		<c:otherwise>
+			<form:hidden path="reply"/>
+		</c:otherwise>
+	</c:choose>
+	
+	<c:choose>
+		<c:when test="${not empty domain.rejectionReason}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="cutmotion.rejectionReason" text="Reply"/></label>
+			<form:textarea path="rejectionReason" cssClass="wysiwyg" readonly="true"></form:textarea>
+			<form:errors path="rejectionReason" cssClass="validationError"></form:errors>
+		</p>
+		</c:when>
+		<c:otherwise>
+			<form:hidden path="rejectionReason"/>
+		</c:otherwise>
+	</c:choose>		
+	
+	<c:choose>
+		<c:when test="${internalStatusType eq 'cutmotion_final_admission'}">
+			<p>
+				<label class="small"><spring:message code="cutmotion.replyRequestedDate" text="Reply Requested Date"/></label>
+				<input id="replyRequestedDate" name="setReplyRequestedDate" class="datetimemask sText" value="${formattedReplyRequestedDate}"/>
+			</p>
+			<p>
+				<label class="small"><spring:message code="cutmotion.replyReceivedDate" text="Reply Received Date"/></label>
+				<input id="replyReceivedDate" name="setReplyReceivedDate" class="datetimemask sText" value="${formattedReplyReceivedDate}"/>
+			</p>
+		</c:when>
+		<c:otherwise>
+			<c:if test="${not empty formattedReplyRequestedDate}">
+				<input type="hidden" id="replyRequestedDate" name="setReplyRequestedDate" class="datetimemask sText" value="${formattedReplyRequestedDate}"/>
+			</c:if>
+			<c:if test="${not empty formattedReplyReceivedDate}">
+				<input type="hidden" id="replyReceivedDate" name="setReplyReceivedDate" class="datetimemask sText" value="${formattedReplyReceivedDate}"/>
+			</c:if>
+		</c:otherwise>
+	</c:choose>	
 	
 	<p>
 		<label class="wysiwyglabel"><spring:message code="generic.remarks" text="Remarks"/></label>
@@ -1063,6 +1131,13 @@
 	<form:hidden path="file"/>
 	<form:hidden path="fileIndex"/>	
 	<form:hidden path="fileSent"/>
+	<form:hidden path="transferToDepartmentAccepted"/>
+	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
+	<form:hidden path="reasonForLateReply"/>
+	<c:if test="${not empty formattedLastReplyReceivingDate}">
+		<input type="hidden" id="lastDateOfReplyReceiving" name="setLastDateOfReplyReceiving" class="datemask sText" value="${formattedLastReplyReceivingDate}"/>
+	</c:if>
+	<input type="hidden" id="replyReceivedMode" name="replyReceivedMode" value="${domain.replyReceivedMode}"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">		
 	<input id="taskid" name="taskid" value="${taskid}" type="hidden">	
 	<input type="hidden" name="status" id="status" value="${status }">
