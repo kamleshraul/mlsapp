@@ -802,6 +802,9 @@
 	<form:hidden path="level"/>
 	<form:hidden path="localizedActorName"/>
 	<form:hidden path="workflowDetailsId"/>	
+	<form:hidden path="transferToDepartmentAccepted"/>
+	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
+	<form:hidden path="reasonForLateReply"/>
 	<form:hidden path="file"/>
 	<form:hidden path="fileIndex"/>	
 	<form:hidden path="fileSent"/>
