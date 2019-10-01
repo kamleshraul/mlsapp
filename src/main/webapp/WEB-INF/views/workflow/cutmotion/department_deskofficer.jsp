@@ -164,10 +164,10 @@
 		if(value!='-'){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			
-			var sendback=$("#internalStatusMaster option[value='adjournmentmotion_recommend_sendback']").text();			
-		    var discuss=$("#internalStatusMaster option[value='adjournmentmotion_recommend_discuss']").text();
-		    var sendToSectionOfficer=$("#internalStatusMaster option[value='adjournmentmotion_processed_sendToSectionOfficer']").text();
-			var sendToDeskOfficer=$("#internalStatusMaster option[value='adjournmentmotion_processed_sendToDeskOfficer']").text();
+			var sendback=$("#internalStatusMaster option[value='cutmotion_recommend_sendback']").text();			
+		    var discuss=$("#internalStatusMaster option[value='cutmotion_recommend_discuss']").text();
+		    var sendToSectionOfficer=$("#internalStatusMaster option[value='cutmotion_processed_sendToSectionOfficer']").text();
+			var sendToDeskOfficer=$("#internalStatusMaster option[value='cutmotion_processed_sendToDeskOfficer']").text();
 		    
 		    //reset endflag value to continue by default..then in special cases to end workflow we will set it to end
 		    $("#endFlag").val("continue");
@@ -189,7 +189,7 @@
 			/* hide submit for sending reply in case of late reply filling validation */
 			if(value == sendToSectionOfficer
 					&& $("#lateReplyFillingFlag").val()=="set"
-					&& $("#internalStatusType").val()=="adjournmentmotion_final_admission") {
+					&& $("#internalStatusType").val()=="cutmotion_final_admission") {
 				$('#submit').hide();
 			}else{
 				$('#submit').show();
@@ -499,7 +499,7 @@
 			} else { 				
 				$('#mlsBranchNotifiedOfTransfer').val(false);				
 		   	};
-		   	var sendToSectionOfficer=$("#internalStatusMaster option[value='adjournmentmotion_processed_sendToSectionOfficer']").text();
+		   	var sendToSectionOfficer=$("#internalStatusMaster option[value='cutmotion_processed_sendToSectionOfficer']").text();
 			var changedInternalStatus = $("#changeInternalStatus").val();
 			if(changedInternalStatus == sendToSectionOfficer) {
 				if(($('#reply').val()=="" || ($("#workflowstatus").val()=='COMPLETED' && $('#rereply').val()==""))){
@@ -636,7 +636,7 @@
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="cutmotion.isTransferable" text="is adjournment motion to be transfered?"/></label>
+		<label class="small"><spring:message code="cutmotion.isTransferable" text="is cut motion to be transfered?"/></label>
 		<input type="checkbox" name="isTransferable" id="isTransferable" class="sCheck">
 	</p>
 	
@@ -677,10 +677,10 @@
 	</p>	
 	
 	<p id="transferP" style="display:none;">
-		<label class="small" id="subdepartmentValue"><spring:message code="adjournmentmotion.transferToDepartmentAccepted" text="Is the Transfer to Department Accepted?"/></label>
+		<label class="small" id="subdepartmentValue"><spring:message code="cutmotion.transferToDepartmentAccepted" text="Is the Transfer to Department Accepted?"/></label>
 		<input type="checkbox" id="transferToDepartmentAccepted" name="transferToDepartmentAccepted" class="sCheck"/>
 		
-		<label class="small" style="margin-left: 175px;"><spring:message code="adjournmentmotion.mlsBranchNotified" text="Is the Respective Adjournment Motion Branch Notified?"/></label>
+		<label class="small" style="margin-left: 175px;"><spring:message code="cutmotion.mlsBranchNotified" text="Is the Respective Adjournment Motion Branch Notified?"/></label>
 		<input type="checkbox" id="mlsBranchNotifiedOfTransfer" name="mlsBranchNotifiedOfTransfer" class="sCheck"/>
 	</p>
 	
@@ -865,14 +865,14 @@
 	<c:choose>
 	<c:when test="${workflowstatus=='COMPLETED'}">
 		<p id="replyP">
-			<label class="wysiwyglabel"><spring:message code="adjournmentmotion.reply" text="Reply"/></label>
+			<label class="wysiwyglabel"><spring:message code="cutmotion.reply" text="Reply"/></label>
 			<form:textarea path="reply" cssClass="wysiwyg" readonly="true"></form:textarea>
 			<form:errors path="reply" cssClass="validationError"></form:errors>
 		</p>
 	</c:when>
 	<c:otherwise>
 		<p id="replyP">
-			<label class="wysiwyglabel"><spring:message code="adjournmentmotion.reply" text="Reply"/></label>
+			<label class="wysiwyglabel"><spring:message code="cutmotion.reply" text="Reply"/></label>
 			<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
 			<form:errors path="reply" cssClass="validationError"></form:errors>
 		</p>
@@ -880,7 +880,7 @@
 	</c:choose>
 	
 	<p id="lateReplyReasonDiv" style="display:none;">
-		<label class="wysiwyglabel"><spring:message code="adjournmentmotion.reasonForLateReply" text="Reason for Late Reply"/></label>
+		<label class="wysiwyglabel"><spring:message code="cutmotion.reasonForLateReply" text="Reason for Late Reply"/></label>
 		<form:textarea path="reasonForLateReply" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="reasonForLateReply" cssClass="validationError"></form:errors>
 	</p>	
@@ -948,7 +948,7 @@
 <input id="internalStatusType" type="hidden" value="${internalStatusType}"/>
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 <input type="hidden" id="originalLevel" value="${level}" />
-<input id="submissionMsg" value="<spring:message code='adjournmentmotion.submitForReply' text='Do you want to submit for the reply of adjournment motion?'></spring:message>" type="hidden">
+<input id="submissionMsg" value="<spring:message code='cutmotion.submitForReply' text='Do you want to submit for the reply of cut motion?'></spring:message>" type="hidden">
 
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>

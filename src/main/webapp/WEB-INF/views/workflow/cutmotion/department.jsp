@@ -880,7 +880,7 @@
 <input id="internalStatusType" type="hidden" value="${internalStatusType}"/>
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 <input type="hidden" id="originalLevel" value="${level}" />
-<input id="submissionMsg" value="<spring:message code='adjournmentmotion.submitForReply' text='Do you want to submit for the reply of adjournment motion?'></spring:message>" type="hidden">
+<input id="submissionMsg" value="<spring:message code='cutmotion.submitForReply' text='Do you want to submit for the reply of cut motion?'></spring:message>" type="hidden">
 
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
