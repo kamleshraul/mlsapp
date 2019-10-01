@@ -161,18 +161,20 @@
 	}
 	/**** load actors ****/
 	function loadActors(value){
-		if(value!='-'){
-		
+		var valueToSend = value;
+		if(value!='-'){		
 		    var sendback=$("#internalStatusMaster option[value='cutmotion_recommend_sendback']").text();			
 		    var discuss=$("#internalStatusMaster option[value='cutmotion_recommend_discuss']").text();
 		    var departmentIntimated=$("#internalStatusMaster option[value='cutmotion_processed_departmentIntimated']").text();
+		    var sendToSectionOfficer=$("#internalStatusMaster option[value='adjournmentmotion_processed_sendToSectionOfficer']").text();
+		    var sendToDepartment=$("#internalStatusMaster option[value='adjournmentmotion_processed_sendToDepartment']").text();
+		    var replyReceived = $("#internalStatusMaster option[value='adjournmentmotion_processed_replyReceived']").text();
+		    var rejectedWithReason=$("#internalStatusMaster option[value='adjournmentmotion_processed_rejectionWithReason']").text();
 		    
+		  	//reset endflag value to continue by default..then in special cases to end workflow we will set it to end
+		    $("#endFlag").val("continue");
 		    
-		    var params="cutmotion="+$("#id").val()+"&status="+value+
-			"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
-		    var resourceURL='ref/cutmotion/actors?'+params;
-		    
-		    if(value==departmentIntimated){
+		    if(value==replyReceived || value==rejectedWithReason || value==departmentIntimated){
 				$("#endFlag").val("end");
 				$("#recommendationStatus").val(value);
 				$("#actor").empty();
@@ -180,7 +182,15 @@
 				return false;
 		    }
 		    
-			$.get(resourceURL,function(data){
+		    if(value==sendToSectionOfficer || value==sendToDepartment) {
+		    	valueToSend = $("#internalStatus").val();	    	
+		    }
+		    
+			var params="cutmotion="+$("#id").val()+"&status="+valueToSend
+					+"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
+		    var resourceURL='ref/cutmotion/actors?'+params;
+		    
+		    $.get(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''){
 					var length=data.length;
 					$("#actor").empty();
@@ -194,12 +204,8 @@
 					}
 					$("#actor").html(text);
 					$("#actorDiv").show();				
-					/**** in case of sendback and discuss only recommendation status is changed ****/
-					if(value!=sendback && value!=discuss && value!=departmentIntimated){
-						$("#internalStatus").val(value);
-					} else {
-						$("#internalStatus").val($("#oldInternalStatus").val());
-					}
+					/**** in case of section officer, only recommendation status is changed ****/
+					$("#internalStatus").val($("#oldInternalStatus").val());
 					$("#recommendationStatus").val(value);	
 					/**** setting level,localizedActorName ****/
 					 var actor1=data[0].id;
@@ -209,12 +215,8 @@
 				}else{
 					$("#actor").empty();
 					$("#actorDiv").hide();
-					/**** in case of sendback and discuss only recommendation status is changed ****/
-					if(value==sendback || value==discuss) {
-						$("#internalStatus").val($("#oldInternalStatus").val());
-					} else {
-						$("#internalStatus").val(value);
-					}
+					/**** in case of section officer, only recommendation status is changed ****/
+					$("#internalStatus").val($("#oldInternalStatus").val());
 				    $("#recommendationStatus").val(value);
 				}
 			}).fail(function(){
@@ -916,6 +918,43 @@
 		<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
+	<c:choose>
+		<c:when test="${internalStatusType == 'adjournmentmotion_final_admission'}">
+			<p>
+			<label class="small"><spring:message code="adjournmentmotion.lastDateOfReplyReceiving" text="Last date of receiving reply"/></label>
+			<%-- <form:input path="lastDateOfReplyReceiving" cssClass="datemask sText" value='${formattedLastReplyReceivingDate}'/> --%>
+			<input id="lastDateOfReplyReceiving" name="setLastDateOfReplyReceiving" class="datemask sText" value="${formattedLastReplyReceivingDate}"/>
+			<form:errors path="lastDateOfReplyReceiving" cssClass="validationError"/>
+			</p>
+		</c:when>
+		<c:otherwise>
+			<input type="hidden" id="lastDateOfReplyReceiving" name="setLastDateOfReplyReceiving" class="datemask sText" value="${formattedLastReplyReceivingDate}"/>
+		</c:otherwise>
+	</c:choose>
+	
+	<c:choose>
+		<c:when test="${internalStatusType == 'adjournmentmotion_final_admission'}">
+			<p>
+				<label class="small"><spring:message code="adjournmentmotion.replyRequestedDate" text="Reply Requested Date"/></label>
+				<input id="replyRequestedDate" name="setReplyRequestedDate" class="datetimemask sText" value="${formattedReplyRequestedDate}"/>
+			</p>
+			<c:if test="${not empty formattedReplyReceivedDate}">
+			<p>
+				<label class="small"><spring:message code="adjournmentmotion.replyReceivedDate" text="Reply Received Date"/></label>
+				<input id="replyReceivedDate" name="setReplyReceivedDate" class="datetimemask sText" value="${formattedReplyReceivedDate}" readonly="readonly"/>
+			</p>
+			</c:if>
+		</c:when>
+		<c:otherwise>
+			<c:if test="${not empty formattedReplyRequestedDate}">
+				<input type="hidden" id="replyRequestedDate" name="setReplyRequestedDate" class="datetimemask sText" value="${formattedReplyRequestedDate}"/>
+			</c:if>
+			<c:if test="${not empty formattedReplyReceivedDate}">
+				<input type="hidden" id="replyReceivedDate" name="setReplyReceivedDate" class="datetimemask sText" value="${formattedReplyReceivedDate}"/>
+			</c:if>
+		</c:otherwise>
+	</c:choose>
+	
 	<table class="uiTable" style="margin-left:165px;width:600px;">
 		<thead>
 		<tr>
@@ -987,6 +1026,35 @@
 		</p>		
 	</c:if>	
 	
+	<c:choose>
+		<c:when test="${internalStatusType == 'adjournmentmotion_final_rejection'}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="adjournmentmotion.rejectionReason" text="Rejection reason"/></label>
+			<form:textarea path="rejectionReason" cssClass="wysiwyg" readonly="${workflowstatus=='COMPLETED'}"></form:textarea>
+			<form:errors path="rejectionReason" cssClass="validationError"></form:errors>
+		</p>
+		</c:when>
+		<c:otherwise>
+			<form:hidden path="rejectionReason"/>
+		</c:otherwise>
+	</c:choose>
+	
+	<c:if test="${!(empty domain.reply)}">
+	<p>
+		<label class="wysiwyglabel"><spring:message code="adjournmentmotion.reply" text="Reply"/></label>
+		<form:textarea path="reply" cssClass="wysiwyg" readonly="true"></form:textarea>
+	</p>
+	</c:if>
+	</div>
+	
+	<c:if test="${not empty domain.reasonForLateReply}">
+	<p>
+		<label class="wysiwyglabel"><spring:message code="adjournmentmotion.reasonForLateReply" text="Reason for Late Reply"/></label>
+		<form:textarea path="reasonForLateReply" cssClass="wysiwyg" readonly="true"></form:textarea>
+		<form:errors path="reasonForLateReply" cssClass="validationError"></form:errors>
+	</p>
+	</c:if>
+	
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">		
@@ -1006,6 +1074,8 @@
 	<form:hidden path="level"/>
 	<form:hidden path="localizedActorName"/>
 	<form:hidden path="workflowDetailsId"/>
+	<form:hidden path="transferToDepartmentAccepted"/>
+	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<form:hidden path="file"/>
 	<form:hidden path="fileIndex"/>	
 	<form:hidden path="fileSent"/>
