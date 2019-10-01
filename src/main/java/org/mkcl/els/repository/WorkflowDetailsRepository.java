@@ -6711,13 +6711,13 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				String userGroupName=null;				
 				String username=task.getAssignee();
 				if(username==null || username.isEmpty()){
-					throw new ELSException("WorkflowDetailsRepository_WorkflowDetail_create_adjournmentmotion_Task", "assignee is not set for the motion task");					
+					throw new ELSException("WorkflowDetailsRepository_WorkflowDetail_create_specialmentionnotice_Task", "assignee is not set for the motion task");					
 				}
 				Credential credential=Credential.findByFieldName(Credential.class,"username",username,"");
 				//UserGroup userGroup=UserGroup.findByFieldName(UserGroup.class,"credential",credential, question.getLocale());
 				UserGroup userGroup = UserGroup.findActive(credential, usergroupType, new Date(), specialMentionNotice.getLocale());
 				if(userGroup == null){
-					throw new ELSException("WorkflowDetailsRepository_WorkflowDetail_create_adjournmentmotion_Task", "there is no active usergroup for the assignee");
+					throw new ELSException("WorkflowDetailsRepository_WorkflowDetail_create_specialmentionnotice_Task", "there is no active usergroup for the assignee");
 				}
 				userGroupId=String.valueOf(userGroup.getId());
 				userGroupType=userGroup.getUserGroupType().getType();
@@ -6739,6 +6739,19 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				if(specialMentionNotice!=null){
 					if(specialMentionNotice.getId()!=null){
 						workflowDetails.setDeviceId(String.valueOf(specialMentionNotice.getId()));
+					}
+					if(userGroupType.equals(ApplicationConstants.DEPARTMENT) || userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+						if(specialMentionNotice.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+							if(specialMentionNotice.getNumber()!=null){
+								workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(specialMentionNotice.getLocale()).format(specialMentionNotice.getNumber()));
+								workflowDetails.setNumericalDevice(specialMentionNotice.getNumber().toString());
+							}
+						} else {
+							if(specialMentionNotice.getNumber()!=null){
+								workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(specialMentionNotice.getLocale()).format(specialMentionNotice.getNumber()));
+								workflowDetails.setNumericalDevice(specialMentionNotice.getNumber().toString());
+							}
+						}
 					}
 					if(specialMentionNotice.getNumber()!=null){
 						workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(specialMentionNotice.getLocale()).format(specialMentionNotice.getNumber()));
@@ -6837,7 +6850,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 			Status requestStatus = Status.findByType(ApplicationConstants.REQUEST_TO_SUPPORTING_MEMBER, specialMentionNotice.getLocale());
 			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP","");
 			if(customParameter == null || customParameter.getValue()==null || customParameter.getValue().isEmpty()){
-				throw new ELSException("WorkflowDetailsRepository_WorkflowDetail_create_adjournmentmotion_List<Task>", "Custom Parameter 'DB_TIMESTAMP' is not set.");	
+				throw new ELSException("WorkflowDetailsRepository_WorkflowDetail_create_specialmentionnotice_List<Task>", "Custom Parameter 'DB_TIMESTAMP' is not set.");	
 			}
 			SimpleDateFormat format = FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
 			for(Task i:tasks){
@@ -6847,7 +6860,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				String userGroupName=null;				
 				String username=i.getAssignee();
 				if(username==null || username.isEmpty()) {
-					throw new ELSException("WorkflowDetailsRepository_WorkflowDetail_create_adjournmentmotion_List<Task>", "assignee is not set.");
+					throw new ELSException("WorkflowDetailsRepository_WorkflowDetail_create_specialmentionnotice_List<Task>", "assignee is not set.");
 				}
 				Credential credential=Credential.findByFieldName(Credential.class,"username",username,"");
 				UserGroup userGroup=UserGroup.findActive(credential, new Date(), specialMentionNotice.getLocale());
@@ -6954,7 +6967,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				e.printStackTrace();
 				logger.error(e.getMessage());
 				ELSException elsException=new ELSException();
-				elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findCurrentWorkflowDetail_adjournmentMotion", "WorkflowDetails Not Found");
+				elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findCurrentWorkflowDetail_specialMentionNotice", "WorkflowDetails Not Found");
 				throw elsException;
 			}		
 			
@@ -6984,7 +6997,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				e.printStackTrace();
 				logger.error(e.getMessage());
 				ELSException elsException=new ELSException();
-				elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findCurrentWorkflowDetail_adjournmentMotion", "WorkflowDetails Not Found");
+				elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findCurrentWorkflowDetail_specialMentionNotice", "WorkflowDetails Not Found");
 				throw elsException;
 			}		
 			
