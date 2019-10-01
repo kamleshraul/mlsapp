@@ -184,7 +184,7 @@ public class MemberBiographyWebService {
     				if(initialLetterParameter!=null && !initialLetterParameter.isEmpty()) {
     					initialLetterParameter = new String(initialLetterParameter.getBytes("ISO-8859-1"),"UTF-8");
     				}
-    				if(initialLetterParameter!=null && !initialLetterParameter.isEmpty() && !member.getFirstName().startsWith(initialLetterParameter)  && !initialLetterParameter.startsWith("-")) {
+    				if(initialLetterParameter!=null && !initialLetterParameter.isEmpty() && !member.getFirstName().startsWith(initialLetterParameter)  && !initialLetterParameter.startsWith("सर्व")) {
     					continue;
     				} else {
     					try{
