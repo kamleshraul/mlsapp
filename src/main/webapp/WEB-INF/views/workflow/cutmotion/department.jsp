@@ -212,6 +212,7 @@
 					$("#internalStatus").val($("#oldInternalStatus").val());
 				    $("#recommendationStatus").val(value);
 				}
+				$.unblockUI();
 			}).fail(function(){
 				if($("#ErrorMsg").val()!=''){
 					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
