@@ -292,7 +292,7 @@ public class QuestionReportController extends BaseController{
 	public String getMemberDraftReportVM(@PathVariable("qId") Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
 
 		response.setContentType("text/html; charset=utf-8");		
-		return QuestionReportHelper.getCurrentStatusReportData(id, model, request, response, locale);
+		return QuestionReportHelper.getMemberDraftReportData(id, model, request, response, locale);
 	}
 	
 	@RequestMapping(value="/generateIntimationLetter" ,method=RequestMethod.GET)

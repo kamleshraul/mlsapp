@@ -1,19 +1,19 @@
 <div style="width: 750px; margin-top: 0px !important;">
 	<table style="width: 750px; margin-top: 0px !important;">
 		<tr>
-			<td style="font-size: 18px; text-decoration: underline; width:230px; text-align: center;">$formatData.get(11)</td>
+			<td style="font-size: 18px; text-decoration: underline; width:230px; text-align: center;">$formatData.get(2)</td>
 			<td style="font-size: 22px; text-decoration: underline; width:290px; text-align: center;">
-				महाराष्ट्र विधानसभा
+				महाराष्ट्र $formatData.get(3)
 			</td>	
 			<td style="font-size: 18px; text-decoration: underline; width:230px; text-align: center;">
-				$formatData.get(26)
+				$formatData.get(4)
 			</td>
 		</tr>		
 		<tr>
 			<td style="width: 750px; text-align: right; font-size: 12px;" colspan="3">
 				<!--<span style="font-weight: bold; font-size: 17px;">प्रपत्र क्रमांक :</span><br />
-				दिनांक : $formatData.get(30) <br />	-->		
-				निर्वाचन क्षेत्र: $formatData.get(16)
+				दिनांक : $formatData.get(5) <br />	-->		
+				निर्वाचन क्षेत्र: $formatData.get(6)
 			</td>
 		</tr>
 	</table>
@@ -24,7 +24,7 @@
 				सदस्यांचे नाव
 			</td>
 			<td colspan="4" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;text-align:justify;">
-				<!--$memberName<br />--> $formatData.get(17)
+				<!--$memberName<br />--> $formatData.get(7)
 			</td>
 		</tr>
 		<tr style="font-weight: bold;">													
@@ -32,93 +32,24 @@
 				प्रश्न क्रमांक
 			</td>
 			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">
-				$formatData.get(9)
+				$formatData.get(0)
 			</td>
 			<td style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">					
 				गट क्रमांक 
 			</td>
 			<td style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				#if($formatData.get(19))
-					$formatData.get(19)
+				#if($formatData.get(8))
+					$formatData.get(8)
 				#else
 					-
 				#end
 				 &nbsp;&nbsp;&nbsp;&nbsp;(
-				#if($formatData.get(20))
-					$formatData.get(20)
+				#if($formatData.get(9))
+					$formatData.get(9)
 				#else
 					-
 				#end  
 				 )
-			</td>
-		</tr>
-		#if($formatData.get(36)!='')
-		<tr style="font-weight: bold;">
-			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
-				संदर्भित प्रश्न 
-			</td>
-			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;" colspan="4";>
-				$formatData.get(38) यांचा $formatData.get(37) क्रमांक  $formatData.get(36)
-			</td>
-		</tr>
-		#end
-		#if($formatData.get(10)=='questions_starred')
-			#if($finalStatus!='अतारांकित स्वीकृत करावा' && $finalStatus!='अतारांकित करावा')
-				<tr style="font-weight: bold;">
-					<td style="font-size: 18px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
-						उत्तराचा दिनांक 
-					</td>
-					<td  style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">
-						#if($formatData.get(21))
-							$formatData.get(21)
-						#else
-							-
-						#end
-					</td>
-					<td style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">					
-						विभागाला पाठवण्याची दिनांक 
-					</td>
-					<td  style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-						#if($formatData.get(22))
-							$formatData.get(22)
-						#else
-							-
-						#end
-					</td>	
-				</tr>				
-			#end
-		#end
-		<tr style="font-weight: bold;">
-			#if($formatData.get(34)=='yes')
-				<td style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;" >					
-					ह्या प्रश्नाशी जोडलेला आहे
-				</td>
-				<td colspan="3" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;text-align:justify;">
-					#if($formatData.get(35))
-						$formatData.get(35)
-					#else
-						-
-					#end
-				</td>
-			#else
-				<td style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;" >					
-					जोडलेल्या प्रश्नांचे क्रमांक
-				</td>
-				<td colspan="3" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;text-align:justify;">
-					#if($formatData.get(33))
-						$formatData.get(33)
-					#else
-						-
-					#end
-				</td>
-			#end						
-		</tr>
-		<tr>
-			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;" >
-				स्थिती 
-			</td>
-			<td colspan="3" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;" colspan="3">
-				$formatData.get(29)
 			</td>
 		</tr>
 		<tr>
@@ -126,43 +57,27 @@
 				विषय 
 			</td>
 			<td colspan="4" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-				$formatData.get(5)
+				$formatData.get(12)
 			</td>
 		</tr>
 		<br>
 		#if($formatData.get(10)=='questions_starred' || $formatData.get(10)=='questions_unstarred' || $formatData.get(10)=='questions_shortnotice')
 			<tr>
 				<td colspan="5" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;text-align: justify;">
-					$formatData.get(4)
+					$formatData.get(13)
 				</td>
 			</tr>
 		#elseif($formatData.get(10)=='questions_halfhourdiscussion_from_question')
 			<tr>
 				<td colspan="4" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-					$formatData.get(4)
+					$formatData.get(13)
 				</td>
 			</tr>
 			<tr>
 				<td colspan="4" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-					$formatData.get(31)
+					$formatData.get(15)
 				</td>
-			</tr>
-		#elseif($formatData.get(10)=='questions_halfhourdiscussion_standalone')
-			<tr>
-				<td colspan="4" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-					$formatData.get(4)
-				</td>
-			</tr>
-			<tr>
-				<td colspan="4" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-					$formatData.get(7)
-				</td>
-			</tr>
-			<tr>
-				<td colspan="4" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-					$formatData.get(8)
-				</td>
-			</tr>
+			</tr>		
 		#end
 		<br>
 		#if($formatData.get(10)=='questions_shortnotice')
@@ -171,7 +86,7 @@
 					अल्पसूचनेने विचारण्याची कारणे
 				</td>
 				<td colspan="3" style="width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-					$formatData.get(7)
+					$formatData.get(15)
 				</td>
 			</tr>
 		#elseif($formatData.get(10)=='questions_halfhourdiscussion_from_question')
@@ -180,60 +95,10 @@
 					उपस्थित करण्याचे मुद्दे
 				</td>-->
 				<td colspan="4" style="width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-					$formatData.get(7)
+					$formatData.get(16)
 				</td>
 			</tr>		
-		#end
-		
-	</table>
-</div>
-<div style="width: 750px; border-top: 2px dotted black;">&nbsp;</div>
-<div style="width: 750px;">	
-	<table style="width: 750px; font-weight: bold; border: 2px solid black; font-size: 16px;" class="uiTable">
-		#foreach($r in $data)
-			<tr class="page-break" style="font-weight: bold;">
-				<td style="width: 120px; padding: 2px; text-align: center; min-height: 30px;">
-					#if($r.get(27)!='assistant' && $r.get(27)!='principal_secretary')
-						$r.get(1)<br>$r.get(0)
-					#else
-						&nbsp;<br>$r.get(0)
-					#end
-				</td>
-				<td style="width: 100px; padding: 2px; text-align: center;">$r.get(28)</td>
-				<td style="width: 410px; padding: 2px;">$r.get(6)</td>
-				<!--<td style="width: 120px; padding: 2px; text-align: center;">&nbsp;</td>-->
-			</tr>
-		#end
-	</table>
-	<table style="width: 750px; font-size: 17px;">
-		<tr><td colspan="3">&nbsp;</td></tr>
-		<tr>
-			<td style="width: 150px; font-size: 16px; word-wrap: break-word; padding-left: 5px; text-align: center;">
-				<!--<br><br>
-				$principalSec<br />
-				सचिव (कार्यभार)
-				-->
-			</td>
-			#if($formatData.get(10)!='questions_starred' && $formatData.get(10)!='questions_unstarred')
-				<td colspan="2" style="font-weight: bold; width: 600px; font-size: 17px; word-wrap: break-word; padding-left: 5px; text-align: center;">
-					<br>
-					#if($formatData.get(10)=='questions_shortnotice')
-						(&nbsp&nbsp;स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अतारांकित स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अस्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;चर्चा करावा&nbsp&nbsp;)<br>
-					#elseif($formatData.get(10).contains('questions_halfhourdiscussion_'))
-						(&nbsp&nbsp;स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अस्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;चर्चा करावा&nbsp&nbsp;)<br>
-					#end
-					<br><br>
-					मा. अध्यक्ष
-				</td>
-			#else
-				<td colspan="2" style="font-weight: bold; width: 600px; font-size: 17px; word-wrap: break-word; padding-left: 5px; text-align: center;">
-					<br>
-					(&nbsp&nbsp;तारांकित स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अतारांकित स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अस्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;चर्चा करावा&nbsp&nbsp;)<br>
-					<br><br>
-					मा. अध्यक्ष
-				</td>
-			#end			
-		</tr>
+		#end		
 	</table>
 </div>
 <span class='page-break-before-forced'>&nbsp;</span>
