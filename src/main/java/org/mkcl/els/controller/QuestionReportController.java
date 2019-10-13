@@ -5540,15 +5540,14 @@ class QuestionReportHelper{
 		List list = Query.findReport("QIS_MEMBERDRAFT_REPORT", parameters);
 		for(Object o : list){
 			Object[] data = (Object[]) o;
-			String details = ((data[4] != null)? data[4].toString():"-");
-			String subject = ((data[5] != null)? data[5].toString():"-");
-			String remarks = ((data[6] != null)? data[6].toString():"-");
+			String subject = ((data[12] != null)? data[5].toString():"-");
+			String details = ((data[13] != null)? data[4].toString():"-");
 			
-			((Object[])o)[17] = support;
-			((Object[])o)[4] = FormaterUtil.formatNumbersInGivenText(details, locale);
-			((Object[])o)[5] = FormaterUtil.formatNumbersInGivenText(subject, locale);
-			((Object[])o)[6] = FormaterUtil.formatNumbersInGivenText(remarks, locale);
-			try{
+			((Object[])o)[7] = support;
+			((Object[])o)[12] = FormaterUtil.formatNumbersInGivenText(subject, locale);
+			((Object[])o)[13] = FormaterUtil.formatNumbersInGivenText(details, locale);
+			
+			/*try{
 				if(question.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
 					Integer qNumber = new Integer(FormaterUtil.
 							getNumberFormatterNoGrouping(locale.toString()).parse(question.getHalfHourDiscusionFromQuestionReferenceNumber()).intValue());
@@ -5578,7 +5577,7 @@ class QuestionReportHelper{
 				}
 			}catch(Exception e){
 				logger.error("error", e);
-			}
+			}*/
 			
 			data = null;
 		}

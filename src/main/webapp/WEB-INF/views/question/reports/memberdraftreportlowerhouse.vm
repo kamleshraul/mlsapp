@@ -44,8 +44,8 @@
 					-
 				#end
 				 &nbsp;&nbsp;&nbsp;&nbsp;(
-				#if($formatData.get(9))
-					$formatData.get(9)
+				#if($formatData.get(10))
+					$formatData.get(10)
 				#else
 					-
 				#end  
@@ -61,13 +61,13 @@
 			</td>
 		</tr>
 		<br>
-		#if($formatData.get(10)=='questions_starred' || $formatData.get(10)=='questions_unstarred' || $formatData.get(10)=='questions_shortnotice')
+		#if($formatData.get(1)=='questions_starred' || $formatData.get(1)=='questions_unstarred' || $formatData.get(1)=='questions_shortnotice')
 			<tr>
 				<td colspan="5" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;text-align: justify;">
 					$formatData.get(13)
 				</td>
 			</tr>
-		#elseif($formatData.get(10)=='questions_halfhourdiscussion_from_question')
+		#elseif($formatData.get(1)=='questions_halfhourdiscussion_from_question')
 			<tr>
 				<td colspan="4" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
 					$formatData.get(13)
@@ -80,7 +80,7 @@
 			</tr>		
 		#end
 		<br>
-		#if($formatData.get(10)=='questions_shortnotice')
+		#if($formatData.get(1)=='questions_shortnotice')
 			<tr>
 				<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
 					अल्पसूचनेने विचारण्याची कारणे
@@ -89,7 +89,7 @@
 					$formatData.get(15)
 				</td>
 			</tr>
-		#elseif($formatData.get(10)=='questions_halfhourdiscussion_from_question')
+		#elseif($formatData.get(1)=='questions_halfhourdiscussion_from_question')
 			<tr>
 				<!--<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
 					उपस्थित करण्याचे मुद्दे
