@@ -2846,15 +2846,21 @@ public class ApplicationConstants {
 
 	public static final String  SPECIALMENTIONNOTICE_FINAL_REJECT_NAMECLUBBING = "specialmentionnotice_final_reject_nameclubbing";
 	
-	/**** Processed status ****/ 
+	/**** Processed status ****/
+	public static final String SPECIALMENTIONNOTICE_PROCESSED_SENDTOSECTIONOFFICER = "specialmentionnotice_processed_sendToSectionOfficer";
+	
+	public static final String SPECIALMENTIONNOTICE_PROCESSED_SENDTODEPARTMENT = "specialmentionnotice_processed_sendToDepartment";
+
 	public static final String  SPECIALMENTIONNOTICE_PROCESSED_REJECTIONWITHREASON = "specialmentionnotice_processed_rejectionWithReason";
 	
 	public static final String  SPECIALMENTIONNOTICE_PROCESSED_REPLY_RECEIVED = "specialmentionnotice_processed_replyReceived";
 	
+	public static final String SPECIALMENTIONNOTICE_PROCESSED_SENDTODESKOFFICER = "specialmentionnotice_processed_sendToDeskOfficer";
 	/**** Put Up ****/
 	public static final String  SPECIALMENTIONNOTICE_PUTUP_NAMECLUBBING="specialmentionnotice_putup_nameclubbing";
 	
 	public static final String  SPECIALMENTIONNOTICE_PUTUP_REJECTION="specialmentionnotice_putup_rejection";
+	
 	
 	/**** member status  ****/	
 	public static final String SPECIALMENTIONNOTICE_INCOMPLETE="specialmentionnotice_incomplete";
