@@ -5540,8 +5540,8 @@ class QuestionReportHelper{
 		List list = Query.findReport("QIS_MEMBERDRAFT_REPORT", parameters);
 		for(Object o : list){
 			Object[] data = (Object[]) o;
-			String subject = ((data[12] != null)? data[5].toString():"-");
-			String details = ((data[13] != null)? data[4].toString():"-");
+			String subject = ((data[12] != null)? data[12].toString():"-");
+			String details = ((data[13] != null)? data[13].toString():"-");
 			
 			((Object[])o)[7] = support;
 			((Object[])o)[12] = FormaterUtil.formatNumbersInGivenText(subject, locale);
