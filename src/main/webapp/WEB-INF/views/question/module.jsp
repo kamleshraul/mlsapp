@@ -2162,9 +2162,9 @@
 						<a href="#" id="memberwise_admitted_questions_report" class="butSim link">
 							<spring:message code="question.memberwisereport.admitted" text="Member's Admitted Questions Report"/>
 						</a> |						
-						<%-- <a href="#" id="generateMemberDraftReport" class="butSim">
+						<a href="#" id="generateMemberDraftReport" class="butSim">
 							<spring:message code="question.generateMemberDraftReport" text="Generate Member Draft Report"/>
-						</a> | --%>
+						</a> |
 					</security:authorize>
 					<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY', 'QIS_JOINT_SECRETARY')">
 						<a href="#" id="memberwise_questions_report" class="butSim link">
