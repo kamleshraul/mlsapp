@@ -248,15 +248,7 @@
 
 		$('#mlsBranchNotifiedOfTransfer').val(null);
 		$('#transferToDepartmentAccepted').val(null);
-		/*******Actor changes*************/
-		$("#actor").change(function(){
-		    var actor=$(this).val();
-		    var temp=actor.split("#");
-		    $("#level").val(temp[2]);		    
-		    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
-		    $("#actorName").val(temp[4]);
-		    $("#actorName").css('display','inline');
-	    });
+		
 		/**** Back To motion ****/
 		$("#backToMotion").click(function(){
 			$("#clubbingResultDiv").hide();
