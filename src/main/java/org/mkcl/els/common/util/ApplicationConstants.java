@@ -1884,7 +1884,7 @@ public class ApplicationConstants {
 	public static final String CUTMOTION_RECOMMEND_CLUBBING_POST_ADMISSION = "cutmotion_recommend_clubbingPostAdmission";
 	public static final String CUTMOTION_FINAL_CLUBBING_POST_ADMISSION = "cutmotion_final_clubbingPostAdmission";
 	public static final String CUTMOTION_PUTUP_UNCLUBBING = "cutmotion_putup_unclubbing";
-	public static final String CUTMOTION_PROCESSED_ANSWER_RECEIVED = "cutmotion_processed_answerReceived";
+	public static final String CUTMOTION_PROCESSED_REPLY_RECEIVED = "cutmotion_processed_replyReceived";
 	public static final String CUTMOTION_FINAL_UNCLUBBING = "cutmotion_final_unclubbing";
 	public static final String CUTMOTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING = "cutmotion_final_admitDueToReverseClubbing";
 	public static final String CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT = "cutmotion_final_clarificationNeededFromDepartment";

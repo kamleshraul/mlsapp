@@ -1786,8 +1786,8 @@ public class CutMotion extends Device implements Serializable {
 						WorkflowDetails.startProcessAtGivenLevel(child, ApplicationConstants.APPROVAL_WORKFLOW, processWorkflow, assistantUGT, 1, locale);
 					} else {
 						child.setInternalStatus(admitStatus);
-						Status answerReceivedStatus = Status.findByType(ApplicationConstants.CUTMOTION_PROCESSED_ANSWER_RECEIVED, locale);
-						child.setRecommendationStatus(answerReceivedStatus);
+						Status replyReceivedStatus = Status.findByType(ApplicationConstants.CUTMOTION_PROCESSED_REPLY_RECEIVED, locale);
+						child.setRecommendationStatus(replyReceivedStatus);
 					}
 				}
 			}	
