@@ -27,7 +27,7 @@ import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
-import org.mkcl.els.domain.AdjournmentMotion;
+import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
@@ -268,7 +268,7 @@ public class CutMotionWorkflowController extends BaseController {
 		/**** Populate Model ****/
 		populateModel(domain, model, request, workflowDetails);
 		try {
-			findLatestRemarksByUserGroup(domain, model, request);
+			findLatestRemarksByUserGroup(domain, model, request, workflowDetails);
 		} catch (ELSException e) {
 			e.printStackTrace();
 			model.addAttribute("error", e.getParameter());
@@ -677,6 +677,18 @@ public class CutMotionWorkflowController extends BaseController {
 				internalStatuses = Status.findStatusContainedIn(deviceTypeUsergroup.getValue(), locale);
 			}
 			/**** Internal Status ****/
+			List<Status> verifiedInternalStatuses = new ArrayList<Status>();
+			if(internalStatuses!=null && !internalStatuses.isEmpty()) {
+				for(Status ista: internalStatuses) {
+					if(ista.getType().trim().equals(ApplicationConstants.CUTMOTION_PROCESSED_REPLY_RECEIVED)
+							&& (domain.getReply()==null || domain.getReply().isEmpty())) {
+						continue; //skip reply received status in case reply is not available
+					}
+					verifiedInternalStatuses.add(ista);
+				}
+			}
+			internalStatuses = null;
+			internalStatuses = verifiedInternalStatuses;
 			model.addAttribute("internalStatuses", internalStatuses);
 		} catch (ELSException e) {
 			model.addAttribute("error", e.getParameter());
@@ -891,14 +903,14 @@ public class CutMotionWorkflowController extends BaseController {
 				List<ClubbedEntity> clubbedEntities = CutMotion.findClubbedEntitiesByPosition(domain);
 				if(clubbedEntities!=null) {
 					for(ClubbedEntity ce: clubbedEntities) {
-						AdjournmentMotion clubbedAdjournmentMotion = ce.getAdjournmentMotion();
-						clubbedAdjournmentMotion.setMinistry(domain.getMinistry());
-						clubbedAdjournmentMotion.setSubDepartment(domain.getSubDepartment());
-						clubbedAdjournmentMotion.merge();
+						CutMotion clubbedCutMotion = ce.getCutMotion();
+						clubbedCutMotion.setMinistry(domain.getMinistry());
+						clubbedCutMotion.setSubDepartment(domain.getSubDepartment());
+						clubbedCutMotion.merge();
 					}
 				}			
 				domain.merge();
-				cutMotion = AdjournmentMotion.findById(AdjournmentMotion.class,domain.getId()); //added in order to avoid optimistic lock exception
+				cutMotion = CutMotion.findById(CutMotion.class,domain.getId()); //added in order to avoid optimistic lock exception
 				cutMotion.removeExistingWorkflowAttributes();								
 				// Before ending wfDetails process collect information
 				// which will be useful for creating a new process later.
@@ -1882,13 +1894,56 @@ public class CutMotionWorkflowController extends BaseController {
 		}
 	}
 	
+//	@SuppressWarnings("rawtypes")
+//	private void findLatestRemarksByUserGroup(final CutMotion domain, final ModelMap model,
+//			final HttpServletRequest request)throws ELSException {
+//		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
+//		requestMap.put("cutMotionId",new String[]{String.valueOf(domain.getId())});
+//		requestMap.put("locale",new String[]{domain.getLocale()});
+//		List result=Query.findReport("CMOIS_GET_REVISION", requestMap);
+//		model.addAttribute("latestRevisions",result);
+//	}
+	
 	@SuppressWarnings("rawtypes")
 	private void findLatestRemarksByUserGroup(final CutMotion domain, final ModelMap model,
-			final HttpServletRequest request)throws ELSException {
+			final HttpServletRequest request,final WorkflowDetails workflowDetails)throws ELSException {
+		UserGroupType userGroupType = null;
+		String username = this.getCurrentUser().getUsername();
+		Credential credential = Credential.findByFieldName(Credential.class, "username", username, "");
+		List<UserGroup> ugroups = this.getCurrentUser().getUserGroups();
+		for(UserGroup ug : ugroups){
+			UserGroup usergroup = UserGroup.findActive(credential, ug.getUserGroupType(), domain.getSubmissionDate(), domain.getLocale());
+			if(usergroup != null){
+				userGroupType = usergroup.getUserGroupType();
+				break;
+			}
+		}
+		HouseType houseType = domain.getHouseType();
+		CustomParameter customParameter = null;
+		if(userGroupType!=null) {
+			customParameter = CustomParameter.findByName(CustomParameter.class, "CMOIS_LATESTREVISION_STARTINGACTOR_"+userGroupType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase(), "");
+			if(customParameter != null){
+				String strUsergroupType = customParameter.getValue();
+				userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+			}else{
+				CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "CMOIS_LATESTREVISION_STARTINGACTOR_DEFAULT"+"_"+houseType.getType().toUpperCase(), "");
+				if(defaultCustomParameter != null){
+					String strUsergroupType = defaultCustomParameter.getValue();
+					userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+				}
+			}
+		} else {
+			CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "CMOIS_LATESTREVISION_STARTINGACTOR_DEFAULT"+"_"+houseType.getType().toUpperCase(), "");
+			if(defaultCustomParameter != null){
+				String strUsergroupType = defaultCustomParameter.getValue();
+				userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+			}
+		}
 		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
 		requestMap.put("cutMotionId",new String[]{String.valueOf(domain.getId())});
 		requestMap.put("locale",new String[]{domain.getLocale()});
-		List result=Query.findReport("CMOIS_GET_REVISION", requestMap);
+		List result=Query.findReport("CMOIS_LATEST_REVISIONS", requestMap);
 		model.addAttribute("latestRevisions",result);
+		model.addAttribute("startingActor", userGroupType.getName());
 	}
 }

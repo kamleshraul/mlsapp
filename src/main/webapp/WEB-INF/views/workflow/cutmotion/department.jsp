@@ -175,23 +175,46 @@
 				valueToSend = value;
 			}
 			
-			var params="motion="+$("#id").val()+"&status="+valueToSend+
+			var params="cutmotion="+$("#id").val()+"&status="+valueToSend+
 			"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
 			var resourceURL='ref/cutmotion/actors?'+params;
 			console.log("before get");		
 			$.get(resourceURL,function(data){
 				if(data!=undefined && data!=null && data.length>0){
-					var length=data.length;
+					var actor1="";
+					var actCount = 1;
 					$("#actor").empty();
 					var text="";
 					for(var i=0;i<data.length;i++){
-						if(i!=0){
-						text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						var act = data[i].id;
+						if(value != sendToDeskOfficer){
+							var ugtActor = data[i].id.split("#");
+							var ugt = ugtActor[1];
+							if(ugt!='member' && data[i].state!='active'){
+								text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
+							}else{
+								text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
+								if(actCount == 1){
+									actor1=data[i].id;
+									actCount++;
+								}
+							}
 						}else{
-							text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
+							if(act.indexOf("section_officer") < 0){
+								var ugtActor = data[i].id.split("#")
+								var ugt = ugtActor[1];
+								if(ugt!='member' && data[i].state!='active'){
+									text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
+								}else{
+									text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
+									if(actCount == 1){
+										actor1=data[i].id;
+										actCount++;
+									}
+								}
+							}
 						}
 					}
-					text+="<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>";
 					$("#actor").html(text);
 					$("#actorDiv").show();				
 					/**** in case of department user, only recommendation status is changed ****/
@@ -284,7 +307,7 @@
 	}
 	$(document).ready(function(){
 		initControls();
-		//$('#remarks-wysiwyg-iframe').css('max-height','50px');
+		$('#remarks-wysiwyg-iframe').css('max-height','50px');
 	    $('#mlsBranchNotifiedOfTransfer').val(null);
 		$('#transferToDepartmentAccepted').val(null);
 		var demandNumberWithoutSpace = $('#demandNumber').val().replace(/ /g,''); //added in order to remove spaces in between.. to be removed if populated through master entries
@@ -292,13 +315,13 @@
 		demandNumberWithoutSpace = demandNumberWithoutSpace.replace(",", "");
 		demandNumberWithoutSpace = demandNumberWithoutSpace.replace("'", "");
 		$('#demandNumber').val(demandNumberWithoutSpace);
-		/**** Back To motion ****/
+		/**** Back To cutmotion ****/
 		$("#backToMotion").click(function(){
 			$("#clubbingResultDiv").hide();
 			$("#referencingResultDiv").hide();
 			//$("#backTomotionDiv").hide();
 			$("#assistantDiv").show();
-			/**** Hide update success/failure message on coming back to motion ****/
+			/**** Hide update success/failure message on coming back to cutmotion ****/
 			$(".toolTip").hide();
 		});
 		/**** Ministry Changes ****/
@@ -466,7 +489,9 @@
 		}else{
 			$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 		}			    
-
+		//************Hiding Unselected Options In Ministry,Department,SubDepartment ***************//
+		$("#ministry option[selected!='selected']").hide();
+		$("#subDepartment option[selected!='selected']").hide(); 
 		if($('#workflowstatus').val()!='COMPLETED'){
 			var statusType = $("#internalStatusType").val().split("_");
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
@@ -514,20 +539,20 @@
 		<form:errors path="version" cssClass="validationError"/>
 		
 		<p style="display:none;">
-			<label class="small"><spring:message code="motion.houseType" text="House Type"/>*</label>
+			<label class="small"><spring:message code="cutmotion.houseType" text="House Type"/>*</label>
 			<input id="formattedHouseType" name="formattedHouseType" value="${formattedHouseType}" class="sText" readonly="readonly">
 			<input id="houseType" name="houseType" value="${houseType}" type="hidden">
 			<form:errors path="houseType" cssClass="validationError"/>			
 		</p>
 		
 		<p style="display:none;">
-			<label class="small"><spring:message code="motion.year" text="Year"/>*</label>
+			<label class="small"><spring:message code="cutmotion.year" text="Year"/>*</label>
 			<input id="formattedSessionYear" name="formattedSessionYear" value="${formattedSessionYear}" class="sText" readonly="readonly">
 			<input id="sessionYear" name="sessionYear" value="${sessionYear}" type="hidden">
 		</p>
 		
 		<p style="display:none;">
-			<label class="small"><spring:message code="motion.sessionType" text="Session Type"/>*</label>		
+			<label class="small"><spring:message code="cutmotion.sessionType" text="Session Type"/>*</label>		
 			<input id="formattedSessionType" name="formattedSessionType" value="${formattedSessionType}" class="sText" readonly="readonly">
 			<input id="sessionType" name="sessionType" value="${sessionType}" type="hidden">		
 			<input type="hidden" id="session" name="session" value="${session}"/>
@@ -605,7 +630,7 @@
 		</p>
 		
 		<p>
-			<label class="small"><spring:message code="cutmotion.isTransferable" text="is cut motion to be transfered?"/></label>
+			<label class="small"><spring:message code="cutmotion.isTransferable" text="is cut cutmotion to be transfered?"/></label>
 			<input type="checkbox" name="isTransferable" id="isTransferable" class="sCheck">
 		</p>
 		
@@ -672,27 +697,27 @@
 		</p>
 		
 		<p style="display:none;">
-			<label class="small"><spring:message code="motion.primaryMemberConstituency" text="Constituency"/>*</label>
+			<label class="small"><spring:message code="cutmotion.primaryMemberConstituency" text="Constituency"/>*</label>
 			<input type="text" readonly="readonly" value="${constituency}" class="sText">
 			<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
 		</p>			
 		
 		<p style="display:none;">
-			<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="motion.clubbing" text="Clubbing"></spring:message></a>
-			<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="motion.referencing" text="Referencing"></spring:message></a>
-			<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="motion.refresh" text="Refresh"></spring:message></a>	
+			<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="cutmotion.clubbing" text="Clubbing"></spring:message></a>
+			<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="cutmotion.referencing" text="Referencing"></spring:message></a>
+			<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="cutmotion.refresh" text="Refresh"></spring:message></a>	
 		</p>	
 			
 		<c:if test="${!(empty parent)}">	
 		<p style="display:none;">
-			<label class="small"><spring:message code="motion.parentmotion" text="Clubbed To"></spring:message></label>
+			<label class="small"><spring:message code="cutmotion.parentmotion" text="Clubbed To"></spring:message></label>
 			<a href="#" id="p${parent}" onclick="viewmotionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
 			<input type="hidden" id="parent" name="parent" value="${parent}">
 		</p>
 		</c:if>	
 		<c:if test="${!(empty clubbedEntities) }">
 		<p style="display:none;">
-			<label class="small"><spring:message code="motion.clubbedmotions" text="Clubbed Motions"></spring:message></label>
+			<label class="small"><spring:message code="cutmotion.clubbedmotions" text="Clubbed Motions"></spring:message></label>
 			<c:choose>
 			<c:when test="${!(empty clubbedEntities) }">
 			<c:forEach items="${clubbedEntities }" var="i">
@@ -713,7 +738,7 @@
 			
 		<c:if test="${!(empty referencedMotions) }">		
 			<p style="display:none;">
-			<label class="small"><spring:message code="motion.referencedmotions" text="Referenced Motions"></spring:message></label>
+			<label class="small"><spring:message code="cutmotion.referencedmotions" text="Referenced Motions"></spring:message></label>
 			<c:choose>
 			<c:when test="${!(empty referencedMotions) }">
 			<c:forEach items="${referencedMotions }" var="i">
@@ -729,7 +754,7 @@
 			
 		<c:if test="${!(empty referencedQuestions) }">		
 			<p style="display:none;">
-			<label class="small"><spring:message code="motion.referencedquestions" text="Referenced Questions"></spring:message></label>
+			<label class="small"><spring:message code="cutmotion.referencedquestions" text="Referenced Questions"></spring:message></label>
 			<c:choose>
 			<c:when test="${!(empty referencedQuestions) }">
 			<c:forEach items="${referencedQuestions }" var="i">
@@ -745,7 +770,7 @@
 			
 		<c:if test="${!(empty referencedResolutions) }">
 			<p style="display:none;">
-			<label class="small"><spring:message code="motion.referencedmotions" text="Referenced Resolutions"></spring:message></label>
+			<label class="small"><spring:message code="cutmotion.referencedmotions" text="Referenced Resolutions"></spring:message></label>
 			<c:choose>
 			<c:when test="${!(empty referencedResolutions) }">
 			<c:forEach items="${referencedResolutions }" var="i">
@@ -804,25 +829,25 @@
 		</p>	
 		
 		<p class="revise1" id="revisedMainTitleDiv">
-			<label class="centerlabel"><spring:message code="cutmotion.revisedSubject" text="Revised Main Title"/></label>
+			<label class="centerlabel"><spring:message code="cutmotion.mainTitle" text="Main Title"/></label>
 			<form:textarea path="revisedMainTitle" rows="2" cols="50"></form:textarea>
 			<form:errors path="revisedMainTitle" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 		
 		<p class="revise2" id="revisedSecondaryTitleDiv">
-			<label class="centerlabel"><spring:message code="cutmotion.revisedSecondaryTitle" text="Revised Secondary Title"/></label>
+			<label class="centerlabel"><spring:message code="cutmotion.secondaryTitle" text="Secondary Title"/></label>
 			<form:textarea path="revisedSecondaryTitle" rows="2" cols="50"></form:textarea>
 			<form:errors path="revisedSecondaryTitle" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 		
 		<p class="revise3" id="revisedSubTitleDiv">
-			<label class="centerlabel"><spring:message code="cutmotion.revisedSubTitle" text="Revised Sub Title"/></label>
+			<label class="centerlabel"><spring:message code="cutmotion.subTitle" text="Sub Title"/></label>
 			<form:textarea path="revisedSubTitle" rows="2" cols="50"></form:textarea>
 			<form:errors path="revisedSubTitle" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 		
 		<p class="revise4" id="revisedNoticeContentDiv">
-			<label class="wysiwyglabel"><spring:message code="cutmotion.revisedContent" text="Revised Content"/></label>
+			<label class="wysiwyglabel"><spring:message code="cutmotion.noticeContent" text="Notice Content"/></label>
 			<form:textarea path="revisedNoticeContent" cssClass="wysiwyg"></form:textarea>
 			<form:errors path="revisedNoticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
@@ -934,7 +959,7 @@
 		<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
 		
 		<c:if test="${workflowstatus != 'COMPLETED'}">
-			<p>
+			<p style="display:none;">
 				<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="cutmotion.viewcitation" text="View Citations"></spring:message></a>	
 			</p>
 		</c:if>
@@ -965,8 +990,9 @@
 		</c:if>
 		
 		<p>
-		<label class="wysiwyglabel"><spring:message code="motion.remarks" text="Remarks"/></label>
-		<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
+		<label class="centerlabel"><spring:message code="cutmotion.remarks" text="Remarks"/></label>
+		<%-- <form:textarea path="remarks" cssClass="wysiwyg" cssStyle=""></form:textarea> --%>
+		<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
 		</p>	
 		
 		<div class="fields">
