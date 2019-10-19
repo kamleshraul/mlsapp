@@ -857,7 +857,7 @@
 			<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 		</p>
 		
-		<table class="uiTable" style="margin-left: 165px;width: 900px;">
+		<table class="uiTable" style="width: 900px;">
 			<thead>
 				<tr>
 				<th>

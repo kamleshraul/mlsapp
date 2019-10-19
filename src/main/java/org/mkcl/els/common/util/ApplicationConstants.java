@@ -1834,6 +1834,7 @@ public class ApplicationConstants {
 	
 	public static final String CUTMOTION_PROCESSED_SENDTOSECTIONOFFICER = "cutmotion_processed_sendToSectionOfficer";
 	public static final String CUTMOTION_PROCESSED_SENDTODEPARTMENT = "cutmotion_processed_sendToDepartment";
+	public static final String CUTMOTION_PROCESSED_SENDTODESKOFFICER = "cutmotion_processed_sendToDeskOfficer";
 	public static final String CUTMOTION_PROCESSED_ANSWERRECEIVED = "cutmotion_processed_answerReceived";
 	public static final String CUTMOTION_PROCESSED_REJECTIONWITHREASON ="cutmotion_processed_rejectionWithReason";
 	
