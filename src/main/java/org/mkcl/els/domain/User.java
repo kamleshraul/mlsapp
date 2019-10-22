@@ -266,6 +266,11 @@ public class User extends BaseDomain implements Serializable {
 		return groupsAllowed;
 	}
 	
+	public static User findByNameBirthDate(final String firstName,final String middleName,
+			final String lastName,final Date birthDate, final String locale) throws ELSException {
+		return getUserRepository().findByNameBirthDate(firstName,middleName,lastName,birthDate,locale);
+	}
+	
 	public static User findbyNameBirthDate(final String firstName,final String middleName,
 			final String lastName,final Date birthDate) throws ELSException {
 		return getUserRepository().findbyNameBirthDate(firstName,middleName,lastName,birthDate);

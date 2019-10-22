@@ -41,6 +41,9 @@ public class Title extends BaseDomain implements Serializable {
     /** The name. */
     @Column(length = 600)
     private String name;
+    
+    @Column(length=100)
+    private String type;
 
     // ---------------------------------Constructors----------------------//
 
@@ -59,8 +62,21 @@ public class Title extends BaseDomain implements Serializable {
      * @param version the version
      */
     public Title(final String name, final String locale, final Long version) {
-        super();
+        super(locale);
         this.name = name;
+    }
+    
+    /**
+     * Instantiates a new title with type.
+     * 
+     * @param name the name
+     * @param locale the locale
+     * @param version the version
+     */
+    public Title(final String name, final String type, final String locale, final Long version) {
+        super(locale);
+        this.name = name;
+        this.type = type;
 
     }
 
@@ -83,5 +99,23 @@ public class Title extends BaseDomain implements Serializable {
      */
     public void setName(final String name) {
         this.name = name;
+    }
+    
+    /**
+     * Gets the type.
+     * 
+     * @return the type
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * Sets the type.
+     * 
+     * @param type the new type
+     */
+    public void setType(final String type) {
+        this.type = type;
     }
 }

@@ -2915,4 +2915,9 @@ public class ApplicationConstants {
 	public static final String SPECIALMENTIONNOTICEN_GET_REVISION = "SPECIALMENTIONNOTICE_GET_REVISION";
 	/**************** Special Mention Notice Completed ********************/
 	
+	/** The Constant DEFAULT_MEMBER_TENURE_YEARS_UPPERHOUSE. */
+	public static final String DEFAULT_MEMBER_TENURE_YEARS_UPPERHOUSE="6";
+	
+	public static final String DEFAULT_MEMBER_USER_START_URL = "question/module?questionType=questions_starred";
+	
 }

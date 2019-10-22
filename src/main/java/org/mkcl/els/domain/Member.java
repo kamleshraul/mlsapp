@@ -98,6 +98,18 @@ import org.springframework.beans.factory.annotation.Configurable;
 	/** The last name. */
 	@Column(length = 300)
 	private String lastName;
+	
+	/** The first name in english. */
+	@Column(length = 100)
+	private String firstNameEnglish;
+
+	/** The middle name in english. */
+	@Column(length = 100)
+	private String middleNameEnglish;
+
+	/** The last name in english. */
+	@Column(length = 100)
+	private String lastNameEnglish;
 
 	/** The birth date. */
 	@Temporal(TemporalType.DATE)
@@ -1169,6 +1181,60 @@ import org.springframework.beans.factory.annotation.Configurable;
 	 */
 	public void setLastName(final String lastName) {
 		this.lastName = lastName;
+	}
+	
+	/**
+	 * Gets the first name in english.
+	 *
+	 * @return the first name in english
+	 */
+	public String getFirstNameEnglish() {
+		return firstNameEnglish;
+	}
+
+	/**
+	 * Sets the first name in english.
+	 *
+	 * @param firstNameEnglish the new first name in english
+	 */
+	public void setFirstNameEnglish(final String firstNameEnglish) {
+		this.firstNameEnglish = firstNameEnglish;
+	}
+
+	/**
+	 * Gets the middle name in english.
+	 *
+	 * @return the middle name in english
+	 */
+	public String getMiddleNameEnglish() {
+		return middleNameEnglish;
+	}
+
+	/**
+	 * Sets the middle name in english.
+	 *
+	 * @param middleNameEnglish the new middle name in english
+	 */
+	public void setMiddleNameEnglish(final String middleNameEnglish) {
+		this.middleNameEnglish = middleNameEnglish;
+	}
+
+	/**
+	 * Gets the last name in english.
+	 *
+	 * @return the last name in english
+	 */
+	public String getLastNameEnglish() {
+		return lastNameEnglish;
+	}
+
+	/**
+	 * Sets the last name in english.
+	 *
+	 * @param lastNameEnglish the new last name in english
+	 */
+	public void setLastNameEnglish(final String lastNameEnglish) {
+		this.lastNameEnglish = lastNameEnglish;
 	}
 
 	/**

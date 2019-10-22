@@ -13,8 +13,13 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -27,6 +32,7 @@ import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.Address;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Contact;
+import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Degree;
 import org.mkcl.els.domain.FamilyMember;
@@ -43,9 +49,12 @@ import org.mkcl.els.domain.Qualification;
 import org.mkcl.els.domain.Relation;
 import org.mkcl.els.domain.Religion;
 import org.mkcl.els.domain.Reservation;
+import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Title;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
+import org.mkcl.els.service.ISecurityService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -65,6 +74,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 @RequestMapping("/member/personal")
 public class MemberPersonalController extends GenericController<Member> {
+	
+	@Autowired 
+	private ISecurityService securityService;
 
 	//adding housetype
 	/* (non-Javadoc)
@@ -462,33 +474,135 @@ public class MemberPersonalController extends GenericController<Member> {
 			if(!isMember.isEmpty()){
 				if(isMember.equals("true")){
 					Long houseId=Long.parseLong(request.getParameter("house"));
-					HouseMemberRoleAssociation houseMemberRoleAssociation=new HouseMemberRoleAssociation();
 					House house=House.findById(House.class,houseId);
 					HouseType houseType=null;
 					if(house!=null){
+						HouseMemberRoleAssociation houseMemberRoleAssociation = new HouseMemberRoleAssociation();
 						houseType=house.getType();
-						if(houseType!=null&&houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-							houseMemberRoleAssociation.setFromDate(new Date());
-							houseMemberRoleAssociation.setToDate(new Date());
+						if(houseType!=null && houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+							Calendar cal = Calendar.getInstance();		
+							cal.setTime(new Date());
+							houseMemberRoleAssociation.setFromDate(cal.getTime());							
+							CustomParameter csptDefaultMemberTenureCouncil = CustomParameter.findByName(CustomParameter.class, "DEFAULT_MEMBER_TENURE_YEARS_UPPERHOUSE", "");
+							if(csptDefaultMemberTenureCouncil!=null 
+									&& csptDefaultMemberTenureCouncil.getValue()!=null
+									&& !csptDefaultMemberTenureCouncil.getValue().isEmpty()) {
+								cal.add(Calendar.YEAR, Integer.parseInt(csptDefaultMemberTenureCouncil.getValue()));		
+								System.out.println(cal.getTime());
+								houseMemberRoleAssociation.setToDate(cal.getTime());
+							} else {
+								cal.add(Calendar.YEAR, Integer.parseInt(ApplicationConstants.DEFAULT_MEMBER_TENURE_YEARS_UPPERHOUSE));
+								System.out.println(cal.getTime());
+								houseMemberRoleAssociation.setToDate(cal.getTime());
+							}							
 						}else if(houseType!=null&&houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
 							houseMemberRoleAssociation.setFromDate(house.getFirstDate());
 							houseMemberRoleAssociation.setToDate(house.getLastDate());
 						}
-					}    	    				
-					houseMemberRoleAssociation.setHouse(house);
-					Date currentDate=new Date();
-					if(house.getLastDate()!=null){
-						if(house.getLastDate().after(currentDate)){
-							houseMemberRoleAssociation.setIsSitting(true);
+						houseMemberRoleAssociation.setHouse(house);
+						Date currentDate=new Date();
+						if(house.getLastDate()!=null){
+							if(house.getLastDate().after(currentDate)){
+								houseMemberRoleAssociation.setIsSitting(true);
+							}
 						}
-					}
-					houseMemberRoleAssociation.setMember(domain);
-					houseMemberRoleAssociation.setLocale(domain.getLocale());
-					houseMemberRoleAssociation.setRecordIndex(1);
-					CustomParameter roleLocalized=CustomParameter.findByName(CustomParameter.class,"DEFAULT_ROLE","");
-					MemberRole memberRole = MemberRole.findByNameHouseTypeLocale(roleLocalized.getValue(), house.getType().getId(), domain.getLocale());
-					houseMemberRoleAssociation.setRole(memberRole);
-					houseMemberRoleAssociation.persist();
+						houseMemberRoleAssociation.setMember(domain);
+						houseMemberRoleAssociation.setLocale(domain.getLocale());
+						houseMemberRoleAssociation.setRecordIndex(1);
+						CustomParameter roleLocalized=CustomParameter.findByName(CustomParameter.class,"DEFAULT_ROLE","");
+						MemberRole memberRole = MemberRole.findByNameHouseTypeLocale(roleLocalized.getValue(), house.getType().getId(), domain.getLocale());
+						houseMemberRoleAssociation.setRole(memberRole);
+						houseMemberRoleAssociation.persist();
+						
+						//creation of corresponding user if not created already
+						try {
+							User existingMemberUser = User.findByNameBirthDate(domain.getFirstName(), domain.getMiddleName(), domain.getLastName(), domain.getBirthDate(), domain.getLocale());
+							if(existingMemberUser==null) { //user entry is needed to be created
+								User user = new User();
+								if(domain.getTitle()!=null) {
+									user.setTitle(domain.getTitle().getName());
+								} else {
+									user.setTitle("");
+								}
+								user.setFirstName(domain.getFirstName());
+								user.setMiddleName(domain.getMiddleName());
+								user.setLastName(domain.getLastName());
+								user.setBirthDate(domain.getBirthDate());								
+								user.setBirthPlace(domain.getBirthPlace());								
+								user.setHouseType(houseType);
+								user.setJoiningDate(new Date());
+								//set credential for the user
+								Credential credential = new Credential();
+								StringBuffer usernameBuffer = new StringBuffer("");
+								if(domain.getTitle()!=null && !domain.getTitle().getType().isEmpty()) {
+									CustomParameter csptTitlesAllowedForUsernameCreation = CustomParameter.findByName(CustomParameter.class, "TITLES_ALLOWED_FOR_USERNAME_CREATION", "");
+									if(csptTitlesAllowedForUsernameCreation!=null 
+											&& csptTitlesAllowedForUsernameCreation.getValue()!=null) {
+										for(String title: csptTitlesAllowedForUsernameCreation.getValue().split(",")) {
+											title = title.trim();
+											if(domain.getTitle().getType().trim().equals(title)) {
+												usernameBuffer.append(domain.getTitle().getType());
+												break;
+											}
+										}
+										if(usernameBuffer.toString().isEmpty()) {
+											if(domain.getGender()!=null && domain.getGender().getType()!=null) {
+												if(domain.getGender().getType().equals("male")) {
+													usernameBuffer.append("shri");
+												} else if(domain.getGender().getType().equals("female")) {
+													usernameBuffer.append("smt");
+												}												
+											}
+										}
+									} else {										
+										usernameBuffer.append(domain.getTitle().getType());
+									}
+								}
+								if(domain.getFirstNameEnglish()!=null && !domain.getFirstNameEnglish().isEmpty()) {
+									usernameBuffer.append(domain.getFirstNameEnglish());
+								}
+								//find if multiple members are having same first name as well as same last name
+								Map<String, String> memberNameParameters = new HashMap<String, String>();
+								memberNameParameters.put("firstName", domain.getFirstName());
+								memberNameParameters.put("lastName", domain.getLastName());
+								List<Member> membersWithSameFirstNameLastName = Member.findAllByFieldNames(Member.class, memberNameParameters, domain.getLocale(), "lastName", ApplicationConstants.ASC);
+								if(membersWithSameFirstNameLastName.size()>1) {
+									if(domain.getMiddleNameEnglish()!=null && !domain.getMiddleNameEnglish().isEmpty()) {
+										usernameBuffer.append(domain.getMiddleNameEnglish().charAt(0));
+									}
+								}								
+								if(domain.getLastNameEnglish()!=null && !domain.getLastNameEnglish().isEmpty()) {
+									usernameBuffer.append(domain.getLastNameEnglish());
+								}
+								credential.setUsername(usernameBuffer.toString());
+								//generate and set random complex password for member login
+								String strPassword = Credential.generatePassword(Integer.parseInt(ApplicationConstants.DEFAULT_PASSWORD_LENGTH));
+								String encodedPassword = securityService.getEncodedPassword(strPassword);
+								credential.setPassword(encodedPassword);
+								//assign default member role as per housetype
+								Role memberUserRole = null;
+								if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+									memberUserRole = Role.findByType(ApplicationConstants.MEMBER_LOWERHOUSE, domain.getLocale());
+								} else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+									memberUserRole = Role.findByType(ApplicationConstants.MEMBER_UPPERHOUSE, domain.getLocale());
+								}
+								Set<Role> roles = new LinkedHashSet<Role>();
+								roles.add(memberUserRole);
+								credential.setRoles(roles);
+								credential.setEnabled(true);
+								credential.setPasswordChangeCount(1);
+								credential.setAllowedForMultiLogin(false);
+								//credential.setLocale("");
+								credential.persist();	
+								user.setCredential(credential);
+								user.setStartURL(ApplicationConstants.DEFAULT_MEMBER_USER_START_URL);
+								user.persist();
+							}
+						} catch (ELSException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}				
 				}
 			}
 		}
