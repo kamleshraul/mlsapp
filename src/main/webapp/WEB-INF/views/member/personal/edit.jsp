@@ -339,16 +339,28 @@
 	<p>
 		<label class="small"><spring:message code="member.personal.firstName" text="First Name"/></label>
 		<form:input path="firstName" cssClass="sText"/>
+		<label class="small" style="width: 80px;padding-left: 10px;">
+			<spring:message code="member.personal.firstNameEnglish" text="English Value"/>
+		</label>
+		<form:input path="firstNameEnglish" cssClass="sText"/>
 		<form:errors path="firstName" cssClass="validationError"/>	
 	</p>
 	<p>
 		<label class="small"><spring:message code="member.personal.middleName" text="Middle Name"/></label>
 		<form:input path="middleName" cssClass="sText"/>
+		<label class="small" style="width: 80px;padding-left: 10px;">
+			<spring:message code="member.personal.middleNameEnglish" text="English Value"/>
+		</label>
+		<form:input path="middleNameEnglish" cssClass="sText"/>
 		<form:errors path="middleName" cssClass="validationError"/>	
 	</p>
 	<p>
 		<label class="small"><spring:message code="member.personal.lastName" text="Last Name"/></label>
 		<form:input path="lastName" cssClass="sText"/>
+		<label class="small" style="width: 80px;padding-left: 10px;">
+			<spring:message code="member.personal.lastNameEnglish" text="English Value"/>
+		</label>
+		<form:input path="lastNameEnglish" cssClass="sText"/>
 		<form:errors path="lastName" cssClass="validationError"/>	
 	</p>
 	<p>

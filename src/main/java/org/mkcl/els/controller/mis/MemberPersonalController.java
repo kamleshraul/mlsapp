@@ -517,7 +517,7 @@ public class MemberPersonalController extends GenericController<Member> {
 						//creation of corresponding user if not created already
 						try {
 							User existingMemberUser = User.findByNameBirthDate(domain.getFirstName(), domain.getMiddleName(), domain.getLastName(), domain.getBirthDate(), domain.getLocale());
-							if(existingMemberUser==null) { //user entry is needed to be created
+							if(existingMemberUser==null || existingMemberUser.getId()==null) { //user entry is needed to be created
 								User user = new User();
 								if(domain.getTitle()!=null) {
 									user.setTitle(domain.getTitle().getName());
@@ -534,7 +534,8 @@ public class MemberPersonalController extends GenericController<Member> {
 								//set credential for the user
 								Credential credential = new Credential();
 								StringBuffer usernameBuffer = new StringBuffer("");
-								if(domain.getTitle()!=null && !domain.getTitle().getType().isEmpty()) {
+								if(domain.getTitle()!=null && domain.getTitle().getType()!=null
+										&& !domain.getTitle().getType().isEmpty()) {
 									CustomParameter csptTitlesAllowedForUsernameCreation = CustomParameter.findByName(CustomParameter.class, "TITLES_ALLOWED_FOR_USERNAME_CREATION", "");
 									if(csptTitlesAllowedForUsernameCreation!=null 
 											&& csptTitlesAllowedForUsernameCreation.getValue()!=null) {
@@ -559,7 +560,7 @@ public class MemberPersonalController extends GenericController<Member> {
 									}
 								}
 								if(domain.getFirstNameEnglish()!=null && !domain.getFirstNameEnglish().isEmpty()) {
-									usernameBuffer.append(domain.getFirstNameEnglish());
+									usernameBuffer.append(domain.getFirstNameEnglish().toLowerCase());
 								}
 								//find if multiple members are having same first name as well as same last name
 								Map<String, String> memberNameParameters = new HashMap<String, String>();
@@ -568,11 +569,11 @@ public class MemberPersonalController extends GenericController<Member> {
 								List<Member> membersWithSameFirstNameLastName = Member.findAllByFieldNames(Member.class, memberNameParameters, domain.getLocale(), "lastName", ApplicationConstants.ASC);
 								if(membersWithSameFirstNameLastName.size()>1) {
 									if(domain.getMiddleNameEnglish()!=null && !domain.getMiddleNameEnglish().isEmpty()) {
-										usernameBuffer.append(domain.getMiddleNameEnglish().charAt(0));
+										usernameBuffer.append(domain.getMiddleNameEnglish().toLowerCase().charAt(0));
 									}
 								}								
 								if(domain.getLastNameEnglish()!=null && !domain.getLastNameEnglish().isEmpty()) {
-									usernameBuffer.append(domain.getLastNameEnglish());
+									usernameBuffer.append(domain.getLastNameEnglish().toLowerCase());
 								}
 								credential.setUsername(usernameBuffer.toString());
 								//generate and set random complex password for member login
@@ -596,6 +597,7 @@ public class MemberPersonalController extends GenericController<Member> {
 								credential.persist();	
 								user.setCredential(credential);
 								user.setStartURL(ApplicationConstants.DEFAULT_MEMBER_USER_START_URL);
+								user.setLocale(domain.getLocale());
 								user.persist();
 							}
 						} catch (ELSException e) {
