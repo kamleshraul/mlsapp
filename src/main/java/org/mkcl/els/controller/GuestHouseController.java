@@ -209,7 +209,26 @@ public class GuestHouseController extends GenericController<GuestHouse> {
 
         //NotificationController.sendGuestHouseBookingNotification(guestHouseReservation, guestHouseReservation.getLocale());
         return "success";
-		}else
+		}
+		else if ( authUser.getActualUsername().equals("honblespeaker") )
+		{
+			GuestHouseReservation guestHouseReservation=new GuestHouseReservation();
+			guestHouseReservation.setLocale(locale.toString());
+			guestHouseReservation.setCreatedBy(authUser.getActualUsername());
+			guestHouseReservation.setCreationDate(currentDate);
+			guestHouseReservation.setMember(member);
+			guestHouseReservation.setGuestHouse(guestHouse);
+			guestHouseReservation.setRoomNumber(Integer.parseInt(guesthouserooms));
+			guestHouseReservation.setFromDate(fromDate);
+			guestHouseReservation.setToDate(toDate);
+			
+			
+			guestHouseReservation.merge();
+
+	        //NotificationController.sendGuestHouseBookingNotification(guestHouseReservation, guestHouseReservation.getLocale());
+	        return "success";
+		}
+		else
 		{
 	        return "failed";
 		}

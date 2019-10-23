@@ -83,8 +83,8 @@
 				   	 minDate: $('#mindate').val(), 
 				   	maxDate: $('#maxdate').val(),
 				   	startDate:$('#mindate').val(),
-				   	endDate: $('#mindate').val()
-				   	
+				   	endDate: $('#mindate').val(),
+				   	gotoDate:$('#mindate').val()
 				   	  }, function(start, end, label) {
 				   	
 				   		days = (end- start) / (1000 * 60 * 60 * 24);
@@ -236,7 +236,8 @@
 		   			$.get("guesthouse/bookingDetails?guesthouse="+$("#guesthouse").val(), function(data){
 	   				if(data != null && data.length>0){
 	   					$('#calendar').fullCalendar( 'removeEvents');
-	   					$('#calendar').fullCalendar('gotoDate', data[0].formattedNumber);
+	   					
+	   					//$('#calendar').fullCalendar('gotoDate', data[0].formattedNumber);
 
 	   					for(var i=0;i<data.length;i++){
 	   						var evento = $("#calendar").fullCalendar('clientEvents', data[i].id);
@@ -425,11 +426,10 @@
 					<div class="fields">
 						<h2></h2>
 						<security:authorize
-							access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+							access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','QIS_SPEAKER')">
 							<p class="tleft">
-								<input id="submit" name="submit" type="submit"
-									value="<spring:message code='generic.submit' text='Submit'/>"
-									class="butDef">
+							<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+							
 
 							</p>
 						</security:authorize>
