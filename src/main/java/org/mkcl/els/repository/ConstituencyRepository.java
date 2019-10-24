@@ -140,19 +140,25 @@ public class ConstituencyRepository extends BaseRepository<Constituency, Long>{
 	public List<MasterVO> findAllByHouseType(final String houseType, final String locale) throws ELSException {
 		/*String query="SELECT c.id,c.display_name FROM constituencies as c JOIN housetypes as ht WHERE ht.type='"+houseType+"' and ht.id=c.housetype_id ORDER BY c.name ASC";*/
 		
-		String strQuery = "SELECT c.id,c.displayName FROM Constituency as c " +
-							"JOIN c.houseType AS ht WHERE ht.type=:houseType "+
-								" AND ht.id=c.houseType.id ORDER BY c.name ASC";
+		String strQuery = "SELECT c.id, c.display_name FROM constituencies c"+
+							" INNER JOIN housetypes ht ON (ht.id=c.housetype_id) WHERE ht.type=:houseType"+
+							" AND c.is_retired IS false "+
+							" ORDER BY (CASE"+
+											" WHEN c.number IS NOT NULL AND c.number<>'' THEN 1"+
+											" ELSE 2"+
+									  " END),"+
+									  " (CASE"+
+											" WHEN ht.type='upperhouse' THEN c.display_name"+
+											" ELSE 1"+
+									  " END),"+
+									  " CONVERT(c.number, SIGNED)";
 		
 		List<MasterVO> constituencyVOs=new ArrayList<MasterVO>();
 		try{
-			Query jpQuery = this.em().createQuery(strQuery);
-			jpQuery.setParameter("houseType", houseType);
-			List constituencies = new ArrayList();
-			
-			
-			constituencies = jpQuery.getResultList();
-		
+			Query query = this.em().createNativeQuery(strQuery);
+			query.setParameter("houseType", houseType);
+			List constituencies = new ArrayList();					
+			constituencies = query.getResultList();		
 			for(Object i:constituencies){
 				Object[] o=(Object[]) i;
 				MasterVO masterVO=new MasterVO(Long.parseLong(o[0].toString()),(String)o[1]);
