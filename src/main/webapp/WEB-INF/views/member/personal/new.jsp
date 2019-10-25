@@ -245,7 +245,7 @@
 <c:if test="${(error!='') && (error!=null)}">
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
-<div class="fields clearfix watermark" style="background-image: url('/els/resources/images/${houseType}.jpg');">
+<div class="fields clearfix watermark">
 <form:form action="member/personal" method="POST" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="member.new.heading" text="Enter Member Details"/>		
@@ -340,7 +340,7 @@
 	</p>
 	<p>
 		<label class="small"><spring:message code="member.personal.birthDate" text="Birth Date"/></label>
-		<form:input path="birthDate" cssClass="datemask sText" />
+		<form:input path="birthDate" cssClass="datemask sText" value="24/10/1970"/>
 		<form:errors path="birthDate" cssClass="validationError"/>	
 	</p>
 	<p>
