@@ -2920,4 +2920,7 @@ public class ApplicationConstants {
 	
 	public static final String DEFAULT_MEMBER_USER_START_URL = "question/module?questionType=questions_starred";
 	
+	/** Default MLS Email Server Host Name **/
+	public static final String DEFAULT_EMAIL_HOSTNAME = "mls.org.in";
+	
 }

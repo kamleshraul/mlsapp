@@ -23,6 +23,10 @@
 			$.get(reportURL,function(data){
 				$("#userAvailable").empty();
 				$("#userAvailable").html(data);
+				/* if($('#email').val()==undefined || $('#email').val()=="") {
+					$('#email').val($("#username").val()+"@"+$("#default_email_hostname").val());
+				} */
+				$('#email').val($("#username").val()+"@"+$("#default_email_hostname").val());
 			},'html');
 			
 		});
@@ -104,7 +108,8 @@
 			<p>
 				<label class="small"><spring:message
 						code="user.email" text="Email ID" />&nbsp;*</label>
-				<input  type="text" class="sText" name="email"  />
+				<input  type="text" class="sText" name="email" id="email" />
+				<input type="hidden" id="default_email_hostname" value="${default_email_hostname}">
 			</p>
 			
 			<p>

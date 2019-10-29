@@ -35,6 +35,7 @@ import org.mkcl.els.domain.Contact;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Degree;
+import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.FamilyMember;
 import org.mkcl.els.domain.Gender;
 import org.mkcl.els.domain.House;
@@ -42,7 +43,9 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.MaritalStatus;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
+import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Nationality;
 import org.mkcl.els.domain.Profession;
 import org.mkcl.els.domain.Qualification;
@@ -50,8 +53,11 @@ import org.mkcl.els.domain.Relation;
 import org.mkcl.els.domain.Religion;
 import org.mkcl.els.domain.Reservation;
 import org.mkcl.els.domain.Role;
+import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.Title;
 import org.mkcl.els.domain.User;
+import org.mkcl.els.domain.UserGroup;
+import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.service.ISecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -514,7 +520,7 @@ public class MemberPersonalController extends GenericController<Member> {
 						houseMemberRoleAssociation.setRole(memberRole);
 						houseMemberRoleAssociation.persist();
 						
-						//creation of corresponding user if not created already
+						/** creation of corresponding user for the member if not created already **/
 						try {
 							User existingMemberUser = User.findByNameBirthDate(domain.getFirstName(), domain.getMiddleName(), domain.getLastName(), domain.getBirthDate(), domain.getLocale());
 							if(existingMemberUser==null || existingMemberUser.getId()==null) { //user entry is needed to be created
@@ -580,6 +586,9 @@ public class MemberPersonalController extends GenericController<Member> {
 								String strPassword = Credential.generatePassword(Integer.parseInt(ApplicationConstants.DEFAULT_PASSWORD_LENGTH));
 								String encodedPassword = securityService.getEncodedPassword(strPassword);
 								credential.setPassword(encodedPassword);
+								usernameBuffer.append("@");
+								usernameBuffer.append(ApplicationConstants.DEFAULT_EMAIL_HOSTNAME);
+								credential.setEmail(usernameBuffer.toString());
 								//assign default member role as per housetype
 								Role memberUserRole = null;
 								if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
@@ -599,6 +608,93 @@ public class MemberPersonalController extends GenericController<Member> {
 								user.setStartURL(ApplicationConstants.DEFAULT_MEMBER_USER_START_URL);
 								user.setLocale(domain.getLocale());
 								user.persist();
+								/** creation of corresponding usergroup for the member **/
+								UserGroup userGroup = new UserGroup();
+								userGroup.setCredential(credential);
+								UserGroupType userGroupType = UserGroupType.findByType(ApplicationConstants.MEMBER, domain.getLocale());
+								userGroup.setUserGroupType(userGroupType);
+								if(houseType!=null && houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+									Calendar cal = Calendar.getInstance();		
+									cal.setTime(new Date());
+									userGroup.setActiveFrom(cal.getTime());
+									CustomParameter csptDefaultMemberTenureCouncil = CustomParameter.findByName(CustomParameter.class, "DEFAULT_MEMBER_TENURE_YEARS_UPPERHOUSE", "");
+									if(csptDefaultMemberTenureCouncil!=null 
+											&& csptDefaultMemberTenureCouncil.getValue()!=null
+											&& !csptDefaultMemberTenureCouncil.getValue().isEmpty()) {
+										cal.add(Calendar.YEAR, Integer.parseInt(csptDefaultMemberTenureCouncil.getValue()));		
+										userGroup.setActiveTo(cal.getTime());
+									} else {
+										cal.add(Calendar.YEAR, Integer.parseInt(ApplicationConstants.DEFAULT_MEMBER_TENURE_YEARS_UPPERHOUSE));
+										userGroup.setActiveTo(cal.getTime());
+									}							
+								}else if(houseType!=null&&houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+									userGroup.setActiveFrom(new Date());
+									userGroup.setActiveTo(house.getLastDate());
+								}
+								//default usergroup parameters
+								Map<String,String> userGroupParams=new HashMap<String, String>();
+								userGroupParams.put(ApplicationConstants.HOUSETYPE_KEY+"_"+domain.getLocale(), houseType.getName());
+								userGroupParams.put(ApplicationConstants.ACTORSTATE_KEY+"_"+domain.getLocale(), ApplicationConstants.ACTOR_ACTIVE);
+								userGroupParams.put(ApplicationConstants.ACTORREMARK_KEY+"_"+domain.getLocale(), "");
+								userGroupParams.put(ApplicationConstants.GROUPSALLOWED_KEY+"_"+domain.getLocale(), "");
+								List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name",ApplicationConstants.ASC, domain.getLocale());
+								if(deviceTypes!=null && !deviceTypes.isEmpty()) {
+									if(deviceTypes.size()==1) {
+										userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), deviceTypes.get(0).getName());
+									} else {
+										StringBuffer buffer=new StringBuffer();
+										for(DeviceType j:deviceTypes){
+											buffer.append(j.getName()+"##");
+										}
+										userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), buffer.toString());
+									}
+								}
+								List<Ministry> ministries=Ministry.findAssignedMinistries(domain.getLocale());
+								if(ministries!=null && !ministries.isEmpty()) {
+									if(ministries.size()==1) {
+										userGroupParams.put(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale(), ministries.get(0).getName());
+									} else {
+										StringBuffer buffer=new StringBuffer();
+										for(Ministry j:ministries){
+											buffer.append(j.getName()+"##");
+										}
+										userGroupParams.put(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale(), buffer.toString());
+									}
+								}
+								String strMinistry=userGroup.getParameterValue(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale());
+								if(strMinistry!=null){
+									if(!strMinistry.isEmpty()){
+										String[] ministriesList=strMinistry.split("##");
+										List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministriesList,userGroup.getActiveFrom(),userGroup.getActiveTo(), domain.getLocale());
+										if(subDepartments!=null && !subDepartments.isEmpty()) {
+											if(subDepartments.size()==1) {
+												userGroupParams.put(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+domain.getLocale(), subDepartments.get(0).getName());
+											} else {
+												StringBuffer buffer=new StringBuffer();
+												for(SubDepartment j:subDepartments){
+													buffer.append(j.getName()+"##");
+												}
+												userGroupParams.put(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+domain.getLocale(), buffer.toString());
+											}
+										}
+									}
+								}
+								userGroup.setParameters(userGroupParams);
+								/** Edited By **/
+								Object supportUserName = request.getSession().getAttribute("supportUserName");
+								if(supportUserName!=null) {
+									userGroup.setEditedBy(supportUserName.toString());			
+								} else {
+									userGroup.setEditedBy(this.getCurrentUser().getActualUsername());
+								}		
+								/** Edited As **/
+								Role role = Role.findByType(ApplicationConstants.ROLE_SUPER_ADMIN, domain.getLocale()); //default user is administrator with role 'SUPER_ADMIN'
+								if(role!=null) {
+									userGroup.setEditedAs(role.getLocalizedName());
+								}
+								/** Edited ON **/
+								userGroup.setEditedOn(new Date());
+								userGroup.persist();
 							}
 						} catch (ELSException e) {
 							// TODO Auto-generated catch block

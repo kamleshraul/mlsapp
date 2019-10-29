@@ -73,8 +73,9 @@ public class UserController extends GenericController<User>{
 			List<MenuItem> menus=MenuItem.findAll(MenuItem.class,"text",ApplicationConstants.ASC, locale.toString());
 			model.addAttribute("menus",menus);
 			languages = new ArrayList<Language>();
-		
 			languages = Language.findAllLanguagesByModule("RIS",locale);
+			
+			model.addAttribute("default_email_hostname",ApplicationConstants.DEFAULT_EMAIL_HOSTNAME);
 		}catch (ELSException e) {
 			model.addAttribute("error", e.getParameter());
 		}
@@ -108,8 +109,9 @@ public class UserController extends GenericController<User>{
 			List<MenuItem> menus=MenuItem.findAll(MenuItem.class,"text",ApplicationConstants.ASC, domain.getLocale());
 			model.addAttribute("menus",menus);
 			languages = new ArrayList<Language>();
-		
 			languages = Language.findAllLanguagesByModule("RIS",domain.getLocale());
+			
+			model.addAttribute("default_email_hostname",ApplicationConstants.DEFAULT_EMAIL_HOSTNAME);
 		}catch (ELSException e) {
 			model.addAttribute("error", e.getParameter());			
 		}

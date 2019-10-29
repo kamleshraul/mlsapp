@@ -28,6 +28,7 @@
 			$.get(reportURL,function(data){
 				$("#userAvailable").empty();
 				$("#userAvailable").html(data);
+				$('#email').val($("#username").val()+"@"+$("#default_email_hostname").val());
 			},'html');
 			
 		});
@@ -128,7 +129,8 @@
 			<p>
 				<label class="small"><spring:message
 						code="user.email" text="Email ID" />&nbsp;*</label>
-				<input type="text" class="sText" name="email" value="${domain.credential.email}" />
+				<input type="text" class="sText" name="email" value="${domain.credential.email}" id="email" />
+				<input type="hidden" id="default_email_hostname" value="${default_email_hostname}">
 			</p>
 			
 			<p>
