@@ -148,9 +148,9 @@ public class MemberPersonalController extends GenericController<Member> {
 		model.addAttribute("genders", Gender.findAll(Gender.class, "name",
 				ApplicationConstants.ASC, locale));
 		model.addAttribute("religions", Religion.findAll(Religion.class,
-				"name", ApplicationConstants.ASC, locale));
+				"name", ApplicationConstants.DESC, locale));
 		model.addAttribute("reservations", Reservation.findAll(
-				Reservation.class, "name", ApplicationConstants.ASC,
+				Reservation.class, "name", ApplicationConstants.DESC,
 				locale));
 		model.addAttribute("relations", Relation.findAll(Relation.class,
 				"name", ApplicationConstants.ASC, locale));
@@ -162,7 +162,7 @@ public class MemberPersonalController extends GenericController<Member> {
 			model.addAttribute("error", e.getParameter());
 		}
 		model.addAttribute("professions", Profession.findAll(Profession.class,"name", ApplicationConstants.ASC, locale));
-		model.addAttribute("maritalStatuses", MaritalStatus.findAll(MaritalStatus.class, "name", ApplicationConstants.ASC,locale));
+		model.addAttribute("maritalStatuses", MaritalStatus.findAll(MaritalStatus.class, "name", ApplicationConstants.DESC,locale));
 	}
 
 	/* (non-Javadoc)
