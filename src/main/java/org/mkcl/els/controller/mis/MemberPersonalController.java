@@ -232,6 +232,18 @@ public class MemberPersonalController extends GenericController<Member> {
 			request.getSession().removeAttribute("houseType");
 		}
 		domain.setAliasEnabled(true);
+		try {
+			User existingMemberUser = User.findByNameBirthDate(domain.getFirstName(), domain.getMiddleName(), domain.getLastName(), domain.getBirthDate(), domain.getLocale());
+			if(existingMemberUser!=null) {
+				Credential credential = existingMemberUser.getCredential();
+				if(credential!=null) {
+					model.addAttribute("credentialEnabled", credential.isEnabled());
+				}
+			}
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	//private utility method for populating domain with family and qualifications
 	/**
@@ -402,18 +414,18 @@ public class MemberPersonalController extends GenericController<Member> {
 		if(domain.getBirthDate()==null){
 			result.rejectValue("birthDate", "BirthDateEmpty");
 		}
-		if(domain.getFirstNameEnglish()==null){
-			result.rejectValue("firstNameEnglish", "FirstNameEnglishEmpty");
-		}
-		if(domain.getFirstNameEnglish().isEmpty()){
-			result.rejectValue("firstNameEnglish", "FirstNameEnglishEmpty");
-		}       
-		if(domain.getLastNameEnglish()==null){
-			result.rejectValue("lastNameEnglish", "LastNameEnglishEmpty");
-		}
-		if(domain.getLastNameEnglish().isEmpty()){
-			result.rejectValue("lastNameEnglish", "LastNameEnglishEmpty");
-		}
+//		if(domain.getFirstNameEnglish()==null){
+//			result.rejectValue("firstNameEnglish", "FirstNameEnglishEmpty");
+//		}
+//		if(domain.getFirstNameEnglish().isEmpty()){
+//			result.rejectValue("firstNameEnglish", "FirstNameEnglishEmpty");
+//		}       
+//		if(domain.getLastNameEnglish()==null){
+//			result.rejectValue("lastNameEnglish", "LastNameEnglishEmpty");
+//		}
+//		if(domain.getLastNameEnglish().isEmpty()){
+//			result.rejectValue("lastNameEnglish", "LastNameEnglishEmpty");
+//		}
 		validateMember(domain, result);
 	}
 
@@ -610,7 +622,10 @@ public class MemberPersonalController extends GenericController<Member> {
 								Set<Role> roles = new LinkedHashSet<Role>();
 								roles.add(memberUserRole);
 								credential.setRoles(roles);
-								credential.setEnabled(true);
+								String isNamingFinal = request.getParameter("isNamingFinal");
+								if(isNamingFinal!=null && !isNamingFinal.isEmpty()) {
+									credential.setEnabled(Boolean.parseBoolean(isNamingFinal));
+								}								
 								credential.setPasswordChangeCount(1);
 								credential.setAllowedForMultiLogin(false);
 								//credential.setLocale("");
@@ -750,19 +765,81 @@ public class MemberPersonalController extends GenericController<Member> {
 			final Member domain, final HttpServletRequest request) {
 		populateIfNoErrors(model, domain, request);
 		try {
-
-			Date formattedDate = FormaterUtil.formatStringToDate(request.getParameter("oldBirthDate"),"yyyy-MM-dd");
-
-		
-				User user= User.findbyNameBirthDate(domain.getFirstName(), domain.getMiddleName(), domain.getLastName(),formattedDate);
-				if(user!=null)
-				{
-					
-					user.setBirthDate(domain.getBirthDate());
-					
-				}
-			
-			
+				Member member = Member.findById(Member.class, domain.getId());
+				User existingMemberUser = User.findbyNameBirthDate(member.getFirstName(), member.getMiddleName(), member.getLastName(), member.getBirthDate());
+				if(existingMemberUser!=null)
+				{		
+					//update birthdate in user entry of member
+					existingMemberUser.setBirthDate(domain.getBirthDate());
+					//update username in credential of the user entry (in case of corrections in english name of member)
+					Credential credential = existingMemberUser.getCredential();				
+					if(!credential.isEnabled()) {
+						if(!member.getFirstNameEnglish().equals(domain.getFirstNameEnglish())
+								|| !member.getMiddleNameEnglish().equals(domain.getMiddleNameEnglish())
+								|| !member.getLastNameEnglish().equals(domain.getLastNameEnglish())) {						
+							StringBuffer usernameBuffer = new StringBuffer("");
+							if(domain.getTitle()!=null && domain.getTitle().getType()!=null
+									&& !domain.getTitle().getType().isEmpty()) {
+								CustomParameter csptTitlesAllowedForUsernameCreation = CustomParameter.findByName(CustomParameter.class, "TITLES_ALLOWED_FOR_USERNAME_CREATION", "");
+								if(csptTitlesAllowedForUsernameCreation!=null 
+										&& csptTitlesAllowedForUsernameCreation.getValue()!=null) {
+									for(String title: csptTitlesAllowedForUsernameCreation.getValue().split(",")) {
+										title = title.trim();
+										if(domain.getTitle().getType().trim().equals(title)) {
+											usernameBuffer.append(domain.getTitle().getType());
+											break;
+										}
+									}
+									if(usernameBuffer.toString().isEmpty()) {
+										if(domain.getGender()!=null && domain.getGender().getType()!=null) {
+											if(domain.getGender().getType().equals("male")) {
+												usernameBuffer.append("shri");
+											} else if(domain.getGender().getType().equals("female")) {
+												usernameBuffer.append("smt");
+											}												
+										}
+									}
+								} else {										
+									usernameBuffer.append(domain.getTitle().getType());
+								}
+							}
+							if(domain.getFirstNameEnglish()!=null && !domain.getFirstNameEnglish().isEmpty()) {
+								usernameBuffer.append(domain.getFirstNameEnglish().toLowerCase());
+							}
+							//find if multiple members are having same first name as well as same last name
+							Map<String, String> memberNameParameters = new HashMap<String, String>();
+							memberNameParameters.put("firstName", domain.getFirstName());
+							memberNameParameters.put("lastName", domain.getLastName());
+							List<Member> membersWithSameFirstNameLastName = Member.findAllByFieldNames(Member.class, memberNameParameters, domain.getLocale(), "lastName", ApplicationConstants.ASC);
+							if(membersWithSameFirstNameLastName.size()>1) {
+								if(domain.getMiddleNameEnglish()!=null && !domain.getMiddleNameEnglish().isEmpty()) {
+									usernameBuffer.append(domain.getMiddleNameEnglish().toLowerCase().charAt(0));
+								}
+							}								
+							if(domain.getLastNameEnglish()!=null && !domain.getLastNameEnglish().isEmpty()) {
+								usernameBuffer.append(domain.getLastNameEnglish().toLowerCase());
+							}
+							credential.setUsername(usernameBuffer.toString());
+							//update email id according to username updated above
+							usernameBuffer.append("@");
+							usernameBuffer.append(ApplicationConstants.DEFAULT_EMAIL_HOSTNAME);
+							credential.setEmail(usernameBuffer.toString());
+							credential.merge();
+						}
+						//enable credential once naming is finalized
+						String isNamingFinal = request.getParameter("isNamingFinal");
+						if(isNamingFinal!=null && !isNamingFinal.isEmpty()) {
+							if(Boolean.parseBoolean(isNamingFinal)) {
+								credential.setEnabled(true);
+								credential.merge();
+							}
+						}
+					} else { //revert naming changes if any
+						domain.setFirstNameEnglish(member.getFirstNameEnglish());
+						domain.setFirstNameEnglish(member.getFirstNameEnglish());
+						domain.setFirstNameEnglish(member.getFirstNameEnglish());
+					}
+				}		
 			
 		} catch (ELSException e) {
 			// TODO Auto-generated catch block

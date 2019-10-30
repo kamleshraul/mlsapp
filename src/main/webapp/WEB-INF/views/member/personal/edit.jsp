@@ -275,6 +275,30 @@
 			$("#daughterLabel").empty();		
 			$("#daughterLabel").text($("#daughterMsg").val());				
 		}
+		//set isNamingFinal if credential of member is enabled
+		if($('#credential_enabled').val()=="true") {
+			$("#isNamingFinal").attr("checked","checked");
+			$("#isNamingFinal").attr("disabled","disabled");
+		}		
+		$("#isNamingFinal").change(function(){
+			if($(this).is(":checked")) {
+				if($('#firstNameEnglish').val()=='') {
+					$(this).val(false);
+					$(this).removeAttr("checked");
+					$.prompt("Please enter First Name in English!");
+					return false;
+				} else if($('#lastNameEnglish').val()=='') {
+					$(this).val(false);
+					$(this).removeAttr("checked");
+					$.prompt("Please enter Last Name in English!");
+					return false;
+				} else {
+					$(this).val(true);
+				}
+			} else {
+				$(this).val(false);
+			}
+		});
 	});//document.ready	
 	</script>
 </head>
@@ -366,8 +390,10 @@
 	</p>
 	<p>
 		<label class="small"><spring:message code="member.personal.alias" text="Alias Name"/></label>
-		<form:input path="alias" cssClass="sText"/>
-		<form:errors path="alias" cssClass="validationError"/>	
+		<form:input path="alias" cssClass="sText"/>		
+		<input type="checkbox" id="isNamingFinal" name="isNamingFinal" value="false" class="sCheck" style="margin-left: 94px;"/>
+		<label class="small" style="padding-left: 5px;"><spring:message code="member.personal.isNamingFinal" text="Is Naming Final?"/></label>
+		<form:errors path="alias" cssClass="validationError"/>
 	</p>
 	<p style="display: none;">
 		<label class="small"><spring:message code="member.personal.aliasEnabled" text="Alias Enabled"/></label>
@@ -589,6 +615,7 @@
     <input id="sonMsg" name="sonMsg" value="<spring:message code='member.personal.noOfSon' text='Son'/>" type="hidden">
     <input id="daughtersMsg" name="daughtersMsg" value="<spring:message code='member.personal.noOfDaughters' text='Daughters'/>" type="hidden">
 	<input id="daughterMsg" name="daughterMsg" value="<spring:message code='member.personal.noOfDaughter' text='Daughter'/>" type="hidden">
+	<input type="hidden" id="credential_enabled" name="credential_enabled" value="${credentialEnabled}">
 </form:form>
 </div>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
