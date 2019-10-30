@@ -293,7 +293,16 @@
 					$.prompt("Please enter Last Name in English!");
 					return false;
 				} else {
-					$(this).val(true);
+					$.prompt("Do you really want to finalize the names?", {
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+				        	$("#isNamingFinal").val(true);
+				        } else {
+				        	$("#isNamingFinal").val(false);
+				        	$("#isNamingFinal").removeAttr("checked");
+				        }
+					}});
+					return false;
 				}
 			} else {
 				$(this).val(false);
