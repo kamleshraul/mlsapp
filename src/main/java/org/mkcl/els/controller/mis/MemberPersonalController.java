@@ -402,7 +402,18 @@ public class MemberPersonalController extends GenericController<Member> {
 		if(domain.getBirthDate()==null){
 			result.rejectValue("birthDate", "BirthDateEmpty");
 		}
-		
+		if(domain.getFirstNameEnglish()==null){
+			result.rejectValue("firstNameEnglish", "FirstNameEnglishEmpty");
+		}
+		if(domain.getFirstNameEnglish().isEmpty()){
+			result.rejectValue("firstNameEnglish", "FirstNameEnglishEmpty");
+		}       
+		if(domain.getLastNameEnglish()==null){
+			result.rejectValue("lastNameEnglish", "LastNameEnglishEmpty");
+		}
+		if(domain.getLastNameEnglish().isEmpty()){
+			result.rejectValue("lastNameEnglish", "LastNameEnglishEmpty");
+		}
 		validateMember(domain, result);
 	}
 
@@ -637,18 +648,38 @@ public class MemberPersonalController extends GenericController<Member> {
 								userGroupParams.put(ApplicationConstants.ACTORSTATE_KEY+"_"+domain.getLocale(), ApplicationConstants.ACTOR_ACTIVE);
 								userGroupParams.put(ApplicationConstants.ACTORREMARK_KEY+"_"+domain.getLocale(), "");
 								userGroupParams.put(ApplicationConstants.GROUPSALLOWED_KEY+"_"+domain.getLocale(), "");
-								List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name",ApplicationConstants.ASC, domain.getLocale());
-								if(deviceTypes!=null && !deviceTypes.isEmpty()) {
-									if(deviceTypes.size()==1) {
-										userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), deviceTypes.get(0).getName());
-									} else {
-										StringBuffer buffer=new StringBuffer();
-										for(DeviceType j:deviceTypes){
-											buffer.append(j.getName()+"##");
+								List<DeviceType> deviceTypes = null;
+								CustomParameter csptAllowedDeviceTypesForMember = CustomParameter.findByName(CustomParameter.class, "ALLOWED_DEVICETYPES_FOR_MEMBER", domain.getLocale());
+								if(csptAllowedDeviceTypesForMember!=null 
+										&& csptAllowedDeviceTypesForMember.getValue()!=null
+										&& !csptAllowedDeviceTypesForMember.getValue().isEmpty()) {
+//									deviceTypes=DeviceType.findAll(DeviceType.class, "name",ApplicationConstants.ASC, domain.getLocale());
+//									if(deviceTypes!=null && !deviceTypes.isEmpty()) {
+//										if(deviceTypes.size()==1) {
+//											userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), deviceTypes.get(0).getName());
+//										} else {
+//											StringBuffer buffer=new StringBuffer();
+//											for(DeviceType j:deviceTypes){
+//												buffer.append(j.getName()+"##");
+//											}
+//											userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), buffer.toString());
+//										}
+//									}
+									userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), csptAllowedDeviceTypesForMember.getValue());
+								} else {
+									deviceTypes=DeviceType.findAll(DeviceType.class, "name",ApplicationConstants.ASC, domain.getLocale());
+									if(deviceTypes!=null && !deviceTypes.isEmpty()) {
+										if(deviceTypes.size()==1) {
+											userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), deviceTypes.get(0).getName());
+										} else {
+											StringBuffer buffer=new StringBuffer();
+											for(DeviceType j:deviceTypes){
+												buffer.append(j.getName()+"##");
+											}
+											userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), buffer.toString());
 										}
-										userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), buffer.toString());
 									}
-								}
+								}								
 								List<Ministry> ministries=Ministry.findAssignedMinistries(domain.getLocale());
 								if(ministries!=null && !ministries.isEmpty()) {
 									if(ministries.size()==1) {
@@ -661,11 +692,11 @@ public class MemberPersonalController extends GenericController<Member> {
 										userGroupParams.put(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale(), buffer.toString());
 									}
 								}
-								String strMinistry=userGroup.getParameterValue(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale());
+								String strMinistry=userGroupParams.get(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale());
 								if(strMinistry!=null){
 									if(!strMinistry.isEmpty()){
 										String[] ministriesList=strMinistry.split("##");
-										List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministriesList,userGroup.getActiveFrom(),userGroup.getActiveTo(), domain.getLocale());
+										List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministriesList, domain.getLocale());
 										if(subDepartments!=null && !subDepartments.isEmpty()) {
 											if(subDepartments.size()==1) {
 												userGroupParams.put(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+domain.getLocale(), subDepartments.get(0).getName());
@@ -694,7 +725,8 @@ public class MemberPersonalController extends GenericController<Member> {
 								}
 								/** Edited ON **/
 								userGroup.setEditedOn(new Date());
-								userGroup.persist();
+								userGroup.setLocale(domain.getLocale());
+								userGroup.persist();								
 							}
 						} catch (ELSException e) {
 							// TODO Auto-generated catch block

@@ -284,7 +284,8 @@
 <c:if test="${(error!='') && (error!=null)}">
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
-<div class="fields clearfix watermark" style="background-image: url('/els/resources/images/${houseType}.jpg');">
+<%-- <div class="fields clearfix watermark" style="background-image: url('/els/resources/images/${houseType}.jpg');"> --%>
+<div class="fields clearfix watermark">
 <form:form action="member/personal" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="member.new.heading" text="Enter Details"/>:&nbsp;
