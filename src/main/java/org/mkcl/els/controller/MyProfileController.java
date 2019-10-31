@@ -2,13 +2,17 @@ package org.mkcl.els.controller;
 
 import java.util.Date;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.util.PasswordValidator;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.service.ISecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +60,14 @@ public class MyProfileController extends BaseController {
         	model.addAttribute("confirmedPassword",request.getSession().getAttribute("confirmedPassword"));
             request.getSession().removeAttribute("confirmedPassword");
         }
+        
+        /** birth date **/
+        if(request.getSession().getAttribute("birthDate")==null){
+            model.addAttribute("birthDate","");
+        }else{
+        	model.addAttribute("birthDate",request.getSession().getAttribute("birthDate"));
+            request.getSession().removeAttribute("birthDate");
+        }
         CustomParameter cpSecretKey = CustomParameter.findByName(CustomParameter.class, "SECRET_KEY_FOR_ENCRYPTION", "");
         if(cpSecretKey != null){
         	model.addAttribute("secret_key", cpSecretKey.getValue());
@@ -89,10 +101,14 @@ public class MyProfileController extends BaseController {
 		String existingPassword = request.getParameter("existingPassword");
 		String newPassword = request.getParameter("newPassword");
 		String confirmedPassword = request.getParameter("confirmedPassword");
-		if(username!=null && !username.isEmpty() && existingPassword!=null && !existingPassword.isEmpty()
+		String birthDate = request.getParameter("birthDate");
+		
+		if(username!=null && !username.isEmpty() && birthDate!=null && !birthDate.isEmpty() && existingPassword!=null && !existingPassword.isEmpty()
 				&& newPassword!=null && !newPassword.isEmpty() && confirmedPassword!=null
 				&& !confirmedPassword.isEmpty() && newPassword.equals(confirmedPassword)) {
 			User user = null;
+			String format = ApplicationConstants.SERVER_DATEFORMAT;
+			
 			try {
 				user = User.findByUserName(username, locale.toString());
 			} catch (ELSException e) {
@@ -114,7 +130,29 @@ public class MyProfileController extends BaseController {
 								credential.setPassword(encodedPassword);
 								credential.setPasswordChangeCount(credential.getPasswordChangeCount()+1);
 								credential.setPasswordChangeDateTime(currentDate);
-								credential.merge();						
+								credential.merge();	
+								Date bDate = FormaterUtil.formatStringToDate(birthDate, format);
+								
+								Set<org.mkcl.els.domain.Role> roles = credential.getRoles();
+								
+								for(org.mkcl.els.domain.Role r : roles){
+									if(r != null){
+										if(r.getType().startsWith("MEMBER")){
+											Member member=Member.findMember(this.getCurrentUser().getFirstName(),
+													this.getCurrentUser().getMiddleName(), this.getCurrentUser().getLastName(),
+													this.getCurrentUser().getBirthDate(), locale.toString());
+											
+											member.setBirthDate(bDate);
+											member.merge();
+										}
+									}
+								}
+								
+								user.setBirthDate(bDate);
+								user.merge();
+							
+								
+								
 								redirectAttributes.addFlashAttribute("type", "success");
 						        //this is done so as to remove the bug due to which update message appears even though there
 						        //is a fresh request
@@ -156,6 +194,7 @@ public class MyProfileController extends BaseController {
 		request.getSession().setAttribute("existingPassword", existingPassword);
 		request.getSession().setAttribute("newPassword", newPassword);	
 		request.getSession().setAttribute("confirmedPassword", confirmedPassword);
+		request.getSession().setAttribute("birthDate", birthDate);
         String returnUrl = "redirect:/" + request.getServletPath().replaceFirst("\\/","");
         return returnUrl;
     }
