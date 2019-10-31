@@ -70,7 +70,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 	,"deathRemarks","deathHouseDismissed","obituary","condolenceDate","deathDate","status","paAddress",
 	"paContactNo","paName","publications","educationalCulturalActivities","otherInformation",
 	"countriesVisited","sportsClubs","favoritePastimeRecreation","hobbySpecialInterests","literaryArtisticScientificAccomplishments"
-	,"socialCulturalActivities","caste","alias","aliasEnabled","specimenSignature","photo",
+	,"socialCulturalActivities","caste","alias","aliasEnabled","aliasEnglish","specimenSignature","photo",
 	"marriageDate","fullnameLastNameFirst","fullname","birthPlace","locale",
 	"version","versionMismatch"},ignoreUnknown=true)
 	public class Member extends BaseDomain implements Serializable {
@@ -161,6 +161,10 @@ import org.springframework.beans.factory.annotation.Configurable;
 	/** The alias. */
 	@Column(length = 300)
 	private String alias;
+	
+	/** The alias in english. */
+	@Column(length = 200)
+	private String aliasEnglish;
 
 	/** The religion. */
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -1487,6 +1491,24 @@ import org.springframework.beans.factory.annotation.Configurable;
 	 */
 	public void setAlias(final String alias) {
 		this.alias = alias;
+	}
+	
+	/**
+	 * Gets the alias in english.
+	 *
+	 * @return the alias in english
+	 */
+	public String getAliasEnglish() {
+		return aliasEnglish;
+	}
+
+	/**
+	 * Sets the alias in english.
+	 *
+	 * @param alias in english the new alias in english
+	 */
+	public void setAliasEnglish(final String aliasEnglish) {
+		this.aliasEnglish = aliasEnglish;
 	}
 
 	/**
