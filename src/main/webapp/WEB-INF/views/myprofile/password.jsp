@@ -7,7 +7,16 @@
 		<script type="text/javascript">
 			$('document').ready(function(){	
 				initControls();	
-				
+				  $( function() {
+					    $( "#birthDate" ).datepicker({
+					    	dateFormat: 'dd/mm/yy',
+					    	changeMonth: true, 
+					    	changeYear: true,  
+					    	yearRange: "-100:", 
+					    	maxDate: "-17Y"
+					    });
+					  } );
+				  
 				$('#existingPassword').change(function() {
 					var isPasswordValid = true;
 					if($('#existingPassword').val()=='') {
@@ -97,6 +106,10 @@
 						$.prompt("New & Confirmed Passwords do not match");
 						return false;
 					}
+					if($('#birthDate').val()=='') {
+						$.prompt("Please enter birth Date");
+						return false;
+					}		
 					//encryptPassword('existingPassword');
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 					$.post($('form').attr('action'), $("form").serialize(), function(data){
@@ -153,6 +166,11 @@
 					<p>
 						<label class="small"><spring:message code="user.confirmPassword" text="Confirm Password"/></label>
 						<input type="password" id="confirmedPassword" name="confirmedPassword" value="${confirmedPassword}"/>
+					</p>
+					
+					<p>
+						<label class="small"><spring:message code="user.birthdate"  text="Birth Date"/></label>
+						<input type="text" id="birthDate" name="birthDate" value="${birthDate}">
 					</p>
 					<div class="fields">
 						<h2></h2>
