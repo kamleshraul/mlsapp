@@ -116,12 +116,12 @@
 	
 	<p>
 		<label class="small"><spring:message code="generic.fromDate" text="From Date"/></label>
-        <form:input path="fromDate" cssClass="sText datemask"/>
+        <form:input path="fromDate" cssClass="sText datemask" value="24/10/2019"/>
 		<form:errors path="fromDate" cssClass="validationError"/>	
 	</p>
 	<p>
 		<label class="small"><spring:message code="generic.toDate" text="To Date"/></label>
-		<form:input path="toDate" cssClass="sText datemask"/>
+		<form:input path="toDate" cssClass="sText datemask" value="23/10/2024"/>
 		<form:errors path="toDate" cssClass="validationError"/>	
 	</p>	
 	<div class="fields">
