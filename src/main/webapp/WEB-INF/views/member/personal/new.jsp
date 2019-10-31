@@ -359,9 +359,11 @@
 	<p>
 		<label class="small"><spring:message code="member.personal.alias" text="Alias Name"/></label>
 		<form:input path="alias" cssClass="sText"/>
-		<input type="checkbox" id="isNamingFinal" name="isNamingFinal" value="false" class="sCheck" style="margin-left: 94px;"/>
-		<label class="small" style="padding-left: 5px;"><spring:message code="member.personal.isNamingFinal" text="Is Naming Final?"/></label>
-		<form:errors path="alias" cssClass="validationError"/>	
+		<label class="small" style="width: 80px;padding-left: 10px;">
+			<spring:message code="member.personal.alias_english" text="English Value"/>
+		</label>
+		<form:input path="aliasEnglish" cssClass="sText"/>
+		<form:errors path="alias" cssClass="validationError"/>
 	</p>
 	<p style="display: none;">
 		<label class="small"><spring:message code="member.personal.aliasEnabled" text="Alias Enabled"/></label>
@@ -371,7 +373,9 @@
 	<p>
 		<label class="small"><spring:message code="member.personal.birthDate" text="Birth Date"/></label>
 		<form:input path="birthDate" cssClass="datemask sText" value="24/10/1970"/>
-		<form:errors path="birthDate" cssClass="validationError"/>	
+		<input type="checkbox" id="isNamingFinal" name="isNamingFinal" value="false" class="sCheck" style="margin-left: 94px;"/>
+		<label class="small" style="padding-left: 5px;"><spring:message code="member.personal.isNamingFinal" text="Is Naming Final?"/></label>
+		<form:errors path="birthDate" cssClass="validationError"/>
 	</p>
 	<p>
 		<label class="small"><spring:message code="member.personal.birthPlace" text="Birth Place"/></label>

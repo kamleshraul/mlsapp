@@ -595,7 +595,7 @@ public class MemberPersonalController extends GenericController<Member> {
 								Map<String, String> memberNameParameters = new HashMap<String, String>();
 								memberNameParameters.put("firstName", domain.getFirstName());
 								memberNameParameters.put("lastName", domain.getLastName());
-								List<Member> membersWithSameFirstNameLastName = Member.findAllByFieldNames(Member.class, memberNameParameters, domain.getLocale(), "lastName", ApplicationConstants.ASC);
+								List<Member> membersWithSameFirstNameLastName = Member.findAllByFieldNames(Member.class, memberNameParameters, "lastName", ApplicationConstants.ASC, domain.getLocale());
 								if(membersWithSameFirstNameLastName.size()>1) {
 									if(domain.getMiddleNameEnglish()!=null && !domain.getMiddleNameEnglish().isEmpty()) {
 										usernameBuffer.append(domain.getMiddleNameEnglish().toLowerCase().charAt(0));
