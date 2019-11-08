@@ -413,7 +413,7 @@
 	</p>
 	<p>
 		<label class="small"><spring:message code="member.personal.birthDate" text="Birth Date"/></label>
-		<form:input path="birthDate" cssClass="datemask sText" value="24/10/1970"/>
+		<form:input path="birthDate" cssClass="datemask sText"/>
 		<input type="checkbox" id="isNamingFinal" name="isNamingFinal" value="false" class="sCheck" style="margin-left: 94px;"/>
 		<label class="small" style="padding-left: 5px;"><spring:message code="member.personal.isNamingFinal" text="Is Naming Final?"/></label>
 		<form:errors path="birthDate" cssClass="validationError"/>
