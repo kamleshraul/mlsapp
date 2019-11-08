@@ -52,6 +52,9 @@
 			$("#print").click(function(){
 				printRecord();
 			});
+			$("#printCredential").click(function(){
+				printCredential();
+			});
 			$("#assemblies").change(function(){
 				$("#house").val($("#assemblies").val());
 				var oldURL=$("#grid").getGridParam("url");
@@ -97,6 +100,17 @@
 				scrollTop();
 			});
 		}
+		
+		function printCredential(){
+			var row=$("#key").val();
+		
+			
+			var url = "member/printCredentials?house="+$('#house').val()+'&houseType='+$("#houseType").val()+ '&member=' + row;
+	
+		
+	showTabByIdAndUrl('details_tab', url);
+		}
+		
 		function convertToDbFormat(date){
 			var splitResult=date.split("/");
 			if(splitResult.length==3){
@@ -148,6 +162,9 @@
 			</a>
 			<a href="#" id="print" class="butSim" style="display:none;">
 				<spring:message code="member.print" text="Print"/>
+			</a> 
+			<a href="#" id="printCredential" class="butSim">
+				<spring:message code="member.print" text="printCredential"/>
 			</a> 			
 			<p>&nbsp;</p>
 		</div>
