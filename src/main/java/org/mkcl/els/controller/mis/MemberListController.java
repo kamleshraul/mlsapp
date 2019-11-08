@@ -10,8 +10,10 @@
 package org.mkcl.els.controller.mis;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,6 +26,7 @@ import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -107,6 +110,40 @@ public class MemberListController extends GenericController<Member> {
 		MemberCompleteDetailVO memberCompleteDetailVO=Member.getCompleteDetail(member,locale.toString());
 		model.addAttribute("member",memberCompleteDetailVO);
 		return "member/view";
+	}
+	
+
+	
+	@RequestMapping(value="/printCredentials",method=RequestMethod.GET)
+	public String printCredentials(final HttpServletRequest request,final ModelMap model,final Locale locale){
+			String returnValue = "member/error"; 
+		try{
+
+		
+				String member=request.getParameter("member");
+				Long houseId=Long.parseLong(request.getParameter("house"));
+			/**** find report data ****/
+			Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+	
+			queryParameters.put("houseId", new String[]{houseId.toString()});
+			queryParameters.put("memberId", new String[]{member.toString()});
+			queryParameters.put("locale", new String[]{locale.toString()});
+	
+			List<Object[]> reportData = Query.findReport("MIS_REPORT_CREDENTIAL", queryParameters);
+			
+			model.addAttribute("report", reportData);
+		
+			
+	
+			//generate report
+			//generateReportUsingFOP(new Object[]{reportData}, "template_ris_totalwork", "PDF", "Total Work Report", locale.toString());
+			returnValue = "member/printCredentials";
+					
+		}catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+		return returnValue;
 	}
 
 	@RequestMapping(value="/print",method=RequestMethod.GET)
