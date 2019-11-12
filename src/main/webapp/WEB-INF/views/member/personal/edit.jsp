@@ -275,12 +275,17 @@
 			$("#daughterLabel").empty();		
 			$("#daughterLabel").text($("#daughterMsg").val());				
 		}
-		//set isNamingFinal if credential of member is enabled
+		//set isActive if credential of member is enabled
 		if($('#credential_enabled').val()=="true") {
-			$("#isNamingFinal").attr("checked","checked");
-			$("#isNamingFinal").attr("disabled","disabled");
-		}		
-		$("#isNamingFinal").change(function(){
+			$("#isActive").attr("checked","checked");
+			$("#isActive").attr("disabled","disabled");
+		}	
+		//disable option to set isActive if english names are not entered
+		if($('#credential_enabled').val()!="true"
+				&& ($('#firstNameEnglish').val()=='' || $('#lastNameEnglish').val()=='')) {
+			$("#isActive").attr("disabled","disabled");
+		}
+		$("#isActive").change(function(){
 			if($(this).is(":checked")) {
 				if($('#firstNameEnglish').val()=='') {
 					$(this).val(false);
@@ -293,13 +298,13 @@
 					$.prompt("Please enter Last Name in English!");
 					return false;
 				} else {
-					$.prompt("Do you really want to finalize the names?", {
+					$.prompt("Do you really want to activate the member?", {
 						buttons: {Ok:true, Cancel:false}, callback: function(v){
 				        if(v){
-				        	$("#isNamingFinal").val(true);
+				        	$("#isActive").val(true);
 				        } else {
-				        	$("#isNamingFinal").val(false);
-				        	$("#isNamingFinal").removeAttr("checked");
+				        	$("#isActive").val(false);
+				        	$("#isActive").removeAttr("checked");
 				        }
 					}});
 					return false;
@@ -414,8 +419,8 @@
 	<p>
 		<label class="small"><spring:message code="member.personal.birthDate" text="Birth Date"/></label>
 		<form:input path="birthDate" cssClass="datemask sText"/>
-		<input type="checkbox" id="isNamingFinal" name="isNamingFinal" value="false" class="sCheck" style="margin-left: 94px;"/>
-		<label class="small" style="padding-left: 5px;"><spring:message code="member.personal.isNamingFinal" text="Is Naming Final?"/></label>
+		<input type="checkbox" id="isActive" name="isActive" value="false" class="sCheck" style="margin-left: 94px;"/>
+		<label class="small" style="padding-left: 5px;"><spring:message code="member.personal.isActive" text="Is Active?"/></label>
 		<form:errors path="birthDate" cssClass="validationError"/>
 	</p>
 	<p>
