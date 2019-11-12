@@ -956,7 +956,24 @@ public class MemberPersonalController extends GenericController<Member> {
 								userGroup.setLocale(domain.getLocale());
 								userGroup.persist();
 							}
-						}												
+						} else {							
+							String ministryParamValue = existingUserGroup.getParameterValue(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale());
+							if(ministryParamValue==null || ministryParamValue.isEmpty()) {
+								CustomParameter csptCurrentMinistryParamValue = CustomParameter.findByName(CustomParameter.class, "CURRENT_ALL_MINISTRIES_FOR_USERGROUP_CREATION", domain.getLocale());
+								if(csptCurrentMinistryParamValue!=null && csptCurrentMinistryParamValue.getValue()!=null) {
+									existingUserGroup.getParameters().put(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale(), csptCurrentMinistryParamValue.getValue());
+									existingUserGroup.merge();
+								}
+							}
+							String departmentParamValue = existingUserGroup.getParameterValue(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+domain.getLocale());
+							if(departmentParamValue==null || departmentParamValue.isEmpty()) {
+								CustomParameter csptCurrentDepartmentParamValue = CustomParameter.findByName(CustomParameter.class, "CURRENT_ALL_SUBDEPARTMENTS_FOR_USERGROUP_CREATION", domain.getLocale());
+								if(csptCurrentDepartmentParamValue!=null && csptCurrentDepartmentParamValue.getValue()!=null) {
+									existingUserGroup.getParameters().put(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+domain.getLocale(), csptCurrentDepartmentParamValue.getValue());
+									existingUserGroup.merge();
+								}
+							}
+						}
 					}
 				} else {
 					House house = House.findById(House.class, Long.parseLong("2600"));// required house id to be parsed (mostly latest house id of required housetype)
