@@ -254,7 +254,12 @@ public class MemberBiographyWebService {
    				MasterVO partiesByHouses = new MasterVO();
    				partiesByHouses.setId(Long.parseLong(row[0].toString()));
    		       	partiesByHouses.setName(row[1].toString());
-   		      // partiesByHouses.setType(row[2].toString());
+   		       	if(row[2]!= null){
+   		       	partiesByHouses.setType(row[2].toString());
+   		       	}
+   		       	else {
+   		       	partiesByHouses.setType("");
+   		       	}
    		       	partyList.add(partiesByHouses);
    			}
    		}
