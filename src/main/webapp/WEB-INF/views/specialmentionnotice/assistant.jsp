@@ -777,7 +777,28 @@
 			<c:otherwise>
 				<form:hidden path="rejectionReason"/>
 			</c:otherwise>
-			</c:choose>			
+			</c:choose>		
+			
+			<c:choose>
+				<c:when test="${internalStatusType eq 'specialmentionnotice_final_admission'}">
+					<p>
+						<label class="small"><spring:message code="specialmentionnotice.replyRequestedDate" text="Reply Requested Date"/></label>
+						<input id="replyRequestedDate" name="setReplyRequestedDate" class="datetimemask sText" value="${formattedReplyRequestedDate}"/>
+					</p>
+					<p>
+						<label class="small"><spring:message code="specialmentionnotice.replyReceivedDate" text="Reply Received Date"/></label>
+						<input id="replyReceivedDate" name="setReplyReceivedDate" class="datetimemask sText" value="${formattedReplyReceivedDate}"/>
+					</p>
+				</c:when>
+				<c:otherwise>
+					<c:if test="${not empty formattedReplyRequestedDate}">
+						<input type="hidden" id="replyRequestedDate" name="setReplyRequestedDate" class="datetimemask sText" value="${formattedReplyRequestedDate}"/>
+					</c:if>
+					<c:if test="${not empty formattedReplyReceivedDate}">
+						<input type="hidden" id="replyReceivedDate" name="setReplyReceivedDate" class="datetimemask sText" value="${formattedReplyReceivedDate}"/>
+					</c:if>
+				</c:otherwise>
+			</c:choose>		
 			
 		 	<p>
 				<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="specialmentionnotice.viewcitation" text="View Citations"></spring:message></a>	

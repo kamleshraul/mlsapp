@@ -1,5 +1,5 @@
 <%@ include file="/common/taglibs.jsp" %>
-<%@ page import="java.util.Date;" %>
+<%-- <%@ page import="java.util.Date;" %> --%>
 <html>
 <head>
 	<title>
@@ -58,7 +58,32 @@
 			scrollTop();
 		});
 	}
-
+	/**** Referencing ****/
+	function referencingInt(id){
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		var params="id="+id
+		+"&usergroup="+$("#currentusergroup").val()
+        +"&usergroupType="+$("#currentusergroupType").val()
+        +"&deviceType="+$("#motionType").val()
+        +"&houseType="+$("#houseType").val();
+		$.get('refentity/init?'+params,function(data){
+			$.unblockUI();			
+			//$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			$("#referencingResultDiv").html(data);
+			$("#referencingResultDiv").show();
+			$("#clubbingResultDiv").hide();
+			$("#assistantDiv").hide();
+			$("#backToMotionDiv").show();			
+		},'html').fail(function(){
+			$.unblockUI();
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		});
+	}
 	/**** refresh clubbing and referencing ****/
 	function refreshEdit(id){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
@@ -78,6 +103,7 @@
 		$('#'+ id).addClass('selected');
 		//tabcontent is the content area where result of the url load will be displayed
 		$('.tabContent').load(resourceURL);
+		$("#referencingResultDiv").hide();
 		$("#clubbingResultDiv").hide();
 		$("#assistantDiv").show();
 		scrollTop();
@@ -86,17 +112,31 @@
 	/**** load actors ****/
 	function loadActors(value){	
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-		if(value!='-'){					
+		if(value!='-'){	
+			var sendToSectionOfficer=$("#internalStatusMaster option[value='specialmentionnotice_processed_sendToSectionOfficer']").text();
 			var sendToDeskOfficer=$("#internalStatusMaster option[value='specialmentionnotice_processed_sendToDeskOfficer']").text();
-
+		    
 		    //reset endflag value to continue by default..then in special cases to end workflow we will set it to end
 		    $("#endFlag").val("continue");
 		    
 		    var valueToSend = "";
-			if(value == sendToDeskOfficer ) {
+			if(value == sendToSectionOfficer ) {
 				valueToSend = $("#internalStatus").val();
+				if(($("#lastDateForReplyReceiving").val()!='') && (new Date()> new Date($("#lastDateForReplyReceiving").val()))){
+					$("#lateReplyReasonDiv").css("display","block");
+				}
 			}else{
 				valueToSend = value;
+				$("#lateReplyReasonDiv").css("display","none");
+			}
+			
+			/* hide submit for sending reply in case of late reply filling validation */
+			if(value == sendToSectionOfficer
+					&& $("#lateReplyFillingFlag").val()=="set"
+					&& $("#internalStatusType").val()=="specialmentionnotice_final_admission") {
+				$('#submit').hide();
+			}else{
+				$('#submit').show();
 			}
 			
 		    var params="motion=" + $("#id").val() + "&status=" + valueToSend +
@@ -110,41 +150,38 @@
 					$("#actor").empty();
 					var text="";
 					for(var i=0;i<data.length;i++){
-						var act = data[i].id;
-						if(value != sendToDeskOfficer){
-							var ugtActor = data[i].id.split("#");
-							var ugt = ugtActor[1];
-							if(ugt!='member' && data[i].state!='active'){
-								text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
-							}else{
-								text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
-								if(actCount == 1){
-									actor1=data[i].id;
-									actCount++;
-								}
+						var ugtActor = data[i].id.split("#")
+						var ugt = ugtActor[1];
+						if(ugt!='member' && data[i].state!='active'){
+							text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name  +"("+ugtActor[4]+")"+ "</option>";
+						}else if(ugt == 'section_officer'){
+							text += "<option value='" + data[i].id +"'>" + data[i].name  + " ( "+$("#formattedHouseType").val() + " )" + "</option>";
+							if(actCount == 1){
+								actor1=data[i].id;
+								console.log(actor1);
+								actCount++;
 							}
 						}else{
-							if(act.indexOf("section_officer") < 0){
-								var ugtActor = data[i].id.split("#")
-								var ugt = ugtActor[1];
-								if(ugt!='member' && data[i].state!='active'){
-									text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
-								}else{
-									text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
-									if(actCount == 1){
-										actor1=data[i].id;
-										actCount++;
-									}
-								}
+							text += "<option value='" + data[i].id + "'>" + data[i].name  +"("+ugtActor[4]+")"+ "</option>";	
+							if(actCount == 1){
+								actor1=data[i].id;
+								console.log(actor1);
+								actCount++;
 							}
 						}
 					}				
 					$("#actor").html(text);
 					$("#actorDiv").show();			
-					if(value != sendToDeskOfficer){
+					if(value !=sendToSectionOfficer && value != sendToDeskOfficer){
 						$("#internalStatus").val(value);
 					} else {
 						$("#internalStatus").val($("#oldInternalStatus").val());
+					}
+					if(value ==sendToDeskOfficer){
+						$("#replyP").css("display","none");
+						 $("#actorDiv").show();
+					}else{
+						$("#replyP").css("display","inline-block");
 					}
 					$("#recommendationStatus").val(value);
 					/**** setting level,localizedActorName ****/
@@ -154,15 +191,25 @@
 				}else{
 					$("#actor").empty();
 					$("#actorDiv").hide();
-					if(value != sendToDeskOfficer){
+					if(value != sendToSectionOfficer && value != sendToDeskOfficer){
 						$("#internalStatus").val(value);
 					} else {
 						$("#internalStatus").val($("#oldInternalStatus").val());
 					}
+					if(value ==sendToDeskOfficer){
+						$("#replyP").css("display","none");
+						 $("#actorDiv").show();
+					}else{
+						$("#replyP").css("display","inline-block");
+					}
 					$("#recommendationStatus").val(value);					
-					if(value == sendToDeskOfficer){
+					if(value == sendToSectionOfficer){
+						alert("No Section Officer Found!");
 						$('#submit').attr('disabled', 'disabled');
-					}					
+					} else if(value == sendToDeskOfficer){
+						alert("No Desk Officer Found!");
+						$('#submit').attr('disabled', 'disabled');
+					}				
 				}
 				$.unblockUI();
 			}).fail(function(){
@@ -216,11 +263,10 @@
 	
 	$(document).ready(function(){
 		initControls();
-		//loadActors($("#changeInternalStatus").val());
-		$('#remarks-wysiwyg-iframe').css('max-height','50px');
-
-		$('#mlsBranchNotifiedOfTransfer').val(null);
-		$('#transferToDepartmentAccepted').val(null);
+		loadActors($("#changeInternalStatus").val());
+		if($('#workflowstatus').val()=="PENDING") {
+			$("#replyP").hide();			
+		}
 		/*******Actor changes*************/
 		$("#actor").change(function(){
 		    var actor=$(this).val();
@@ -247,7 +293,10 @@
 				$("#subDepartment").empty();				
 				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");								
 			}
-		});							
+		});	
+		$('#subDepartment').change(function(){
+			$("#subdepartmentValue").text($("#subDepartment option:selected").text() +"  "+ $("#subdepartmentValue").text());
+ 		});
 		/**** Citations ****/
 		$("#viewCitation").click(function(){
 			$.get('specialmentionnotice/citations/'+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){
@@ -282,7 +331,7 @@
 	    	$("#submit").removeAttr("disabled");	
 	    	var value=$(this).val();
 		    if(value!='-'){
-			    var statusType=$("#internalStatusMaster option[value='"+value+"']").text();
+			    //var statusType=$("#internalStatusMaster option[value='"+value+"']").text();
 			    loadActors(value);			    
 		    }else{
 		    	$("#actor").empty();
@@ -336,7 +385,7 @@
 	    });
 		
 	    /********Submit Click*********/
-		$('#submit').click(function(){	
+		$('#submit').click(function(){			
 			if($('#changeInternalStatus').val()=="-") {
 				$.prompt("Please select the action");
 				return false;
@@ -346,7 +395,7 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});
+			});	
 			if($('#isTransferable').is(':checked')) {
 				$('#isTransferable').val(true);		   	    
 			} else { 				
@@ -362,6 +411,20 @@
 			} else { 				
 				$('#mlsBranchNotifiedOfTransfer').val(false);				
 		   	};
+			var sendToSectionOfficer=$("#internalStatusMaster option[value='specialmentionnotice_processed_sendToSectionOfficer']").text();
+			var changedInternalStatus = $("#changeInternalStatus").val();
+			if(changedInternalStatus == sendToSectionOfficer) {
+				if(($('#reply').val()=="" || ($("#workflowstatus").val()=='COMPLETED' && $('#rereply').val()==""))){
+					$.prompt($('#noReplyProvidedMsg').val());
+					return false;
+				}
+				if(/*$('#houseTypeType').val()=='upperhouse' &&*/ $("#workflowstatus").val()=='PENDING'
+						&& $("#lastDateForReplyReceiving").val()!=''
+						&& new Date()> new Date($("#lastDateForReplyReceiving").val())  && $('#reasonForLateReply').val()==""){
+					$.prompt($('#noLateReplyReasonProvidedMsg').val());
+					return false;
+				}
+			}
 			$.prompt($('#submissionMsg').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){				        	
@@ -451,6 +514,7 @@
 				<label class="small"><spring:message code="specialmentionnotice.houseType" text="House Type"/>*</label>
 				<input id="formattedHouseType" name="formattedHouseType" value="${formattedHouseType}" class="sText" readonly="readonly">
 				<input id="houseType" name="houseType" value="${houseType}" type="hidden">
+				<input id="houseTypeType" name="houseTypeType" value="${houseTypeType}" type="hidden">
 				<form:errors path="houseType" cssClass="validationError"/>			
 			</p>	
 			
@@ -479,29 +543,37 @@
 				<label class="small"><spring:message code="specialmentionnotice.number" text="Motion Number"/>*</label>
 				<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
 				<input id="number" name="number" value="${domain.number}" type="hidden">
+				<input id="number" name="number" value="${domain.number}" type="hidden">
 				<form:errors path="number" cssClass="validationError"/>
 				
-				<label class="small"><spring:message code="specialmentionnotice.selectSpecialMentionNoticedate" text="SpecialMentionNotice Date"/></label>
+				<label class="small"><spring:message code="specialmentionnotice.selectspecialmentionnoticedate" text="Special Mention Date"/></label>
 				<%-- <select name="specialMentionNoticeDate" id="specialMentionNoticeDate" style="width:130px;height: 25px;" disabled="disabled">
 				<c:forEach items="${sessionDates}" var="i">
-					<option value="${i[0]}" ${i[0]==selectedSpecialMentionNoticeDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
+					<option value="${i[0]}" ${i[0]==selectedAdjourningDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
 				</c:forEach>
 				</select>
-				<a href="#" id="changeSpecialMentionNoticeDate" style="margin-left: 10px;"><spring:message code="specialmentionnotice.changeSpecialMentionNoticeDate" text="Change SpecialMentionNotice Date"/></a> --%>
+				<a href="#" id="changeSpecialMentionNoticeDate" style="margin-left: 10px;"><spring:message code="specialmentionnotice.changeSpecialMentionNoticeDate" text="Change Special Mention Notice Date"/></a> --%>
 				<input id="formattedSpecialMentionNoticeDate" name="formattedSpecialMentionNoticeDate" value="${formattedSpecialMentionNoticeDate}" class="sText" readonly="readonly">
 				<input id="specialMentionNoticeDate" name="specialMentionNoticeDate" type="hidden"  value="${selectedSpecialMentionNoticeDate}">
 			</p>		
 			
-			<c:if test="${!(empty submissionDate)}">
-			<p>
+			<p style="display:none;">
 				<label class="small"><spring:message code="specialmentionnotice.submissionDate" text="Submitted On"/></label>
 				<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
 				<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
 			</p>
-			</c:if>
+			
+			<p>	
+				<label class="small"><spring:message code="specialmentionnotice.task.creationtime" text="Task Created On"/></label>
+				<input id="createdTime" name="createdTime" value="${taskCreationDate}" class="sText datetimemask" readonly="readonly">
+				<label class="small"><spring:message code="specialmentionnotice.lastDateFromDepartment" text="Last Date From Department"/></label>
+				<input id="formattedLastReplyReceivingDate" name="formattedLastReplyReceivingDate" class="datemask sText" value="${formattedLastReplyReceivingDate}" readonly="readonly"/>
+				<input type="hidden" id="lastDateOfReplyReceiving" name="setLastDateOfReplyReceiving" class="datemask sText" value="${formattedLastReplyReceivingDate}"/>
+				<form:errors path="lastDateOfReplyReceiving" cssClass="validationError"/>
+			</p>
 			
 			<p>
-				<label class="small"><spring:message code="standalonemotion.isTransferable" text="is special mention notice to be transfered?"/></label>
+				<label class="small"><spring:message code="specialmentionnotice.isTransferable" text="is special mention notice to be transfered?"/></label>
 				<input type="checkbox" name="isTransferable" id="isTransferable" class="sCheck">
 			</p>
 				
@@ -509,7 +581,7 @@
 				<label class="small"><spring:message code="specialmentionnotice.ministry" text="Ministry"/></label>
 				<%-- <input id="formattedMinistry" name="formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
 				<input name="ministry" id="ministry" type="hidden" value="${ministrySelected}"> --%>
-				<form:select path="ministry" id="ministry" class="sSelect" style="width: 270px;">
+				<form:select path="ministry" id="ministry" class="sSelect">
 				<c:forEach items="${ministries}" var="i">
 					<c:choose>
 						<c:when test="${i.id==ministrySelected }">
@@ -523,7 +595,7 @@
 				</form:select>
 				<form:errors path="ministry" cssClass="validationError"/>			
 				<label class="small"><spring:message code="specialmentionnotice.subdepartment" text="Sub Department"/></label>
-				<select name="subDepartment" id="subDepartment" class="sSelect" style="width: 270px;">
+				<select name="subDepartment" id="subDepartment" class="sSelect">
 				<c:forEach items="${subDepartments}" var="i">
 					<c:choose>
 						<c:when test="${i.id==subDepartmentSelected}">
@@ -534,15 +606,14 @@
 						</c:otherwise>
 					</c:choose>
 				</c:forEach>
-				</select>
-				<form:errors path="subDepartment" cssClass="validationError"/>							
+				</select>						
 			</p>
 			
 			<p id="transferP" style="display:none;">
 				<label class="small" id="subdepartmentValue"><spring:message code="specialmentionnotice.transferToDepartmentAccepted" text="Is the Transfer to Department Accepted?"/></label>
 				<input type="checkbox" id="transferToDepartmentAccepted" name="transferToDepartmentAccepted" class="sCheck"/>
 				
-				<label class="small" style="margin-left: 175px;"><spring:message code="specialmentionnotice.mlsBranchNotified" text="Is the Respective special Mention Notice Branch Notified?"/></label>
+				<label class="small" style="margin-left: 175px;"><spring:message code="specialmentionnotice.mlsBranchNotified" text="Is the Respective Special Mention Notice Branch Notified?"/></label>
 				<input type="checkbox" id="mlsBranchNotifiedOfTransfer" name="mlsBranchNotifiedOfTransfer" class="sCheck"/>
 			</p>
 			
@@ -645,7 +716,7 @@
 				<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 			</p>
 			
-			<table class="uiTable" style="margin-left:165px;">
+			<table class="uiTable" style="margin-left: 165px;width: 900px;">
 				<thead>
 					<tr>
 					<th>
@@ -705,7 +776,7 @@
 					</c:forEach>						
 				</tbody>
 			</table>			
-			<c:if test="${workflowstatus != 'COMPLETED'}">
+			<c:if test="${workflowstatus != 'COMPLETED' and internalStatusType == 'specialmentionnotice_final_admission'}">
 				<!-- <p style="display:none;"> -->
 				<p>
 				<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
@@ -752,16 +823,16 @@
 				</p>
 			</c:if>
 			
-		<c:choose>
+			<c:choose>
 			<c:when test="${workflowstatus=='COMPLETED'}">
-				<p>
+				<p id="replyP">
 					<label class="wysiwyglabel"><spring:message code="specialmentionnotice.reply" text="Reply"/></label>
 					<form:textarea path="reply" cssClass="wysiwyg" readonly="true"></form:textarea>
 					<form:errors path="reply" cssClass="validationError"></form:errors>
 				</p>
 			</c:when>
 			<c:otherwise>
-				<p style="display:none;">
+				<p id="replyP">
 					<label class="wysiwyglabel"><spring:message code="specialmentionnotice.reply" text="Reply"/></label>
 					<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
 					<form:errors path="reply" cssClass="validationError"></form:errors>
@@ -769,13 +840,11 @@
 			</c:otherwise>
 			</c:choose>
 			
-			<c:if test="${not empty domain.reasonForLateReply}">
-				<p>
-					<label class="wysiwyglabel"><spring:message code="specialmentionnotice.reasonForLateReply" text="Reason for Late Reply"/></label>
-					<form:textarea path="reasonForLateReply" cssClass="wysiwyg"></form:textarea>
-					<form:errors path="reasonForLateReply" cssClass="validationError"></form:errors>
-				</p>
-			</c:if>
+			<p id="lateReplyReasonDiv" style="display:none;">
+				<label class="wysiwyglabel"><spring:message code="specialmentionnotice.reasonForLateReply" text="Reason for Late Reply"/></label>
+				<form:textarea path="reasonForLateReply" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="reasonForLateReply" cssClass="validationError"></form:errors>
+			</p>
 			
 			<c:if test="${workflowstatus!='COMPLETED'}">
 				<p>
@@ -785,7 +854,7 @@
 				</p>	
 			</c:if>
 			
-			<c:if test="${workflowstatus!='COMPLETED' and fn:contains(internalStatusType, 'final')}">
+			<c:if test="${workflowstatus!='COMPLETED' }">
 			<div class="fields">
 				<h2></h2>				
 				<p class="tright">
@@ -799,11 +868,9 @@
 			<form:hidden path="version"/>
 			<form:hidden path="workflowStarted"/>	
 			<form:hidden path="endFlag"/>
-			<form:hidden path="level"/>
+			<form:hidden path="level" value="${level}"/>
 			<form:hidden path="localizedActorName"/>
 			<form:hidden path="workflowDetailsId"/>
-			<form:hidden path="transferToDepartmentAccepted"/>
-			<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 			<form:hidden path="rejectionReason"/>
 			<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 			<input type="hidden" name="status" id="status" value="${status }">
@@ -817,27 +884,28 @@
 			<input id="taskid" name="taskid" value="${taskid}" type="hidden">
 			<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 			<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
-			<input type="hidden" id="houseTypeType" value="${houseTypeType}" />
+			<input type="hidden" name="houseTypeType" id="houseTypeType" value="${houseTypeType}">
 			<input id="motionType" name= "motionType" type="hidden" value="${motionType}" />
 			<input id="oldInternalStatus" value="${internalStatus}" type="hidden">
 			<input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
 			<input id="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
 			<input id="workflowdetails" name="workflowdetails" value="${workflowdetails}" type="hidden">
-			<c:if test="${not empty formattedAnswerRequestedDate}">
-				<input type="hidden" id="answerRequestedDate" name="setAnswerRequestedDate" class="datetimemask sText" value="${formattedAnswerRequestedDate}"/>
+			<c:if test="${not empty formattedReplyRequestedDate}">
+				<input type="hidden" id="replyRequestedDate" name="setReplyRequestedDate" class="datetimemask sText" value="${formattedReplyRequestedDate}"/>
 			</c:if>
-			<c:if test="${not empty formattedAnswerReceivedDate}">
-				<input type="hidden" id="answerReceivedDate" name="setAnswerReceivedDate" class="datetimemask sText" value="${formattedAnswerReceivedDate}"/>
+			<c:if test="${not empty formattedReplyReceivedDate}">
+				<input type="hidden" id="replyReceivedDate" name="setReplyReceivedDate" class="datetimemask sText" value="${formattedReplyReceivedDate}"/>
 			</c:if>
+			<input type="hidden" id="lateReplyFillingFlag" name="lateReplyFillingFlag" value="${lateReplyFillingFlag}"/>
+			<input type="hidden" id="lastDateForReplyReceiving" value="${lastDateOfReplyReceiving}"/>
+			<input id="noLateReplyReasonProvidedMsg" value='<spring:message code="client.error.nolatereplyreason" text="Please provide reason for Late Reply"></spring:message>' type="hidden" />
 		</form:form>
 
 		<input id="ministrySelected" value="${ministrySelected }" type="hidden">
 		<input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
-		<input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">		
 		<input id="originalLevel" value="${ domain.level}" type="hidden">		
 		<input id="motionTypeType" value="${selectedMotionType}" type="hidden"/>
 		<input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
-		<input id="subDepartmentEmptyMsg" value='<spring:message code="client.error.subDepartmentEmptyMsg" text="SubDepartment can not be empty."></spring:message>' type="hidden">
 		<input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 		<input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
@@ -845,17 +913,20 @@
 		
 		<ul id="contextMenuItems" >
 			<li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
+			<li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
 		</ul>
 	</div>
 	</div>
 	<div id="clubbingResultDiv" style="display:none;"></div>
 	<!--To show the motion texts of the clubbed motions -->
-	<%-- <div id="clubbedSpecialMentionNoticeTextsDiv">
+	<div id="clubbedSpecialMentionNoticeTextsDiv" style="display: none;">
 		<h1>		
 			<spring:message code="specialmentionnotice.clubbedMotionTexts" text="Motion texts of clubbed motions:"></spring:message>
 		</h1>
-	</div> --%>
+	</div>
 	<div id="hideClubMTDiv" style="background: #FF0000; color: #FFF; position: fixed; bottom: 0; right: 10px; width: 15px; border-radius: 10px; cursor: pointer;">&nbsp;X&nbsp;</div>
-
+	
+	<div id="referencingResultDiv" style="display:none;">
+	</div>
 </body>
 </html>

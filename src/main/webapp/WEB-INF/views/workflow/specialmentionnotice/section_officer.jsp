@@ -850,6 +850,8 @@
 			<form:hidden path="level"/>
 			<form:hidden path="localizedActorName"/>
 			<form:hidden path="workflowDetailsId"/>
+			<form:hidden path="transferToDepartmentAccepted"/>
+			<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 			
 			<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 			<input type="hidden" name="status" id="status" value="${status }">
