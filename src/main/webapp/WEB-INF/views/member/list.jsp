@@ -163,9 +163,12 @@
 			<a href="#" id="print" class="butSim" style="display:none;">
 				<spring:message code="member.print" text="Print"/>
 			</a> 
+				<security:authorize access="hasAnyRole('SUPER_ADMIN')">
 			<a href="#" id="printCredential" class="butSim">
 				<spring:message code="member.print" text="printCredential"/>
-			</a> 			
+			</a> 
+			</security:authorize>	
+						
 			<p>&nbsp;</p>
 		</div>
 	</div>
