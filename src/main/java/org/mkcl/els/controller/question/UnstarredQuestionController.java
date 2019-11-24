@@ -700,7 +700,14 @@ class UnstarredQuestionController {
 		if(ministry != null) {
 			Date onDate = selectedSession.getEndDate();
 			if(onDate.before(new Date())) {
-				onDate = new Date();
+				CustomParameter csptNewHouseFormationInProcess = CustomParameter.findByName(CustomParameter.class, "NEW_HOUSE_FORMATION_IN_PROCESS", "");
+				if(csptNewHouseFormationInProcess==null) {
+					onDate = new Date();
+				} else if(csptNewHouseFormationInProcess.getValue()==null) {
+					onDate = new Date();
+				} else if(!csptNewHouseFormationInProcess.getValue().equals("YES")) {
+					onDate = new Date();
+				}
 			}
 			List<SubDepartment> subDepartments = MemberMinister.
 					findAssignedSubDepartments(ministry, onDate, domain.getLocale());
@@ -992,7 +999,14 @@ class UnstarredQuestionController {
 		if(ministry != null) {
 			Date onDate = selectedSession.getEndDate();
 			if(onDate.before(new Date())) {
-				onDate = new Date();
+				CustomParameter csptNewHouseFormationInProcess = CustomParameter.findByName(CustomParameter.class, "NEW_HOUSE_FORMATION_IN_PROCESS", "");
+				if(csptNewHouseFormationInProcess==null) {
+					onDate = new Date();
+				} else if(csptNewHouseFormationInProcess.getValue()==null) {
+					onDate = new Date();
+				} else if(!csptNewHouseFormationInProcess.getValue().equals("YES")) {
+					onDate = new Date();
+				}
 			}
 			List<SubDepartment> subDepartments = 
 					MemberMinister.findAssignedSubDepartments(ministry, onDate, locale);
@@ -1684,7 +1698,14 @@ class UnstarredQuestionController {
 		if(ministry != null) {
 			Date onDate = selectedSession.getEndDate();
 			if(onDate.before(new Date())) {
-				onDate = new Date();
+				CustomParameter csptNewHouseFormationInProcess = CustomParameter.findByName(CustomParameter.class, "NEW_HOUSE_FORMATION_IN_PROCESS", "");
+				if(csptNewHouseFormationInProcess==null) {
+					onDate = new Date();
+				} else if(csptNewHouseFormationInProcess.getValue()==null) {
+					onDate = new Date();
+				} else if(!csptNewHouseFormationInProcess.getValue().equals("YES")) {
+					onDate = new Date();
+				}
 			}
 			List<SubDepartment> subDepartments = 
 					MemberMinister.findAssignedSubDepartments(ministry, onDate, locale);

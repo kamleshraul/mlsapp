@@ -2668,7 +2668,14 @@ public class ReferenceController extends BaseController {
 		
 		Date onDate = session.getEndDate();
 		if(onDate.before(new Date())) {
-			onDate = new Date();
+			CustomParameter csptNewHouseFormationInProcess = CustomParameter.findByName(CustomParameter.class, "NEW_HOUSE_FORMATION_IN_PROCESS", "");
+			if(csptNewHouseFormationInProcess==null) {
+				onDate = new Date();
+			} else if(csptNewHouseFormationInProcess.getValue()==null) {
+				onDate = new Date();
+			} else if(!csptNewHouseFormationInProcess.getValue().equals("YES")) {
+				onDate = new Date();
+			}	
 		}
 		List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,
 				onDate,
@@ -5692,7 +5699,14 @@ public class ReferenceController extends BaseController {
 									if(strministries.contains(m.getName())){
 										Date onDate = session.getEndDate();
 										if(onDate.before(new Date())) {
-											onDate = new Date();
+											CustomParameter csptNewHouseFormationInProcess = CustomParameter.findByName(CustomParameter.class, "NEW_HOUSE_FORMATION_IN_PROCESS", "");
+											if(csptNewHouseFormationInProcess==null) {
+												onDate = new Date();
+											} else if(csptNewHouseFormationInProcess.getValue()==null) {
+												onDate = new Date();
+											} else if(!csptNewHouseFormationInProcess.getValue().equals("YES")) {
+												onDate = new Date();
+											}
 										}
 										List<SubDepartment> subDepartments = 
 												MemberMinister.findAssignedSubDepartments(m, onDate, locale.toString());
@@ -5732,7 +5746,14 @@ public class ReferenceController extends BaseController {
 									if(strministries.contains(m.getName())){
 										Date onDate = group.getSession().getStartDate();
 										if(onDate.before(new Date())) {
-											onDate = new Date();
+											CustomParameter csptNewHouseFormationInProcess = CustomParameter.findByName(CustomParameter.class, "NEW_HOUSE_FORMATION_IN_PROCESS", "");
+											if(csptNewHouseFormationInProcess==null) {
+												onDate = new Date();
+											} else if(csptNewHouseFormationInProcess.getValue()==null) {
+												onDate = new Date();
+											} else if(!csptNewHouseFormationInProcess.getValue().equals("YES")) {
+												onDate = new Date();
+											}
 										}
 										List<SubDepartment> subDepartments = MemberMinister.
 												findAssignedSubDepartments(m, onDate, locale.toString());
@@ -5756,7 +5777,14 @@ public class ReferenceController extends BaseController {
 							for(Ministry m : ministries){
 								Date onDate = session.getEndDate();
 								if(onDate.before(new Date())) {
-									onDate = new Date();
+									CustomParameter csptNewHouseFormationInProcess = CustomParameter.findByName(CustomParameter.class, "NEW_HOUSE_FORMATION_IN_PROCESS", "");
+									if(csptNewHouseFormationInProcess==null) {
+										onDate = new Date();
+									} else if(csptNewHouseFormationInProcess.getValue()==null) {
+										onDate = new Date();
+									} else if(!csptNewHouseFormationInProcess.getValue().equals("YES")) {
+										onDate = new Date();
+									}
 								}
 								List<SubDepartment> subDepartments = 
 										MemberMinister.findAssignedSubDepartments(m, onDate, locale.toString());
@@ -6953,7 +6981,14 @@ public class ReferenceController extends BaseController {
 				Ministry ministry = Ministry.findById(Ministry.class, Long.parseLong(ministries[i]));
 				Date onDate = session.getEndDate();
 				if(onDate.before(new Date())) {
-					onDate = new Date();
+					CustomParameter csptNewHouseFormationInProcess = CustomParameter.findByName(CustomParameter.class, "NEW_HOUSE_FORMATION_IN_PROCESS", "");
+					if(csptNewHouseFormationInProcess==null) {
+						onDate = new Date();
+					} else if(csptNewHouseFormationInProcess.getValue()==null) {
+						onDate = new Date();
+					} else if(!csptNewHouseFormationInProcess.getValue().equals("YES")) {
+						onDate = new Date();
+					}
 				}
 				List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry, onDate, locale.toString());
 				for(SubDepartment sd:subDepartments){

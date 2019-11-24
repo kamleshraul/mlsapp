@@ -456,6 +456,7 @@ public class MemberPersonalController extends GenericController<Member> {
 		if(domain.getBirthDate()==null){
 			result.rejectValue("birthDate", "BirthDateEmpty");
 		}
+		validateMember(domain, result);
 	}
 
 	/**
@@ -622,9 +623,9 @@ public class MemberPersonalController extends GenericController<Member> {
 								Set<Role> roles = new LinkedHashSet<Role>();
 								roles.add(memberUserRole);
 								credential.setRoles(roles);
-								String isActive = request.getParameter("isActive");
-								if(isActive!=null && !isActive.isEmpty()) {
-									credential.setEnabled(Boolean.parseBoolean(isActive));
+								String isEnabled = request.getParameter("isEnabled");
+								if(isEnabled!=null && !isEnabled.isEmpty()) {
+									credential.setEnabled(Boolean.parseBoolean(isEnabled));
 								}								
 								credential.setPasswordChangeCount(1);
 								credential.setAllowedForMultiLogin(false);
@@ -788,9 +789,9 @@ public class MemberPersonalController extends GenericController<Member> {
 				Credential credential = existingMemberUser.getCredential();				
 				if(!credential.isEnabled()) {					
 					//enable credential once naming is finalized
-					String isActive = request.getParameter("isActive");
-					if(isActive!=null && !isActive.isEmpty()) {
-						if(Boolean.parseBoolean(isActive)) {
+					String isEnabled = request.getParameter("isEnabled");
+					if(isEnabled!=null && !isEnabled.isEmpty()) {
+						if(Boolean.parseBoolean(isEnabled)) {
 							credential.setEnabled(true);
 							//update username in credential of the user entry (in case of corrections in english name of member)
 							if(!member.getFirstNameEnglish().equals(domain.getFirstNameEnglish())
@@ -855,9 +856,9 @@ public class MemberPersonalController extends GenericController<Member> {
 				}
 				if(credential.isEnabled()) { //only for active members
 					/** creation of corresponding usergroup for the member in case of new house formed **/
-					CustomParameter csptMemberUpdateRequiredForNewHouse = CustomParameter.findByName(CustomParameter.class, "MEMBER_UPDATE_REQUIRED_FOR_NEW_HOUSE", "");
-					if(csptMemberUpdateRequiredForNewHouse!=null && csptMemberUpdateRequiredForNewHouse.getValue()!=null
-							&& csptMemberUpdateRequiredForNewHouse.getValue().equals("YES")) {
+					CustomParameter csptNewHouseFormationInProcess = CustomParameter.findByName(CustomParameter.class, "NEW_HOUSE_FORMATION_IN_PROCESS", "");
+					if(csptNewHouseFormationInProcess!=null && csptNewHouseFormationInProcess.getValue()!=null
+							&& csptNewHouseFormationInProcess.getValue().equals("YES")) {
 						UserGroupType memberUGType = UserGroupType.findByType(ApplicationConstants.MEMBER, domain.getLocale());
 						UserGroup existingUserGroup = UserGroup.findActive(credential, memberUGType, new Date(), domain.getLocale());
 						if(existingUserGroup==null || existingUserGroup.getId()==null) {
@@ -1013,8 +1014,8 @@ public class MemberPersonalController extends GenericController<Member> {
 	}
 	
 	private void validateMember(Member domain, BindingResult result) {
-		// Validation for same member entered
-		Member member = null;
+		// Validation for duplicate member entered
+		Member duplicateMember = null;
 		if (domain.getFirstName() != null 
 				&& !domain.getFirstName().isEmpty()
 				&& domain.getMiddleName() != null
@@ -1022,19 +1023,19 @@ public class MemberPersonalController extends GenericController<Member> {
 				&& domain.getLastName() != null
 				&& !domain.getLastName().isEmpty()
 				&& domain.getBirthDate() != null) {
-			member = Member.findMember(domain.getFirstName(), domain.getMiddleName(), domain.getLastName(),
+			duplicateMember = Member.findDuplicateMember(domain.getId(), domain.getFirstName(), domain.getMiddleName(), domain.getLastName(),
 					domain.getBirthDate(), domain.getLocale());
 		} else if (domain.getFirstName() != null
 				&& !domain.getFirstName().isEmpty()
 				&& domain.getLastName() != null
 				&& !domain.getLastName().isEmpty()
 				&& domain.getBirthDate() != null) {
-			member = Member.findMember(domain.getFirstName(),
+			duplicateMember = Member.findDuplicateMember(domain.getId(), domain.getFirstName(),
 					domain.getLastName(), domain.getBirthDate(),
 					domain.getLocale());
 		}
 
-		if (member != null && member.getId() != null) {
+		if (duplicateMember != null && duplicateMember.getId() != null) {
 			result.rejectValue("version", "Member Already Exists.");
 		}
 	}

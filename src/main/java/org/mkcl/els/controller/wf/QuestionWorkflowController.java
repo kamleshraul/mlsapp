@@ -532,7 +532,14 @@ public class QuestionWorkflowController  extends BaseController{
 			/**** Sub Departments ****/
 			Date onDate = selectedSession.getEndDate();
 			if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION) && onDate.before(new Date())) {
-				onDate = new Date();
+				CustomParameter csptNewHouseFormationInProcess = CustomParameter.findByName(CustomParameter.class, "NEW_HOUSE_FORMATION_IN_PROCESS", "");
+				if(csptNewHouseFormationInProcess==null) {
+					onDate = new Date();
+				} else if(csptNewHouseFormationInProcess.getValue()==null) {
+					onDate = new Date();
+				} else if(!csptNewHouseFormationInProcess.getValue().equals("YES")) {
+					onDate = new Date();
+				}
 			}
 			List<SubDepartment> subDepartments = 
 					MemberMinister.findAssignedSubDepartments(ministry, onDate, locale);

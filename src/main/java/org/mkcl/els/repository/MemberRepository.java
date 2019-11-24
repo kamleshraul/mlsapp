@@ -2759,6 +2759,87 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		}
 
 	}
+	
+	public Member findDuplicateMember(final Long existingMemberId, final String firstName, final String middleName,
+			final String lastName, final Date birthDate, final String locale) {
+		
+		Member member = null;
+		List<Member> possibleMembers = null;
+		Map<String, String> memberNameParameters = new HashMap<String, String>();
+		
+		//Combo 1: firstName + middleName + lastName + birthDate
+		try {
+			memberNameParameters.put("firstName", firstName);
+			memberNameParameters.put("middleName", middleName);
+			memberNameParameters.put("lastName", lastName);
+			possibleMembers = Member.findAllByFieldNames(Member.class, memberNameParameters, "id", ApplicationConstants.ASC, locale);
+			if(possibleMembers!=null && !possibleMembers.isEmpty()) {
+				for(Member m: possibleMembers) {
+					if(m.getBirthDate().equals(birthDate) && !m.getId().equals(existingMemberId)) {
+						member = m;
+						possibleMembers = null;
+						memberNameParameters = null;
+						return member;
+					} else {
+						throw new ELSException("member_not_found", "member_not_found");
+					}
+				}
+			} else {
+				throw new ELSException("member_not_found", "member_not_found");
+			}
+		} catch(ELSException eCombo1) {
+			if(eCombo1.getParameter()!=null && eCombo1.getParameter().equals("member_not_found")) {
+				//Combo 2: firstName + lastName + birthDate
+				memberNameParameters.remove("middleName");
+				possibleMembers = Member.findAllByFieldNames(Member.class, memberNameParameters, "id", ApplicationConstants.ASC, locale);
+				if(possibleMembers!=null && !possibleMembers.isEmpty()) {
+					for(Member m: possibleMembers) {
+						if(m.getBirthDate().equals(birthDate) && !m.getId().equals(existingMemberId)) {
+							member = m;
+							possibleMembers = null;
+							memberNameParameters = null;
+							return member;
+						}
+					}
+				}
+			}
+		}
+		possibleMembers = null;
+		memberNameParameters = null;
+		return member;
+	}
+	
+	public Member findDuplicateMember(final Long existingMemberId, 
+			final String firstName,
+			final String lastName, 
+			final Date birthDate, 
+			final String locale) {
+		Search search=new Search();
+		if(!firstName.isEmpty()){
+			search.addFilterEqual("firstName",firstName);
+		}
+		
+		if(!lastName.isEmpty()){
+			search.addFilterEqual("lastName",lastName);
+		}
+		if(birthDate!=null){
+			search.addFilterEqual("birthDate", birthDate);
+		}
+		search.addSort("lastName",false);
+		List<Member> possibleMembers=this.search(search);
+		Member member = null;
+		if(possibleMembers!=null && !possibleMembers.isEmpty()) {
+			for(Member m: possibleMembers) {
+				if(m.getBirthDate().equals(birthDate) && !m.getId().equals(existingMemberId)) {
+					member = m;
+					possibleMembers = null;
+					return member;
+				}
+			}
+		}
+		possibleMembers = null;
+		return member;
+	}
 
 	@SuppressWarnings("rawtypes")
 	public List<MemberContactVO> getContactDetails(final String[] members) {

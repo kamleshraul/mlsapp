@@ -683,6 +683,17 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return getMemberRepository().findMember(firstName, lastName, birthDate, locale);
 	}
 	
+	public static Member findDuplicateMember(final Long existingMemberId, final String firstName, final String middleName,
+			final String lastName, final Date birthDate, final String locale) {
+		return getMemberRepository().findDuplicateMember(existingMemberId,firstName,middleName,
+				lastName,birthDate,locale);
+	}
+	
+	public static Member findDuplicateMember(final Long existingMemberId, final String firstName,
+			final String lastName, final Date birthDate, final String locale) {
+		return getMemberRepository().findDuplicateMember(existingMemberId,firstName, lastName, birthDate, locale);
+	}
+	
 	public static List<MemberContactVO> getContactDetails(final String[] members) {
 		return getMemberRepository().getContactDetails(members);
 	}
