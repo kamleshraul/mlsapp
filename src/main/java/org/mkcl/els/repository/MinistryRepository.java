@@ -7,9 +7,11 @@ import java.util.List;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.SubDepartment;
 import org.springframework.stereotype.Repository;
@@ -47,7 +49,18 @@ public class MinistryRepository extends BaseRepository<Ministry, Long> {
 	public List<Ministry> findAssignedMinistries(final String locale) {
 		List<Ministry> ministries = new ArrayList<Ministry>();
 		try{
-			Date currDate = new Date();
+			Date toDateLimit = new Date();
+			CustomParameter csptNewHouseFormationInProcess = CustomParameter.findByName(CustomParameter.class, "NEW_HOUSE_FORMATION_IN_PROCESS", "");
+			if(csptNewHouseFormationInProcess!=null 
+					&& csptNewHouseFormationInProcess.getValue()!=null
+					&& csptNewHouseFormationInProcess.getValue().equals("YES")) {
+				HouseType houseType = HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale);
+				Session latestSession = Session.findLatestSession(houseType);
+				if(latestSession!=null) {
+					toDateLimit = latestSession.getEndDate();
+				}
+			}
+			//Date currDate = new Date();
 			/**
 			 * I am trying to mimic mm.ministryToDate > CURDATE(), but since
 			 * CURDATE() is MySQL specific i am using DB_DATEFORMAT from
@@ -61,7 +74,7 @@ public class MinistryRepository extends BaseRepository<Ministry, Long> {
 			"ORDER BY m.name";
 			javax.persistence.Query query=this.em().createQuery(strQuery);
 			query.setParameter("locale",locale);
-			query.setParameter("currentDate",currDate);
+			query.setParameter("currentDate",toDateLimit);
 			ministries = query.getResultList();
 		}catch (Exception e) {
 			logger.error("error", e);

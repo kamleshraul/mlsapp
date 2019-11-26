@@ -1542,6 +1542,7 @@
 				<option value="PENDING"><spring:message code="mytask.pending" text="Pending"></spring:message></option>
 				<option value="COMPLETED"><spring:message code="mytask.completed" text="Completed"></spring:message></option>
 				<option value="TIMEOUT"><spring:message code="mytask.timeout" text="Timeout"></spring:message></option>
+				<option value="LAPSED_DUE_TO_HOUSE_DISSOLVED"><spring:message code="mytask.lapsed_due_to_house_dissolved" text="Lapsed Due To House Dissolved"></spring:message></option>
 			</select> |	
 			<hr>
 			<div id="groupDiv" style='display: inline;'>

@@ -8,6 +8,7 @@ import java.util.Locale;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
@@ -539,10 +540,21 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
 			final String locale) {
 		List<SubDepartment> subDepts = new ArrayList<SubDepartment>();
 		try{
+			Date toDateLimit = new Date();
+			CustomParameter csptNewHouseFormationInProcess = CustomParameter.findByName(CustomParameter.class, "NEW_HOUSE_FORMATION_IN_PROCESS", "");
+			if(csptNewHouseFormationInProcess!=null 
+					&& csptNewHouseFormationInProcess.getValue()!=null
+					&& csptNewHouseFormationInProcess.getValue().equals("YES")) {
+				HouseType houseType = HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale);
+				Session latestSession = Session.findLatestSession(houseType);
+				if(latestSession!=null) {
+					toDateLimit = latestSession.getEndDate();
+				}
+			}
 			CustomParameter parameter =
 				CustomParameter.findByFieldName(CustomParameter.class, "name", "DB_DATEFORMAT", "");
 			String strCurrentDate = FormaterUtil.
-					getDateFormatter(parameter.getValue(),"en_US").format(new Date());
+					getDateFormatter(parameter.getValue(),"en_US").format(toDateLimit);
 			String initialQuery = "SELECT DISTINCT(sd) FROM MemberMinister mm JOIN mm.ministry mi "+
 						 " JOIN mm.memberDepartments md JOIN md.department d JOIN md.subDepartments sd WHERE "+
 						 " (mm.ministryToDate >='"+strCurrentDate+"' OR mm.ministryToDate=null) "+
@@ -785,6 +797,22 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
 
 	public List<Ministry> findAssignedMinistries(Date activeFrom,
 			Date activeTo, String locale) {
+		CustomParameter csptNewHouseFormationInProcess = CustomParameter.findByName(CustomParameter.class, "NEW_HOUSE_FORMATION_IN_PROCESS", "");
+		if(csptNewHouseFormationInProcess!=null 
+				&& csptNewHouseFormationInProcess.getValue()!=null
+				&& csptNewHouseFormationInProcess.getValue().equals("YES")) {
+			HouseType houseType = HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale);
+			Session latestSession = null;
+			try {
+				latestSession = Session.findLatestSession(houseType);
+				if(latestSession!=null) {
+					activeTo = latestSession.getEndDate();
+				}
+			} catch (ELSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
+		}
 		List<Ministry> ministries = new ArrayList<Ministry>();
 		try{
 			String query = "SELECT DISTINCT(mi) FROM MemberMinister mm JOIN mm.ministry mi "+
@@ -792,7 +820,7 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
 						 " AND (mm.ministryToDate >='" + activeFrom + "' OR mm.ministryToDate=null) "+
 						 " AND mm.locale='"+locale+"' " +
 						 " ORDER BY mi.name";
-			ministries = this.em().createQuery(query).getResultList();; 
+			ministries = this.em().createQuery(query).getResultList();
 		}catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage());

@@ -862,6 +862,8 @@ public class MemberPersonalController extends GenericController<Member> {
 						UserGroupType memberUGType = UserGroupType.findByType(ApplicationConstants.MEMBER, domain.getLocale());
 						UserGroup existingUserGroup = UserGroup.findActive(credential, memberUGType, new Date(), domain.getLocale());
 						if(existingUserGroup==null || existingUserGroup.getId()==null) {
+							String currentHouseType = request.getParameter("houseType");
+							System.out.println("currentHouseType: " + currentHouseType);
 							House house = House.findById(House.class, Long.parseLong("2600"));// required house id to be parsed (mostly latest house id of required housetype)
 							//Long houseId=Long.parseLong(request.getParameter("house"));
 							//House house=House.findById(House.class,houseId);
