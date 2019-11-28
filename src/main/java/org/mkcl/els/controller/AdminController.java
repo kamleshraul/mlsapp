@@ -951,4 +951,31 @@ public class AdminController extends BaseController {
 		}
 	}
 	
+	@Transactional
+	@RequestMapping(value = "/reset_user_password")
+	public @ResponseBody String resetUserPassword(HttpServletRequest request, Locale locale){
+		String retVal = "FAILURE";
+		try{
+			String username = request.getParameter("username");
+			if(username!=null && !username.isEmpty()) {
+				Credential credential = Credential.findByFieldName(Credential.class, "username", username, "");
+				if(credential != null) {
+					String strPassword = Credential.generatePassword(Integer.parseInt(ApplicationConstants.DEFAULT_PASSWORD_LENGTH));
+					String encodedPassword = securityService.getEncodedPassword(strPassword);
+					credential.setPassword(encodedPassword);
+					credential.merge();
+					retVal = "SUCCESS";
+				} else {
+					retVal = "CREDENTIAL_NOT_FOUND";
+				}
+			} else {
+				retVal = "USERNAME_NOT_SPECIFIED";
+			}
+		} catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		return retVal;
+	}
+	
 }
