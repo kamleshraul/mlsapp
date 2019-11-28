@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
@@ -28,6 +29,7 @@ import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Query;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -144,6 +146,12 @@ public class MemberListController extends GenericController<Member> {
 			e.printStackTrace();
 		}
 		return returnValue;
+	}
+	
+	@RequestMapping(value="/printCredentials/instructions_vm", method=RequestMethod.GET)
+	public String getInstructionsForPrintCredentialsVM(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		response.setContentType("text/html; charset=utf-8");
+		return "member/printCredentials_instructions";
 	}
 
 	@RequestMapping(value="/print",method=RequestMethod.GET)

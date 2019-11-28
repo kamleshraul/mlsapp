@@ -2,12 +2,18 @@
 <html>
 <head>
 	<title>
-	<spring:message code="question.statreport" text="Statistics Report"/>
+	<spring:message code="member.print_credentials" text="Member Credentials Report"/>
 	</title>
 	<link rel="stylesheet" type="text/css" media="print" href="./resources/css/printerfriendly.css?v=3" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function(){
+			//load instructions for accessing system
+			$.get('member/printCredentials/instructions_vm',function(data){					 								
+				$('#instructionsWindow').empty();
+				$('#instructionsWindow').html(data);
+			}).fail(function(){				 
+			});
 			//print pdf
 			$('#Generate_PDF').click(function () { 
 				
@@ -36,8 +42,7 @@
 	        #reportDiv{
 	        	width: 800px;
 	        	padding: 10px;
-	        }	        
-	        
+	        }
 	        table{
 	        	border: 1px solid black;
 	        	width: 100%;
@@ -70,7 +75,25 @@
 			
 			div#rep8NoData{
 				display: none;
-			}
+			}       
+	        div#instructionsWindow{
+	        	width: 950px !important;
+	        	font-size: 19px !important;
+	        }
+	        span#websiteURL {
+	        	font-size: 21px !important;
+	        	font-weight: bold;
+	        }
+	        div#footerDiv{
+	        	margin-top: 350px;
+	        }
+	        hr {
+	        	align: left;
+	        	width: 100%;
+	        }
+	        p#footer_paragraph{
+	        	font-size: 14pt !important;
+	        }
         }
         
         pre{
@@ -90,7 +113,7 @@
         table#reportTable td{
         	text-align: center;
         	font-weight: bold;
-        	font-size: 13px;
+        	font-size: 20px;
         	height: 50px;
         }
         
@@ -117,11 +140,17 @@
 <p id="error_p" style="display: none;">&nbsp;</p>
 <div id="reportDiv">
 	<div id="statHeaderDiv">
-		<h2 style="color: black !important; margin-left: 300px;">
+		<h2 style="color: black !important; margin-left: 150px;">
+			<spring:message code="login.vidhanmandal" text="Member Info"/>
+		</h2>
+		<h2 style="color: black !important; margin-left: 200px;">
 			<spring:message code="Member.printCredential" text="Member Info"/>
 		</h2>
 		
 		<br />	
+		<br />	
+		<br />	
+	
 	</div>
 	<!-- <div style="text-align: right">
 		<a href="#" id="Generate_PDF">
@@ -217,7 +246,13 @@
 				</c:forEach>
 			
 			</tbody>
-		</table>		
+		</table>	
+		<div id="instructionsWindowDiv" style="margin-top: 125px;">
+			<div id="instructionsWindow" style="word-wrap: break-word;">
+				<!-- instructions for accessing system to be loaded -->
+			</div>
+		</div>
+		<!-- <div style="font-size: 15px;">This is computer generated letter no signature required.</div> -->	
 	</div>
 	
 	
