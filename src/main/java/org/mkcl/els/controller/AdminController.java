@@ -963,6 +963,8 @@ public class AdminController extends BaseController {
 					String strPassword = Credential.generatePassword(Integer.parseInt(ApplicationConstants.DEFAULT_PASSWORD_LENGTH));
 					String encodedPassword = securityService.getEncodedPassword(strPassword);
 					credential.setPassword(encodedPassword);
+					credential.setPasswordChangeCount(1);
+					credential.setPasswordChangeDateTime(new Date());
 					credential.merge();
 					retVal = "SUCCESS";
 				} else {

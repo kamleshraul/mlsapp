@@ -628,6 +628,7 @@ public class MemberPersonalController extends GenericController<Member> {
 									credential.setEnabled(Boolean.parseBoolean(isEnabled));
 								}								
 								credential.setPasswordChangeCount(1);
+								credential.setPasswordChangeDateTime(new Date());
 								credential.setAllowedForMultiLogin(false);
 								//credential.setLocale("");
 								credential.persist();	
