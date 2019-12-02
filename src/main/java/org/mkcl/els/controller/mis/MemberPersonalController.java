@@ -864,131 +864,132 @@ public class MemberPersonalController extends GenericController<Member> {
 						UserGroup existingUserGroup = UserGroup.findActive(credential, memberUGType, new Date(), domain.getLocale());
 						if(existingUserGroup==null || existingUserGroup.getId()==null) {
 							String currentHouseType = request.getParameter("houseType");
-							System.out.println("currentHouseType: " + currentHouseType);
-							House house = House.findById(House.class, Long.parseLong("2600"));// required house id to be parsed (mostly latest house id of required housetype)
-							//Long houseId=Long.parseLong(request.getParameter("house"));
-							//House house=House.findById(House.class,houseId);
-							HouseType houseType=null;
-							if(house!=null){
-								houseType = house.getType();
-								UserGroup userGroup = new UserGroup();
-								userGroup.setCredential(credential);
-								UserGroupType userGroupType = UserGroupType.findByType(ApplicationConstants.MEMBER, domain.getLocale());
-								userGroup.setUserGroupType(userGroupType);
-								if(houseType!=null && houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-									Calendar cal = Calendar.getInstance();		
-									cal.setTime(new Date());
-									userGroup.setActiveFrom(cal.getTime());
-									CustomParameter csptDefaultMemberTenureCouncil = CustomParameter.findByName(CustomParameter.class, "DEFAULT_MEMBER_TENURE_YEARS_UPPERHOUSE", "");
-									if(csptDefaultMemberTenureCouncil!=null 
-											&& csptDefaultMemberTenureCouncil.getValue()!=null
-											&& !csptDefaultMemberTenureCouncil.getValue().isEmpty()) {
-										cal.add(Calendar.YEAR, Integer.parseInt(csptDefaultMemberTenureCouncil.getValue()));		
-										userGroup.setActiveTo(cal.getTime());
-									} else {
-										cal.add(Calendar.YEAR, Integer.parseInt(ApplicationConstants.DEFAULT_MEMBER_TENURE_YEARS_UPPERHOUSE));
-										userGroup.setActiveTo(cal.getTime());
-									}							
-								}else if(houseType!=null&&houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-									userGroup.setActiveFrom(new Date());
-									userGroup.setActiveTo(house.getLastDate());
-								}
-								//default usergroup parameters
-								Map<String,String> userGroupParams=new HashMap<String, String>();
-								userGroupParams.put(ApplicationConstants.HOUSETYPE_KEY+"_"+domain.getLocale(), houseType.getName());
-								userGroupParams.put(ApplicationConstants.ACTORSTATE_KEY+"_"+domain.getLocale(), ApplicationConstants.ACTOR_ACTIVE);
-								userGroupParams.put(ApplicationConstants.ACTORREMARK_KEY+"_"+domain.getLocale(), "");
-								userGroupParams.put(ApplicationConstants.GROUPSALLOWED_KEY+"_"+domain.getLocale(), "");
-								List<DeviceType> deviceTypes = null;
-								CustomParameter csptAllowedDeviceTypesForMember = CustomParameter.findByName(CustomParameter.class, "ALLOWED_DEVICETYPES_FOR_MEMBER", domain.getLocale());
-								if(csptAllowedDeviceTypesForMember!=null 
-										&& csptAllowedDeviceTypesForMember.getValue()!=null
-										&& !csptAllowedDeviceTypesForMember.getValue().isEmpty()) {
-//										deviceTypes=DeviceType.findAll(DeviceType.class, "name",ApplicationConstants.ASC, domain.getLocale());
-//										if(deviceTypes!=null && !deviceTypes.isEmpty()) {
-//											if(deviceTypes.size()==1) {
-//												userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), deviceTypes.get(0).getName());
-//											} else {
-//												StringBuffer buffer=new StringBuffer();
-//												for(DeviceType j:deviceTypes){
-//													buffer.append(j.getName()+"##");
-//												}
-//												userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), buffer.toString());
-//											}
-//										}
-									userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), csptAllowedDeviceTypesForMember.getValue());
-								} else {
-									deviceTypes=DeviceType.findAll(DeviceType.class, "name",ApplicationConstants.ASC, domain.getLocale());
-									if(deviceTypes!=null && !deviceTypes.isEmpty()) {
-										if(deviceTypes.size()==1) {
-											userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), deviceTypes.get(0).getName());
+							if(currentHouseType!=null && currentHouseType.equals(ApplicationConstants.LOWER_HOUSE)) {
+								House house = House.findById(House.class, Long.parseLong("2600"));// required house id to be parsed (mostly latest house id of required housetype)
+								//Long houseId=Long.parseLong(request.getParameter("house"));
+								//House house=House.findById(House.class,houseId);
+								HouseType houseType=null;
+								if(house!=null){
+									houseType = house.getType();
+									UserGroup userGroup = new UserGroup();
+									userGroup.setCredential(credential);
+									UserGroupType userGroupType = UserGroupType.findByType(ApplicationConstants.MEMBER, domain.getLocale());
+									userGroup.setUserGroupType(userGroupType);
+									if(houseType!=null && houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+										Calendar cal = Calendar.getInstance();		
+										cal.setTime(new Date());
+										userGroup.setActiveFrom(cal.getTime());
+										CustomParameter csptDefaultMemberTenureCouncil = CustomParameter.findByName(CustomParameter.class, "DEFAULT_MEMBER_TENURE_YEARS_UPPERHOUSE", "");
+										if(csptDefaultMemberTenureCouncil!=null 
+												&& csptDefaultMemberTenureCouncil.getValue()!=null
+												&& !csptDefaultMemberTenureCouncil.getValue().isEmpty()) {
+											cal.add(Calendar.YEAR, Integer.parseInt(csptDefaultMemberTenureCouncil.getValue()));		
+											userGroup.setActiveTo(cal.getTime());
 										} else {
-											StringBuffer buffer=new StringBuffer();
-											for(DeviceType j:deviceTypes){
-												buffer.append(j.getName()+"##");
-											}
-											userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), buffer.toString());
-										}
+											cal.add(Calendar.YEAR, Integer.parseInt(ApplicationConstants.DEFAULT_MEMBER_TENURE_YEARS_UPPERHOUSE));
+											userGroup.setActiveTo(cal.getTime());
+										}							
+									}else if(houseType!=null&&houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+										userGroup.setActiveFrom(new Date());
+										userGroup.setActiveTo(house.getLastDate());
 									}
-								}								
-								List<Ministry> ministries=Ministry.findAssignedMinistries(domain.getLocale());
-								if(ministries!=null && !ministries.isEmpty()) {
-									if(ministries.size()==1) {
-										userGroupParams.put(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale(), ministries.get(0).getName());
+									//default usergroup parameters
+									Map<String,String> userGroupParams=new HashMap<String, String>();
+									userGroupParams.put(ApplicationConstants.HOUSETYPE_KEY+"_"+domain.getLocale(), houseType.getName());
+									userGroupParams.put(ApplicationConstants.ACTORSTATE_KEY+"_"+domain.getLocale(), ApplicationConstants.ACTOR_ACTIVE);
+									userGroupParams.put(ApplicationConstants.ACTORREMARK_KEY+"_"+domain.getLocale(), "");
+									userGroupParams.put(ApplicationConstants.GROUPSALLOWED_KEY+"_"+domain.getLocale(), "");
+									List<DeviceType> deviceTypes = null;
+									CustomParameter csptAllowedDeviceTypesForMember = CustomParameter.findByName(CustomParameter.class, "ALLOWED_DEVICETYPES_FOR_MEMBER", domain.getLocale());
+									if(csptAllowedDeviceTypesForMember!=null 
+											&& csptAllowedDeviceTypesForMember.getValue()!=null
+											&& !csptAllowedDeviceTypesForMember.getValue().isEmpty()) {
+//											deviceTypes=DeviceType.findAll(DeviceType.class, "name",ApplicationConstants.ASC, domain.getLocale());
+//											if(deviceTypes!=null && !deviceTypes.isEmpty()) {
+//												if(deviceTypes.size()==1) {
+//													userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), deviceTypes.get(0).getName());
+//												} else {
+//													StringBuffer buffer=new StringBuffer();
+//													for(DeviceType j:deviceTypes){
+//														buffer.append(j.getName()+"##");
+//													}
+//													userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), buffer.toString());
+//												}
+//											}
+										userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), csptAllowedDeviceTypesForMember.getValue());
 									} else {
-										StringBuffer buffer=new StringBuffer();
-										for(Ministry j:ministries){
-											buffer.append(j.getName()+"##");
-										}
-										userGroupParams.put(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale(), buffer.toString());
-									}
-								} else {
-									CustomParameter csptCurrentMinistryParamValue = CustomParameter.findByName(CustomParameter.class, "CURRENT_ALL_MINISTRIES_FOR_USERGROUP_CREATION", domain.getLocale());
-									if(csptCurrentMinistryParamValue!=null && csptCurrentMinistryParamValue.getValue()!=null) {
-										userGroupParams.put(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale(), csptCurrentMinistryParamValue.getValue());
-									}
-								}
-								String strMinistry=userGroupParams.get(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale());
-								if(strMinistry!=null){
-									if(!strMinistry.isEmpty()){
-										String[] ministriesList=strMinistry.split("##");
-										List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministriesList, domain.getLocale());
-										if(subDepartments!=null && !subDepartments.isEmpty()) {
-											if(subDepartments.size()==1) {
-												userGroupParams.put(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+domain.getLocale(), subDepartments.get(0).getName());
+										deviceTypes=DeviceType.findAll(DeviceType.class, "name",ApplicationConstants.ASC, domain.getLocale());
+										if(deviceTypes!=null && !deviceTypes.isEmpty()) {
+											if(deviceTypes.size()==1) {
+												userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), deviceTypes.get(0).getName());
 											} else {
 												StringBuffer buffer=new StringBuffer();
-												for(SubDepartment j:subDepartments){
+												for(DeviceType j:deviceTypes){
 													buffer.append(j.getName()+"##");
 												}
-												userGroupParams.put(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+domain.getLocale(), buffer.toString());
+												userGroupParams.put(ApplicationConstants.DEVICETYPE_KEY+"_"+domain.getLocale(), buffer.toString());
 											}
+										}
+									}								
+									List<Ministry> ministries=Ministry.findAssignedMinistries(domain.getLocale());
+									if(ministries!=null && !ministries.isEmpty()) {
+										if(ministries.size()==1) {
+											userGroupParams.put(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale(), ministries.get(0).getName());
 										} else {
-											CustomParameter csptCurrentDepartmentParamValue = CustomParameter.findByName(CustomParameter.class, "CURRENT_ALL_SUBDEPARTMENTS_FOR_USERGROUP_CREATION", domain.getLocale());
-											if(csptCurrentDepartmentParamValue!=null && csptCurrentDepartmentParamValue.getValue()!=null) {
-												userGroupParams.put(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+domain.getLocale(), csptCurrentDepartmentParamValue.getValue());
+											StringBuffer buffer=new StringBuffer();
+											for(Ministry j:ministries){
+												buffer.append(j.getName()+"##");
+											}
+											userGroupParams.put(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale(), buffer.toString());
+										}
+									} else {
+										CustomParameter csptCurrentMinistryParamValue = CustomParameter.findByName(CustomParameter.class, "CURRENT_ALL_MINISTRIES_FOR_USERGROUP_CREATION", domain.getLocale());
+										if(csptCurrentMinistryParamValue!=null && csptCurrentMinistryParamValue.getValue()!=null) {
+											userGroupParams.put(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale(), csptCurrentMinistryParamValue.getValue());
+										}
+									}
+									String strMinistry=userGroupParams.get(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale());
+									if(strMinistry!=null){
+										if(!strMinistry.isEmpty()){
+											String[] ministriesList=strMinistry.split("##");
+											List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministriesList, domain.getLocale());
+											if(subDepartments!=null && !subDepartments.isEmpty()) {
+												if(subDepartments.size()==1) {
+													userGroupParams.put(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+domain.getLocale(), subDepartments.get(0).getName());
+												} else {
+													StringBuffer buffer=new StringBuffer();
+													for(SubDepartment j:subDepartments){
+														buffer.append(j.getName()+"##");
+													}
+													userGroupParams.put(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+domain.getLocale(), buffer.toString());
+												}
+											} else {
+												CustomParameter csptCurrentDepartmentParamValue = CustomParameter.findByName(CustomParameter.class, "CURRENT_ALL_SUBDEPARTMENTS_FOR_USERGROUP_CREATION", domain.getLocale());
+												if(csptCurrentDepartmentParamValue!=null && csptCurrentDepartmentParamValue.getValue()!=null) {
+													userGroupParams.put(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+domain.getLocale(), csptCurrentDepartmentParamValue.getValue());
+												}
 											}
 										}
 									}
+									userGroup.setParameters(userGroupParams);
+									/** Edited By **/
+									Object supportUserName = request.getSession().getAttribute("supportUserName");
+									if(supportUserName!=null) {
+										userGroup.setEditedBy(supportUserName.toString());			
+									} else {
+										userGroup.setEditedBy(this.getCurrentUser().getActualUsername());
+									}		
+									/** Edited As **/
+									Role role = Role.findByType(ApplicationConstants.ROLE_SUPER_ADMIN, domain.getLocale()); //default user is administrator with role 'SUPER_ADMIN'
+									if(role!=null) {
+										userGroup.setEditedAs(role.getLocalizedName());
+									}
+									/** Edited ON **/
+									userGroup.setEditedOn(new Date());
+									userGroup.setLocale(domain.getLocale());
+									userGroup.persist();
 								}
-								userGroup.setParameters(userGroupParams);
-								/** Edited By **/
-								Object supportUserName = request.getSession().getAttribute("supportUserName");
-								if(supportUserName!=null) {
-									userGroup.setEditedBy(supportUserName.toString());			
-								} else {
-									userGroup.setEditedBy(this.getCurrentUser().getActualUsername());
-								}		
-								/** Edited As **/
-								Role role = Role.findByType(ApplicationConstants.ROLE_SUPER_ADMIN, domain.getLocale()); //default user is administrator with role 'SUPER_ADMIN'
-								if(role!=null) {
-									userGroup.setEditedAs(role.getLocalizedName());
-								}
-								/** Edited ON **/
-								userGroup.setEditedOn(new Date());
-								userGroup.setLocale(domain.getLocale());
-								userGroup.persist();
-							}
+							}							
 						} else {							
 							String ministryParamValue = existingUserGroup.getParameterValue(ApplicationConstants.MINISTRY_KEY+"_"+domain.getLocale());
 							if(ministryParamValue==null || ministryParamValue.isEmpty()) {

@@ -24,10 +24,13 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.MemberCompleteDetailVO;
 import org.mkcl.els.controller.GenericController;
+import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Query;
+import org.mkcl.els.service.ISecurityService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -46,6 +49,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("member")
 public class MemberListController extends GenericController<Member> {
+	
+	@Autowired 
+	private ISecurityService securityService;
 
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.controller.GenericController#populateModule(org.springframework.ui.ModelMap, javax.servlet.http.HttpServletRequest, java.lang.String, org.mkcl.els.common.vo.AuthUser)
@@ -135,7 +141,21 @@ public class MemberListController extends GenericController<Member> {
 			
 			model.addAttribute("report", reportData);
 		
-			
+			if(reportData!=null && !reportData.isEmpty()) {
+				String username = reportData.get(0)[11].toString();
+				if(username!=null && !username.isEmpty()) {
+					Credential credential = Credential.findByFieldName(Credential.class, "username", username, "");
+					if(credential != null && credential.getPasswordChangeCount()>1) {
+						String strPassword = Credential.generatePassword(Integer.parseInt(ApplicationConstants.DEFAULT_PASSWORD_LENGTH));
+						String encodedPassword = securityService.getEncodedPassword(strPassword);
+						credential.setPassword(encodedPassword);
+						credential.setPasswordChangeCount(1);
+						credential.setPasswordChangeDateTime(new Date());
+						credential.merge();
+						reportData.get(0)[12] = credential.getPassword();
+					}
+				}
+			}
 	
 			//generate report
 			//generateReportUsingFOP(new Object[]{reportData}, "template_ris_totalwork", "PDF", "Total Work Report", locale.toString());
