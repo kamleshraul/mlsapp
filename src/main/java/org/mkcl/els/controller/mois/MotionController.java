@@ -1301,7 +1301,7 @@ public class MotionController extends GenericController<Motion>{
 							}	
 						}
 						
-						if(optionalFields != null && !optionalFields.contains("details")){
+						if(optionalFields != null && !optionalFields.contains("ministry")){
 							if(domain.getMinistry()==null){
 								result.rejectValue("ministry","MinistryEmpty");
 							}		
@@ -1389,7 +1389,7 @@ public class MotionController extends GenericController<Motion>{
 					}	
 				}
 				
-				if(optionalFields != null && !optionalFields.contains("details")){
+				if(optionalFields != null && !optionalFields.contains("ministry")){
 					if(domain.getMinistry()==null){
 						result.rejectValue("ministry","MinistryEmpty");
 					}		
@@ -1508,7 +1508,7 @@ public class MotionController extends GenericController<Motion>{
 						}	
 					}
 					
-					if(optionalFields != null && !optionalFields.contains("details")){
+					if(optionalFields != null && !optionalFields.contains("ministry")){
 						if(domain.getMinistry()==null){
 							result.rejectValue("ministry","MinistryEmpty");
 						}		
@@ -1545,7 +1545,7 @@ public class MotionController extends GenericController<Motion>{
 							}	
 						}
 						
-						if(optionalFields != null && !optionalFields.contains("details")){
+						if(optionalFields != null && !optionalFields.contains("ministry")){
 							if(domain.getMinistry()==null){
 								result.rejectValue("ministry","MinistryEmpty");
 							}		
@@ -1602,7 +1602,7 @@ public class MotionController extends GenericController<Motion>{
 			
 			String usergroupType=request.getParameter("usergroupType");
 			if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("assistant")){
-				if(optionalFields != null && !optionalFields.contains("details")){
+				if(optionalFields != null && !optionalFields.contains("ministry")){
 					if(domain.getMinistry()==null){
 						result.rejectValue("ministry","MinistryEmpty");
 					}		
