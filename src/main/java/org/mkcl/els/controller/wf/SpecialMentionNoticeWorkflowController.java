@@ -339,7 +339,7 @@ public class SpecialMentionNoticeWorkflowController  extends BaseController {
 
 			try{	
 				/** validation for restricting late Reply filling **/				
-				if(domain.getStatus().getType().equals(ApplicationConstants.ADJOURNMENTMOTION_FINAL_ADMISSION)) {
+				if(domain.getStatus().getType().equals(ApplicationConstants.SPECIALMENTIONNOTICE_FINAL_ADMISSION)) {
 					//check validation flag
 					CustomParameter csptValidationFlagForLastReceivingDateFromDepartment = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_"+domain.getHouseType().getType().toUpperCase()+"_"+ApplicationConstants.VALIDATION_FLAG_FOR_LAST_RECEIVING_DATE_FROM_DEPARTMENT, "");
 					if(csptValidationFlagForLastReceivingDateFromDepartment!=null) {
