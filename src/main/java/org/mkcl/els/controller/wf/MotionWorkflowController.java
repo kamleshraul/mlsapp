@@ -789,11 +789,17 @@ public class MotionWorkflowController extends BaseController{
 			Motion motion = Motion.findById(Motion.class, domain.getId());
 			boolean isMinistryChanged = false;
 			boolean isSubDepartmentChanged = false;
-			if(!domain.getMinistry().equals(motion.getMinistry())){
-				isMinistryChanged = true;
-			}else if(domain.getSubDepartment()!=null && !domain.getSubDepartment().equals(motion.getSubDepartment())){
-				isSubDepartmentChanged = true;
-			}
+			CustomParameter subDepartmentFilterAllowedFor = CustomParameter
+					.findByName(CustomParameter.class, "MOIS_SUBDEPARTMENT_FILTER_ALLOWED_FOR", "");
+			if (subDepartmentFilterAllowedFor != null){
+				if(subDepartmentFilterAllowedFor.getValue().contains(userGroupType)) {
+					if(!domain.getMinistry().equals(motion.getMinistry())){
+						isMinistryChanged = true;
+					}else if(domain.getSubDepartment()!=null && !domain.getSubDepartment().equals(motion.getSubDepartment())){
+						isSubDepartmentChanged = true;
+					}
+				}
+			}			
 			
 			
 			if(isMinistryChanged || isSubDepartmentChanged){
