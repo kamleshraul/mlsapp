@@ -9,7 +9,15 @@
 	<script type="text/javascript">
 		var ids, counter, limit, dataSize;
 		$(document).ready(function(){
-						
+			$('.actor_displayname_label').each(function() {
+				if($(this).text()==$('#deputy_secretary1_label').val()) {
+					$(this).text($('#deputy_secretary_label').val());
+				
+				} else if($(this).text()==$('#deputy_secretary2_label').val()) {
+					$(this).text($('#deputy_secretary_label').val());
+				}
+				
+			});
 		});
 		
 		
@@ -206,7 +214,7 @@
 								<c:set var="propertR" value="actor${dd.count}Remark" />
 								<c:set var="propertName" value="user${dd.count}Name" />
 								<td style="width:120px;">
-									<c:out value="${dataMapper[actor]}" /><br>
+									<label class="actor_displayname_label"><c:out value="${dataMapper[actor]}" /></label><br>
 									<c:if test="${dataMapper[propertName]!=null}">
 										<span style="font-size: 10px">
 											(${dataMapper[propertName]})
@@ -241,5 +249,8 @@
 			<span class='page-break-before-forced'>&nbsp;</span>
 		</c:otherwise>
 	</c:choose>
+	<input type="hidden" id="deputy_secretary1_label" value="${deputy_secretary1_label}"/>
+	<input type="hidden" id="deputy_secretary2_label" value="${deputy_secretary2_label}"/>
+	<input type="hidden" id="deputy_secretary_label" value="${deputy_secretary_label}"/>
 </body>
 </html>

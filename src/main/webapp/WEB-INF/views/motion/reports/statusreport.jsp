@@ -90,10 +90,18 @@
 		function addRemarkReport(){
 			if(ids.length > 0 && counter < ids.length){
 				var reportQuery = "MOTION_CURRENT_STATUS_REPORT";
-				if($("#selectedHouseType").val()=='lowerhouse'){
+				var houseType = $("#selectedHouseType").val();
+				if(houseType=='lowerhouse'){
 					reportQuery+="_LOWERHOUSE";
-				}else{
+				}else if(houseType=='upperhouse'){
 					reportQuery+="_UPPERHOUSE";
+				} else { //case when in workflow page.. need to find type from name of housetype
+					houseType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
+					if(houseType=='lowerhouse'){
+						reportQuery+="_LOWERHOUSE";
+					}else{
+						reportQuery+="_UPPERHOUSE";
+					}
 				}
 				 $.get('motion/report/'+ ids[counter] + '/currentstatusreportvm?device='+$("#device").val()+'&reportOut='+reportQuery,function(data1){
 						 								

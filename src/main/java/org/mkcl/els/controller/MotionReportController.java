@@ -29,6 +29,7 @@ import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -725,7 +726,25 @@ public class MotionReportController extends BaseController{
 	@RequestMapping(value="/{moId}/currentstatusreportvm", method=RequestMethod.GET)
 	public String getCurrentStatusReportVM(@PathVariable("moId") Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
 				
-		response.setContentType("text/html; charset=utf-8");		
+		response.setContentType("text/html; charset=utf-8");	
+		UserGroupType ugtDS1 = UserGroupType.findByType(ApplicationConstants.DEPUTY_SECRETARY1, locale.toString());
+		if(ugtDS1!=null) {
+			model.addAttribute("deputy_secretary1_label", ugtDS1.getDisplayName());
+		} else {
+			model.addAttribute("deputy_secretary1_label", "");
+		}
+		UserGroupType ugtDS2 = UserGroupType.findByType(ApplicationConstants.DEPUTY_SECRETARY2, locale.toString());
+		if(ugtDS2!=null) {
+			model.addAttribute("deputy_secretary2_label", ugtDS2.getDisplayName());
+		} else {
+			model.addAttribute("deputy_secretary2_label", "");
+		}
+		UserGroupType ugtDS = UserGroupType.findByType(ApplicationConstants.DEPUTY_SECRETARY, locale.toString());
+		if(ugtDS!=null) {
+			model.addAttribute("deputy_secretary_label", ugtDS.getDisplayName());
+		} else {
+			model.addAttribute("deputy_secretary_label", "");
+		}
 		return MotionReportHelper.getCurrentStatusReportData(id, model, request, response, locale);
 	}
 	

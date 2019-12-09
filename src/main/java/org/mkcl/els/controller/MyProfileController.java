@@ -150,7 +150,7 @@ public class MyProfileController extends BaseController {
 								
 								user.setBirthDate(bDate);
 								user.merge();
-							
+								this.getCurrentUser().setBirthDate(bDate);
 								
 								
 								redirectAttributes.addFlashAttribute("type", "success");
