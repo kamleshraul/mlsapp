@@ -1125,8 +1125,14 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 	@Override
 	protected void customValidateCreate(final StandaloneMotion domain, final BindingResult result,
 			final HttpServletRequest request) {		
-		populateSupportingMembers(domain,request);
 		String role=request.getParameter("role");
+		populateSupportingMembers(domain,request);
+		/**** To skip the optional fields ****/
+		String optionalFields = null;		
+		CustomParameter csptOptionalFields = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.STANDALONEMOTION_OPTIONAL_FIELDS_IN_VALIDATION+"_"+domain.getHouseType().getType().toUpperCase(), "");		
+		if(csptOptionalFields != null && csptOptionalFields.getValue() != null && !csptOptionalFields.getValue().isEmpty()){
+			optionalFields = csptOptionalFields.getValue();
+		}		
 		/**** Validation Starts ****/
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch");
@@ -1268,12 +1274,16 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 								&& domain.getQuestionText().isEmpty()){
 							result.rejectValue("questionText","QuestionTextEmpty");
 						}*/
-						if(domain.getMinistry() == null){
-							result.rejectValue("ministry", "MinistryEmpty");
+						if(optionalFields != null && !optionalFields.contains("ministry")){
+							if(domain.getMinistry() == null){
+								result.rejectValue("ministry", "MinistryEmpty");
+							}
 						}
-						if(domain.getSubDepartment() == null){
-							result.rejectValue("subDepartment", "SubDepartmentEmpty");
-						}
+						if(optionalFields != null && !optionalFields.contains("subDepartment")){
+							if(domain.getSubDepartment() == null){
+								result.rejectValue("subDepartment", "SubDepartmentEmpty");
+							}
+						}						
 						if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 							validateNumberOfSupportingMembersForHalfHourDiscussionStandalone(domain, result, request);
 						}
@@ -1370,9 +1380,15 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 	@Override
 	protected void customValidateUpdate(final StandaloneMotion domain, final BindingResult result,
 			final HttpServletRequest request) {		
-		populateSupportingMembers(domain, request);
 		String role = request.getParameter("role");
 		String userGroupType = request.getParameter("usergroupType");
+		populateSupportingMembers(domain, request);
+		/**** To skip the optional fields ****/
+		String optionalFields = null;		
+		CustomParameter csptOptionalFields = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.STANDALONEMOTION_OPTIONAL_FIELDS_IN_VALIDATION+"_"+domain.getHouseType().getType().toUpperCase(), "");		
+		if(csptOptionalFields != null && csptOptionalFields.getValue() != null && !csptOptionalFields.getValue().isEmpty()){
+			optionalFields = csptOptionalFields.getValue();
+		}
 		/**** Validation Starts ****/
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("VersionMismatch", "version");
@@ -1516,11 +1532,15 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 							&& domain.getQuestionText().isEmpty()){
 						result.rejectValue("questionText", "QuestionTextEmpty");
 					}*/
-					if(domain.getMinistry() == null){
-						result.rejectValue("ministry", "MinistryEmpty");
+					if(optionalFields != null && !optionalFields.contains("ministry")){
+						if(domain.getMinistry() == null){
+							result.rejectValue("ministry", "MinistryEmpty");
+						}
 					}
-					if(domain.getSubDepartment() == null){
-						result.rejectValue("subDepartment", "SubDepartmentEmpty");
+					if(optionalFields != null && !optionalFields.contains("subDepartment")){
+						if(domain.getSubDepartment() == null){
+							result.rejectValue("subDepartment", "SubDepartmentEmpty");
+						}
 					}
 					
 					if(operation.equals("submit")) {
@@ -1612,8 +1632,15 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 			if(domain.getHouseType()==null){
 				result.rejectValue("houseType","HousetypeEmpty");
 			}
-			if(domain.getSubDepartment()==null){
-				result.rejectValue("subDepartment","SubDepartmentEmpty");
+			if(optionalFields != null && !optionalFields.contains("ministry")){
+				if(domain.getMinistry() == null){
+					result.rejectValue("ministry", "MinistryEmpty");
+				}
+			}
+			if(optionalFields != null && !optionalFields.contains("subDepartment")){
+				if(domain.getSubDepartment() == null){
+					result.rejectValue("subDepartment", "SubDepartmentEmpty");
+				}
 			}
 			if(domain.getType()==null){
 				result.rejectValue("type","QuestionTypeEmpty");
@@ -1978,7 +2005,7 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 								&& domain.getType() != null
 								&& domain.getSession() != null
 								&& domain.getPrimaryMember() != null
-								&& domain.getMinistry() != null
+								//&& domain.getMinistry() != null
 								&& (!domain.getSubject().isEmpty())
 								/*&& (!domain.getQuestionText().isEmpty())*/) {
 							canGoAhead = true;
@@ -1990,8 +2017,8 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 								&& domain.getType() != null
 								&& domain.getSession() != null
 								&& domain.getPrimaryMember() != null
-								&& domain.getMinistry() != null
-								&& domain.getGroup() != null
+								//&& domain.getMinistry() != null
+								//&& domain.getGroup() != null
 								&& (!domain.getSubject().isEmpty())) {
 							domain.setQuestionText("");
 							canGoAhead = true;
@@ -2101,19 +2128,23 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 				StandaloneMotion question = StandaloneMotion.findById(StandaloneMotion.class, id);
 				String internalStatus = question.getInternalStatus().getType();
 				if(domain.getType() != null){
-					if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-						if(internalStatus.equals(ApplicationConstants.STANDALONE_SUBMIT) && domain.getMinistry()!=null) {
+					if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE) 
+							&& internalStatus.equals(ApplicationConstants.STANDALONE_SUBMIT)){
+						String optionalFields = null;
+						CustomParameter csptOptionalFields = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.STANDALONEMOTION_OPTIONAL_FIELDS_IN_VALIDATION+"_"+domain.getHouseType().getType().toUpperCase(), "");		
+						if(csptOptionalFields != null && csptOptionalFields.getValue() != null && !csptOptionalFields.getValue().isEmpty()){
+							optionalFields = csptOptionalFields.getValue();
+						}
+						if(optionalFields!=null && !optionalFields.contains("ministry") && domain.getMinistry()!=null) {
 							Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.STANDALONE_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
 							domain.setInternalStatus(ASSISTANT_PROCESSED);
 							domain.setRecommendationStatus(ASSISTANT_PROCESSED);
-						}else{
-							if(internalStatus.equals(ApplicationConstants.STANDALONE_SUBMIT) && domain.getMinistry()!=null && domain.getSubDepartment() != null) {
-								Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.STANDALONE_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
-								domain.setInternalStatus(ASSISTANT_PROCESSED);
-								domain.setRecommendationStatus(ASSISTANT_PROCESSED);
-							}
+						} else {
+							Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.STANDALONE_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
+							domain.setInternalStatus(ASSISTANT_PROCESSED);
+							domain.setRecommendationStatus(ASSISTANT_PROCESSED);
 						}
-					}else{
+					} else if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
 						
 						Group group = domain.getGroup();
 						if((internalStatus.equals(ApplicationConstants.STANDALONE_SUBMIT)||internalStatus.equals(ApplicationConstants.STANDALONE_SYSTEM_GROUPCHANGED)) && domain.getMinistry()!=null && group!=null && domain.getSubDepartment()!=null) {

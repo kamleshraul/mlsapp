@@ -2923,4 +2923,8 @@ public class ApplicationConstants {
 	/** Default MLS Email Server Host Name **/
 	public static final String DEFAULT_EMAIL_HOSTNAME = "mls.org.in";
 	
+	public static final String STANDALONEMOTION_OPTIONAL_FIELDS_IN_VALIDATION = "STANDALONEMOTION_OPTIONAL_FIELDS_IN_VALIDATION";
+	
+	public static final String ADJOURNMENTMOTION_OPTIONAL_FIELDS_IN_VALIDATION = "ADJOURNMENTMOTION_OPTIONAL_FIELDS_IN_VALIDATION";
+	
 }

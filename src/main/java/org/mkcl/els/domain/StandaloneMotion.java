@@ -1441,7 +1441,9 @@ public class StandaloneMotion extends Device implements Serializable {
             
             draft.setGroup(this.getGroup());
             draft.setMinistry(this.getMinistry());
-            draft.setDepartment(this.getSubDepartment().getDepartment());
+            if(this.getSubDepartment()!=null) {
+            	draft.setDepartment(this.getSubDepartment().getDepartment());
+            }      
             draft.setSubDepartment(this.getSubDepartment());
             
             draft.setStatus(this.getStatus());
