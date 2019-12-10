@@ -2911,6 +2911,7 @@ public class ApplicationConstants {
 	
 	public static final String SPECIALMENTIONNOTICE_FINAL_REJECT_UNCLUBBING = "specialmentionnotice_final_reject_unclubbing";	
 
+	public static final String SPECIALMENTIONNOTICE_OPTIONAL_FIELDS_IN_VALIDATION = "SPECIALMENTIONNOTICE_OPTIONAL_FIELDS_IN_VALIDATION";
 	/**** Other constants ****/
 	public static final String SPECIALMENTIONNOTICEN_GET_REVISION = "SPECIALMENTIONNOTICE_GET_REVISION";
 	/**************** Special Mention Notice Completed ********************/

@@ -1117,6 +1117,14 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
             final BindingResult result, 
             final HttpServletRequest request) {	
 		String role = request.getParameter("role");
+		
+		/**** To skip the optional fields ****/
+		String optionalFields = null;		
+		CustomParameter csptOptionalFields = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.SPECIALMENTIONNOTICE_OPTIONAL_FIELDS_IN_VALIDATION, "");		
+		if(csptOptionalFields != null && csptOptionalFields.getValue() != null && !csptOptionalFields.getValue().isEmpty()){
+			optionalFields = csptOptionalFields.getValue();
+		}
+		
 		/**** Version Mismatch ****/
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch", "concurrent updation is not allowed.");
@@ -1141,16 +1149,12 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 		if(domain.getNoticeContent()==null || domain.getNoticeContent().isEmpty()){
 			result.rejectValue("noticeContent","SpecialMentionNotice.NoticeContentEmpty");
 		}	
-		if(domain.getMinistry()==null){
+		/*if(domain.getMinistry()==null){
 			result.rejectValue("ministry","MinistryEmpty");
 		}
 		if(domain.getSubDepartment()==null){
 			result.rejectValue("subDepartment","SubDepartmentEmpty.domain.subDepartment");
-		}
-		/****  submission date is set ****/
-		if(domain.getSubmissionDate()==null){
-			domain.setSubmissionDate(new Date());
-		}	
+		}*/	
 		/*if(role.equals("AMOIS_TYPIST")){
 //			//Empty check for number
 //			if(domain.getNumber()==null){
@@ -1190,13 +1194,24 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 				/**** Submission ****/	
 				if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 					// Empty check for Ministry
-					if(domain.getMinistry()==null){
+					if(optionalFields != null && !optionalFields.contains("ministry")){
+						if(domain.getMinistry()==null){
+							result.rejectValue("ministry","MinistryEmpty");
+						}		
+					}	
+					/*if(domain.getMinistry()==null){
 						result.rejectValue("ministry","MinistryEmpty");
-					}
+					}*/
 					// Empty check for Subdepartment
-					if(domain.getSubDepartment()==null){
+					if(optionalFields != null && !optionalFields.contains("subDepartment")){
+						if(domain.getMinistry()==null){
+							result.rejectValue("subDepartment","SubDepartmentEmpty");
+						}		
+					}	
+					/*if(domain.getSubDepartment()==null){
 						result.rejectValue("subDepartment","SubDepartmentEmpty");
-					}
+					}*/
+					
 				}
 
 				//submission window validations
@@ -1212,13 +1227,13 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 							&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
 							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
 						if(!role.equals("SMIS_TYPIST")){
-							if(!SpecialMentionNotice.validateSubmissionTime(domain.getSession(), domain.getSpecialMentionNoticeDate(),domain.getSubmissionDate())) {
+							if(!SpecialMentionNotice.validateSubmissionTime(domain.getSession(), domain.getSpecialMentionNoticeDate(),new Date())) {
 								result.rejectValue("version","specialmentionnotice.submissionWindowTimeClosed","submission time window is closed for this specialmentionnotice date!");
 								return;
 							}
 						}
 					} else {
-						if(!SpecialMentionNotice.validateSubmissionTime(domain.getSession(), domain.getSpecialMentionNoticeDate(),domain.getSubmissionDate())) {
+						if(!SpecialMentionNotice.validateSubmissionTime(domain.getSession(), domain.getSpecialMentionNoticeDate(),new Date())) {
 							result.rejectValue("version","specialmentionnotice.submissionWindowTimeClosed","submission time window is closed for this specialmentionnotice date!");
 							return;
 						}
@@ -1433,6 +1448,12 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch", "concurrent updation is not allowed.");
 		}
+		/**** To skip the optional fields ****/
+		String optionalFields = null;		
+		CustomParameter csptOptionalFields = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.SPECIALMENTIONNOTICE_OPTIONAL_FIELDS_IN_VALIDATION, "");		
+		if(csptOptionalFields != null && csptOptionalFields.getValue() != null && !csptOptionalFields.getValue().isEmpty()){
+			optionalFields = csptOptionalFields.getValue();
+		}
 		/** Basic Fields Validation **/
 		if(domain.getHouseType()==null){
 			result.rejectValue("houseType","HousetypeEmpty");
@@ -1452,12 +1473,12 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 		if(domain.getNoticeContent()==null || domain.getNoticeContent().isEmpty()){
 			result.rejectValue("noticeContent","SpecialMentionNotice.NoticeContentEmpty");
 		}	
-		if(domain.getMinistry()==null){
+	/*	if(domain.getMinistry()==null){
 			result.rejectValue("ministry","MinistryEmpty");
 		}
 		if(domain.getSubDepartment()==null){
 			result.rejectValue("subDepartment","SubDepartmentEmpty.domain.subDepartment");
-		}
+		}*/
 		/*if(role.equals("AMOIS_TYPIST")){
 //		//Empty check for number
 //		if(domain.getNumber()==null){
@@ -1493,7 +1514,6 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 		}
 		String operation=request.getParameter("operation");
 		if(operation!=null && !operation.isEmpty()){			
-			if(operation.equals("approval")){
 				if(operation.equals("submit")){
 				/**** Submission ****/	
 				//submission window validations
@@ -1509,13 +1529,13 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 							&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
 							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
 						if(!role.equals("SMIS_TYPIST")){
-							if(!SpecialMentionNotice.validateSubmissionTime(domain.getSession(), domain.getSpecialMentionNoticeDate(),domain.getSubmissionDate())) {
+							if(!SpecialMentionNotice.validateSubmissionTime(domain.getSession(), domain.getSpecialMentionNoticeDate(),new Date())) {
 								result.rejectValue("version","specialmentionnotice.submissionWindowTimeClosed","submission time window is closed for this special mention notice!");
 								return;
 							}
 						}
 					} else {
-						if(!SpecialMentionNotice.validateSubmissionTime(domain.getSession(), domain.getSpecialMentionNoticeDate(),domain.getSubmissionDate())) {
+						if(!SpecialMentionNotice.validateSubmissionTime(domain.getSession(), domain.getSpecialMentionNoticeDate(),new Date())) {
 							result.rejectValue("version","specialmentionnotice.submissionWindowTimeClosed","submission time window is closed for this specialMentonNotice date motions!");
 							return;
 						}
@@ -1523,13 +1543,23 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 				}
 				if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 					// Empty check for Ministry
-					if(domain.getMinistry()==null){
+					if(optionalFields != null && !optionalFields.contains("ministry")){
+						if(domain.getMinistry()==null){
+							result.rejectValue("ministry","MinistryEmpty");
+						}		
+					}	
+					/*if(domain.getMinistry()==null){
 						result.rejectValue("ministry","MinistryEmpty");
-					}
+					}*/
 					// Empty check for Subdepartment
-					if(domain.getSubDepartment()==null){
+					if(optionalFields != null && !optionalFields.contains("subDepartment")){
+						if(domain.getMinistry()==null){
+							result.rejectValue("subDepartment","SubDepartmentEmpty");
+						}		
+					}	
+					/*if(domain.getSubDepartment()==null){
 						result.rejectValue("subDepartment","SubDepartmentEmpty");
-					}
+					}*/
 				}
 			} else if(operation.equals("startworkflow")){
 				// Empty check for Ministry
@@ -1541,7 +1571,6 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 //					result.rejectValue("subDepartment","SubDepartmentEmpty");
 //				}				
 			}
-		}
     }
 	}
 	
