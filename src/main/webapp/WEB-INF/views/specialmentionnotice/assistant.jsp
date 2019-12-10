@@ -678,13 +678,13 @@
 			
 			<p>
 				<label class="centerlabel"><spring:message code="specialmentionnotice.subject" text="Subject"/>*</label>
-				<form:textarea path="subject" rows="2" cols="50"></form:textarea>
+				<form:textarea path="subject" readonly="true" rows="2" cols="50"></form:textarea>
 				<form:errors path="subject" cssClass="validationError"/>	
 			</p>
 				
 			<p>
 				<label class="wysiwyglabel"><spring:message code="specialmentionnotice.noticeContent" text="Notice Content"/>*</label>
-				<form:textarea path="noticeContent" cssClass="wysiwyg"></form:textarea>
+				<form:textarea path="noticeContent" readonly="true" cssClass="wysiwyg"></form:textarea>
 				<form:errors path="noticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 			</p>	
 			

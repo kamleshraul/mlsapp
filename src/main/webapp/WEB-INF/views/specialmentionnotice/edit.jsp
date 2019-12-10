@@ -428,7 +428,7 @@
 			</p>
 			</c:if> --%>
 			
-			<p>
+			<p style="display:none;">
 				<label class="small"><spring:message code="specialmentionnotice.ministry" text="Ministry"/></label>
 				<input id="formattedMinistry" name="formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
 				<input name="ministry" id="ministry" type="hidden" value="${ministrySelected}">
@@ -466,10 +466,10 @@
 				<p class="tright">
 					<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">	
-						<input id="sendforapproval" type="button" value="<spring:message code='adjournmentmotion.sendforapproval' text='Send For Approval'/>" class="butDef">
+						<input type="hidden" id="sendforapproval" type="button" value="<spring:message code='adjournmentmotion.sendforapproval' text='Send For Approval'/>" class="butDef">
 					</security:authorize>
 					<input id="submitmotion" type="button" value="<spring:message code='adjournmentmotion.submitmotion' text='Submit Motion'/>" class="butDef">
-					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
+					<input type="hidden" id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 				</p>
 				</c:if>				
 			</div>
@@ -485,6 +485,8 @@
 			<input id="role" name="role" value="${role}" type="hidden">
 			<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 			<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
+			<input type="hidden" name="deviceType" id="deviceType" value="${motionType}"/>
+			
 		</form:form>
 
 		<input id="ministrySelected" value="${ministrySelected }" type="hidden">
