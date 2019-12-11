@@ -102,6 +102,10 @@ public class Ministry extends BaseDomain implements Serializable{
 	public static List<Ministry> findAssignedMinistriesInSession(final Date startDate, final String locale) {
 		return getMinistryRepository().findAssignedMinistriesInSession(startDate, locale);
 	}
+	
+	public static List<MasterVO> findAssignedMinistriesInSessionByTerm(final Date startDate, String param, String locale) {
+    	 return getMinistryRepository().findAssignedMinistriesInSessionByTerm(startDate,param,locale);
+	}
 
     public static List<Ministry> findMinistriesAssignedToGroups(final HouseType houseType,final Integer sessionYear,final SessionType sessionType,final String locale) throws ELSException{
         return getMinistryRepository().findMinistriesAssignedToGroups(houseType,sessionYear,sessionType,locale);

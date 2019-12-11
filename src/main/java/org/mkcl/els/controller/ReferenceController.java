@@ -5872,6 +5872,45 @@ public class ReferenceController extends BaseController {
 		return autoCompleteVOs;
 	}
 	
+	@RequestMapping(value="/getministries_withoutgroup",method=RequestMethod.GET)
+	public @ResponseBody List<AutoCompleteVO> getMinistriesWithoutGroup(final HttpServletRequest request,
+			final Locale locale,
+			final ModelMap model){
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+		List<MasterVO> ministerVOs=new ArrayList<MasterVO>();
+		List<AutoCompleteVO> autoCompleteVOs=new ArrayList<AutoCompleteVO>();
+		String strSession=request.getParameter("session");
+		Session session=null;
+		if(strSession!=null && !strSession.isEmpty()){
+			session=Session.findById(Session.class, Long.parseLong(strSession));
+			
+		}
+		if(customParameter!=null){
+			String server=customParameter.getValue();
+			if(server.equals("TOMCAT")){
+				String strParam=request.getParameter("term");
+				try {
+					String param=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");					
+					ministerVOs = Ministry.findAssignedMinistriesInSessionByTerm(session.getStartDate(), param, locale.toString());
+				}
+				catch (UnsupportedEncodingException e){
+					e.printStackTrace();
+				}
+			}else{
+				String param=request.getParameter("term");
+				ministerVOs = Ministry.findAssignedMinistriesInSessionByTerm(session.getStartDate(), param, locale.toString());
+			}
+		}
+		for(MasterVO i:ministerVOs){
+			AutoCompleteVO autoCompleteVO=new AutoCompleteVO();
+			autoCompleteVO.setId(i.getId());
+			autoCompleteVO.setValue(i.getName());
+			autoCompleteVOs.add(autoCompleteVO);
+		}
+
+		return autoCompleteVOs;
+	}
+	
 	/**** To get the clubbed questions text ****/
 	@RequestMapping(value="/{id}/clubbedquestiontext", method=RequestMethod.GET)
 	public @ResponseBody List<MasterVO> getClubbedQuestionTexts(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){

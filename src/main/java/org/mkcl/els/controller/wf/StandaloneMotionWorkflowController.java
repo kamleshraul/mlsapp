@@ -470,7 +470,13 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 		}
 
 		/**** Ministries ****/
-		List<Ministry> ministries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+		List<Ministry> ministries = null;
+		CustomParameter csptDeviceTypesHavingGroup = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_GROUPS+"_"+houseType.getType(), locale);
+		if(csptDeviceTypesHavingGroup!=null && csptDeviceTypesHavingGroup.getValue()!=null && csptDeviceTypesHavingGroup.getValue().contains(questionType.getType())) {
+			ministries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+		} else {
+			ministries = Ministry.findAssignedMinistriesInSession(selectedSession.getStartDate(), locale);
+		}
 		model.addAttribute("ministries",ministries);
 		Ministry ministry=domain.getMinistry();
 		if(ministry!=null){

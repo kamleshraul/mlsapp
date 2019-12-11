@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.xmlvo.TestXmlVO;
 import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.Credential;
@@ -28,12 +30,16 @@ import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberDepartment;
+import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MessageResource;
+import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDraft;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.chart.Chart;
@@ -972,6 +978,89 @@ public class AdminController extends BaseController {
 				}
 			} else {
 				retVal = "USERNAME_NOT_SPECIFIED";
+			}
+		} catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		return retVal;
+	}
+	
+	/***
+	 *	Below method will replicate entire ministries and departments allocations for previous working house to current chief minister before expansion
+	 *  Before running the method, make sure that all to be ended entries of active members_ministries and their members_departments 
+	 *  must have their to_date field set to previousMemberMinistriesToDate which is passed to this method
+	 **/
+	@Transactional
+	@RequestMapping(value = "/{chiefMinisterMemberId}/replicate_ministries_departments_before_expansion")
+	public @ResponseBody String replicateMinistriesDepartmentsForCM(HttpServletRequest request, @PathVariable("chiefMinisterMemberId") final Long chiefMinisterMemberId, Locale locale){
+		String retVal = "FAILURE";
+		try{
+			String strPreviousMemberMinistriesToDate = request.getParameter("previousMemberMinistriesToDate");
+			if(strPreviousMemberMinistriesToDate!=null && !strPreviousMemberMinistriesToDate.isEmpty()) {
+				Date previousMemberMinistriesToDate = FormaterUtil.formatStringToDate(strPreviousMemberMinistriesToDate, ApplicationConstants.DB_DATEFORMAT, locale.toString());
+				List<MemberMinister> existingMemberMinisterList = MemberMinister.findAllByFieldName(MemberMinister.class, "ministryToDate", previousMemberMinistriesToDate, "id", ApplicationConstants.ASC, locale.toString());
+				if(existingMemberMinisterList!=null) {
+					Member chiefMinisterMember = Member.findById(Member.class, chiefMinisterMemberId);
+					Calendar calendar = Calendar.getInstance();
+					calendar.setTime(previousMemberMinistriesToDate);
+					calendar.add(Calendar.DAY_OF_MONTH, 1);
+					Date fromDateForNew = calendar.getTime();
+					calendar.add(Calendar.YEAR, 1);
+					Date toDateForNew = calendar.getTime();
+					for(MemberMinister mm: existingMemberMinisterList) {
+						MemberMinister newMemberMinister = new MemberMinister();
+						newMemberMinister.setLocale(mm.getLocale());
+						newMemberMinister.setMember(chiefMinisterMember);
+						newMemberMinister.setDesignation(mm.getDesignation());
+						newMemberMinister.setMinistry(mm.getMinistry());
+						newMemberMinister.setMinistryFromDate(fromDateForNew);
+						newMemberMinister.setMinistryToDate(toDateForNew);
+						newMemberMinister.setPriority(mm.getPriority());
+						//set member departments list for the member minister
+						if(mm.getMemberDepartments()!=null) {
+							List<MemberDepartment> newMemberDepartments = new ArrayList<MemberDepartment>();
+							for(MemberDepartment md: mm.getMemberDepartments()) {
+								if(md.getToDate()!=null && md.getToDate().before(previousMemberMinistriesToDate)) {
+									continue;
+								} else {
+									MemberDepartment newMemberDepartment = new MemberDepartment();
+									newMemberDepartment.setLocale(md.getLocale());
+									newMemberDepartment.setDepartment(md.getDepartment());
+									newMemberDepartment.setFromDate(fromDateForNew);
+									newMemberDepartment.setToDate(toDateForNew);
+									if(md.getSubDepartments()!=null) {
+										List<SubDepartment> newSubDepartments = new ArrayList<SubDepartment>();
+										for(SubDepartment sd: md.getSubDepartments()) {
+											newSubDepartments.add(sd);
+										}
+										if(newSubDepartments.size()>=1) {
+											newMemberDepartment.setSubDepartments(newSubDepartments);
+										}
+									}
+									newMemberDepartment.setIsIndependentCharge(md.getIsIndependentCharge());
+									newMemberDepartments.add(newMemberDepartment);
+								}							
+							}
+							if(newMemberDepartments.size()>=1) {
+								newMemberMinister.setMemberDepartments(newMemberDepartments);
+							}
+						}
+						String strOathDate = request.getParameter("oathDate");
+						if(strOathDate!=null) {
+							Date oathDate = FormaterUtil.formatStringToDate(strOathDate, ApplicationConstants.DB_DATEFORMAT, locale.toString());
+							newMemberMinister.setOathDate(oathDate);
+						}
+						newMemberMinister.persist();
+					}
+					retVal = "SUCCESS";
+					
+				} else {
+					retVal = "No member ministry found to be replicated!";
+				}
+				
+			} else {
+				retVal = "previousMemberMinistriesToDate not provided";
 			}
 		} catch(Exception e){
 			logger.error("error", e);

@@ -293,7 +293,7 @@
 		
 		$( "#formattedMinistry").autocomplete({
 			minLength:3,			
-			source:'ref/getministries?session='+$('#session').val(),
+			source:'ref/getministries_withoutgroup?session='+$('#session').val(),
 			select:function(event,ui){			
 			$("#ministry").val(ui.item.id);
 			},

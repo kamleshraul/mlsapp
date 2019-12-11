@@ -103,6 +103,38 @@ public class MinistryRepository extends BaseRepository<Ministry, Long> {
 		}
 		return ministries;
 	}
+	
+	public List<MasterVO> findAssignedMinistriesInSessionByTerm(final Date startDate,final String param,final String locale) {
+		try{
+			String strQuery = "SELECT m.id,m.name FROM Ministry m " +
+			"WHERE m.locale =:locale AND " +
+			" m.id IN " +
+				"(SELECT m.id FROM MemberMinister mm JOIN mm.ministry m " +
+				" WHERE mm.ministryFromDate<=:onDate" +
+				" AND (mm.ministryToDate IS NULL OR mm.ministryToDate>=:onDate)) " +
+				" AND m.name like :term " +
+				" ORDER BY m.name";
+			javax.persistence.Query query=this.em().createQuery(strQuery);
+			query.setParameter("locale",locale);
+			query.setParameter("onDate",startDate);
+			query.setParameter("term","%"+param+"%");
+			@SuppressWarnings("rawtypes")
+			List ministries=query.getResultList();
+			List<MasterVO> ministryVos=new ArrayList<MasterVO>();
+			for(Object i:ministries){
+				Object[] o=(Object[]) i;
+				MasterVO masterVO=new MasterVO();
+				masterVO.setId(Long.parseLong(o[0].toString()));
+				masterVO.setName( o[1].toString());
+				ministryVos.add(masterVO);
+			}
+			return ministryVos;
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			return new ArrayList<MasterVO>();
+		}
+	}
 
     @SuppressWarnings("rawtypes")
     public List<Ministry> findMinistriesAssignedToGroups(final HouseType houseType,

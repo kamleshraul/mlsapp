@@ -607,9 +607,14 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 		/**** Primary Member Ends ****/
 
 		/**** Ministries, Sub Departments,Groups, discussion Dates Starts ****/
-		List<Ministry> ministries = null;;
-		try {
-			ministries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+		List<Ministry> ministries = null;
+		try {			
+			CustomParameter csptDeviceTypesHavingGroup = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_GROUPS+"_"+houseType.getType(), locale);
+			if(csptDeviceTypesHavingGroup!=null && csptDeviceTypesHavingGroup.getValue()!=null && csptDeviceTypesHavingGroup.getValue().contains(questionType.getType())) {
+				ministries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+			} else {
+				ministries = Ministry.findAssignedMinistriesInSession(selectedSession.getStartDate(), locale);
+			}			
 		} catch (ELSException e) {
 			e.printStackTrace();
 		}
@@ -826,7 +831,12 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 		/**** Ministries,Departments,Sub departments,Groups,Answering Dates Starts ****/
 		List<Ministry> ministries = null;
 		try {
-			ministries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+			CustomParameter csptDeviceTypesHavingGroup = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_GROUPS+"_"+houseType.getType(), locale);
+			if(csptDeviceTypesHavingGroup!=null && csptDeviceTypesHavingGroup.getValue()!=null && csptDeviceTypesHavingGroup.getValue().contains(questionType.getType())) {
+				ministries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+			} else {
+				ministries = Ministry.findAssignedMinistriesInSession(selectedSession.getStartDate(), locale);
+			}
 		} catch (ELSException e) {
 			model.addAttribute("error", e.getParameter());
 			e.printStackTrace();
