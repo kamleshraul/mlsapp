@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="specialmentionnotice_${houseTypeType}" text="Adjournment Motion"/>
+	<spring:message code="specialmentionnotice_${houseTypeType}" text="Special Mention Notice"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
