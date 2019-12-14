@@ -331,7 +331,7 @@ mentionnotice" text="Special Mention Notice"/>
 				<form:errors path="noticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 			</p>	
 			
-			<p style="display:none;">
+			<p>
 				<label class="small"><spring:message code="specialmentionnotice.ministry" text="Ministry"/></label>
 				<input id="formattedMinistry" name="formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
 				<input name="ministry" id="ministry" type="hidden" value="${ministrySelected}">

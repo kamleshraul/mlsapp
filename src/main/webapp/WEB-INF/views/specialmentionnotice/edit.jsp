@@ -428,7 +428,7 @@
 			</p>
 			</c:if> --%>
 			
-			<p style="display:none;">
+			<p>
 				<label class="small"><spring:message code="specialmentionnotice.ministry" text="Ministry"/></label>
 				<input id="formattedMinistry" name="formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
 				<input name="ministry" id="ministry" type="hidden" value="${ministrySelected}">

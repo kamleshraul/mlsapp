@@ -716,12 +716,12 @@
 				</select>
 			</p>
 			
-			<p>
+		<%-- 	<p>
 				<label class="small"><spring:message code="specialmentionnotice.referencedmotion" text="Referenced Motion"></spring:message></label>
 				<c:choose>
 					<c:when test="${!(empty referencedMotion) }">
 						<a href="#" id="cq${referencedMotion.number}" class="referencedRefMotions" onclick="viewMotionDetail(${referencedMotion.number});" style="font-size: 18px;"><c:out value="${referencedMotion.name}"></c:out></a>
-						<%-- <a href="javascript:void(0);" id="viewReferencedMotionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="specialmentionnotice.referenced.texts" text="R"></spring:message></a> --%>
+						<a href="javascript:void(0);" id="viewReferencedMotionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="specialmentionnotice.referenced.texts" text="R"></spring:message></a>
 						<input type="hidden" id="referencedSpecialMentionNotice" name="parent" value="${referencedMotion.id}">
 					</c:when>
 					<c:otherwise>
@@ -729,7 +729,7 @@
 					</c:otherwise>
 				</c:choose>				
 			</p>
-			
+			 --%>
 			<p>
 				<label class="centerlabel"><spring:message code="specialmentionnotice.subject" text="Subject"/>*</label>
 				<form:textarea path="subject" rows="2" cols="50"></form:textarea>
