@@ -516,7 +516,9 @@ public class SpecialMentionNoticeReportController extends BaseController{
 					strId = workflowDetails.getDeviceId();
 					if(strReportFormat==null || strReportFormat.isEmpty()) {
 						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
-								|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+								|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
+								|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.MEMBER)
+								) {
 							strReportFormat = "PDF";
 						} else {
 							strReportFormat = "WORD";
