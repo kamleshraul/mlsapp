@@ -22,6 +22,7 @@ import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BulkApprovalVO;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
@@ -45,6 +46,7 @@ import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.SpecialMentionNotice;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
+import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.Workflow;
@@ -753,6 +755,20 @@ public class SpecialMentionNoticeWorkflowController  extends BaseController {
 						UserGroupType nextUserGroupTypeObj = UserGroupType.findByType(nextUserGroupType, locale.toString());
 						try {
 							WorkflowDetails.create(domain, newtask, nextUserGroupTypeObj, currentDeviceTypeWorkflowType, level);
+							if(domain.getInternalStatus().getType().equals(ApplicationConstants.SPECIALMENTIONNOTICE_FINAL_ADMISSION)
+									&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.SPECIALMENTIONNOTICE_PROCESSED_SENDTODEPARTMENT)){
+									
+									User user = User.find(domain.getPrimaryMember());
+									Credential credential = user.getCredential();
+									properties.put("pv_user",credential.getUsername());
+									ProcessDefinition processDefinition1 =processService.
+											findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
+									ProcessInstance processInstance1 = processService.
+											createProcessInstance(processDefinition1, properties);
+									Task newMembertask = processService.getCurrentTask(processInstance1);
+									UserGroupType memberUGT = UserGroupType.findByType(ApplicationConstants.MEMBER, locale.toString());
+									WorkflowDetails.create(domain,newMembertask,memberUGT,currentDeviceTypeWorkflowType,level);													
+								}
 						} catch (ELSException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
