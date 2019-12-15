@@ -83,7 +83,7 @@
 							<fo:block margin-right="1.50cm">क्रमांक - _____&#160;/ई-२,
 							</fo:block>						
 							<fo:block margin-right="0.10cm">महाराष्ट्र विधानमंडळ सचिवालय,</fo:block>
-							<fo:block margin-right="2.00cm">विधान भवन, <xsl:value-of select="./element_1/element_1_11"/>.</fo:block>
+							<fo:block margin-right="1.65cm">विधान भवन, <xsl:value-of select="./element_1/element_1_11"/>.</fo:block>
 							<fo:block margin-right="1.65cm">दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
 						</fo:block>	
             				<fo:table>
@@ -131,7 +131,7 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block font-weight="bold">
-																							सचिव (का.),
+																							सचिव (कार्यभार),
 																						</fo:block>
 																						<fo:block>महाराष्ट्र विधानमंडळ सचिवालय.</fo:block>
 																					</fo:table-cell>										
@@ -184,7 +184,14 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block>
-																							मंत्रालय, मुंबई.
+																							<xsl:choose>
+																								<xsl:when test="./element_1/element_1_11='नागपूर'">
+																									शिबीर कार्यालय, नागपूर.
+																								</xsl:when>
+																								<xsl:otherwise>
+																									मंत्रालय, मुंबई.
+																								</xsl:otherwise>
+																							</xsl:choose>																							
 																						</fo:block>
 																					</fo:table-cell>										
 																				</fo:table-row>
@@ -235,7 +242,7 @@
 														</xsl:choose>														  
 														(<xsl:value-of select="./element_1/element_1_16"/>) अधिवेशनात <fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_12"/> रोजी</fo:inline>  
 														महाराष्ट्र विधानपरिषदेत उपस्थित करण्यात आलेल्या नियम ९३ अन्वये सूचनेच्या <fo:inline font-weight="bold">(प्रत संलग्न)</fo:inline> संदर्भात 
-														शासनाने ५ दिवसांत निवेदन करावे असे मा. सभापतींनी निदेश दिले असून त्या अनुषंगाने 
+														शासनाने ३ दिवसांत निवेदन करावे असे मा. सभापतींनी निदेश दिले असून त्या अनुषंगाने 
 														<fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_13"/> 
 														या तारखेपर्यंत विधानपरिषदेत निवेदन करण्यासंदर्भात मा.मंत्री महोदयांना अवगत करण्यात यावे.</fo:inline> 
 														तसेच सदर निवेदनाच्या ३०० प्रती या सचिवालयाच्या “ई-२” शाखेकडे मा.मंत्री महोदयांनी विधानपरिषद सभागृहात निवेदन करावयाच्या 
@@ -252,7 +259,7 @@
 														</xsl:choose> 
 														(<xsl:value-of select="./element_1/element_1_16"/>) अधिवेशन 
 														तसेच वर नमूद केलेला सूचना क्रमांक, निवेदन करणाऱ्या मा.मंत्री महोदयांचे नाव व विभागाचा स्पष्टपणे उल्लेख करून, निवेदन करण्याबाबतचे 
-														मा. मंत्री महोदयांचे पत्र, महाराष्ट्र विधानपरिषद, विधान भवन, मुंबई यांना अग्रेषित करण्यात यावे,</fo:inline> अशी आपणांस विनंती करण्यात येत आहे.												      										
+														मा. मंत्री महोदयांचे पत्र, मा.सभापती, महाराष्ट्र विधानपरिषद, विधान भवन, मुंबई यांना अग्रेषित करण्यात यावे,</fo:inline> अशी आपणांस विनंती करण्यात येत आहे.												      										
 	            									</fo:block>
 												</fo:block>	
 												<fo:block>&#160;</fo:block>
@@ -275,11 +282,18 @@
 												</fo:block>
 												
 												<fo:block>
-													(२) मा.संसदीय कार्य मंत्री.
+													(२) &#160;मा.संसदीय कार्य मंत्री.
 												</fo:block>
 												
 												<fo:block>
-													(३) 	&#160;प्रधान सचिव / सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, मंत्रालय, मुंबई.
+												<xsl:choose>
+													<xsl:when test="./element_1/element_1_11='नागपूर'">
+														(३) 	&#160;सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, शिबीर कार्यालय, नागपूर.
+													</xsl:when>
+													<xsl:otherwise>
+														(३) 	&#160;प्रधान सचिव / सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, मंत्रालय, मुंबई.
+													</xsl:otherwise>
+												</xsl:choose>
 												</fo:block>
 											
             								</fo:block>

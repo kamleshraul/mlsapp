@@ -517,6 +517,10 @@ public class AdjournmentMotionReportController extends BaseController{
 	private void generateIntimationLetter(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
 		
 		//String retVal = "adjournmentmotion/report";
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		
 		try{
 			String strId = request.getParameter("motionId");
 			String strWorkflowId = request.getParameter("workflowDetailId");
@@ -547,23 +551,47 @@ public class AdjournmentMotionReportController extends BaseController{
 //			Long workflowDetailCount = (long) 0;
 //			Boolean isResendRevisedMotionTextWorkflow = false;
 			if(strId != null && !strId.isEmpty()){
-				Map<String, String[]> parameters = new HashMap<String, String[]>();
-				parameters.put("locale", new String[]{locale.toString()});
-				parameters.put("motionId", new String[]{strId});
-				
-				@SuppressWarnings("rawtypes")
-				List reportData = Query.findReport("ADJOURNMENTMOTION_INTIMATION_LETTER", parameters);
-				String templateName = "adjournmentmotion_intimation_letter_template";
-				
-				
-				File reportFile = null;
-				
-				reportFile = generateReportUsingFOP(new Object[] {reportData}, templateName, strReportFormat, "adjournmentmotion_intimationletter",locale.toString());
-				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
-				
-				model.addAttribute("info", "general_info");
-				//retVal = "adjournmentmotion/info";
-			}			
+				AdjournmentMotion motion = AdjournmentMotion.findById(AdjournmentMotion.class, Long.parseLong(strId));
+				if(motion!=null) {
+					Map<String, String[]> parameters = new HashMap<String, String[]>();
+					parameters.put("locale", new String[]{locale.toString()});
+					parameters.put("motionId", new String[]{strId});
+					
+					@SuppressWarnings("rawtypes")
+					List reportData = Query.findReport("ADJOURNMENTMOTION_INTIMATION_LETTER", parameters);
+					String templateName = "adjournmentmotion_intimation_letter_template"+"_"+motion.getHouseType().getType();			
+					
+					reportFile = generateReportUsingFOP(new Object[] {reportData}, templateName, strReportFormat, "adjournmentmotion_intimationletter",locale.toString());
+					openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
+					
+					model.addAttribute("info", "general_info");
+					//retVal = "adjournmentmotion/info";
+				} else {
+					isError = true;
+					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "adjournmentmotion.intimationLetter.noDeviceFound", locale.toString());
+				}				
+			} else {
+				isError = true;
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "adjournmentmotion.intimationLetter.noDeviceFound", locale.toString());
+			}
+			if(isError) {
+				try {
+					//response.sendError(404, "Report cannot be generated at this stage.");
+					if(errorMessage != null) {
+						if(!errorMessage.getValue().isEmpty()) {
+							response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+						} else {
+							response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+						}
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+
+					return;
+				} catch (IOException e) {						
+					e.printStackTrace();
+				}
+			}
 		}catch(Exception e){
 			logger.error("error", e);
 		}
