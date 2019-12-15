@@ -77,11 +77,11 @@
 	            		<fo:block text-align="center" font-weight="bold">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 	            		<fo:block text-align="left" font-weight="bold" text-decoration="underline">अतितात्काळ</fo:block>
 	            		<fo:block text-align="right">
-							<fo:block margin-right="0.45cm">क्रमांक - _____&#160;/म.वि.स./ई-२,
+							<fo:block margin-right="1.65cm">क्रमांक - _____&#160;/ई-२,
 							</fo:block>						
-							<fo:block margin-right="0.40cm">महाराष्ट्र विधानमंडळ सचिवालय,</fo:block>
-							<fo:block margin-right="2.30cm">विधान भवन, मुंबई.</fo:block>
-							<fo:block margin-right="1.82cm">दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
+							<fo:block margin-right="0.20cm">महाराष्ट्र विधानमंडळ सचिवालय,</fo:block>
+							<fo:block margin-right="1.75cm">विधानभवन, <xsl:value-of select="./element_1/element_1_11" />.</fo:block>
+							<fo:block margin-right="1.65cm">दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
 						</fo:block>	
             				<fo:table>
             					<fo:table-body>
@@ -110,7 +110,7 @@
 													</fo:table>
 												</fo:block>
 												
-												<fo:block text-align="left" font-weight="bold">प्रेषक : </fo:block>
+												<!-- <fo:block text-align="left" font-weight="bold">प्रेषक : </fo:block>
             									
             									<fo:block>
 													<fo:table>
@@ -140,7 +140,7 @@
 															</fo:table-row>
 														</fo:table-body>
 													</fo:table>
-												</fo:block>
+												</fo:block> -->
 												
 												<fo:block text-align="left" font-weight="bold">प्रति, </fo:block>
             									
@@ -160,7 +160,7 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block font-weight="bold">
-																							प्रधान सचिव/सचिव,
+																							सचिव (कार्यभार),
 																						</fo:block>
 																					</fo:table-cell>										
 																				</fo:table-row>
@@ -168,20 +168,20 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block>
-																							<xsl:value-of select="./element_1/element_1_8" />&#160;(<xsl:value-of select="./element_1/element_1_7" />) विभाग, 
+																						महाराष्ट्र शासन,
 																						</fo:block>
 																					</fo:table-cell>
 																				</fo:table-row>
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block>
-																							महाराष्ट्र शासन,
+																							<xsl:value-of select="./element_1/element_1_8" />&#160;(<xsl:value-of select="./element_1/element_1_7" />) विभाग, 
 																						</fo:block>
 																					</fo:table-cell>										
 																				</fo:table-row>																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block>
-																							मंत्रालय,मुंबई.
+																							शिबीर कार्यालय,<xsl:value-of select="./element_1/element_1_11" />.
 																						</fo:block>
 																					</fo:table-cell>										
 																				</fo:table-row>
@@ -196,13 +196,14 @@
 												
 												<fo:block font-size="6px">&#160;</fo:block>
 												
+												&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 												<fo:block>
 													<fo:inline font-weight="bold">विषय:- </fo:inline>
 													<fo:inline>
 													<xsl:choose>
 														<xsl:when test="./element_1/element_1_10='upperhouse'">
 															<fo:inline  font-weight="bold" ><xsl:value-of select="./element_1/element_1_9"/>,</fo:inline>
-															<fo:inline font-weight="bold">वि.प.स.</fo:inline> यांनी विधानपरिषदमध्ये विशेष उल्लेखाद्वारे उपस्थित केलेल्या सूचनेवर त्वरित कारवाई करण्यासंदर्भात.
+															<fo:inline font-weight="bold">वि.प.स.</fo:inline> यांनी विधानपरिषदमध्ये विशेष उल्लेख म्हणून उपस्थित केलेल्या बाबींवर त्वरित कारवाई करण्यासंदर्भात.
 														</xsl:when>
 														<xsl:otherwise>
 															<xsl:value-of select="./element_1/element_1_9" font-weight="bold"/>
@@ -222,19 +223,16 @@
 																	<xsl:value-of select="./element_1/element_1_12" />,
 														</fo:inline>
 														<fo:block>
-														रोजी <fo:inline font-weight="bold">"विशेष उल्लेखाद्वारे"</fo:inline> उपस्थित केलेल्या विषयाच्या संदर्भातील कार्यवृत्ताची प्रत सोबत जोडली आहे.
+														रोजी <fo:inline font-weight="bold">"विशेष उल्लेखाद्वारे"</fo:inline> या रूपाने उपस्थित केलेल्या विषयाच्या संदर्भातील कार्यवृत्ताची प्रत सोबत जोडली आहे.
 														</fo:block>
 													</fo:inline>
 												<fo:block>
-													&#160;&#160;&#160;&#160;&#160;&#160;महाराष्ट्र विधानपरिषद नियम "१०१-फ" मधील तरतुदिनुसार सभागृहात सदर सूचना उपस्थित केल्याचा
+													संबंधित विषयाबाबत केलेली कारवाई, म.वि.प. नियम "१०१-फ" अन्वये सभागृहात सूचना उपस्थित केल्याचा
             										<fo:block>
-            										दिनंकापासून <fo:inline font-weight="bold">तीस दिवसांच्या </fo:inline>आत मंत्री महोदयानी त्या विषयीचे त्यांचे उत्तर संबंधित सदस्यांना परस्पर पठाविणे
+            										दिनंकापासून<fo:inline font-weight="bold">तीस दिवसांच्या </fo:inline>आत मंत्री महोदयानी संबंधित सदस्यांना परस्पर पठाविणे आवश्यक असून त्यासंबंधीची प्रत
             										</fo:block>
             										<fo:block>
-            										आवश्यक असून त्याची प्रत मा. सभापतींच्या अवलोकनार्थ या सचिवालयाला पाठविनयत यावी, अशी आपणास 
-            										</fo:block>
-            										<fo:block>
-            										विनंती करण्यात येत आहे. 
+            										या सचिवालयाला पाठविनयत यावी, अशी आपणास विनंती करण्यात येत आहे.
             										</fo:block>
             										
             										</fo:block>
@@ -271,7 +269,7 @@
 												</fo:block>
 												
 												<fo:block>
-													(३) 	&#160;प्रधान सचिव/सचिव,संसदीय कार्य विभाग, महाराष्ट्र शासन, मंत्रालय, मुंबई.				
+													(३) 	&#160;सचिव, महाराष्ट्र शासन, संसदीय कार्य विभाग, शिबीर कार्यालय, <xsl:value-of select="./element_1/element_1_11" />.				
 												</fo:block>
 											
             								</fo:block>
