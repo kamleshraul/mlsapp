@@ -105,6 +105,7 @@
 						<thead>
 							<tr>
 								<th style="width: 20px;">${topHeader[0]}</th>
+								<th style="width: 60px;">${topHeader[7]}</th>
 								<th style="width: 20px;">${topHeader[1]}</th>
 								<th style="width: 480px;">${topHeader[2]}</th>
 								<th style="width: 120px;">${topHeader[3]}</th>
@@ -118,6 +119,7 @@
 								
 								<tr class="page-break">
 									<td style="width: 20px; text-align: center;">${formater.formatNumberNoGrouping(counter.count, locale)}</td>
+									<td style="width: 60px; text-align: left;">${r[17]}</td>
 									<td style="width: 20px; text-align: center;">${r[4]}</td>
 									<td style="width: 480px; text-align: left;">${r[8]}</td>
 									<td style="width: 120px; text-align: center;">${r[9]}</td>

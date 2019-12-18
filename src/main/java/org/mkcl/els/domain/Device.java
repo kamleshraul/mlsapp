@@ -37,7 +37,7 @@ public abstract class Device extends BaseDomain {
             	Session latestLowerHouseSession = null;
             	Session latestUpperHouseSession = null;
             	
-            	DeviceType starredQuestionDeviceType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, ApplicationConstants.DEFAULT_LOCALE);
+            	DeviceType unstarredQuestionDeviceType = DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION, ApplicationConstants.DEFAULT_LOCALE);
             	DeviceType hdqQuestionDeviceType = DeviceType.findByType(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION, ApplicationConstants.DEFAULT_LOCALE);
             	DeviceType nongovResolutionDeviceType = DeviceType.findByType(ApplicationConstants.NONOFFICIAL_RESOLUTION, ApplicationConstants.DEFAULT_LOCALE);
             	DeviceType govResolutionDeviceType = DeviceType.findByType(ApplicationConstants.GOVERNMENT_RESOLUTION, ApplicationConstants.DEFAULT_LOCALE);
@@ -53,17 +53,21 @@ public abstract class Device extends BaseDomain {
             	
             	/** update lowerhouse static current number for starred, unstarred and short notice questions **/
             	
-            	if (Question.getStarredCurrentNumberLowerHouse() == 0) {
-            		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, starredQuestionDeviceType);
-            		number = Question.assignQuestionNo(lowerHouseType, latestLowerHouseSession, starredQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            	if (Question.getUnStarredCurrentNumberLowerHouse() == 0) {
+            		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, unstarredQuestionDeviceType);
+            		number = Question.assignQuestionNo(lowerHouseType, latestLowerHouseSession, unstarredQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
         			Question.updateStarredCurrentNumberLowerHouse(number);
+        			Question.updateUnStarredCurrentNumberLowerHouse(number);
+        			Question.updateShortnoticeCurrentNumberLowerHouse(number);
         		}
             	
             	/** update upperhouse static current number for starred, unstarred and short notice questions **/
             	if (Question.getStarredCurrentNumberUpperHouse() == 0) {
-            		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, starredQuestionDeviceType);
-            		number = Question.assignQuestionNo(upperHouseType, latestUpperHouseSession, starredQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, unstarredQuestionDeviceType);
+            		number = Question.assignQuestionNo(upperHouseType, latestUpperHouseSession, unstarredQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
         			Question.updateStarredCurrentNumberUpperHouse(number);
+        			Question.updateUnStarredCurrentNumberUpperHouse(number);
+        			Question.updateShortnoticeCurrentNumberUpperHouse(number);
         		}
             	
             	/** update lowerhouse static current number for half hour discussion from questions **/

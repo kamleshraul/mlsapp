@@ -311,15 +311,22 @@
 							var defaultAdjourningDate = data[data.length-1][0];
 							$('#selectedAdjourningDate').empty();
 							var htmlText = "";
-							for(var i=0; i<data.length-1; i++) {
-								htmlText += "<option value='"+data[i][0]+"'";
+							var formattedDefaultAdjourningDate = "";
+							for(var i=0; i<data.length-1; i++) {								
 								if(data[i][0]==defaultAdjourningDate) {
-									htmlText += "selected='selected'";
+									formattedDefaultAdjourningDate = data[i][1];
+									continue;
+								} else {
+									htmlText += "<option value='"+data[i][0]+"'";
 								}
 								htmlText += ">"+data[i][1]+"</option>";									
 							}	
-							$('#selectedAdjourningDate').html(htmlText);
-							prependOptionToSelectedAdjourningDate();
+							$('#selectedAdjourningDate').html(htmlText);							
+							if(defaultAdjourningDate!=undefined && defaultAdjourningDate!=null && defaultAdjourningDate!='') {
+								prependSelectedAdjourningDateOption(defaultAdjourningDate, formattedDefaultAdjourningDate);
+							} else {
+								prependOptionToSelectedAdjourningDate();
+							}							
 						} else {
 							$.prompt("some error..please contact administrator");
 						}
@@ -887,6 +894,11 @@
 		function prependOptionToSelectedAdjourningDate() {
 			var optionValue = $('#pleaseSelectOption').val();
 			var option = "<option value=''>" + optionValue + "</option>";
+			$('#selectedAdjourningDate').prepend(option);
+		}
+		
+		function prependSelectedAdjourningDateOption(optionValue, optionLabel) {
+			var option = "<option value='"+optionValue+"' selected='selected'>" + optionLabel + "</option>";
 			$('#selectedAdjourningDate').prepend(option);
 		}
 		

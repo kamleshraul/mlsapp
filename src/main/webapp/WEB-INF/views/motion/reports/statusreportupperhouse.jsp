@@ -114,8 +114,11 @@
 						<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">
 							${labels[3]}
 						</td>
-						<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+						<%-- <td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
 							${data[0][7]}
+						</td> --%>
+						<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;text-align:justify;">
+							${data[0][21]}
 						</td>
 					</tr>
 					<tr style="font-weight: bold;">													
@@ -143,6 +146,20 @@
 							${data[0][10]}
 						</td>
 					</tr>
+					
+					<c:if test="${not empty data[0][20]}">
+					<tr>
+						<td colspan="3">&nbsp;</td>
+					</tr>
+					<tr>
+						<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+							${labels[13]}
+						</td>
+						<td colspan="2" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+							${data[0][20]}
+						</td>
+					</tr>
+					</c:if>
 					
 					<tr>
 						<td colspan="3">&nbsp;</td>
