@@ -92,11 +92,15 @@
 			            		<fo:block>
 			            			<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
 			            				<fo:table-column column-number="1" column-width="1.5cm" />
+				                        <!-- <fo:table-column column-number="1" column-width="3.5cm" /> -->
+				                        <fo:table-column column-number="2" column-width="2.5cm" />
 				                        <!-- <fo:table-column column-number="2" column-width="3.5cm" /> -->
-				                        <fo:table-column column-number="2" column-width="5.5cm" />
+				                        <fo:table-column column-number="3" column-width="4.5cm" />
 				                       <!--  <fo:table-column column-number="3" column-width="6cm" /> -->
-				                        <fo:table-column column-number="3" column-width="10cm" />
+				                        <fo:table-column column-number="4" column-width="3.5cm" />
 				                       <!--  <fo:table-column column-number="4" column-width="6cm" /> -->
+				                       <fo:table-column column-number="5" column-width="5cm" />
+				                       <!--  <fo:table-column column-number="5" column-width="6cm" /> -->
 				                        <fo:table-header>
 				                        	<fo:table-row>
 				                        		<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
@@ -109,7 +113,17 @@
 					                        	</fo:table-cell>
 					                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
 					                        	    <fo:block text-align="center" font-weight="bold">
+			                                        	दिनांक
+				                                    </fo:block>
+					                        	</fo:table-cell>
+					                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+					                        	    <fo:block text-align="center" font-weight="bold">
 			                                        	सदस्याचे नाव
+				                                    </fo:block>
+					                        	</fo:table-cell>
+					                        		<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+					                        	    <fo:block text-align="center" font-weight="bold">
+			                                        	पक्ष
 				                                    </fo:block>
 					                        	</fo:table-cell>
 					                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
@@ -131,6 +145,11 @@
 				                                        <fo:block text-align="center">
 				                                        	<xsl:value-of select="element_1_6" />
 				                                        </fo:block> 
+				                                    </fo:table-cell>	
+				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
+				                                        <fo:block text-align="center">
+				                                        	<xsl:value-of select="element_1_11" />
+				                                        </fo:block> 
 				                                    </fo:table-cell>		                                    
 				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
 				                                        <fo:block text-align="left">
@@ -143,9 +162,14 @@
 				                                    </fo:table-cell>		                                    
 				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
 				                                        <fo:block text-align="justify">
+				                                        	<xsl:value-of select="element_1_12" />
+				                                        </fo:block> 
+				                                    </fo:table-cell>
+				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
+				                                        <fo:block text-align="justify">
 				                                        	<xsl:value-of select="element_1_9" />
 				                                        </fo:block> 
-				                                    </fo:table-cell>		                                    
+				                                    </fo:table-cell>			                                    
 				                                    <!-- <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
 				                                        <fo:block text-align="justify" font-weight="bold">
 				                                        	<xsl:value-of select="element_1_10" />
