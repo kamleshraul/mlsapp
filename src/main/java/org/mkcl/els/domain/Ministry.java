@@ -45,6 +45,10 @@ public class Ministry extends BaseDomain implements Serializable{
     /** The name. */
     @Column(length = 900)
     private String name;
+    
+    /** The display name. */
+    @Column(length = 900)
+    private String displayName;
 
     /** The is expired. */
     @Column
@@ -146,6 +150,15 @@ public class Ministry extends BaseDomain implements Serializable{
 	 */
 	public void setName(final String name) {
 		this.name = name;
+	}
+	
+	/**
+	 * Sets the display name.
+	 *
+	 * @param name the new name
+	 */
+	public void setDisplayName(final String displayName) {
+		this.displayName = displayName;
 	}
 
 	/**
