@@ -215,6 +215,7 @@ public class MemberBiographyWebService {
 			Map<String, String[]> parameters = new HashMap<String, String[]>();
 			parameters.put("locale", new String[]{locale.toString()});
 			parameters.put("districtId", new String[]{districtId});
+			parameters.put("houseType",  new String[]{houseType});
 			List result = Query.findReport("ACTIVE_MEMBERS_DISTRICTWISE_FORWEBSITE", parameters);
 			for(int i=0;i<result.size();i++){
 		       	 Object[] row = (Object[])result.get(i);
