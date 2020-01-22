@@ -157,7 +157,7 @@
 										<fo:block>
 											<xsl:choose>
 												<xsl:when test="answeringDate!=''">
-													<fo:inline font-weight="bold">उत्तराचा दिनांक: </fo:inline><xsl:value-of select="submissionDate"/>
+													<fo:inline font-weight="bold">उत्तराचा दिनांक: </fo:inline><xsl:value-of select="answeringDate"/>
 												</xsl:when>
 												<xsl:otherwise>
 													<fo:block font-weight="bold">उत्तराचा दिनांक: -</fo:block>
