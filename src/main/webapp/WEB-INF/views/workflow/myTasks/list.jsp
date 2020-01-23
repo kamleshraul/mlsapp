@@ -100,7 +100,18 @@
 			
 			$("#goSumRep").click(function(e){
 				$("#sumRepDiv").hide();
-				questionSummaryReport();
+				
+				var selectedWorkflowDetailsId = $('#grid').jqGrid('getGridParam', 'selarrrow'); 
+				//$("#grid").jqGrid ('getGridParam', 'selarrrow');
+			
+			if(selectedWorkflowDetailsId != null && selectedWorkflowDetailsId.length >= 1){
+				questionSummaryReport(selectedWorkflowDetailsId);
+				
+			}else{
+				questionSummaryReport('');
+			}
+			
+				
 			});
 			pendingNewSupplementaryClubbingTasks();
 			$("#resolutionWorkflowSummaryReport").click(function(e){
