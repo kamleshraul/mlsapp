@@ -2605,6 +2605,8 @@ class StarredQuestionController {
 												}
 												
 												if(!foundUsersDraft){
+													q.setInternalStatus(domain.getInternalStatus());
+													q.setRecommendationStatus(domain.getRecommendationStatus());
 													QuestionDraft qdn = Question.addDraft(q, user[0], user[3], ref.getRemark());
 													drafts.add(qdn);
 												}

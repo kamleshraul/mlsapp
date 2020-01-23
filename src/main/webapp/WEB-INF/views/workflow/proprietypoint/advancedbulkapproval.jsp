@@ -300,7 +300,7 @@
 							</c:forEach>
 						</table>
 							<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-							<input type="hidden" name="proprietypointlistSize" id="proprietypointlistSize" value="${bulkapprovals.size()}"/>
+							<input type="hidden" name="proprietyPointlistSize" id="proprietyPointlistSize" value="${bulkapprovals.size()}"/>
 							<input type="hidden" id="proprietyPointLevel" name ="proprietyPointLevel" value="${level}" />
 							<input type="hidden" id="usergroup" name="usergroup" value="${usergroup}"/>
 							<input type="hidden" id="deviceType" name="deviceType" value="${deviceType}"/>	

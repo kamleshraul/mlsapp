@@ -292,6 +292,13 @@
 						$('#fileDiv').css("display","inline");
 					}  */
 				}
+				//to hide and show adjournmentdatediv
+				if(device=='motions_rules_suspension' || device=='motions_adjournment' || device=='notices_specialmention'){
+					$("#adjourningDateDiv").show();
+				}
+				else{
+					$("#adjourningDateDiv").hide();
+				}
 				var houseType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
 				if(device.indexOf('motions_')==0  
 						|| device.indexOf('resolutions_')==0

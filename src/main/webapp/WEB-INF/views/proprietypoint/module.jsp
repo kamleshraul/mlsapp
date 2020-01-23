@@ -14,7 +14,7 @@
 					if(data){
 						$("#loadedSession").val(data.id);
 						loadMembers();
-						//loadParties();
+						loadParties();
 					}
 				});
 		}
@@ -29,6 +29,20 @@
 					}
 					$("#members").empty();
 					$("#members").html(text);
+				}
+			});
+		}
+		function loadParties(){
+			memberArray = [];
+			$.get('ref/allparties/'+$("#loadedSession").val(), function(data){
+				if(data.length>0){
+					var text="<option value='-'>"+$("#pleaseSelect").val()+"</option>";
+					for(var i = 0; i < data.length; i++){
+						memberArray.push(data[i].name);
+						text+="<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+					}
+					$("#parties").empty();
+					$("#parties").html(text);
 				}
 			});
 		}
@@ -117,6 +131,22 @@
 					memberWiseReport($(this).val());
 				}
 			});
+			$("#party_report").click(function(){
+				var val = $('#parties').val();
+				if(val!="" && val!='-'){
+					partyWiseReport(val);
+				} else {
+					$.prompt("Please select a party for this report!");
+				}
+			});
+			$("#party_notices_report").click(function(){
+				var val = $('#parties').val();
+				if(val!="" && val!='-'){
+					partyWiseNoticesReport(val);
+				} else {
+					$.prompt("Please select a party for this report!");
+				}
+			});
 		});
 		/**** displaying grid ****/					
 		function showProprietyPointList() {
@@ -142,6 +172,13 @@
 			+"&locale="+$("#moduleLocale").val()
 			+ "&report=MEMBER_PROPRIETYPOINTS_VIEW"
 			+ "&reportout=member_proprietypoints_view";
+			showTabByIdAndUrl('details_tab','proprietypoint/report/generalreport?'+parameters);
+		}
+		function submittedProprietyPointsView() {
+			var parameters = "sessionId=" + $("#loadedSession").val()
+			+"&locale="+$("#moduleLocale").val()
+			+ "&report=SUBMITTED__PROPRIETYPOINTS_VIEW"
+			+ "&reportout=submitted_proprietypoints_view";
 			showTabByIdAndUrl('details_tab','proprietypoint/report/generalreport?'+parameters);
 		}
 		/**** new proprietypoint ****/
@@ -301,6 +338,48 @@
 							+"&locale="+$("#moduleLocale").val()
 							+"&statusId="+selectedStatus
 							+"&report=PROIS_MEMBER_WISE_REPORT&reportout=proprietyPointMemberReport");
+				}
+			});
+		}
+		/**** Partywise Members Report Generation ****/
+		function partyWiseReport(party){
+			var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+			+ "/" + $("#selectedSessionYear").val()
+			+ "/" + $("#selectedSessionType").val();
+			$.get(url,function(data){
+				if(data){
+					
+					var selectedStatus = $("#selectedStatus").val();
+					var statusType = $("#statusMaster option[value='" + selectedStatus + "']").text().trim();
+					
+					showTabByIdAndUrl("details_tab","proprietypoint/report/generalreport?"
+							+"sessionId="+data.id
+							+"&deviceTypeId="+$("#selectedDeviceType").val()
+							+"&partyId="+party 
+							+"&locale="+$("#moduleLocale").val()
+							+"&statusId="+selectedStatus
+							+"&report=PROIS_PARTY_WISE_REPORT&reportout=proprietyPointPartyReport");
+				}
+			});
+		}
+		/**** Partywise Notices Report Generation ****/
+		function partyWiseNoticesReport(party){
+			var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+			+ "/" + $("#selectedSessionYear").val()
+			+ "/" + $("#selectedSessionType").val();
+			$.get(url,function(data){
+				if(data){
+					
+					var selectedStatus = $("#selectedStatus").val();
+					var statusType = $("#statusMaster option[value='" + selectedStatus + "']").text().trim();
+					
+					showTabByIdAndUrl("details_tab","proprietypoint/report/generalreport?"
+							+"sessionId="+data.id
+							+"&deviceTypeId="+$("#selectedDeviceType").val()
+							+"&partyId="+party 
+							+"&locale="+$("#moduleLocale").val()
+							+"&statusId="+selectedStatus
+							+"&report=PROIS_PARTY_WISE_NOTICES_REPORT&reportout=proprietyPointPartyNoticesReport");
 				}
 			});
 		}
@@ -502,11 +581,14 @@
 					<%-- <a href="javascript:void(0);" id="department_report" class="butSim" >
 						<spring:message code="generic.departmentWiseReport" text="Department-wise Report"/>
 					</a>| --%>
-					<%-- <a href="javascript:void(0);" id="party_report" class="butSim" >
-						<spring:message code="generic.partyWiseReport" text="Party-wise Report"/>
+					<a href="javascript:void(0);" id="party_report" class="butSim" >
+						<spring:message code="generic.partyWiseReport" text="Party-wise Members Report"/>
 					</a>						
 					<select id="parties" class="sSelect" style="display: inline; width:100px;">
-					</select>|<br> --%>
+					</select>|
+					<a href="javascript:void(0);" id="party_notices_report" class="butSim" >
+						<spring:message code="generic.partyWiseReport" text="Party-wise Notices Report"/>
+					</a>|<br>
 					<hr>
 				</div>
 			</security:authorize>		

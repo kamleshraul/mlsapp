@@ -581,6 +581,11 @@ public class ProprietyPointWorkflowController  extends BaseController {
 			if(strSubmissionDate!=null){
 				domain.setSubmissionDate(FormaterUtil.formatStringToDate(strSubmissionDate, ApplicationConstants.SERVER_DATETIMEFORMAT));
 			}
+			/**** discussion date ****/
+			String strDiscussionDate = request.getParameter("discussionDate");		
+			if(strDiscussionDate!=null){
+				domain.setDiscussionDate(FormaterUtil.formatStringToDate(strDiscussionDate, ApplicationConstants.SERVER_DATETIMEFORMAT));
+			}
 			/**** Edited On,Edited By and Edited As is set ****/
 			domain.setEditedOn(new Date());
 			domain.setEditedBy(this.getCurrentUser().getActualUsername());
