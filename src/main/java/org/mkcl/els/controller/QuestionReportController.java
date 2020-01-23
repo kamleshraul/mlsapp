@@ -1489,7 +1489,15 @@ public class QuestionReportController extends BaseController{
 		model.addAttribute("formater", new FormaterUtil());
 		model.addAttribute("locale", locale.toString());
 		model.addAttribute("report", report);
-		HouseType houseType = HouseType.findByName(request.getParameter("houseType"), locale.toString());
+		String strhouseType = request.getParameter("houseType");
+		try {
+			strhouseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		HouseType houseType = HouseType.findByName(strhouseType, locale.toString());
+		
 		model.addAttribute("houseType", houseType.getType());
 		
 		Set<Role> roles = this.getCurrentUser().getRoles();
