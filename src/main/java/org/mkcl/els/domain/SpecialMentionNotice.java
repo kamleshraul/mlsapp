@@ -503,7 +503,7 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 //				} else {
 //					return session.getEndDate();
 //				}
-				return session.getStartDate();
+				return session.getEndDate();
 			}
 		}
 
@@ -1434,7 +1434,10 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 
 
 	    public Boolean validateSubmissionDate() {
-	    	if(DateUtil.compareDatePartOnly(this.getSpecialMentionNoticeDate(), new Date()) > 0
+	    	Calendar cal = Calendar.getInstance();
+	    	cal.setTime(new Date());
+	    	cal.add(Calendar.DAY_OF_MONTH, 1);
+	    	if(DateUtil.compareDatePartOnly(this.getSpecialMentionNoticeDate(), cal.getTime()) == 0
 	    			//&& (DateUtil.compareDatePartOnly(this.getSubmissionDate(), new Date())) == 0
 	    			&& !(Holiday.isHolidayOnDate(this.getSpecialMentionNoticeDate(), this.getLocale()))) {
 	    		return true;
