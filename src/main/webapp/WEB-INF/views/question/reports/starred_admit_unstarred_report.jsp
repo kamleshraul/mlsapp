@@ -158,6 +158,22 @@
 							</c:forEach>
 						</tbody>
 					</table>
+										<br><br><br><br>
+					<c:if test="${userRole=='QIS_PRINCIPAL_SECRETARY' }">
+
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<spring:message code="qis.principalsecretary" text="QIS_PRINCIPAL_SECRETARY"/></label>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<c:if test="${houseType=='lowerhouse' }">
+					<spring:message code="qis.speaker" text="QIS_SPEAKER"/></label>
+												</c:if>
+					<c:if test="${houseType=='upperhouse' }">
+					<spring:message code="qis.chairman" text="QIS_CHAIRMAN"/></label>
+												</c:if>
 				</div>
 			</c:when>
 			<c:otherwise>
