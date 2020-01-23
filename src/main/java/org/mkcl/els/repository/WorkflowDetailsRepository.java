@@ -1156,7 +1156,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 		if(answeringDate!=null){
 			buffer.append(" AND answeringDate=:answeringDate");
 		}
-		buffer.append(" ORDER BY assignmentTime");
+		buffer.append(" ORDER BY deviceNumber");
 		List<WorkflowDetails> workflowDetails=new ArrayList<WorkflowDetails>();
 		try{
 			Query query=this.em().createQuery(buffer.toString());
