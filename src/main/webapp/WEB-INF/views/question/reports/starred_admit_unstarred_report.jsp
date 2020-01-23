@@ -174,6 +174,7 @@
 					<c:if test="${houseType=='upperhouse' }">
 					<spring:message code="qis.chairman" text="QIS_CHAIRMAN"/></label>
 												</c:if>
+					</c:if>
 				</div>
 			</c:when>
 			<c:otherwise>
