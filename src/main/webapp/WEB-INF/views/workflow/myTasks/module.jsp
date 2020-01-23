@@ -1080,7 +1080,7 @@
 			});
 		}
 		
-		function questionSummaryReport(){
+		function questionSummaryReport(wfdId){
 			
 			$.get('ref/sessionbyparametername?houseType='+$("#selectedHouseType").val() +
 					'&sessionType=' + $("#selectedSessionType").val() + 
@@ -1093,6 +1093,8 @@
 					+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
 					+ "&workflowStatus=" + $("#selectedStatus").val()
 					+ "&assignee=" + $("#authusername").val()
+					+ "&wfdId="+wfdId
+					+ "&houseType=" + $("#selectedHouseType").val()
 					+ "&locale=mr_IN" 
 					+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
 					+ "&groupNumber=" + data.number
