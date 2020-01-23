@@ -130,7 +130,16 @@
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>	
 </form:form>
-
+<div class="fields expand">
+				<h2></h2>
+				<p class="tright">
+					<input id="submit" type="submit"
+						value="<spring:message code='generic.submit' text='Submit'/>"
+						class="butDef">					
+					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
+						
+				</p>
+</div>
 <input id="pleaseSelectGroupNumber" value="<spring:message code='NotNull.groupNumber' text='Please select group number'/>" type="hidden">
 <input id="pleaseSelectMinistries" value="<spring:message code='NotNull.ministries' text='Please select ministries in the group'/>" type="hidden">
 </div>	
