@@ -478,6 +478,7 @@
 				$("#smis_submitted_report").attr('href',
 						'specialmentionnotice/report/submittedmotions?'
 						+'specialMentionNoticeDate=' + selectedSpecialMentionNoticeDate
+						+'&sessionId=' + $("#loadedSession").val()
 						+'&reportQueryName=SMIS_SUBMITTED_MOTIONS_REPORT');
 			}			
 		}
@@ -491,6 +492,7 @@
 				$("#smis_admitted_report").attr('href',
 						'specialmentionnotice/report/admittedmotions?'
 						+'specialMentionNoticeDate=' + selectedSpecialMentionNoticeDate
+						+'&sessionId=' + $("#loadedSession").val()
 						+'&reportQueryName=SMIS_ADMITTED_MOTIONS_REPORT');
 			}			
 		}
@@ -504,6 +506,7 @@
 				$("#smis_admitted_reportingbranch").attr('href',
 						'specialmentionnotice/report/admittedmotions?'
 						+'specialMentionNoticeDate=' + selectedSpecialMentionNoticeDate
+						+'&sessionId=' + $("#loadedSession").val()
 						+'&reportQueryName=SMIS_ADMITTED_MOTIONS_REPORT_REPORTING_BRANCH');
 			}			
 		}
@@ -517,6 +520,7 @@
 				$("#smis_rejected_report").attr('href',
 						'specialmentionnotice/report/rejectedmotions?'
 						+'specialMentionNoticeDate=' + selectedSpecialMentionNoticeDate
+						+'&sessionId=' + $("#loadedSession").val()
 						+'&reportQueryName=SMIS_REJECTED_MOTIONS_REPORT');
 			}			
 		}
@@ -526,6 +530,7 @@
 			$("#smis_register_report").attr('href',
 					'specialmentionnotice/report/register?'
 					+'specialMentionNoticeDate=' + selectedSpecialMentionNoticeDate
+					+'&sessionId=' + $("#loadedSession").val()
 					+'&reportQueryName=SMIS_REGISTER_REPORT');
 		}
 		/**** Memberwise Devices Report Generation ****/
