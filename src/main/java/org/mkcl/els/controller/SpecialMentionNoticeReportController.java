@@ -305,14 +305,16 @@ public class SpecialMentionNoticeReportController extends BaseController{
 		MessageResource errorMessage = null;
 		Map<String, String[]> requestMap = new HashMap<String, String[]>();
 		String specialMentionNoticeDateStr = request.getParameter("specialMentionNoticeDate");
+		String sessionId = request.getParameter("sessionId");
 		String reportQueryName = request.getParameter("reportQueryName");
-		if(specialMentionNoticeDateStr==null || specialMentionNoticeDateStr.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
+		if(sessionId==null || sessionId.isEmpty() || specialMentionNoticeDateStr==null || specialMentionNoticeDateStr.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
 			logger.error("**** One of the request parameters is not set ****");
 			isError = true;
 			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "smis.submitted_motions_report.parameterNotSet", locale.toString());						
 		} else {
 			Date specialMentionNoticeDate = FormaterUtil.formatStringToDate(specialMentionNoticeDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 			requestMap.put("specialMentionNoticeDate", new String[] {FormaterUtil.formatDateToString(specialMentionNoticeDate, ApplicationConstants.DB_DATEFORMAT)});
+			requestMap.put("sessionId", new String[] {sessionId});
 			requestMap.put("locale", new String[]{locale.toString()});
 			@SuppressWarnings("rawtypes")
 			List submittedMotions = Query.findReport(reportQueryName, requestMap, true);
@@ -326,7 +328,7 @@ public class SpecialMentionNoticeReportController extends BaseController{
 			}
 			System.out.println("SMIS Submitted Motions Report generated successfully in WORD format!");
 
-			openOrSaveReportFileFromBrowser(response, reportFile, "WORD");			
+			openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
 		}
 		if(isError) {
 			try {
@@ -355,14 +357,16 @@ public class SpecialMentionNoticeReportController extends BaseController{
 		MessageResource errorMessage = null;
 		Map<String, String[]> requestMap = new HashMap<String, String[]>();
 		String specialMentionNoticeDateStr = request.getParameter("specialMentionNoticeDate");
+		String sessionId = request.getParameter("sessionId");
 		String reportQueryName = request.getParameter("reportQueryName");
-		if(specialMentionNoticeDateStr==null || specialMentionNoticeDateStr.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
+		if(sessionId==null || sessionId.isEmpty() || specialMentionNoticeDateStr==null || specialMentionNoticeDateStr.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
 			logger.error("**** One of the request parameters is not set ****");
 			isError = true;
 			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "smis.admitted_motions_report.parameterNotSet", locale.toString());						
 		} else {
 			Date specialMentionNoticeDate = FormaterUtil.formatStringToDate(specialMentionNoticeDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 			requestMap.put("specialMentionNoticeDate", new String[] {FormaterUtil.formatDateToString(specialMentionNoticeDate, ApplicationConstants.DB_DATEFORMAT)});
+			requestMap.put("sessionId", new String[] {sessionId});
 			requestMap.put("locale", new String[]{locale.toString()});
 			@SuppressWarnings("rawtypes")
 			List admittedMotions = Query.findReport(reportQueryName, requestMap, true);
@@ -405,14 +409,16 @@ public class SpecialMentionNoticeReportController extends BaseController{
 		MessageResource errorMessage = null;
 		Map<String, String[]> requestMap = new HashMap<String, String[]>();
 		String specialMentionNoticeDateStr = request.getParameter("specialMentionNoticeDate");
+		String sessionId = request.getParameter("sessionId");
 		String reportQueryName = request.getParameter("reportQueryName");
-		if(specialMentionNoticeDateStr==null || specialMentionNoticeDateStr.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
+		if(sessionId==null || sessionId.isEmpty() || specialMentionNoticeDateStr==null || specialMentionNoticeDateStr.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
 			logger.error("**** One of the request parameters is not set ****");
 			isError = true;
 			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "smis.rejected_motions_report.parameterNotSet", locale.toString());						
 		} else {
 			Date specialMentionNoticeDate = FormaterUtil.formatStringToDate(specialMentionNoticeDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 			requestMap.put("specialMentionNoticeDate", new String[] {FormaterUtil.formatDateToString(specialMentionNoticeDate, ApplicationConstants.DB_DATEFORMAT)});
+			requestMap.put("sessionId", new String[] {sessionId});
 			requestMap.put("locale", new String[]{locale.toString()});
 			@SuppressWarnings("rawtypes")
 			List rejectedMotions = Query.findReport(reportQueryName, requestMap, true);
@@ -455,8 +461,9 @@ public class SpecialMentionNoticeReportController extends BaseController{
 		MessageResource errorMessage = null;
 		Map<String, String[]> requestMap = new HashMap<String, String[]>();
 		String specialMentionNoticeDateStr = request.getParameter("specialMentionNoticeDate");
+		String sessionId = request.getParameter("sessionId");
 		String reportQueryName = request.getParameter("reportQueryName");
-		if(reportQueryName==null || reportQueryName.isEmpty()) {
+		if(sessionId==null || sessionId.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
 			logger.error("**** One of the request parameters is not set ****");
 			isError = true;
 			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "smis.register_report.parameterNotSet", locale.toString());						
@@ -465,7 +472,8 @@ public class SpecialMentionNoticeReportController extends BaseController{
 			if(specialMentionNoticeDateStr!=null && !specialMentionNoticeDateStr.isEmpty()) {
 				specialMentionNoticeDate = FormaterUtil.formatStringToDate(specialMentionNoticeDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 				requestMap.put("specialMentionNoticeDate", new String[] {FormaterUtil.formatDateToString(specialMentionNoticeDate, ApplicationConstants.DB_DATEFORMAT)});
-			}			
+			}
+			requestMap.put("sessionId", new String[] {sessionId});
 			requestMap.put("locale", new String[]{locale.toString()});
 			@SuppressWarnings("rawtypes")
 			List registerMotions = Query.findReport(reportQueryName, requestMap, true);
