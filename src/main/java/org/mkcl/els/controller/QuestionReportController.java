@@ -1489,6 +1489,17 @@ public class QuestionReportController extends BaseController{
 		model.addAttribute("formater", new FormaterUtil());
 		model.addAttribute("locale", locale.toString());
 		model.addAttribute("report", report);
+		HouseType houseType = HouseType.findByName(request.getParameter("houseType"), locale.toString());
+		model.addAttribute("houseType", houseType.getType());
+		
+		Set<Role> roles = this.getCurrentUser().getRoles();
+		Role psRole = Role.findByType("QIS_PRINCIPAL_SECRETARY", locale.toString());
+		for(Role r :roles){
+			if(r.getId().equals(psRole.getId())){
+				model.addAttribute("userRole", r.getType());
+				break;
+			}
+		}
 		
 		return "question/reports/"+request.getParameter("reportout");		
 	}
