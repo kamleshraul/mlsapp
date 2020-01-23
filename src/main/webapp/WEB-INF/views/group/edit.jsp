@@ -15,6 +15,30 @@
 			$("#ministries").multiSelect();
 			$("#subdepartments").multiSelect();
 			
+			var multiSelectMaxHeight = $('.multiSelectSpan').css('max-height');
+			
+			$("select[multiple='multiple']").css("width","300px");
+			
+			$('.expansionMultiSelect').click(function() {
+				var selectedId = this.id;
+				if($(this).text()=='Expand') {
+					if(selectedId=='expandMinistry') {
+						$("#span_ministries").attr('style', 'max-height: initial !important;');
+					} else if(selectedId=='expandSubDepartment') {
+						$("#span_subdepartments").attr('style', 'max-height: initial !important;');
+					}				
+					$(this).text('Collapse');
+				} else {
+					if(selectedId=='expandMinistry') {
+						$("#span_ministries").attr('style', 'max-height: ' + multiSelectMaxHeight + ' !important;');
+					} else if(selectedId=='expandSubDepartment') {
+						$("#span_subdepartments").attr('style', 'max-height: ' + multiSelectMaxHeight + ' !important;');
+					}
+					
+					$(this).text('Expand');
+				}
+			});
+			
 			$("#ministries").change(function(){
 				var ministry = $(this).val();
 				if(ministry==null){
@@ -71,7 +95,7 @@
 					$.prompt($('#pleaseSelectMinistries').val());
 					return false;
 				}
-			});		
+			});	
 		});			
 	</script>
 </head>
@@ -130,14 +154,16 @@
 	</p>
 	<p>
 		<label style="vertical-align: top;"><spring:message code="group.ministries" text="Ministries" /></label>			
-		<form:select path="ministries" id="ministries" items="${ministries}" itemValue="id" itemLabel="name" multiple="multiple" size="10" disabled="false"/>
+		<form:select path="ministries" id="ministries" items="${ministries}" itemValue="id" itemLabel="name" multiple="multiple" size="5" disabled="false"/>
 		<form:errors path="ministries" cssClass="validationError" />	
+		<a id="expandMinistry" class="expansionMultiSelect" href="javascript:void(0);" style="float: right;">Expand</a>
 	</p>	
 			
 	<p>
 		<label style="vertical-align: top; width: 142px"><spring:message code="group.subdepartment" text="SubDepartments" /></label>			
-		<form:select path="subdepartments" items="${subdepartments}" itemValue="id" itemLabel="name"  multiple="multiple" size="10"/>
+		<form:select path="subdepartments" items="${subdepartments}" itemValue="id" itemLabel="name"  multiple="multiple" size="5"/>
 		<form:errors path="subdepartments" cssClass="validationError" />
+		<a id="expandSubDepartment" class="expansionMultiSelect" href="javascript:void(0);" style="float: right;">Expand</a>
 	</p>		
 	<div class="fields">
 		<h2></h2>
