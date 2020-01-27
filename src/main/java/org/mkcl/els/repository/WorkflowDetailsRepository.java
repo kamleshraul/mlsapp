@@ -1156,7 +1156,25 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 		if(answeringDate!=null){
 			buffer.append(" AND answeringDate=:answeringDate");
 		}
-		buffer.append(" ORDER BY deviceNumber");
+		
+		String userGroupName=null;	
+		Credential credential=Credential.findByFieldName(Credential.class,"username",assignee,"");
+		UserGroup userGroup=UserGroup.findActive(credential, new Date(), "");
+				//findByFieldName(UserGroup.class,"credential",credential, question.getLocale());
+	
+		userGroupName=userGroup.getUserGroupType().getType();
+		
+		if (userGroupName.equals("principal_secretary"))
+		{
+			buffer.append(" ORDER BY numericalDevice");
+		}
+		else
+		{
+			buffer.append(" ORDER BY assignmentTime");
+		}
+			
+		
+		
 		List<WorkflowDetails> workflowDetails=new ArrayList<WorkflowDetails>();
 		try{
 			Query query=this.em().createQuery(buffer.toString());
