@@ -1164,7 +1164,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 	
 		userGroupName=userGroup.getUserGroupType().getType();
 		
-		if (userGroupName.equals("principal_secretary"))
+		if (userGroupName.equals(ApplicationConstants.PRINCIPAL_SECRETARY))
 		{
 			buffer.append(" ORDER BY numericalDevice");
 		}
