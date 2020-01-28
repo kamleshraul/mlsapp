@@ -1705,6 +1705,7 @@
 				var url = "question/report/generalreport?sessionId=" + data.id
 				+ "&deviceTypeId=" + $("#selectedQuestionType").val()
 				+ "&locale=" + $("#moduleLocale").val()
+				+ "&houseType=" + $("#selectedHouseType").val()
 				+ "&statusId=" + $("#selectedStatus").val() 
 				+ "&groupId=" + $("#selectedGroup").val()
 				+ "&reportout=starred_admit_unstarred_report_mod"
