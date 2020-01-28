@@ -1490,23 +1490,29 @@ public class QuestionReportController extends BaseController{
 		model.addAttribute("locale", locale.toString());
 		model.addAttribute("report", report);
 		String strhouseType = request.getParameter("houseType");
-		if(strhouseType.equals(ApplicationConstants.LOWER_HOUSE) ||strhouseType.equals(ApplicationConstants.UPPER_HOUSE))
-		{
-			model.addAttribute("houseType", strhouseType);
-		}
-		else
-		{
-			try {
-				strhouseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		if(strhouseType!=null) {
+			if(strhouseType.equals(ApplicationConstants.LOWER_HOUSE) ||strhouseType.equals(ApplicationConstants.UPPER_HOUSE))
+			{
+				model.addAttribute("houseType", strhouseType);
 			}
-			HouseType houseType = HouseType.findByName(strhouseType, locale.toString());
-			
-			model.addAttribute("houseType", houseType.getType());	
+			else
+			{
+				try {
+					strhouseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				HouseType houseType = HouseType.findByName(strhouseType, locale.toString());
+				if(houseType!=null) {
+					model.addAttribute("houseType", houseType.getType());
+				} else {
+					model.addAttribute("houseType", "");
+				}					
+			}
+		} else {
+			model.addAttribute("houseType", "");
 		}
-		
 	
 		Set<Role> roles = this.getCurrentUser().getRoles();
 		Role psRole = Role.findByType("QIS_PRINCIPAL_SECRETARY", locale.toString());
