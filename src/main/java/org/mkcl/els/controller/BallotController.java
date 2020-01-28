@@ -1942,7 +1942,7 @@ public class BallotController extends BaseController{
 							for(Ministry m: ministries) {
 								MasterVO ministryMasterVO = new MasterVO();
 								ministryMasterVO.setFormattedNumber("(" + FormaterUtil.formatNumberNoGrouping(ministryCount, locale.toString())+ ")");
-								ministryMasterVO.setName(m.getName());
+								ministryMasterVO.setName(m.getDisplayName());
 								ministryMasterVOs.add(ministryMasterVO);
 								ministryCount++;
 							}

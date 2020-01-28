@@ -130,7 +130,7 @@ margin-left: 30px;
 			<c:when test="${i.findMinistriesByPriority()!=null}">
 			<c:forEach items="${i.findMinistriesByPriority()}" var="j">
 			<c:if test="${!(empty j) }">
-			${j.name}<br>
+			${j.displayName}<br>
 			</c:if>
 			</c:forEach>
 			</c:when>

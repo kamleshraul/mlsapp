@@ -152,6 +152,10 @@ public class Ministry extends BaseDomain implements Serializable{
 		this.name = name;
 	}
 	
+	public String getDisplayName() {
+		return displayName;
+	}
+
 	/**
 	 * Sets the display name.
 	 *

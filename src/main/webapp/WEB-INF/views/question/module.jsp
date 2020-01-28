@@ -1474,7 +1474,9 @@
 				items.push('chairman');
 				url += "&userGroups=" + items;
 			}
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		showTabByIdAndUrl('details_tab', url);
+		$.unblockUI();
 	}
 	
 	function sendMessage() {		

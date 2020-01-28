@@ -301,7 +301,7 @@
 				</a> |	
 				</span>		
 			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
+			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER', 'QIS_DEPUTY_SECRETARY')">
 				<a href="#" id="statreport" class="butSim">
 					<spring:message code="question.statreport" text="Generate Statistics Report"/>
 				</a> |
