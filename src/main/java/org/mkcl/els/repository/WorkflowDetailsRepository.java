@@ -211,7 +211,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 						}
 						if(question.getNumber()!=null){
 							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(question.getNumber()));
-							workflowDetails.setNumericalDevice(question.getNumber().toString());
+							workflowDetails.setNumericalDevice(question.getNumber());
 						}
 						if(question.getPrimaryMember()!=null){
 							workflowDetails.setDeviceOwner(question.getPrimaryMember().getFullname());
@@ -350,7 +350,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 							}
 							if(question.getNumber()!=null){
 								workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(question.getNumber()));
-								workflowDetails.setNumericalDevice(question.getNumber().toString());
+								workflowDetails.setNumericalDevice(question.getNumber());
 							}
 							if(question.getPrimaryMember()!=null){
 								workflowDetails.setDeviceOwner(question.getPrimaryMember().getFullname());
@@ -511,7 +511,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 									}
 									if(question.getNumber()!=null){
 										workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(question.getNumber()));
-										workflowDetails.setNumericalDevice(question.getNumber().toString());
+										workflowDetails.setNumericalDevice(question.getNumber());
 									}
 									if(question.getPrimaryMember()!=null){
 										workflowDetails.setDeviceOwner(question.getPrimaryMember().getFullname());
@@ -833,7 +833,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 						}
 						if(resolution.getNumber()!=null){
 							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(resolution.getLocale()).format(resolution.getNumber()));
-							workflowDetails.setNumericalDevice(resolution.getNumber().toString());
+							workflowDetails.setNumericalDevice(resolution.getNumber());
 						}
 						if(resolution.getMember()!=null){
 							workflowDetails.setDeviceOwner(resolution.getMember().getFullname());
@@ -1485,7 +1485,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 						}
 						if(bill.getNumber()!=null){
 							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getNumber()));
-							workflowDetails.setNumericalDevice(bill.getNumber().toString());
+							workflowDetails.setNumericalDevice(bill.getNumber());
 						}
 						if(bill.getPrimaryMember()!=null){
 							workflowDetails.setDeviceOwner(bill.getPrimaryMember().getFullname());
@@ -1599,7 +1599,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 						}
 						if(bill.getNumber()!=null){
 							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getNumber()));
-							workflowDetails.setNumericalDevice(bill.getNumber().toString());
+							workflowDetails.setNumericalDevice(bill.getNumber());
 						}
 						if(bill.getPrimaryMember()!=null){
 							workflowDetails.setDeviceOwner(bill.getPrimaryMember().getFullname());
@@ -1748,7 +1748,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 								}
 								if(bill.getNumber()!=null){
 									workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getNumber()));
-									workflowDetails.setNumericalDevice(bill.getNumber().toString());
+									workflowDetails.setNumericalDevice(bill.getNumber());
 								}
 								if(bill.getPrimaryMember()!=null){
 									workflowDetails.setDeviceOwner(bill.getPrimaryMember().getFullname());
@@ -2582,7 +2582,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							}
 							if(motion.getNumber()!=null){
 								workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
-								workflowDetails.setNumericalDevice(motion.getNumber().toString());
+								workflowDetails.setNumericalDevice(motion.getNumber());
 							}
 							if(motion.getPrimaryMember()!=null){
 								workflowDetails.setDeviceOwner(motion.getPrimaryMember().getFullname());
@@ -2712,7 +2712,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							}
 							if(motion.getNumber()!=null){
 								workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
-								workflowDetails.setNumericalDevice(motion.getNumber().toString());
+								workflowDetails.setNumericalDevice(motion.getNumber());
 							}
 							if(motion.getPrimaryMember()!=null){
 								workflowDetails.setDeviceOwner(motion.getPrimaryMember().getFullname());
@@ -2852,7 +2852,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 								}
 								if(domain.getNumber()!=null){
 									workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getNumber()));
-									workflowDetails.setNumericalDevice(domain.getNumber().toString());
+									workflowDetails.setNumericalDevice(domain.getNumber());
 								}
 								if(domain.getPrimaryMember()!=null){
 									workflowDetails.setDeviceOwner(domain.getPrimaryMember().getFullname());
@@ -2968,7 +2968,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 						}
 						if(domain.getNumber()!=null){
 							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getNumber()));
-							workflowDetails.setNumericalDevice(domain.getNumber().toString());
+							workflowDetails.setNumericalDevice(domain.getNumber());
 						}
 						if(domain.getPrimaryMember()!=null){
 							workflowDetails.setDeviceOwner(domain.getPrimaryMember().getFullname());
@@ -3284,7 +3284,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							}
 							if(motion.getNumber()!=null){
 								workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
-								workflowDetails.setNumericalDevice(motion.getNumber().toString());
+								workflowDetails.setNumericalDevice(motion.getNumber());
 							}
 							if(motion.getPrimaryMember()!=null){
 								workflowDetails.setDeviceOwner(motion.getPrimaryMember().getFullname());
@@ -3428,7 +3428,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 						}
 						if(motion.getNumber()!=null){
 							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
-							workflowDetails.setNumericalDevice(motion.getNumber().toString());
+							workflowDetails.setNumericalDevice(motion.getNumber());
 						}
 						if(motion.getPrimaryMember()!=null){
 							workflowDetails.setDeviceOwner(motion.getPrimaryMember().getFullname());
@@ -3579,7 +3579,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 								}
 								if(motion.getNumber()!=null){
 									workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
-									workflowDetails.setNumericalDevice(motion.getNumber().toString());
+									workflowDetails.setNumericalDevice(motion.getNumber());
 								}
 								if(motion.getPrimaryMember()!=null){
 									workflowDetails.setDeviceOwner(motion.getPrimaryMember().getFullname());
@@ -3828,7 +3828,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							}
 							if(motion.getNumber()!=null){
 								workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
-								workflowDetails.setNumericalDevice(motion.getNumber().toString());
+								workflowDetails.setNumericalDevice(motion.getNumber());
 							}
 							if(motion.getPrimaryMember()!=null){
 								workflowDetails.setDeviceOwner(motion.getPrimaryMember().getFullname());
@@ -3952,7 +3952,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							}
 							if(motion.getNumber()!=null){
 								workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
-								workflowDetails.setNumericalDevice(motion.getNumber().toString());
+								workflowDetails.setNumericalDevice(motion.getNumber());
 							}
 							if(motion.getPrimaryMember()!=null){
 								workflowDetails.setDeviceOwner(motion.getPrimaryMember().getFullname());
@@ -4079,7 +4079,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 								}
 								if(domain.getNumber() != null){
 									workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getNumber()));
-									workflowDetails.setNumericalDevice(domain.getNumber().toString());
+									workflowDetails.setNumericalDevice(domain.getNumber());
 								}
 								if(domain.getPrimaryMember() != null){
 									workflowDetails.setDeviceOwner(domain.getPrimaryMember().getFullname());
@@ -4277,7 +4277,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							}
 							if(motion.getNumber()!=null){
 								workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
-								workflowDetails.setNumericalDevice(motion.getNumber().toString());
+								workflowDetails.setNumericalDevice(motion.getNumber());
 							}
 							if(motion.getMember()!=null){
 								workflowDetails.setDeviceOwner(motion.getMember().getFullname());
@@ -4408,7 +4408,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 								}
 								if(domain.getNumber() != null){
 									workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getNumber()));
-									workflowDetails.setNumericalDevice(domain.getNumber().toString());
+									workflowDetails.setNumericalDevice(domain.getNumber());
 								}
 								if(domain.getMember() != null){
 									workflowDetails.setDeviceOwner(domain.getMember().getFullname());
@@ -4535,7 +4535,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 						}
 						if (domain.getNumber() != null) {
 							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getNumber()));
-							workflowDetails.setNumericalDevice(domain.getNumber().toString());
+							workflowDetails.setNumericalDevice(domain.getNumber());
 						}
 						if (domain.getMember() != null) {
 							workflowDetails.setDeviceOwner(domain.getMember().getFullname());
@@ -5023,7 +5023,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							}
 							if(motion.getNumber()!=null){
 								workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
-								workflowDetails.setNumericalDevice(motion.getNumber().toString());
+								workflowDetails.setNumericalDevice(motion.getNumber());
 							}
 							if(motion.getPrimaryMember()!=null){
 								workflowDetails.setDeviceOwner(motion.getPrimaryMember().getFullname());
@@ -5191,18 +5191,18 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 					if(adjournmentMotion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 						if(adjournmentMotion.getAdmissionNumber()!=null){
 							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(adjournmentMotion.getLocale()).format(adjournmentMotion.getAdmissionNumber()));
-							workflowDetails.setNumericalDevice(adjournmentMotion.getAdmissionNumber().toString());
+							workflowDetails.setNumericalDevice(adjournmentMotion.getAdmissionNumber());
 						}
 					} else {
 						if(adjournmentMotion.getNumber()!=null){
 							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(adjournmentMotion.getLocale()).format(adjournmentMotion.getNumber()));
-							workflowDetails.setNumericalDevice(adjournmentMotion.getNumber().toString());
+							workflowDetails.setNumericalDevice(adjournmentMotion.getNumber());
 						}
 					}
 				} else {
 					if(adjournmentMotion.getNumber()!=null){
 						workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(adjournmentMotion.getLocale()).format(adjournmentMotion.getNumber()));
-						workflowDetails.setNumericalDevice(adjournmentMotion.getNumber().toString());
+						workflowDetails.setNumericalDevice(adjournmentMotion.getNumber());
 					}
 				}				
 				if(adjournmentMotion.getAdjourningDate()!=null){
@@ -5331,7 +5331,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				}
 				if(adjournmentMotion.getNumber()!=null){
 					workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(adjournmentMotion.getLocale()).format(adjournmentMotion.getNumber()));
-					workflowDetails.setNumericalDevice(adjournmentMotion.getNumber().toString());
+					workflowDetails.setNumericalDevice(adjournmentMotion.getNumber());
 				}
 				if(adjournmentMotion.getAdjourningDate()!=null){
 					workflowDetails.setAdjourningDate(adjournmentMotion.getAdjourningDate());
@@ -5577,7 +5577,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				}
 				if(proprietyPoint.getNumber()!=null){
 					workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(proprietyPoint.getLocale()).format(proprietyPoint.getNumber()));
-					workflowDetails.setNumericalDevice(proprietyPoint.getNumber().toString());
+					workflowDetails.setNumericalDevice(proprietyPoint.getNumber());
 				}
 				if(proprietyPoint.getPrimaryMember()!=null){
 					workflowDetails.setDeviceOwner(proprietyPoint.getPrimaryMember().getFullname());
@@ -5696,7 +5696,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				}
 				if(proprietyPoint.getNumber()!=null){
 					workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(proprietyPoint.getLocale()).format(proprietyPoint.getNumber()));
-					workflowDetails.setNumericalDevice(proprietyPoint.getNumber().toString());
+					workflowDetails.setNumericalDevice(proprietyPoint.getNumber());
 				}
 				if(proprietyPoint.getPrimaryMember()!=null){
 					workflowDetails.setDeviceOwner(proprietyPoint.getPrimaryMember().getFullname());
@@ -6427,7 +6427,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 					}
 					if(rulesSuspensionMotion.getNumber()!=null){
 						workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(rulesSuspensionMotion.getLocale()).format(rulesSuspensionMotion.getNumber()));
-						workflowDetails.setNumericalDevice(rulesSuspensionMotion.getNumber().toString());
+						workflowDetails.setNumericalDevice(rulesSuspensionMotion.getNumber());
 					}
 					if(rulesSuspensionMotion.getRuleSuspensionDate()!=null){
 						workflowDetails.setAdjourningDate(rulesSuspensionMotion.getRuleSuspensionDate());
@@ -6546,7 +6546,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 					}
 					if(rulesSuspensionMotion.getNumber()!=null){
 						workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(rulesSuspensionMotion.getLocale()).format(rulesSuspensionMotion.getNumber()));
-						workflowDetails.setNumericalDevice(rulesSuspensionMotion.getNumber().toString());
+						workflowDetails.setNumericalDevice(rulesSuspensionMotion.getNumber());
 					}
 					if(rulesSuspensionMotion.getRuleSuspensionDate()!=null){
 						workflowDetails.setAdjourningDate(rulesSuspensionMotion.getRuleSuspensionDate());
@@ -6762,18 +6762,18 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 						if(specialMentionNotice.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 							if(specialMentionNotice.getNumber()!=null){
 								workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(specialMentionNotice.getLocale()).format(specialMentionNotice.getNumber()));
-								workflowDetails.setNumericalDevice(specialMentionNotice.getNumber().toString());
+								workflowDetails.setNumericalDevice(specialMentionNotice.getNumber());
 							}
 						} else {
 							if(specialMentionNotice.getNumber()!=null){
 								workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(specialMentionNotice.getLocale()).format(specialMentionNotice.getNumber()));
-								workflowDetails.setNumericalDevice(specialMentionNotice.getNumber().toString());
+								workflowDetails.setNumericalDevice(specialMentionNotice.getNumber());
 							}
 						}
 					}
 					if(specialMentionNotice.getNumber()!=null){
 						workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(specialMentionNotice.getLocale()).format(specialMentionNotice.getNumber()));
-						workflowDetails.setNumericalDevice(specialMentionNotice.getNumber().toString());
+						workflowDetails.setNumericalDevice(specialMentionNotice.getNumber());
 					}
 					if(specialMentionNotice.getSpecialMentionNoticeDate()!=null){
 						workflowDetails.setAdjourningDate(specialMentionNotice.getSpecialMentionNoticeDate());
@@ -6901,7 +6901,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 					}
 					if(specialMentionNotice.getNumber()!=null){
 						workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(specialMentionNotice.getLocale()).format(specialMentionNotice.getNumber()));
-						workflowDetails.setNumericalDevice(specialMentionNotice.getNumber().toString());
+						workflowDetails.setNumericalDevice(specialMentionNotice.getNumber());
 					}
 					if(specialMentionNotice.getSpecialMentionNoticeDate()!=null){
 						workflowDetails.setAdjourningDate(specialMentionNotice.getSpecialMentionNoticeDate());

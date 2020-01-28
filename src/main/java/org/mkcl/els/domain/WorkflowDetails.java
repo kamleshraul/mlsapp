@@ -135,7 +135,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	
 	private Long previousWorkflowDetail;
 	
-	private String numericalDevice;
+	private Integer numericalDevice;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date sendBackBefore;
@@ -1187,11 +1187,11 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return deviceNumber;
 	}
 
-	public String getNumericalDevice() {
+	public Integer getNumericalDevice() {
 		return numericalDevice;
 	}
 
-	public void setNumericalDevice(final String numericalDevice) {
+	public void setNumericalDevice(final Integer numericalDevice) {
 		this.numericalDevice = numericalDevice;
 	}
 
