@@ -23,6 +23,7 @@
 			if(value>0){
 				var url = "question/report/generalreport?deviceTypeId="+$("#selectedQuestionType").val()+
 							"&reportStatus="+reportType + "&report=QIS_VIVRAN_DRILL_DOWN_REPORT" + 
+							"&houseType="+$("#selectedHouseType").val() +
 							"&questionDate="+questionDate;
 				//var devicetype = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
 				/* if(devicetype=='questions_starred'){
