@@ -24,7 +24,7 @@
 		});
 
 		$("#username").change(function(){
-			var reportURL = "question/report/generalreport?username="+$("#username").val()+"&report=USER_AVAILABLE&reportout=useravailable&locale=mr_IN";
+			var reportURL = "question/report/generalreport?username="+$("#username").val()+	"&houseType="+$("#selectedHouseType").val() +"&report=USER_AVAILABLE&reportout=useravailable&locale=mr_IN";
 			$.get(reportURL,function(data){
 				$("#userAvailable").empty();
 				$("#userAvailable").html(data);
@@ -77,7 +77,7 @@
 			<p>
 				<label class="small"><spring:message
 						code="user.houseType" text="House Type" />&nbsp;*</label>
-				<form:select cssClass="sSelect " path="houseType" items="${houseTypes}" itemLabel="name" itemValue="id" />
+				<form:select cssClass="sSelect " id="houseType" path="houseType" items="${houseTypes}" itemLabel="name" itemValue="id" />
 				<form:errors path="houseType" cssClass="validationError" />
 			</p>
 			
