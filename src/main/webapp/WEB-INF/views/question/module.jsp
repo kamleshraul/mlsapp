@@ -1522,6 +1522,7 @@
 			if(data){
 				showTabByIdAndUrl('details_tab','question/report/generalreport?'
 						+'sessionId='+data.id
+						+"&houseType="+$("#selectedHouseType").val() 
 						+"&deviceTypeId="+$("#selectedQuestionType").val()
 						+"&locale="+$("#moduleLocale").val()
 						+"&report=HD_CONDITION_REPORT&reportout=hdconditionreport");
@@ -1539,6 +1540,7 @@
 					showTabByIdAndUrl('details_tab',
 							'question/report/generalreport?'
 							+ "sessionId=" + data.id
+							+ "&houseType="+$("#selectedHouseType").val() 
 							+ "&deviceTypeId=" + $("#selectedQuestionType").val()
 							+ "&locale=" + $("#moduleLocale").val()
 							+ "&report=HDQ_UNIQUE_SUBJECT_MEMBER_REPORT&reportout=hdqballotchoiceoptionreport");
