@@ -1261,6 +1261,7 @@
 					+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
 					+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
 					+ "&assignee=" + $("#authusername").val()
+					+ "&houseType="+$("#selectedHouseType").val() 
 					+ "&locale=mr_IN" 
 					+ "&reportout=question_department_statement_report"
 					+ "&report=QIS_DEPARTMENT_STATEMENT_REPORT";
