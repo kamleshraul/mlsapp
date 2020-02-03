@@ -1244,7 +1244,7 @@
 					+ "&fromDate=" + ($("#sumRepFromDate").val()==''?'0':$("#sumRepFromDate").val())
 					+ "&toDate=" + ($("#sumRepToDate").val()==''?'0':$("#sumRepToDate").val());
 					showTabByIdAndUrl('details_tab', url);
-					
+					$.unblockUI();
 				}
 			});
 			

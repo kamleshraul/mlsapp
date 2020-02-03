@@ -222,7 +222,7 @@
 					<spring:message code="generic.report.sentBackTasksReport" text="Sent Back Tasks Report"/>
 				 </a>
 			 </security:authorize>
-			 <security:authorize access="hasAnyRole('ROIS_PRINCIPAL_SECRETARY','ROIS_UNDER_SECRETARY','ROIS_UNDER_SECRETARY_COMMITTEE','ROIS_SECRETARY','ROIS_DEPUTY_SECRETARY','ROIS_CHAIRMAN','ROIS_SPEAKER','ROIS_ASSISTANT','ROIS_SECTION_OFFICER','ROIS_JOINT_SECRETARY')">
+			 <security:authorize access="hasAnyRole('ROIS_PRINCIPALSECRETARY','ROIS_UNDERSECRETARY','ROIS_UNDER_SECRETARY_COMMITTEE','ROIS_SECRETARY','ROIS_DEPUTYSECRETARY','ROIS_CHAIRMAN','ROIS_SPEAKER','ROIS_ASSISTANT','ROIS_SECTION_OFFICER','ROIS_JOINT_SECRETARY')">
 				 <a href="javascript:void(0);" id="resolutionWorkflowSummaryReport" class="butSim">
 					<spring:message code="resolution.summaryReport" text="Resolution Summary Report"/>
 				 </a>

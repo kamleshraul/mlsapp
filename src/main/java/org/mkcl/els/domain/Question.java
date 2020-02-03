@@ -8297,6 +8297,11 @@ public class Question extends Device implements Serializable {
 					if(child.getAnswer()!=null && child.getAnswer().equals(parent.getAnswer())) {
 						child.setAnswer(null);
 					}
+					if(isOptimisticLockExceptionPossible) {
+						Long child_currentVersion = child.getVersion();
+						child_currentVersion++;
+						child.setVersion(child_currentVersion);
+					}
 					Workflow processWorkflow = Workflow.findByStatus(admitStatus, locale);
 					UserGroupType assistantUGT = UserGroupType.findByType(ApplicationConstants.ASSISTANT, locale);
 					WorkflowDetails.startProcessAtGivenLevel(child, ApplicationConstants.APPROVAL_WORKFLOW, processWorkflow, assistantUGT, 6, locale);
