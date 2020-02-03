@@ -5926,6 +5926,16 @@ public class ReferenceController extends BaseController {
 				permission = partiallyClubbedParameter.getValue();
 			}
 			if(parent != null){
+				MasterVO mVO = new MasterVO();
+				mVO.setId(parent.getId());
+				mVO.setName(FormaterUtil.formatNumberNoGrouping(parent.getNumber(), locale.toString()));
+				mVO.setDisplayName(parent.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
+				if(parent.getQuestionText()!= null && !parent.getQuestionText().isEmpty()){
+					mVO.setValue(parent.getQuestionText());
+				}else{
+					mVO.setValue(parent.getRevisedQuestionText());
+				}
+				clubbedQuestionsVO.add(mVO);
 				List<ClubbedEntity> clubbedQuestions = parent.getClubbedEntities();
 				Boolean isAllowedForDisplay = false;
 				for(ClubbedEntity ce : clubbedQuestions){
@@ -5941,7 +5951,7 @@ public class ReferenceController extends BaseController {
 							isAllowedForDisplay = true;
 						}
 						if(isAllowedForDisplay){
-							MasterVO mVO = new MasterVO();
+							mVO = new MasterVO();
 							mVO.setId(cQuestion.getId());
 							mVO.setName(FormaterUtil.formatNumberNoGrouping(cQuestion.getNumber(), locale.toString()));
 							mVO.setDisplayName(cQuestion.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
