@@ -470,7 +470,9 @@
 		}
 		
 		function previewFinalBallot(){
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			$.prompt("Please call administrator to open this link on the day before generating yaadi! ");
+			return false;
+			/*$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			var group=$("#mbGroup").val();
 			var answeringDate=$("#mbAnsweringDate").val();
 			if(group!="-"&&answeringDate!="-"){
@@ -493,7 +495,7 @@
 			}else{
 				$.unblockUI();
 				$.prompt($("#selectGroupAnsweringDateMsg").val());		
-			}
+			}*/
 		}
 	</script>
 </head>
