@@ -756,8 +756,10 @@
 						
 						var text="";
 						
-						for(var i = 0; i < data.length; i++){
-							text += "<p>"+data[i].name+" ("+data[i].displayName+")</p><p>"+data[i].value+"</p><hr />";
+						text += "<p>Parent: "+data[0].name+" ("+data[0].displayName+")</p><p>"+data[0].value+"</p><hr />";
+						
+						for(var i = 1; i < data.length; i++){
+							text += "<p>Child "+i+":"+data[i].name+" ("+data[i].displayName+")</p><p>"+data[i].value+"</p><hr />";
 						}						
 						$("#clubbedQuestionTextsDiv").html(text);
 						
