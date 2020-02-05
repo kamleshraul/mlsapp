@@ -1699,7 +1699,7 @@
 		});
 	}
 	
-	function showStarredAdmitUnstarredReport(){
+	function showStarredAdmitUnstarredReport(qId){
 		$.get('ref/sessionbyhousetype/'+$("#selectedHouseType").val() +
 				'/' + $("#selectedSessionYear").val() + 
 				'/' + $("#selectedSessionType").val(),function(data){
@@ -1716,7 +1716,14 @@
 				+ "&departmentId=" +$("#selectedSubDepartment").val()
 				+ "&answeringDate="+$("#selectedModuleAsweringDate").val()
 				+ "&clubbingStatus="+$("#selectedClubbingStatus").val()
+				+ "&qId="+qId
 				+ "&report=STARRED_ADMIT_CONVERT_TO_UNSTARRED_REPORT";
+				
+				if(qId.length>0) {
+					url += "&havingIN=TRUE";
+				} else {
+					url += "&havingIN=FALSE";
+				}
 				
 				showTabByIdAndUrl('details_tab', url);
 			}

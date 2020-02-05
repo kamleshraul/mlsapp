@@ -215,7 +215,12 @@
 			});
 			
 			$("#starredAdmitUnstarred").click(function(){
-				showStarredAdmitUnstarredReport();
+				var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				if(selectedQuestionId.length>=1){
+					showStarredAdmitUnstarredReport(selectedQuestionId);
+				}else{
+					showStarredAdmitUnstarredReport('');
+				}				
 			});
 			//------stats reports as html-----------------------ends----------------
 		});
