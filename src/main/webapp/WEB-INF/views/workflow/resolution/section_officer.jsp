@@ -519,9 +519,10 @@
 		//**** Load actors on page load ****/
 		if($('#bulkedit').val()!='yes'&& $('#workflowstatus').val()!='COMPLETED'){
 			var statusType = $("#internalStatusType").val().split("_");
-			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
+			var id = $("#internalStatusMaster option[value$='_"+statusType[statusType.length-1]+"']").text();
 			$("#changeInternalStatus").val(id);
-			 loadActors($("#changeInternalStatus").val()); 
+			//loadActors($("#changeInternalStatus").val()); 
+			$("#changeInternalStatus").change();
 		} 
 	});
 	</script>

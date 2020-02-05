@@ -358,9 +358,6 @@
 					&nbsp; &nbsp;<input type="text" class="sText datetimemask" id="sumRepToDate" style="display: inline;">
 					<div id="goSumRep" style="display: inline; border: 2px solid black; width: 10px; height: 10px;">Go</div>
 				 </div> |
-				 <a href="javascript:void(0);" class="sentBackTasksReport" class="butSim">
-					<spring:message code="generic.report.sentBackTasksReport" text="Sent Back Tasks Report"/>
-				 </a> |
 			</security:authorize>	
 			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_CLERK')">	 
 				<a href="#" id="generateAdmissionReport" class="butSim">
