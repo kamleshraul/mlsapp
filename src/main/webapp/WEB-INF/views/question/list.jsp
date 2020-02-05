@@ -7,6 +7,7 @@
 		$(document).ready(function(){
 			$(".toolTip").hide();
 			$(".datemask").mask("99-99-9999");
+			$('.datetimemask').mask("99-99-9999,99:99:99");	
 			$("#selectionDiv1").show();							
 			/**** grid params which is sent to load grid data being sent ****/		
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
@@ -214,14 +215,45 @@
 				showVivranReport();
 			});
 			
-			$("#starredAdmitUnstarred").click(function(){
+			/* $("#starredAdmitUnstarred").click(function(){
 				var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
 				if(selectedQuestionId.length>=1){
 					showStarredAdmitUnstarredReport(selectedQuestionId);
 				}else{
 					showStarredAdmitUnstarredReport('');
 				}				
+			}); */
+			
+			$("#starredAdmitUnstarred").click(function(e){
+				if($("#sumRepDiv").css('display')=='none'){
+					$("#sumRepDiv").show();
+					$("#sumRepFromDate").val('');
+					$("#sumRepToDate").val('');
+				}else if($("#sumRepDiv").css('display')=='inline'){
+					$("#sumRepDiv").hide();
+				}
 			});
+			
+			$("#goSumRep").click(function(e){
+				$("#sumRepDiv").hide();
+				
+				var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				if(selectedQuestionId.length>=1){
+					showStarredAdmitUnstarredReport(selectedQuestionId);
+				}else{
+					showStarredAdmitUnstarredReport('');
+				}
+			
+			if(selectedWorkflowDetailsId != null && selectedWorkflowDetailsId.length >= 1){
+				showStarredAdmitUnstarredReport(selectedWorkflowDetailsId);
+				
+			}else{
+				showStarredAdmitUnstarredReport('');
+			}
+				
+			});
+			
+			$("#sumRepDiv").hide();
 			//------stats reports as html-----------------------ends----------------
 		});
 		/**** double clicking record in grid handler ****/
@@ -315,9 +347,20 @@
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
 				</a> |
+				<%-- <a href="#" id="starredAdmitUnstarred" class="butSim link">
+					<spring:message code="question.starredAdmitUnstarred" text="Question Summary Report"/>
+				</a> | --%>
 				<a href="#" id="starredAdmitUnstarred" class="butSim link">
 					<spring:message code="question.starredAdmitUnstarred" text="Question Summary Report"/>
-				</a> |
+				</a>
+				 <div id="sumRepDiv" style="display: inline;">
+					<input type="text" class="sText datetimemask" id="sumRepFromDate" style="display: inline;">
+					&nbsp; &nbsp;<input type="text" class="sText datetimemask" id="sumRepToDate" style="display: inline;">
+					<div id="goSumRep" style="display: inline; border: 2px solid black; width: 10px; height: 10px;">Go</div>
+				 </div> |
+				 <a href="javascript:void(0);" class="sentBackTasksReport" class="butSim">
+					<spring:message code="generic.report.sentBackTasksReport" text="Sent Back Tasks Report"/>
+				 </a> |
 			</security:authorize>	
 			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_CLERK')">	 
 				<a href="#" id="generateAdmissionReport" class="butSim">
