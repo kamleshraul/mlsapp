@@ -1717,6 +1717,8 @@
 				+ "&answeringDate="+$("#selectedModuleAsweringDate").val()
 				+ "&clubbingStatus="+$("#selectedClubbingStatus").val()
 				+ "&qId="+qId
+				+ "&fromDate=" + ($("#sumRepFromDate").val()==''?'0':$("#sumRepFromDate").val())
+				+ "&toDate=" + ($("#sumRepToDate").val()==''?'0':$("#sumRepToDate").val())
 				+ "&report=STARRED_ADMIT_CONVERT_TO_UNSTARRED_REPORT";
 				
 				if(qId.length>0) {
