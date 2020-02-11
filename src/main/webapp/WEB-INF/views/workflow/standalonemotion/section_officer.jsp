@@ -671,7 +671,7 @@
 		//**** Load Actors On Start Up ****/
 		if($('#workflowstatus').val()!='COMPLETED'){
 			var statusType = $("#internalStatusType").val().split("_");
-			var items = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']");
+			var items = $("#internalStatusMaster option[value$='_"+statusType[statusType.length-1]+"']");
 			var id= $(items[0]).text().trim();
 			$("#changeInternalStatus").val(id);
 			$("#changeInternalStatus").change();
