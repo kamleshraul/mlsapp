@@ -9147,6 +9147,8 @@ public class ReferenceController extends BaseController {
 				Question.updateCurNumber(num, houseType, strDevice);
 			}else if(strDevice.equals(ApplicationConstants.MOTION_CALLING_ATTENTION)){
 				Motion.updateCurNumber(num, houseType, strDevice);
+			}else if(strDevice.equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
+				Resolution.updateCurNumber(num, houseType, strDevice);
 			}else if(strDevice.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 				StandaloneMotion.updateCurNumber(num, houseType, strDevice);
 			}else if(strDevice.equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY)

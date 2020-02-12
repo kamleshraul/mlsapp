@@ -774,6 +774,21 @@ public class Resolution extends Device implements Serializable{
         return getResolutionRepository().assignResolutionNo(houseType, session, deviceType, locale);
     }
     
+    public static void updateCurNumber(final Integer num, final String houseType, final String device){
+    	
+    	if(device.equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
+    		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+    			Resolution.updateResolutionNonGovCurrentNumberLowerHouse(num);
+    		}
+    		
+    		if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+    			Resolution.updateResolutionNonGovCurrentNumberUpperHouse(num);
+    		}
+	    	
+	    	
+    	}
+    }
+    
     /**
      * Gets the revisions for other than government resolution.
      *
