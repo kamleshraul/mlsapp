@@ -145,6 +145,9 @@
 		}else if(type==value || value==sendToMember){			
 		    valueToSend=$("#internalStatus").val();
 		    $("#endFlag").val("continue");
+	    }else if(value==sendBack || value==discuss){			
+		    valueToSend=$("#internalStatus").val();
+		    $("#endFlag").val("continue");
 	    } else {
 		    valueToSend=value;
 		    $("#internalStatus").val(value);
