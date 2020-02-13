@@ -242,15 +242,7 @@
 					showStarredAdmitUnstarredReport(selectedQuestionId);
 				}else{
 					showStarredAdmitUnstarredReport('');
-				}
-			
-			if(selectedWorkflowDetailsId != null && selectedWorkflowDetailsId.length >= 1){
-				showStarredAdmitUnstarredReport(selectedWorkflowDetailsId);
-				
-			}else{
-				showStarredAdmitUnstarredReport('');
-			}
-				
+				}				
 			});
 			
 			$("#sumRepDiv").hide();
