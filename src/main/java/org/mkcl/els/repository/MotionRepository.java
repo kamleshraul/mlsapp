@@ -714,7 +714,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 					" AND m.locale=:locale" +
 					" AND m.status=:status" + 
 					" AND m.createdBy=:createdBy" +
-					" ORDER BY m.submissionDate "+ ApplicationConstants.ASC;
+					" ORDER BY m.submissionPriority "+ ApplicationConstants.ASC;
 			TypedQuery<Motion> query = this.em().createQuery(strQuery, Motion.class);
 			query.setParameter("session", session);
 			query.setParameter("motionType", motionType);
