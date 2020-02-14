@@ -564,7 +564,7 @@
 				if(id.indexOf("rq")!=-1){					
 				var questionId=$("#id").val();
 				var refId=id.split("rq")[1];				
-				$.post('refentity/dereferencing?pId='+questionId+"&rId="+refId,function(data){
+				$.post('refentity/dereferencing?pId='+questionId+"&rId="+refId+"&device="+$("#questionType").val(),function(data){
 					if(data=='SUCCESS'){
 						$.prompt("Dereferencing Successful");				
 						}else{
