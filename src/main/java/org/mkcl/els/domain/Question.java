@@ -3096,7 +3096,10 @@ public class Question extends Device implements Serializable {
 		} else {
 			/** 03-01-2017 may be hack and should be removed if found incorrect **/
 			if(question.getAnsweringDate()!=null && question.getChartAnsweringDate()!=null) {
-				if(question.getAnsweringDate().getAnsweringDate().after(question.getChartAnsweringDate().getAnsweringDate())) {
+				if(processingMode.equals(ApplicationConstants.UPPER_HOUSE) && question.getAnsweringDate().getAnsweringDate().after(question.getChartAnsweringDate().getAnsweringDate())) {
+					questionDates = question.getAnsweringDate();
+				} else if(processingMode.equals(ApplicationConstants.LOWER_HOUSE) && question.getBallotStatus()!=null 
+						&& question.getAnsweringDate().getAnsweringDate().after(question.getChartAnsweringDate().getAnsweringDate())) {
 					questionDates = question.getAnsweringDate();
 				} else {
 					questionDates = question.getChartAnsweringDate();
