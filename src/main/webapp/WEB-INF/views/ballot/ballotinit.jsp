@@ -419,7 +419,9 @@
 			});			
 			
 			$("#update_yaadi").click(function(){
-				var selectedAnsweringDateId = $('#selectedAnsweringDate').val();
+				$.prompt("Please call administrator to open this link on the day before generating yaadi! ");
+				return false;
+				/*var selectedAnsweringDateId = $('#selectedAnsweringDate').val();
 				var selectedAnsweringDate = $("#answeringDateMaster option[value='"+selectedAnsweringDateId+"']").text();
 				//console.log("selectedAnsweringDate: " + selectedAnsweringDate);
 				//console.log("currentDate: " + new Date());
@@ -441,7 +443,7 @@
 					if(data){
 						$("#ballotResultDiv").html(data);
 					}
-				});
+				});*/
 			});
 			
 			$("#view_yaadi").click(function(){
