@@ -986,6 +986,9 @@ public class ResolutionReportController extends BaseController{
 		model.addAttribute("locale", locale.toString());
 		model.addAttribute("report", report);
 		
+		Role role = Role.findByType("ROIS_PRINCIPALSECRETARY", locale.toString());
+		model.addAttribute("userRole", role.getType());
+		
 		return "resolution/reports/"+request.getParameter("reportout");
 	}
 	
