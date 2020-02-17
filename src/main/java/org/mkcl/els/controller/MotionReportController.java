@@ -17,18 +17,22 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.xmlvo.DeviceXmlVO;
 import org.mkcl.els.common.xmlvo.XmlVO;
 import org.mkcl.els.domain.ActivityLog;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.slf4j.Logger;
@@ -997,7 +1001,66 @@ public class MotionReportController extends BaseController{
 			}
 		}
 	}
-
+	
+		//Print functionality for members for submitted motions
+		//komala		
+		@RequestMapping(value="/motionPrintReport", method=RequestMethod.GET)
+		public void getMotionReport(HttpServletRequest request, HttpServletResponse response, Model model, Locale locale){
+			File reportFile = null; 
+			String strMotionId = request.getParameter("motionId");	
+			String reportFormat=request.getParameter("outputFormat");
+			
+			Motion motion = Motion.findById(Motion.class, Long.parseLong(strMotionId));
+			
+			DeviceXmlVO deviceXmlVO = new DeviceXmlVO();
+			deviceXmlVO.setHouseType(motion.getType().getName());//deviceType
+			if(motion.getNumber()!=null){
+				deviceXmlVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(motion.getNumber(), locale.toString()));//question number
+			}
+			if(motion.getSubmissionDate()!=null){
+				deviceXmlVO.setSubmissionDate(FormaterUtil.formatDateToString(motion.getSubmissionDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale.toString()));//submission date
+			}
+			deviceXmlVO.setMemberNames(motion.getPrimaryMember().findFirstLastName());//Member Name
+			deviceXmlVO.setSubject(motion.getSubject());//subject
+			deviceXmlVO.setContent(motion.getDetails());//Question Text
+			deviceXmlVO.setConstituency(motion.getPrimaryMember().findConstituency().getDisplayName());//constituency		
+			Status memberStatus = motion.findMemberStatus();
+			deviceXmlVO.setStatus(memberStatus.getName());//status
+			deviceXmlVO.setMinistryName(motion.getMinistry().getName());//Ministry Name
+			deviceXmlVO.setSubdepartmentName(motion.getSubDepartment().getName());//Subdepartment name
+			if(motion.getAnsweringDate()!=null){
+				deviceXmlVO.setAnsweringDate(motion.getAnsweringDate().toString());//Answering Date
+			}
+			StringBuffer allMemberNamesBuffer = new StringBuffer("");
+			Member member = null;
+			String memberName = "";
+			List<SupportingMember> supportingMembers = motion.getSupportingMembers();
+			if (supportingMembers != null) {
+				for (SupportingMember sm : supportingMembers) {
+					  member = sm.getMember();
+					Status approvalStatus = sm.getDecisionStatus();
+					if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+						memberName = member.findFirstLastName();
+						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+							if(allMemberNamesBuffer.length()>0) {
+								allMemberNamesBuffer.append(", " + memberName);
+							} else {
+								allMemberNamesBuffer.append(memberName);
+							}									
+						}									
+					}				
+				}
+			}	
+			deviceXmlVO.setSupportingMembers(allMemberNamesBuffer.toString());
+		
+			try {
+				reportFile = generateReportUsingFOP(deviceXmlVO, "template_motion_report", reportFormat, "question_"+motion.getNumber(), locale.toString());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);
+		}
 }
 
 

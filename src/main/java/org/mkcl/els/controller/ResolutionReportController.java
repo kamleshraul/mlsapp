@@ -24,6 +24,7 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.ChartVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.common.xmlvo.DeviceXmlVO;
 import org.mkcl.els.common.xmlvo.ResolutionIntimationLetterXmlVO;
 import org.mkcl.els.common.xmlvo.ResolutionXmlVO;
 import org.mkcl.els.domain.ActivityLog;
@@ -42,6 +43,7 @@ import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
+import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
@@ -1234,4 +1236,39 @@ public class ResolutionReportController extends BaseController{
 		}
 	}
 	
+		//Print functionality for members for submitted resolutions
+		//komala
+		@RequestMapping(value="/resolutionPrintReport", method=RequestMethod.GET)
+		public void getResolutionReport(HttpServletRequest request, HttpServletResponse response, Model model, Locale locale){
+			File reportFile = null; 
+			String resolutionId = request.getParameter("resolutionId");	
+			String reportFormat=request.getParameter("outputFormat");
+			
+			Resolution resolution = Resolution.findById(Resolution.class, Long.parseLong(resolutionId));
+			
+			DeviceXmlVO deviceXmlVO = new DeviceXmlVO();
+			deviceXmlVO.setHouseType(resolution.getType().getName());//deviceType
+			if(resolution.getNumber()!=null){
+				deviceXmlVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(resolution.getNumber(), locale.toString()));//question number
+			}
+			if(resolution.getSubmissionDate()!=null){
+				deviceXmlVO.setSubmissionDate(FormaterUtil.formatDateToString(resolution.getSubmissionDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale.toString()));//submission date
+			}
+			deviceXmlVO.setMemberNames(resolution.getMember().findFirstLastName());//Member Name
+			deviceXmlVO.setSubject(resolution.getSubject());//subject
+			deviceXmlVO.setContent(resolution.getNoticeContent());//Notice Content
+			deviceXmlVO.setConstituency(resolution.getMember().findConstituency().getDisplayName());//constituency		
+			Status memberStatus = resolution.findMemberStatus();
+			deviceXmlVO.setStatus(memberStatus.getName());//status
+			deviceXmlVO.setMinistryName(resolution.getMinistry().getName());//Ministry Name
+			deviceXmlVO.setSubdepartmentName(resolution.getSubDepartment().getName());//Subdepartment name			
+		
+			try {
+				reportFile = generateReportUsingFOP(deviceXmlVO, "template_resolution_report", reportFormat, "resolution_"+resolution.getNumber(), locale.toString());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);
+		}
 }

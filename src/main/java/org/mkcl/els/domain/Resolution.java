@@ -1986,6 +1986,34 @@ public class Resolution extends Device implements Serializable{
 		}
 		return draft;
 	}
+	
+	//Status from member side only.
+	//Komala
+    public Status findMemberStatus() {	
+		Status memberStatus = null;
+		try {
+			if (this.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+				if(this.getInternalStatusLowerHouse()!=null && this.getInternalStatusLowerHouse().getPriority()>=300) {
+					memberStatus = Status.findByType(ApplicationConstants.RESOLUTION_SUBMIT, this.getLocale());
+				}
+				else {
+					memberStatus = this.getInternalStatusLowerHouse();
+				}
+			}
+			else if (this.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+				if(this.getInternalStatusLowerHouse()!=null && this.getInternalStatusUpperHouse().getPriority()>=300) {
+					memberStatus = Status.findByType(ApplicationConstants.RESOLUTION_SUBMIT, this.getLocale());
+				}
+				else {
+					memberStatus = this.getInternalStatusUpperHouse();
+				}
+			}
+			
+		} catch (Exception e) {
+			return null;
+		}		
+		return memberStatus;
+	}
     
 	/**** Getters and Setters ****/
 	/**
