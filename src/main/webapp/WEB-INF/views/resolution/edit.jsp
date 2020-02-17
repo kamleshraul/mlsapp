@@ -259,6 +259,17 @@
 		$('#new_record_ForNew').click(function(){	
 			newResolution_ForNew();
 		});
+		
+		//print pdf
+		$('#Generate_PDF').click(function () { 
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 	
+			var parameters = {	resolutionId:$("#id").val(),
+			 					outputFormat:"PDF"
+							};
+			resourceURL = 'resolution/report/resolutionPrintReport' + parameters;
+			form_submit('resolution/report/resolutionPrintReport', parameters, 'GET');
+			$.unblockUI();
+		});
 	});
 	
 	/**** new question ****/
@@ -280,6 +291,11 @@
 <c:if test="${(error!='') && (error!=null)}">
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
+<div style="text-align: right">
+		<a href="#" id="Generate_PDF">
+			<img src="./resources/images/pdf_icon.png" style="width:25px;height:25px;">
+		</a>
+</div>
 <div class="fields clearfix watermark">
 <form:form action="resolution" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>

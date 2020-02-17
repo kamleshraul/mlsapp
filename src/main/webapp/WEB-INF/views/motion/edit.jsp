@@ -268,6 +268,17 @@
 			$("#selectionDiv1").hide();	
 			newMotion();
 		});
+		
+		//print pdf
+		$('#Generate_PDF').click(function () { 
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 	
+			var parameters = {	motionId:$("#id").val(),
+			 					outputFormat:"PDF"
+							};
+			resourceURL = 'motion/report/motionPrintReport' + parameters;
+			form_submit('motion/report/motionPrintReport', parameters, 'GET');
+			$.unblockUI();
+		});
 	});	
 	</script>
 </head>
@@ -277,6 +288,11 @@
 <c:if test="${(error!='') && (error!=null)}">
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
+<div style="text-align: right">
+		<a href="#" id="Generate_PDF">
+			<img src="./resources/images/pdf_icon.png" style="width:25px;height:25px;">
+		</a>
+</div>
 <div class="fields clearfix watermark">
 	<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','MOIS_TYPIST')">			
 		<a href="#" id="new_record2" class="butSim">
