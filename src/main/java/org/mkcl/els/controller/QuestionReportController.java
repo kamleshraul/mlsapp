@@ -1476,7 +1476,8 @@ public class QuestionReportController extends BaseController{
 	public String getReport(HttpServletRequest request, Model model, Locale locale){
 		
 		Map<String, String[]> requestMap = request.getParameterMap();	
-		Boolean havingIN = Boolean.parseBoolean(request.getParameter("havingIN"));
+		//List report = Query.findReport(request.getParameter("report"), requestMap);
+		Boolean havingIN = Boolean.parseBoolean(request.getParameter("havingIN")); //optionally for selective parameter with IN query
 		List report = Query.findReport(request.getParameter("report"), requestMap, havingIN);
 		if(report != null && !report.isEmpty()){
 			Object[] obj = (Object[])report.get(0);

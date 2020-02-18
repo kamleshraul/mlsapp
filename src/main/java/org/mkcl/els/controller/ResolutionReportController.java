@@ -974,13 +974,17 @@ public class ResolutionReportController extends BaseController{
 	public String getReport(HttpServletRequest request, Model model, Locale locale){
 		
 		Map<String, String[]> requestMap = request.getParameterMap();
-		List report = Query.findReport(request.getParameter("report"), requestMap);
+		//List report = Query.findReport(request.getParameter("report"), requestMap);
+		Boolean havingIN = Boolean.parseBoolean(request.getParameter("havingIN")); //optionally for selective parameter with IN query
+		List report = Query.findReport(request.getParameter("report"), requestMap, havingIN);
 		if(report != null && !report.isEmpty()){
 			Object[] obj = (Object[])report.get(0);
 			if(obj != null){
 				
 				model.addAttribute("topHeader", obj[0].toString().split(";"));
 			}
+			List<String> serialNumbers = populateSerialNumbers(report, locale);
+			model.addAttribute("serialNumbers", serialNumbers);
 		}
 		model.addAttribute("formater", new FormaterUtil());
 		model.addAttribute("locale", locale.toString());
