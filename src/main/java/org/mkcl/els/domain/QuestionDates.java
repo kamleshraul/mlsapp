@@ -80,6 +80,10 @@ public class QuestionDates extends BaseDomain implements Serializable {
 
     /** flag for suchi publishing. */
     private Boolean suchiPublished;
+    
+    /** The time of ballot for questions with the answering date. */
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date ballotTime;
 
     /**** Constructors ****/
 
@@ -237,6 +241,14 @@ public class QuestionDates extends BaseDomain implements Serializable {
 
 	public void setSuchiPublishingDate(Date suchiPublishingDate) {
 		this.suchiPublishingDate = suchiPublishingDate;
+	}
+
+	public Date getBallotTime() {
+		return ballotTime;
+	}
+
+	public void setBallotTime(Date ballotTime) {
+		this.ballotTime = ballotTime;
 	}
 
 	/**** Added By Sandeep Singh (Jan 30 2013) ****/

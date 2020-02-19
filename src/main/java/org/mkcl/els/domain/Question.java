@@ -3098,7 +3098,9 @@ public class Question extends Device implements Serializable {
 			if(question.getAnsweringDate()!=null && question.getChartAnsweringDate()!=null) {
 				if(processingMode.equals(ApplicationConstants.UPPER_HOUSE) && question.getAnsweringDate().getAnsweringDate().after(question.getChartAnsweringDate().getAnsweringDate())) {
 					questionDates = question.getAnsweringDate();
-				} else if(processingMode.equals(ApplicationConstants.LOWER_HOUSE) && question.getBallotStatus()!=null 
+				} else if(processingMode.equals(ApplicationConstants.LOWER_HOUSE) && question.getBallotStatus()==null 
+						&& question.getChartAnsweringDate().getBallotTime()!=null
+						&& new Date().after(question.getChartAnsweringDate().getBallotTime())
 						&& question.getAnsweringDate().getAnsweringDate().after(question.getChartAnsweringDate().getAnsweringDate())) {
 					questionDates = question.getAnsweringDate();
 				} else {
