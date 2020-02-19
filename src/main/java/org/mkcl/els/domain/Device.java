@@ -141,32 +141,34 @@ public abstract class Device extends BaseDomain {
             		StandaloneMotion.updateHDSCurrentNumberUpperHouse(number);
         		}
             	
-            	/** update lowerhouse static current number for budgetary cutmotions **/
-            	if (CutMotion.getBudgetaryCutMotionCurrentNumberLowerHouse() == 0) {
-            		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, budgetaryCutMotionDeviceType);
-            		number = CutMotion.assignCutMotionNo(lowerHouseType, latestLowerHouseSession, budgetaryCutMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
-            		CutMotion.updateBudgetaryCutMotionCurrentNumberLowerHouse(number);
-        		}
+//            	/** update lowerhouse static current number for budgetary cutmotions **/
+//            	if (CutMotion.getBudgetaryCutMotionCurrentNumberLowerHouse() == 0) {
+//            		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, budgetaryCutMotionDeviceType);
+//            		number = CutMotion.assignCutMotionNo(lowerHouseType, latestLowerHouseSession, budgetaryCutMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+//            		CutMotion.updateBudgetaryCutMotionCurrentNumberLowerHouse(number);
+//        		}
+//            	
+//            	/** update upperhouse static current number for budgetary cutmotions **/
+//            	if (CutMotion.getBudgetaryCutMotionCurrentNumberUpperHouse() == 0) {
+//            		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, budgetaryCutMotionDeviceType);
+//            		number = CutMotion.assignCutMotionNo(upperHouseType, latestUpperHouseSession, budgetaryCutMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+//            		CutMotion.updateBudgetaryCutMotionCurrentNumberUpperHouse(number);
+//        		}
             	
-            	/** update upperhouse static current number for budgetary cutmotions **/
-            	if (CutMotion.getBudgetaryCutMotionCurrentNumberUpperHouse() == 0) {
-            		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, budgetaryCutMotionDeviceType);
-            		number = CutMotion.assignCutMotionNo(upperHouseType, latestUpperHouseSession, budgetaryCutMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
-            		CutMotion.updateBudgetaryCutMotionCurrentNumberUpperHouse(number);
-        		}
-            	
-            	/** update lowerhouse static current number for supplementary cutmotions **/
+            	/** update lowerhouse static current number for supplementary and budgetary cutmotions **/
             	if (CutMotion.getSupplementaryCutMotionCurrentNumberLowerHouse() == 0) {
             		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, supplementaryCutMotionDeviceType);
             		number = CutMotion.assignCutMotionNo(lowerHouseType, latestLowerHouseSession, supplementaryCutMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
             		CutMotion.updateSupplementaryCutMotionCurrentNumberLowerHouse(number);
+            		CutMotion.updateBudgetaryCutMotionCurrentNumberLowerHouse(number);
         		}
             	
-            	/** update upperhouse static current number for supplementary cutmotions **/
+            	/** update upperhouse static current number for supplementary and budgetary cutmotions **/
             	if (CutMotion.getSupplementaryCutMotionCurrentNumberUpperHouse() == 0) {
             		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, supplementaryCutMotionDeviceType);
             		number = CutMotion.assignCutMotionNo(upperHouseType, latestUpperHouseSession, supplementaryCutMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
             		CutMotion.updateSupplementaryCutMotionCurrentNumberUpperHouse(number);
+            		CutMotion.updateBudgetaryCutMotionCurrentNumberUpperHouse(number);
         		}
             	
             	/** update lowerhouse static current number for adjournment motions **/

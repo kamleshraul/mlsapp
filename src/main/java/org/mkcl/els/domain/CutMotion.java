@@ -416,7 +416,7 @@ public class CutMotion extends Device implements Serializable {
 	 }
 	
 	public static Integer assignCutMotionNo(final HouseType houseType,
-			final Session session,final DeviceType type,final String locale) {
+			final Session session,final DeviceType type,final String locale) throws ELSException {
 		return getCutMotionRepository().assignCutMotionNo(houseType,session,type,locale);
 	}
 
@@ -692,19 +692,23 @@ public class CutMotion extends Device implements Serializable {
     	if(device.equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY)){
     		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
     			CutMotion.updateBudgetaryCutMotionCurrentNumberLowerHouse(num);
+    			CutMotion.updateSupplementaryCutMotionCurrentNumberLowerHouse(num);
     		}
     		
     		if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
     			CutMotion.updateBudgetaryCutMotionCurrentNumberUpperHouse(num);
+    			CutMotion.updateSupplementaryCutMotionCurrentNumberUpperHouse(num);
     		}  	
 	    	
     	} else if(device.equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)){
     		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
     			CutMotion.updateSupplementaryCutMotionCurrentNumberLowerHouse(num);
+    			CutMotion.updateBudgetaryCutMotionCurrentNumberLowerHouse(num);
     		}
     		
     		if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
     			CutMotion.updateSupplementaryCutMotionCurrentNumberUpperHouse(num);
+    			CutMotion.updateBudgetaryCutMotionCurrentNumberUpperHouse(num);
     		}	    	
 	    	
     	}

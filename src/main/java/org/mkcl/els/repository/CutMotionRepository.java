@@ -1,6 +1,7 @@
 package org.mkcl.els.repository;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,6 +12,7 @@ import javax.persistence.TypedQuery;
 import name.fraser.neil.plaintext.diff_match_patch;
 import name.fraser.neil.plaintext.diff_match_patch.Diff;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.Reference;
@@ -20,6 +22,7 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.CutMotionDraft;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Session;
@@ -60,18 +63,44 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 	}
 
 	public Integer assignCutMotionNo(final HouseType houseType,final Session session,
-			final DeviceType type,final String locale) {
-		String strCutMotionType = type.getType();
-		String strQuery = "SELECT m FROM CutMotion m"
-				+ " JOIN m.session s"
-				+ " JOIN m.deviceType dt"
-				+ " WHERE dt.type =:cutMotionType"
-				+ " AND s.id=:sessionId"
-				+ " ORDER BY m.number " + ApplicationConstants.DESC;	
+			final DeviceType type,final String locale) throws ELSException {
+		String strHouseType = houseType.getType();
+		//String strCutMotionType = type.getType();
+		Long houseId = session.getHouse().getId();
+		String strQuery = null;
+		if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)) {
+			strQuery = "SELECT m FROM CutMotion m"
+					+ " JOIN m.session s"
+					+ " JOIN s.house h"
+					+ " JOIN m.deviceType dt"
+					+ " WHERE h.id = " + houseId
+					//+ " AND dt.type =:cutMotionType"
+					//+ " AND s.id=:sessionId"
+					+ " ORDER BY m.number " +ApplicationConstants.DESC;
+		} else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+			Session lowerHouseSession = Session.find(session.getYear(),
+					session.getType().getType(), ApplicationConstants.LOWER_HOUSE);
+			House lowerHouse = lowerHouseSession.getHouse();
+			
+			CustomParameter dbDateFormat =
+				CustomParameter.findByName(CustomParameter.class,"DB_DATETIMEFORMAT", "");
+			SimpleDateFormat simpleDateFormat =
+				FormaterUtil.getDateFormatter(dbDateFormat.getValue(),"en_US");
+			String lowerHouseFormationDate = simpleDateFormat.format(lowerHouse.getFormationDate());
+			
+			strQuery = "SELECT m FROM CutMotion m"
+					+ " JOIN m.deviceType dt"
+					+ " JOIN m.houseType ht"
+					+ " WHERE ht.type = '" + ApplicationConstants.UPPER_HOUSE + "'"
+					+ " AND m.submissionDate >= '" + lowerHouseFormationDate + "'"
+					//+ " AND dt.type =:cutMotionType"
+					//+ " AND s.id=:sessionId"
+					+ " ORDER BY m.number " +ApplicationConstants.DESC;
+		}
 		try {
 			TypedQuery<CutMotion> query=this.em().createQuery(strQuery, CutMotion.class);
-			query.setParameter("cutMotionType",strCutMotionType);
-			query.setParameter("sessionId",session.getId());
+			//query.setParameter("cutMotionType",strCutMotionType);			
+			//query.setParameter("sessionId",session.getId());
 			List<CutMotion> cutMotions = query.setFirstResult(0).setMaxResults(1).getResultList();
 			
 			if(cutMotions == null) {
