@@ -362,7 +362,7 @@
 					"resolution/report/currentstatusreport?device="+ device +"&reportType="+val+"&rId="+rId);
 		}
 		
-		function generateResolutionSummaryReport(){
+		function generateResolutionSummaryReport(roId){
 			$.get('ref/sessionbyhousetype/'+$("#selectedHouseType").val() +
 					'/' + $("#selectedSessionYear").val() + 
 					'/' + $("#selectedSessionType").val(),function(data){
@@ -375,7 +375,16 @@
 					+ "&statusId=" + $("#selectedStatus").val() 
 					+ "&subdepartmentId=" + $("#selectedSubdepartment").val()
 					+ "&reportout=resolution_summaryreport"
+					+ "&roId="+roId
+					+ "&fromDate=" + ($("#sumRepFromDate").val()==''?'0':$("#sumRepFromDate").val())
+					+ "&toDate=" + ($("#sumRepToDate").val()==''?'0':$("#sumRepToDate").val())
 					+ "&report=RESOLUTION_SUMMARY_REPORT";
+					
+					if(roId.length>0) {
+						url += "&havingIN=TRUE";
+					} else {
+						url += "&havingIN=FALSE";
+					}
 					
 					showTabByIdAndUrl('details_tab', url);
 				}

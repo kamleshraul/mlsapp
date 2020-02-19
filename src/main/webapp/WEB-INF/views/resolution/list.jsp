@@ -147,9 +147,32 @@
 				});	
 			});
 			
-			$("#generateResolutionSummaryReport").click(function(){
+			/*$("#generateResolutionSummaryReport").click(function(){
 				generateResolutionSummaryReport();
+			});*/
+			
+			$("#generateResolutionSummaryReport").click(function(){
+				if($("#sumRepDiv").css('display')=='none'){
+					$("#sumRepDiv").show();
+					$("#sumRepFromDate").val('');
+					$("#sumRepToDate").val('');
+				}else if($("#sumRepDiv").css('display')=='inline'){
+					$("#sumRepDiv").hide();
+				}
 			});
+			
+			$("#goSumRep").click(function(e){
+				$("#sumRepDiv").hide();
+				
+				var selectedResolutionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				if(selectedResolutionId.length>=1){
+					generateResolutionSummaryReport(selectedResolutionId);
+				}else{
+					generateResolutionSummaryReport('');
+				}				
+			});
+			
+			$("#sumRepDiv").hide();
 			
 			$("#registerReport").click(function(){
 				generateResolutionRegister();
@@ -193,19 +216,24 @@
 			</security:authorize>
 			
 			<security:authorize access="!hasAnyRole('ROIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
-				<a href="#" id="generateCurrentStatusReport" class="butSim">
-					<spring:message code="resolution.generateCurrentStatusReport" text="Generate Current Status Report"/>
-				</a> |
 				<a href="#" id="generateResolutionSummaryReport" class="butSim link">
 					<spring:message code="resolution.summaryReport" text="Resolution Summary Report"/>
+				</a>
+				<div id="sumRepDiv" style="display: inline;">
+					<input type="text" class="sText datetimemask" id="sumRepFromDate" style="display: inline;">
+					&nbsp; &nbsp;<input type="text" class="sText datetimemask" id="sumRepToDate" style="display: inline;">
+					<div id="goSumRep" style="display: inline; border: 2px solid black; width: 10px; height: 10px;">Go</div>
+				 </div> |
+				 <a href="#" id="generateCurrentStatusReport" class="butSim">
+					<spring:message code="resolution.generateCurrentStatusReport" text="Generate Current Status Report"/>
 				</a> |
 			</security:authorize>
 			
-			<security:authorize access="hasAnyRole('ROIS_ASSISTANT','ROIS_SECTION_OFFICER','ROIS_CLERK')">
+			<%-- <security:authorize access="hasAnyRole('ROIS_ASSISTANT','ROIS_SECTION_OFFICER','ROIS_CLERK')">
 				| <a href="#" id="online_offline_submission_count_report" class="butSim link">
 					<spring:message code="resolution.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
 				</a>
-			</security:authorize>
+			</security:authorize> --%>
 			
 			<security:authorize access="hasAnyRole('ROIS_ASSISTANT','ROIS_SECTION_OFFICER','ROIS_CLERK')">
 			<hr>

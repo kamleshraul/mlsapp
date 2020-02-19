@@ -98,6 +98,17 @@
 			</script>
 		<![endif]-->
 		
+		<style>
+			@media print {
+			    html, body {
+			      height:100vh; 
+			      margin: 0 !important; 
+			      padding: 0 !important;
+			      overflow: hidden;
+			    }
+			}
+		</style>
+		
 		<script type="text/javascript">
 			var server_time = null;
 
