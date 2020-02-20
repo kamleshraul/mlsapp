@@ -220,7 +220,7 @@
 			}						
 		});
 		
-	/* 	$('#changeSpecialMentionNoticeDate').click(function() {
+	 	$('#changeSpecialMentionNoticeDate').click(function() {
 			var yesLabel = $('#yesLabel').val();
 			var noLabel = $('#noLabel').val();
 			$.prompt('Do you really want to change the special mention notice date?', {
@@ -237,7 +237,7 @@
 					}
 				}
 			});			
-		}); */
+		}); 
 		
 		if($("#currentStatus").val()=='specialmentionnotice_submit'){
 			$("#ministry").attr("disabled","disabled");
@@ -382,6 +382,8 @@
 					<option value="${i[0]}" ${i[0]==selectedSpecialMentionNoticeDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
 				</c:forEach>
 				</select>
+				<a href="#" id="changeSpecialMentionNoticeDate" style="margin-left: 10px;"><spring:message code="specialmentionnotice.changeSpecialMentionNoticeDate" text="Change Special Mention Notice Date"/></a>
+				
 			</p>
 			
 			

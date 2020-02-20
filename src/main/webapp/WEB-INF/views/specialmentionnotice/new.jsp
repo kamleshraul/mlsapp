@@ -209,7 +209,7 @@ mentionnotice" text="Special Mention Notice"/>
 			}
 		});
 		
-	/* 	$('#changeSpecialMentionNoticeDate').click(function() {
+	 	$('#changeSpecialMentionNoticeDate').click(function() {
 			var yesLabel = $('#yesLabel').val();
 			var noLabel = $('#noLabel').val();
 			$.prompt('Do you really want to change the special mention notice date?', {
@@ -219,14 +219,14 @@ mentionnotice" text="Special Mention Notice"/>
 				],
 				callback: function(v) {
 					if(v) {
-						$('#specialmenntionnoticeDate').removeAttr('disabled');
+						$('#specialMentionNoticeDate').removeAttr('disabled');
 						$('#changeSpecialMentionNoticeDate').hide();
 					} else {
 						return false;
 					}
 				}
 			});			
-		}); */
+		}); 
 	});
 	</script>
 </head>
@@ -317,6 +317,7 @@ mentionnotice" text="Special Mention Notice"/>
 					<option value="${i[0]}" ${i[0]==defaultSpecialMentionNoticeDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
 				</c:forEach>
 				</select>
+				<a href="#" id="changeSpecialMentionNoticeDate" style="margin-left: 10px;"><spring:message code="specialmentionnotice.changeSpecialMentionNoticeDate" text="Change Special Mention Notice Date"/></a>
 			</p>
 			
 			<p>
