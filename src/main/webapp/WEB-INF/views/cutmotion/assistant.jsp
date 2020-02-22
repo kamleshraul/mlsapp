@@ -1131,6 +1131,7 @@
 	<form:hidden path="file"/>
 	<form:hidden path="fileIndex"/>	
 	<form:hidden path="fileSent"/>
+	<form:hidden path="internalNumber"/>
 	<form:hidden path="transferToDepartmentAccepted"/>
 	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<form:hidden path="reasonForLateReply"/>
@@ -1138,6 +1139,9 @@
 		<input type="hidden" id="lastDateOfReplyReceiving" name="setLastDateOfReplyReceiving" class="datemask sText" value="${formattedLastReplyReceivingDate}"/>
 	</c:if>
 	<input type="hidden" id="replyReceivedMode" name="replyReceivedMode" value="${domain.replyReceivedMode}"/>
+	<input type="hidden" name="yaadiMinistry" id="yaadiMinistry" value="${yaadiMinistry}">
+	<input type="hidden" name="yaadiDepartment" id="yaadiDepartment" value="${yaadiDepartment}">
+	<input type="hidden" name="yaadiSubDepartment" id="yaadiSubDepartment" value="${yaadiSubDepartment}">
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">		
 	<input id="taskid" name="taskid" value="${taskid}" type="hidden">	
 	<input type="hidden" name="status" id="status" value="${status }">

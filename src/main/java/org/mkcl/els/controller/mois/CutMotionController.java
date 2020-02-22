@@ -630,6 +630,17 @@ public class CutMotionController extends GenericController<CutMotion>{
 		/**** Locale ****/
 		String locale = domain.getLocale();
 		model.addAttribute("formater", new FormaterUtil());
+		
+		try {
+			Integer curNumber = CutMotion.
+					assignCutMotionNo(domain.getHouseType(), domain.getSession(), domain.getDeviceType(), domain.getLocale());
+			if(curNumber!=null) {
+				System.out.println("curNumber: " + curNumber);
+			}
+		} catch (ELSException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		/**** House Type ****/
 		HouseType houseType = domain.getHouseType();
@@ -995,6 +1006,19 @@ public class CutMotionController extends GenericController<CutMotion>{
 			model.addAttribute("formattedReplyReceivedDate", 
 					FormaterUtil.formatDateToString(domain.getReplyReceivedDate(),
 							ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+		}
+		/**** Yaadi related things ****/
+		//populate ministry from final yaadi
+		if(domain.getYaadiMinistry()!=null) {
+			model.addAttribute("yaadiMinistry",domain.getYaadiMinistry().getId());
+		}
+		//populate department from final yaadi
+		if(domain.getYaadiDepartment()!=null) {
+			model.addAttribute("yaadiDepartment",domain.getYaadiDepartment().getId());
+		}
+		//populate sub-department from final yaadi
+		if(domain.getYaadiSubDepartment()!=null) {
+			model.addAttribute("yaadiSubDepartment",domain.getYaadiSubDepartment().getId());
 		}
 	}
 
@@ -1558,6 +1582,19 @@ public class CutMotionController extends GenericController<CutMotion>{
 			model.addAttribute("formattedReplyReceivedDate", 
 					FormaterUtil.formatDateToString(domain.getReplyReceivedDate(),
 							ApplicationConstants.SERVER_DATETIMEFORMAT, domain.getLocale()));
+		}
+		/**** Yaadi related things ****/
+		//populate ministry from final yaadi
+		if(domain.getYaadiMinistry()!=null) {
+			model.addAttribute("yaadiMinistry",domain.getYaadiMinistry().getId());
+		}
+		//populate department from final yaadi
+		if(domain.getYaadiDepartment()!=null) {
+			model.addAttribute("yaadiDepartment",domain.getYaadiDepartment().getId());
+		}
+		//populate sub-department from final yaadi
+		if(domain.getYaadiSubDepartment()!=null) {
+			model.addAttribute("yaadiSubDepartment",domain.getYaadiSubDepartment().getId());
 		}
 		model.addAttribute("formater", new FormaterUtil());
 		super.populateUpdateIfErrors(model, domain, request);

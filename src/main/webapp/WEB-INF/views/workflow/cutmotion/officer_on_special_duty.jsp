@@ -906,6 +906,7 @@
 	<form:hidden path="file"/>
 	<form:hidden path="fileIndex"/>	
 	<form:hidden path="fileSent"/>
+	<form:hidden path="internalNumber"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">		
 	<input id="taskid" name="taskid" value="${taskid}" type="hidden">	
 	<input type="hidden" name="status" id="status" value="${status }">

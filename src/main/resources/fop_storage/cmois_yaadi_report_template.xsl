@@ -95,14 +95,20 @@
 			       			<xsl:when test="boolean(element_2) and count(element_2)>=1">			       				
 								<fo:block>
 									<fo:table table-layout="fixed">										
-										<fo:table-column column-number="1" column-width="2cm" />
-										<fo:table-column column-number="2" column-width="2cm" />
-										<fo:table-column column-number="3" column-width="12cm" />
+										<fo:table-column column-number="1" column-width="1cm" />
+										<fo:table-column column-number="2" column-width="1.5cm" />
+										<fo:table-column column-number="3" column-width="1.5cm" />
+										<fo:table-column column-number="4" column-width="12cm" />
 				                        <fo:table-header>
 											<fo:table-row>
 												<fo:table-cell border-top="solid 0.2mm black" border-bottom="solid 0.2mm black" display-align="before" text-align="center">
 													<fo:block font-weight="bold">
-														अनुक्रमांक
+														अ.क्र.
+													</fo:block>
+												</fo:table-cell>
+												<fo:table-cell border-top="solid 0.2mm black" border-bottom="solid 0.2mm black" display-align="before" text-align="center">
+													<fo:block font-weight="bold">
+														कपात
 													</fo:block>
 												</fo:table-cell>
 												<fo:table-cell border-top="solid 0.2mm black" border-bottom="solid 0.2mm black" display-align="before" text-align="center">
@@ -120,6 +126,11 @@
 												<fo:table-cell display-align="before" text-align="center">
 													<fo:block font-weight="bold">
 														&#160;
+													</fo:block>
+												</fo:table-cell>
+												<fo:table-cell display-align="before" text-align="center">
+													<fo:block font-weight="bold">
+														सूचना क्र.
 													</fo:block>
 												</fo:table-cell>
 												<fo:table-cell display-align="before" text-align="center">
@@ -143,6 +154,9 @@
 													<fo:block>&#160;</fo:block>
 												</fo:table-cell>
 												<fo:table-cell>
+													<fo:block>&#160;</fo:block>
+												</fo:table-cell>
+												<fo:table-cell>
 													<fo:block>&#160;</fo:block>																			
 												</fo:table-cell>																				
 											</fo:table-row> -->
@@ -151,6 +165,9 @@
 												<xsl:choose>
 													<xsl:when test="$rowCount=1 or ../element_2[$rowCount -1]/element_2_2 != element_2_2">
 														<fo:table-row>
+															<fo:table-cell>
+																<fo:block>&#160;</fo:block>
+															</fo:table-cell>
 															<fo:table-cell>
 																<fo:block>&#160;</fo:block>
 															</fo:table-cell>
@@ -183,6 +200,9 @@
 																	<fo:table-cell>
 																		<fo:block>&#160;</fo:block>
 																	</fo:table-cell>
+																	<fo:table-cell>
+																		<fo:block>&#160;</fo:block>
+																	</fo:table-cell>
 																	<fo:table-cell margin-left="12px">
 																		<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_2"/></fo:block>
 																		<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_3"/></fo:block>
@@ -209,6 +229,9 @@
 																			<fo:table-cell>
 																				<fo:block>&#160;</fo:block>
 																			</fo:table-cell>
+																			<fo:table-cell>
+																				<fo:block>&#160;</fo:block>
+																			</fo:table-cell>
 																			<fo:table-cell margin-left="12px">
 																				<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_5"/></fo:block>																			
 																			</fo:table-cell>																				
@@ -223,9 +246,14 @@
 													</xsl:otherwise>
 												</xsl:choose>
 												<fo:table-row>
-													<fo:table-cell margin-left="10px" padding="1.5px" display-align="before">
+													<fo:table-cell padding="1.5px" display-align="before">
 														<fo:block>
 															(<xsl:value-of select="element_2_1"/>)													
+														</fo:block>
+													</fo:table-cell>
+													<fo:table-cell margin-left="5px" padding="1.5px" display-align="before">
+														<fo:block>
+															<xsl:value-of select="element_2_12"/>									
 														</fo:block>
 													</fo:table-cell>
 													<fo:table-cell margin-left="10px" padding="1.5px" display-align="before">

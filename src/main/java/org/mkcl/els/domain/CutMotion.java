@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +48,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @JsonIgnoreProperties({"houseType", "session", "deviceType", "answeringDate",
 	"recommendationStatus", "supportingMembers", "department",
 	"drafts", "parent", "clubbedEntities","referencedEntities","discussionDate",
-	"noticeContent", "secondaryTitle", "subTitle", "creationDate"})
+	"noticeContent", "secondaryTitle", "subTitle", "creationDate", "yaadiMinistry", "yaadiDepartment", "yaadiSubDepartment"})
 public class CutMotion extends Device implements Serializable {
 
 	/**
@@ -203,6 +204,21 @@ public class CutMotion extends Device implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "subdepartment_id")
 	private SubDepartment subDepartment;
+	
+	/** The ministry. */
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "yaadi_ministry_id")
+	private Ministry yaadiMinistry;
+
+	/** The department. */
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "yaadi_department_id")
+	private Department yaadiDepartment;
+
+	/** The sub department. */
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "yaadi_subdepartment_id")
+	private SubDepartment yaadiSubDepartment;
 
 	/**** DRAFTS ****/
 	/** The drafts. */
@@ -836,10 +852,48 @@ public class CutMotion extends Device implements Serializable {
 		return getCutMotionRepository().findFinalizedCutMotionsByDepartment(session, deviceType, subDepartment, status, sortOrder, locale);
 	}
 	
+	public static Date findDiscussionDateForDepartment(final Session session,
+			final DeviceType deviceType,
+			final SubDepartment subDepartment,
+			final String locale) {
+		Date discussionDateForDepartment = null;
+		
+		Status dateAdmitted = Status.findByType(ApplicationConstants.CUTMOTIONDATE_FINAL_DATE_ADMISSION, locale);
+		CutMotionDate cutMotionDate=null;
+		try {
+			cutMotionDate = CutMotionDate.findCutMotionDateSessionDeviceType(session, deviceType, locale);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(cutMotionDate != null && cutMotionDate.getStatus().getType().equals(dateAdmitted.getType())){
+			for(CutMotionDepartmentDatePriority p : cutMotionDate.getDepartmentDates()){
+				if(p.getSubDepartment().getName().equals(subDepartment.getName())) {
+					discussionDateForDepartment = p.getDiscussionDate();
+					break;
+				}
+			}
+		}
+		if(discussionDateForDepartment!=null) {
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(discussionDateForDepartment);
+			calendar.set(Calendar.HOUR_OF_DAY, 6);
+			discussionDateForDepartment = calendar.getTime();
+		}
+		
+		return discussionDateForDepartment;
+	}
+	
 	public static Boolean assignCutMotionNumberByDepartment(final Session session,
 			final DeviceType deviceType,
 			final SubDepartment subDepartment,
 			final String locale) {
+		
+		//disallow assign number if discussion date processing time has reached
+		Date discussionDateForDepartment = CutMotion.findDiscussionDateForDepartment(session, deviceType, subDepartment, locale);
+		if(new Date().after(discussionDateForDepartment)) {
+			return false;
+		}
 		
 		/**** Assign number to admitted cutmotions ****/
 		boolean admittedMotionUpdated = false;
@@ -2374,6 +2428,30 @@ public class CutMotion extends Device implements Serializable {
 
 	public void setSubDepartment(SubDepartment subDepartment) {
 		this.subDepartment = subDepartment;
+	}
+
+	public Ministry getYaadiMinistry() {
+		return yaadiMinistry;
+	}
+
+	public void setYaadiMinistry(Ministry yaadiMinistry) {
+		this.yaadiMinistry = yaadiMinistry;
+	}
+
+	public Department getYaadiDepartment() {
+		return yaadiDepartment;
+	}
+
+	public void setYaadiDepartment(Department yaadiDepartment) {
+		this.yaadiDepartment = yaadiDepartment;
+	}
+
+	public SubDepartment getYaadiSubDepartment() {
+		return yaadiSubDepartment;
+	}
+
+	public void setYaadiSubDepartment(SubDepartment yaadiSubDepartment) {
+		this.yaadiSubDepartment = yaadiSubDepartment;
 	}
 
 	public List<CutMotionDraft> getDrafts() {

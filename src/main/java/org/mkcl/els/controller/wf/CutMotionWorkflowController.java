@@ -831,8 +831,27 @@ public class CutMotionWorkflowController extends BaseController {
 					&& (domain.getReply()==null || domain.getReply().isEmpty())) {
 				if(strReplyRequestedDate == null || strReplyRequestedDate.isEmpty()) {
 					domain.setReplyRequestedDate(new Date());
-				}				
-			}			
+				}
+				//set ministry, department and subdepartment for final yaadi at this stage
+				if(cutMotion.getYaadiMinistry()==null && domain.getYaadiMinistry()==null) {
+					domain.setYaadiMinistry(domain.getMinistry());
+				}
+				if(cutMotion.getYaadiDepartment()==null && domain.getYaadiDepartment()==null) {
+					domain.setYaadiDepartment(domain.getDepartment());
+				}
+				if(cutMotion.getYaadiSubDepartment()==null && domain.getYaadiSubDepartment()==null) {
+					domain.setYaadiSubDepartment(domain.getSubDepartment());
+				}
+			}	
+			if(cutMotion.getYaadiMinistry()!=null){
+				domain.setYaadiMinistry(cutMotion.getYaadiMinistry());
+			}
+			if(cutMotion.getYaadiDepartment()!=null){
+				domain.setYaadiDepartment(cutMotion.getYaadiDepartment());
+			}
+			if(cutMotion.getYaadiSubDepartment()!=null){
+				domain.setYaadiSubDepartment(cutMotion.getYaadiSubDepartment());
+			}
 			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
 					&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)
 					&& domain.getReply()!=null && !domain.getReply().isEmpty() && domain.getReplyReceivedDate()==null) {					
