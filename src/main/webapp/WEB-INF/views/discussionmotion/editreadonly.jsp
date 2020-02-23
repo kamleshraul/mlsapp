@@ -99,6 +99,10 @@
 	</c:if>
 	<c:if test="${!(empty supportingMembers)}">
 		<select  name="selectedSupportingMembersEdit" id="selectedSupportingMembersEdit" multiple="multiple" style="display:none;">
+		<c:if test="${(selectedDiscussionMotionType=='motions_discussionmotion_shortduration')
+			 and (!(empty numberOfSupportingMembersComparator) and !(empty numberOfSupportingMembers))}">
+			<label style="display: inline; border: 1px double blue; padding: 5px; background-color: #DCE4EF; font-weight: bold;" class="centerlabel" id="supportingMemberMessage"><spring:message code="question.numberOfsupportingMembers" text="Number of Supporting Members"></spring:message>&nbsp;${numberOfSupportingMembersComparatorHTML}&nbsp;${numberOfSupportingMembers}</label>										
+		</c:if>
 		<c:forEach items="${supportingMembers}" var="i">
 		<option value="${i.id}" selected="selected"></option>
 		</c:forEach>		
@@ -161,6 +165,12 @@
 	<p style="display:none;" class="revise" id="revisedQuestionTextEditDiv">
 	<label class="wysiwyglabel"><spring:message code="discussionmotion.revisedNoticeContent" text="Revised Notice Content"/></label>
 	<textarea id="revisedNoticeContentEdit" class="wysiwyg">${domain.revisedNoticeContent}</textarea>
+	</p>
+	
+	<p>
+		<label class="wysiwyglabel"><spring:message code="discussionmotion.briefExplanation" text="Brief Explanation"/>*</label>
+		<form:textarea path="briefExplanation" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
+		<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
 	
 	<p id="internalStatusDiv">

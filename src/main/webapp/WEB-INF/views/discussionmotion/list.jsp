@@ -53,6 +53,18 @@
 					showAdmissionReport(selectedId[0]);
 				}
 			});
+			
+			//------stats reports as html-----------------------starts----------------
+			$("#generateCurrentStatusReport").click(function(){
+				var selectedDiscussionMotionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				
+				if(selectedDiscussionMotionId.length>=1){
+					showCurrentStatusReport('multiple',selectedDiscussionMotionId);
+				}else{
+					showCurrentStatusReport('all','');
+				}
+			});
+			
 						
 			//---ADDED BY ANAND------------------
 			
@@ -136,10 +148,10 @@
 			$("#departmentIntimation_report").attr('href',
 					'discussionmotion/report/commonadmissionreport?discussionmotionId=' + id 
 							+ '&locale=' + $("#moduleLocale").val()
-							+ '&motionType=' + $("#selectedMotionType").val()
+							+ '&motionType=' + $("#selectedDiscussionMotionType").val()
 							+ '&outputFormat=' + $("#defaultReportFormat").val()
 							+ '&reportQuery=DISCUSSIONMOTION_DEPARTMENTINTIMATION_LETTER'
-							+ '&templateName=discussionmotion_publicimportance_department_intimationletter'
+							+ '&templateName=department_intimationletter'
 							+ '&houseType=' + $("#selectedHouseType").val()
 							+ '&reportName=departmentintimationletter');
 		
@@ -227,13 +239,17 @@
 							<spring:message code="generic.departmentIntimation_report" text="Department Intimation Letter"/>
 						</c:when>
 						<c:when test="${houseType=='upperhouse'}">
-							<spring:message code="generic.departmentIntimation_report" text="Admission Letter"/>
+							<spring:message code="generic.departmentIntimation_report" text="Department Intimation Letter"/>
 						</c:when>
 					</c:choose>
 				</a>
 				|
+				 <a href="#" id="generateCurrentStatusReport" class="butSim">
+					<spring:message code="discussionmotion.generateCurrentStatusReport" text="Generate Current Status Report"/>
+				</a> 
+				|
 						
-							
+					
 								<a href="javascript:void(0);" id="houseitem_report" class="butSim" >
 							<c:choose>
 								<c:when test="${houseType=='lowerhouse'}">
@@ -244,7 +260,7 @@
 								</c:when>
 							</c:choose>
 						</a>
-						
+				<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_shortduration'}">	
 							
 				<a href="javascript:void(0);" id="memberofoppositionreport" class="butSim" >
 					<c:choose>
@@ -296,6 +312,7 @@
 								</c:when>
 							</c:choose>
 						</a>
+						</c:if>
 				<hr> 
 		
 			

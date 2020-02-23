@@ -339,6 +339,10 @@ $('#ministries').change(function(){
 	<p>
 		<label class="centerlabel"><spring:message code="discussionmotion.supportingMembers" text="Supporting Members"/></label>
 		<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
+		<c:if test="${(selectedDiscussionMotionType=='motions_discussionmotion_shortduration')
+			 and (!(empty numberOfSupportingMembersComparator) and !(empty numberOfSupportingMembers))}">
+			<label style="display: inline; border: 1px double blue; padding: 5px; background-color: #DCE4EF; font-weight: bold;" class="centerlabel" id="supportingMemberMessage"><spring:message code="question.numberOfsupportingMembers" text="Number of Supporting Members"></spring:message>&nbsp;${numberOfSupportingMembersComparatorHTML}&nbsp;${numberOfSupportingMembers}</label>										
+		</c:if>
 		<c:if test="${!(empty supportingMembers)}">
 		<select  name="selectedSupportingMembers" multiple="multiple">
 		<c:forEach items="${supportingMembers}" var="i">
@@ -361,6 +365,13 @@ $('#ministries').change(function(){
 		<form:textarea path="noticeContent" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>		 
 		<form:errors path="noticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>	
+	<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_shortduration'}">
+	<p>
+		<label class="wysiwyglabel"><spring:message code="discussionmotion.briefExplanation" text="Brief Explanation"/>*</label>
+		<form:textarea path="briefExplanation" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
+		<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+	</p>
+	</c:if>
 	
 
 	<p>

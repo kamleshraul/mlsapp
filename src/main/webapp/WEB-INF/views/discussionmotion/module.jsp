@@ -122,7 +122,13 @@
 			$("#gridDataSaverDiv").show();
 		} */
 	}
-
+	function showCurrentStatusReport(val,dmId){
+		$("#selectionDiv1").hide();
+		var device = $("#deviceTypeMaster option[value='"
+		                                         +$("#selectedDeviceType").val()+"']").text().split("_")[0];
+		showTabByIdAndUrl('details_tab', 
+				"discussionmotion/report/currentstatusreport?device="+ device +"&reportType="+val+"&dmId="+dmId);
+	}
 	function refreshList(){
 		showDiscussionMotionList();
 	}
