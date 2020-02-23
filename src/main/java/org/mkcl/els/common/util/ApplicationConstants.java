@@ -1996,6 +1996,11 @@ public class ApplicationConstants {
 	
 	public static final String DISCUSSIONMOTION_CLUBBING_MODE = "DISCUSSIONMOTION_CLUBBING_MODE";
 	
+	public static final String DISCUSSIONMOTION_SHORTDURATION_NO_OF_SUPPORTING_MEMBERS="motions_discussionmotion_shortduration_numberOfSupportingMembers";
+
+	public static final String DISCUSSIONMOTION_SHORTDURATION_NO_OF_SUPPORTING_MEMBERS_COMPARATOR = "motions_discussionmotion_shortduration_numberOfSupportingMembersComparator";
+
+	
 	/**** EventMotion ****/
 	public static final String EVENTMOTION_CONDOLENCE = "motions_eventmotion_condolence";
 	public static final String EVENTMOTION_CONGRATULATORY = "motions_eventmotion_congratulatory";

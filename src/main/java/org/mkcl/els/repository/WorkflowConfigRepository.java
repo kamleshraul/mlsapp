@@ -3681,22 +3681,21 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 
 		return references;
 	}
-	private WorkflowConfig getLatest(final DiscussionMotion motion, final String internalStatus, final String locale) {
-		
+	public WorkflowConfig getLatest(final DiscussionMotion motion,final String internalStatus,final String locale) {
 		/**** Latest Workflow Configurations ****/
-		String[] temp = internalStatus.split("_");
-		String workflowName = temp[temp.length - 1] + "_workflow";
-		String strQuery = "SELECT wc FROM WorkflowConfig wc" +
+		String[] temp=internalStatus.split("_");
+		String workflowName=temp[temp.length-1]+"_workflow";
+		String strQuery="SELECT wc FROM WorkflowConfig wc" +
 				" JOIN wc.workflow wf" +
 				" JOIN wc.deviceType d " +
 				" JOIN wc.houseType ht" +
 				" WHERE d.id=:deviceTypeId" +
 				" AND wf.type=:workflowName" +
-				" AND ht.id=:houseTypeId" +
-				" AND wc.isLocked=true ORDER BY wc.id " + ApplicationConstants.DESC ;				
-		javax.persistence.Query query = this.em().createQuery(strQuery);
+				" AND ht.id=:houseTypeId"+
+				" AND wc.isLocked=true ORDER BY wc.id "+ApplicationConstants.DESC ;				
+		javax.persistence.Query query=this.em().createQuery(strQuery);
 		query.setParameter("deviceTypeId", motion.getType().getId());
-		query.setParameter("workflowName", workflowName);
+		query.setParameter("workflowName",workflowName);
 		query.setParameter("houseTypeId", motion.getHouseType().getId());
 		try{
 			return (WorkflowConfig) query.getResultList().get(0);

@@ -19,13 +19,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.CountsUsingGroupByReportVO;
 import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MinistryVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RoundVO;
-import org.mkcl.els.common.xmlvo.QuestionIntimationLetterXmlVO;
-import org.mkcl.els.common.xmlvo.QuestionYaadiSuchiXmlVO;
+import org.mkcl.els.common.xmlvo.DiscussionMotionIntimationLetterXmlVO;
 //import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.ActivityLog;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -41,15 +41,15 @@ import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Query;
-import org.mkcl.els.domain.Question;
-import org.mkcl.els.domain.QuestionDates;
+import org.mkcl.els.domain.DiscussionMotion;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
-import org.mkcl.els.domain.DiscussionMotion;
+
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
+import org.mkcl.els.domain.Title;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
@@ -160,13 +160,16 @@ public class DiscussionMotionReportController extends BaseController{
 			
 			String strId = request.getParameter("discussionmotionId");
 			String strReportFormat = request.getParameter("outputFormat");	
+			DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(request.getParameter("motionType")) );
+			
+			String templateName =deviceType.getType()+"_"+request.getParameter("templateName")+"_"+request.getParameter("houseType");
 			
 			if(strId != null && !strId.isEmpty()){
 				Map<String, String[]> parameters = request.getParameterMap();
 				
 				List reportData = Query.findReport(request.getParameter("reportQuery"), parameters);	
 				List reportData1 = Query.findReport(request.getParameter("reportQuery")+"_EXTRA_DETAILS", parameters);	
-				String templateName = request.getParameter("templateName");
+				
 				File reportFile = null;				
 				
 				reportFile = generateReportUsingFOP(new Object[] {((Object[])reportData.get(0))[0], reportData,reportData1}, templateName, strReportFormat, request.getParameter("reportName"), locale.toString());
@@ -253,13 +256,15 @@ public class DiscussionMotionReportController extends BaseController{
 			
 			String strId = request.getParameter("discussionmotionId");
 			String strReportFormat = request.getParameter("outputFormat");	
+			DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(strId) );
 			
+			String templateName =deviceType.getType()+"_"+request.getParameter("templateName")+"_"+request.getParameter("houseType");
 			if(strId != null && !strId.isEmpty()){
 				Map<String, String[]> parameters = request.getParameterMap();
 				
 				List reportData = Query.findReport(request.getParameter("reportQuery"), parameters);	
 				List reportData1 = Query.findReport(request.getParameter("reportQuery")+"_CLUBBED_DETAILS", parameters);	
-				String templateName = request.getParameter("templateName");
+				
 				File reportFile = null;				
 				
 				reportFile = generateReportUsingFOP(new Object[] {((Object[])reportData.get(0))[0], reportData,reportData1}, templateName, strReportFormat, request.getParameter("reportName"), locale.toString());
@@ -283,13 +288,16 @@ public class DiscussionMotionReportController extends BaseController{
 			
 			String strId = request.getParameter("discussionmotionId");
 			String strReportFormat = request.getParameter("outputFormat");	
+			DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(strId) );
+			
+			String templateName =deviceType.getType()+"_"+request.getParameter("templateName")+"_"+request.getParameter("houseType");
 			
 			if(strId != null && !strId.isEmpty()){
 				Map<String, String[]> parameters = request.getParameterMap();
 				
 				List reportData = Query.findReport(request.getParameter("reportQuery"), parameters);	
 				List reportData1 = Query.findReport(request.getParameter("reportQuery")+"_CLUBBED_DETAILS", parameters);	
-				String templateName = request.getParameter("templateName");
+			
 				File reportFile = null;				
 				
 				reportFile = generateReportUsingFOP(new Object[] {((Object[])reportData.get(0))[0], reportData,reportData1}, templateName, strReportFormat, request.getParameter("reportName"), locale.toString());
@@ -444,18 +452,18 @@ public class DiscussionMotionReportController extends BaseController{
 		String strDevice = request.getParameter("device");
 		String strReportType = request.getParameter("reportType");
 		String strWfid = request.getParameter("wfdId");
-		String strQid = request.getParameter("qId");
+		String strDMid = request.getParameter("dmId");
 		
 		WorkflowDetails wfd = null;
 		if(strWfid != null && !strWfid.isEmpty()){
 			wfd = WorkflowDetails.findById(WorkflowDetails.class, new Long(strWfid));
 			if(wfd != null){
-				model.addAttribute("qId", wfd.getDeviceId());
+				model.addAttribute("dmId", wfd.getDeviceId());
 			}
 		}
 		
-		if(strQid != null && !strQid.isEmpty()){
-			model.addAttribute("qId", strQid);
+		if(strDMid != null && !strDMid.isEmpty()){
+			model.addAttribute("dmId", strDMid);
 		}
 		
 		model.addAttribute("reportType", strReportType);
@@ -467,9 +475,9 @@ public class DiscussionMotionReportController extends BaseController{
 		return "discussionmotion/reports/statusreport";
 	}
 
-	@RequestMapping(value="/{qId}/currentstatusreportvm", method=RequestMethod.GET)
-	public String getCurrentStatusReportVM(@PathVariable("qId") Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
-				
+	@RequestMapping(value="/{dmId}/currentstatusreportvm", method=RequestMethod.GET)
+	public String getCurrentStatusReportVM(@PathVariable("dmId") Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+
 		response.setContentType("text/html; charset=utf-8");		
 		return DiscussionMotionReportHelper.getCurrentStatusReportData(id, model, request, response, locale);
 	}
@@ -480,33 +488,33 @@ public class DiscussionMotionReportController extends BaseController{
 		Boolean isError = false;
 		MessageResource errorMessage = null;
 
-		String strQuestionId = request.getParameter("questionId");		
+		String strDiscussionMotionId = request.getParameter("discussionmotionId");		
 		String strWorkflowId = request.getParameter("workflowId");
 		String intimationLetterFilter=request.getParameter("intimationLetterFilter");
 
-		//in case if request comes from workflow page, question id is retrived from workflow details
+		//in case if request comes from workflow page, discussionmotion id is retrived from workflow details
 		if(strWorkflowId!=null && !strWorkflowId.isEmpty()) {
 			WorkflowDetails workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
 			if(workflowDetails!=null) {
-				strQuestionId = workflowDetails.getDeviceId();
+				strDiscussionMotionId = workflowDetails.getDeviceId();
 			}
 		}
 
-		if(strQuestionId!=null && !strQuestionId.isEmpty()) {
-			DiscussionMotion question = DiscussionMotion.findById(DiscussionMotion.class, Long.parseLong(strQuestionId));
-			if(question!=null) {
-				QuestionIntimationLetterXmlVO letterVO = new QuestionIntimationLetterXmlVO();
-				DeviceType deviceType = question.getType();
+		if(strDiscussionMotionId!=null && !strDiscussionMotionId.isEmpty()) {
+			DiscussionMotion discussionmotion = DiscussionMotion.findById(DiscussionMotion.class, Long.parseLong(strDiscussionMotionId));
+			if(discussionmotion!=null) {
+				DiscussionMotionIntimationLetterXmlVO letterVO = new DiscussionMotionIntimationLetterXmlVO();
+				DeviceType deviceType = discussionmotion.getType();
 				letterVO.setDeviceType(deviceType.getName());
-				if(question.getNumber()!=null) {
-					letterVO.setNumber(FormaterUtil.formatNumberNoGrouping(question.getNumber(), question.getLocale()));
+				if(discussionmotion.getNumber()!=null) {
+					letterVO.setNumber(FormaterUtil.formatNumberNoGrouping(discussionmotion.getNumber(), discussionmotion.getLocale()));
 				}
-				HouseType houseType = question.getHouseType();
+				HouseType houseType = discussionmotion.getHouseType();
 				if(houseType!=null) {
 					letterVO.setHouseType(houseType.getType());
 					letterVO.setHouseTypeName(houseType.getName());
 				}	
-				Session session = question.getSession();
+				Session session = discussionmotion.getSession();
 				if(session!=null) {					
 					letterVO.setSessionPlace(session.getPlace().getPlace());
 					if(session.getNumber()!=null) {
@@ -516,41 +524,41 @@ public class DiscussionMotionReportController extends BaseController{
 						letterVO.setSessionYear(FormaterUtil.formatNumberNoGrouping(session.getYear(), locale.toString()));
 					}
 				}
-/*				Group group = question.getGroup();
+/*				Group group = discussionmotion.getGroup();
 				if(group!=null) {
-					letterVO.setGroupNumber(FormaterUtil.formatNumberNoGrouping(group.getNumber(), question.getLocale()));
+					letterVO.setGroupNumber(FormaterUtil.formatNumberNoGrouping(group.getNumber(), discussionmotion.getLocale()));
 				}*/
 				String formattedText = "";
-				if(question.getRevisedSubject()!=null && !question.getRevisedSubject().isEmpty()) {
-					formattedText = question.getRevisedSubject();					
+				if(discussionmotion.getRevisedSubject()!=null && !discussionmotion.getRevisedSubject().isEmpty()) {
+					formattedText = discussionmotion.getRevisedSubject();					
 				} else {
-					formattedText = question.getSubject();
+					formattedText = discussionmotion.getSubject();
 				}
-				//formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, question.getLocale());
+				//formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, discussionmotion.getLocale());
 				letterVO.setSubject(formattedText);
-				if(question.getParent()!=null) {
-					formattedText = question.getNoticeContent();
+				if(discussionmotion.getParent()!=null) {
+					formattedText = discussionmotion.getNoticeContent();
 				} else {
-					if(question.getRevisedNoticeContent()!=null && !question.getNoticeContent().isEmpty()) {
-						formattedText = question.getNoticeContent();					
+					if(discussionmotion.getRevisedNoticeContent()!=null && !discussionmotion.getNoticeContent().isEmpty()) {
+						formattedText = discussionmotion.getNoticeContent();					
 					} else {
-						formattedText = question.getNoticeContent();
+						formattedText = discussionmotion.getNoticeContent();
 					}
 				}				
-				//formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, question.getLocale());
-				letterVO.setQuestionText(formattedText);	
+				//formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, discussionmotion.getLocale());
+				letterVO.setDiscussionMotionText(formattedText);	
 				/**** populating member names with customized formatting ****/
 				String memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;
 				CustomParameter memberNameFormatParameter = null;
-				if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+				if(discussionmotion.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 					memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "INTIMATIONLETTER_MEMBERNAMEFORMAT_LOWERHOUSE", "");
-				} else if(question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+				} else if(discussionmotion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 					memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "INTIMATIONLETTER_MEMBERNAMEFORMAT_UPPERHOUSE", "");
 				}
 				if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
 					memberNameFormat = memberNameFormatParameter.getValue();
 				}
-				Member primaryMember = question.getPrimaryMember();
+				Member primaryMember = discussionmotion.getPrimaryMember();
 				if(primaryMember!=null) {
 					String primaryMemberName = primaryMember.findNameInGivenFormat(memberNameFormat);
 					if(primaryMemberName!=null) {
@@ -562,10 +570,10 @@ public class DiscussionMotionReportController extends BaseController{
 					//error code: No Primary Member Found.
 				}
 				String allMemberNames = null;
-				if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-					allMemberNames = question.findAllMemberNamesWithConstituencies(memberNameFormat);
-				} else if(question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-					allMemberNames = question.findAllMemberNames(memberNameFormat);
+				if(discussionmotion.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+					allMemberNames = discussionmotion.findAllMemberNamesWithConstituencies(memberNameFormat);
+				} else if(discussionmotion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+					allMemberNames = discussionmotion.findAllMemberNames(memberNameFormat);
 				}						
 				if(allMemberNames!=null && !allMemberNames.isEmpty()) {
 					letterVO.setMemberNames(allMemberNames);
@@ -576,10 +584,10 @@ public class DiscussionMotionReportController extends BaseController{
 					}					
 				} else {
 					isError = true;
-					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.intimationLetter.noMemberFound", locale.toString());
+					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "discussionmotion.intimationLetter.noMemberFound", locale.toString());
 				}	
 				try {
-					MemberMinister memberMinister = DiscussionMotion.findMemberMinisterIfExists(question);
+					MemberMinister memberMinister = DiscussionMotion.findMemberMinisterIfExists(discussionmotion);
 					if(memberMinister!=null) {
 						letterVO.setPrimaryMemberDesignation(memberMinister.getDesignation().getName());
 					} else {
@@ -588,7 +596,7 @@ public class DiscussionMotionReportController extends BaseController{
 				} catch(ELSException ex) {
 					letterVO.setPrimaryMemberDesignation("");
 				}
-			/*	SubDepartment subDepartment = question.getSubDepartment();
+			/*	SubDepartment subDepartment = discussionmotion.getSubDepartment();
 				if(subDepartment!=null) {
 					letterVO.setSubDepartment(subDepartment.getName());
 				}
@@ -597,11 +605,11 @@ public class DiscussionMotionReportController extends BaseController{
 					letterVO.setDepartment(department.getName());
 				}
 				*/
-				Status status = question.getInternalStatus();	
+				Status status = discussionmotion.getInternalStatus();	
 				String statusType=status.getType();
 				if(statusType.equals(ApplicationConstants.STANDALONE_RECOMMEND_REJECTION) || statusType.equals(ApplicationConstants.STANDALONE_FINAL_REJECTION)) {
-					if(question.getRejectionReason()!=null && !question.getRejectionReason().isEmpty()) {
-						formattedText = question.getRejectionReason();//FormaterUtil.formatNumbersInGivenText(question.getRejectionReason(), question.getLocale());
+					if(discussionmotion.getRejectionReason()!=null && !discussionmotion.getRejectionReason().isEmpty()) {
+						formattedText = discussionmotion.getRejectionReason();//FormaterUtil.formatNumbersInGivenText(discussionmotion.getRejectionReason(), discussionmotion.getLocale());
 						if(formattedText.endsWith("<br><p></p>")) {
 							formattedText = formattedText.substring(0, formattedText.length()-11);
 						} else if(formattedText.endsWith("<p></p>")) {
@@ -614,8 +622,8 @@ public class DiscussionMotionReportController extends BaseController{
 				}
 				
 	/*			*//** factual position (clarification) received from department **//*
-				if(question.getFactualPosition()!=null) {
-					formattedText = question.getFactualPosition();//FormaterUtil.formatNumbersInGivenText(question.getFactualPosition(), question.getLocale());
+				if(discussionmotion.getFactualPosition()!=null) {
+					formattedText = discussionmotion.getFactualPosition();//FormaterUtil.formatNumbersInGivenText(discussionmotion.getFactualPosition(), discussionmotion.getLocale());
 					if(formattedText.endsWith("<br><p></p>")) {
 						formattedText = formattedText.substring(0, formattedText.length()-11);
 					} else if(formattedText.endsWith("<p></p>")) {
@@ -626,11 +634,11 @@ public class DiscussionMotionReportController extends BaseController{
 					letterVO.setFactualPosition("");
 				} */
 				
-				/**** populating fields for half-hour discussion (common for standalone & from question) ****//*
-				if(question.getRevisedReason()!=null && !question.getRevisedReason().isEmpty()) {
-					formattedText = question.getRevisedReason();
-				} else if(question.getReason()!=null) {
-					formattedText = question.getReason();					
+				/**** populating fields for half-hour discussion (common for standalone & from discussionmotion) ****//*
+				if(discussionmotion.getRevisedReason()!=null && !discussionmotion.getRevisedReason().isEmpty()) {
+					formattedText = discussionmotion.getRevisedReason();
+				} else if(discussionmotion.getReason()!=null) {
+					formattedText = discussionmotion.getReason();					
 				} else {
 					formattedText = "";
 				}*/
@@ -642,10 +650,10 @@ public class DiscussionMotionReportController extends BaseController{
 				}
 				letterVO.setReason(formattedText);
 				
-	/*			if(question.getRevisedBriefExplanation()!=null && !question.getRevisedBriefExplanation().isEmpty()) {
-					formattedText = question.getRevisedBriefExplanation();
-				} else if(question.getBriefExplanation()!=null) {
-					formattedText = question.getBriefExplanation();
+	/*			if(discussionmotion.getRevisedBriefExplanation()!=null && !discussionmotion.getRevisedBriefExplanation().isEmpty()) {
+					formattedText = discussionmotion.getRevisedBriefExplanation();
+				} else if(discussionmotion.getBriefExplanation()!=null) {
+					formattedText = discussionmotion.getBriefExplanation();
 				} else {
 					formattedText = "";					
 				}*/
@@ -657,8 +665,8 @@ public class DiscussionMotionReportController extends BaseController{
 				}
 				letterVO.setBriefExplanation(formattedText);
 				
-				if(question.getDiscussionDate()!=null) {
-					letterVO.setDiscussionDate(FormaterUtil.formatDateToString(question.getDiscussionDate(), ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString()));
+				if(discussionmotion.getDiscussionDate()!=null) {
+					letterVO.setDiscussionDate(FormaterUtil.formatDateToString(discussionmotion.getDiscussionDate(), ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString()));
 				}
 
 				if(statusType.equals(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.MEMBER)
@@ -673,44 +681,44 @@ public class DiscussionMotionReportController extends BaseController{
 						|| statusType.equals(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 						|| statusType.equals(ApplicationConstants.STANDALONE_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
 						|| statusType.equals(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
-					String questionsAsked = question.getQuestionsAskedInFactualPosition();
+					String questionsAsked = discussionmotion.getDiscussionMotionsAskedInFactualPosition();
 					if(questionsAsked==null) {
 						if(statusType.equals(ApplicationConstants.STANDALONE_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 								|| statusType.equals(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
-							questionsAsked = session.getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
+							questionsAsked = session.getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentDiscussionMotions");
 						} else if(statusType.equals(ApplicationConstants.STANDALONE_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
 								|| statusType.equals(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
-							questionsAsked = session.getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
+							questionsAsked = session.getParameter(deviceType.getType().trim()+"_clarificationFromMemberDiscussionMotions");
 						}
 					} else if(questionsAsked.isEmpty()) {
 						if(statusType.equals(ApplicationConstants.STANDALONE_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 								|| statusType.equals(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
-							questionsAsked = session.getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
+							questionsAsked = session.getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentDiscussionMotions");
 						} else if(statusType.equals(ApplicationConstants.STANDALONE_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
 								|| statusType.equals(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
-							questionsAsked = session.getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
+							questionsAsked = session.getParameter(deviceType.getType().trim()+"_clarificationFromMemberDiscussionMotions");
 						}
 					}
 					if(questionsAsked!=null && !questionsAsked.isEmpty()) {
 						List<MasterVO> questionsAskedForClarification = new ArrayList<MasterVO>();
 						StringBuffer questionIndexesForClarification=new StringBuffer();	
-						String allQuestions = "";
+						String allDiscussionMotions = "";
 						if(statusType.equals(ApplicationConstants.STANDALONE_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 								|| statusType.equals(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
-							allQuestions = session.getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
+							allDiscussionMotions = session.getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentDiscussionMotions");
 						} else if(statusType.equals(ApplicationConstants.STANDALONE_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
 								|| statusType.equals(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
-							allQuestions = session.getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
+							allDiscussionMotions = session.getParameter(deviceType.getType().trim()+"_clarificationFromMemberDiscussionMotions");
 						}								
 						for(String questionAsked : questionsAsked.split("##")) {
 							MasterVO questionAskedForClarification = new MasterVO();
 							questionAskedForClarification.setValue(questionAsked);
 							questionsAskedForClarification.add(questionAskedForClarification);
 							int index = 1;
-							for(String allQuestion : allQuestions.split("##")) {
-								if(questionAsked.equals(allQuestion)) {
+							for(String allDiscussionMotion : allDiscussionMotions.split("##")) {
+								if(questionAsked.equals(allDiscussionMotion)) {
 									questionIndexesForClarification.append("(");
-									questionIndexesForClarification.append(FormaterUtil.formatNumberNoGrouping(index, question.getLocale()));
+									questionIndexesForClarification.append(FormaterUtil.formatNumberNoGrouping(index, discussionmotion.getLocale()));
 									questionIndexesForClarification.append("), ");											
 									break;
 								} else {
@@ -722,8 +730,8 @@ public class DiscussionMotionReportController extends BaseController{
 							questionIndexesForClarification.deleteCharAt(questionIndexesForClarification.length()-1);
 							questionIndexesForClarification.deleteCharAt(questionIndexesForClarification.length()-1);
 						}		
-						letterVO.setQuestionIndexesForClarification(questionIndexesForClarification.toString());
-						letterVO.setQuestionsAskedForClarification(questionsAskedForClarification);
+						letterVO.setDiscussionMotionIndexesForClarification(questionIndexesForClarification.toString());
+						letterVO.setDiscussionMotionsAskedForClarification(questionsAskedForClarification);
 					}
 				}
 				*/
@@ -731,10 +739,10 @@ public class DiscussionMotionReportController extends BaseController{
 
 				//				if(statusType.equals("admission")
 				//						|| statusType.equals("rejection")) {
-				//					WorkflowActor putupActor = WorkflowConfig.findFirstActor(question, status, locale.toString());
+				//					WorkflowActor putupActor = WorkflowConfig.findFirstActor(discussionmotion, status, locale.toString());
 				//					if(putupActor!=null) {
 				//						String putupActorUsergroupName = putupActor.getUserGroupType().getName();
-				//						QuestionDraft putupDraft = Question.findPutupDraft(question.getId(), "question_recommend_"+statusType, putupActorUsergroupName);				
+				//						DiscussionMotionDraft putupDraft = DiscussionMotion.findPutupDraft(question.getId(), "question_recommend_"+statusType, putupActorUsergroupName);				
 				//						if(putupDraft!=null) {
 				//							letterVO.setRemarks(putupDraft.getRemarks());
 				//						}
@@ -744,18 +752,18 @@ public class DiscussionMotionReportController extends BaseController{
 				/**** In case username is required ****/
 				Role role = Role.findByFieldName(Role.class, "type", "SMOIS_PRINCIPAL_SECRETARY", locale.toString());
 				List<User> users = User.findByRole(false, role.getName(), locale.toString());
-				//as principal secretary for starred question is only one, so user is obviously first element of the list.
+				//as principal secretary for starred discussionmotion is only one, so user is obviously first element of the list.
 				letterVO.setUserName(users.get(0).findFirstLastName());
 
 				/**** generate report ****/				
 				try {
 					String reportFileName = "intimationletter";
-					if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+					if(discussionmotion.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 						reportFileName += "_laq";
-					} else if(question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+					} else if(discussionmotion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 						reportFileName += "_lcq";
 					}
-					reportFileName += "(" + question.getNumber() + ")";
+					reportFileName += "(" + discussionmotion.getNumber() + ")";
 					if(statusType.equals(ApplicationConstants.STANDALONE_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 							|| statusType.equals(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
 						
@@ -774,9 +782,9 @@ public class DiscussionMotionReportController extends BaseController{
 						reportFileName += "_" + statusTypeSplit;
 					}
 					if(intimationLetterFilter!=null && !intimationLetterFilter.isEmpty() && !intimationLetterFilter.equals("-")) {
-						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit + "_" + question.getHouseType().getType(), "WORD", reportFileName, locale.toString());
+						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit + "_" + discussionmotion.getHouseType().getType(), "WORD", reportFileName, locale.toString());
 					}else {
-						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit + "_" + question.getHouseType().getType(), "WORD", reportFileName, locale.toString());
+						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit + "_" + discussionmotion.getHouseType().getType(), "WORD", reportFileName, locale.toString());
 					}					
 					System.out.println("Intimation Letter generated successfully in WORD format!");
 
@@ -789,7 +797,7 @@ public class DiscussionMotionReportController extends BaseController{
 			}			
 		} else {
 			isError = true;
-			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.intimationLetter.noQuestionFound", locale.toString());
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "discussionmotion.intimationLetter.noDiscussionMotionFound", locale.toString());
 		}
 		if(isError) {
 			try {
@@ -814,7 +822,7 @@ public class DiscussionMotionReportController extends BaseController{
 	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/admissionreport", method=RequestMethod.GET)
 	public String admittedAndToBeAdmittedReport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
-		String page = "question/error";
+		String page = "discussionmotion/error";
 		try{
 			String strSessionType = request.getParameter("sessionType");
 			String strSessionYear = request.getParameter("sessionYear");
@@ -850,7 +858,7 @@ public class DiscussionMotionReportController extends BaseController{
 				model.addAttribute("formater", new FormaterUtil());
 				model.addAttribute("locale", locale.toString());
 				model.addAttribute("showSubDepartment", strSubDepartment);
-				page = "question/reports/admissionreport";
+				page = "discussionmotion/reports/admissionreport";
 			}
 			
 		}catch(Exception e){
@@ -863,7 +871,7 @@ public class DiscussionMotionReportController extends BaseController{
 	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/halfhourdaysubmitreport", method=RequestMethod.GET)
 	public String halfhourDayWiseSubmissionReport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
-		String page = "question/error";
+		String page = "discussionmotion/error";
 		try{
 			String strGroupId = request.getParameter("groupId");
 			String strSubDepartment = request.getParameter("subDepartment");
@@ -999,7 +1007,7 @@ public class DiscussionMotionReportController extends BaseController{
 	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/shortnoticeanswerdatereport", method=RequestMethod.GET)
 	public String getShortNoticeAnswerDateReport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
-		String page = "question/reports/error"; 
+		String page = "discussionmotion/reports/error"; 
 		try{
 			String strWfid = request.getParameter("wfdId");
 			String strQid = request.getParameter("qId");
@@ -1016,7 +1024,7 @@ public class DiscussionMotionReportController extends BaseController{
 				Map<String, String[]> params = new HashMap<String, String[]>();
 				params.put("locale", new String[]{locale.toString()});
 				params.put("qId", new String[]{wfd.getDeviceId()});
-				List report = Query.findReport("QUESTIONS_SHORTNOTICE_ANSWERING_REPORT", params);
+				List report = Query.findReport("DISCUSSIONMOTIONS_SHORTNOTICE_ANSWERING_REPORT", params);
 				model.addAttribute("report", report);
 			}
 		}catch(Exception e){
@@ -1025,7 +1033,7 @@ public class DiscussionMotionReportController extends BaseController{
 		}
 
 		response.setContentType("text/html; charset=utf-8");
-		return "question/reports/shortnoticeanswer";
+		return "discussionmotion/reports/shortnoticeanswer";
 	}
 	
 	@SuppressWarnings({"rawtypes", "unchecked"})
@@ -1069,599 +1077,31 @@ public class DiscussionMotionReportController extends BaseController{
 		return "discussionmotion/reports/"+request.getParameter("reportout");		
 	}
 	//----------------------------------------------------------------------
-	@RequestMapping(value="/viewYaadi" ,method=RequestMethod.GET)
-	public @ResponseBody void generateYaadiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model) throws ELSException{
-		File reportFile = null; 
 
-		String strHouseType=request.getParameter("houseType");
-		String strSessionType=request.getParameter("sessionType");
-		String strSessionYear=request.getParameter("sessionYear");	    
-		String strDeviceType=request.getParameter("questionType");
-		String reportFormat=request.getParameter("outputFormat");
-		if(strDeviceType == null){
-			strDeviceType = request.getParameter("deviceType");
-		}
-		String strAnsweringDate = request.getParameter("answeringDate");
-
-		if(strHouseType!=null && strSessionType!=null && strSessionYear!=null && strDeviceType!=null && strAnsweringDate!=null && reportFormat!=null){
-			if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty() && !strDeviceType.isEmpty() && !strAnsweringDate.isEmpty() && !reportFormat.isEmpty()) {
-				HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
-				SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
-				Integer sessionYear=Integer.parseInt(strSessionYear);
-				Session session = null;
-				try {
-					session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-				} catch (ELSException e1) {					
-					e1.printStackTrace();
-				}				
-				DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
-				Date answeringDate = null;
-				if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-					QuestionDates questionDates = 
-							QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
-					answeringDate = questionDates.getAnsweringDate();
-				}
-				else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
-						deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
-					CustomParameter dbDateFormat = 
-							CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-					answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
-				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
-					CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-					answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
-				}
-				Group group = null;
-				if(deviceType.getDevice().equals("Question")) {
-					try {
-						group = Group.find(session, answeringDate, locale.toString());
-					} catch (ELSException e) {					
-						e.printStackTrace();
-					}
-				}				
-				List<DeviceVO> ballotedDeviceVOs = null;
-				try {
-					ballotedDeviceVOs = org.mkcl.els.domain.ballot.Ballot.findBallotedQuestionVOs(session, deviceType, group, answeringDate, locale.toString());
-				} catch (ELSException e1) {
-					e1.printStackTrace();
-				}
-				if(ballotedDeviceVOs == null) {
-					try {
-						//response.sendError(404, "Report cannot be generated at this stage.");
-						MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "question.yadiReport.noDataFound", locale.toString());
-						if(message != null) {
-							if(!message.getValue().isEmpty()) {
-								response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
-							} else {
-								response.getWriter().println("<h3>No Question is balloted yet.<br/>So Yaadi Report cannot be generated.</h3>");
-							}
-						} else {
-							response.getWriter().println("<h3>No Question is balloted yet.<br/>So Yaadi Report cannot be generated.</h3>");
-						}
-
-						return;
-					} catch (IOException e) {						
-						e.printStackTrace();
-					}
-				}
-				if(ballotedDeviceVOs.isEmpty()) {
-					try {
-						//response.sendError(404, "Report cannot be generated at this stage.");
-						MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "resolution.karyavaliReport.noDataFound", locale.toString());
-						if(message != null) {
-							if(!message.getValue().isEmpty()) {	            				
-								response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
-							} else {
-								response.getWriter().println("<h3>No Question is balloted yet.<br/>So Karyavali Report cannot be generated.</h3>");
-							}
-						} else {
-							response.getWriter().println("<h3>No Question is balloted yet.<br/>So Karyavali Report cannot be generated.</h3>");
-						}
-
-						return;
-					} catch (IOException e) {						
-						e.printStackTrace();
-					}
-				}
-				QuestionYaadiSuchiXmlVO data = new QuestionYaadiSuchiXmlVO();
-				data.setHouseType(houseType.getName());
-				data.setSessionNumber(session.getNumber().toString());
-				data.setSessionType(sessionType.getSessionType());
-				data.setSessionYear(FormaterUtil.formatNumberNoGrouping(sessionYear, locale.toString()));
-				data.setSessionPlace(session.getPlace().getPlace());
-				Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
-				List<User> users = User.findByRole(false, role.getName(), locale.toString());
-				//as principal secretary for starred question is only one, so user is obviously first element of the list.
-				data.setUserName(users.get(0).findFirstLastName());
-
-				List<MinistryVO> ministryVOs = Group.findMinistriesByMinisterView(group, locale.toString());
-				data.setMinistryVOs(ministryVOs);
-				SimpleDateFormat dbFormat = null;
-				CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
-				if(dbDateFormat!=null){
-					dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
-				}
-				//Added the following code to solve the marathi month and day issue				
-				String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
-				String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
-				data.setAnsweringDay(answeringDay);
-				String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-				String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
-				String formattedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
-				data.setAnsweringDate(formattedAnsweringDate);
-
-				String answeringDateInIndianCalendar = FormaterUtil.getIndianDate(answeringDate, locale);
-				data.setAnsweringDateInIndianCalendar(answeringDateInIndianCalendar);
-
-				data.setDeviceVOs(ballotedDeviceVOs);
-				data.setTotalNumberOfDevices(FormaterUtil.formatNumberNoGrouping(ballotedDeviceVOs.size(), locale.toString()));
-				//generate report
-				try {
-					reportFile = generateReportUsingFOP(data, "template_questionYaadi_report", reportFormat, "starred_question_yaadi", locale.toString());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				System.out.println("Question Yaadi Report generated successfully in " + reportFormat + " format!");
-
-				openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);
-			} else{
-				logger.error("**** Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for empty values ****");
-				try {
-					response.getWriter().println("<h3>Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for empty values</h3>");
-				} catch (IOException e) {
-					e.printStackTrace();
-				}				
-			}
-		} else{
-			logger.error("**** Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for null values ****");
-			try {
-				response.getWriter().println("<h3>Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for null values</h3>");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}				
-		}
-	}
-	
-	@RequestMapping(value="/generateUnstarredYaadiReport/getUnstarredYaadiNumberAndDate", method=RequestMethod.GET)
-	public String getUnstarredYaadiNumberAndDate(HttpServletRequest request, ModelMap model, Locale locale) {
-		String retVal = "question/reports/error";
-		String strHouseType = request.getParameter("houseType");
-		String strSessionType = request.getParameter("sessionType");
-		String strSessionYear = request.getParameter("sessionYear");
-
-		if(strHouseType!=null && strSessionType!=null && strSessionYear!=null){
-			if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()){
-				try {
-					HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
-					if(houseType==null) {
-						houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
-					}					
-					SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
-					Integer sessionYear = Integer.parseInt(strSessionYear);
-					if(houseType==null || sessionType==null) {
-						logger.error("**** HouseType or SessionType Not Found ****");
-						model.addAttribute("errorcode", "HOUSETYPE_NOTFOUND_OR_SESSIONTYPE_NOTFOUND");											
-					} else {
-						Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-						if(session==null) {								
-							logger.error("**** Session Not Found ****");
-							model.addAttribute("errorcode", "SESSION_NOTFOUND");
-						} else {
-							model.addAttribute("sessionId", session.getId());
-							Integer highestYaadiNumber = Question.findHighestYaadiNumber(null, session, locale.toString());
-							if(highestYaadiNumber!=null) {
-								if(Question.isNumberedYaadiFilled(null, session, highestYaadiNumber, locale.toString())) {
-									model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(highestYaadiNumber+1, locale.toString()));
-									model.addAttribute("yaadiLayingDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
-								} else {
-									model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(highestYaadiNumber, locale.toString()));
-									Date yaadiLayingDate = Question.findYaadiLayingDateForYaadi(null, session, highestYaadiNumber, locale.toString());
-									if(yaadiLayingDate!=null) {
-										model.addAttribute("yaadiLayingDate", FormaterUtil.formatDateToString(yaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
-										model.addAttribute("isYaadiLayingDateSet", "yes");
-									}
-								}								
-							}
-							List<String> yaadiLayingDates = new ArrayList<String>();
-							Calendar start = Calendar.getInstance();
-							start.setTime(session.getStartDate());
-							Calendar end = Calendar.getInstance();
-							end.setTime(session.getEndDate());
-							for (Calendar current=start; !current.after(end); current.add(Calendar.DATE, 1)) {
-								Date eligibleDate = current.getTime();								
-								yaadiLayingDates.add(FormaterUtil.formatDateToString(eligibleDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
-							}
-							model.addAttribute("yaadiLayingDates", yaadiLayingDates);														
-							retVal = "question/reports/getUnstarredYaadiNumberAndDate";
-						}
-					}
-				} catch(ELSException e) {
-					model.addAttribute("error", e.getParameter("error"));		
-				} catch(Exception e) {
-					e.printStackTrace();
-					model.addAttribute("errorcode", "SOME_EXCEPTION_OCCURED");
-				}
-			}
-		}		
-		return retVal;
-	}
-	
-	@RequestMapping(value="/generateUnstarredYaadiReport" ,method=RequestMethod.GET)
-	public @ResponseBody void generateUnstarredYaadiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
-		File reportFile = null; 
-		Boolean isError = false;
-		MessageResource errorMessage = null;
-
-		String sessionId = request.getParameter("sessionId");
-		String strYaadiNumber = request.getParameter("yaadiNumber");
-		String strYaadiLayingDate = request.getParameter("yaadiLayingDate");
-		String strChangedYaadiNumber = request.getParameter("changedYaadiNumber");
-		String strChangedYaadiLayingDate = request.getParameter("changedYaadiLayingDate");		
 		
-		if(sessionId!=null && strYaadiNumber!=null && strYaadiLayingDate!=null){
-			if(!sessionId.isEmpty() && !strYaadiNumber.isEmpty() && !strYaadiLayingDate.isEmpty() && !strYaadiLayingDate.equals("-")){
-				try {
-					CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-					if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
-						if(csptServer.getValue().equals("TOMCAT")){
-							strYaadiNumber = new String(strYaadiNumber.getBytes("ISO-8859-1"), "UTF-8");
-							strYaadiLayingDate = new String(strYaadiLayingDate.getBytes("ISO-8859-1"), "UTF-8");							
-							strChangedYaadiNumber = new String(strChangedYaadiNumber.getBytes("ISO-8859-1"), "UTF-8");
-							strChangedYaadiLayingDate = new String(strChangedYaadiLayingDate.getBytes("ISO-8859-1"), "UTF-8");
-						}
-					}
-					Session session = Session.findById(Session.class, Long.parseLong(sessionId));
-					if(session==null) {
-						logger.error("**** Session not found with request parameter sessionId ****");
-						throw new ELSException();
-					}		
-					Integer yaadiNumber = FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strYaadiNumber).intValue();
-					Date yaadiLayingDate = FormaterUtil.formatStringToDate(strYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
-					List<Question> totalQuestionsInYaadi = new ArrayList<Question>();
-					List<Question> existingQuestionsInYaadi = Question.findQuestionsInNumberedYaadi(null, session, yaadiNumber, yaadiLayingDate, locale.toString());
-					if(existingQuestionsInYaadi!=null&&!existingQuestionsInYaadi.isEmpty()) {
-						//Case 1: niether yaadi number nor yaadi laying date changed
-						if((strChangedYaadiNumber==null || strChangedYaadiNumber.isEmpty()) && (strChangedYaadiLayingDate==null || strChangedYaadiLayingDate.isEmpty() || strChangedYaadiLayingDate.equals("-"))) {
-							totalQuestionsInYaadi.addAll(existingQuestionsInYaadi);
-							if(yaadiNumber==Question.findHighestYaadiNumber(null, session, locale.toString())) {
-								List<Question> newlyAddedQuestions = Question.findQuestionsEligibleForNumberedYaadi(null, session, existingQuestionsInYaadi.size(), locale.toString());
-								if(newlyAddedQuestions!=null && !newlyAddedQuestions.isEmpty()) {
-									for(Question question: newlyAddedQuestions) {		
-										question.setYaadiNumber(yaadiNumber);
-										question.setYaadiLayingDate(yaadiLayingDate);
-										question.simpleMerge();
-									}
-									totalQuestionsInYaadi.addAll(newlyAddedQuestions);
-								}
-							}
-						} 
-						//Case 2: yaadi number changed but yaadi laying date did not change
-						else if((strChangedYaadiNumber!=null && !strChangedYaadiNumber.isEmpty()) && (strChangedYaadiLayingDate==null || strChangedYaadiLayingDate.isEmpty() || strChangedYaadiLayingDate.equals("-"))) {
-							Integer changedYaadiNumber = FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strChangedYaadiNumber).intValue();
-							if(!Question.isYaadiOfGivenNumberExistingInSession(null, session, changedYaadiNumber, locale.toString())) {
-								for(Question question: existingQuestionsInYaadi) {
-									question.setYaadiNumber(changedYaadiNumber);
-									question.simpleMerge();
-								}
-								totalQuestionsInYaadi.addAll(existingQuestionsInYaadi);
-							} else {
-								logger.error("**** There is existing yaadi with number = " + changedYaadiNumber + " ****");
-								throw new ELSException();
-							}
-							if(changedYaadiNumber==Question.findHighestYaadiNumber(null, session, locale.toString())) {
-								List<Question> newlyAddedQuestions = Question.findQuestionsEligibleForNumberedYaadi(null, session, existingQuestionsInYaadi.size(), locale.toString());
-								if(newlyAddedQuestions!=null && !newlyAddedQuestions.isEmpty()) {
-									for(Question question: newlyAddedQuestions) {		
-										question.setYaadiNumber(changedYaadiNumber);
-										question.setYaadiLayingDate(yaadiLayingDate);
-										question.simpleMerge();
-									}
-									totalQuestionsInYaadi.addAll(newlyAddedQuestions);
-								}
-							}
-						}
-						//Case 3: yaadi number did not change but yaadi laying date changed
-						else if((strChangedYaadiNumber==null || strChangedYaadiNumber.isEmpty()) && (strChangedYaadiLayingDate!=null && !strChangedYaadiLayingDate.isEmpty() && !strChangedYaadiLayingDate.equals("-"))) {
-							Date changedYaadiLayingDate = FormaterUtil.formatStringToDate(strChangedYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
-							for(Question question: existingQuestionsInYaadi) {
-								question.setYaadiLayingDate(changedYaadiLayingDate);
-								question.simpleMerge();
-							}		
-							totalQuestionsInYaadi.addAll(existingQuestionsInYaadi);
-							if(yaadiNumber==Question.findHighestYaadiNumber(null, session, locale.toString())) {
-								List<Question> newlyAddedQuestions = Question.findQuestionsEligibleForNumberedYaadi(null, session, existingQuestionsInYaadi.size(), locale.toString());
-								if(newlyAddedQuestions!=null && !newlyAddedQuestions.isEmpty()) {
-									for(Question question: newlyAddedQuestions) {	
-										question.setYaadiNumber(yaadiNumber);
-										question.setYaadiLayingDate(changedYaadiLayingDate);
-										question.simpleMerge();
-									}
-									totalQuestionsInYaadi.addAll(newlyAddedQuestions);
-								}
-							}
-						} 
-						//Case 4: both yaadi number & yaadi laying date changed
-						else {
-							Integer changedYaadiNumber = FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strChangedYaadiNumber).intValue();
-							Date changedYaadiLayingDate = FormaterUtil.formatStringToDate(strChangedYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
-							if(!Question.isYaadiOfGivenNumberExistingInSession(null, session, changedYaadiNumber, locale.toString())) {
-								for(Question question: existingQuestionsInYaadi) {
-									question.setYaadiNumber(changedYaadiNumber);
-									question.setYaadiLayingDate(changedYaadiLayingDate);
-									question.simpleMerge();
-								}
-								totalQuestionsInYaadi.addAll(existingQuestionsInYaadi);
-							} else {
-								logger.error("**** There is existing yaadi with number = " + changedYaadiNumber + " ****");
-								throw new ELSException();
-							}
-							if(changedYaadiNumber==Question.findHighestYaadiNumber(null, session, locale.toString())) {
-								List<Question> newlyAddedQuestions = Question.findQuestionsEligibleForNumberedYaadi(null, session, existingQuestionsInYaadi.size(), locale.toString());
-								if(newlyAddedQuestions!=null && !newlyAddedQuestions.isEmpty()) {
-									for(Question question: newlyAddedQuestions) {		
-										question.setYaadiNumber(changedYaadiNumber);
-										question.setYaadiLayingDate(changedYaadiLayingDate);
-										question.simpleMerge();
-									}
-									totalQuestionsInYaadi.addAll(newlyAddedQuestions);
-								}
-							}
-						}					
-					} else {
-						totalQuestionsInYaadi = Question.findQuestionsEligibleForNumberedYaadi(null, session, 0, locale.toString());
-						for(Question question: totalQuestionsInYaadi) {		
-							question.setYaadiNumber(yaadiNumber);
-							question.setYaadiLayingDate(yaadiLayingDate);
-							question.simpleMerge();
-						}
-					}
-					Object[] reportData = DiscussionMotionReportHelper.prepareUnstarredYaadiData(session, totalQuestionsInYaadi, locale.toString());
-					/**** generate report ****/
-					if(!isError) {
-						reportFile = generateReportUsingFOP(reportData, "template_unstarredYaadi_report", "WORD", "unstarred_question_yaadi", locale.toString());
-						if(reportFile!=null) {
-							System.out.println("Report generated successfully in word format!");
-							openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
-						}
-					}
-				} catch(Exception e) {
-					e.printStackTrace();
-					isError = true;					
-					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.exception_occured", locale.toString());
-				}
-			}else{
-				isError = true;
-				logger.error("**** Check request parameters sessionId, yaadiNumber, yaadiLayingDate for empty values ****");
-				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.reqparam.empty", locale.toString());				
-			}
-		} else {			
-			isError = true;
-			logger.error("**** Check request parameters sessionId, yaadiNumber, yaadiLayingDate for null values ****");
-			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.reqparam.null", locale.toString());
-		}
-		if(isError) {
-			try {
-				//response.sendError(404, "Report cannot be generated at this stage.");
-				if(errorMessage != null) {
-					if(!errorMessage.getValue().isEmpty()) {
-						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
-					} else {
-						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
-					}
-				} else {
-					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
-				}
-
-				return;
-			} catch (IOException e) {						
-				e.printStackTrace();
-			}
-		}
-	}
-
-	@RequestMapping(value="/viewSuchi" ,method=RequestMethod.GET)
-	public @ResponseBody void generateSuchiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
-		try{
-			File reportFile = null; 
-
-			String strHouseType=request.getParameter("houseType");
-			String strSessionType=request.getParameter("sessionType");
-			String strSessionYear=request.getParameter("sessionYear");	    
-			String strDeviceType=request.getParameter("questionType");
-			if(strDeviceType == null){
-				strDeviceType = request.getParameter("deviceType");
-			}
-			String strAnsweringDate = request.getParameter("answeringDate");
-			String reportFormat=request.getParameter("outputFormat");
-
-			if(strHouseType!=null && strSessionType!=null && strSessionYear!=null && strDeviceType!=null && strAnsweringDate!=null && reportFormat!=null){
-				if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty() && !strDeviceType.isEmpty() && !strAnsweringDate.isEmpty() && !reportFormat.isEmpty()) {
-					HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
-					SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
-					Integer sessionYear=Integer.parseInt(strSessionYear);
-					Session session = null;
-					try {
-						session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-					} catch (ELSException e3) {
-						e3.printStackTrace();
-					}
-					DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
-					String processingMode = session.getParameter(deviceType.getType()+"_"+ApplicationConstants.PROCESSINGMODE);
-					Date answeringDate = null;
-					if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-						QuestionDates questionDates = 
-								QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
-						answeringDate = questionDates.getAnsweringDate();
-					}
-					else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
-							deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
-						CustomParameter dbDateFormat = 
-								CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-						answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
-					}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
-						CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-						answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
-					}	
-					Group group = null;
-					if(deviceType.getDevice().equals("Question")) {
-						try {
-							group = Group.find(session, answeringDate, locale.toString());
-						} catch (ELSException e1) {
-							e1.printStackTrace();
-						}
-					}					
-					List<RoundVO> roundVOs = null;
-					try {
-						roundVOs = Ballot.findBallotedRoundVOsForSuchi(session, deviceType, processingMode, group, answeringDate, locale.toString());
-					} catch (ELSException e2) {
-						e2.printStackTrace();
-					}				
-					if(roundVOs == null) {
-						try {
-							//response.sendError(404, "Report cannot be generated at this stage.");
-							MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "resolution.karyavaliReport.noDataFound", locale.toString());
-							if(message != null) {
-								if(!message.getValue().isEmpty()) {
-									response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
-								} else {
-									response.getWriter().println("<h3>No Question is balloted yet.<br/>So Yaadi Report cannot be generated.</h3>");
-								}
-							} else {
-								response.getWriter().println("<h3>No Question is balloted yet.<br/>So Yaadi Report cannot be generated.</h3>");
-							}
-
-							return;
-						} catch (IOException e) {						
-							e.printStackTrace();
-						}
-					}
-					if(roundVOs.isEmpty()) {
-						try {
-							//response.sendError(404, "Report cannot be generated at this stage.");
-							MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "resolution.karyavaliReport.noDataFound", locale.toString());
-							if(message != null) {
-								if(!message.getValue().isEmpty()) {	            				
-									response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
-								} else {
-									response.getWriter().println("<h3>No Question is balloted yet.<br/>So Karyavali Report cannot be generated.</h3>");
-								}
-							} else {
-								response.getWriter().println("<h3>No Question is balloted yet.<br/>So Karyavali Report cannot be generated.</h3>");
-							}
-
-							return;
-						} catch (IOException e) {						
-							e.printStackTrace();
-						}
-					}
-					QuestionYaadiSuchiXmlVO data = new QuestionYaadiSuchiXmlVO();
-					data.setHouseType(houseType.getName());
-					data.setSessionNumber(session.getNumber().toString());
-					data.setSessionType(sessionType.getSessionType());
-					data.setSessionYear(FormaterUtil.formatNumberNoGrouping(sessionYear, locale.toString()));
-					data.setSessionPlace(session.getPlace().getPlace());
-					Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
-					List<User> users = User.findByRole(false, role.getName(), locale.toString());
-					//as principal secretary for starred question is only one, so user is obviously first element of the list.
-					data.setUserName(users.get(0).findFirstLastName());
-
-					List<MinistryVO> ministryVOs = Group.findMinistriesByMinisterView(group, locale.toString());
-					data.setMinistryVOs(ministryVOs);
-					SimpleDateFormat dbFormat = null;
-					CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
-					if(dbDateFormat!=null){
-						dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
-					}
-					//Added the following code to solve the marathi month and day issue
-					String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
-					String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
-					data.setAnsweringDay(answeringDay);
-					String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-					String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
-					String formattedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
-					data.setAnsweringDate(formattedAnsweringDate);
-					String answeringDateInIndianCalendar = FormaterUtil.getIndianDate(answeringDate, locale);
-					data.setAnsweringDateInIndianCalendar(answeringDateInIndianCalendar);
-					int totalNumberOfDevices = 0;
-					for(RoundVO r: roundVOs) {
-						totalNumberOfDevices += r.getDeviceVOs().size();
-					}
-					data.setTotalNumberOfDevices(FormaterUtil.formatNumberNoGrouping(totalNumberOfDevices, locale.toString()));
-					data.setRoundVOs(roundVOs);
-					Calendar calendar = Calendar.getInstance();
-					calendar.setTime(new Date());
-					calendar.add(Calendar.DATE, -1);
-					CustomParameter reportDateFormatParameter = CustomParameter.findByName(CustomParameter.class, "template_questionSuchi_report".toUpperCase() + "_REPORTDATE_FORMAT", "");
-					if(reportDateFormatParameter!=null && reportDateFormatParameter.getValue()!=null) {
-						String formattedReportDate = FormaterUtil.formatDateToString(calendar.getTime(), reportDateFormatParameter.getValue(), locale.toString());
-						if(reportDateFormatParameter.getValue().equals("dd MMM, yyyy")) {
-							String[] strDate=formattedReportDate.split(",");
-							String[] strMonth=strDate[0].split(" ");
-							String month=FormaterUtil.getMonthInMarathi(strMonth[1], locale.toString());
-							formattedReportDate = strMonth[0] + " " + month + ", " + strDate[1];
-						}
-						data.setReportDate(formattedReportDate);
-					} else {
-						data.setReportDate(FormaterUtil.formatDateToString(calendar.getTime(), ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
-					}					
-					//generate report
-					try {
-						reportFile = generateReportUsingFOP(data, "template_questionSuchi_report", reportFormat, "starred_question_suchi", locale.toString());
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					System.out.println("Question Suchi Report generated successfully in " + reportFormat + " format!");
-
-					openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);
-				} else{
-					logger.error("**** Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for empty values ****");
-					try {
-						response.getWriter().println("<h3>Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for empty values</h3>");
-					} catch (IOException e) {
-						e.printStackTrace();
-					}				
-				}
-			} else{
-				logger.error("**** Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for null values ****");
-				try {
-					response.getWriter().println("<h3>Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for null values</h3>");
-				} catch (IOException e) {
-					e.printStackTrace();
-				}				
-			}
-		}catch (Exception e) {
-			logger.debug("viewsuchi", e);
-			e.printStackTrace();
-			try {
-				response.getWriter().println("<h3>Can not create Suchi</h3>");
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-		}
-	}
-	
-	@RequestMapping(value="/generateClubbedIntimationLetter/getClubbedQuestions", method=RequestMethod.GET)
-	public String getClubbedQuestionsForIntimationReport(HttpServletRequest request, ModelMap model) {
-		String retVal = "question/reports/error";
-		String questionId = request.getParameter("questionId");
-		if(questionId!=null && !questionId.isEmpty()) {
-			Question question = Question.findById(Question.class, Long.parseLong(questionId));
-			if(question!=null) {
-				model.addAttribute("questionId", questionId);
-				List<ClubbedEntity> clubbedEntities = Question.findClubbedEntitiesByPosition(question, ApplicationConstants.DESC);
+	@RequestMapping(value="/generateClubbedIntimationLetter/getClubbedDiscussionMotions", method=RequestMethod.GET)
+	public String getClubbedDiscussionMotionsForIntimationReport(HttpServletRequest request, ModelMap model) {
+		String retVal = "discussionmotion/reports/error";
+		String discussionmotionId = request.getParameter("discussionmotionId");
+		if(discussionmotionId!=null && !discussionmotionId.isEmpty()) {
+			DiscussionMotion discussionmotion = DiscussionMotion.findById(DiscussionMotion.class, Long.parseLong(discussionmotionId));
+			if(discussionmotion!=null) {
+				model.addAttribute("discussionmotionId", discussionmotionId);
+				List<ClubbedEntity> clubbedEntities = DiscussionMotion.findClubbedEntitiesByPosition(discussionmotion, ApplicationConstants.DESC);
 				if(clubbedEntities!=null && !clubbedEntities.isEmpty()) {
-					List<Reference> nameClubbedQuestionVOs = new ArrayList<Reference>();
+					List<Reference> nameClubbedDiscussionMotionVOs = new ArrayList<Reference>();
 					for(ClubbedEntity ce: clubbedEntities) {
-						Question clubbedQuestion = ce.getQuestion();
-						if(Question.isAdmittedThroughClubbing(clubbedQuestion)) {							
-							Reference nameClubbedQuestionVO = new Reference();
-							nameClubbedQuestionVO.setId(clubbedQuestion.getId().toString());
-							nameClubbedQuestionVO.setNumber(FormaterUtil.formatNumberNoGrouping(clubbedQuestion.getNumber(), clubbedQuestion.getLocale()));
-							nameClubbedQuestionVOs.add(nameClubbedQuestionVO);
+						DiscussionMotion clubbedDiscussionMotion = ce.getDiscussionMotion();
+						if(DiscussionMotion.isAdmittedThroughClubbing(clubbedDiscussionMotion)) {							
+							Reference nameClubbedDiscussionMotionVO = new Reference();
+							nameClubbedDiscussionMotionVO.setId(clubbedDiscussionMotion.getId().toString());
+							nameClubbedDiscussionMotionVO.setNumber(FormaterUtil.formatNumberNoGrouping(clubbedDiscussionMotion.getNumber(), clubbedDiscussionMotion.getLocale()));
+							nameClubbedDiscussionMotionVOs.add(nameClubbedDiscussionMotionVO);
 						}
 					}
-					if(!nameClubbedQuestionVOs.isEmpty()) {
-						model.addAttribute("nameClubbedQuestionVOs", nameClubbedQuestionVOs);
-						retVal = "question/reports/getClubbedQuestions";
+					if(!nameClubbedDiscussionMotionVOs.isEmpty()) {
+						model.addAttribute("nameClubbedDiscussionMotionVOs", nameClubbedDiscussionMotionVOs);
+						retVal = "discussionmotion/reports/getClubbedDiscussionMotions";
 					} else {
 						model.addAttribute("errorcode", "noNameClubbedEntitiesFound");
 					}					
@@ -1669,7 +1109,7 @@ public class DiscussionMotionReportController extends BaseController{
 					model.addAttribute("errorcode", "noClubbedEntitiesFound");
 				}
 			} else {
-				model.addAttribute("errorcode", "invalidQuestion");
+				model.addAttribute("errorcode", "invalidDiscussionMotion");
 			}			
 		}
 		return retVal;
@@ -1681,24 +1121,24 @@ public class DiscussionMotionReportController extends BaseController{
 		boolean isError = false;
 		MessageResource errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.errorMessage", locale.toString());
 		
-		String strQuestionId = request.getParameter("questionId");
-		String strClubbedQuestions = request.getParameter("clubbedQuestions");
+		String strDiscussionMotionId = request.getParameter("discussionmotionId");
+		String strClubbedDiscussionMotions = request.getParameter("clubbedDiscussionMotions");
 		String outputFormat = request.getParameter("outputFormat");
 		
-		if(strQuestionId!=null && strClubbedQuestions!=null && outputFormat!=null){
-			if((!strQuestionId.isEmpty()) && !strClubbedQuestions.isEmpty() && !outputFormat.isEmpty()){
+		if(strDiscussionMotionId!=null && strClubbedDiscussionMotions!=null && outputFormat!=null){
+			if((!strDiscussionMotionId.isEmpty()) && !strClubbedDiscussionMotions.isEmpty() && !outputFormat.isEmpty()){
 				try {
 					/**** Generate & Process Report Data ****/			
-					DiscussionMotion question = DiscussionMotion.findById(DiscussionMotion.class, Long.parseLong(strQuestionId));
-					if(question!=null) {
-						/**** primary question data****/
+					DiscussionMotion discussionmotion = DiscussionMotion.findById(DiscussionMotion.class, Long.parseLong(strDiscussionMotionId));
+					if(discussionmotion!=null) {
+						/**** primary discussionmotion data****/
 						Map<String, String[]> queryParameters = new HashMap<String, String[]>();					
-						queryParameters.put("questionId", new String[]{question.getId().toString()});
-						queryParameters.put("locale", new String[]{question.getLocale()});
+						queryParameters.put("discussionmotionId", new String[]{discussionmotion.getId().toString()});
+						queryParameters.put("locale", new String[]{discussionmotion.getLocale()});
 						@SuppressWarnings("unchecked")
-						List<Object> primaryQuestionData = Query.findReport("SMOIS_CLUBBEDINTIMATIONLETTER_PARENTQUESTIONDATA", queryParameters);
-						String houseType = question.getHouseType().getType();
-						/**** find all member names for the question ****/					
+						List<Object> primaryDiscussionMotionData = Query.findReport("SMOIS_CLUBBEDINTIMATIONLETTER_PARENTDISCUSSIONMOTIONDATA", queryParameters);
+						String houseType = discussionmotion.getHouseType().getType();
+						/**** find all member names for the discussionmotion ****/					
 						String allMemberNames = "";
 						String memberNameFormat = "";
 						CustomParameter memberNameFormatParameter = null;
@@ -1709,7 +1149,7 @@ public class DiscussionMotionReportController extends BaseController{
 							} else {
 								memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;							
 							}
-							allMemberNames = question.findAllMemberNamesWithConstituencies(memberNameFormat);
+							allMemberNames = discussionmotion.findAllMemberNamesWithConstituencies(memberNameFormat);
 						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
 							memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "CLUBBEDINTIMATIONLETTER_MEMBERNAMEFORMAT_UPPERHOUSE", "");
 							if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
@@ -1717,54 +1157,54 @@ public class DiscussionMotionReportController extends BaseController{
 							} else {
 								memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;
 							}	
-							allMemberNames = question.findAllMemberNames(memberNameFormat);
+							allMemberNames = discussionmotion.findAllMemberNames(memberNameFormat);
 						}	
-						/**** find last member name before first added question ****/
-						String lastMemberNameBeforeAddedQuestions = "";
-						StringBuffer previousQuestionsMemberNames = new StringBuffer();
-						String[] strClubbedQuestionsArr = strClubbedQuestions.split(",");
-						String firstAddedQuestionId = strClubbedQuestionsArr[strClubbedQuestionsArr.length-1];
-						DiscussionMotion firstAddedQuestion = DiscussionMotion.findById(DiscussionMotion.class, Long.parseLong(firstAddedQuestionId));
+						/**** find last member name before first added discussionmotion ****/
+						String lastMemberNameBeforeAddedDiscussionMotions = "";
+						StringBuffer previousDiscussionMotionsMemberNames = new StringBuffer();
+						String[] strClubbedDiscussionMotionsArr = strClubbedDiscussionMotions.split(",");
+						String firstAddedDiscussionMotionId = strClubbedDiscussionMotionsArr[strClubbedDiscussionMotionsArr.length-1];
+						DiscussionMotion firstAddedDiscussionMotion = DiscussionMotion.findById(DiscussionMotion.class, Long.parseLong(firstAddedDiscussionMotionId));
 						
-						String firstAddedQuestionMemberName = firstAddedQuestion.getPrimaryMember().findNameInGivenFormat(memberNameFormat);
+						String firstAddedDiscussionMotionMemberName = firstAddedDiscussionMotion.getPrimaryMember().findNameInGivenFormat(memberNameFormat);
 						if(houseType.equals(ApplicationConstants.LOWER_HOUSE)) {
-							String constituencyName = firstAddedQuestion.getPrimaryMember().findConstituencyNameForYadiReport(firstAddedQuestion.getSession().getHouse(), "DATE", new Date(), new Date());
+							String constituencyName = firstAddedDiscussionMotion.getPrimaryMember().findConstituencyNameForYadiReport(firstAddedDiscussionMotion.getSession().getHouse(), "DATE", new Date(), new Date());
 							if(!constituencyName.isEmpty()) {
-								firstAddedQuestionMemberName += " (" + constituencyName + ")";
+								firstAddedDiscussionMotionMemberName += " (" + constituencyName + ")";
 							}
 						}
 						if(allMemberNames!=null && !allMemberNames.isEmpty()) {
 							String[] allMemberNamesArr = allMemberNames.split(",");
 							for(int i=0; i<allMemberNamesArr.length; i++) {
-								if(allMemberNamesArr[i].trim().equals(firstAddedQuestionMemberName.trim())) {
-									lastMemberNameBeforeAddedQuestions = allMemberNamesArr[i-1].trim();
+								if(allMemberNamesArr[i].trim().equals(firstAddedDiscussionMotionMemberName.trim())) {
+									lastMemberNameBeforeAddedDiscussionMotions = allMemberNamesArr[i-1].trim();
 									for(int j=0; j<i; j++) {
 										if(j!=i-1) {
-											previousQuestionsMemberNames.append(allMemberNamesArr[j].trim() + ", ");
+											previousDiscussionMotionsMemberNames.append(allMemberNamesArr[j].trim() + ", ");
 										} else {
-											previousQuestionsMemberNames.append(allMemberNamesArr[j].trim());
+											previousDiscussionMotionsMemberNames.append(allMemberNamesArr[j].trim());
 										}									
 									}
 									break;
 								}
 							}
 							/**** clubbed questions data ****/							
-							List<Object> clubbedQuestionData = new ArrayList<Object>();
+							List<Object> clubbedDiscussionMotionData = new ArrayList<Object>();
 							StringBuffer clubbedMemberNames = new StringBuffer();
-							for(int k=strClubbedQuestionsArr.length-1; k>=0; k--) {
-								DiscussionMotion clubbedQuestion = DiscussionMotion.findById(DiscussionMotion.class, Long.parseLong(strClubbedQuestionsArr[k]));
-								queryParameters.put("questionId", new String[]{clubbedQuestion.getId().toString()});
-								queryParameters.put("locale", new String[]{clubbedQuestion.getLocale()});
-								clubbedQuestionData.add(Query.findReport("SMOIS_CLUBBEDINTIMATIONLETTER_CLUBBEDQUESTIONDATA", queryParameters));
-								if(clubbedQuestionData!=null && !clubbedQuestionData.isEmpty()) {
+							for(int k=strClubbedDiscussionMotionsArr.length-1; k>=0; k--) {
+								DiscussionMotion clubbedDiscussionMotion = DiscussionMotion.findById(DiscussionMotion.class, Long.parseLong(strClubbedDiscussionMotionsArr[k]));
+								queryParameters.put("questionId", new String[]{clubbedDiscussionMotion.getId().toString()});
+								queryParameters.put("locale", new String[]{clubbedDiscussionMotion.getLocale()});
+								clubbedDiscussionMotionData.add(Query.findReport("SMOIS_CLUBBEDINTIMATIONLETTER_CLUBBEDQUESTIONDATA", queryParameters));
+								if(clubbedDiscussionMotionData!=null && !clubbedDiscussionMotionData.isEmpty()) {
 									if(houseType.equals(ApplicationConstants.LOWER_HOUSE)) {
-										clubbedMemberNames.append(DiscussionMotionReportHelper.findMemberNamesForAddedQuestion(clubbedQuestion, previousQuestionsMemberNames.toString(), memberNameFormat, true));
+										clubbedMemberNames.append(DiscussionMotionReportHelper.findMemberNamesForAddedDiscussionMotion(clubbedDiscussionMotion, previousDiscussionMotionsMemberNames.toString(), memberNameFormat, true));
 									} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
-										clubbedMemberNames.append(DiscussionMotionReportHelper.findMemberNamesForAddedQuestion(clubbedQuestion, previousQuestionsMemberNames.toString(), memberNameFormat, false));
+										clubbedMemberNames.append(DiscussionMotionReportHelper.findMemberNamesForAddedDiscussionMotion(clubbedDiscussionMotion, previousDiscussionMotionsMemberNames.toString(), memberNameFormat, false));
 									}		
 									if(clubbedMemberNames!=null && !clubbedMemberNames.toString().isEmpty()) {
 										if(k!=0) {
-											previousQuestionsMemberNames.append(clubbedMemberNames + ", ");
+											previousDiscussionMotionsMemberNames.append(clubbedMemberNames + ", ");
 										}								
 									}														
 								}
@@ -1772,16 +1212,16 @@ public class DiscussionMotionReportController extends BaseController{
 							
 							/**** generate report ****/
 							if(!isError) {
-								reportFile = generateReportUsingFOP(new Object[]{primaryQuestionData, lastMemberNameBeforeAddedQuestions, clubbedQuestionData, clubbedMemberNames.toString()}, "question_clubbedIntimationLetter", outputFormat, "question_clubbedIntimationLetter", locale.toString());
+								reportFile = generateReportUsingFOP(new Object[]{primaryDiscussionMotionData, lastMemberNameBeforeAddedDiscussionMotions, clubbedDiscussionMotionData, clubbedMemberNames.toString()}, "question_clubbedIntimationLetter", outputFormat, "question_clubbedIntimationLetter", locale.toString());
 								if(reportFile!=null) {
 									System.out.println("Report generated successfully in " + outputFormat + " format!");
 									openOrSaveReportFileFromBrowser(response, reportFile, outputFormat);
 								}
 							}
 						} else {
-							logger.error("**** No member found for the question ****");
+							logger.error("**** No member found for the discussionmotion ****");
 							isError = true;
-							errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.intimationLetter.noMemberFound", locale.toString());
+							errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "discussionmotion.intimationLetter.noMemberFound", locale.toString());
 						}
 					} else {
 						logger.error("**** Check request parameter 'questionId' for invalid value ****");
@@ -2087,12 +1527,12 @@ public class DiscussionMotionReportController extends BaseController{
 			}else{
 				isError = true;
 				logger.error("**** Check request parameters houseType, sessionType, sessionYear for empty values ****");
-				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.bulleteinReport.reqparam.empty", locale.toString());				
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "discussionmotion.bulleteinReport.reqparam.empty", locale.toString());				
 			}
 		} else {			
 			isError = true;
 			logger.error("**** Check request parameters houseType, sessionType, sessionYear for null values ****");
-			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.bulleteinReport.reqparam.null", locale.toString());
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "discussionmotion.bulleteinReport.reqparam.null", locale.toString());
 		}
 		if(isError) {
 			try {
@@ -2148,11 +1588,11 @@ public class DiscussionMotionReportController extends BaseController{
 							queryParameters.put("houseType", new String[]{houseType.getType()});
 							queryParameters.put("sessionId", new String[]{session.getId().toString()});
 							if(questionType.equals("starred")) {
-								DeviceType starredQuestionType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, locale.toString());
-								queryParameters.put("starredQuestionTypeId", new String[]{starredQuestionType.getId().toString()});
+								DeviceType starredDiscussionMotionType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, locale.toString());
+								queryParameters.put("starredDiscussionMotionTypeId", new String[]{starredDiscussionMotionType.getId().toString()});
 							}							
-							DeviceType unstarredQuestionType = DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION, locale.toString());
-							queryParameters.put("unstarredQuestionTypeId", new String[]{unstarredQuestionType.getId().toString()});
+							DeviceType unstarredDiscussionMotionType = DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION, locale.toString());
+							queryParameters.put("unstarredDiscussionMotionTypeId", new String[]{unstarredDiscussionMotionType.getId().toString()});
 							queryParameters.put("locale", new String[]{locale.toString()});
 							String queryName= "SMOIS_" + questionType.toUpperCase() + "_DEPARTMENTWISE_STATS_"+houseType.getType().toUpperCase()+"_REPORT";														
 							List reportData = Query.findReport(queryName, queryParameters);
@@ -2189,12 +1629,12 @@ public class DiscussionMotionReportController extends BaseController{
 			}else{
 				isError = true;
 				logger.error("**** Check request parameters houseType, sessionType, sessionYear for empty values ****");
-				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.bulleteinReport.reqparam.empty", locale.toString());				
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "discussionmotion.bulleteinReport.reqparam.empty", locale.toString());				
 			}
 		} else {			
 			isError = true;
 			logger.error("**** Check request parameters houseType, sessionType, sessionYear for null values ****");
-			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.bulleteinReport.reqparam.null", locale.toString());
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "discussionmotion.bulleteinReport.reqparam.null", locale.toString());
 		}
 		if(isError) {
 			try {
@@ -2268,7 +1708,7 @@ public class DiscussionMotionReportController extends BaseController{
 								/**** generate report ****/
 								if(!isError) {			
 									if(questionType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
-										reportFile = generateReportUsingFOP(new Object[]{reportData,serialNumbers,localisedContent,questionType}, "qis_ahwal_hdcondition_"+houseType.getType(), "WORD", "qis_ahwal_halfHourFromQuestion_Report", locale.toString());
+										reportFile = generateReportUsingFOP(new Object[]{reportData,serialNumbers,localisedContent,questionType}, "qis_ahwal_hdcondition_"+houseType.getType(), "WORD", "qis_ahwal_halfHourFromDiscussionMotion_Report", locale.toString());
 									} else {
 										reportFile = generateReportUsingFOP(new Object[]{reportData,serialNumbers,localisedContent,questionType}, "qis_ahwal_hdcondition_"+houseType.getType(), "WORD", "qis_ahwal_halfHourStandalone_Report", locale.toString());
 									}									
@@ -2290,12 +1730,12 @@ public class DiscussionMotionReportController extends BaseController{
 			}else{
 				isError = true;
 				logger.error("**** Check request parameters houseType, sessionType, sessionYear for empty values ****");
-				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.bulleteinReport.reqparam.empty", locale.toString());				
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "discussionmotion.bulleteinReport.reqparam.empty", locale.toString());				
 			}
 		} else {			
 			isError = true;
 			logger.error("**** Check request parameters houseType, sessionType, sessionYear for null values ****");
-			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.bulleteinReport.reqparam.null", locale.toString());
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "discussionmotion.bulleteinReport.reqparam.null", locale.toString());
 		}
 		if(isError) {
 			try {
@@ -2319,7 +1759,7 @@ public class DiscussionMotionReportController extends BaseController{
 	
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@RequestMapping(value="/departmentwisequestions", method=RequestMethod.GET)
-	public String getDepartmentwiseQuestionReport(HttpServletRequest request, Model model, Locale locale){
+	public String getDepartmentwiseDiscussionMotionReport(HttpServletRequest request, Model model, Locale locale){
 		
 		Map<String, String[]> requestMap = request.getParameterMap();
 		List answeringDates = Query.findReport("QIS_DEPARTMENTWISE_QUESTIONS_ANSWERING_DATES", requestMap);
@@ -2346,15 +1786,15 @@ public class DiscussionMotionReportController extends BaseController{
 						model.addAttribute("localisedContent", obj[0].toString().split("~#"));
 					}
 					if(obj[8]!=null) {
-						String[] clubbedQuestionNumbers = obj[8].toString().split(",");
+						String[] clubbedDiscussionMotionNumbers = obj[8].toString().split(",");
 						StringBuffer clubbedNumbers = new StringBuffer();
 						clubbedNumbers.append("(");
-						for(int i=0; i<clubbedQuestionNumbers.length; i++) {
+						for(int i=0; i<clubbedDiscussionMotionNumbers.length; i++) {
 							if(i!=0 && i%3==0) {
 								clubbedNumbers.append("<br/>");
 							} 
-							clubbedNumbers.append(clubbedQuestionNumbers[i]);
-							if(i!=clubbedQuestionNumbers.length-1) {
+							clubbedNumbers.append(clubbedDiscussionMotionNumbers[i]);
+							if(i!=clubbedDiscussionMotionNumbers.length-1) {
 								clubbedNumbers.append(",");
 							}							
 						}
@@ -2379,8 +1819,8 @@ public class DiscussionMotionReportController extends BaseController{
 		model.addAttribute("selectedDeviceType", request.getParameter("deviceType"));
 		model.addAttribute("selectedStatus", request.getParameter("status"));
 		
-		return "question/reports/"+request.getParameter("reportout");		
-	}//showTabByIdAndUrl('details_tab', 'question/report/sankshiptAhwal');
+		return "discussionmotion/reports/"+request.getParameter("reportout");		
+	}//showTabByIdAndUrl('details_tab', 'discussionmotion/report/sankshiptAhwal');
 	
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@RequestMapping(value="/sankshiptAhwal", method=RequestMethod.GET)
@@ -2396,7 +1836,7 @@ public class DiscussionMotionReportController extends BaseController{
 	
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@RequestMapping(value="/departmentwisequestions/export", method=RequestMethod.GET)
-	public void exportDepartmentwiseAdmittedQuestionReport(HttpServletRequest request, HttpServletResponse response, Model model, Locale locale){
+	public void exportDepartmentwiseAdmittedDiscussionMotionReport(HttpServletRequest request, HttpServletResponse response, Model model, Locale locale){
 		File reportFile = null; 
 		Boolean isError = false;
 		MessageResource errorMessage = null;
@@ -2416,15 +1856,15 @@ public class DiscussionMotionReportController extends BaseController{
 						}											
 					}
 					if(obj[8]!=null) {
-						String[] clubbedQuestionNumbers = obj[8].toString().split(",");
+						String[] clubbedDiscussionMotionNumbers = obj[8].toString().split(",");
 						StringBuffer clubbedNumbers = new StringBuffer();
 						clubbedNumbers.append("(");
-						for(int i=0; i<clubbedQuestionNumbers.length; i++) {
+						for(int i=0; i<clubbedDiscussionMotionNumbers.length; i++) {
 							if(i!=0 && i%3==0) {
 								clubbedNumbers.append("<br>");
 							} 
-							clubbedNumbers.append(clubbedQuestionNumbers[i]);
-							if(i!=clubbedQuestionNumbers.length-1) {
+							clubbedNumbers.append(clubbedDiscussionMotionNumbers[i]);
+							if(i!=clubbedDiscussionMotionNumbers.length-1) {
 								clubbedNumbers.append(",");
 							}							
 						}
@@ -2467,23 +1907,23 @@ public class DiscussionMotionReportController extends BaseController{
 			logger.error("error", e);
 		}
 		
-		String responsePage="question/reports/error";
+		String responsePage="discussionmotion/reports/error";
 		
-		String strQuestionType = request.getParameter("questionType");
+		String strDiscussionMotionType = request.getParameter("questionType");
 		String strHouseType = request.getParameter("houseType");
 		String strSessionType = request.getParameter("sessionType");
 		String strSessionYear = request.getParameter("sessionYear");
 		
-		if(strQuestionType!=null && strHouseType!=null && strSessionType!=null && strSessionYear!=null
-				&& !strQuestionType.isEmpty() && !strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()) {
+		if(strDiscussionMotionType!=null && strHouseType!=null && strSessionType!=null && strSessionYear!=null
+				&& !strDiscussionMotionType.isEmpty() && !strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()) {
 			
 			/**** populate selected questiontype ****/
-			DeviceType questionType=DeviceType.findByName(DeviceType.class, strQuestionType, locale.toString());
+			DeviceType questionType=DeviceType.findByName(DeviceType.class, strDiscussionMotionType, locale.toString());
 			if(questionType==null) {
-				questionType=DeviceType.findByType(strQuestionType, locale.toString());
+				questionType=DeviceType.findByType(strDiscussionMotionType, locale.toString());
 			}
 			if(questionType==null) {
-				questionType=DeviceType.findById(DeviceType.class, Long.parseLong(strQuestionType));
+				questionType=DeviceType.findById(DeviceType.class, Long.parseLong(strDiscussionMotionType));
 			}
 			if(questionType==null) {
 				logger.error("**** parameter questionType is invalid ****");
@@ -2721,13 +2161,13 @@ class DiscussionMotionReportHelper{
 			if(strDevice != null && !strDevice.isEmpty()){
 				DiscussionMotion qt = DiscussionMotion.findById(DiscussionMotion.class, id);
 				List report = generatetCurrentStatusReport(qt, strDevice, locale.toString());				
-				Map<String, Object[]> dataMap = new LinkedHashMap<String, Object[]>();
+				Map<String, Object[]> dataMap = new LinkedHashMap<String, Object[]>();	
 				if(report != null && !report.isEmpty()){
-					
-					List<User> users = User.findByRole(false, "SMOIS_PRINCIPAL_SECRETARY", locale.toString());
+										
+					List<User> users = User.findByRole(false, "QIS_PRINCIPAL_SECRETARY", locale.toString());
 					model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
 	
-					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "SMOIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "SMOIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
+					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
 					if(csptAllwedUserGroupForStatusReportSign != null){
 						if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
 							Object[] lastObject = (Object[]) report.get(report.size()-1); 
@@ -2775,10 +2215,9 @@ class DiscussionMotionReportHelper{
 								}
 							}
 							
-							//Following block is added for solving the issue of question drafts where in if there exist a draft and later the question is pending
+							//Following block is added for solving the issue of discussionmotion drafts where in if there exist a draft and later the discussionmotion is pending
 							// at the specific actor, the last remark is displayed
-							WorkflowConfig wfConfig = null;//WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
-							
+							WorkflowConfig wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
 							List<WorkflowActor> wfActors = wfConfig.getWorkflowactors();
 							List<WorkflowActor> distinctActors = new ArrayList<WorkflowActor>();
 							for(WorkflowActor wf : wfActors){
@@ -2825,28 +2264,18 @@ class DiscussionMotionReportHelper{
 									}
 								}
 							}
-							CustomParameter onPaperSigningAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "SMOIS_CURRENTSTATUS_ONPAPER_SIGNING_AUTHORITY_"+qt.getHouseType().getType(), "");
+							CustomParameter onPaperSigningAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "QIS_CURRENTSTATUS_ONPAPER_SIGNING_AUTHORITY_"+qt.getHouseType().getType(), "");
 							if(onPaperSigningAuthorityParameter != null){
 								String signingAuthority = onPaperSigningAuthorityParameter.getValue();
 								String[] signingAuthorities = signingAuthority.split(",");
 								for(String str : signingAuthorities){
-									String authority = str;
 									if(str.equals(ApplicationConstants.UNDER_SECRETARY) || str.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
 										str = ApplicationConstants.UNDER_SECRETARY;
 									}
 									if(dataMap.get(str) == null){
-										UserGroupType userGroupType = null;
-										Reference ref = null;
-										if(authority.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
-											 userGroupType = UserGroupType.
-													findByFieldName(UserGroupType.class, "type", authority, locale.toString());
-											 ref = UserGroup.findDiscussionMotionActor(qt, authority, String.valueOf(0), locale.toString());
-										}else{
-											 userGroupType = UserGroupType.
-													findByFieldName(UserGroupType.class, "type", str, locale.toString());
-											 ref = UserGroup.findDiscussionMotionActor(qt, str, String.valueOf(0), locale.toString());
-										}
-										
+										UserGroupType userGroupType = UserGroupType.
+												findByFieldName(UserGroupType.class, "type", str, locale.toString());
+										Reference ref = UserGroup.findDiscussionMotionActor(qt, str, String.valueOf(0), locale.toString());
 										if(ref.getId() != null){
 											Object[] actor = new Object[32];
 											if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) 
@@ -2868,109 +2297,19 @@ class DiscussionMotionReportHelper{
 									}
 								}
 							}
-//				CustomParameter csptAllowedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "SMOIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "SMOIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
-//				String houseType = null;
-//				/**** To decide the hierarchy of authorities ****/
-//				Map<String, String[]> hierarchyParameters = new HashMap<String, String[]>();
-//				hierarchyParameters.put("locale", new String[]{locale.toString()});
-//				hierarchyParameters.put("id", new String[]{qt.getId().toString()});
-//				List authorityHierarchy = Query.findReport("SMOIS_AUTHORITY_HIERARCHY", hierarchyParameters);
-//				if(authorityHierarchy != null && csptAllowedUserGroupForStatusReportSign != null){
-//					if(csptAllowedUserGroupForStatusReportSign.getValue() != null && !csptAllowedUserGroupForStatusReportSign.getValue().isEmpty()){
-//						for(Object ah : authorityHierarchy){
-//							Object[] auList = (Object[]) ah;
-//							if(auList != null){							
-//								if(auList[1] != null){
-//									String au = auList[1].toString();
-//									if(csptAllowedUserGroupForStatusReportSign.getValue().contains(au)){
-//										if(au.equals(ApplicationConstants.UNDER_SECRETARY) || au.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
-//											dataMap.put(ApplicationConstants.UNDER_SECRETARY, null);
-//										}else{
-//											dataMap.put(au, null);
-//										}
-//									}
-//								}
-//							}
-//						}
-//					}
-//				}
-//				
-//				if(report != null && !report.isEmpty()){
-//										
-//					List<User> users = User.findByRole(false, "SMOIS_PRINCIPAL_SECRETARY", locale.toString());
-//					model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
-//					
-//					if(csptAllowedUserGroupForStatusReportSign != null){
-//						if(csptAllowedUserGroupForStatusReportSign.getValue() != null && !csptAllowedUserGroupForStatusReportSign.getValue().isEmpty()){
-//						
-//							for(Object o : report){
-//								Object[] objx = (Object[])o;
-//	
-//								if(objx[27] != null && !objx[27].toString().isEmpty()){
-//									if(csptAllowedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){
-//										
-//										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
-//																				
-//										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
-//											if(dataMap.get(ApplicationConstants.UNDER_SECRETARY) != null){
-//												if(objx != null){
-//													if(objx[6] != null && objx[6].toString().length() > 0){
-//														dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
-//													}else{
-//														Object[] tempObj = dataMap.get(ApplicationConstants.UNDER_SECRETARY);
-//														tempObj[28] = objx[28];
-//														
-//														dataMap.put(ApplicationConstants.UNDER_SECRETARY, tempObj);
-//													}
-//												}
-//											}else{
-//												dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
-//											}
-//										}else{
-//											if(dataMap.get(userGroupType.getType()) != null){
-//												if(objx != null){
-//													if(objx[6] != null && objx[6].toString().length() > 0){
-//														dataMap.put(userGroupType.getType(), objx);
-//													}else{
-//														Object[] tempObj = dataMap.get(userGroupType.getType());
-//														tempObj[28] = objx[28];
-//														
-//														dataMap.put(userGroupType.getType(), tempObj);
-//													}
-//												}
-//												
-//											}else{
-//												dataMap.put(userGroupType.getType(), objx);
-//											}
-//										}
-//									}
-//								}
-//							}
-//							
-//							if(dataMap.get(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY) == null && qt.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
-//								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.OFFICER_ON_SPECIAL_DUTY, locale.toString());
+//							if(dataMap.get(ApplicationConstants.SECRETARY) == null 
+//									&& qt.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+//								UserGroupType userGroupType = UserGroupType.
+//										findByFieldName(UserGroupType.class, "type", ApplicationConstants.SECRETARY, locale.toString());
 //								
-//								Object[] dataCollection = new Object[30];
+//								Object[] dataCollection = new Object[32];
 //								dataCollection[0] = new String(userGroupType.getName());
 //								dataCollection[1] = new String("");
 //								dataCollection[3] = new String("");
 //								dataCollection[6] = new String("");
-//								dataCollection[27] = new String(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY);
+//								dataCollection[27] = userGroupType.getType();
 //								dataCollection[28] = new String("");
-//								
-//								dataMap.put(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY, dataCollection);
-//							}
-//							
-//							if(dataMap.get(ApplicationConstants.SECRETARY) == null && qt.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
-//								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.SECRETARY, locale.toString());
-//								
-//								Object[] dataCollection = new Object[30];
-//								dataCollection[0] = new String(userGroupType.getName());
-//								dataCollection[1] = new String("");
-//								dataCollection[3] = new String("");
-//								dataCollection[6] = new String("");
-//								dataCollection[27] = new String(ApplicationConstants.SECRETARY);
-//								dataCollection[28] = new String("");
+//								dataCollection[31] = null;
 //								
 //								dataMap.put(ApplicationConstants.SECRETARY, dataCollection);
 //							}
@@ -2978,21 +2317,22 @@ class DiscussionMotionReportHelper{
 //							if(dataMap.get(ApplicationConstants.PRINCIPAL_SECRETARY) == null){
 //								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.PRINCIPAL_SECRETARY, locale.toString());
 //								
-//								Object[] dataCollection = new Object[30];
+//								Object[] dataCollection = new Object[32];
 //								dataCollection[0] = new String(userGroupType.getName());
 //								dataCollection[1] = new String("");
 //								dataCollection[3] = new String("");
 //								dataCollection[6] = new String("");
-//								dataCollection[27] = new String(ApplicationConstants.PRINCIPAL_SECRETARY);
+//								dataCollection[27] = userGroupType.getType();
 //								dataCollection[28] = new String("");
+//								dataCollection[31] = null;
 //								
 //								dataMap.put(ApplicationConstants.PRINCIPAL_SECRETARY, dataCollection);
 //							}
-//							
+							
 //							if(dataMap.isEmpty()){
-//								for(String val : csptAllowedUserGroupForStatusReportSign.getValue().split(",")){
+//								for(String val : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
 //								
-//									Reference ref = UserGroup.findStandaloneMotionActor(qt, val, String.valueOf(0), locale.toString());
+//									Reference ref = UserGroup.findDiscussionMotionActor(qt, val, String.valueOf(0), locale.toString());
 //									Object[] actor = new Object[30];
 //									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
 //										actor[0] = new String(ref.getId().split("#")[3]);
@@ -3012,8 +2352,14 @@ class DiscussionMotionReportHelper{
 //									}
 //								}
 //							}
-	
-							model.addAttribute("data", dataMap);
+							Map<String, Object[]> sortedDataMap = new LinkedHashMap<String, Object[]>();
+							for(WorkflowActor wfa:distinctActors){
+								UserGroupType ugt = wfa.getUserGroupType();
+								if(dataMap.containsKey(ugt.getType())){
+									sortedDataMap.put(ugt.getType(), dataMap.get(ugt.getType()));
+								}
+							}
+							model.addAttribute("data", sortedDataMap);
 							model.addAttribute("formatData", report.get(report.size()-1));
 						}
 					}
@@ -3032,25 +2378,25 @@ class DiscussionMotionReportHelper{
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public static List generatetCurrentStatusReport(final DiscussionMotion question, final String device, final String locale){
+	public static List generatetCurrentStatusReport(final DiscussionMotion discussionmotion, final String device, final String locale){
 		CustomParameter memberNameFormatParameter = null;
-		if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+		if(discussionmotion.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 			memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "CURRENTSTATUSREPORT_MEMBERNAMEFORMAT_LOWERHOUSE", "");
-		} else if(question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+		} else if(discussionmotion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 			memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "CURRENTSTATUSREPORT_MEMBERNAMEFORMAT_UPPERHOUSE", "");
 		}
 		String support = "";
 		if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
-			support = question.findAllMemberNames(memberNameFormatParameter.getValue());
+			support = discussionmotion.findAllMemberNames(memberNameFormatParameter.getValue());
 		} else {
-			support = question.findAllMemberNames(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
+			support = discussionmotion.findAllMemberNames(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
 		}		
 		Map<String, String[]> parameters = new HashMap<String, String[]>();
 		parameters.put("locale",new String[]{locale.toString()});
-		parameters.put("id",new String[]{question.getId().toString()});
+		parameters.put("id",new String[]{discussionmotion.getId().toString()});
 		parameters.put("device", new String[]{device});
 
-		List list = Query.findReport("SMOIS_CURRENTSTATUS_REPORT", parameters);
+		List list = Query.findReport("QIS_CURRENTSTATUS_REPORT", parameters);
 		for(Object o : list){
 			Object[] data = (Object[]) o;
 			String details = ((data[4] != null)? data[4].toString():"-");
@@ -3061,9 +2407,105 @@ class DiscussionMotionReportHelper{
 			((Object[])o)[4] = FormaterUtil.formatNumbersInGivenText(details, locale);
 			((Object[])o)[5] = FormaterUtil.formatNumbersInGivenText(subject, locale);
 			((Object[])o)[6] = FormaterUtil.formatNumbersInGivenText(remarks, locale);
+		
+			
 			data = null;
 		}
+		return list;  
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static String getMemberDraftReportData(final Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		String page = "discussionmotion/error";
+		try{
+			String strDevice = request.getParameter("device"); 
+			if(strDevice != null && !strDevice.isEmpty()){
+				DiscussionMotion qt = DiscussionMotion.findById(DiscussionMotion.class, id);
+				List report = generatetMemberDraftReport(qt, strDevice, locale.toString());				
+				Map<String, Object[]> dataMap = new LinkedHashMap<String, Object[]>();	
+				if(report != null && !report.isEmpty()){
+					for(Object o : report){
+						Object[] objx = (Object[])o;
+						dataMap.put(ApplicationConstants.MEMBER, objx);								
+					}
+					model.addAttribute("data", dataMap);
+					model.addAttribute("formatData", report.get(report.size()-1));
+					page = (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))? "discussionmotion/reports/memberdraftreportlowerhouse": "discussionmotion/reports/memberdraftreportupperhouse";
+				}		
+	
+				model.addAttribute("qid", qt.getId());
+			}
+		}catch(Exception e){
+			logger.error(e.getMessage(),e);
+			e.printStackTrace();
+		}
+		
+		return page;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static List generatetMemberDraftReport(final DiscussionMotion discussionmotion, final String device, final String locale){
+		CustomParameter memberNameFormatParameter = null;
+		if(discussionmotion.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+			memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "CURRENTSTATUSREPORT_MEMBERNAMEFORMAT_LOWERHOUSE", "");
+		} else if(discussionmotion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+			memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "CURRENTSTATUSREPORT_MEMBERNAMEFORMAT_UPPERHOUSE", "");
+		}
+		String support = "";
+		if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
+			support = discussionmotion.findAllMemberNames(memberNameFormatParameter.getValue());
+		} else {
+			support = discussionmotion.findAllMemberNames(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
+		}		
+		Map<String, String[]> parameters = new HashMap<String, String[]>();
+		parameters.put("locale",new String[]{locale.toString()});
+		parameters.put("id",new String[]{discussionmotion.getId().toString()});
+		parameters.put("device", new String[]{device});
 
+		List list = Query.findReport("QIS_MEMBERDRAFT_REPORT", parameters);
+		for(Object o : list){
+			Object[] data = (Object[]) o;
+			String subject = ((data[12] != null)? data[12].toString():"-");
+			String details = ((data[13] != null)? data[13].toString():"-");
+			
+			((Object[])o)[7] = support;
+			((Object[])o)[12] = FormaterUtil.formatNumbersInGivenText(subject, locale);
+			((Object[])o)[13] = FormaterUtil.formatNumbersInGivenText(details, locale);
+			
+			/*try{
+				if(question.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+					Integer qNumber = new Integer(FormaterUtil.
+							getNumberFormatterNoGrouping(locale.toString()).parse(question.getHalfHourDiscusionFromDiscussionMotionReferenceNumber()).intValue());
+					Map<String, String[]> params = new HashMap<String, String[]>();
+					params.put("locale", new String[]{locale.toString()});
+					params.put("sessionId", new String[]{question.getSession().getId().toString()});
+					params.put("qNumber", new String[]{qNumber.toString()});
+					List data1 = Query.findReport("HDQ_REFER_QUESTION", params);
+					DiscussionMotion referredDiscussionMotion = null;
+					if(data1 != null && !data1.isEmpty()){
+						String strId = ((Object[])data1.get(0))[0].toString();
+						if(strId != null){
+							referredDiscussionMotion = DiscussionMotion.findById(DiscussionMotion.class, new Long(strId));
+						}
+					}
+					if(referredDiscussionMotion != null){
+						((Object[])o)[36] = FormaterUtil.formatNumberNoGrouping(referredDiscussionMotion.getNumber(), locale);
+						((Object[])o)[37] = referredDiscussionMotion.getType().getName();
+						((Object[])o)[38] = referredDiscussionMotion.getPrimaryMember().findFirstLastName();
+						if(referredDiscussionMotion.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
+							((Object[])o)[39] = FormaterUtil.formatDateToString(referredDiscussionMotion.getDiscussionDate(), ApplicationConstants.SERVER_DATEFORMAT, locale);
+						}else{
+							((Object[])o)[41] = FormaterUtil.formatNumberNoGrouping(referredDiscussionMotion.getYaadiNumber(), locale);
+							((Object[])o)[40] = FormaterUtil.formatDateToString(referredDiscussionMotion.getYaadiLayingDate(), ApplicationConstants.SERVER_DATEFORMAT, locale);
+						}
+					}
+				}
+			}catch(Exception e){
+				logger.error("error", e);
+			}*/
+			
+			data = null;
+		}
 		return list;  
 	}
 	
@@ -3098,9 +2540,9 @@ class DiscussionMotionReportHelper{
 		return objects;
 	}
 
-	public static String findMemberNamesForAddedQuestion(DiscussionMotion clubbedQuestion, String previousQuestionsMemberNames, String memberNameFormat, boolean isConstituencyIncluded) {
-		Session session = clubbedQuestion.getSession();
-		House questionHouse = session.getHouse();
+	public static String findMemberNamesForAddedDiscussionMotion(DiscussionMotion clubbedDiscussionMotion, String previousDiscussionMotionsMemberNames, String memberNameFormat, boolean isConstituencyIncluded) {
+		Session session = clubbedDiscussionMotion.getSession();
+		House discussionmotionHouse = session.getHouse();
 		Date currentDate = new Date();
 		StringBuffer allMemberNamesBuffer = new StringBuffer("");
 		Member member = null;
@@ -3108,15 +2550,15 @@ class DiscussionMotionReportHelper{
 		String constituencyName = "";
 		
 		/** primary member **/
-		member = clubbedQuestion.getPrimaryMember();		
+		member = clubbedDiscussionMotion.getPrimaryMember();		
 		if(member==null) {
 			return allMemberNamesBuffer.toString();
 		}		
 		memberName = member.findNameInGivenFormat(memberNameFormat);
-		if(memberName!=null && !memberName.isEmpty() && !previousQuestionsMemberNames.contains(memberName) && !allMemberNamesBuffer.toString().contains(memberName)) {
+		if(memberName!=null && !memberName.isEmpty() && !previousDiscussionMotionsMemberNames.contains(memberName) && !allMemberNamesBuffer.toString().contains(memberName)) {
 			allMemberNamesBuffer.append(memberName);
 			if(isConstituencyIncluded) {
-				constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+				constituencyName = member.findConstituencyNameForYadiReport(discussionmotionHouse, "DATE", currentDate, currentDate);
 				if(!constituencyName.isEmpty()) {
 					allMemberNamesBuffer.append(" (" + constituencyName + ")");			
 				}
@@ -3126,17 +2568,17 @@ class DiscussionMotionReportHelper{
 		}				
 		
 		/** supporting members **/
-		List<SupportingMember> supportingMembers = clubbedQuestion.getSupportingMembers();
+		List<SupportingMember> supportingMembers = clubbedDiscussionMotion.getSupportingMembers();
 		if (supportingMembers != null) {
 			for (SupportingMember sm : supportingMembers) {
 				member = sm.getMember();
 				if(member!=null) {
 					memberName = member.findNameInGivenFormat(memberNameFormat);
-					if(memberName!=null && !memberName.isEmpty() && !previousQuestionsMemberNames.contains(memberName) && !allMemberNamesBuffer.toString().contains(memberName)) {
-						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(clubbedQuestion)) {
+					if(memberName!=null && !memberName.isEmpty() && !previousDiscussionMotionsMemberNames.contains(memberName) && !allMemberNamesBuffer.toString().contains(memberName)) {
+						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(clubbedDiscussionMotion)) {
 							allMemberNamesBuffer.append(", " + memberName);
 							if(isConstituencyIncluded) {
-								constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+								constituencyName = member.findConstituencyNameForYadiReport(discussionmotionHouse, "DATE", currentDate, currentDate);
 								if(!constituencyName.isEmpty()) {
 									allMemberNamesBuffer.append(" (" + constituencyName + ")");						
 								}
@@ -3147,25 +2589,25 @@ class DiscussionMotionReportHelper{
 			}
 		}
 		
-		/** clubbed questions members **/
-		List<ClubbedEntity> clubbedEntities = DiscussionMotion.findClubbedEntitiesByPosition(clubbedQuestion);
+		/** clubbed discussionmotions members **/
+		List<ClubbedEntity> clubbedEntities = DiscussionMotion.findClubbedEntitiesByPosition(clubbedDiscussionMotion, ApplicationConstants.DESC);
 		if (clubbedEntities != null) {
 			for (ClubbedEntity ce : clubbedEntities) {
 				/**
-				 * show only those clubbed questions which are not in state of
+				 * show only those clubbed discussionmotions which are not in state of
 				 * (processed to be putup for nameclubbing, putup for
 				 * nameclubbing, pending for nameclubbing approval)
 				 **/
-				if (ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.STANDALONE_SYSTEM_CLUBBED)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.STANDALONE_FINAL_ADMISSION)) {
-					member = ce.getQuestion().getPrimaryMember();
+				if (ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.DISCUSSIONMOTION_SYSTEM_CLUBBED)
+						|| ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.DISCUSSIONMOTION_FINAL_ADMISSION)) {
+					member = ce.getDiscussionMotion().getPrimaryMember();
 					if(member!=null) {
 						memberName = member.findNameInGivenFormat(memberNameFormat);
-						if(memberName!=null && !memberName.isEmpty() && !previousQuestionsMemberNames.contains(memberName) && !allMemberNamesBuffer.toString().contains(memberName)) {
-							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(clubbedQuestion)) {
+						if(memberName!=null && !memberName.isEmpty() && !previousDiscussionMotionsMemberNames.contains(memberName) && !allMemberNamesBuffer.toString().contains(memberName)) {
+							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(clubbedDiscussionMotion)) {
 								allMemberNamesBuffer.append(", " + memberName);
 								if(isConstituencyIncluded) {
-									constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+									constituencyName = member.findConstituencyNameForYadiReport(discussionmotionHouse, "DATE", currentDate, currentDate);
 									if(!constituencyName.isEmpty()) {
 										allMemberNamesBuffer.append(" (" + constituencyName + ")");							
 									}
@@ -3173,17 +2615,17 @@ class DiscussionMotionReportHelper{
 							}							
 						}												
 					}
-					List<SupportingMember> clubbedSupportingMembers = ce.getQuestion().getSupportingMembers();
+					List<SupportingMember> clubbedSupportingMembers = ce.getDiscussionMotion().getSupportingMembers();
 					if (clubbedSupportingMembers != null) {
 						for (SupportingMember csm : clubbedSupportingMembers) {
 							member = csm.getMember();
 							if(member!=null) {
 								memberName = member.findNameInGivenFormat(memberNameFormat);
-								if(memberName!=null && !memberName.isEmpty() && !previousQuestionsMemberNames.contains(memberName) && !allMemberNamesBuffer.toString().contains(memberName)) {
-									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(clubbedQuestion)) {
+								if(memberName!=null && !memberName.isEmpty() && !previousDiscussionMotionsMemberNames.contains(memberName) && !allMemberNamesBuffer.toString().contains(memberName)) {
+									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(clubbedDiscussionMotion)) {
 										allMemberNamesBuffer.append(", " + memberName);
 										if(isConstituencyIncluded) {
-											constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+											constituencyName = member.findConstituencyNameForYadiReport(discussionmotionHouse, "DATE", currentDate, currentDate);
 											if(!constituencyName.isEmpty()) {
 												allMemberNamesBuffer.append(" (" + constituencyName + ")");							
 											}
@@ -3199,146 +2641,140 @@ class DiscussionMotionReportHelper{
 		return allMemberNamesBuffer.toString();		
 	}
 	
-	public static Object[] prepareUnstarredYaadiData(final Session session, final List<Question> totalQuestionsInYaadi, String locale) throws ELSException {
-		Object[] unstarredYaadiData = null;
-		/**** Session Related Data ****/
-		HouseType houseType = session.getHouse().getType();
-		String houseTypeName = houseType.getName();
-		String sessionNumber = session.getNumber().toString();
-		String sessionTypeName = session.getType().getSessionType();
-		String sessionYear = FormaterUtil.formatNumberNoGrouping(session.getYear(), locale.toString());
-		String sessionPlace = session.getPlace().getPlace();
-		/**** Questions Data ****/
-		String yaadiNumber = null;
-		List<Object[]> yaadiQuestions = new ArrayList<Object[]>();
-		int count=0;
-		for(Question q: totalQuestionsInYaadi) {
-			Object[] yaadiQuestion = new Object[15];
-			count++;
-			yaadiQuestion[0] = FormaterUtil.formatNumberNoGrouping(count, locale);
-			yaadiQuestion[1] = q.getId();
-			yaadiQuestion[2] = q.getNumber();
-			yaadiQuestion[3] = FormaterUtil.formatNumberNoGrouping(q.getNumber(), locale);
-			/**** member names ****/
-			String allMemberNames = "";	
-			String houseTypeType = houseType.getType();		
-			String memberNameFormat = null;
-			CustomParameter memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "QIS_YADI_MEMBERNAMEFORMAT_"+houseTypeType.toUpperCase(), "");
-			if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
-				memberNameFormat = memberNameFormatParameter.getValue();						
-			} else {
-				memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;
-			}
-			if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
-				allMemberNames = q.findAllMemberNamesWithConstituencies(memberNameFormat);
-			} else {
-				allMemberNames = q.findAllMemberNames(memberNameFormat);
-			}
-			/**** add below commented code in case space between title & member name should be removed ****/
-//			if(allMemberNames!=null && !allMemberNames.isEmpty()) {
-//				List<Title> titles = Title.findAll(Title.class, "name", ApplicationConstants.ASC, locale);
-//				if(titles!=null && !titles.isEmpty()) {
-//					for(Title t: titles) {
-//						if(t.getName().trim().endsWith(".")) {
-//							allMemberNames = allMemberNames.replace(t.getName().trim()+" ", t.getName().trim());
-//						}
-//					}
-//				}
-//			}				
-			yaadiQuestion[4] = allMemberNames;
-			if(q.getRevisedSubject()!=null && !q.getRevisedSubject().isEmpty()) {
-				yaadiQuestion[5] = q.getRevisedSubject();//FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale);
-			} else if(q.getSubject()!=null && !q.getSubject().isEmpty()) {
-				yaadiQuestion[5] = q.getSubject();//FormaterUtil.formatNumbersInGivenText(q.getSubject(), locale);
-			}
-			String content = q.getRevisedQuestionText();
-			if(content!=null && !content.isEmpty()) {
-				if(content.endsWith("<br><p></p>")) {
-					content = content.substring(0, content.length()-11);						
-				} else if(content.endsWith("<p></p>")) {
-					content = content.substring(0, content.length()-7);					
-				}
-				//content = FormaterUtil.formatNumbersInGivenText(content, locale);				
-			} else {
-				content = q.getQuestionText();
-				if(content!=null && !content.isEmpty()) {
-					if(content.endsWith("<br><p></p>")) {
-						content = content.substring(0, content.length()-11);							
-					} else if(content.endsWith("<p></p>")) {
-						content = content.substring(0, content.length()-7);					
-					}
-					//content = FormaterUtil.formatNumbersInGivenText(content, locale);					
-				}
-			}	
-			yaadiQuestion[6] = content;
-			String answer = q.getAnswer();
-			if(answer != null) {
-				if(answer.endsWith("<br><p></p>")) {
-					answer = answer.substring(0, answer.length()-11);						
-				} else if(answer.endsWith("<p></p>")) {
-					answer = answer.substring(0, answer.length()-7);					
-				}
-				//answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
-			}				
-			yaadiQuestion[7] = answer;
-			Member answeringMember = MemberMinister.findMemberHavingMinistryInSession(session, q.getMinistry());
-			if(answeringMember != null){
-				yaadiQuestion[8] = answeringMember.findNameInGivenFormat(memberNameFormat);
-			}
-			yaadiQuestion[9] = q.getSubDepartment().getName();
-			try {
-				MemberMinister memberMinister = Question.findMemberMinisterIfExists(q);
-				if(memberMinister!=null) {
-					yaadiQuestion[10] = memberMinister.getDesignation().getName();
-				} else {
-					yaadiQuestion[10] = "";
-				}
-			} catch(ELSException ex) {
-				yaadiQuestion[10] = "";
-			}
-			/** referenced question details (later should come through referenced entities) **/
-			String questionReferenceText = q.getQuestionreferenceText();
-			if(questionReferenceText!=null) {
-				//questionReferenceText = FormaterUtil.formatNumbersInGivenText(questionReferenceText, locale);
-				yaadiQuestion[11] = questionReferenceText;
-			} else {
-				yaadiQuestion[11] = "";
-			}
-			/** answer related dates **/
-			SimpleDateFormat answerRelatedDateFormat = null;
-			CustomParameter answerRelatedDateFormatParameter = CustomParameter.findByName(CustomParameter.class, "UNSTARRED_YAADI_ANSWER_RELATED_DATE_FORMAT", "");
-			if(answerRelatedDateFormatParameter!=null) {
-				answerRelatedDateFormat=FormaterUtil.getDateFormatter(answerRelatedDateFormatParameter.getValue(), locale.toString());
-			} else {
-				answerRelatedDateFormat=FormaterUtil.getDateFormatter(ApplicationConstants.REPORT_DATEFORMAT, locale.toString());
-			}
-			if(q.getAnswerRequestedDate()!=null) {
-				yaadiQuestion[12] = answerRelatedDateFormat.format(q.getAnswerRequestedDate());
-			} else {
-				yaadiQuestion[12] = "";
-			}
-			if(q.getAnswerReceivedDate()!=null) {
-				yaadiQuestion[13] = answerRelatedDateFormat.format(q.getAnswerReceivedDate());
-			} else {
-				yaadiQuestion[13] = "";
-			}
-			if(yaadiNumber==null) {
-				if(q.getYaadiNumber()!=null) {
-					yaadiNumber = FormaterUtil.formatNumberNoGrouping(q.getYaadiNumber(), locale);
-				} else {
-					yaadiNumber = "";
+	
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static void convertReportDataIntoMapGenericApproach(final List reportData, final ModelMap model) {
+		if(reportData!=null && !reportData.isEmpty()) {
+			for(int i=0; i<3; i++) {
+				Map dataMap = new LinkedHashMap<String, List<String>>();
+				List<String> dataMapValues = new ArrayList<String>();
+				String groupByFieldValue = "";
+				long groupByFieldCount = 0;
+				int groupByFieldRowCount = 0;
+				int loopCnt = 1;
+				for(Object rd : reportData) {					
+					Object[] o = (Object[]) rd;					
+					if(i==(3-1)) { //innermost level of group by where directs counts are mapped
+						dataMapValues = new ArrayList<String>();
+						dataMapValues.add(o[i+1].toString());
+						dataMap.put(o[i].toString(), dataMapValues);
+						model.addAttribute("dataMap"+(i+1), dataMap);
+						groupByFieldCount = Long.parseLong(o[3].toString());
+						model.addAttribute("dataMap"+(i+1)+"_"+o[i].toString(), groupByFieldCount);
+						groupByFieldRowCount = 1;
+						model.addAttribute("dataMap"+(i+1)+"_"+o[i].toString()+"_rowCount", groupByFieldRowCount);
+						
+					} else { //outer levels of group by where each level is mapped to its next level
+						if(loopCnt==1) {
+							groupByFieldValue = o[i].toString();
+						}
+						if(!o[i].toString().equals(groupByFieldValue)) {						
+							//dataMap = new LinkedHashMap<String, List<String>>();
+							dataMapValues = new ArrayList<String>();
+							groupByFieldValue = o[i].toString();
+							groupByFieldCount = Long.parseLong(o[3].toString());
+							groupByFieldRowCount = 1;
+						} else {
+							dataMap.put(o[i].toString(), dataMapValues);
+							model.addAttribute("dataMap"+(i+1), dataMap);
+							groupByFieldCount += Long.parseLong(o[3].toString());
+							model.addAttribute("dataMap"+(i+1)+"_"+o[i].toString(), groupByFieldCount);
+							groupByFieldRowCount += 1;
+							model.addAttribute("dataMap"+(i+1)+"_"+o[i].toString()+"_rowCount", groupByFieldRowCount);
+						}
+						if(!dataMapValues.contains(o[i+1].toString())) {
+							dataMapValues.add(o[i+1].toString());
+						}
+					}					
+					loopCnt++;
 				}
 			}
-			//-----------------------------------------------
-			yaadiQuestions.add(yaadiQuestion);
 		}
-		String totalNumberOfYaadiQuestions = FormaterUtil.formatNumberNoGrouping(yaadiQuestions.size(), locale.toString());
-		Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
-		List<User> users = User.findByRole(false, role.getName(), locale.toString());
-		//as principal secretary for unstarred question is only one, so user is obviously first element of the list.
-		String userName = users.get(0).findFirstLastName();
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static Map convertReportDataIntoMap(final List reportData, final ModelMap model) {
+		Map dataMap1 = new LinkedHashMap<String, Map>();
+		if(reportData!=null && !reportData.isEmpty()) {
+			String groupByFieldValue1 = "";			
+			int loopCnt1 = 1;
+			for(Object rd1 : reportData) {
+				long groupByFieldCount1 = 0;
+				Object[] o1 = (Object[]) rd1;
+				if(loopCnt1==1) {
+					groupByFieldValue1 = o1[0].toString();
+				}				
+				if(loopCnt1==1 || !o1[0].toString().equals(groupByFieldValue1)) {
+					Map dataMap2 = new LinkedHashMap<String, Map>();
+					String groupByFieldValue2 = "";					
+					int loopCnt2 = 1;
+					for(Object rd2 : reportData) {		
+						long groupByFieldCount2 = 0;
+						Object[] o2 = (Object[]) rd2;
+						if(o2[0].toString().equals(o1[0].toString())) { //for same group
+							if(loopCnt2==1) {
+								groupByFieldValue2 = o2[1].toString();	
+							}				
+							if(loopCnt2==1 || !o2[1].toString().equals(groupByFieldValue2)) {
+								Map dataMap3 = new LinkedHashMap<String, Long>();
+								String groupByFieldValue3 = "";
+								int loopCnt3 = 1;
+								for(Object rd3 : reportData) {
+									Object[] o3 = (Object[]) rd3;
+									if(o3[1].toString().equals(o2[1].toString())) { //for same assistant
+										if(loopCnt3==1) {
+											groupByFieldValue3 = o3[2].toString();
+										}				
+										if(loopCnt3==1 || !o3[2].toString().equals(groupByFieldValue3)) {
+											dataMap3.put(o3[2].toString(), Long.parseLong(o3[3].toString()));
+											groupByFieldValue3 = o3[2].toString();
+											groupByFieldCount1 += Long.parseLong(o3[3].toString());
+											groupByFieldCount2 += Long.parseLong(o3[3].toString());
+										}
+									}	
+									loopCnt3++;
+								}
+								dataMap2.put(o2[1].toString(), dataMap3);
+								model.addAttribute("dataMap2_"+o2[1].toString(), groupByFieldCount2);
+								groupByFieldValue2 = o2[1].toString();
+							}
+						}		
+						loopCnt2++;
+					}
+					dataMap1.put(o1[0].toString(), dataMap2);
+					model.addAttribute("dataMap1_"+o1[0].toString(), groupByFieldCount1);
+					groupByFieldValue1 = o1[0].toString();
+					groupByFieldCount1 = 0;
+				}		
+				loopCnt1++;
+			}
+		}
 		
-		unstarredYaadiData = new Object[]{yaadiQuestions, totalNumberOfYaadiQuestions, houseTypeName, sessionNumber, sessionTypeName, sessionYear, sessionPlace, userName, yaadiNumber};
-		return unstarredYaadiData;
+		return dataMap1;
+	}
+	
+	private List<CountsUsingGroupByReportVO> findCountsUsingGroupByReportVO(final List reportData) {
+		List<CountsUsingGroupByReportVO> countsUsingGroupByReportVOs = new ArrayList<CountsUsingGroupByReportVO>();
+	
+		if(reportData!=null && !reportData.isEmpty()) {
+			CountsUsingGroupByReportVO[] countsArr = new CountsUsingGroupByReportVO[3];
+			for(int i=3; i>0; i--) {
+				CountsUsingGroupByReportVO countsUsingGroupByReportVO = new CountsUsingGroupByReportVO();
+				int loopCnt = 1;
+				String groupByFieldValue = "";
+				for(Object rd : reportData) {
+					Object[] o = (Object[]) rd;
+					if(loopCnt==1) {
+						groupByFieldValue = o[i].toString();
+						countsArr[i-1].setGroupByFieldValue(groupByFieldValue);
+						
+					}
+					
+				}
+			}
+		}
+		
+		return countsUsingGroupByReportVOs;
 	}
 }

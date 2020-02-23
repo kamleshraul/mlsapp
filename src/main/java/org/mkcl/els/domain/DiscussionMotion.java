@@ -55,6 +55,10 @@ public class DiscussionMotion extends Device implements Serializable{
     @JoinColumn(name="session_id")
     private Session session;
     
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="originaldevicetype_id")
+    private DeviceType originalType;
+    
     /*** The type. ***/
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="devicetype_id")
@@ -106,6 +110,14 @@ public class DiscussionMotion extends Device implements Serializable{
     /*** The Revised Notice Content. ***/
     @Column(length=30000)
     private String revisedNoticeContent;
+    
+    /*** The Brief Explanation. ***/
+    @Column(length=30000)
+    private String briefExplanation;
+
+    /*** The Revised Brief Explanation. ***/
+    @Column(length=30000)
+    private String revisedBriefExplanation;
 
     /*** The priority. ***/
     private Integer priority;
@@ -119,7 +131,7 @@ public class DiscussionMotion extends Device implements Serializable{
     private Status status;
 
     /** 
-     * The internal status. Refers to status assigned to a Question
+     * The internal status. Refers to status assigned to a DiscussionMotion
      * during the Workflow
      */
     @ManyToOne(fetch=FetchType.LAZY)
@@ -511,8 +523,8 @@ public class DiscussionMotion extends Device implements Serializable{
 		}
 	}
 
-	public static List<ClubbedEntity> findClubbedEntitiesByPosition(final DiscussionMotion motion) {
-		return getDiscussionMotionRepository().findClubbedEntitiesByPosition(motion);
+	public static List<ClubbedEntity> findClubbedEntitiesByPosition(final DiscussionMotion motion, final String sortOrder) {
+		return getDiscussionMotionRepository().findClubbedEntitiesByPosition(motion, sortOrder);
 	}
 	
 	@Override
@@ -1210,7 +1222,7 @@ public class DiscussionMotion extends Device implements Serializable{
 			}
 		}		
 		/** clubbed questions members **/
-		List<ClubbedEntity> clubbedEntities = DiscussionMotion.findClubbedEntitiesByPosition(this);
+		List<ClubbedEntity> clubbedEntities = DiscussionMotion.findClubbedEntitiesByPosition(this,ApplicationConstants.DESC);
 		if (clubbedEntities != null) {
 			for (ClubbedEntity ce : clubbedEntities) {
 				/**
@@ -1218,15 +1230,15 @@ public class DiscussionMotion extends Device implements Serializable{
 				 * (processed to be putup for nameclubbing, putup for
 				 * nameclubbing, pending for nameclubbing approval)
 				 **/
-				if (ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_SYSTEM_CLUBBED)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)) {
-					member = ce.getQuestion().getPrimaryMember();
+				if (ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
+						|| ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_SYSTEM_CLUBBED)
+						|| ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED)
+						|| ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED)
+						|| ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+						|| ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+						|| ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
+						|| ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)) {
+					member = ce.getDiscussionMotion().getPrimaryMember();
 					if(member!=null) {
 						memberName = member.findNameInGivenFormat(nameFormat);
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
@@ -1239,7 +1251,7 @@ public class DiscussionMotion extends Device implements Serializable{
 							}							
 						}												
 					}
-					List<SupportingMember> clubbedSupportingMembers = ce.getQuestion().getSupportingMembers();
+					List<SupportingMember> clubbedSupportingMembers = ce.getDiscussionMotion().getSupportingMembers();
 					if (clubbedSupportingMembers != null) {
 						for (SupportingMember csm : clubbedSupportingMembers) {
 							member = csm.getMember();
@@ -1317,7 +1329,7 @@ public class DiscussionMotion extends Device implements Serializable{
 		}
 		
 		/** clubbed questions members **/
-		List<ClubbedEntity> clubbedEntities = DiscussionMotion.findClubbedEntitiesByPosition(this);
+		List<ClubbedEntity> clubbedEntities = DiscussionMotion.findClubbedEntitiesByPosition(this,ApplicationConstants.DESC);
 		if (clubbedEntities != null) {
 			for (ClubbedEntity ce : clubbedEntities) {
 				/**
@@ -1325,15 +1337,15 @@ public class DiscussionMotion extends Device implements Serializable{
 				 * (processed to be putup for nameclubbing, putup for
 				 * nameclubbing, pending for nameclubbing approval)
 				 **/
-				if (ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_SYSTEM_CLUBBED)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)) {
-					member = ce.getQuestion().getPrimaryMember();
+				if (ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
+						|| ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_SYSTEM_CLUBBED)
+						|| ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED)
+						|| ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED)
+						|| ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+						|| ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+						|| ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
+						|| ce.getDiscussionMotion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)) {
+					member = ce.getDiscussionMotion().getPrimaryMember();
 					if(member!=null) {
 						memberName = member.findNameInGivenFormat(nameFormat);
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
@@ -1350,7 +1362,7 @@ public class DiscussionMotion extends Device implements Serializable{
 							}							
 						}												
 					}
-					List<SupportingMember> clubbedSupportingMembers = ce.getQuestion().getSupportingMembers();
+					List<SupportingMember> clubbedSupportingMembers = ce.getDiscussionMotion().getSupportingMembers();
 					if (clubbedSupportingMembers != null) {
 						for (SupportingMember csm : clubbedSupportingMembers) {
 							member = csm.getMember();
@@ -1569,6 +1581,12 @@ public class DiscussionMotion extends Device implements Serializable{
 	
 	//************************Clubbing unclubbing update*********************
 		/**** Motion Update Clubbing Starts ****/
+	
+	public static boolean isAdmittedThroughClubbing(final DiscussionMotion discussionmotion) {
+		return getDiscussionMotionRepository().isAdmittedThroughClubbing(discussionmotion);		
+	}
+	
+	
 	    public static void updateClubbing(DiscussionMotion motion) throws ELSException {
 			//case 1: motion is child
 			if(motion.getParent()!=null) {
@@ -1619,7 +1637,7 @@ public class DiscussionMotion extends Device implements Serializable{
 //						motion.setInternalStatus(putupStatus);
 //						motion.setRecommendationStatus(putupStatus);
 //						
-//						//updateDomainFieldsOnClubbingFinalisation(question, parentQuestion);
+//						//updateDomainFieldsOnClubbingFinalisation(question, parentDiscussionMotion);
 //						
 //						Status clubbedStatus = Status.findByType(ApplicationConstants.CUTMOTION_SYSTEM_CLUBBED, motion.getLocale());
 //						actualClubbingMotions(motion, parentMotion, clubbedStatus, clubbedStatus, locale);
@@ -2115,6 +2133,32 @@ public class DiscussionMotion extends Device implements Serializable{
 
 	public void setDiscussionDate(Date discussionDate) {
 		this.discussionDate = discussionDate;
+	}
+	
+
+
+	public DeviceType getOriginalType() {
+		return originalType;
+	}
+
+	public void setOriginalType(DeviceType originalType) {
+		this.originalType = originalType;
+	}
+
+	public String getBriefExplanation() {
+		return briefExplanation;
+	}
+
+	public void setBriefExplanation(String briefExplanation) {
+		this.briefExplanation = briefExplanation;
+	}
+
+	public String getRevisedBriefExplanation() {
+		return revisedBriefExplanation;
+	}
+
+	public void setRevisedBriefExplanation(String revisedBriefExplanation) {
+		this.revisedBriefExplanation = revisedBriefExplanation;
 	}
 
 	public String getWorkflowStarted() {

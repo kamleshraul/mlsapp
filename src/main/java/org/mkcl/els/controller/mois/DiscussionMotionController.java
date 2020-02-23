@@ -489,6 +489,42 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 							}
 						}
 					}
+					
+					//Populate Supporting Members Validation Message
+					String numberOfSupportingMembers = selectedSession.
+							getParameter(discussionMotionType.getType()+"_numberOfSupportingMembers");
+					String numberOfSupportingMembersComparator = selectedSession.
+							getParameter(discussionMotionType.getType()+"_numberOfSupportingMembersComparator");
+
+					if((numberOfSupportingMembers != null) && (numberOfSupportingMembersComparator != null)){
+						model.addAttribute("numberOfSupportingMembers", numberOfSupportingMembers);            
+						model.addAttribute("numberOfSupportingMembersComparator", 
+								numberOfSupportingMembersComparator);
+
+						if(numberOfSupportingMembersComparator.equalsIgnoreCase("eq")){
+
+							numberOfSupportingMembersComparator = "&#61;";
+
+						}else if(numberOfSupportingMembersComparator.equalsIgnoreCase("lt")){
+
+							numberOfSupportingMembersComparator = "&lt;";
+
+						}else if(numberOfSupportingMembersComparator.equalsIgnoreCase("gt")){
+
+							numberOfSupportingMembersComparator = "&gt;";
+
+						}else if(numberOfSupportingMembersComparator.equalsIgnoreCase("le")){
+
+							numberOfSupportingMembersComparator = "&le;";
+
+						}else if(numberOfSupportingMembersComparator.equalsIgnoreCase("ge")){
+
+							numberOfSupportingMembersComparator = "&ge;";
+						}
+
+						model.addAttribute("numberOfSupportingMembersComparatorHTML",
+								numberOfSupportingMembersComparator);
+					}
 					/**** Ministries ****/
 					Date rotationOrderPubDate=null;
 					CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
@@ -686,6 +722,44 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 		}else{
 			model.addAttribute("memberNames",memberNames);
 		}
+		
+		//Populate Supporting Members Validation Message
+		String numberOfSupportingMembers = selectedSession.
+				getParameter(discussionMotionType.getType()+"_numberOfSupportingMembers");
+		String numberOfSupportingMembersComparator = selectedSession.
+				getParameter(discussionMotionType.getType()+"_numberOfSupportingMembersComparator");
+
+		if((numberOfSupportingMembers != null) && (numberOfSupportingMembersComparator != null)){
+			model.addAttribute("numberOfSupportingMembers", numberOfSupportingMembers);            
+			model.addAttribute("numberOfSupportingMembersComparator", 
+					numberOfSupportingMembersComparator);
+
+			if(numberOfSupportingMembersComparator.equalsIgnoreCase("eq")){
+
+				numberOfSupportingMembersComparator = "&#61;";
+
+			}else if(numberOfSupportingMembersComparator.equalsIgnoreCase("lt")){
+
+				numberOfSupportingMembersComparator = "&lt;";
+
+			}else if(numberOfSupportingMembersComparator.equalsIgnoreCase("gt")){
+
+				numberOfSupportingMembersComparator = "&gt;";
+
+			}else if(numberOfSupportingMembersComparator.equalsIgnoreCase("le")){
+
+				numberOfSupportingMembersComparator = "&le;";
+
+			}else if(numberOfSupportingMembersComparator.equalsIgnoreCase("ge")){
+
+				numberOfSupportingMembersComparator = "&ge;";
+			}
+
+			model.addAttribute("numberOfSupportingMembersComparatorHTML",
+					numberOfSupportingMembersComparator);
+		}
+
+		
 		/**** Ministries And Sub Departments ****/
 		Date rotationOrderPubDate=null;
 		CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
@@ -1012,6 +1086,45 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch");
 		}
+		
+		
+		Session session = domain.getSession();								
+		if(session != null) {
+			String noOFSupportingMembersToCheck = 
+					session.getParameter(ApplicationConstants.DISCUSSIONMOTION_SHORTDURATION_NO_OF_SUPPORTING_MEMBERS);
+			String noOFSupportingMembersComparator = 
+					session.getParameter(ApplicationConstants.DISCUSSIONMOTION_SHORTDURATION_NO_OF_SUPPORTING_MEMBERS_COMPARATOR);
+			if(noOFSupportingMembersToCheck!=null && !noOFSupportingMembersToCheck.isEmpty() 
+				&& noOFSupportingMembersComparator!=null && !noOFSupportingMembersComparator.isEmpty()){										
+				int numberOFSupportingMembersToCheck = Integer.parseInt(noOFSupportingMembersToCheck);
+				int numberOFSupportingMembersReceived = 0;
+				if(domain.getSupportingMembers()!=null) {
+					numberOFSupportingMembersReceived = domain.getSupportingMembers().size();
+				}
+				if(noOFSupportingMembersComparator.equalsIgnoreCase("eq")) {
+					if(!(numberOFSupportingMembersReceived == numberOFSupportingMembersToCheck)) {
+						result.rejectValue("supportingMembers","noOfSupportingMembersInvalid");
+					}
+				}else if(noOFSupportingMembersComparator.equalsIgnoreCase("le")) {
+					if(!(numberOFSupportingMembersReceived <= numberOFSupportingMembersToCheck)) {
+						result.rejectValue("supportingMembers","noOfSupportingMembersInvalid");
+					}
+				}else if(noOFSupportingMembersComparator.equalsIgnoreCase("lt")) {
+					if(!(numberOFSupportingMembersReceived < numberOFSupportingMembersToCheck)) {
+						result.rejectValue("supportingMembers","noOfSupportingMembersInvalid");
+					}
+				}else if(noOFSupportingMembersComparator.equalsIgnoreCase("ge")) {
+					if(!(numberOFSupportingMembersReceived >= numberOFSupportingMembersToCheck)) {
+						result.rejectValue("supportingMembers","noOfSupportingMembersInvalid");
+					}
+				}else if(noOFSupportingMembersComparator.equalsIgnoreCase("gt")) {
+					if(!(numberOFSupportingMembersReceived > numberOFSupportingMembersToCheck)) {
+						result.rejectValue("supportingMembers","noOfSupportingMembersInvalid");
+					}
+				}
+			}
+		}
+		
 		String operation=request.getParameter("operation");
 		if(operation!=null){
 			if(!operation.isEmpty()){

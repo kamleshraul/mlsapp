@@ -454,6 +454,12 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 		return getWorkflowConfigRepository().findDiscussionMotionActors(motion, internalStatus, userGroup, level, locale);
 	}
 	
+	public static WorkflowConfig getLatest(final DiscussionMotion motion,
+			final String internalStatus,
+			final String locale) throws ELSException {
+		return getWorkflowConfigRepository().getLatest(motion, internalStatus, locale);
+	}
+	
 	public static  boolean containsGivenData(final List<? extends BaseDomain> dataList, final String data){
 		
 		return getWorkflowConfigRepository().containsGivenData(dataList, data);

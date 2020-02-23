@@ -21,11 +21,13 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.DiscussionMotion;
+import org.mkcl.els.domain.DiscussionMotionDraft;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
-
+import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.QuestionDraft;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.UserGroupType;
@@ -62,9 +64,9 @@ public class DiscussionMotionRepository extends BaseRepository<DiscussionMotion,
 	}	
 	
 	@SuppressWarnings("unchecked")
-	public List<ClubbedEntity> findClubbedEntitiesByPosition(final DiscussionMotion motion) {
+	public List<ClubbedEntity> findClubbedEntitiesByPosition(final DiscussionMotion motion, final String sortOrder) {
 		String strQuery = "SELECT ce FROM DiscussionMotion m JOIN m.clubbedEntities ce" +
-				" WHERE m.id =:motionId ORDER BY ce.position " + ApplicationConstants.ASC;
+				" WHERE m.id =:motionId ORDER BY ce.position " + sortOrder;
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("motionId", motion.getId());
 		return query.getResultList();
@@ -93,6 +95,20 @@ public class DiscussionMotionRepository extends BaseRepository<DiscussionMotion,
 		}else{
 			 return motions.get(0).getFile();
 		}
+	}
+	
+	
+	public boolean isAdmittedThroughClubbing(final DiscussionMotion discussionmotion) {
+		boolean isAdmittedThroughClubbing = false;
+		org.mkcl.els.domain.Query query = org.mkcl.els.domain.Query.findByFieldName(Query.class, "keyField", "IS_DISCUSSIONMOTION_ADMITTED_THROUGH_CLUBBING", discussionmotion.getLocale());
+		Query tQuery = this.em().createNativeQuery(query.getQuery(), DiscussionMotionDraft.class);
+		tQuery.setParameter("discussionmotionId", discussionmotion.getId());
+		@SuppressWarnings("unchecked")
+		List<QuestionDraft> drafts = tQuery.getResultList();
+		if(drafts!=null && !drafts.isEmpty()) {
+			isAdmittedThroughClubbing = true;
+		}		
+		return isAdmittedThroughClubbing;
 	}
 
 	public Integer assignDiscussionMotionNo(HouseType houseType,

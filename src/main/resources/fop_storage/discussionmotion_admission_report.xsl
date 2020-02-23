@@ -210,10 +210,7 @@
 <fo:block font-weight="bold">कक्ष अधिकारी (श्री. परब) :</fo:block>
 <fo:block>&#160;</fo:block>    
 <fo:block>&#160;</fo:block>
-<fo:block font-weight="bold">उप सचिव (श्री.थिटे ) :</fo:block>
-<fo:block>&#160;</fo:block>    
-<fo:block>&#160;</fo:block>
-<fo:block font-weight="bold">सह सचिव (से.) (श्री.मोहिते ) :</fo:block>
+<fo:block font-weight="bold">अवर सचिव :</fo:block>
 <fo:block>&#160;</fo:block>    
 <fo:block>&#160;</fo:block>
 <fo:block font-weight="bold" >सचिव (कार्यभार) : </fo:block>

@@ -528,7 +528,7 @@ public class DiscussionMotionWorkflowController extends BaseController{
 		/**** Clubbed Questions are collected in references ****/
 		
 		/**** Clubbed motions are collected in references ****/
-		List<ClubbedEntity> clubbedEntities = DiscussionMotion.findClubbedEntitiesByPosition(domain);
+		List<ClubbedEntity> clubbedEntities = DiscussionMotion.findClubbedEntitiesByPosition(domain, ApplicationConstants.DESC);
 		if (clubbedEntities != null) {
 			List<Reference> references = new ArrayList<Reference>();
 			StringBuffer buffer1 = new StringBuffer();
