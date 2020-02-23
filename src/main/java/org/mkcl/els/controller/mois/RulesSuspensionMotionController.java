@@ -1151,16 +1151,16 @@ public class RulesSuspensionMotionController extends GenericController<RulesSusp
 			} else if(operation.equals("submit")){
 				/**** Submission ****/	
 //				if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-//					// Empty check for Ministry
-//					if(domain.getMinistry()==null){
-//						result.rejectValue("ministry","MinistryEmpty");
-//					}
-//					// Empty check for Subdepartment
-//					if(domain.getSubDepartment()==null){
-//						result.rejectValue("subDepartment","SubDepartmentEmpty");
-//					}
+//				// Empty check for Ministry
+//				if(domain.getMinistry()==null){
+//					result.rejectValue("ministry","MinistryEmpty");
 //				}
-				
+//				// Empty check for Subdepartment
+//				if(domain.getSubDepartment()==null){
+//					result.rejectValue("subDepartment","SubDepartmentEmpty");
+//				}
+//			}
+			
 				//submission window validations
 				CustomParameter submissionWindowValidationSkippedCP = CustomParameter.findByName(CustomParameter.class, "RULESSUSPENSIONMOTION_SUBMISSION_WINDOW_VALIDATIONS_SKIPPED"+"_"+domain.getHouseType().getType().toUpperCase(), "");
 				if(submissionWindowValidationSkippedCP==null || submissionWindowValidationSkippedCP.getValue()==null
@@ -1526,6 +1526,16 @@ public class RulesSuspensionMotionController extends GenericController<RulesSusp
 				}
 			} else if(operation.equals("submit")){
 				/**** Submission ****/	
+				/*if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+					// Empty check for Ministry
+					if(domain.getMinistries()==null){
+						result.rejectValue("ministry","MinistryEmpty");
+					}
+					// Empty check for Subdepartment
+					if(domain.getSubDepartments()==null){
+						result.rejectValue("subDepartment","SubDepartmentEmpty");
+					}
+				}*/
 				//submission window validations
 				CustomParameter submissionWindowValidationSkippedCP = CustomParameter.findByName(CustomParameter.class, "RULESSUSPENSIONMOTION_SUBMISSION_WINDOW_VALIDATIONS_SKIPPED"+"_"+domain.getHouseType().getType().toUpperCase(), "");
 				if(submissionWindowValidationSkippedCP==null || submissionWindowValidationSkippedCP.getValue()==null
