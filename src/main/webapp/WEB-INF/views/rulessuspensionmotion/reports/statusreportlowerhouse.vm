@@ -23,78 +23,76 @@
 			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">
 				सदस्यांचे नाव
 			</td>
-			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				$formatData.get(15)
+			<td colspan="3" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+				$formatData.get(10)
+				#if($formatData.get(32))
+						$formatData.get(32)
+				#else
+					वि.प.स
+				#end
+				
+				
 			</td>
 		</tr>
 		<tr style="font-weight: bold;">
 			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
-				स्थगन दिनांक
+				नियम स्थगित करण्याचा दिनांक
 			</td>
-			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				#if($formatData.get(28))
-					$formatData.get(28)
+			<td  style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+				#if($formatData.get(24))
+					$formatData.get(24)
 				#else
 					-
 				#end				
+			</td>
+			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+				सूचना दिलेली दिनांक व वेळ
+			</td>
+			<td  style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+				$formatData.get(31) $formatData.get(30)
 			</td>	
 		</tr>
 		<tr style="font-weight: bold;">													
 			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
-				क्रमांक
+				सूचना क्रमांक
 			</td>
-			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+			<td colspan="3" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
 				$formatData.get(7)
 			</td>
 		</tr>
-		#**
-		<tr style="font-weight: bold;">
-			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
-				विभाग  
-			</td>
-			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				#if($formatData.get(17))
-					$formatData.get(17) विभाग
-				#else
-					-
-				#end				
-			</td>	
-		</tr>
-		*#		
-		<tr style="font-weight: bold;">
-			#if($formatData.get(32)=='yes')
+		<!-- <tr style="font-weight: bold;">
+			#if($formatData.get(28)=='yes')
 				<td style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;" >					
-					ह्या प्रस्तावाशी जोडलेला आहे
+					ह्या सूचनेशी जोडलेला आहे
 				</td>
-				<td colspan="2" style="font-weight: bold; font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;text-align:justify;">
-					#if($formatData.get(33))
-						$formatData.get(33)
+				<td colspan="3" style="font-weight: bold; font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;text-align:justify;">
+					#if($formatData.get(29))
+						$formatData.get(29)
 					#else
 						-
 					#end
 				</td>
 			#else
 				<td style="font-weight: bold; font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;" >					
-					जोडलेल्या प्रस्तावांचे क्रमांक
+					जोडलेल्या सूचनांचे क्रमांक
 				</td>
 				<td colspan="" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;text-align:justify;">
-					#if($formatData.get(31))
-						$formatData.get(31)
+					#if($formatData.get(27))
+						$formatData.get(27)
 					#else
 						-
 					#end
 				</td>
 			#end						
 		</tr>
-		#**
 		<tr>
 			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
 				स्थिती 
 			</td>
-			<td colspan="2" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-				#if($formatData.get(30))
-					#if($formatData.get(30)!='adjournmentmotion_submit' && $formatData.get(30)!='adjournmentmotion_system_assistantprocessed')
-						$formatData.get(25)
+			<td colspan="3" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				#if($formatData.get(26))
+					#if($formatData.get(26)!='rulessuspensionmotion_submit' && $formatData.get(26)!='rulessuspensionmotion_system_assistantprocessed')
+						$formatData.get(20)
 					#else
 						
 					#end
@@ -102,23 +100,23 @@
 					
 				#end
 			</td>
-		</tr>
-		*#
+		</tr> -->
+
 		<tr>
-			<td colspan="3">&nbsp;</td>
+			<td colspan="4">&nbsp;</td>
 		</tr>		
 		<tr>
 			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
 				विषय 
 			</td>
-			<td colspan="2" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+			<td colspan="3" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
 				$formatData.get(5)
 			</td>
 		</tr>
 		<br>
 		
 		<tr>
-			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px; text-align:justify;">
+			<td colspan="4" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px; text-align:justify;">
 				$formatData.get(4)
 			</td>
 		</tr>	
@@ -140,8 +138,8 @@
 				</td>
 				<td style="width: 100px; padding: 2px; text-align: center;">
 					#if($formatData.get(29))
-						#if($formatData.get(29)!='adjournmentmotion_submit' && $formatData.get(29)!='adjournmentmotion_system_assistantprocessed')
-							$r.get(24)
+						#if($formatData.get(29)!='rulessuspensionmotion_submit' && $formatData.get(29)!='rulessuspensionmotion_system_assistantprocessed')
+							$r.get(20)
 						#else
 							
 						#end
@@ -174,5 +172,5 @@
 	</table>
 </div>
 *#
-<span class='page-break-before-forced'>&nbsp;</span>
+<span class='page-break-after-forced'>&nbsp;</span>
 <hr>

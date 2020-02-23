@@ -156,7 +156,7 @@
 			<c:choose>
 				<c:when test="${houseType=='lowerhouse'}">
 					<a href="#" id="rsmois_bhag_1_report" class="butSim">
-						<spring:message code="rsmois.bhag_1_report" text="Bhag 1 Report"/>
+						<spring:message code="rsmois.bhag_1_report" text="Notice Report"/>
 					</a> |
 					<a href="#" id="rsmois_bhag_2_report" class="butSim">
 						<spring:message code="rsmois.bhag_2_report" text="Bhag 2 Report"/>

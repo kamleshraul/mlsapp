@@ -457,7 +457,7 @@
 				$.prompt("Please select adjourning date of bhag 1 motions");
 				return false;
 			} else {
-				$("#amois_bhag_1_report").attr('href',
+				$("#rsmois_bhag_1_report").attr('href',
 						'rulessuspensionmotion/report/bhag1?'
 						+'ruleSuspensionDate=' + selectedRuleSuspensionDate
 						+'&sessionId=' + $("#loadedSession").val()
