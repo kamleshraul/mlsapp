@@ -104,7 +104,7 @@ public class RulesSuspensionMotionReportController extends BaseController{
 		Boolean isError = false;
 		MessageResource errorMessage = null;
 		Map<String, String[]> requestMap = new HashMap<String, String[]>();
-		String adjourningDateStr = request.getParameter("adjourningDate");
+		String adjourningDateStr = request.getParameter("ruleSuspensionDate");
 		String sessionId = request.getParameter("sessionId");
 		String reportQueryName = request.getParameter("reportQueryName");
 		if(adjourningDateStr==null || adjourningDateStr.isEmpty() 
@@ -115,7 +115,7 @@ public class RulesSuspensionMotionReportController extends BaseController{
 			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "rsmois.bhag1.parameterNotSet", locale.toString());						
 		} else {
 			Date adjourningDate = FormaterUtil.formatStringToDate(adjourningDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
-			requestMap.put("adjourningDate", new String[] {FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.DB_DATEFORMAT)});
+			requestMap.put("ruleSuspensionDate", new String[] {FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.DB_DATEFORMAT)});
 			requestMap.put("sessionId", new String[] {sessionId});
 			CustomParameter bhag1StatusAllowedCP = CustomParameter.findByName(CustomParameter.class, "RSMOIS_BHAG_1_ALLOWED_STATUS_TYPES", "");
 			String allowedStatusTypesForBhag1 = "";
