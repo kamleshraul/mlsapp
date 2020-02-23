@@ -615,7 +615,8 @@ public class CutMotionWorkflowController extends BaseController {
 				
 				Status sendback = Status.findByType(ApplicationConstants.CUTMOTION_RECOMMEND_SENDBACK, locale);
 				actors = WorkflowConfig.findCutMotionActorsVO(domain, sendback, userGroup, Integer.parseInt(domain.getLevel()), locale);
-			} else {
+				
+			} else if (!userGroup.getUserGroupType().getType().equals("member")) {
 				actors = WorkflowConfig.findCutMotionActorsVO(domain, internalStatus, userGroup, Integer.parseInt(domain.getLevel()), locale);
 			}
 			model.addAttribute("internalStatusSelected", internalStatus.getId());
@@ -642,6 +643,10 @@ public class CutMotionWorkflowController extends BaseController {
 			final CutMotion domain, final String usergroupType, final String locale) {
 		try {
 			List<Status> internalStatuses = new ArrayList<Status>();
+			if(usergroupType!=null && usergroupType.equalsIgnoreCase("member")) {
+				model.addAttribute("internalStatuses", internalStatuses);
+				return;
+			}
 			DeviceType deviceType = domain.getDeviceType();
 			Status internaStatus = domain.getInternalStatus();
 			HouseType houseType = domain.getHouseType();
@@ -739,8 +744,33 @@ public class CutMotionWorkflowController extends BaseController {
 					domain.setReferencedEntities(referencedEntities);
 				}
 			}
+			/**** Workflowdetails of member ****/
+			WorkflowDetails workflowDetails = null;
+			String workflowDetailsIdStr = request.getParameter("workflowdetails");
+			if(workflowDetailsIdStr!=null && !workflowDetailsIdStr.isEmpty()) {
+				Long longWorkflowdetails = Long.parseLong(workflowDetailsIdStr);
+				if(longWorkflowdetails!=null) {
+					workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, longWorkflowdetails);
+					userGroupType = workflowDetails.getAssigneeUserGroupType();
+					if(userGroupType!=null && userGroupType.equals(ApplicationConstants.MEMBER)) {
+						/**** end flow and return ****/
+						Map<String, String> properties = new HashMap<String, String>();				
+						properties.put("pv_deviceId", String.valueOf(domain.getId()));
+						properties.put("pv_deviceTypeId", String.valueOf(domain.getDeviceType().getId()));
+						properties.put("pv_endflag", "continue");
+						String strTaskId = workflowDetails.getTaskId();
+						Task task = processService.findTaskById(strTaskId);
+						processService.completeTask(task, properties);
+						workflowDetails.setStatus("COMPLETED");
+						workflowDetails.setCompletionTime(new Date());
+						workflowDetails.merge();
+						model.addAttribute("type","taskcompleted");
+						return "workflow/info";
+					}
+				}
+			}
 			/**** Workflowdetails ****/
-			WorkflowDetails workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, domain.getWorkflowDetailsId());
+			workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, domain.getWorkflowDetailsId());	
 			if(workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)) {
 				/**** display message ****/
 				model.addAttribute("type","taskalreadycompleted");
@@ -977,16 +1007,46 @@ public class CutMotionWorkflowController extends BaseController {
 				processService.completeTask(task, properties);
 				if (endflag != null) {
 					if (!endflag.isEmpty()) {
+						CustomParameter csptAnswerToBeNotifiedToMemberPostReceivedBySectionOfficer = CustomParameter.findByName(CustomParameter.class, "CMOIS_ANSWER_TO_BE_NOTIFIED_TO_MEMBER_POST_RECEIVED_BY_SECTION_OFFICER", "");
 						if (endflag.equals("continue")) {
 							ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
 							Task newtask = processService.getCurrentTask(processInstance);
 	
 							WorkflowDetails workflowDetails2 = WorkflowDetails.create(domain, newtask, usergroupType, currentDeviceTypeWorkflowType,level);
 							
-							/**** FOr CLarificationFromMember and Department ****/
-							if(domain.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
-									&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_SEND_TO_DEPARTMENT)){
-									
+							/**** For answer to be sent to member login once received from department desk officer ****/
+							if(csptAnswerToBeNotifiedToMemberPostReceivedBySectionOfficer==null
+									|| csptAnswerToBeNotifiedToMemberPostReceivedBySectionOfficer.getValue()==null
+									|| csptAnswerToBeNotifiedToMemberPostReceivedBySectionOfficer.getValue().equals("NO")) {
+								
+								if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
+										&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)
+										&& domain.getReply()!=null && !domain.getReply().isEmpty()) {
+										
+									Map<String, String> parameters = new HashMap<String, String>();
+									User user = User.find(domain.getPrimaryMember());
+									Credential credential = user.getCredential();
+									parameters.put("pv_endflag", endflag);	
+									parameters.put("pv_user",credential.getUsername());
+									parameters.put("pv_deviceId", String.valueOf(domain.getId()));
+									parameters.put("pv_deviceTypeId", String.valueOf(domain.getDeviceType().getId()));
+		
+									ProcessDefinition processDefinition1 =processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
+									ProcessInstance processInstance1 = processService.createProcessInstance(processDefinition1, parameters);
+									Task newMembertask = processService.getCurrentTask(processInstance1);
+									WorkflowDetails.create(domain,newMembertask,currentDeviceTypeWorkflowType,level);												
+								}
+							}							
+							
+							domain.setWorkflowDetailsId(workflowDetails2.getId());
+							domain.setTaskReceivedOn(new Date());
+							
+						} else if (endflag.equals("end")) {
+							//in case answer to be sent to member login after received by section officer
+							if(csptAnswerToBeNotifiedToMemberPostReceivedBySectionOfficer!=null
+									&& csptAnswerToBeNotifiedToMemberPostReceivedBySectionOfficer.getValue()!=null
+									&& csptAnswerToBeNotifiedToMemberPostReceivedBySectionOfficer.getValue().equals("YES")) {
+								
 								Map<String, String> parameters = new HashMap<String, String>();
 								User user = User.find(domain.getPrimaryMember());
 								Credential credential = user.getCredential();
@@ -999,10 +1059,7 @@ public class CutMotionWorkflowController extends BaseController {
 								ProcessInstance processInstance1 = processService.createProcessInstance(processDefinition1, parameters);
 								Task newMembertask = processService.getCurrentTask(processInstance1);
 								WorkflowDetails.create(domain,newMembertask,currentDeviceTypeWorkflowType,level);
-												
 							}
-							domain.setWorkflowDetailsId(workflowDetails2.getId());
-							domain.setTaskReceivedOn(new Date());
 						}
 					}
 				}
