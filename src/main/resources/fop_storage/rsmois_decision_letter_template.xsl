@@ -100,8 +100,8 @@
 	            				<fo:block text-align="justify">
 	            					&#160;&#160;&#160;&#160;आज दिनांक <xsl:value-of select="element_1[1]/element_1_11"/> रोजी 
 	            					<xsl:value-of select="element_1[1]/element_1_8"/> , <xsl:value-of select="element_1[1]/element_1_4"/> यांनी सकाळी 
-	            					<xsl:value-of select="element_1[1]/element_1_10"/> <xsl:value-of select="element_1[1]/element_1_5"/>
-	            					<fo:inline text-decoration="underline">" <xsl:value-of select="element_1[1]/element_1_3"/> "</fo:inline> या विषयाबाबत म.वि.प. नियम २८९ अन्वये सूचना दिली आहे.
+	            					<xsl:value-of select="element_1[1]/element_1_10"/> <xsl:value-of select="element_1[1]/element_1_5"/>&#160;
+	            					<fo:inline text-decoration="underline"> "<xsl:value-of select="element_1[1]/element_1_3"/>" </fo:inline>  या विषयाबाबत म.वि.प. नियम २८९ अन्वये सूचना दिली आहे.
 	            				</fo:block>
 	            				<fo:block font-size="14px">&#160;</fo:block>
 			            		<fo:block font-size="22px" text-align="center" font-weight="bold">
