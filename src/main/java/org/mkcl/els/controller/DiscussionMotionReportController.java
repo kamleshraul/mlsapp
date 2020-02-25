@@ -2164,20 +2164,20 @@ class DiscussionMotionReportHelper{
 				Map<String, Object[]> dataMap = new LinkedHashMap<String, Object[]>();	
 				if(report != null && !report.isEmpty()){
 										
-					List<User> users = User.findByRole(false, "QIS_PRINCIPAL_SECRETARY", locale.toString());
+					List<User> users = User.findByRole(false, "DMOIS_PRINCIPAL_SECRETARY", locale.toString());
 					model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
 	
-					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
+					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "DMOIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "DMOIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
 					if(csptAllwedUserGroupForStatusReportSign != null){
 						if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
 							Object[] lastObject = (Object[]) report.get(report.size()-1); 
 							for(Object o : report){
 								Object[] objx = (Object[])o;
 	
-								if(objx[27] != null && !objx[27].toString().isEmpty()){
-									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){
+								if(objx[21] != null && !objx[21].toString().isEmpty()){
+									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[21].toString())){
 										
-										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
+										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[21].toString(), locale.toString());
 																				
 										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
 											if(dataMap.get(ApplicationConstants.UNDER_SECRETARY) != null){
@@ -2186,7 +2186,7 @@ class DiscussionMotionReportHelper{
 														dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
 													}else{
 														Object[] tempObj = dataMap.get(ApplicationConstants.UNDER_SECRETARY);
-														tempObj[28] = objx[28];
+														tempObj[22] = objx[22];
 														
 														dataMap.put(ApplicationConstants.UNDER_SECRETARY, tempObj);
 													}
@@ -2201,7 +2201,7 @@ class DiscussionMotionReportHelper{
 														dataMap.put(userGroupType.getType(), objx);
 													}else{
 														Object[] tempObj = dataMap.get(userGroupType.getType());
-														tempObj[28] = objx[28];
+														tempObj[22] = objx[22];
 														
 														dataMap.put(userGroupType.getType(), tempObj);
 													}
@@ -2238,7 +2238,7 @@ class DiscussionMotionReportHelper{
 							WorkflowDetails  wfDetails = WorkflowDetails.findCurrentWorkflowDetail(qt);
 							for(WorkflowActor wf : distinctActors){
 								UserGroupType userGroupType = wf.getUserGroupType();
-								if(userGroupType.getType().equals(lastObject[27])){
+								if(userGroupType.getType().equals(lastObject[21])){
 									if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
 										for(WorkflowActor wf1 : distinctActors){
 											UserGroupType ugt = wf1.getUserGroupType();
@@ -2258,7 +2258,7 @@ class DiscussionMotionReportHelper{
 										(wfDetails!= null && 
 										Integer.parseInt(wfDetails.getAssigneeLevel())>=level)){
 										Object[] tempObj = dataMap.get(userGroupType.getType());
-										tempObj[28] = "";
+										tempObj[22] = "";
 										tempObj[6] = "";
 										dataMap.put(userGroupType.getType(), tempObj);
 									}
@@ -2289,9 +2289,9 @@ class DiscussionMotionReportHelper{
 											}
 											actor[3] = new String("");
 											actor[6] = new String("");
-											actor[27] = userGroupType.getType();
-											actor[28] = new String("");
-											actor[31] = null;
+											actor[21] = userGroupType.getType();
+											actor[22] = new String("");
+											actor[24] = null;
 											dataMap.put(str, actor);
 										}
 									}
@@ -2396,14 +2396,14 @@ class DiscussionMotionReportHelper{
 		parameters.put("id",new String[]{discussionmotion.getId().toString()});
 		parameters.put("device", new String[]{device});
 
-		List list = Query.findReport("QIS_CURRENTSTATUS_REPORT", parameters);
+		List list = Query.findReport("DMOIS_CURRENTSTATUS_REPORT", parameters);
 		for(Object o : list){
 			Object[] data = (Object[]) o;
 			String details = ((data[4] != null)? data[4].toString():"-");
 			String subject = ((data[5] != null)? data[5].toString():"-");
 			String remarks = ((data[6] != null)? data[6].toString():"-");
 			
-			((Object[])o)[17] = support;
+			((Object[])o)[15] = support;
 			((Object[])o)[4] = FormaterUtil.formatNumbersInGivenText(details, locale);
 			((Object[])o)[5] = FormaterUtil.formatNumbersInGivenText(subject, locale);
 			((Object[])o)[6] = FormaterUtil.formatNumbersInGivenText(remarks, locale);

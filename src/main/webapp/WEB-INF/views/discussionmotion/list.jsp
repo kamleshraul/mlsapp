@@ -137,7 +137,7 @@
 							+ '&motionType=' + $("#selectedDiscussionMotionType").val()
 							+ '&outputFormat=' + $("#defaultReportFormat").val()
 							+ '&reportQuery=DISCUSSIONMOTION_ADMISSION_LETTER'
-							+ '&templateName=discussionmotion_admission_report'
+							+ '&templateName=admission_report'
 							+ '&houseType=' + $("#selectedHouseType").val()
 							+ '&reportName=admissionLetter');
 		

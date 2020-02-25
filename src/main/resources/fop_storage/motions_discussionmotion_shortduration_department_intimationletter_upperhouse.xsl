@@ -74,7 +74,7 @@
 	            <fo:flow flow-name="xsl-region-body">		            	
 	            	<fo:block font-family="Mangal" font-size="10.5px">	       
             			<fo:block text-align="center" font-weight="bold">महाराष्ट्र विधानपरिषद</fo:block>
-            			<fo:block text-align="center" font-weight="bold">सन २०२० चे  अर्थसंकल्पीय अधिवेशन</fo:block>
+            			<fo:block text-align="center" font-weight="bold"><xsl:value-of select="./element_2/element_2_10"></xsl:value-of></fo:block>
 	            		<fo:block font-size="6px">&#160;</fo:block>    
 	            			 <xsl:if test="./element_2/element_2_10='motions_discussionmotion_lastweek'">
 																<fo:block font-weight="bold" text-align="justify">
@@ -89,7 +89,7 @@
 	            					
 	            					 
 	            					         						<fo:block font-weight="bold" text-align="justify">
-							सर्वश्री <xsl:value-of select="./element_2/element_2_8"></xsl:value-of> वि.प.स यांनी दिलेली म.वि.प. नियम ९७ अन्वये अल्पकालीन चर्चेची सूचना पुढीलप्रमाणे आहे:
+							&#160;&#160;&#160;&#160; <xsl:value-of select="./element_2/element_2_8"></xsl:value-of> वि.प.स यांनी दिलेली म.वि.प. नियम ९७ अन्वये अल्पकालीन चर्चेची सूचना क्रमांक  <xsl:value-of select="./element_2/element_2_2"></xsl:value-of> पुढीलप्रमाणे आहे:
 						</fo:block>	 					 
 	            					
 	            		
@@ -110,9 +110,9 @@
 								<fo:table-body>
 									<fo:table-row>
 										<fo:table-cell>
-											<fo:block>
-												&#160;
-											</fo:block>
+											<fo:block font-weight="bold" text-align="left" text-decoration="underline">
+																	अतितात्काळ
+																</fo:block>
 										</fo:table-cell>
 										<fo:table-cell>
 											<fo:block>
@@ -125,14 +125,14 @@
 													<fo:table-body>
 														<fo:table-row>
 															<fo:table-cell>
-																<fo:block font-weight="bold" text-align="left" text-decoration="underline">
-																	अतितात्काळ
-																</fo:block>
+																<fo:block>
+												&#160;
+											</fo:block>
 															</fo:table-cell>
 														</fo:table-row>
 														<fo:table-row>
 															<fo:table-cell width="200px" text-align="justify">
-																<fo:block>
+																<fo:block font-weight="bold">
 																	क्रमांक :
 																	<fo:inline font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;/म.वि.स./ई-२</fo:inline>
 																</fo:block>
@@ -152,7 +152,7 @@
 														</fo:table-row>
 														
 														<fo:table-row>
-															<fo:table-cell width="200px" text-align="justify"><fo:block>दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block></fo:table-cell>
+															<fo:table-cell width="200px" text-align="justify"><fo:block font-weight="bold">दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block></fo:table-cell>
 														</fo:table-row>
 													</fo:table-body>
 												</fo:table>
@@ -163,7 +163,7 @@
 							</fo:table>
 						</fo:block>	
 						<fo:block>&#160;</fo:block>
-						<fo:block font-weight="bold">संदर्भ :या सचिवालयाचे पत्र क्रमांक &#160;&#160;/म.वि.स./ई-२,दिनांक &#160;&#160;&#160;</fo:block>
+						<fo:block font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;संदर्भ :या सचिवालयाचे पत्र क्रमांक &#160;&#160;/म.वि.स./ई-२,दिनांक &#160;&#160;&#160;</fo:block>
 						<fo:block>&#160;</fo:block>
 						<fo:block>&#160;</fo:block>								
 						<fo:block>
@@ -172,9 +172,11 @@
 						<fo:block>
 							&#160;&#160;&#160;&#160;&#160;&#160;प्रधान सचिव,									
 						</fo:block>
-						<fo:block font-weight="bold">
-							&#160;&#160;&#160;&#160;&#160;&#160;<xsl:value-of select="./element_2/element_2_9"></xsl:value-of>&#160;यांच्याकडे माहितीसाठी सादर अग्रेषित							
+						<fo:block>
+						<fo:inline font-weight="bold">
+							&#160;&#160;&#160;&#160;&#160;&#160;<xsl:value-of select="./element_2/element_2_9"></xsl:value-of>&#160;</fo:inline>यांच्याकडे माहितीसाठी सादर अग्रेषित							
 						</fo:block>
+						
 						<fo:block>&#160;</fo:block>
 						<fo:block>&#160;</fo:block>
 						<fo:block>
@@ -183,7 +185,7 @@
 						<fo:block>&#160;</fo:block>
 						<fo:block>&#160;</fo:block>
 							<fo:block>
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;चालू अधिवेशनासाठी मा.सभापतींनी सदर सूचना वरील स्वरुपात स्वीकृत केली असून या सूचनेवरील चर्चा <fo:inline font-weight="bold" text-decoration="underline"> <xsl:value-of select="./element_2/element_2_6"></xsl:value-of></fo:inline>  रोजी घेण्यात येणार आहे.					
+							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;चालू अधिवेशनासाठी मा.सभापतींनी सदर सूचना वरील स्वरुपात स्वीकृत केली असून या सूचनेवरील चर्चा दिनांक  <fo:inline font-weight="bold" text-decoration="underline"> <xsl:value-of select="./element_2/element_2_6"></xsl:value-of></fo:inline>  रोजी घेण्यात येणार आहे.					
 						</fo:block>
 						<fo:block>&#160;</fo:block>
 						<fo:block>&#160;</fo:block>
@@ -242,7 +244,8 @@
 						</fo:block>
 						<fo:block>&#160;</fo:block>
 						<fo:block >
-							मा.<fo:inline font-weight="bold"><xsl:value-of select="./element_2/element_2_5"></xsl:value-of></fo:inline> यांना माहितीसाठी सादर अग्रेषित.
+							मा.<fo:inline font-weight="bold"><xsl:value-of select="./element_2/element_2_5"></xsl:value-of>,<xsl:value-of select="./element_2/element_2_8"></xsl:value-of></fo:inline> यांना माहितीसाठी सादर अग्रेषित.
+							
 						</fo:block>	            			
 					
 					</fo:block>							          

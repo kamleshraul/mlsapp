@@ -77,7 +77,8 @@
 	
 		/**** show question list method is called by default.****/
 		showDiscussionMotionList();
-		
+		var selectedDeviceType = $("#deviceTypeMaster option[value='" 
+                + $("#selectedDiscussionMotionType").val() + "']").text();
 		
 		
 	});
@@ -124,8 +125,9 @@
 	}
 	function showCurrentStatusReport(val,dmId){
 		$("#selectionDiv1").hide();
+		alert($("#selectedDiscussionMotionType").val());
 		var device = $("#deviceTypeMaster option[value='"
-		                                         +$("#selectedDeviceType").val()+"']").text().split("_")[0];
+		                                         +$("#selectedDiscussionMotionType").val()+"']").text().split("_")[0];
 		showTabByIdAndUrl('details_tab', 
 				"discussionmotion/report/currentstatusreport?device="+ device +"&reportType="+val+"&dmId="+dmId);
 	}
@@ -339,7 +341,7 @@
 				</c:forEach>
 			</select> 
 			<select id="deviceTypeMaster" style="display: none;">
-				<c:forEach items="${discussionMotionTypes}" var="i">
+				<c:forEach items="${motionTypes}" var="i">
 					<option value="${i.id }">${i.type }</option>
 				</c:forEach>
 			</select>|
