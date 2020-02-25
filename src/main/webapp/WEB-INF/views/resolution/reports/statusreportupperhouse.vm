@@ -59,6 +59,12 @@
 		</tr>		
 		<br>
 		<tr>
+			<td colspan="3" style="font-weight: bold; width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;text-align:justify;">
+				&nbsp;&nbsp;&nbsp;विषय : $formatData.get(5)
+			</td>
+		</tr>
+		<br>
+		<tr>
 			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;text-align:justify;">
 				$formatData.get(4)
 			</td>
@@ -80,7 +86,7 @@
 				</td>
 				<td style="width: 100px; padding: 2px; text-align: center;">
 					#if($r.get(21)=='under_secretary')
-						रजेवर</td>
+						$r.get(22)</td>
 					#else
 						$r.get(22)</td>
 					#end
