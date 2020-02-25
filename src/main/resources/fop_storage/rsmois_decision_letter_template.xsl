@@ -101,7 +101,7 @@
 	            					&#160;&#160;&#160;&#160;आज दिनांक <xsl:value-of select="element_1[1]/element_1_11"/> रोजी 
 	            					<xsl:value-of select="element_1[1]/element_1_8"/> , <xsl:value-of select="element_1[1]/element_1_4"/> यांनी सकाळी 
 	            					<xsl:value-of select="element_1[1]/element_1_10"/> <xsl:value-of select="element_1[1]/element_1_5"/>&#160;
-	            					<fo:inline text-decoration="underline"> "<xsl:value-of select="element_1[1]/element_1_3"/>" </fo:inline>  या विषयाबाबत म.वि.प. नियम २८९ अन्वये सूचना दिली आहे.
+	            					"<fo:inline text-decoration="underline"> <xsl:value-of select="element_1[1]/element_1_3"/> </fo:inline>"  या विषयाबाबत म.वि.प. नियम २८९ अन्वये सूचना दिली आहे.
 	            				</fo:block>
 	            				<fo:block font-size="14px">&#160;</fo:block>
 			            		<fo:block font-size="22px" text-align="center" font-weight="bold">
@@ -121,7 +121,7 @@
 			            		</fo:block>
 			            		<fo:block font-size="8px">&#160;</fo:block>  
 			            		<fo:block  text-align="justify">
-			            			&#160;&#160;&#160;यावरून असे दिसून येते की, इतर सगळे कामकाज स्थगित करण्यासाठी त्या दिवसाच्या कामकाजाच्या क्रमात असे काम किंवा एखादा विशिष्ट प्रस्ताव सभागृहासमोर असणे आवश्यक आहे.
+			            			&#160;&#160;&#160;यावरून असे दिसून येते की, प्रश्नोत्तराचा तास किंवा इतर सगळे कामकाज स्थगित करण्यासाठी त्या दिवसाच्या कामकाजाच्या क्रमात असे काम किंवा एखादा विशिष्ट प्रस्ताव सभागृहासमोर असणे आवश्यक आहे.
 			            		</fo:block>
 			            		<fo:block font-size="8px">&#160;</fo:block>
 			            		<fo:block  text-align="justify">
