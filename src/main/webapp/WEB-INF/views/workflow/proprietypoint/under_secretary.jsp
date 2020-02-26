@@ -111,7 +111,7 @@
 	/**** load actors ****/
 	function loadActors(value){		
 		var valueToSend = value;
-		if(value!='-'){					
+		if(value!='-'){	
 			var sendBack=$("#internalStatusMaster option[value='proprietypoint_recommend_sendback']").text();			
 		    var discuss=$("#internalStatusMaster option[value='proprietypoint_recommend_discuss']").text();	
 		    var sendToSectionOfficer=$("#internalStatusMaster option[value='proprietypoint_processed_sendToSectionOfficer']").text();
@@ -159,7 +159,7 @@
 		    	valueToSend = $("#internalStatus").val();	    	
 		    }
 		    
-		    var params="device=" + $("#id").val() + "&status=" + valueToSend +
+		    var params="proprietypoint=" + $("#id").val() + "&status=" + valueToSend +
 			"&usergroup=" + $("#usergroup").val() + "&level=" + $("#originalLevel").val();
 			var resourceURL = 'ref/proprietypoint/actors?' + params;
 		    
@@ -635,10 +635,10 @@
 			</p>
 			
 			<p style="display:none;">
-				<label class="small"><spring:message code="proprietypoint.type" text="Type"/>*</label>
+				<label class="small"><spring:message code="proprietypoint.deviceType" text="Device Type"/>*</label>
 				<input id="formattedDeviceType" name="formattedDeviceType" value="${formattedDeviceType}" class="sText" readonly="readonly">
-				<input id="type" name="type" value="${deviceType}" type="hidden">
-				<form:errors path="type" cssClass="validationError"/>		
+				<input id="deviceType" name="deviceType" value="${deviceType}" type="hidden">
+				<form:errors path="deviceType" cssClass="validationError"/>		
 			</p>
 			
 			<p>
@@ -834,11 +834,13 @@
 				</select>	
 				<form:errors path="internalStatus" cssClass="validationError"/>
 			</p>				
-			<p id="actorDiv" style="display: none;">
-				<label class="small"><spring:message code="proprietypoint.nextactor" text="Next Users"/></label>
-				<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
-				<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
-			</p>	
+
+				<p id="actorDiv" style="display: none;">
+					<label class="small"><spring:message code="proprietypoint.nextactor" text="Next Users"/></label>
+					<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
+					<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
+				</p>
+			
 			<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus}">
 			<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
 					
@@ -881,7 +883,7 @@
 			<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 			<input type="hidden" name="status" id="status" value="${status }">
 			<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
-			<input type="hidden" name="dataEnteredBy" id="dataEnteredBy" value="${domain.dataEnteredBy}">
+			<%-- <input type="hidden" name="dataEnteredBy" id="dataEnteredBy" value="${domain.dataEnteredBy}"> --%>
 			<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
 			<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 			<input type="hidden" name="workflowStartedOnDate" id="workflowStartedOnDate" value="${workflowStartedOnDate }">
