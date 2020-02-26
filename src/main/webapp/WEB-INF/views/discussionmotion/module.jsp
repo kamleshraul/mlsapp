@@ -125,7 +125,7 @@
 	}
 	function showCurrentStatusReport(val,dmId){
 		$("#selectionDiv1").hide();
-		alert($("#selectedDiscussionMotionType").val());
+		
 		var device = $("#deviceTypeMaster option[value='"
 		                                         +$("#selectedDiscussionMotionType").val()+"']").text().split("_")[0];
 		showTabByIdAndUrl('details_tab', 
