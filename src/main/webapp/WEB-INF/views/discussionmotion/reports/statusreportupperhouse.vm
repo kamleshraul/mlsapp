@@ -11,7 +11,7 @@
 		</tr>		
 		<tr>
 			<td style="width: 750px; text-align: right; font-size: 12px;" colspan="3">
-				दिनांक : $formatData.get(24) <br />	
+				सूचना दिल्याचा दिनांक : $formatData.get(25) <br />	
 				निर्वाचन क्षेत्र: $formatData.get(14)
 			</td>
 		</tr>
@@ -61,6 +61,15 @@
 		<tr>
 			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;text-align:justify;">
 				$formatData.get(4)
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3">&nbsp;</td>
+		</tr>		
+		<br>
+		<tr>
+			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;text-align:justify;">
+				$formatData.get(26)
 			</td>
 		</tr>
 	</table>
