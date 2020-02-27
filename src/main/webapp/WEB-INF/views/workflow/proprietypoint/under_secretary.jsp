@@ -893,7 +893,7 @@
 			<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 			<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
 			<input type="hidden" id="houseTypeType" value="${houseTypeType}" />
-			<input id="deviceType" name= "deviceType" type="hidden" value="${deviceType}" />
+			<%-- <input id="deviceType" name= "deviceType" type="hidden" value="${deviceType}" /> --%>
 			<input id="oldInternalStatus" value="${internalStatus}" type="hidden">
 			<input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
 			<input id="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
