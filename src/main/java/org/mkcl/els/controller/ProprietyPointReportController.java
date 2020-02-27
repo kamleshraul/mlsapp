@@ -103,7 +103,8 @@ public class ProprietyPointReportController extends BaseController{
 		File reportFile = null; 
 		Boolean isError = false;
 		MessageResource errorMessage = null;
-		Map<String, String[]> requestMap = new HashMap<String, String[]>();
+		@SuppressWarnings("unchecked")
+		Map<String, String[]> requestMap = request.getParameterMap();
 		String sessionId = request.getParameter("sessionId");
 		String reportQueryName = request.getParameter("reportQueryName");
 		if(sessionId==null || sessionId.isEmpty()
@@ -112,8 +113,8 @@ public class ProprietyPointReportController extends BaseController{
 			isError = true;
 			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "prois.tobeadmitted_report.parameterNotSet", locale.toString());						
 		} else {
-			requestMap.put("sessionId", new String[] {sessionId});
-			requestMap.put("locale", new String[]{locale.toString()});
+			//requestMap.put("sessionId", new String[] {sessionId});
+			//requestMap.put("locale", new String[]{locale.toString()});
 			@SuppressWarnings("rawtypes")
 			List toBeAdmittedProperietyPoints = Query.findReport(reportQueryName, requestMap);
 			try {

@@ -311,6 +311,8 @@
 			$("#prois_tobeadmitted_report").attr('href',
 					'proprietypoint/report/tobeadmitted?'
 					+'sessionId=' + $("#loadedSession").val()
+					+'&status=' + $("#selectedStatus").val()
+					+'&locale=' + $("#moduleLocale").val()
 					+'&reportQueryName=PROIS_TOBEADMITTED_REPORT');
 		}
 		/**** To Be Rejected Report Generation ****/

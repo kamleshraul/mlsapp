@@ -90,6 +90,9 @@
 						<fo:block font-size="16px" font-weight="bold" text-align="center" text-decoration="underline">
 							<xsl:value-of select="element_1/element_1_6"/>
 						</fo:block>
+						<fo:block font-size="16px" font-weight="bold" text-align="center" text-decoration="underline">
+							<xsl:value-of select="element_1/element_1_19"/><xsl:value-of select="count(element_2)"/>
+						</fo:block>
 						<fo:block font-size="6px">&#160;</fo:block>
 			       		<xsl:choose>
 			       			<xsl:when test="boolean(element_2) and count(element_2)>=1">			       				

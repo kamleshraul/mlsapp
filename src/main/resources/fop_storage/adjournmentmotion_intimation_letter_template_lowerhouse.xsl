@@ -77,15 +77,16 @@
 	            		<fo:block text-align="right" font-size="18" font-weight="bold">
 	            			<xsl:value-of select="./element_1/element_1_4"/>
 	            		</fo:block>
-	            		<fo:block text-align="center" font-weight="bold">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
+	            		<!-- <fo:block text-align="center" font-weight="bold">महाराष्ट्र विधानमंडळ सचिवालय</fo:block> -->
 	            		<fo:block text-align="left" font-weight="bold" text-decoration="underline">अतितात्काळ</fo:block>
+	            		<fo:block text-align="left" font-weight="bold" text-decoration="underline">स्थगन प्रस्ताव</fo:block>
 	            		<fo:block text-align="right">
-							<fo:block margin-right="1.50cm">क्रमांक - _____&#160;/ई-२,
+							<fo:block margin-right="1.75cm">क्रमांक : _____&#160;/फ,
 							</fo:block>						
-							<fo:block margin-right="0.10cm">महाराष्ट्र विधानमंडळ सचिवालय,</fo:block>
-							<fo:block margin-right="2.00cm">विधान भवन, <xsl:value-of select="./element_1/element_1_11"/>.</fo:block>
+							<fo:block margin-right="0.08cm">महाराष्ट्र विधानमंडळ सचिवालय,</fo:block>
+							<fo:block margin-right="1.72cm">विधान भवन, <xsl:value-of select="./element_1/element_1_11"/>.</fo:block>
 							<fo:block margin-right="1.65cm">दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
-						</fo:block>	
+						</fo:block>							
             				<fo:table>
             					<fo:table-body>
             						<fo:table-row>
@@ -113,7 +114,7 @@
 													</fo:table>
 												</fo:block> -->
 												
-												<fo:block text-align="left" font-weight="bold">प्रेषक : </fo:block>
+												<!-- <fo:block text-align="left" font-weight="bold">प्रेषक : </fo:block>
             									
             									<fo:block>
 													<fo:table>
@@ -143,7 +144,7 @@
 															</fo:table-row>
 														</fo:table-body>
 													</fo:table>
-												</fo:block>
+												</fo:block> -->
 												
 												<fo:block text-align="left" font-weight="bold">प्रति, </fo:block>
             									
@@ -163,7 +164,7 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block font-weight="bold">
-																							प्रधान सचिव / सचिव
+																							प्रधान सचिव,
 																						</fo:block>
 																					</fo:table-cell>										
 																				</fo:table-row>
@@ -177,7 +178,7 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block>
-																							<xsl:value-of select="./element_1/element_1_8" /> विभाग,
+																							<fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_8" /> विभाग,</fo:inline>
 																						</fo:block>
 																					</fo:table-cell>
 																				</fo:table-row>																																								
@@ -199,11 +200,11 @@
 												
 												<fo:block font-size="6px">&#160;</fo:block>
 												
-												<fo:block font-weight="bold">
+												<fo:block>
 												<xsl:choose>
 													<xsl:when test="./element_1/element_1_10='upperhouse'">
 														<fo:block margin-left="3.5cm">
-															विषय : <xsl:value-of select="./element_1/element_1_9"/>, वि.प.स. यांनी विधानपरिषद नियम ९३ अन्वये
+															विषय : <xsl:value-of select="./element_1/element_1_9"/>
 														</fo:block>	
 														<fo:block margin-left="4.8cm">
 															दिलेली सूचना क्रमांक - <xsl:value-of select="./element_1/element_1_4"/> (प्रत संलग्न).
@@ -211,8 +212,8 @@
 													</xsl:when>
 													<xsl:otherwise>
 														<fo:block margin-left="3.5cm">
-															विषय : <xsl:value-of select="./element_1/element_1_9"/>
-															वि.स.स. यांचा स्थगन प्रस्ताव सूचना क्रमांक - <xsl:value-of select="./element_1/element_1_4"/> (प्रत संलग्न).
+															<fo:inline font-weight="bold">विषय : </fo:inline><xsl:value-of select="./element_1/element_1_6"/>
+															<!-- वि.स.स. यांचा स्थगन प्रस्ताव सूचना क्रमांक - <xsl:value-of select="./element_1/element_1_4"/> (प्रत संलग्न). -->
 														</fo:block>
 													</xsl:otherwise>
 												</xsl:choose>												
@@ -221,67 +222,56 @@
 												<fo:block font-size="10px">
             										&#160;
             									</fo:block>
-												<fo:block text-align="left" font-weight="bold">महोदय/महोदया,</fo:block>
+												<fo:block text-align="left" font-weight="bold">महोदय,</fo:block>
             									<fo:block text-align="justify">
             										<fo:block>&#160;</fo:block>
             										<fo:block>
-														&#160;&#160;&#160;&#160;&#160;&#160;निदेशानुसार आपणांस कळविण्यात येत आहे की, सन <xsl:value-of select="./element_1/element_1_14"/> च्या
-														<xsl:choose>
-															<xsl:when test="./element_1/element_1_15='1'">पहिल्या</xsl:when>
-															<xsl:when test="./element_1/element_1_15='2'">दुसऱ्या</xsl:when>
-															<xsl:when test="./element_1/element_1_15='3'">तिसऱ्या</xsl:when>
-															<xsl:when test="./element_1/element_1_15='4'">चौथ्या</xsl:when>
-															<xsl:when test="./element_1/element_1_15='5'">पाचव्या</xsl:when>
-														</xsl:choose>														  
-														(<xsl:value-of select="./element_1/element_1_16"/>) अधिवेशनात <fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_12"/> रोजी</fo:inline>  
-														महाराष्ट्र विधानपरिषदेत उपस्थित करण्यात आलेल्या नियम ९३ अन्वये सूचनेच्या <fo:inline font-weight="bold">(प्रत संलग्न)</fo:inline> संदर्भात 
-														शासनाने २ दिवसांत निवेदन करावे असे मा. सभापतींनी निदेश दिले असून त्या अनुषंगाने 
-														<fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_13"/> 
-														या तारखेपर्यंत विधानपरिषदेत निवेदन करण्यासंदर्भात मा.मंत्री महोदयांना अवगत करण्यात यावे.</fo:inline> 
-														तसेच सदर निवेदनाच्या ३०० प्रती या सचिवालयाच्या “ई-२” शाखेकडे मा.मंत्री महोदयांनी विधानपरिषद सभागृहात निवेदन करावयाच्या 
-														<fo:inline font-weight="bold">एक दिवस अगोदर सकाळी १०.०० वाजेपर्यंत</fo:inline> पाठविण्याची व्यवस्था करावी. 
+														&#160;&#160;&#160;&#160;&#160;&#160;मला आपणांस असे कळविण्याचे निदेश आहेत की,
+														 <fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_12"/> रोजी</fo:inline>  
+														<fo:inline>उपरोक्त विषयावरील <xsl:value-of select="./element_1/element_1_9"/>, वि.स.स. यांच्या विधानसभा नियम ९७ अन्वये  प्राप्त झालेल्या स्थगन प्रस्तावावरील निर्णय देतेवेळी</fo:inline>
+														<fo:inline font-weight="bold">उपरोक्त प्रकरणी शासनाने वस्तुस्थितीदर्शक निवेदन करावे</fo:inline>
+														<fo:inline>असे मा. अध्यक्षांनी निदेश दिले आहेत.</fo:inline> 
 													</fo:block>
 													<fo:block>
-														&#160;&#160;&#160;&#160;&#160;&#160;त्याचप्रमाणे या <fo:inline font-weight="bold">निवेदनांच्या प्रतींवर सन <xsl:value-of select="./element_1/element_1_14"/> चे
-														<xsl:choose>
-															<xsl:when test="./element_1/element_1_15='1'">पहिले</xsl:when>
-															<xsl:when test="./element_1/element_1_15='2'">दुसरे</xsl:when>
-															<xsl:when test="./element_1/element_1_15='3'">तिसरे</xsl:when>
-															<xsl:when test="./element_1/element_1_15='4'">चौथे</xsl:when>
-															<xsl:when test="./element_1/element_1_15='5'">पाचवे</xsl:when>
-														</xsl:choose> 
-														(<xsl:value-of select="./element_1/element_1_16"/>) अधिवेशन 
-														तसेच वर नमूद केलेला सूचना क्रमांक, निवेदन करणाऱ्या मा.मंत्री महोदयांचे नाव व विभागाचा स्पष्टपणे उल्लेख करून, निवेदन करण्याबाबतचे 
-														मा. मंत्री महोदयांचे पत्र, महाराष्ट्र विधानपरिषद, विधान भवन, मुंबई यांना अग्रेषित करण्यात यावे,</fo:inline> अशी आपणांस विनंती करण्यात येत आहे.												      										
+														&#160;&#160;&#160;&#160;&#160;&#160;मा.अध्यक्षांचे निदेशानुसार उपरोक्त प्रकरणी स्थगन प्रस्तावाच्या निवेदनाच्या प्रती सदस्यांना वितरीत												      										
+	            										<fo:inline>करावयाच्या असल्याने सदर निवेदनाच्या ७०० प्रती या सचिवालयास त्वरित पाठविण्यात याव्यात, अशी आपणांस</fo:inline>
+	            										<fo:inline>विनंती आहे.</fo:inline>
 	            									</fo:block>
 												</fo:block>	
 												<fo:block>&#160;</fo:block>
 												<fo:block>
 													<fo:block text-align="right">
-														<fo:block margin-right="3.1cm" font-weight="bold">आपली,</fo:block>
+														<fo:block margin-right="3.1cm" font-weight="bold">आपला,</fo:block>
 														<fo:block>&#160;</fo:block>
-														<fo:block margin-right="2.5cm" font-size="10.5px" font-weight="bold">(पुष्पा र. दळवी)</fo:block>							
-														<fo:block margin-right="2.5cm">कक्ष अधिकारी,</fo:block>							
+														<fo:block margin-right="2.5cm" font-size="10.5px" font-weight="bold">(सुनिल परब)</fo:block>							
+														<fo:block margin-right="2.5cm" font-weight="bold">कक्ष अधिकारी,</fo:block>							
 														<fo:block margin-right="1.5cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 													</fo:block>
 												</fo:block>
 												<fo:block font-size="6px">
             										&#160;
             									</fo:block>
-												<fo:block font-weight="bold">याची प्रत :- </fo:block>
+												<fo:block font-weight="bold">प्रत माहितीसाठी सादर :- </fo:block>
 												
 												<fo:block>
 													(१) &#160;मा. <xsl:value-of select="./element_1/element_1_7" />.
 												</fo:block>
 												
-												<fo:block>
+												<!-- <fo:block>
 													(२) मा.संसदीय कार्य मंत्री.
+												</fo:block> -->
+												
+												<fo:block>
+													(२) 	&#160; सचिव, संसदीय कार्य विभाग
 												</fo:block>
 												
 												<fo:block>
-													(३) 	&#160;प्रधान सचिव / सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, मंत्रालय, मुंबई.
-												</fo:block>
-											
+														टीप :- विद्यमान अधिवेशन कालावधीत सदरहू स्थगन प्रस्तावावरील निवेदने सभागृहाच्या पटलावर ठेवणे आवश्यक 											      										
+	            										<fo:inline>आहे. अधिवेशन समाप्त होण्यापूर्वी स्थगन प्रस्तावावरील निवेदन न झाल्यास प्रस्तुत बाब कागदपत्रे सभागृहाच्या </fo:inline>
+	            										<fo:inline>पटलावर ठेवण्यासंबंधातील समितीकडे पाठविण्यात येईल याची कृपया नोंद घेऊन निवेदन अधिवेशन संस्थगित</fo:inline>
+	            										<fo:inline>होण्यापूर्वी सभागृहात वितरीत करण्याच्या दृष्टीने कार्यवाही व्हावी.) (२२०२७३९९ Ext. २२०१/२२०२.) </fo:inline>
+	            										
+	            								</fo:block>
             								</fo:block>
             							</fo:table-cell>
             							            	
@@ -290,7 +280,7 @@
             				</fo:table>	            			
 						</fo:block>
 						
-						<fo:block break-before="page">
+						<!-- <fo:block break-before="page">
 							<fo:block font-weight="bold" text-align="center">
 								<xsl:value-of select="./element_1/element_1_9"/>, वि.प.स. यांनी विधानपरिषद नियम ९३ अन्वये दिलेली सूचना क्रमांक - <xsl:value-of select="./element_1/element_1_4"/>
 							</fo:block>
@@ -298,7 +288,7 @@
 							<fo:block>
 								<xsl:apply-templates select="./element_1/element_1_5"/>
 							</fo:block>
-						</fo:block>
+						</fo:block> -->
 					</fo:block>											          
 	            </fo:flow>
 	        </fo:page-sequence>        
