@@ -242,7 +242,7 @@ public class MotionController extends GenericController<Motion>{
 						model.addAttribute("role", i.getType());
 						model.addAttribute("ugparam", this.getCurrentUser().getActualUsername());
 						break;
-					} else if (i.getType().contains("MOIS_CLERK")) {
+					} else if (i.getType().startsWith("MOIS_CLERK")) {
 						model.addAttribute("role", i.getType());
 						model.addAttribute("ugparam", this.getCurrentUser().getActualUsername());
 						break;
