@@ -1434,10 +1434,11 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 
 
 	    public Boolean validateSubmissionDate() {
-	    	Calendar cal = Calendar.getInstance();
-	    	cal.setTime(new Date());
-	    	cal.add(Calendar.DAY_OF_MONTH, 1);
-	    	if(DateUtil.compareDatePartOnly(this.getSpecialMentionNoticeDate(), cal.getTime()) == 0
+	    	Date nextWorkingDate = Holiday.getNextWorkingDateFrom(new Date(), 1, this.getLocale());
+	    	/*Calendar cal = Calendar.getInstance();
+	    	cal.setTime(specialMentionNoticeDate);
+	    	cal.add(Calendar.DAY_OF_MONTH, 1);*/
+	    	if(DateUtil.compareDatePartOnly(this.getSpecialMentionNoticeDate(), nextWorkingDate) == 0
 	    			//&& (DateUtil.compareDatePartOnly(this.getSubmissionDate(), new Date())) == 0
 	    			&& !(Holiday.isHolidayOnDate(this.getSpecialMentionNoticeDate(), this.getLocale()))) {
 	    		return true;
