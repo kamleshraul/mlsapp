@@ -474,6 +474,11 @@ public abstract class BaseController {
     
     @SuppressWarnings("unchecked")
 	protected void generateTabularFOPReport(HttpServletRequest request, HttpServletResponse response, Locale locale) {
+		this.generateTabularFOPReport(request, response, request.getParameterMap(), locale);
+	}
+    
+    @SuppressWarnings("unchecked")
+	protected void generateTabularFOPReport(HttpServletRequest request, HttpServletResponse response, Map<String, String[]> parametersMap, Locale locale) {
 		File reportFile = null;
 		Boolean isError = false;
 		MessageResource errorMessage = null;
@@ -488,12 +493,12 @@ public abstract class BaseController {
 				&& outputFormat!=null && !outputFormat.isEmpty()
 				&& reportFileName!=null && !reportFileName.isEmpty()) {
 			try {
-				Map<String, String[]> requestMap = request.getParameterMap();
+				//Map<String, String[]> requestMap = request.getParameterMap();
 				/** Populate Headers **/
-				List<Object[]> reportHeaders = Query.findReport(request.getParameter("reportQuery")+"_HEADERS", requestMap);
+				List<Object[]> reportHeaders = Query.findReport(request.getParameter("reportQuery")+"_HEADERS", parametersMap);
 				/** Populate Data **/
 				@SuppressWarnings("rawtypes")
-				List reportData = Query.findReport(request.getParameter("reportQuery"), requestMap);		
+				List reportData = Query.findReport(request.getParameter("reportQuery"), parametersMap);
 				/**** generate fop report ****/
 				/** create report in reportFile **/
 				reportFile = generateReportUsingFOP(new Object[] {reportHeaders, reportData}, xsltFileName, outputFormat, reportFileName, locale.toString());

@@ -1002,6 +1002,38 @@
 			}
 		}
 		
+		/**** To Generate Yaadi Report ****/
+		function generateYaadiReport() {	
+			var currentDevice = $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text();
+			var workflowId = $("#grid").jqGrid ('getGridParam', 'selrow');
+			if(workflowId==undefined || workflowId=='') {
+				$.prompt($('#selectRowFirstMessage').val());
+				return false;
+			} else {	
+				var internalStatus = $("#grid").jqGrid('getCell', workflowId, 'internalStatus');
+				var finalAdmissionStatus = $("#selectedSubWorkflow option[value$='final_admission']").first().text();
+				if(internalStatus==finalAdmissionStatus) {
+					var outputFormat = "WORD";
+					if($("#currentusergroupType").val()=='department' 
+							||$("#currentusergroupType").val()=='department_deskofficer') {
+						outputFormat = "PDF";
+					}
+					if(currentDevice.indexOf('motions_cutmotion_')==0){
+						//$('#generateYaadiReport').attr('href', 'cutmotion/report/yaadi_report?workflowId='+workflowId);
+						var parameters = {
+								workflowId				: workflowId,
+								locale					: $("#moduleLocale").val(),
+								reportQuery				: "CMOIS_YAADI_REPORT"/* + "_" + $("#selectedHouseType").val().toUpperCase()*/,
+								xsltFileName			: 'cmois_yaadi_report_template'/* + '_' + $("#selectedHouseType").val()*/,
+								outputFormat			: outputFormat,
+								reportFileName			: "cmois_yaadi_report"/* + "_" + $("#selectedCutMotionType").val()*/
+						}
+						form_submit('cutmotion/report/yaadi_report', parameters, 'GET');
+					}
+				}			
+			}			
+		}
+		
 		function showCurrentStatusReport(val, wfdId){
 
 			$("#selectionDiv1").hide();
@@ -1733,7 +1765,7 @@
 		<input type="hidden" id="persistentGridRowId" value="" />
 		<input type="hidden" id="selectedFileCount" value="-">
 		<input type="hidden" id="pleaseSelectOption" name="pleaseSelectOption" value="<spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message>">
-		
+		<input type="hidden" id="moduleLocale" value="${moduleLocale}" />
 	</div> 
 </body>
 </html>

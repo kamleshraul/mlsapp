@@ -126,9 +126,44 @@ public class CutMotionReportController extends BaseController{
 		return CutMotionReportHelper.getCurrentStatusReportData(id, model, request, response, locale);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/yaadi_report", method=RequestMethod.GET)
 	public @ResponseBody void generateYaadiReport(HttpServletRequest request, HttpServletResponse response, Locale locale){
-		generateTabularFOPReport(request, response, locale);
+		//
+		String strWfid = request.getParameter("workflowId");		
+		WorkflowDetails wfd = null;
+		if(strWfid != null && !strWfid.isEmpty()){
+			wfd = WorkflowDetails.findById(WorkflowDetails.class, new Long(strWfid));
+			if(wfd != null){
+				Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+				parametersMap.putAll(request.getParameterMap());
+				
+				CutMotion cutMotion = CutMotion.findById(CutMotion.class, Long.parseLong(wfd.getDeviceId()));
+				if(cutMotion!=null) {
+					String houseType = cutMotion.getHouseType().getType();
+					parametersMap.put("houseType", new String[] {houseType});
+					
+					String sessionYear = cutMotion.getSession().getYear().toString();
+					parametersMap.put("sessionYear", new String[] {sessionYear});
+					
+					String sessionType = cutMotion.getSession().getType().getId().toString();
+					parametersMap.put("sessionType", new String[] {sessionType});
+					
+					String sessionId = cutMotion.getSession().getId().toString();
+					parametersMap.put("sessionId", new String[] {sessionId});
+					
+					String subDepartment = cutMotion.getSubDepartment().getId().toString();
+					parametersMap.put("subDepartment", new String[] {subDepartment});
+					
+					String cutMotionType = cutMotion.getDeviceType().getId().toString();
+					parametersMap.put("cutMotionType", new String[] {cutMotionType});
+					
+					generateTabularFOPReport(request, response, parametersMap, locale);
+				}
+			}
+		} else {
+			generateTabularFOPReport(request, response, locale);
+		}	
 	}
 
 }

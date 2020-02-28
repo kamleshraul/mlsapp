@@ -223,6 +223,7 @@ public class WorkflowController extends BaseController {
 			final Locale applocale) throws ELSException {
 		String errorpage=this.getResourcePath(request).replace("module","error");
 		String locale=applocale.toString();
+		model.addAttribute("moduleLocale", locale);
 		/**** This is for getting only the tasks of current user ****/
 		model.addAttribute("assignee",this.getCurrentUser().getActualUsername());		
 		/**** House Types ****/

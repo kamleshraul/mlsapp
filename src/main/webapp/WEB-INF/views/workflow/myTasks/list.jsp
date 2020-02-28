@@ -22,6 +22,16 @@
 				$("#intimationLetterFilter option[class=adjournmentmotion]").hide();
 				$("#intimationLetterFilter option[class=question]").show();
 			}
+			if($("#deviceTypeType").val() == 'motions_cutmotion_budgetary' || $("#deviceTypeType").val() == 'motions_cutmotion_supplementary'){
+				if($("#currentusergroupType").val()=='department' 
+					||$("#currentusergroupType").val()=='department_deskofficer' ){
+					$("#yaadiReportSpan").show();
+				} else {
+					$("#yaadiReportSpan").hide();
+				}				
+			} else {
+				$("#yaadiReportSpan").hide();
+			}
 			var selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
 			/**** Initially we want to get only those tasks which belongs to current user and of selected status ****/
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
@@ -52,6 +62,10 @@
 			$("#generateIntimationLetter").click(function(){
 				$(this).attr('href','#');
 				generateIntimationLetter();				
+			});
+			/**** Generate Yaadi Report ****/
+			$("#generateYaadiReport").click(function(){				
+				generateYaadiReport();
 			});
 			
 			$("#generateCurrentStatusReport").click(function(){
@@ -233,6 +247,11 @@
 				 </div>
 			 </security:authorize>
 			 <security:authorize access="hasAnyRole('QIS_DEPARTMENT_USER')">
+			 	 <span id="yaadiReportSpan" style="display: none;">
+			 	 <a href="#" id="generateYaadiReport" class="butSim">
+					<spring:message code="generic.mytask.device.YaadiReport" text="Yaadi Report"/>
+				 </a> |
+				 </span>
 				 <a href="javascript:void(0);" id="departmentStatementReport" class="butSim">
 					<spring:message code="resolution.departmentStatementReport" text="Department Statement"/>
 				 </a>|
