@@ -26,6 +26,7 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
+import org.mkcl.els.controller.NotificationController;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -2236,6 +2237,7 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 						StandaloneMotion motion=StandaloneMotion.findById(StandaloneMotion.class,domain.getId());
 						List<SupportingMember> supportingMembers=motion.getSupportingMembers();
 						Status status=Status.findByFieldName(Status.class,"type",ApplicationConstants.SUPPORTING_MEMBER_PENDING,domain.getLocale());
+						StringBuffer supportingMembersUserNames = new StringBuffer("");
 						for(SupportingMember i:supportingMembers){
 							if(i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
 								i.setDecisionStatus(status);
@@ -2250,9 +2252,15 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 									}
 								}							
 								i.merge();
+								/** save supporting member usernames for sending notification **/
+								supportingMembersUserNames.append(credential.getUsername());
+								supportingMembersUserNames.append(",");
 							}
 						}
-
+						//SEND NOTIFICATION FOR NEW SUPPORTING MEMBER APPROVAL REQUESTS
+						if(!supportingMembersUserNames.toString().isEmpty()) {
+							NotificationController.sendSupportingMemberApprovalNotification(domain.getSubject(), domain.getType(), domain.getPrimaryMember(), supportingMembersUserNames.toString(), domain.getLocale());
+						}
 					} catch (ELSException e) {
 						model.addAttribute("error", e.getParameter());
 						e.printStackTrace();
@@ -2311,6 +2319,7 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 							StandaloneMotion motion=StandaloneMotion.findById(StandaloneMotion.class,domain.getId());
 							List<SupportingMember> supportingMembers=motion.getSupportingMembers();
 							Status status=Status.findByFieldName(Status.class,"type",ApplicationConstants.SUPPORTING_MEMBER_PENDING,domain.getLocale());
+							StringBuffer supportingMembersUserNames = new StringBuffer("");
 							for(SupportingMember i:supportingMembers){
 								if(i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
 									i.setDecisionStatus(status);
@@ -2327,7 +2336,10 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 									i.merge();
 								}
 							}
-	
+							//SEND NOTIFICATION FOR NEW SUPPORTING MEMBER APPROVAL REQUESTS
+							if(!supportingMembersUserNames.toString().isEmpty()) {
+								NotificationController.sendSupportingMemberApprovalNotification(domain.getSubject(), domain.getType(), domain.getPrimaryMember(), supportingMembersUserNames.toString(), domain.getLocale());
+							}
 						} catch (ELSException e) {
 							model.addAttribute("error", e.getParameter());
 							e.printStackTrace();

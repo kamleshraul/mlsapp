@@ -23,6 +23,7 @@ import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Task;
+import org.mkcl.els.controller.NotificationController;
 import org.mkcl.els.controller.mis.MemberOtherController;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Constituency;
@@ -1205,6 +1206,7 @@ class HalfHourDiscussionFromQuestionController {
 				List<SupportingMember> supportingMembers = question.getSupportingMembers();
 				Status status = Status.
 						findByType(ApplicationConstants.SUPPORTING_MEMBER_PENDING, domain.getLocale());
+				StringBuffer supportingMembersUserNames = new StringBuffer("");
 				for(SupportingMember i:supportingMembers){
 					String decisionStatus = i.getDecisionStatus().getType();
 					if(decisionStatus.equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
@@ -1223,6 +1225,10 @@ class HalfHourDiscussionFromQuestionController {
 						}							
 						i.merge();
 					}
+				}
+				//SEND NOTIFICATION FOR NEW SUPPORTING MEMBER APPROVAL REQUESTS
+				if(!supportingMembersUserNames.toString().isEmpty()) {
+					NotificationController.sendSupportingMemberApprovalNotification(domain.getSubject(), domain.getType(), domain.getPrimaryMember(), supportingMembersUserNames.toString(), domain.getLocale());
 				}
 			}
 		}
@@ -2668,6 +2674,7 @@ class HalfHourDiscussionFromQuestionController {
 					List<SupportingMember> supportingMembers = question.getSupportingMembers();
 					Status status=Status.
 							findByType(ApplicationConstants.SUPPORTING_MEMBER_PENDING, domain.getLocale());
+					StringBuffer supportingMembersUserNames = new StringBuffer("");
 					for(SupportingMember i:supportingMembers){
 						String decisionStatusType = i.getDecisionStatus().getType();
 						if(decisionStatusType.equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
@@ -2687,6 +2694,10 @@ class HalfHourDiscussionFromQuestionController {
 							}
 							i.merge();
 						}
+					}
+					//SEND NOTIFICATION FOR NEW SUPPORTING MEMBER APPROVAL REQUESTS
+					if(!supportingMembersUserNames.toString().isEmpty()) {
+						NotificationController.sendSupportingMemberApprovalNotification(domain.getSubject(), domain.getType(), domain.getPrimaryMember(), supportingMembersUserNames.toString(), domain.getLocale());
 					}
 				}else if(operation.equals("startworkflow")){
 						/** copy latest question text of child question to revised question text of its parent's other clubbed questions if any **/
