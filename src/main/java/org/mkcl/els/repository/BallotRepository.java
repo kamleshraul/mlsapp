@@ -411,10 +411,10 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 			
 		}*/
 		
-		String query = "UPDATE questions" +
-				" SET ballotstatus_id =:ballotStatusID," + 
-				" discussion_date=:answeringDate" +
-				" WHERE id IN (" +
+		String query = "UPDATE questions bq" +
+				" SET bq.ballotstatus_id =:ballotStatusID," + 
+				" bq.answering_date=(SELECT id FROM question_dates WHERE answering_date=:answeringDate AND group_id=bq.group_id)" +
+				" WHERE bq.id IN (" +
 				" SELECT qid FROM (" +
 				" SELECT q.id AS qid FROM questions q WHERE q.id IN (" +
 				" SELECT ds.device_id FROM ballots AS b JOIN ballots_ballot_entries AS bbe" +
