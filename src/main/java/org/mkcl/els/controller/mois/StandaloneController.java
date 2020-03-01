@@ -2334,6 +2334,9 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 										}
 									}
 									i.merge();
+									/** save supporting member usernames for sending notification **/
+									supportingMembersUserNames.append(credential.getUsername());
+									supportingMembersUserNames.append(",");
 								}
 							}
 							//SEND NOTIFICATION FOR NEW SUPPORTING MEMBER APPROVAL REQUESTS

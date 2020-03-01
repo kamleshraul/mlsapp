@@ -1224,6 +1224,9 @@ class HalfHourDiscussionFromQuestionController {
 							}
 						}							
 						i.merge();
+						/** save supporting member usernames for sending notification **/
+						supportingMembersUserNames.append(credential.getUsername());
+						supportingMembersUserNames.append(",");
 					}
 				}
 				//SEND NOTIFICATION FOR NEW SUPPORTING MEMBER APPROVAL REQUESTS
@@ -2693,6 +2696,9 @@ class HalfHourDiscussionFromQuestionController {
 								}
 							}
 							i.merge();
+							/** save supporting member usernames for sending notification **/
+							supportingMembersUserNames.append(credential.getUsername());
+							supportingMembersUserNames.append(",");
 						}
 					}
 					//SEND NOTIFICATION FOR NEW SUPPORTING MEMBER APPROVAL REQUESTS
