@@ -210,9 +210,8 @@ public class CutMotionReportController extends BaseController{
 					
 					@SuppressWarnings("rawtypes")
 					List reportData = Query.findReport("CUTMOTION_INTIMATION_LETTER", parameters);
-					String templateName = "cutmotion_intimation_letter_template"+"_"+motion.getHouseType().getType();			
 					
-					reportFile = generateReportUsingFOP(new Object[] {reportData}, templateName, strReportFormat, "cutmotion_intimationletter",locale.toString());
+					reportFile = generateReportUsingFOP(new Object[] {reportData}, "cutmotion_intimation_letter_template", strReportFormat, "cutmotion_intimationletter",locale.toString());
 					openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
 					
 					model.addAttribute("info", "general_info");

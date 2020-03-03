@@ -966,6 +966,8 @@
 						$('#generateIntimationLetter').attr('href', 'adjournmentmotion/report/generateIntimationLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
 					}else if(currentDevice.indexOf('notices_specialmention')==0){
 						$('#generateIntimationLetter').attr('href', 'specialmentionnotice/report/generateIntimationLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val()+'&copyType=tentativeCopy');
+					}else if(currentDevice.indexOf('motions_cutmotion')==0){
+						$('#generateIntimationLetter').attr('href', 'cutmotion/report/generateIntimationLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
 					}
 					if(isNeededToResetLetterFilter == true) {
 						$("#intimationLetterFilter").val("-");

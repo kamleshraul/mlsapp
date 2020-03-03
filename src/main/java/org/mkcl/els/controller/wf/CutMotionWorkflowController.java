@@ -882,6 +882,9 @@ public class CutMotionWorkflowController extends BaseController {
 			if(cutMotion.getYaadiSubDepartment()!=null){
 				domain.setYaadiSubDepartment(cutMotion.getYaadiSubDepartment());
 			}
+			if(cutMotion.getYaadiLayingDate()!=null) {
+				domain.setYaadiLayingDate(cutMotion.getYaadiLayingDate());
+			}
 			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
 					&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)
 					&& domain.getReply()!=null && !domain.getReply().isEmpty() && domain.getReplyReceivedDate()==null) {					
