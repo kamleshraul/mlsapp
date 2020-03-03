@@ -1151,6 +1151,7 @@
 	<input type="hidden" name="dataEnteredBy" id="dataEnteredBy" value="${dataEnteredBy }">
 	<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
+	<input type="hidden" id="yaadiLayingDate" name="yaadiLayingDate" value="${yaadiLayingDate}"/>
 	<input type="hidden" name="workflowStartedOnDate" id="workflowStartedOnDate" value="${workflowStartedOnDate }">
 	<input type="hidden" name="taskReceivedOnDate" id="taskReceivedOnDate" value="${taskReceivedOnDate }">	
 	<input id="role" name="role" value="${role}" type="hidden">

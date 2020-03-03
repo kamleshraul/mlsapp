@@ -318,16 +318,29 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
 					" and (mhr.to_date>='"+strSessionStartDate+"' or mhr.to_date>='"+strSessionEndDate+"') and mr.priority=0 and mhr.house_id="+house.getId()+" and (m.first_name LIKE '%"+param+"%' OR m.middle_name LIKE '%"+param+"%' OR m.last_name LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.last_name) LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.last_name,', ',t.name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.middle_name,' ',m.last_name) LIKE '%"+param+"%') ORDER BY m.first_name asc";
 				}				
 				List members=this.em().createNativeQuery(query).getResultList();
+				List<Member> activeMinistersList = Member.findActiveMinisters(new Date(), locale);
 				for(Object i:members){
 					Object[] o=(Object[]) i;
-					MasterVO masterVO=new MasterVO();
-					masterVO.setId(Long.parseLong(o[0].toString()));
-					if(o[3]!=null){
-						masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString()+" "+o[4].toString());
-					}else{
-						masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString());
+					Member member = Member.findById(Member.class, Long.parseLong(o[0].toString()));
+					boolean isMemberActiveMinister = false;
+					if(activeMinistersList!=null && member!=null) {
+						for(Member m: activeMinistersList) {
+							if(member.getId().equals(m.getId())) {
+								isMemberActiveMinister = true;
+								break;
+							}
+						}
 					}
-					memberVOS.add(masterVO);
+					if(!isMemberActiveMinister) {
+						MasterVO masterVO=new MasterVO();
+						masterVO.setId(Long.parseLong(o[0].toString()));
+						if(o[3]!=null){
+							masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString()+" "+o[4].toString());
+						}else{
+							masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString());
+						}
+						memberVOS.add(masterVO);
+					}					
 				}
 			}
 			return memberVOS;

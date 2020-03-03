@@ -20,6 +20,7 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.xmlvo.XmlVO;
 import org.mkcl.els.domain.ActivityLog;
+import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.DeviceType;
@@ -153,6 +154,9 @@ public class CutMotionReportController extends BaseController{
 					parametersMap.put("sessionId", new String[] {sessionId});
 					
 					String subDepartment = cutMotion.getSubDepartment().getId().toString();
+					if(cutMotion.getYaadiSubDepartment()!=null) {
+						subDepartment = cutMotion.getYaadiSubDepartment().getId().toString();
+					}
 					parametersMap.put("subDepartment", new String[] {subDepartment});
 					
 					String cutMotionType = cutMotion.getDeviceType().getId().toString();
@@ -164,6 +168,86 @@ public class CutMotionReportController extends BaseController{
 		} else {
 			generateTabularFOPReport(request, response, locale);
 		}	
+	}
+	
+	@RequestMapping(value ="/generateIntimationLetter", method = RequestMethod.GET)
+	private void generateIntimationLetter(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		
+		try{
+			String strId = request.getParameter("motionId");
+			String strWorkflowId = request.getParameter("workflowDetailId");
+			WorkflowDetails workflowDetails = null;
+			String strReportFormat = request.getParameter("outputFormat");
+			if(strWorkflowId != null && !strWorkflowId.isEmpty()){
+				workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
+				if(workflowDetails != null){
+					strId = workflowDetails.getDeviceId();
+					if(strReportFormat==null || strReportFormat.isEmpty()) {
+						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+								|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+							strReportFormat = "PDF";
+						} else {
+							strReportFormat = "WORD";
+						}
+					}
+				} else {
+					strReportFormat = "WORD";
+				}
+			} else {
+				strReportFormat = "WORD";
+			}
+			
+			if(strId != null && !strId.isEmpty()){
+				CutMotion motion = CutMotion.findById(CutMotion.class, Long.parseLong(strId));
+				if(motion!=null) {
+					Map<String, String[]> parameters = new HashMap<String, String[]>();
+					parameters.put("locale", new String[]{locale.toString()});
+					parameters.put("motionId", new String[]{strId});
+					
+					@SuppressWarnings("rawtypes")
+					List reportData = Query.findReport("CUTMOTION_INTIMATION_LETTER", parameters);
+					String templateName = "cutmotion_intimation_letter_template"+"_"+motion.getHouseType().getType();			
+					
+					reportFile = generateReportUsingFOP(new Object[] {reportData}, templateName, strReportFormat, "cutmotion_intimationletter",locale.toString());
+					openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
+					
+					model.addAttribute("info", "general_info");
+					//retVal = "cutmotion/info";
+				} else {
+					isError = true;
+					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "cutmotion.intimationLetter.noDeviceFound", locale.toString());
+				}				
+			} else {
+				isError = true;
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "cutmotion.intimationLetter.noDeviceFound", locale.toString());
+			}
+			if(isError) {
+				try {
+					//response.sendError(404, "Report cannot be generated at this stage.");
+					if(errorMessage != null) {
+						if(!errorMessage.getValue().isEmpty()) {
+							response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+						} else {
+							response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+						}
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+
+					return;
+				} catch (IOException e) {						
+					e.printStackTrace();
+				}
+			}
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		//return retVal;
 	}
 
 }

@@ -219,6 +219,10 @@ public class CutMotion extends Device implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "yaadi_subdepartment_id")
 	private SubDepartment yaadiSubDepartment;
+	
+	/** The yaadi laying date. */
+	@Temporal(TemporalType.DATE)
+    private Date yaadiLayingDate;
 
 	/**** DRAFTS ****/
 	/** The drafts. */
@@ -2452,6 +2456,14 @@ public class CutMotion extends Device implements Serializable {
 
 	public void setYaadiSubDepartment(SubDepartment yaadiSubDepartment) {
 		this.yaadiSubDepartment = yaadiSubDepartment;
+	}
+
+	public Date getYaadiLayingDate() {
+		return yaadiLayingDate;
+	}
+
+	public void setYaadiLayingDate(Date yaadiLayingDate) {
+		this.yaadiLayingDate = yaadiLayingDate;
 	}
 
 	public List<CutMotionDraft> getDrafts() {

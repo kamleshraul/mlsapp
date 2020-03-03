@@ -1002,6 +1002,7 @@
 		<input type="hidden" id="lastDateOfReplyReceiving" name="setLastDateOfReplyReceiving" class="datemask sText" value="${formattedLastReplyReceivingDate}"/>
 	</c:if>
 	<input type="hidden" id="replyReceivedMode" name="replyReceivedMode" value="${domain.replyReceivedMode}"/>
+	<input type="hidden" id="yaadiLayingDate" name="setYaadiLayingDate" value="${formattedYaadiLayingDate}"/>
 </form:form>
 <input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">

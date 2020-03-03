@@ -455,7 +455,11 @@ public class BallotController extends BaseController{
 //					groupNumber = group.getNumber().toString();
 //				}
 //				String ballotUserName = this.getCurrentUser().getActualUsername();
-//				NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+//				CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_BALLOT_NOTIFICATION_DISABLED", "");
+//				if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
+//						|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
+//					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+//				}
 				retVal = "CREATED";
 			}
 			else {
@@ -595,8 +599,13 @@ public class BallotController extends BaseController{
 						group = Group.findByAnsweringDateInHouseType(answeringDate, houseType);
 						groupNumber = group.getNumber().toString();
 					}
+					//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
 					String ballotUserName = this.getCurrentUser().getActualUsername();
-					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+					CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_BALLOT_NOTIFICATION_DISABLED", "");
+					if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
+							|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
+						NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+					}					
 					retVal = "ballot/halfhour_member_ballot";
 				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 
@@ -640,7 +649,11 @@ public class BallotController extends BaseController{
 						groupNumber = group.getNumber().toString();
 					}
 					String ballotUserName = this.getCurrentUser().getActualUsername();
-					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+					CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_BALLOT_NOTIFICATION_DISABLED", "");
+					if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
+							|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
+						NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+					}
 					retVal = "ballot/hds_membersubjectcombo_ballot";
 				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
 					if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
@@ -688,7 +701,11 @@ public class BallotController extends BaseController{
 							groupNumber = group.getNumber().toString();
 						}
 						String ballotUserName = this.getCurrentUser().getActualUsername();
-						NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+						CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_BALLOT_NOTIFICATION_DISABLED", "");
+						if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
+								|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
+							NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+						}
 						retVal = "ballot/nonofficial_membersubjectcombo_ballot";
 					}
 				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
@@ -710,7 +727,11 @@ public class BallotController extends BaseController{
 						groupNumber = group.getNumber().toString();
 					}
 					String ballotUserName = this.getCurrentUser().getActualUsername();
-					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+					CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_BALLOT_NOTIFICATION_DISABLED", "");
+					if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
+							|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
+						NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+					}
 					retVal = "ballot/nonofficial_bill_membersubjectcombo_ballot";
 				}
 			}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
@@ -745,7 +766,11 @@ public class BallotController extends BaseController{
 						groupNumber = group.getNumber().toString();
 					}
 					String ballotUserName = this.getCurrentUser().getActualUsername();
-					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+					CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_BALLOT_NOTIFICATION_DISABLED", "");
+					if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
+							|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
+						NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+					}
 					retVal = "ballot/halfhour_ballot";
 				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 					/*List<BallotMemberVO> ballotVOs = Ballot.findBallotedMemberVO(session, deviceType, answeringDate, locale.toString());
@@ -775,7 +800,11 @@ public class BallotController extends BaseController{
 						groupNumber = group.getNumber().toString();
 					}
 					String ballotUserName = this.getCurrentUser().getActualUsername();
-					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+					CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_BALLOT_NOTIFICATION_DISABLED", "");
+					if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
+							|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
+						NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+					}
 					retVal = "ballot/halfhour_ballot";
 
 				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){					
@@ -788,7 +817,11 @@ public class BallotController extends BaseController{
 						groupNumber = group.getNumber().toString();
 					}
 					String ballotUserName = this.getCurrentUser().getActualUsername();
-					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+					CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_BALLOT_NOTIFICATION_DISABLED", "");
+					if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
+							|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
+						NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+					}
 					retVal = "ballot/nonofficial_member_ballot";
 				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
 					List<BillBallotVO> ballotVOs = Ballot.findBillMemberSubjectBallotVO(session, deviceType, answeringDate, locale.toString());
@@ -809,7 +842,11 @@ public class BallotController extends BaseController{
 						groupNumber = group.getNumber().toString();
 					}
 					String ballotUserName = this.getCurrentUser().getActualUsername();
-					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+					CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_BALLOT_NOTIFICATION_DISABLED", "");
+					if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
+							|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
+						NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+					}
 					retVal = "ballot/nonofficial_bill_membersubjectcombo_ballot";
 				}
 			}
@@ -893,7 +930,11 @@ public class BallotController extends BaseController{
 					groupNumber = group.getNumber().toString();
 				}
 				String ballotUserName = this.getCurrentUser().getActualUsername();
-				NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+				CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_BALLOT_NOTIFICATION_DISABLED", "");
+				if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
+						|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
+					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+				}
 				retVal = "ballot/ballot";
 			}
 			
@@ -3308,7 +3349,11 @@ public class BallotController extends BaseController{
 								model.addAttribute("answeringDate",FormaterUtil.getDateFormatter(locale.toString()).format(questionDates.getAnsweringDate()));
 								//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
 								String ballotUserName = this.getCurrentUser().getActualUsername();
-								NotificationController.sendBallotCreationNotification(deviceType, session.getHouse().getType(), questionDates.getAnsweringDate(), group.getNumber().toString(), ballotUserName, locale.toString());
+								CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+session.getHouse().getType().getType().toUpperCase()+"_BALLOT_NOTIFICATION_DISABLED", "");
+								if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
+										|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
+									NotificationController.sendBallotCreationNotification(deviceType, session.getHouse().getType(), questionDates.getAnsweringDate(), group.getNumber().toString(), ballotUserName, locale.toString());
+								}
 							}else{
 								model.addAttribute("type","FINALBALLOT_FAILED");
 								return errorpage;	
@@ -3393,7 +3438,12 @@ public class BallotController extends BaseController{
 								model.addAttribute("answeringDate",FormaterUtil.getDateFormatter(locale.toString()).format(questionDates.getAnsweringDate()));
 								//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
 								String ballotUserName = this.getCurrentUser().getActualUsername();
-								NotificationController.sendBallotCreationNotification(deviceType, session.getHouse().getType(), questionDates.getAnsweringDate(), group.getNumber().toString(), ballotUserName, locale.toString());
+								CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+session.getHouse().getType().getType().toUpperCase()+"_BALLOT_NOTIFICATION_DISABLED", "");
+								if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
+										|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
+									NotificationController.sendBallotCreationNotification(deviceType, session.getHouse().getType(), questionDates.getAnsweringDate(), group.getNumber().toString(), ballotUserName, locale.toString());
+								}
+								
 							}else{
 								model.addAttribute("type","FINAL_BALLOT_NOT_CREATED");
 								return errorpage;	

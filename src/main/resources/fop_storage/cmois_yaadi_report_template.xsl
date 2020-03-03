@@ -91,7 +91,7 @@
 							<xsl:value-of select="element_1/element_1_6"/>
 						</fo:block>
 						<fo:block font-size="16px" font-weight="bold" text-align="center" text-decoration="underline">
-							<xsl:value-of select="element_1/element_1_19"/><xsl:value-of select="count(element_2)"/>
+							<xsl:value-of select="element_1/element_1_19"/><xsl:value-of select="element_1/element_1_20"/>
 						</fo:block>
 						<fo:block font-size="6px">&#160;</fo:block>
 			       		<xsl:choose>
@@ -322,7 +322,7 @@
 				                        	<fo:table-row border-collapse="collapse">
 				                        		<fo:table-cell>
 				     								<fo:block text-align="left">
-				     									<xsl:value-of select="element_1/element_1_11"/> : <xsl:value-of select="reportDate"/>
+				     									<xsl:value-of select="element_1/element_1_11"/> : <xsl:value-of select="element_2[1]/element_2_13"/>
 				     								</fo:block>
 				     							</fo:table-cell>
 				     							<fo:table-cell>
