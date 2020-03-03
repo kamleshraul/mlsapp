@@ -754,7 +754,7 @@
 			<input class="sCheck" type="checkbox" id="isSpecialMentionNoticeDateSelected" name="isSpecialMentionNoticeDateSelected" checked="checked"/>
 			<select name="selectedSpecialMentionNoticeDate" id="selectedSpecialMentionNoticeDate" style="width:130px;height: 25px;">	
 			<c:forEach items="${sessionDates}" var="i">
-				<option value="${i[0]}" ${i[0]==defaultspecialMentionNoticeDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
+				<option value="${i[0]}" ${i[0]==defaultSpecialMentionNoticeDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
 			</c:forEach>
 			</select>	
 		<%-- 	<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','SMIS_ASSISTANT','SMIS_SECTION_OFFICER')">
