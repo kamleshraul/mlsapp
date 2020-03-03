@@ -454,6 +454,39 @@ public class FormaterUtil {
 		}
 		return sundays;
 	}	
+    
+    public static List<Date> findAllSaturdayHolidaysInYear(final Integer year) {
+		List<Date> saturdays = new ArrayList<Date>();
+		
+		String yearStr = year.toString();
+		
+		String startYearDateStr = "01/01/" + yearStr;
+		String endYearDateStr = "31/12/" + yearStr;		
+				
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		Date startYearDate = null;
+		Date endYearDate = null;
+		try {
+			startYearDate = dateFormat.parse(startYearDateStr);
+			endYearDate = dateFormat.parse(endYearDateStr);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		SimpleDateFormat sf=new SimpleDateFormat("EEEE");
+		if(startYearDate != null && endYearDate !=null) {
+			Calendar start = Calendar.getInstance();
+	    	start.setTime(startYearDate);    	
+	    	Calendar end = Calendar.getInstance();
+	    	end.setTime(endYearDate);		
+	    	for (; ! start.after(end); start.add(Calendar.DATE, 1)) {
+	    		Date current = start.getTime();
+	    		if(sf.format(current).equals("Saturday")){
+	    			saturdays.add(current);
+	    		}
+	    	}
+		}
+		return saturdays;
+	}
 
     public static Date formatStringToDate(final String strDate, final String formatType) {
         DateFormat df = new SimpleDateFormat(formatType);

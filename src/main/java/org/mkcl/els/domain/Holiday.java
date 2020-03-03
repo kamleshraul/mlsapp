@@ -119,7 +119,7 @@ public class Holiday extends BaseDomain implements Serializable {
 		return getHolidayRepository().findAllByYear(year, locale);
 	}
 
-	public static List<Date> findAllSecondAndForthSaturdayHolidaysInYear(final Integer year) {    
+	/*public static List<Date> findAllSecondAndForthSaturdayHolidaysInYear(final Integer year) {    
 		List<Date> dates = new ArrayList<Date>();
 		try {
 			return getHolidayRepository().findAllSecondAndForthSaturdaysInYear(year);
@@ -127,12 +127,16 @@ public class Holiday extends BaseDomain implements Serializable {
 			e.printStackTrace();
 		}
 		return dates;
-	}
+	}*/
 
 	public static List<Date> findAllSundayHolidaysInYear(final Integer year) {    	
 		return FormaterUtil.findAllSundaysInYear(year);
 	}
-
+	
+	public static List<Date> findAllSaturdayHolidaysInYear(final Integer year) {    	
+		return FormaterUtil.findAllSaturdayHolidaysInYear(year);
+	}
+	
 	public static List<Date> findAllHolidayDatesByYear(final Integer year, String locale) {  
 		return findAllHolidayDatesByYear(year, ApplicationConstants.DAY_WORKING_SCOPE_COMMON, locale); //consider common exceptional holidays only
 	}
@@ -140,11 +144,14 @@ public class Holiday extends BaseDomain implements Serializable {
 	public static List<Date> findAllHolidayDatesByYear(final Integer year, String dayWorkingScopeType, String locale) {  
 		List<Date> holidayDates = new ArrayList<Date>();
 
-		List<Date> saturdays = Holiday.findAllSecondAndForthSaturdayHolidaysInYear(year);
-		holidayDates.addAll(saturdays);
-
+		/*List<Date> saturdays = Holiday.findAllSecondAndForthSaturdayHolidaysInYear(year);
+		holidayDates.addAll(saturdays);*/
+		
 		List<Date> sundays = Holiday.findAllSundayHolidaysInYear(year);
 		holidayDates.addAll(sundays);
+
+		List<Date> saturdays = Holiday.findAllSaturdayHolidaysInYear(year);
+		holidayDates.addAll(saturdays);
 
 		List<Holiday> masterHolidays = Holiday.findAllByYear(year, locale);
 		for(Holiday i: masterHolidays) {
