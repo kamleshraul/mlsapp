@@ -9,6 +9,10 @@
  */
 package org.mkcl.els.controller.mis;
 
+import java.io.File;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +22,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.codehaus.jackson.node.ObjectNode;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -27,17 +32,21 @@ import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.House;
+import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.service.ISecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * The Class MemberListController.
@@ -178,4 +187,30 @@ public class MemberListController extends GenericController<Member> {
     public String print(final ModelMap model,final Locale locale){
         return "member/print";
     }
+	
+	
+	@RequestMapping(value="/exportMemberList",method=RequestMethod.POST)
+	public @ResponseBody void exportMemberList(Model model, HttpServletRequest request
+									, HttpServletResponse response
+									,@RequestBody ObjectNode objectNode
+									, Locale locale) {
+		String houseType = objectNode.get("houseTypeId").getTextValue();
+		String fromDate = objectNode.get("fromDate").getTextValue();
+		String toDate = objectNode.get("toDate").getTextValue();
+		HouseType houseTypeVO = HouseType.findByType(houseType, locale.toString());
+		
+		
+		
+		List<String> reportData = Member.findMemberByHouseDates(houseTypeVO.getId(), fromDate, toDate);
+		List<String> serialNo1 = this.populateSerialNumbers(reportData, locale);
+		File reportFile =null;
+		try {
+			reportFile = generateReportUsingFOP(new Object[] {reportData,serialNo1,houseTypeVO.getType()},"member_details_template", "WORD", "member_details_report", locale.toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+	}
 }
