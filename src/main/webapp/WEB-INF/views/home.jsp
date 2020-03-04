@@ -107,6 +107,12 @@
 			      overflow: hidden;
 			    }
 			}
+			div#browserIncompatible {
+			    background-color: yellow;
+			    padding: 5px 0 5px 0;
+			    text-align: center;
+			}
+
 		</style>
 		
 		<script type="text/javascript">
@@ -214,6 +220,11 @@
         	
         <div id="container" class="clearfix">
 			<div id="page">
+				<div id="browserIncompatible"> 
+					<spring:message code="browser.detection.msg"  
+									text="Please Use Mozilla Firefox Browser For Better Performance"/>
+					<small>(<a href="http://mls.org.in/download/firefox/Firefox%20Setup%2038.0b2.rar">Click To Download</a>)</small>
+				</div>
 				<div class="menu clearfix">
 					<%@ include file="/common/menu.jsp" %>
 					 <!-- Page title --> 
@@ -228,7 +239,15 @@
 			</div>
 		</div>
 		</div>
-		
+		<script type="text/javascript">
+		$('#browserIncompatible').toggle();
+		if(detectedBrowser!=='Firefox'){
+			$('#browserIncompatible').toggle();
+			setInterval(() => {
+				$('#browserIncompatible').toggle();	
+			}, 30000);			
+		}
+		</script>		
 	</body>
 
 </html>
