@@ -2274,4 +2274,9 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return members;
 	}
 	
+	public static List<String> findMemberByHouseDates(final Long houseType,String fromDate,String toDate){
+		List<String> members=getMemberRepository().findMembersByHouseDates(houseType,fromDate,toDate);
+		return members;
+	}
+	
 }
