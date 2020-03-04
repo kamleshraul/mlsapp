@@ -62,7 +62,8 @@
 				$("#gridURLParams").val("house="+$("#house").val());					
 				$("#grid").setGridParam({"url":newURL});				
 				$("#grid").trigger("reloadGrid");								
-			});			
+			});
+			$('#dateblock').toggle();
 		});
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			var rowid=$('#key').val();
@@ -119,6 +120,60 @@
 				return "Invalid Date";
 			}
 		}
+		
+		$('#memberData').click(function(){
+			$('#dateblock').toggle();
+			$('#txtFromDate,#txtEndDate').focus(function(){		
+				if($(this).val()==""){
+					$("#txtFromDate,#txtEndDate").mask("99-99-9999");
+				}
+			});
+		});
+		
+		
+		$('#lnkGenerateMemberData').click(function(){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 	
+			$.ajax({
+				type:'POST',
+				contentType : "application/json",
+				url:'member/exportMemberList',
+				//dataType: "json",
+				data:JSON.stringify({
+					'houseTypeId':$("#houseType").val(),
+					'fromDate':$("#txtFromDate").val(),
+					'toDate':$('#txtEndDate').val()
+				}),
+				success: function (result,status,xhr) {
+			       try{
+					var disposition = xhr.getResponseHeader('content-disposition');
+			        var startIndex = disposition.indexOf("filename=")+9;
+			        var endIndex = disposition.length ;
+			        var filename = disposition.substring(startIndex, endIndex);
+			              
+			        
+		            var a = document.createElement('a');
+		            var blob = new Blob([result], { type: 'application/msword' });
+		            var url = window.URL.createObjectURL(blob);
+		            a.href = url;
+		            a.download = filename;
+		            document.body.append(a);
+		            a.click();
+		            a.remove();
+		            window.URL.revokeObjectURL(url);
+			       }catch(e){$.unblockUI();}
+		        },
+		        error:function(xhr,status,error){
+		        	//console.log('Error',xhr,status,error);
+		        	$.unblockUI();
+		        },
+		        complete:function(xhr,status){
+		        	//console.log('Complelete');
+		        	$.unblockUI();
+		        }
+			});
+			
+		});
+		
 	</script>
 </head>
 <body>
@@ -167,6 +222,17 @@
 			<a href="#" id="printCredential" class="butSim">
 				<spring:message code="member.print" text="printCredential"/>
 			</a> 
+			</security:authorize>
+			<security:authorize access="hasAnyRole('SUPER_ADMIN')">
+				<a href="#" id="memberData" class="butSim">
+					<spring:message code="member.list.export" text="printCredential"/>				
+				</a>
+				<span id="dateblock">
+					<br/>
+					<input type="text" id="txtFromDate" class="datemask"/>
+					<input type="text" id="txtEndDate" class="datemask"/>
+					<a href="javascript:void(0)" id="lnkGenerateMemberData">Generate</a>
+				</span> 
 			</security:authorize>	
 						
 			<p>&nbsp;</p>
