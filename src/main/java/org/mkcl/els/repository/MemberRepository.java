@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.persistence.NoResultException;
+import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.exception.ELSException;
@@ -4289,6 +4290,30 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 	
 		//position held is left out right now.
 		return memberBiographyVO;
+	}
+
+	public List<String> findMembersByHouseDates(Long houseTypeId, String fromDate, String toDate) {
+		CustomParameter parameter =
+				CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT_HYPHEN", "");
+		
+		Date frmDate = FormaterUtil.formatStringToDate(fromDate, parameter.getValue());
+		Date endDate = FormaterUtil.formatStringToDate(toDate, parameter.getValue());
+		
+		CustomParameter parameterDB =
+				CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+		String fromDateSTR = FormaterUtil.formatDateToString(frmDate, parameterDB.getValue());
+		String toDateSTR=FormaterUtil.formatDateToString(endDate, parameterDB.getValue());
+						
+		Map<String, String[]> requestMap=new HashMap<String, String[]>();
+		requestMap.put("fromDate", new String[] {fromDateSTR});
+		requestMap.put("toDate", new String[] {toDateSTR});
+		requestMap.put("houseTypeId", new String[] {houseTypeId.toString()});
+		requestMap.put("locale",new String[] {"mr_IN"});
+		requestMap.put("field_select_query", null);
+		requestMap.put("field_header_select_query", null);
+		
+		return Query.findReport("MEMBER_LIST_DATEWISE", requestMap);
+		
 	}
 	
 }
