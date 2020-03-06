@@ -382,8 +382,9 @@
 					<option value="${i[0]}" ${i[0]==selectedSpecialMentionNoticeDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
 				</c:forEach>
 				</select>
+				<c:if test="${empty formattedNumber}">
 				<a href="#" id="changeSpecialMentionNoticeDate" style="margin-left: 10px;"><spring:message code="specialmentionnotice.changeSpecialMentionNoticeDate" text="Change Special Mention Notice Date"/></a>
-				
+				</c:if>
 			</p>
 			
 			
