@@ -53,6 +53,7 @@
 								$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
 										+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
 									if(data.length>1) {
+										var usergroupType = $("#currentusergroupType").val();
 										var defaultAdjourningDate = data[data.length-1][0];
 										$('#selectedAdjourningDate').empty();
 										var htmlText = "";
@@ -64,7 +65,17 @@
 											htmlText += ">"+data[i][1]+"</option>";									
 										}	
 										$('#selectedAdjourningDate').html(htmlText);
-										prependOptionToSelectedAdjourningDate();
+										 if(usergroupType=='department' || usergroupType=='department_deskofficer'){
+											prependOptionToSelectedAdjourningDate();
+										} 
+										else{
+											if(defaultAdjourningDate!=undefined && defaultAdjourningDate!=null && defaultAdjourningDate!='') {
+												prependSelectedAdjourningDateOption(defaultAdjourningDate, formattedDefaultAdjourningDate);
+											}
+											else{
+												prependOptionToSelectedAdjourningDate();
+											}
+										}
 									} else {
 										$.prompt("some error..please contact administrator");
 									}
@@ -93,6 +104,7 @@
 								$.get('ref/specialmentionnotice/specialmentionnoticedatesforsession?houseType='+$('#selectedHouseType').val()
 										+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
 									if(data.length>1) {
+										var usergroupType = $("#currentusergroupType").val();
 										var defaultSpecialMentionNoticeDate = data[data.length-1][0];
 										$('#selectedAdjourningDate').empty();
 										var htmlText = "";
@@ -104,7 +116,15 @@
 											htmlText += ">"+data[i][1]+"</option>";									
 										}	
 										$('#selectedAdjourningDate').html(htmlText);
-										prependOptionToSelectedAdjourningDate();
+										if(usergroupType=='department' || usergroupType=='department_deskofficer'){
+											prependOptionToSelectedAdjourningDate();
+										}
+										else if(defaultAdjourningDate!=undefined && defaultAdjourningDate!=null && defaultAdjourningDate!='') {
+											prependSelectedAdjourningDateOption(defaultAdjourningDate, formattedDefaultAdjourningDate);
+										} else {
+											prependOptionToSelectedAdjourningDate();
+										}
+										
 									} else {
 										$.prompt("some error..please contact administrator");
 									}
@@ -315,25 +335,30 @@
 					$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
 							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
 						if(data.length>1) {
+							var usergroupType = $("#currentusergroupType").val();
 							var defaultAdjourningDate = data[data.length-1][0];
 							$('#selectedAdjourningDate').empty();
 							var htmlText = "";
-							var formattedDefaultAdjourningDate = "";
-							for(var i=0; i<data.length-1; i++) {								
+							for(var i=0; i<data.length-1; i++) {
+								htmlText += "<option value='"+data[i][0]+"'";
 								if(data[i][0]==defaultAdjourningDate) {
-									formattedDefaultAdjourningDate = data[i][1];
-									continue;
-								} else {
-									htmlText += "<option value='"+data[i][0]+"'";
+									htmlText += "selected='selected'";
 								}
 								htmlText += ">"+data[i][1]+"</option>";									
 							}	
-							$('#selectedAdjourningDate').html(htmlText);							
-							if(defaultAdjourningDate!=undefined && defaultAdjourningDate!=null && defaultAdjourningDate!='') {
-								prependSelectedAdjourningDateOption(defaultAdjourningDate, formattedDefaultAdjourningDate);
-							} else {
+							$('#selectedAdjourningDate').html(htmlText);
+							
+							 if(usergroupType=='department' || usergroupType=='department_deskofficer'){
 								prependOptionToSelectedAdjourningDate();
-							}							
+							}
+							else{
+								if(defaultAdjourningDate!=undefined && defaultAdjourningDate!=null && defaultAdjourningDate!='') {
+									prependSelectedAdjourningDateOption(defaultAdjourningDate, formattedDefaultAdjourningDate);
+								}
+								else{ 
+									prependOptionToSelectedAdjourningDate();
+								}
+							}
 						} else {
 							$.prompt("some error..please contact administrator");
 						}
@@ -367,6 +392,7 @@
 					$.get('ref/specialmentionnotice/specialmentionnoticedatesforsession?houseType='+$('#selectedHouseType').val()
 							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
 						if(data.length>1) {
+							var usergroupType = $("#currentusergroupType").val();
 							var defaultSpecialMentionNoticeDate = data[data.length-1][0];
 							$('#selectedSpecialMentionNoticeDate').empty();
 							var htmlText = "";
@@ -378,7 +404,17 @@
 								htmlText += ">"+data[i][1]+"</option>";									
 							}	
 							$('#selectedSpecialMentionNoticeDate').html(htmlText);
-							prependOptionToSelectedSpecialMentionNoticeDate();
+							 if(usergroupType=='department' || usergroupType=='department_deskofficer'){
+									prependOptionToSelectedAdjourningDate();
+								}
+								else{
+									if(defaultAdjourningDate!=undefined && defaultAdjourningDate!=null && defaultAdjourningDate!='') {
+										prependSelectedAdjourningDateOption(defaultAdjourningDate, formattedDefaultAdjourningDate);
+									}
+									else{ 
+										prependOptionToSelectedAdjourningDate();
+									}
+								}
 						} else {
 							$.prompt("some error..please contact administrator");
 						}
@@ -900,19 +936,13 @@
 		
 		function prependOptionToSelectedAdjourningDate() {
 			var optionValue = $('#pleaseSelectOption').val();
-			var option = "<option value=''>" + optionValue + "</option>";
+			var option = "<option value='' selected>" + optionValue + "</option>";
 			$('#selectedAdjourningDate').prepend(option);
 		}
 		
-		function prependSelectedAdjourningDateOption(optionValue, optionLabel) {
-			var option = "<option value='"+optionValue+"' selected='selected'>" + optionLabel + "</option>";
+		 function prependSelectedAdjourningDateOption(optionValue, optionLabel) {
+				var option = "<option value='"+optionValue+"' selected>" + optionLabel + "</option>";
 			$('#selectedAdjourningDate').prepend(option);
-		}
-		
-		function prependOptionToSelectedSpecialMentionNoticeDate() {
-			var optionValue = $('#pleaseSelectOption').val();
-			var option = "<option value=''>" + optionValue + "</option>";
-			$('#selectedSpecialMentionNoticeDate').prepend(option);
 		}
 		
 		/****Provide introduction date ****/
