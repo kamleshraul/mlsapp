@@ -635,6 +635,9 @@ public class CutMotionWorkflowController extends BaseController {
 		if(domain.getReplyReceivedDate()!=null) {
 			model.addAttribute("formattedReplyReceivedDate", FormaterUtil.formatDateToString(domain.getReplyReceivedDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
 		}
+		/** populate yaadi details text if question is present in yaadi **/
+		String yaadiDetailsText = domain.findYaadiDetailsText();
+		model.addAttribute("yaadiDetailsText", yaadiDetailsText);
 		/**** add domain to model ****/
 		model.addAttribute("domain", domain);
 	}

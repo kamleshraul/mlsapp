@@ -1020,6 +1020,9 @@ public class CutMotionController extends GenericController<CutMotion>{
 		if(domain.getYaadiSubDepartment()!=null) {
 			model.addAttribute("yaadiSubDepartment",domain.getYaadiSubDepartment().getId());
 		}
+		/** populate yaadi details text if question is present in yaadi **/
+		String yaadiDetailsText = domain.findYaadiDetailsText();
+		model.addAttribute("yaadiDetailsText", yaadiDetailsText);
 	}
 
 	private void populateInternalStatus(final ModelMap model,final CutMotion domain,final String usergroupType,final String locale) {

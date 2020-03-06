@@ -590,7 +590,15 @@
 <div id="assistantDiv">
 	<form:form action="workflow/cutmotion" method="PUT" modelAttribute="domain">
 		<%@ include file="/common/info.jsp" %>
-		<h2>${formattedMotionType}: ${formattedNumber}</h2>
+		<h2>
+			${formattedMotionType}: ${formattedNumber}
+			<c:choose>
+				<c:when test="${not empty yaadiDetailsText}">
+					&nbsp;&nbsp;(${yaadiDetailsText})
+				</c:when>
+				<c:otherwise></c:otherwise>
+			</c:choose>
+		</h2>
 		<form:errors path="version" cssClass="validationError"/>
 		
 		<p style="display:none;">

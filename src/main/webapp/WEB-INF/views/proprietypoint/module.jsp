@@ -127,9 +127,10 @@
 			});
 			$("#members").change(function(){
 				var val = $(this).val();
-				if(val!="" && val!='-'){
+				/* if(val!="" && val!='-'){
 					memberWiseReport($(this).val());
-				}
+				} */
+				memberWiseReport($(this).val());
 			});
 			$("#party_report").click(function(){
 				var val = $('#parties').val();
@@ -570,7 +571,7 @@
 			</select>|	
 			</security:authorize> --%>		
 			
-			<security:authorize access="hasAnyRole('PROIS_CLERK', 'PROIS_ASSISTANT', 'PROIS_SECTION_OFFICER', 'PROIS_SECRETARY')">		
+			<security:authorize access="hasAnyRole('PROIS_CLERK', 'PROIS_ASSISTANT', 'PROIS_SECTION_OFFICER', 'PROIS_UNDER_SECRETARY', 'PROIS_SECRETARY', 'PROIS_PRINCIPAL_SECRETARY')">	
 				<a href="javascript:void(0);" id="reports_link" class="butSim" style="float: right;">
 					<spring:message code="proprietypoint.reports" text="Reports"/>
 				</a>

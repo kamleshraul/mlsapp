@@ -1295,7 +1295,7 @@
 						</div>|	
 					</div>	
 				</security:authorize>
-				<security:authorize access="hasAnyRole('MOIS_SECRETARY')">
+				<security:authorize access="hasAnyRole('MOIS_UNDER_SECRETARY', 'MOIS_SECRETARY', 'MOIS_PRINCIPAL_SECRETARY')">
 					
 					<a href="javascript:void(0);" id="reports_link" class="butSim" style="float: right;">
 						<spring:message code="motion.reports" text="Reports"/>
@@ -1306,6 +1306,9 @@
 						</a>						
 						<select id="members" class="sSelect" style="display: inline; width:100px;">
 						</select>|
+						<a href="javascript:void(0);" id="department_report" class="butSim" >
+							<spring:message code="generic.departmentWiseReport" text="Department-wise Report"/>
+						</a>|
 						<a href="javascript:void(0);" id="party_report" class="butSim" >
 							<spring:message code="generic.partyWiseReport" text="Party-wise Report"/>
 						</a>						

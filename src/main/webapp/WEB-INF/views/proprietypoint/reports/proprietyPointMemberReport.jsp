@@ -93,21 +93,28 @@
 						${report[0][2]}
 					</div>
 					<br>
-					<div style="font-weight: bold; width: 700px; margin: 0px 0px 10px 25px;">
-						${labels[2]} - ${report[0][6]} (${report[0][16]})
-					</div>
-					<br>
-					<div style="font-weight: bold; width: 700px; text-align: right;">
-						${labels[3]} - ${report[0][7]}
-					</div>
-					<br>
+					<c:if test="${report[0][18]!='all_members'}">
+						<div style="font-weight: bold; width: 700px; margin: 0px 0px 10px 25px;">
+							${labels[2]} - ${report[0][6]} (${report[0][16]})
+						</div>
+						<br>
+						<div style="font-weight: bold; width: 700px; text-align: right;">
+							${labels[3]} - ${report[0][7]}
+						</div>
+						<br>
+					</c:if>					
 					<table style="width: 700px; border: 1px solid black;" border="1" align="center" class="strippedTable">  
 						<thead>
 							<tr>
 								<th style="width: 20px;">${topHeader[0]}</th>
 								<th style="width: 60px;">${topHeader[7]}</th>
 								<th style="width: 20px;">${topHeader[1]}</th>
-								<th style="width: 480px;">${topHeader[2]}</th>
+								<c:choose>
+									<c:when test="${report[0][18]=='all_members'}">
+										<th style="width: 480px;">${topHeader[8]}</th>
+									</c:when>
+									<c:otherwise><th style="width: 480px;">${topHeader[2]}</th></c:otherwise>
+								</c:choose>								
 								<th style="width: 120px;">${topHeader[3]}</th>
 								<%-- <th style="width: 50px;">${topHeader[4]}</th> --%>
 								<th style="width: 60px;">${topHeader[5]}</th>
@@ -121,7 +128,16 @@
 									<td style="width: 20px; text-align: center;">${formater.formatNumberNoGrouping(counter.count, locale)}</td>
 									<td style="width: 60px; text-align: left;">${r[17]}</td>
 									<td style="width: 20px; text-align: center;">${r[4]}</td>
-									<td style="width: 480px; text-align: left;">${r[8]}</td>
+									<td style="width: 480px; text-align: left;">
+									<c:choose>
+										<c:when test="${report[0][18]=='all_members'}">
+											<span style="font-weight: bold;">${r[6]} : (${r[16]})</span>
+												<br/><br/>
+												${r[19]}
+										</c:when>
+										<c:otherwise>${r[8]}</c:otherwise>
+									</c:choose>									
+									</td>
 									<td style="width: 120px; text-align: center;">${r[9]}</td>
 									<%-- <td style="width: 50px; text-align: center;">${r[10]}</td> --%>
 									<td style="width: 60px; text-align: center;">${r[11]}</td>

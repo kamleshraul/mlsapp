@@ -906,8 +906,7 @@ public class CutMotion extends Device implements Serializable {
 		Integer intCurrentAdmissionCount = CutMotion.findHighestNumberByStatusDepartment(session, deviceType, subDepartment, admitted, locale);
 		if(intCurrentAdmissionCount != null){
 			currentAdmissionCount = intCurrentAdmissionCount.intValue();
-		}
-		
+		}		
 		List<CutMotion> admittedCutMotions = CutMotion.findFinalizedCutMotions(session, deviceType, subDepartment, admitted, ApplicationConstants.ASC, locale);
 		int admissionCounter = 0;
 		String reassignAdmission = null;
@@ -915,16 +914,19 @@ public class CutMotion extends Device implements Serializable {
 		if(csptReassignAdmissionNumbers != null && csptReassignAdmissionNumbers.getValue() != null && !csptReassignAdmissionNumbers.getValue().isEmpty()){
 			reassignAdmission = csptReassignAdmissionNumbers.getValue();
 		}
+		Date yaadiLayingDateForDepartment = Holiday.getLastWorkingDateFrom(discussionDateForDepartment, 1, ApplicationConstants.DAY_WORKING_SCOPE_SECRETARIAT_STAFF, locale);
 		for(CutMotion cm : admittedCutMotions){
 			if(reassignAdmission != null && !reassignAdmission.isEmpty() && reassignAdmission.equals("yes")){
 				++admissionCounter;
 				cm.setInternalNumber(/*currentAdmissionCount + */admissionCounter);
+				cm.setYaadiLayingDate(yaadiLayingDateForDepartment);
 				cm.simpleMerge();
 				admittedMotionUpdated = true;
 			}else{
 				if(cm.getInternalNumber() == null){
 					++admissionCounter;
 					cm.setInternalNumber(currentAdmissionCount + admissionCounter);
+					cm.setYaadiLayingDate(yaadiLayingDateForDepartment);
 					cm.simpleMerge();					
 				}					
 				admittedMotionUpdated = true;
@@ -933,31 +935,35 @@ public class CutMotion extends Device implements Serializable {
 		
 		/**** Assign number to rejected cutmotions ****/
 		boolean rejectedMotionUpdated = false;
-		int currentRejectionCount = 0;
-		String reassign = null;
 		Status rejected = Status.findByType(ApplicationConstants.CUTMOTION_FINAL_REJECTION, locale);
+		int currentRejectionCount = 0;
+		Integer intCurrentRejectionCount = CutMotion.findHighestNumberByStatusDepartment(session, deviceType, subDepartment, rejected, locale);
+		if(intCurrentRejectionCount != null){
+			currentRejectionCount = intCurrentRejectionCount.intValue();
+		}		
+		List<CutMotion> rejectedCutMotions = CutMotion.findFinalizedCutMotions(session, deviceType, subDepartment, rejected, ApplicationConstants.ASC, locale);
+		int rejectionCounter = 0;
+		String reassignRejection = null;		
 		CustomParameter csptReassignRejectionNumbers = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CUTMOTION_REASSIGN_REJECTION_NUMBER, "");
 		if(csptReassignRejectionNumbers != null && csptReassignRejectionNumbers.getValue() != null && !csptReassignRejectionNumbers.getValue().isEmpty()){
-			reassign = csptReassignRejectionNumbers.getValue();
+			reassignRejection = csptReassignRejectionNumbers.getValue();
 		}
-		List<CutMotion> rejectedCutMotions = CutMotion.findFinalizedCutMotions(session, deviceType, subDepartment, rejected, ApplicationConstants.ASC, locale);
-		Integer intCurrentRejectionCount = null;
-		if(reassign != null && !reassign.isEmpty() && reassign.equals("yes")){
-			currentRejectionCount = currentAdmissionCount + admissionCounter;
-		}else{
-			intCurrentRejectionCount = CutMotion.findHighestNumberByStatusDepartment(session, deviceType, subDepartment, rejected, locale);
-			if(intCurrentRejectionCount != null){
-				currentRejectionCount = intCurrentRejectionCount.intValue();
-			}
-		}
-		
-		
-		int rejectionCounter = 0;		
 		for(CutMotion cm : rejectedCutMotions){
-			++rejectionCounter;
-			cm.setInternalNumber(currentRejectionCount + rejectionCounter);
-			cm.simpleMerge();
-			rejectedMotionUpdated = true;
+			if(reassignRejection != null && !reassignRejection.isEmpty() && reassignRejection.equals("yes")){
+				++rejectionCounter;
+				cm.setInternalNumber(/*currentRejectionCount + */rejectionCounter);
+				cm.setYaadiLayingDate(null);
+				cm.simpleMerge();
+				rejectedMotionUpdated = true;
+			}else{
+				if(cm.getInternalNumber() == null){
+					++rejectionCounter;
+					cm.setInternalNumber(currentRejectionCount + rejectionCounter);
+					cm.setYaadiLayingDate(null);
+					cm.simpleMerge();					
+				}					
+				rejectedMotionUpdated = true;
+			}
 		}
 			
 		if(admittedMotionUpdated){		
@@ -2064,6 +2070,20 @@ public class CutMotion extends Device implements Serializable {
     	}		
     }
 	
+    public String findYaadiDetailsText() {
+		String yaadiDetailsText = "";
+		Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+		parametersMap.put("locale", new String[]{this.getLocale()});
+		parametersMap.put("cutMotionId", new String[]{this.getId().toString()});
+		@SuppressWarnings("rawtypes")
+		List yaadiDetailsTextResult = org.mkcl.els.domain.Query.findReport("CUTMOTION_YADI_DETAILS_TEXT", parametersMap);
+		if(yaadiDetailsTextResult!=null && !yaadiDetailsTextResult.isEmpty()) {
+			if(yaadiDetailsTextResult.get(0)!=null) {
+				yaadiDetailsText = yaadiDetailsTextResult.get(0).toString();
+			}
+		}
+		return yaadiDetailsText;
+	}
 	
 	/**** Getter Setters ****/
 	public HouseType getHouseType() {
