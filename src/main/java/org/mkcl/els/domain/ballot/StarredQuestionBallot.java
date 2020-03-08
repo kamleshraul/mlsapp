@@ -1425,7 +1425,14 @@ class StarredQuestionBallot {
 				List<BallotEntry> preBallotList = 
 						StarredQuestionBallot.findPreBallotEntries(preBallot.getBallotEntries()); 
 				if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
-					randomizedList = StarredQuestionBallot.randomize(preBallotList);
+					CustomParameter csptFineTuneEntries = CustomParameter.findByName(CustomParameter.class, "FINE_TUNE_STARRED_BALLOT_ENTRIES", "");
+					if(csptFineTuneEntries!=null && csptFineTuneEntries.getValue()!=null
+							&& csptFineTuneEntries.getValue().equals("YES")) {
+						randomizedList = StarredQuestionBallot.customRandomizeWithClarificationFactor(preBallotList, session, deviceType, answeringDate, locale);
+					} else {
+						randomizedList = StarredQuestionBallot.randomize(preBallotList);
+					}
+					
 				}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
 					randomizedList = StarredQuestionBallot.customRandomize(preBallotList, session, deviceType, answeringDate, locale);
 				}
@@ -1465,6 +1472,32 @@ class StarredQuestionBallot {
 		}		
 		finalBallotEntries.addAll(uniqueBallotEntries);
 		finalBallotEntries.addAll(nonUniqueBallotEntries);
+		
+		return finalBallotEntries;
+	}
+	
+	private static List<BallotEntry> customRandomizeWithClarificationFactor(List<BallotEntry> ballotEntries, Session session, DeviceType deviceType, Date answeringDate, String locale) throws ELSException {
+		List<BallotEntry> preBallotList = StarredQuestionBallot.randomize(ballotEntries);
+		List<BallotEntry> finalBallotEntries = new ArrayList<BallotEntry>();
+		List<BallotEntry> uniqueBallotEntries = new ArrayList<BallotEntry>();
+		List<BallotEntry> nonUniqueBallotEntries = new ArrayList<BallotEntry>();
+		/**** Check How Many Positions Cannot Be Same ****/
+		CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "NUMBER_OF_CLARIFICATIONLESS_POSITION_ACROSS_BALLOT", "");
+		int noOfUniquePositions = Integer.parseInt(customParameter.getValue());
+		
+		for(BallotEntry i: preBallotList){
+			Boolean unique = membersNotPresentAtPositionXWithClarificationQuestions(session,deviceType,answeringDate,i,noOfUniquePositions,locale);
+			if(unique && uniqueBallotEntries.size()<=noOfUniquePositions){					
+				uniqueBallotEntries.add(i);
+			}else{
+				nonUniqueBallotEntries.add(i);
+			}
+		}	
+		if(!uniqueBallotEntries.isEmpty()) {
+			finalBallotEntries.addAll(uniqueBallotEntries);
+		}		
+		List<BallotEntry> nonUniqueBallotEntriesRandomized = StarredQuestionBallot.randomize(nonUniqueBallotEntries);
+		finalBallotEntries.addAll(nonUniqueBallotEntriesRandomized);
 		
 		return finalBallotEntries;
 	}
@@ -1565,6 +1598,37 @@ class StarredQuestionBallot {
 			}
 		}
 		return newBallotEntryList;
+	}
+	
+	private static Boolean membersNotPresentAtPositionXWithClarificationQuestions(Session session, DeviceType deviceType, Date answeringDate,
+			BallotEntry ballotEntry, Integer noOfUniquePositions, String locale) throws ELSException {
+		Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+		parametersMap.put("locale", new String[]{locale.toString()});
+		parametersMap.put("sessionId", new String[]{session.getId().toString()});
+		parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+		parametersMap.put("membersAtPositionXId", new String[]{ballotEntry.getMember().getId().toString()});
+		parametersMap.put("noOfUniquePositions", new String[]{noOfUniquePositions.toString()});
+		parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
+		List counts = org.mkcl.els.domain.Query.findReport("QIS_MEMBER_POSITIONCOUNT_REGARDING_CLARIFICATION_IN_PREBALLOT", parametersMap);
+		Long count = null;
+		try {
+			for(Object i: counts) {
+				if(i!=null) {
+					String counter =   i.toString();
+					count = Long.parseLong(counter);
+													
+				}
+			}
+			if(count==0){
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			e.printStackTrace();
+			ELSException elsException = new ELSException();
+			elsException.setParameter("StarredQuestionBallot_Boolean_membersNotPresentAtPositionXWithClarificationQuestions", "No member position found.");
+			throw elsException;
+		}
 	}
 	
 	// TODO
