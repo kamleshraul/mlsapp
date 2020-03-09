@@ -189,7 +189,7 @@
 																	</xsl:if>
 																	रूपये:- <xsl:value-of select="element_2_4"/>/-
 																</fo:block>
-																<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_5"/></fo:block>																			
+																<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_14"/></fo:block>																			
 															</fo:table-cell>																				
 														</fo:table-row>
 													</xsl:when>
@@ -218,7 +218,7 @@
 																			</xsl:if>
 																			रूपये:- <xsl:value-of select="element_2_4"/>/-
 																		</fo:block>																		
-																		<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_5"/></fo:block>																			
+																		<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_14"/></fo:block>																			
 																	</fo:table-cell>																				
 																</fo:table-row>
 															</xsl:when>
@@ -236,7 +236,7 @@
 																				<fo:block>&#160;</fo:block>
 																			</fo:table-cell>
 																			<fo:table-cell margin-left="12px">
-																				<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_5"/></fo:block>																			
+																				<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_14"/></fo:block>																			
 																			</fo:table-cell>																				
 																		</fo:table-row>
 																	</xsl:when>
