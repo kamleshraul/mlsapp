@@ -17,6 +17,10 @@
 	<!-- This is needed for autowiring beans declared in context files -->
 	<context:annotation-config/>
 	<!-- Configures Handler Interceptors -->
+	
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    	<property name="location" value="classpath:system.properties"/>
+	</bean>
 
 	<mvc:interceptors>
 		<!-- Changes the locale when a 'locale' request parameter is sent; e.g. 
@@ -71,7 +75,7 @@
 	 </bean>
 
 	 <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
-		<property name="defaultLocale" value="mr_IN" />		
+		<property name="defaultLocale" value="${locale.default_value}" />
 	</bean>
 
 	<bean id="multipartResolver"

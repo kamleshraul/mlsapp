@@ -23,7 +23,14 @@
 		    $("#j_username").focus();
 		    $("#j_password").attr('autocomplete','off');
 		    if($('#selectedLocale').val()!=""){
-			    $('#lang').val($('#selectedLocale').val());		    
+			    $('#lang').val($('#selectedLocale').val()); 
+			    $('#localeSelectionP').hide(); //hide on production if it has to be one time visible for setting locale.. show for demo of multi locale project
+		    } else {
+		    	$('#lang').val($('#defaultLocale').val());
+		    	$('#localeSelectionP').show();
+		    }
+		    if($('#selectedLocale').val()!="" && $('#selectedLocale').val()!=$('#defaultLocale').val()) {
+		    	location.search = "?lang="+$('#lang').val();
 		    }
 		    $("#lang").change(function(){
 			   location.search = "?lang="+$('#lang').val();
@@ -51,6 +58,10 @@
 		    });
 		    $('#saveForm').click(function() {
 		    	//encryptPassword();
+		    });
+		    
+		    $("#forget_password_link").click(function(){ //later functionality for automatic password reset using OTP
+		    	$('#contactDiv').toggle();
 		    });
 		    
 		    $(document).keypress(function(e) {
@@ -84,6 +95,16 @@
 				$('#j_password').val(encryptedPwd);
 			}		
 		}
+		
+		/* setInterval(function(){
+
+	      $('#viewContactsForSupport').each(function() {
+
+	        $(this).toggle();
+
+	      });
+
+	    }, 600); */
 	</script>
 	
 	<style type="text/css">
@@ -219,6 +240,12 @@
 			font-weight: bold;
 			color: red;
 		}
+		
+		div#contactDiv {
+		    background-color: silver;
+		    padding: 5px 0 5px 0;
+		    text-align: center;
+		}
 	</style>
 </head>
 <body>
@@ -249,7 +276,7 @@
 		
 		<h1><spring:message code="login.vidhanmandal" text=""></spring:message></h1>
 		
-		<p style="display:none;">
+		<p id="localeSelectionP">
 		  	<input type="hidden" value="${lang}" id="language">
 			<label for="lang"><spring:message code="lang" text="Change Language" /></label>	
 			<select id="lang" name="language" >
@@ -269,14 +296,27 @@
 			<input type="password" id="j_password"  value="" name="j_password" autocomplete="false"/>
 		</p>
 		
+		<a href="#" id="viewContactsForSupport" style="margin-left:20px;float: right;margin-top: -42px;display: none;">
+			<img width="30" height="25" src="./resources/images/contactus.jpg">
+		</a>
+		
 		<p>
 			<!-- <span class="fl">
 				<a href="#">I Forgot My Password!</a>
 			</span> -->
-			<input id="saveForm" class="button button-gray fr" type="submit" value="<spring:message code='user_lbl_login' text='Login'/>"/>
+			<input id="saveForm" class="button button-gray fr" type="submit" value="<spring:message code='user_lbl_login' text='Login'/>"/>		
+		
+			<a href="#" id="forget_password_link" style="margin-left:20px;font-size:  14px;">
+				<spring:message code="login_page.forget_password_link" text="Password Queries" />
+			</a>
 		</p>
+	
+		<div id="contactDiv" style="display: none;">
+			<spring:message code="login_page.lockdown_support_numbers" text="Lockdown Support: 9773955035 / 9096711433 / 9892406094" />			
+		</div>		
 		
 		<input id="selectedLocale" name="selectedLocale" value="${selectedLocale}" type="hidden">
+		<input id="defaultLocale" name="defaultLocale" value="${defaultLocale}" type="hidden">
 	</form>
 	
 	<c:if test="${login_disabled_notification_flag=='ON'}">

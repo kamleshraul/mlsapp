@@ -240,9 +240,29 @@
 																			</fo:table-cell>																				
 																		</fo:table-row>
 																	</xsl:when>
-																	<!-- <xsl:otherwise>
-																		-
-																	</xsl:otherwise> -->
+																	<xsl:otherwise>
+																		<xsl:choose>
+																			<xsl:when test="../element_2[$rowCount -1]/element_2_14 != element_2_14">
+																				<fo:table-row>
+																					<fo:table-cell>
+																						<fo:block>&#160;</fo:block>
+																					</fo:table-cell>
+																					<fo:table-cell>
+																						<fo:block>&#160;</fo:block>
+																					</fo:table-cell>
+																					<fo:table-cell>
+																						<fo:block>&#160;</fo:block>
+																					</fo:table-cell>
+																					<fo:table-cell margin-left="12px">
+																						<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_14"/></fo:block>																			
+																					</fo:table-cell>																				
+																				</fo:table-row>
+																			</xsl:when>
+																			<!-- <xsl:otherwise>
+																				
+																			</xsl:otherwise> -->
+																		</xsl:choose>
+																	</xsl:otherwise>
 																</xsl:choose>
 															</xsl:otherwise>
 														</xsl:choose>														

@@ -104,16 +104,23 @@ $(function () {
 			        			}       			
 				        	}
 			        		$.prompt("All the read messages are automatically cleared for you.. \nPlease click on view all to view them!");
+			        		openNotificationsWindow();
 			        	} else {
 			        		alert("Some error occurred in clearing the notifications!");
+			        		openNotificationsWindow();
 			        	}
 			        }
 				});
         	} else if(self.notificationsList.length >= Math.round(parseInt($('#notifications_visibleMaxCount').val()) * 0.9)) {
         		$.prompt("Please consider clearing all the read messages!");
+        		openNotificationsWindow();
         		
         	} else if(self.notificationsCount >= Math.round(parseInt($('#notifications_visibleMaxCount').val()) * 0.6)) {
         		$.prompt("You have new notifications pending since long.. Please read them!");
+        		openNotificationsWindow();
+        		
+        	} else {
+        		openNotificationsWindow();
         	}
 		},
 		methods: {
@@ -220,15 +227,7 @@ $(function () {
 	//vueVM.notificationsList.push({'id':50, 'title': 'Test Title 50', 'sentOn': '2017-09-18 15:05:28', 'markedAsReadByReceiver': true, 'clearedByReceiver': false});
 	
 	$('#notifyIcon').click(function () {
-	    // TOGGLE (SHOW OR HIDE) NOTIFICATION WINDOW.
-	    $('#notifications').fadeToggle('fast', 'linear', function () {
-	        /* if ($('#notifications').is(':hidden')) {
-	            $('#notifyIcon').css('background-color', '#2E467C');
-	        }
-	        else $('#notifyIcon').css('background-color', '#FFF');		// CHANGE BACKGROUND COLOR OF THE BUTTON. */
-	    });
-	    $('#notification_counter').fadeOut('slow');		// HIDE THE COUNTER.
-	    return false;
+		openNotificationsWindow();
 	});
 	
 	/* $('#notification_alert').val("");
@@ -239,4 +238,16 @@ $(function () {
 		}					
 		$(this).val("");
 	}); */
+	
+	function openNotificationsWindow() {
+    	// TOGGLE (SHOW OR HIDE) NOTIFICATION WINDOW.
+	    $('#notifications').fadeToggle('fast', 'linear', function () {
+	        /* if ($('#notifications').is(':hidden')) {
+	            $('#notifyIcon').css('background-color', '#2E467C');
+	        }
+	        else $('#notifyIcon').css('background-color', '#FFF');		// CHANGE BACKGROUND COLOR OF THE BUTTON. */
+	    });
+	    $('#notification_counter').fadeOut('slow');		// HIDE THE COUNTER.
+	    return false;
+    }
 });

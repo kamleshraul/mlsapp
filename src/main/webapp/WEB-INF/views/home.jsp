@@ -112,6 +112,11 @@
 			    padding: 5px 0 5px 0;
 			    text-align: center;
 			}
+			div#contactDiv {
+			    background-color: yellow;
+			    padding: 5px 0 5px 0;
+			    text-align: center;
+			}
 
 		</style>
 		
@@ -154,12 +159,12 @@
 				
 				if($('#pushNotificationsEnabled').val()=="YES") {
 					$.getScript("./resources/js/atmosphere.js?v=1", function() {
-						$.getScript("./resources/js/atmosphere_notifications.js?v=1", function() {
+						$.getScript("./resources/js/atmosphere_notifications.js?v=2", function() {
 							//console.log("atmosphere push notifications loaded..");
 						});
 					});
 				} else {
-					$.getScript("./resources/js/vue_notifications.js?v=1", function() {
+					$.getScript("./resources/js/vue_notifications.js?v=2", function() {
 						//console.log("notifications widget loaded..");
 					});
 				}
@@ -179,6 +184,11 @@
 				      $('#notifications').fadeOut('slow');
 				}); */				
 				
+				$('#contactDivMarquee').mouseover(function() {
+			        $(this).attr('scrollamount',0);
+			    }).mouseout(function() {
+			         $(this).attr('scrollamount',5);
+			    });
 			});		
 		</script>
 	</head>
@@ -193,7 +203,10 @@
 			<input type="hidden" id="timeformat" name="timeformat" value="${timeFormat}"/>
             <input type="hidden" id="authusername" name="authusername" value="${authusername}"/>
             <input type="hidden" id="authfullname" name="authfullname" value="${authtitle} ${authfirstname} ${authmiddlename} ${authlastname}"/>    
-            <input type="hidden" id="authlocale" name="authlocale" value="${locale}"/> 
+            <input type="hidden" id="authlocale" name="authlocale" value="${locale}"/>
+            <!-- uncomment in HomeController to use following parameter if needed --> 
+            <input type="hidden" id="zeroDigitForLocale" name="zeroDigitForLocale" value="${zeroDigitForLocale}"/>
+            
             <input type="hidden" name="cancelFn" id="cancelFn"/>
             <input type="hidden" id="startURL" name="startURL" value="${startURL}"/>	
             <!-- This is done to remove a bug wherein messages Download/Remove in file uploading donot canges to locale specific.
@@ -224,6 +237,9 @@
 					<spring:message code="browser.detection.msg"  
 									text="Please Use Mozilla Firefox Browser For Better Performance"/>
 					<small>(<a href="http://mls.org.in/download/firefox/Firefox%20Setup%2038.0b2.rar">Click To Download</a>)</small>
+				</div>
+				<div id="contactDiv">
+					<marquee id="contactDivMarquee" scrollamount="4" width="60%"><spring:message code="home_page.lockdown_support_numbers" text="Lockdown Support: 9867206384 / 9821899411 / 9773955035" /></marquee>
 				</div>
 				<div class="menu clearfix">
 					<%@ include file="/common/menu.jsp" %>
