@@ -458,17 +458,12 @@ public class MemberSuspensionController extends BaseController {
 		CustomParameter parameter = CustomParameter.findByName(
 				CustomParameter.class, "SERVER_DATEFORMAT", "");
 		String locale=this.getUserLocale().toString();
-		SimpleDateFormat dateFormat=null;
-		if(locale!=null){
-			if(locale.equals("mr_IN")){
-				dateFormat = new SimpleDateFormat(parameter.getValue(),new Locale("hi","IN"));
-			}else{
-				dateFormat = new SimpleDateFormat(parameter.getValue(),new Locale("en","US"));
-			}
-		}
-		dateFormat.setLenient(true);
-		binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(
-				dateFormat, true));
+		
+		SimpleDateFormat dateFormat = FormaterUtil.getDateFormatter(parameter.getValue(), locale);
+        dateFormat.setLenient(true);        
+        binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(
+                dateFormat, true));
+        
 		binder.registerCustomEditor(Member.class, new BaseEditor(new Member()));
 	}
 }

@@ -122,7 +122,7 @@ public class QuestionReportController extends BaseController{
 					strUsergroups = csptStatReportUserGroups.getValue().split(",");
 				}
 								
-				model.addAttribute("day", FormaterUtil.getDayInMarathi(FormaterUtil.formatDateToString(new Date(), "EEEE", locale.toString()), locale.toString()));
+				model.addAttribute("day", FormaterUtil.getDayInLocaleLanguage(FormaterUtil.formatDateToString(new Date(), "EEEE", locale.toString()), locale.toString()));
 				model.addAttribute("currDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));								
 				model.addAttribute("statsHouseType", houseType.getType());
 				
@@ -518,7 +518,7 @@ public class QuestionReportController extends BaseController{
 									|| (intimationLetterFilter!=null && intimationLetterFilter.equals("groupChangedAfterBallot"))) {
 								
 								String formattedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, "dd MMM,yyyy", question.getLocale());
-								formattedAnsweringDate = FormaterUtil.formatMonthInMarathiDate(formattedAnsweringDate, locale.toString());
+								formattedAnsweringDate = FormaterUtil.formatMonthInLocaleLanguageDate(formattedAnsweringDate, locale.toString());
 								letterVO.setAnsweringDate(formattedAnsweringDate);
 								
 							} else if(intimationLetterFilter!=null && intimationLetterFilter.equals("answeringDateForwarded")) {
@@ -529,14 +529,14 @@ public class QuestionReportController extends BaseController{
 								}
 								//Added the following code to solve the marathi month and day issue
 								String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
-								String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+								String answeringDay=FormaterUtil.getDayInLocaleLanguage(strAnsweringDates[0],locale.toString());
 								String dateLabel = "";
 								MessageResource dateLabelMessageResource = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
 								if(dateLabelMessageResource!=null && dateLabelMessageResource.getValue()!=null) {
 									dateLabel = dateLabelMessageResource.getValue();
 								}
 								String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-								String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+								String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 								String formattedAnsweringDate = answeringDay+", "+dateLabel+" "+strAnsweringMonth[0] + " " + answeringMonth + ", " + strAnsweringDates[2];
 								letterVO.setAnsweringDate(formattedAnsweringDate);
 							} else {
@@ -557,9 +557,9 @@ public class QuestionReportController extends BaseController{
 						}
 						//Added the following code to solve the marathi month and day issue
 						String[] strAnsweringDates=dbFormat.format(question.getDateOfAnsweringByMinister()).split(",");
-						String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+						String answeringDay=FormaterUtil.getDayInLocaleLanguage(strAnsweringDates[0],locale.toString());
 						String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-						String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+						String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 						String formattedAnsweringDate = answeringDay+","+strAnsweringMonth[0] + " " + answeringMonth + " " + strAnsweringDates[2];
 						letterVO.setAnsweringDate(formattedAnsweringDate);
 					}
@@ -581,14 +581,14 @@ public class QuestionReportController extends BaseController{
 								}
 								//Added the following code to solve the marathi month and day issue
 								String[] strNextAnsweringDates=dbFormat.format(nextAnsweringDate).split(",");
-								String answeringDay=FormaterUtil.getDayInMarathi(strNextAnsweringDates[0],locale.toString());
+								String answeringDay=FormaterUtil.getDayInLocaleLanguage(strNextAnsweringDates[0],locale.toString());
 								String dateLabel = "";
 								MessageResource dateLabelMessageResource = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
 								if(dateLabelMessageResource!=null && dateLabelMessageResource.getValue()!=null) {
 									dateLabel = dateLabelMessageResource.getValue();
 								}
 								String[] strAnsweringMonth=strNextAnsweringDates[1].split(" ");
-								String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+								String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 								String formattedNextAnsweringDate = answeringDay+", "+dateLabel+" "+strAnsweringMonth[0] + " " + answeringMonth + ", " + strNextAnsweringDates[2];
 								letterVO.setNextAnsweringDate(formattedNextAnsweringDate);
 								
@@ -609,7 +609,7 @@ public class QuestionReportController extends BaseController{
 						Ballot ballotForQuestion = Ballot.find(question);
 						if(ballotForQuestion!=null) {
 							String formattedBallotDate = FormaterUtil.formatDateToString(ballotForQuestion.getBallotDate(), "dd MMM,yyyy", question.getLocale());
-							formattedBallotDate = FormaterUtil.formatMonthInMarathiDate(formattedBallotDate, locale.toString());
+							formattedBallotDate = FormaterUtil.formatMonthInLocaleLanguageDate(formattedBallotDate, locale.toString());
 							letterVO.setBallotDate(formattedBallotDate);							
 						}
 					} catch (Exception e) {
@@ -1610,7 +1610,7 @@ public class QuestionReportController extends BaseController{
 				}				
 				List<DeviceVO> ballotedDeviceVOs = null;
 				try {
-					ballotedDeviceVOs = Ballot.findBallotedQuestionVOs(session, deviceType, group, answeringDate, "mr_IN");
+					ballotedDeviceVOs = Ballot.findBallotedQuestionVOs(session, deviceType, group, answeringDate, locale.toString());
 				} catch (ELSException e1) {
 					e1.printStackTrace();
 				}
@@ -1663,10 +1663,10 @@ public class QuestionReportController extends BaseController{
 				}
 				//Added the following code to solve the marathi month and day issue				
 				String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
-				String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+				String answeringDay=FormaterUtil.getDayInLocaleLanguage(strAnsweringDates[0],locale.toString());
 				data.setAnsweringDay(answeringDay);
 				String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-				String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+				String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 				String formattedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
 				data.setAnsweringDate(formattedAnsweringDate);
 
@@ -2150,10 +2150,10 @@ public class QuestionReportController extends BaseController{
 						}
 						//Added the following code to solve the marathi month and day issue
 						String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
-						String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+						String answeringDay=FormaterUtil.getDayInLocaleLanguage(strAnsweringDates[0],locale.toString());
 						model.addAttribute("answeringDay", answeringDay);
 						String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-						String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+						String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 						String formattedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
 						model.addAttribute("answeringDate", formattedAnsweringDate);
 						String answeringDateInIndianCalendar = FormaterUtil.getIndianDate(answeringDate, locale);
@@ -2175,7 +2175,7 @@ public class QuestionReportController extends BaseController{
 							if(reportDateFormatParameter.getValue().equals("dd MMM, yyyy")) {
 								String[] strDate=formattedReportDate.split(",");
 								String[] strMonth=strDate[0].split(" ");
-								String month=FormaterUtil.getMonthInMarathi(strMonth[1], locale.toString());
+								String month=FormaterUtil.getMonthInLocaleLanguage(strMonth[1], locale.toString());
 								formattedReportDate = strMonth[0] + " " + month + ", " + strDate[1];
 							}
 							model.addAttribute("reportDate", formattedReportDate);
@@ -2318,10 +2318,10 @@ public class QuestionReportController extends BaseController{
 					}
 					//Added the following code to solve the marathi month and day issue
 					String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
-					String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+					String answeringDay=FormaterUtil.getDayInLocaleLanguage(strAnsweringDates[0],locale.toString());
 					data.setAnsweringDay(answeringDay);
 					String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-					String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+					String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 					String formattedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
 					data.setAnsweringDate(formattedAnsweringDate);
 					String answeringDateInIndianCalendar = FormaterUtil.getIndianDate(answeringDate, locale);
@@ -2341,7 +2341,7 @@ public class QuestionReportController extends BaseController{
 						if(reportDateFormatParameter.getValue().equals("dd MMM, yyyy")) {
 							String[] strDate=formattedReportDate.split(",");
 							String[] strMonth=strDate[0].split(" ");
-							String month=FormaterUtil.getMonthInMarathi(strMonth[1], locale.toString());
+							String month=FormaterUtil.getMonthInLocaleLanguage(strMonth[1], locale.toString());
 							formattedReportDate = strMonth[0] + " " + month + ", " + strDate[1];
 						}
 						data.setReportDate(formattedReportDate);

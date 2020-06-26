@@ -9,6 +9,7 @@
  */
 package org.mkcl.els.controller;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -73,9 +74,6 @@ public class HomeController extends BaseController {
     private static final Logger logger = LoggerFactory
     .getLogger(HomeController.class);
 
-    /** The Constant DEFAULT_LOCALE. */
-    private static final String DEFAULT_LOCALE = "mr_IN";
-
     /** The Constant ASC. */
     private static final String ASC = "asc";
 
@@ -93,15 +91,23 @@ public class HomeController extends BaseController {
     public String login(@RequestParam(required = false) final String lang,
             final Model model, 
             final HttpServletRequest request,
-            final HttpServletResponse response, 
+            final HttpServletResponse response,
             final Locale locale) {
         List<ApplicationLocale> supportedLocales = ApplicationLocale.findAll(
                 ApplicationLocale.class, "language", ASC, "");
+        CustomParameter csptDefaultLocale = CustomParameter.findByName(CustomParameter.class, "DEFAULT_LOCALE", "");
         if (lang != null) {
             model.addAttribute("selectedLocale", lang);
+            csptDefaultLocale.setValue(lang);
+            csptDefaultLocale.merge();
+            model.addAttribute("defaultLocale", csptDefaultLocale.getValue());
         }
-        else {
-            model.addAttribute("selectedLocale", DEFAULT_LOCALE);
+        else {        	
+        	if(csptDefaultLocale!=null 
+        			&& csptDefaultLocale.getValue()!=null && !csptDefaultLocale.getValue().isEmpty()) {
+        		model.addAttribute("selectedLocale", csptDefaultLocale.getValue());
+        	}
+        	model.addAttribute("defaultLocale", locale.toString());
         }
         CustomParameter cpSecretKey = CustomParameter.findByName(CustomParameter.class, "SECRET_KEY_FOR_ENCRYPTION", "");
         if(cpSecretKey != null){
@@ -157,6 +163,7 @@ public class HomeController extends BaseController {
     public String home(final ModelMap model, 
     		final HttpServletRequest request,
             final Locale locale) {
+    	generateDefaultLocaleOnStartup(locale);	
         //here we will initialize authuser wih locale dependent data such as
         //firstname,middlename,lastname,title and housetype.
         //This housetype will be same as the housetype alloted to user while
@@ -204,6 +211,10 @@ public class HomeController extends BaseController {
         model.addAttribute("authfirstname", this.getCurrentUser().getFirstName());
         model.addAttribute("authmiddlename", this.getCurrentUser().getMiddleName());
         model.addAttribute("authlastname", this.getCurrentUser().getLastName());
+        
+        //TODO: add code to populate active usergrouptype of authenticatedUser
+        
+        
         //setting date and time formats to be used.
         String dateFormat= ((CustomParameter) CustomParameter.findByName(
                 CustomParameter.class, "DATEPICKER_DATEFORMAT", "")).getValue();
@@ -324,6 +335,13 @@ public class HomeController extends BaseController {
         model.addAttribute("logintime_server", FormaterUtil.formatDateToString(new Date(), "yyyy-MM-dd HH:mm:ss"));
         //adding locale
         model.addAttribute("locale",locale.toString());
+        /** uncomment below lines of code if zeroDigitForLocale is needed **/
+//      DecimalFormat nf = (DecimalFormat) FormaterUtil.getNumberFormatterGrouping(locale.toString());
+//      if(nf!=null) {
+//      	char zeroDigitForLocale = nf.getDecimalFormatSymbols().getZeroDigit();
+//        	//int zeroDigitOffsetForLocale = Character.getNumericValue(zeroDigitForLocale);
+//        	model.addAttribute("zeroDigitForLocale", zeroDigitForLocale);
+//      }        
         //starting url that will be triggered
         model.addAttribute("startURL",this.getCurrentUser().getStartURL());
         
@@ -586,10 +604,10 @@ public class HomeController extends BaseController {
     	 model.addAttribute("sessionTypes", sessionTypes);
     	 
  		Integer latestYear = new GregorianCalendar().get(Calendar.YEAR);
-		List<String> years = HomeController.getSessionYears(latestYear);
+		List<String> years = HomeController.getSessionYears(latestYear, locale.toString());
     	 model.addAttribute("years", years);
     	 
-    	List<DeviceType> deviceTypes = DeviceType.findAll(DeviceType.class, "name", ASC, DEFAULT_LOCALE);
+    	List<DeviceType> deviceTypes = DeviceType.findAll(DeviceType.class, "name", ASC, locale.toString());
     	model.addAttribute("deviceTypes", deviceTypes);
     	 try {
 			List<SubDepartment> subDepartments = SubDepartment.findAllSubDepartments(locale.toString());
@@ -652,7 +670,7 @@ public class HomeController extends BaseController {
 		return sessionTypes;
 	}
     
-	public static List<String> getSessionYears(final Integer latestYear)  {
+	public static List<String> getSessionYears(final Integer latestYear, final String locale)  {
 		List<String> years = new ArrayList<String>();
 		
 		CustomParameter houseFormationYear = 
@@ -660,10 +678,24 @@ public class HomeController extends BaseController {
 		if(houseFormationYear != null) {
 			Integer formationYear = Integer.parseInt(houseFormationYear.getValue());
 			for(int i = latestYear; i >= formationYear; i--) {
-				years.add(FormaterUtil.formatNumberNoGrouping(i, ApplicationConstants.DEFAULT_LOCALE));
+				years.add(FormaterUtil.formatNumberNoGrouping(i, locale));
 			}
 		}
 		
 		return years;
+	}
+	
+	private void generateDefaultLocaleOnStartup(final Locale locale) {
+		CustomParameter csptDefaultLocale = CustomParameter.findByName(CustomParameter.class, "DEFAULT_LOCALE", "");
+    	if(csptDefaultLocale!=null) {
+    		if(csptDefaultLocale.getValue()==null || csptDefaultLocale.getValue().isEmpty()) { //possible at startup
+        		if(locale!=null) {
+        			csptDefaultLocale.setValue(locale.toString());
+        		} else {
+        			csptDefaultLocale.setValue(ApplicationConstants.DEFAULT_LOCALE);
+        		}
+        		csptDefaultLocale.merge();
+        	}
+    	}
 	}
 }

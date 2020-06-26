@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.HouseType;
@@ -522,6 +523,107 @@ javax.servlet.http.HttpServletRequest)
 		request.getSession().setAttribute("isVolatile", isVolatile);
 		request.getSession().setAttribute("notificationTitle", notificationTitle);	
 		request.getSession().setAttribute("notificationMessage", notificationMessage);
+        String returnUrl = "redirect:/" + request.getServletPath().replaceFirst("\\/","");
+        return returnUrl;
+    }
+	
+	@RequestMapping(value = "/resetHighSecurityPassword", method = RequestMethod.GET)
+    public String resetHighSecurityPasswordInit(final ModelMap model, 
+    		final HttpServletRequest request,
+            final Locale locale) {
+        final String servletPath = request.getServletPath().replaceFirst("\\/","");
+        /** username **/
+        String username = request.getParameter("username");
+        if(username==null || username.isEmpty()) {
+        	username = (String) request.getSession().getAttribute("selectedUsername"); 
+        	if(username!=null) {
+        		request.getSession().removeAttribute("selectedUsername");
+        	}
+        }
+        if(username!=null && !username.isEmpty()) {
+        	model.addAttribute("username", username);
+        	StringBuffer defaultHighSecurityPassword = new StringBuffer(ApplicationConstants.DEFAULT_HIGH_SECURITY_PASSWORD_INITIAL);
+        	String currentDateMonth = FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT_DDMM);
+        	defaultHighSecurityPassword.append(currentDateMonth);
+            /** new password **/
+            if(request.getSession().getAttribute("newHighSecurityPassword")==null){            	
+                model.addAttribute("newHighSecurityPassword",defaultHighSecurityPassword.toString());
+            }else{
+            	model.addAttribute("newHighSecurityPassword",request.getSession().getAttribute("newHighSecurityPassword"));
+                request.getSession().removeAttribute("newHighSecurityPassword");
+            }
+            /** confirmed password **/
+            if(request.getSession().getAttribute("confirmedHighSecurityPassword")==null){
+                model.addAttribute("confirmedHighSecurityPassword",defaultHighSecurityPassword.toString());
+            }else{
+            	model.addAttribute("confirmedHighSecurityPassword",request.getSession().getAttribute("confirmedHighSecurityPassword"));
+                request.getSession().removeAttribute("confirmedHighSecurityPassword");
+            }
+            //this is done so as to remove the bug due to which update message appears even though there
+            //is a fresh request
+            if(request.getSession().getAttribute("type")==null){
+                model.addAttribute("type","");
+            }else{
+            	model.addAttribute("type",request.getSession().getAttribute("type"));
+                request.getSession().removeAttribute("type");
+            }
+        } else {
+        	model.addAttribute("errorcode", "USERNAME_NOTGIVEN");
+        }        
+        //here making provisions for displaying error pages
+        if(model.containsAttribute("errorcode")){
+            return servletPath.replace("password","error");
+        }else{
+            return servletPath;
+        }
+    }
+	
+	@RequestMapping(value = "/resetHighSecurityPassword", method = RequestMethod.POST)
+    public String resetHighSecurityPasswordUpdate(final ModelMap model, 
+    		final HttpServletRequest request,
+    		final RedirectAttributes redirectAttributes,
+            final Locale locale) {
+		String username = request.getParameter("username");
+		String newHighSecurityPassword = request.getParameter("newHighSecurityPassword");
+		String confirmedHighSecurityPassword = request.getParameter("confirmedHighSecurityPassword");
+		if(username!=null && !username.isEmpty() && newHighSecurityPassword!=null && !newHighSecurityPassword.isEmpty() 
+				&& confirmedHighSecurityPassword!=null && !confirmedHighSecurityPassword.isEmpty() 
+				&& newHighSecurityPassword.equals(confirmedHighSecurityPassword)) {
+			User user = null;
+			try {
+				user = User.findByUserName(username, locale.toString());
+			} catch (ELSException e) {
+				e.printStackTrace();
+				//error
+				redirectAttributes.addFlashAttribute("type", "error");
+				request.getSession().setAttribute("type","error");
+		        redirectAttributes.addFlashAttribute("msg", "update_error");	
+			}
+			if(user!=null && user.getId()!=null) {
+				Credential credential = user.getCredential();
+				if(credential!=null) {
+					String encodedHighSecurityPassword = securityService.getEncodedPassword(newHighSecurityPassword);
+					credential.setHighSecurityPassword(encodedHighSecurityPassword);
+					//credential.setHighSecurityPasswordChangeCount(1);
+					//credential.setHighSecurityPasswordChangeDateTime(new Date());
+					
+					credential.merge();						
+					redirectAttributes.addFlashAttribute("type", "success");
+			        //this is done so as to remove the bug due to which update message appears even though there
+			        //is a fresh request
+			        request.getSession().setAttribute("type","success");
+			        redirectAttributes.addFlashAttribute("msg", "update_success");
+				}
+			}
+		} else {
+			//error
+			redirectAttributes.addFlashAttribute("type", "error");
+			request.getSession().setAttribute("type","error");
+	        redirectAttributes.addFlashAttribute("msg", "update_error");
+		} 
+		request.getSession().setAttribute("selectedUsername", username);
+		request.getSession().setAttribute("newHighSecurityPassword", newHighSecurityPassword);	
+		request.getSession().setAttribute("confirmedHighSecurityPassword", confirmedHighSecurityPassword);
         String returnUrl = "redirect:/" + request.getServletPath().replaceFirst("\\/","");
         return returnUrl;
     }

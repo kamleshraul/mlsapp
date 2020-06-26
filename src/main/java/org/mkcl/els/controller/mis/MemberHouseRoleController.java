@@ -508,29 +508,25 @@ public class MemberHouseRoleController extends BaseController {
 	 *
 	 * @param binder the binder
 	 */
-	@SuppressWarnings("unused")
 	@InitBinder(value = "domain")
 	private void initBinder(final WebDataBinder binder) {
 		CustomParameter parameter = CustomParameter.findByName(
 				CustomParameter.class, "SERVER_DATEFORMAT", "");
-		String locale=this.getUserLocale().toString();
-		SimpleDateFormat dateFormat=null;
-		if(locale!=null){
-			if(locale.equals("mr_IN")){
-				dateFormat = new SimpleDateFormat(parameter.getValue(),new Locale("hi","IN"));
-			}else{
-				dateFormat = new SimpleDateFormat(parameter.getValue(),new Locale("en","US"));
-			}
-		}
-		dateFormat.setLenient(true);
-		binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(
-				dateFormat, true));
+		String locale=this.getUserLocale().toString();		
+		
+		SimpleDateFormat dateFormat = FormaterUtil.getDateFormatter(parameter.getValue(), locale);
+        dateFormat.setLenient(true);        
+        binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(
+                dateFormat, true));
 
 		binder.registerCustomEditor(Constituency.class, new BaseEditor(
 				new Constituency()));
+		
 		binder.registerCustomEditor(House.class, new BaseEditor(new House()));
+		
 		binder.registerCustomEditor(MemberRole.class, new BaseEditor(
 				new MemberRole()));
+		
 		binder.registerCustomEditor(Member.class, new BaseEditor(new Member()));
 	}
 }

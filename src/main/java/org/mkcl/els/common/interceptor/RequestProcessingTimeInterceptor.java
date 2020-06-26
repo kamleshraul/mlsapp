@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.ActivityLog;
+import org.mkcl.els.domain.ApplicationLocale;
 import org.mkcl.els.domain.CustomParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class RequestProcessingTimeInterceptor extends HandlerInterceptorAdapter 
 		if(csptURLSToLog != null && csptURLSToLog.getValue() != null 
 				&& !csptURLSToLog.getValue().isEmpty()){
 			if(isURLToBeLogged(url, csptURLSToLog.getValue().split(","))){
-				ActivityLog.logActivity(request, ApplicationConstants.DEFAULT_LOCALE);
+				ActivityLog.logActivity(request, ApplicationLocale.findDefaultLocale());
 			}
 		}
 		return true;

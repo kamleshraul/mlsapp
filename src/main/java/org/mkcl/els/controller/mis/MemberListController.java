@@ -201,7 +201,7 @@ public class MemberListController extends GenericController<Member> {
 		
 		
 		
-		List<String> reportData = Member.findMemberByHouseDates(houseTypeVO.getId(), fromDate, toDate);
+		List<String> reportData = Member.findMemberByHouseDates(houseTypeVO.getId(), fromDate, toDate, locale.toString());
 		List<String> serialNo1 = this.populateSerialNumbers(reportData, locale);
 		File reportFile =null;
 		try {

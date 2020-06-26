@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.domain.ApplicationLocale;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
@@ -24,7 +25,7 @@ public class SubmissionRestrictionInterceptor extends HandlerInterceptorAdapter 
 		
 		String locale = request.getParameter("locale"); //(optional) in case needed anywhere for fetching locale specific objects in the code
 		if(locale==null || locale.isEmpty()) {
-			locale = ApplicationConstants.DEFAULT_LOCALE;
+			locale = ApplicationLocale.findDefaultLocale();
 		}
 		
 		CustomParameter csptRestURLs = CustomParameter.findByName(CustomParameter.class, "RESTRICTION_URLS", "");
@@ -137,7 +138,7 @@ public class SubmissionRestrictionInterceptor extends HandlerInterceptorAdapter 
 							
 							String[] arrStrUrlOp = restrictionURL.split(":");  
 							if(arrStrUrlOp[1].equals("noop")){
-								if(submitTime.before(startTime) || submitTime.after(endTime) || Holiday.isHolidayOnDate(submitTime, ApplicationConstants.DEFAULT_LOCALE)){
+								if(submitTime.before(startTime) || submitTime.after(endTime) || Holiday.isHolidayOnDate(submitTime, locale)){
 									response.sendError(HttpServletResponse.SC_FORBIDDEN, "SUBMISSION WINDOW IS CLOSED NOW");
 									return false;
 								}
@@ -145,7 +146,7 @@ public class SubmissionRestrictionInterceptor extends HandlerInterceptorAdapter 
 								if(operation != null 
 										&& !operation.isEmpty() 
 										&& containsRestrictions(operation, csptRestOperations.getValue())){
-									if(submitTime.before(startTime) || submitTime.after(endTime) || Holiday.isHolidayOnDate(submitTime, ApplicationConstants.DEFAULT_LOCALE)){
+									if(submitTime.before(startTime) || submitTime.after(endTime) || Holiday.isHolidayOnDate(submitTime, locale)){
 										response.sendError(HttpServletResponse.SC_FORBIDDEN, "SUBMISSION WINDOW IS CLOSED NOW");
 										return false;
 									}

@@ -41,6 +41,7 @@ import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
+import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.domain.chart.ChartEntry;
@@ -504,13 +505,29 @@ public class AdminController extends BaseController {
 			String locale = appLocale.toString();
 			
 			Status status = Status.findByType(statusType, locale);
-			UserGroupType userGroupType = UserGroupType.findByType(userGroupTypeType, locale);	
+			UserGroupType userGroupType = UserGroupType.findByType(userGroupTypeType, locale);
 			
 			String workflowHouseType = request.getParameter("workflowHouseType");
 			
 			Boolean isFlowOnRecomStatusAfterFinalDecision = Boolean.valueOf(request.getParameter("isFlowOnRecomStatusAfterFinalDecision"));
 			
-			Device.startDeviceWorkflow(deviceName, deviceId, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
+			String assignee = request.getParameter("assignee");
+			
+			if(assignee!=null && !assignee.isEmpty()) {
+				try {
+					User assigneeUser = User.findByUserName(assignee, locale);
+					if(assigneeUser!=null && assigneeUser.getId()!=null) {
+						Device.startDeviceWorkflow(deviceName, deviceId, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, assignee, locale);
+					} else {
+						return "USER_NOT_FOUND";
+					}
+				} catch(Exception e1) {
+					e1.printStackTrace();
+					return "USER_NOT_FOUND";
+				}
+			} else {
+				Device.startDeviceWorkflow(deviceName, deviceId, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
+			}			
 		}
 		catch(Exception e) {
 			e.printStackTrace();

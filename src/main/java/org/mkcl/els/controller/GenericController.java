@@ -28,6 +28,7 @@ import javax.validation.Valid;
 
 import org.mkcl.els.common.editors.BaseEditor;
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.CustomParameter;
@@ -761,34 +762,15 @@ public class GenericController<T extends BaseDomain> extends BaseController {
         }
         // Added by Anand
         // Set Date Editor and Number formatter to support marathi.
-        NumberFormat nf = NumberFormat.getInstance();
-        DecimalFormat df = (DecimalFormat) nf;
-        DecimalFormatSymbols dfs = df.getDecimalFormatSymbols();
-        if(this.getUserLocale().toString().equals("en_US")){
-            dfs.setZeroDigit('\u0030');
-        }
-        else if(this.getUserLocale().toString().equals("mr_IN")){
-            dfs.setZeroDigit('\u0966');
-        }
-        df.setDecimalFormatSymbols(dfs);
+        NumberFormat nf = FormaterUtil.getNumberFormatterGrouping(this.getUserLocale().toString());
         binder.registerCustomEditor(Integer.class, new CustomNumberEditor(Integer.class, nf, true));
 
         CustomParameter parameter = CustomParameter.findByName(
                 CustomParameter.class, "SERVER_DATEFORMAT", "");
-        if(this.getUserLocale().equals(new Locale("mr","IN")))
-        {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(parameter.getValue(),new Locale("hi","IN"));
-            dateFormat.setLenient(true);
-            binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(
-                    dateFormat, true));
-        }
-        else
-        {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(parameter.getValue(),this.getUserLocale());
-            dateFormat.setLenient(true);
-            binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(
-                    dateFormat, true));
-        }
+        SimpleDateFormat dateFormat = FormaterUtil.getDateFormatter(parameter.getValue(), this.getUserLocale().toString());
+        dateFormat.setLenient(true);
+        binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(
+                dateFormat, true));
 
         // This is to register the object references from the super classes.
         customInitBinderSuperClass(clazz, binder);

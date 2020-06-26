@@ -497,7 +497,7 @@ public class MemberPersonalController extends GenericController<Member> {
 		//for displaying image on edit page after submission
 		String houseTypeId = request.getParameter("houseType");
 		request.getSession().setAttribute("houseType", houseTypeId);
-		//here when a new record is created an entry will be made in house member role asspciation
+		//here when a new record is created an entry will be made in house member role association
 		//with default role.This is done so that a new record always belong to some house on creation.
 		String isMember=request.getParameter("isMember");
 		if(isMember!=null){

@@ -615,13 +615,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 	    		model.addAttribute("errorcode", "server_dateformat_notset");    			
 				return urlPattern.replace("rotationorder","error");
 			}
-	    	SimpleDateFormat dateFormat=null;
-	    	if(domain.getLocale().equals("mr_IN")){
-	    		dateFormat=new SimpleDateFormat(parameter.getValue(),new Locale("hi","IN"));
-			}
-			else{
-				dateFormat=new SimpleDateFormat(parameter.getValue(),new Locale(domain.getLocale()));
-			}
+	    	SimpleDateFormat dateFormat = FormaterUtil.getDateFormatter(parameter.getValue(), domain.getLocale());
 			dateFormat.setLenient(true);
 			boolean isRotationOrderSet = domain.isRotationOrderSet();
 	    	for (; !start.after(end); start.add(Calendar.DATE, 1)) {
@@ -1001,13 +995,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 		domain=Group.findById(Group.class,domain.getId());
 		List<QuestionDates> questionDates=new ArrayList<QuestionDates>();
 		int dateCount=Integer.parseInt(request.getParameter("dateCount"));
-		SimpleDateFormat sf=null;
-		if(domain.getLocale().equals("mr_IN")){
-			sf=new SimpleDateFormat("dd/MM/yyyy",new Locale("hi","IN"));
-		}
-		else{
-			sf=new SimpleDateFormat("dd/MM/yyyy",new Locale(domain.getLocale()));
-		}		
+		SimpleDateFormat sf = FormaterUtil.getDateFormatter("dd/MM/yyyy", domain.getLocale());
 		List<QuestionDates> questionDatesToRemove = new ArrayList<QuestionDates>();
 		for(int i=0;i<dateCount;i++){
 			Date answeringDate=null;

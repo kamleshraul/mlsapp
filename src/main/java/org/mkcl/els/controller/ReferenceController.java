@@ -2244,11 +2244,11 @@ public class ReferenceController extends BaseController {
 		if(strReceivingDate != null){
 			if(!strReceivingDate.isEmpty()){
 				try {
-					receivingDate = FormaterUtil.getDateFormatter("yyyy-MM-dd hh:mm:ss", "en_US").parse(strReceivingDate);
+					receivingDate = FormaterUtil.getDateFormatter("yyyy-MM-dd hh:mm:ss", ApplicationConstants.STANDARD_LOCALE).parse(strReceivingDate);
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
-				formattedDate = FormaterUtil.getDateFormatter("dd/MM/yyyy hh:mm:ss", "mr_IN").format(receivingDate);
+				formattedDate = FormaterUtil.formatDateToString(receivingDate, "dd/MM/yyyy hh:mm:ss", locale.toString());
 			}
 		}
 
@@ -2513,16 +2513,9 @@ public class ReferenceController extends BaseController {
 	public @ResponseBody Reference getLastSubmissionDateFromLastDiscussionDate(@RequestParam String lastDiscussionDateStr, 
 			@RequestParam String daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession, final Locale locale){
 		Reference reference = new Reference();
+		
 		Date lastDiscussionDate = null;
 		Date submissionEndDate = null;
-
-		SimpleDateFormat sf=null;
-		if(locale.toString().equals("mr_IN")){
-			sf=new SimpleDateFormat("dd/MM/yyyy",new Locale("hi","IN"));
-		}
-		else{
-			sf=new SimpleDateFormat("dd/MM/yyyy",new Locale(locale.toString()));
-		}
 
 		if(lastDiscussionDateStr != null && daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession != null) {
 			if(!lastDiscussionDateStr.isEmpty() && !daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession.isEmpty()) {
@@ -2539,11 +2532,8 @@ public class ReferenceController extends BaseController {
 						}
 					}
 				}
-				try {
-					lastDiscussionDate = sf.parse(lastDiscussionDateStr);
-				} catch (ParseException e) {					
-					e.printStackTrace();
-				}
+				lastDiscussionDate = FormaterUtil.formatStringToDate(lastDiscussionDateStr, "dd/MM/yyyy", locale.toString());
+				
 			} else {
 				throw new RuntimeException("one or more request parameters are empty");				
 			}
@@ -3908,7 +3898,7 @@ public class ReferenceController extends BaseController {
 								model.addAttribute("deviceType",referencedQuestion.getType().getName());
 							
 								String answeringDate=FormaterUtil.formatDateToString(referencedQuestion.getAnsweringDate().getAnsweringDate(), "dd MMM yyyy", locale.toString());
-								model.addAttribute("answeringDate",FormaterUtil.formatMonthsMarathi(answeringDate,locale.toString()));
+								model.addAttribute("answeringDate",FormaterUtil.formatMonthsForLocaleLanguage(answeringDate,locale.toString()));
 								model.addAttribute("member",question.getPrimaryMember().findFirstLastName());
 								model.addAttribute("questionId", question.getId());
 								if(viewName==null || viewName.isEmpty()) {
@@ -6222,7 +6212,7 @@ public class ReferenceController extends BaseController {
 				if(server.equals("TOMCAT")){
 					try {
 						strNumber = new String(strNumber.getBytes("ISO-8859-1"),"UTF-8");
-						questionNumber=  FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+						questionNumber=  FormaterUtil.getDecimalFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
 								
 					} catch (UnsupportedEncodingException e) {
 						e.printStackTrace();
@@ -6231,7 +6221,7 @@ public class ReferenceController extends BaseController {
 					}
 				}else{
 					try {
-						questionNumber=FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+						questionNumber=FormaterUtil.getDecimalFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
@@ -6257,7 +6247,7 @@ public class ReferenceController extends BaseController {
 				}
 			}
 			Date adjourningDate = FormaterUtil.formatStringToDate(strAdjourningDate, ApplicationConstants.SERVER_DATEFORMAT);
-			Integer adjournmentMotionNumber=FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+			Integer adjournmentMotionNumber=FormaterUtil.getDecimalFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
 			flag=AdjournmentMotion.isDuplicateNumberExist(adjourningDate, adjournmentMotionNumber, null, locale.toString());
 		}
 		return flag;
@@ -6280,7 +6270,7 @@ public class ReferenceController extends BaseController {
 				if(server.equals("TOMCAT")){
 					try {
 						strNumber = new String(strNumber.getBytes("ISO-8859-1"),"UTF-8");
-						motionNumber = FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+						motionNumber = FormaterUtil.getDecimalFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
 								
 					} catch (UnsupportedEncodingException e) {
 						e.printStackTrace();
@@ -6289,7 +6279,7 @@ public class ReferenceController extends BaseController {
 					}
 				}else{
 					try {
-						motionNumber = FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+						motionNumber = FormaterUtil.getDecimalFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
@@ -6537,10 +6527,10 @@ public class ReferenceController extends BaseController {
 						strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
 					}
 				}
-				Integer groupNumber=new Integer(FormaterUtil.getDeciamlFormatterWithNoGrouping(0, locale.toString()).parse(strGroup).toString());
+				Integer groupNumber=new Integer(FormaterUtil.getDecimalFormatterWithNoGrouping(0, locale.toString()).parse(strGroup).toString());
 				HouseType houseType=HouseType.findByName(strHouseType, locale.toString());
 				SessionType sessionType=SessionType.findByFieldName(SessionType.class, "sessionType", strSessionType, locale.toString());
-				Integer sessionYear=new Integer(FormaterUtil.getDeciamlFormatterWithNoGrouping(0,locale.toString()).parse(strSessionYear).toString());
+				Integer sessionYear=new Integer(FormaterUtil.getDecimalFormatterWithNoGrouping(0,locale.toString()).parse(strSessionYear).toString());
 				Group group=Group.findByNumberHouseTypeSessionTypeYear(groupNumber, houseType, sessionType, sessionYear);
 				if(group!=null){
 					List<QuestionDates> questionDates=group.getQuestionDates();
@@ -7444,6 +7434,7 @@ public class ReferenceController extends BaseController {
 				MasterVO masterVo = new MasterVO();
 				masterVo.setId(s.getId());
 				masterVo.setName(s.getName());
+				masterVo.setType(s.getType());
 				statusVOs.add(masterVo);
 			}
 		}
@@ -7558,6 +7549,24 @@ public class ReferenceController extends BaseController {
 		return isAuthenticatedWithEnteredPassword;
 	}
 	
+	@RequestMapping(value = "/user/isAuthenticatedWithEnteredHighSecurityPassword", method = RequestMethod.GET)
+	public @ResponseBody boolean isUserAuthenticatedWithEnteredHighSecurityPassword(final HttpServletRequest request, final Locale locale) throws ELSException {
+		boolean isAuthenticatedWithEnteredHighSecurityPassword  = false;
+		String username = request.getParameter("username");
+		String enteredHighSecurityPassword = request.getParameter("enteredHighSecurityPassword");
+		if(username!=null && !username.isEmpty() && enteredHighSecurityPassword!=null && !enteredHighSecurityPassword.isEmpty()) {
+			User user = User.findByUserName(username, locale.toString());
+			if(user!=null && user.getId()!=null) {
+				if(user.getCredential()!=null) {
+					isAuthenticatedWithEnteredHighSecurityPassword = securityService.isAuthenticated(enteredHighSecurityPassword, user.getCredential().getHighSecurityPassword());
+				}
+			}
+		} else {
+			throw new ELSException();
+		}
+		return isAuthenticatedWithEnteredHighSecurityPassword;
+	}
+	
 	@RequestMapping(value="/motionnumberinsession", method=RequestMethod.GET)
 	public @ResponseBody Boolean getMotionByNumberAndSession(HttpServletRequest request, Locale locale){
 		Boolean flag = false;
@@ -7584,7 +7593,7 @@ public class ReferenceController extends BaseController {
 				if(server.equals("TOMCAT")){
 					try {
 						strNumber = new String(strNumber.getBytes("ISO-8859-1"),"UTF-8");
-						motionNumber =  FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+						motionNumber =  FormaterUtil.getDecimalFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
 								
 					} catch (UnsupportedEncodingException e) {
 						e.printStackTrace();
@@ -7593,7 +7602,7 @@ public class ReferenceController extends BaseController {
 					}
 				}else{
 					try {
-						motionNumber = FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+						motionNumber = FormaterUtil.getDecimalFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
@@ -7861,7 +7870,7 @@ public class ReferenceController extends BaseController {
 				if(decodedStrings != null && decodedStrings.length > 0){
 					strNumber = decodedStrings[0];
 					
-					deviceNumber = FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+					deviceNumber = FormaterUtil.getDecimalFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
 				}
 								
 				if(deviceType != null && session != null){
@@ -10780,7 +10789,7 @@ public class ReferenceController extends BaseController {
 				}
 			}
 			Date ruleSuspensionDate = FormaterUtil.formatStringToDate(strRuleSuspensionDate, ApplicationConstants.SERVER_DATEFORMAT);
-			Integer ruleSuspensionMotionNumber=FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+			Integer ruleSuspensionMotionNumber=FormaterUtil.getDecimalFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
 			flag=RulesSuspensionMotion.isDuplicateNumberExist(ruleSuspensionDate, ruleSuspensionMotionNumber, null, locale.toString());
 		}
 		return flag;
@@ -10802,6 +10811,34 @@ public class ReferenceController extends BaseController {
 			revisedTotalAmountDemanded = FormaterUtil.formatNumberForIndianCurrencyWithSymbol(Long.parseLong(strRevisedTotalAmoutDemanded), locale.toString());
 		}		
 		return revisedTotalAmountDemanded;
+	}
+	
+	@RequestMapping(value = "/format_numeric_text", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+	public @ResponseBody String formatNumericTextInRequiredLocale(HttpServletRequest request,
+			HttpServletResponse response,
+			Locale locale) throws UnsupportedEncodingException{
+		
+		String formattedNumericText = "";
+		
+		String numericText = request.getParameter("numericText");
+		if(numericText!=null && !numericText.isEmpty()) {
+			CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			if(csptDeployment!=null){
+				String server=csptDeployment.getValue();
+				if(server!=null && server.equals("TOMCAT")){
+					numericText = new String(numericText.getBytes("ISO-8859-1"),"UTF-8");
+				}
+			}
+			
+			String requiredLocale = request.getParameter("locale");
+			if(requiredLocale==null || requiredLocale.isEmpty()) {
+				requiredLocale = locale.toString();
+			}
+			
+			formattedNumericText = FormaterUtil.formatNumbersInGivenText(numericText, requiredLocale);
+		}
+		
+		return formattedNumericText;
 	}
 	
 }

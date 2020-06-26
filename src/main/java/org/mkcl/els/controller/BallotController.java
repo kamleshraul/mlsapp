@@ -536,7 +536,7 @@ public class BallotController extends BaseController{
 			}
 			
 			/** Populate User Details */
-			List<UserGroup> userGroups = UserGroup.findActiveUserGroupsOfGivenUser(this.getCurrentUser().getActualUsername(), houseType.getName(), deviceType.getName());
+			List<UserGroup> userGroups = UserGroup.findActiveUserGroupsOfGivenUser(this.getCurrentUser().getActualUsername(), houseType.getName(), deviceType.getName(), locale.toString());
 			StringBuffer designation = new StringBuffer("");
 			for(UserGroup ug : userGroups){
 				if(ug != null){
@@ -1925,7 +1925,7 @@ public class BallotController extends BaseController{
 							}
 							String[] strQuestionSubmissionDate=dbFormat.format(startDate).split(",");
 							String[] strAnsweringMonth=strQuestionSubmissionDate[1].split(" ");
-							String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+							String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 							MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
 							String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
 							model.addAttribute("questionSubmissionDate",genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
@@ -2133,7 +2133,7 @@ public class BallotController extends BaseController{
 						}
 						String[] strQuestionSubmissionDate=dbFormat.format(startDate).split(",");
 						String[] strAnsweringMonth=strQuestionSubmissionDate[1].split(" ");
-						String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+						String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 						MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
 						String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
 						model.addAttribute("questionSubmissionDate",genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
@@ -2351,7 +2351,7 @@ public class BallotController extends BaseController{
 						}
 						String[] strQuestionSubmissionDate=dbFormat.format(memberBallotQuestionDistributionVO.getQuestionSubmissionStartTime()).split(",");
 						String[] strAnsweringMonth=strQuestionSubmissionDate[1].split(" ");
-						String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+						String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 						MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
 						String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
 						model.addAttribute("questionSubmissionDate",genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
@@ -2518,13 +2518,13 @@ public class BallotController extends BaseController{
 						xmlVO.setTotalClarificationQuestions(FormaterUtil.formatNumberNoGrouping(totalClarificationQuestions, locale.toString()));
 						xmlVO.setTotalQuestions(FormaterUtil.formatNumberNoGrouping(totalQuestions, locale.toString()));
 
-						String percentTotalAdmittedQuestions = FormaterUtil.getDeciamlFormatterWithNoGrouping(2, locale.toString()).format((double)totalAdmittedQuestions/(double)totalQuestions*100);
+						String percentTotalAdmittedQuestions = FormaterUtil.getDecimalFormatterWithNoGrouping(2, locale.toString()).format((double)totalAdmittedQuestions/(double)totalQuestions*100);
 						xmlVO.setPercentTotalAdmittedQuestions(percentTotalAdmittedQuestions);
-						String percentTotalConvertToUnstarredAndAdmitQuestions = FormaterUtil.getDeciamlFormatterWithNoGrouping(2, locale.toString()).format((double)totalConvertToUnstarredAndAdmitQuestions/(double)totalQuestions*100);
+						String percentTotalConvertToUnstarredAndAdmitQuestions = FormaterUtil.getDecimalFormatterWithNoGrouping(2, locale.toString()).format((double)totalConvertToUnstarredAndAdmitQuestions/(double)totalQuestions*100);
 						xmlVO.setPercentTotalConvertToUnstarredAndAdmitQuestions(percentTotalConvertToUnstarredAndAdmitQuestions);
-						String percentTotalRejectedQuestions = FormaterUtil.getDeciamlFormatterWithNoGrouping(2, locale.toString()).format((double)totalRejectedQuestions/(double)totalQuestions*100);
+						String percentTotalRejectedQuestions = FormaterUtil.getDecimalFormatterWithNoGrouping(2, locale.toString()).format((double)totalRejectedQuestions/(double)totalQuestions*100);
 						xmlVO.setPercentTotalRejectedQuestions(percentTotalRejectedQuestions);
-						String percentTotalClarificationQuestions = FormaterUtil.getDeciamlFormatterWithNoGrouping(2, locale.toString()).format((double)totalClarificationQuestions/(double)totalQuestions*100);
+						String percentTotalClarificationQuestions = FormaterUtil.getDecimalFormatterWithNoGrouping(2, locale.toString()).format((double)totalClarificationQuestions/(double)totalQuestions*100);
 						xmlVO.setPercentTotalClarificationQuestions(percentTotalClarificationQuestions);
 
 						MemberBallotQuestionDistributionVO memberBallotQuestionDistributionVO = questionDistributions.get(0);
@@ -2536,7 +2536,7 @@ public class BallotController extends BaseController{
 						}
 						String[] strQuestionSubmissionDate=dbFormat.format(memberBallotQuestionDistributionVO.getQuestionSubmissionStartTime()).split(",");
 						String[] strAnsweringMonth=strQuestionSubmissionDate[1].split(" ");
-						String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+						String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 						MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
 						String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
 						xmlVO.setQuestionSubmissionDate(genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
@@ -4819,7 +4819,7 @@ public class BallotController extends BaseController{
 
 			String marathiCurrentDay = FormaterUtil.formatDateToString(date, dayFormat.getValue(), locale.toString());
 
-			model.addAttribute("formattedCurrentDay", FormaterUtil.getDayInMarathi(marathiCurrentDay, locale.toString()));
+			model.addAttribute("formattedCurrentDay", FormaterUtil.getDayInLocaleLanguage(marathiCurrentDay, locale.toString()));
 
 			/*** To form the patrakbhag don formatted date ***/
 			Calendar calendar = Calendar.getInstance();
@@ -4828,7 +4828,7 @@ public class BallotController extends BaseController{
 			Integer intMonth = calendar.get(Calendar.MONTH);
 			Integer intYear = calendar.get(Calendar.YEAR);
 			String formattedCurrentDate = FormaterUtil.formatNumberNoGrouping(intDay, locale.toString()) + 
-					" " + FormaterUtil.getMonthInMarathi(intMonth, locale.toString()) + 
+					" " + FormaterUtil.getMonthInLocaleLanguage(intMonth, locale.toString()) + 
 					", " + FormaterUtil.formatNumberNoGrouping(intYear, locale.toString());
 
 			model.addAttribute("formattedCurrentDate", formattedCurrentDate);
@@ -4891,7 +4891,7 @@ public class BallotController extends BaseController{
 			}
 
 			String marathiDiscussionDay = FormaterUtil.formatDateToString(answeringDate, dayFormat.getValue(), locale.toString());
-			model.addAttribute("formattedDiscussionDay", FormaterUtil.getDayInMarathi(marathiDiscussionDay, locale.toString()));
+			model.addAttribute("formattedDiscussionDay", FormaterUtil.getDayInLocaleLanguage(marathiDiscussionDay, locale.toString()));
 
 			/*** To form the patrakbhag don formatted date ***/
 			calendar.setTime(answeringDate);
@@ -4899,7 +4899,7 @@ public class BallotController extends BaseController{
 			intMonth = calendar.get(Calendar.MONTH);
 			intYear = calendar.get(Calendar.YEAR);
 			String formattedAnsweringDate = FormaterUtil.formatNumberNoGrouping(intDay, locale.toString()) + 
-					" " + FormaterUtil.getMonthInMarathi(intMonth, locale.toString()) + 
+					" " + FormaterUtil.getMonthInLocaleLanguage(intMonth, locale.toString()) + 
 					", " + FormaterUtil.formatNumberNoGrouping(intYear, locale.toString());
 			model.addAttribute("formattedDiscussionDate", formattedAnsweringDate);
 

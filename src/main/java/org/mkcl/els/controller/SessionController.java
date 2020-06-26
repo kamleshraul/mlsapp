@@ -561,35 +561,46 @@ public class SessionController extends GenericController<Session> {
 													 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
 													 dbParameter = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 												}		
-												SimpleDateFormat dateFormat;
-												SimpleDateFormat dbDateFormat;
-												Date date;
 												
-												try {
-				
-													if (domain.getLocale().equalsIgnoreCase("mr_IN")) {
-														
-														dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale("hi", "IN"));
-														dbDateFormat = new SimpleDateFormat(dbParameter.getValue(), new Locale("hi", "IN"));
-														
-													} else {
-				
-														dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale(domain.getLocale()));
-														dbDateFormat = new SimpleDateFormat(dbParameter.getValue(), new Locale(domain.getLocale()));
-													}
-				
-													dateFormat.setLenient(true);
-				
-													date = dbDateFormat.parse(i.getValue());
-													
-													model.addAttribute(key, dateFormat.format(date)); 										
-													
-												} catch (ParseException e) {
-				
-													e.printStackTrace();
-												}
+												Date date = FormaterUtil.formatStringToDate(i.getValue(), dbParameter.getValue(), domain.getLocale());
+												
+												model.addAttribute(key, FormaterUtil.formatDateToString(date, parameter.getValue(), domain.getLocale()));
+												
 			        						} else if(key.endsWith("dates")) {
-			        							// add formatting as done for the same type in getParameters() of Session.java
+			        							// added formatting as done for the same type in getParameters() of Session.java
+			        							String[] dates = i.getValue().split("#");
+			    								
+			    								for(int j = 0; j < dates.length; j++){
+			    								
+			    									if(!i.getValue().contains("/")){
+			    										CustomParameter parameter;
+			    										CustomParameter dbParameter;
+			    										
+			    										if(dates[j].length()>10){
+			    											 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+			    											 dbParameter = CustomParameter.findByName(CustomParameter.class, "DB_DATETIMEFORMAT", "");
+			    										}
+			    										else{
+			    											 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+			    											 dbParameter = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+			    										}
+			    										
+			    										Date date = FormaterUtil.formatStringToDate(dates[j], dbParameter.getValue(), domain.getLocale());
+			    										
+			    										dates[j] = FormaterUtil.formatDateToString(date, parameter.getValue(), domain.getLocale());
+			    									}
+			    								}
+			    								
+			    								String value= ""; 
+			    								for(int k = 0; k < dates.length; k++){
+			    									
+			    									if((k == (dates.length - 1))){
+			    										value += dates[k];
+			    									}else{
+			    										value += dates[k] + "#";
+			    									}
+			    								}
+			    								model.addAttribute(key, value);
 			        						} 
 		        							//for number formatting in comma/hash separated string fields. 
 			        						else if((key.equals("resolutions_nonofficial_numberofdaysforfactualpositionreceiving"))) {

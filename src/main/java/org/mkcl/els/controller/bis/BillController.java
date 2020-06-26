@@ -33,6 +33,7 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.Act;
+import org.mkcl.els.domain.ApplicationLocale;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.BillDraft;
@@ -4009,14 +4010,7 @@ public class BillController extends GenericController<Bill> {
 			List<Object> reportDataAsList = new ArrayList<Object>();
 			reportDataAsList.addAll(Bill.findBillDataForDocketReport(billId, languageForDocketReport));
 			//reportDataAsList = Bill.findBillDataForDocketReport(billId, languageForDocketReport);
-			String languageLocale = "";
-			if(languageForDocketReport.equals("marathi")) {
-				languageLocale = "mr_IN";
-			} else if(languageForDocketReport.equals("hindi")) {
-				languageLocale = "hi_IN";
-			} else {
-				languageLocale = "en_US";
-			}
+			String languageLocale = ApplicationLocale.findLocaleFromLanguageType(languageForDocketReport);
 			String billNumber = reportDataAsList.get(1).toString();
 			reportDataAsList.add(FormaterUtil.formatNumberNoGrouping(Integer.parseInt(billNumber), languageLocale));
 			reportDataAsList.add(RomanNumeral.getRomanEquivalent(Long.parseLong(billNumber)));	
@@ -4110,14 +4104,7 @@ public class BillController extends GenericController<Bill> {
 //			List<Object> reportDataAsList = new ArrayList<Object>();
 //			reportDataAsList.addAll(Bill.findBillDataForDocketReport(billId, languageForGazetteReport));
 //			//reportDataAsList = Bill.findBillDataForDocketReport(billId, languageForDocketReport);
-//			String languageLocale = "";
-//			if(languageForGazetteReport.equals("marathi")) {
-//				languageLocale = "mr_IN";
-//			} else if(languageForGazetteReport.equals("hindi")) {
-//				languageLocale = "hi_IN";
-//			} else {
-//				languageLocale = "en_US";
-//			}
+//			String languageLocale = ApplicationLocale.findLocaleFromLanguageType(languageForGazetteReport);
 //			String billNumber = reportDataAsList.get(1).toString();
 //			reportDataAsList.add(FormaterUtil.formatNumberNoGrouping(Integer.parseInt(billNumber), languageLocale));
 //			reportDataAsList.add(RomanNumeral.getRomanEquivalent(Long.parseLong(billNumber)));	
@@ -4605,19 +4592,19 @@ public class BillController extends GenericController<Bill> {
 			}
 		}
 		String formattedPassedByFirstHouseForGivenRoundDate = FormaterUtil.formatDateToString(passedByFirstHouseForGivenRoundDate, dateFormatForReport.getValue(), locale.toString());
-		formattedPassedByFirstHouseForGivenRoundDate = FormaterUtil.formatMonthInMarathiDate(formattedPassedByFirstHouseForGivenRoundDate, locale.toString());
+		formattedPassedByFirstHouseForGivenRoundDate = FormaterUtil.formatMonthInLocaleLanguageDate(formattedPassedByFirstHouseForGivenRoundDate, locale.toString());
 		reportFields.add(formattedPassedByFirstHouseForGivenRoundDate);
 		
 		String formattedLayingDate = FormaterUtil.formatDateToString(layingDate, dateFormatForReport.getValue(), locale.toString());
-		formattedLayingDate = FormaterUtil.formatMonthInMarathiDate(formattedLayingDate, locale.toString());
+		formattedLayingDate = FormaterUtil.formatMonthInLocaleLanguageDate(formattedLayingDate, locale.toString());
 		reportFields.add(formattedLayingDate);
 		
 		String formattedLayingDay = FormaterUtil.formatDateToString(layingDate, dayFormat.getValue(), locale.toString());
-		formattedLayingDay = FormaterUtil.getDayInMarathi(formattedLayingDay, locale.toString());
+		formattedLayingDay = FormaterUtil.getDayInLocaleLanguage(formattedLayingDay, locale.toString());
 		reportFields.add(formattedLayingDay);
 		
 		String formattedCurrentDate = FormaterUtil.formatDateToString(new Date(), dateFormatForReport.getValue(), locale.toString());
-		formattedCurrentDate = FormaterUtil.formatMonthInMarathiDate(formattedCurrentDate, locale.toString());
+		formattedCurrentDate = FormaterUtil.formatMonthInLocaleLanguageDate(formattedCurrentDate, locale.toString());
 		reportFields.add(formattedCurrentDate);
 		
 		HouseType firstHouseType = HouseType.findByFieldName(HouseType.class, "type", bill.findFirstHouseType(), locale.toString());
@@ -4716,13 +4703,9 @@ public class BillController extends GenericController<Bill> {
 				parameters.put("recommendationStatusId", new String[]{departmentIntimated.getId().toString()});
 				parameters.put("statusId", new String[]{admitted.getId().toString()});
 				
-				Language lang = null;
-				if(locale.toString().equals(ApplicationConstants.DEFAULT_LOCALE)){
-					lang = Language.findByFieldName(Language.class, "type", "marathi", locale.toString());
-				}else{
-					lang = Language.findByFieldName(Language.class, "type", "english", locale.toString());
-				}
+				Language lang = Language.findByFieldName(Language.class, "type", ApplicationLocale.findLanguageTypeFromLocale(locale.toString()), locale.toString());
 				parameters.put("languageId", new String[]{lang.getId().toString()});
+				@SuppressWarnings("rawtypes")
 				List report = Query.findReport("BILL_PATRAKBHAG_DON", parameters);
 				
 				model.addAttribute("report", report);
@@ -4749,7 +4732,7 @@ public class BillController extends GenericController<Bill> {
 					Integer intMonth = calendar.get(Calendar.MONTH);
 					Integer intYear = calendar.get(Calendar.YEAR);
 					String formattedCurrentDate = FormaterUtil.formatNumberNoGrouping(intDay, locale.toString()) + 
-								" " + FormaterUtil.getMonthInMarathi(intMonth, locale.toString()) + 
+								" " + FormaterUtil.getMonthInLocaleLanguage(intMonth, locale.toString()) + 
 								", " + FormaterUtil.formatNumberNoGrouping(intYear, locale.toString());
 					
 					model.addAttribute("formattedCurrentDay", FormaterUtil.formatDateToString(date, dayFormat.getValue(), locale.toString()));

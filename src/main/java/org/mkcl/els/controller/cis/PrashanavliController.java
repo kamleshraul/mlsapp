@@ -298,7 +298,7 @@ public class PrashanavliController extends GenericController<Prashnavali> {
 		String strCreateDate = request.getParameter("createDateHid");
 		Date createDate = null;
 		if(strCreateDate != null && !strCreateDate.isEmpty()){
-			createDate = FormaterUtil.formatStringToDate(strCreateDate, ApplicationConstants.SERVER_DATEFORMAT, ApplicationConstants.SYSTEM_LOCALE);
+			createDate = FormaterUtil.formatStringToDate(strCreateDate, ApplicationConstants.SERVER_DATEFORMAT, ApplicationConstants.STANDARD_LOCALE);
 		}
 		
 		
@@ -899,7 +899,7 @@ public class PrashanavliController extends GenericController<Prashnavali> {
 		CommitteeName committeeName = null;
 		if(strCommitteeName != null && !strCommitteeName.isEmpty()){
 			 committeeName = CommitteeName.findById(CommitteeName.class, Long.parseLong(strCommitteeName));
-			 Committee committee=Committee.findByFieldName(Committee.class, "committeeName", committeeName, "mr_IN");
+			 Committee committee=Committee.findByFieldName(Committee.class, "committeeName", committeeName, locale);
 			 domain.setCommittee(committee);
 		}else{
 			 Committee committee = domain.getCommittee();

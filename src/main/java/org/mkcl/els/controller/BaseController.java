@@ -133,7 +133,7 @@ public abstract class BaseController {
 				if(reportDateFormatParameter.getValue().equals("dd MMM, yyyy")) {
 					String[] strDate=formattedReportDate.split(",");
 					String[] strMonth=strDate[0].split(" ");
-					String month=FormaterUtil.getMonthInMarathi(strMonth[1], locale.toString());
+					String month=FormaterUtil.getMonthInLocaleLanguage(strMonth[1], locale.toString());
 					formattedReportDate = strMonth[0] + " " + month + ", " + strDate[1];
 				}
 				data.setReportDate(formattedReportDate);

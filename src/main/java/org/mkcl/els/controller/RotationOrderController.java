@@ -241,9 +241,9 @@ public class RotationOrderController extends BaseController {
 		            	for(QuestionDates d:dates){
 		            		//Added the following code to solve the marathi month and day issue
 		            		String[] strAnsweringDates=dbFormat.format(d.getAnsweringDate()).split(",");
-		            		String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+		            		String answeringDay=FormaterUtil.getDayInLocaleLanguage(strAnsweringDates[0],locale.toString());
 		            		String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-		            		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+		            		String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 		            		
 		            		MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
 		            		String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
@@ -252,9 +252,9 @@ public class RotationOrderController extends BaseController {
 		            		
 		            		
 		            		String[] strSubmissionDates=dbFormat.format(d.getFinalSubmissionDate()).split(",");
-		            		String submissionDay=FormaterUtil.getDayInMarathi(strSubmissionDates[0],locale.toString());
+		            		String submissionDay=FormaterUtil.getDayInLocaleLanguage(strSubmissionDates[0],locale.toString());
 		            		String[] strSubmissionMonth=strSubmissionDates[1].split(" ");
-		            		String submissionMonth=FormaterUtil.getMonthInMarathi(strSubmissionMonth[1], locale.toString());
+		            		String submissionMonth=FormaterUtil.getMonthInLocaleLanguage(strSubmissionMonth[1], locale.toString());
 		            		
 		            		finalSubmissionDates.add(submissionDay+", " + genericDateLabel + " " +strSubmissionMonth[0]+" "+ submissionMonth +","+strSubmissionDates[2]);
 		            	}
@@ -340,9 +340,9 @@ public class RotationOrderController extends BaseController {
 			        	for(QuestionDates d:dates){
 			        		//Added the following code to solve the marathi month and day issue
 			        		String[] strAnsweringDates=dbFormat.format(d.getAnsweringDate()).split(",");
-			        		String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+			        		String answeringDay=FormaterUtil.getDayInLocaleLanguage(strAnsweringDates[0],locale.toString());
 			        		String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-			        		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+			        		String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 			        		
 			        		MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
 		            		String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
@@ -350,9 +350,9 @@ public class RotationOrderController extends BaseController {
 		            		answeringDates.add(answeringDay+", "+ genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strAnsweringDates[2]);
 			        		
 			        		String[] strSubmissionDates=dbFormat.format(d.getFinalSubmissionDate()).split(",");
-			        		String submissionDay=FormaterUtil.getDayInMarathi(strSubmissionDates[0],locale.toString());
+			        		String submissionDay=FormaterUtil.getDayInLocaleLanguage(strSubmissionDates[0],locale.toString());
 			        		String[] strSubmissionMonth=strSubmissionDates[1].split(" ");
-			        		String submissionMonth=FormaterUtil.getMonthInMarathi(strSubmissionMonth[1], locale.toString());
+			        		String submissionMonth=FormaterUtil.getMonthInLocaleLanguage(strSubmissionMonth[1], locale.toString());
 			        		
 			        		finalSubmissionDates.add(submissionDay+", " + genericDateLabel + " " +strSubmissionMonth[0]+" "+ submissionMonth +","+strSubmissionDates[2]);
 			        	}            	

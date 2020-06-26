@@ -14,6 +14,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.MasterVO;
@@ -71,13 +72,25 @@ public class CustomParameterController extends
                                final HttpServletRequest request) {
        
     	populateCategories(model,domain,request);
-       }
+    	try {
+			model.addAttribute("availableLocales", ApplicationLocale.findAllLocales());
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
     
     protected void populateEdit(final ModelMap model, 
     		final CustomParameter domain,
             final HttpServletRequest request) {
        	populateCategories(model,domain,request);
        	model.addAttribute("category", domain.getCategory());
+       	try {
+			model.addAttribute("availableLocales", ApplicationLocale.findAllLocales());
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     public void populateCategories(final ModelMap model, 
@@ -98,5 +111,5 @@ public class CustomParameterController extends
         }
         model.addAttribute("categories", categoriesVO);
    }
+    
  }
-

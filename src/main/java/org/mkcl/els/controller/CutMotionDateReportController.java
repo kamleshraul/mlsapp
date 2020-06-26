@@ -180,6 +180,7 @@ public class CutMotionDateReportController extends BaseController{
 				e.printStackTrace();
 				isError = true;					
 				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.exception_occured", locale.toString());
+				logger.error(e.getMessage());
 			}
 		} else {
 			isError = true;

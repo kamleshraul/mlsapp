@@ -132,7 +132,7 @@ public class MemberBallotQuestionDistributionVO {
 	}
 	
 	public String formatDecimalNumber(final Double number, final String locale){
-		return FormaterUtil.getDeciamlFormatterWithNoGrouping(2, locale).format(number);
+		return FormaterUtil.getDecimalFormatterWithNoGrouping(2, locale).format(number);
 	}
 	
 }

@@ -105,7 +105,7 @@ public class StandaloneReportController extends BaseController{
 					strUsergroups = csptStatReportUserGroups.getValue().split(",");
 				}
 								
-				model.addAttribute("day", FormaterUtil.getDayInMarathi(FormaterUtil.formatDateToString(new Date(), "EEEE", locale.toString()), locale.toString()));
+				model.addAttribute("day", FormaterUtil.getDayInLocaleLanguage(FormaterUtil.formatDateToString(new Date(), "EEEE", locale.toString()), locale.toString()));
 				model.addAttribute("currDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));								
 				model.addAttribute("statsHouseType", houseType.getType());
 				
@@ -903,10 +903,10 @@ public class StandaloneReportController extends BaseController{
 				}
 				//Added the following code to solve the marathi month and day issue				
 				String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
-				String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+				String answeringDay=FormaterUtil.getDayInLocaleLanguage(strAnsweringDates[0],locale.toString());
 				data.setAnsweringDay(answeringDay);
 				String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-				String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+				String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 				String formattedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
 				data.setAnsweringDate(formattedAnsweringDate);
 
@@ -1294,10 +1294,10 @@ public class StandaloneReportController extends BaseController{
 					}
 					//Added the following code to solve the marathi month and day issue
 					String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
-					String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+					String answeringDay=FormaterUtil.getDayInLocaleLanguage(strAnsweringDates[0],locale.toString());
 					data.setAnsweringDay(answeringDay);
 					String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-					String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+					String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 					String formattedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
 					data.setAnsweringDate(formattedAnsweringDate);
 					String answeringDateInIndianCalendar = FormaterUtil.getIndianDate(answeringDate, locale);
@@ -1317,7 +1317,7 @@ public class StandaloneReportController extends BaseController{
 						if(reportDateFormatParameter.getValue().equals("dd MMM, yyyy")) {
 							String[] strDate=formattedReportDate.split(",");
 							String[] strMonth=strDate[0].split(" ");
-							String month=FormaterUtil.getMonthInMarathi(strMonth[1], locale.toString());
+							String month=FormaterUtil.getMonthInLocaleLanguage(strMonth[1], locale.toString());
 							formattedReportDate = strMonth[0] + " " + month + ", " + strDate[1];
 						}
 						data.setReportDate(formattedReportDate);

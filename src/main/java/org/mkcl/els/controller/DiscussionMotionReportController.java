@@ -105,7 +105,7 @@ public class DiscussionMotionReportController extends BaseController{
 					strUsergroups = csptStatReportUserGroups.getValue().split(",");
 				}
 								
-				model.addAttribute("day", FormaterUtil.getDayInMarathi(FormaterUtil.formatDateToString(new Date(), "EEEE", locale.toString()), locale.toString()));
+				model.addAttribute("day", FormaterUtil.getDayInLocaleLanguage(FormaterUtil.formatDateToString(new Date(), "EEEE", locale.toString()), locale.toString()));
 				model.addAttribute("currDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));								
 				model.addAttribute("statsHouseType", houseType.getType());
 				
