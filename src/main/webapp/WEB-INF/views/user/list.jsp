@@ -30,6 +30,9 @@
 			$("#sendNotification").click(function() {
 				sendNotification();
 			});
+			$("#resetHighSecurityPassword").click(function() {
+				resetHighSecurityPassword();
+			});
 		});
 		function rowSelectHandler(rowid,status){
 			//on row select key will be set
@@ -76,6 +79,9 @@
 			</a> |
 			<a href="#" id="sendNotification" class="butSim">
 				<spring:message code="user.sendNotification" text="Send Notification"/>
+			</a> |
+			<a href="#" id="resetHighSecurityPassword" class="butSim">
+				<spring:message code="user.resetHighSecurityPassword" text="Reset High Security Password"/>
 			</a> |
 			</security:authorize>
 			</span>  

@@ -271,7 +271,7 @@
 					+ '&reportQuery=RIS_ADHAWA_REPORT'
 						+ '&templateName=template_ris_adhawa_'+$('#selectedHouseType').val()
 						+ '&reportName=adhawaReport'
-						+ '&locale=mr_IN'
+						+ '&locale='+$("#authlocale").val()
 					+"&committeeMeeting=0");
 
 	}

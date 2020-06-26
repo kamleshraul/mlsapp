@@ -19,7 +19,7 @@
 
 		
 		$("#username").change(function(){
-			var reportURL = "question/report/generalreport?username="+$("#username").val()+ "&houseType="+$("#selectedHouseType").val() +"&report=USER_AVAILABLE&reportout=useravailable&locale=mr_IN";
+			var reportURL = "question/report/generalreport?username="+$("#username").val()+ "&houseType="+$("#selectedHouseType").val() +"&report=USER_AVAILABLE&reportout=useravailable&locale="+$('#authlocale').val();
 			$.get(reportURL,function(data){
 				$("#userAvailable").empty();
 				$("#userAvailable").html(data);

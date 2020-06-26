@@ -1821,6 +1821,8 @@
 		<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
 		<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
 		<input type="hidden" name="originalType" id="originalType" value="${originalType}">
+		<input type="hidden" name="originalSubDepartment" id="originalSubDepartment" value="${originalSubDepartment}">
+		<input type="hidden" name="originalAnsweringDate" id="originalAnsweringDate" value="${originalAnsweringDate}">
 		<input type="hidden" id="houseTypeType" value="${houseTypeType}" />
 		<input id="questionType" name= "questionType" type="hidden" value="${questionType}" />
 		
@@ -1841,6 +1843,7 @@
 		<input id="subDepartmentSelected" name="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 		<input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 		<input type="hidden" id="submissionPriority" name="submissionPriority" value="${domain.submissionPriority}"/>
+		<input id="questionType" name= "questionType" type="hidden" value="${questionType}" />
 	</form:form>
 	
 	<input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">

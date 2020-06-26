@@ -47,7 +47,7 @@
 			$("#chart_tab").hide();
 		}
 		
-		//$('#bulkputup_tab').hide();
+		$('#bulktimeout_tab').hide();
 
 		/**** For ballot or member ballot tab to be visible ****/
 		if (currentDeviceType == 'questions_starred'
@@ -83,6 +83,18 @@
 				$("#yaadi_details_tab").hide();
 			}
 		}	
+		
+		$('#selectedStatus option').each(function() {
+			var selectedStatusType = $("#filterStatusMaster option[value='"+ $(this).attr('value') + "']").text();			
+			//console.log("selectedStatusType: " + selectedStatusType);
+		    if(!$(this).is(':last-child') && selectedStatusType.indexOf("processed_lapsed") != -1) {
+		    	$(this).insertAfter($('#selectedStatus option:last-child'));	
+		    	var topSelectedOption = $('#selectedStatus option:first-child');
+		    	//console.log("selectedStatus Value: " + $(topSelectedOption).attr('value'));
+				$('#selectedStatus').val($(topSelectedOption).attr('value'));
+				//return false;
+		    }
+		});	
 		
 		/*Tooltip*/
 		$(".toolTip").hide();
@@ -261,8 +273,22 @@
 			$('#selectedAnswerReceivedStatus').val("-");
 			var value = $(this).val();
 			if (value != "") {
+				var deviceTypeType = $("#deviceTypeMaster option[value='"+ $('#selectedQuestionType').val() + "']").text();
+				var filterStatusType = $("#filterStatusMaster option[value='"+ value + "']").text();
+				if(deviceTypeType == 'questions_starred'
+						&& (filterStatusType=='question_final_clarificationNeededFromDepartment'
+							|| filterStatusType=='question_final_clarificationNeededFromMember'
+							|| filterStatusType=='question_final_clarificationNeededFromMemberAndDepartment')
+				) {
+					$('#bulktimeout_tab').show();
+				} else {
+					$('#bulktimeout_tab').hide();
+				}
+				
 				//reloadQuestionGrid();
 				showQuestionList();
+			} else {
+				$('#bulktimeout_tab').hide();
 			}
 			$("#generateIntimationLetter").attr("href","");
 			
@@ -327,6 +353,12 @@
 		$("#bulkputupassistant_tab").click(function() {
 			$("#selectionDiv1").hide();
 			bulkPutupAssistant();
+		});
+		
+		/**** Bulk Timeout ****/
+		$("#bulktimeout_tab").click(function() {
+			$("#selectionDiv1").hide();
+			bulkTimeout();
 		});
 		
 		/**** Yaadi Details Tab ****/
@@ -690,6 +722,8 @@
 		var viewMode = "";
 		if(status_filter=='rejected' && $('#member_questions_view_status_flag').val()=='status_visible') { //in case to show statuses for lowerhouse
 			viewMode = "_with_status";
+		} else if(status_filter=='unstarred' /*&& $('#member_questions_view_status_flag').val()=='status_visible'*/) { //in case to show statuses for lowerhouse
+			viewMode = "_with_status";
 		}
 		//$.get('/ref/status_visibility_for_member_in_session?')
 		var parameters = "houseType=" + $("#selectedHouseType").val()
@@ -1002,6 +1036,24 @@
 		showTabByIdAndUrl('bulkputupassistant_tab', resourceURL);
 	}
 	
+	/**** Bulk Timeout ****/
+	function bulkTimeout() {
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+					+ "&sessionYear=" + $("#selectedSessionYear").val()
+					+ "&sessionType=" + $("#selectedSessionType").val()
+					+ "&questionType=" + $("#selectedQuestionType").val()
+					+ "&ugparam=" + $("#ugparam").val() 
+					+ "&status=" + $("#selectedStatus").val() 
+					+ "&role=" + $("#srole").val()
+					+ "&usergroup=" + $("#currentusergroup").val()
+					+ "&usergroupType=" + $("#currentusergroupType").val()
+					+ "&group=" + $("#ugparam").val()
+					+ "&department="+$("#selectedSubDepartment").val();
+		var resourceURL = 'question/bulktimeout/init?' + parameters
+				+ "&itemscount=" + $("#selectedItemsCount").val();
+		showTabByIdAndUrl('bulktimeout_tab', resourceURL);
+	}
+	
 	/**** Yaadi Details ****/
 	function yaadiDetails() {
 		var parameters =  "houseType=" + $("#selectedHouseType").val()
@@ -1068,8 +1120,8 @@
 			return false;
 		} else {
 			//$('#generateIntimationLetter').attr('href', 'question/report/generateReminderLetter?'+'questionIds='+selectedQuestionIds);
-			console.log("selectedQuestionIds: " + selectedQuestionIds);
-			form_submit('question/report/generateReminderLetter', {questionIds: selectedQuestionIds, houseType: $('#selectedHouseType').val(), locale: 'mr_IN', reportQuery: 'QIS_REMINDER_LETTER', outputFormat: 'WORD'}, 'GET');
+			//console.log("selectedQuestionIds: " + selectedQuestionIds);
+			form_submit('question/report/generateReminderLetter', {questionIds: selectedQuestionIds, houseType: $('#selectedHouseType').val(), locale: $('#moduleLocale').val(), reportQuery: 'QIS_REMINDER_LETTER', outputFormat: 'WORD'}, 'GET');
 		}
 	}
 	/**** To Generate Clubbed Intimation Letter ****/
@@ -1656,6 +1708,25 @@
 					statusText = statusText + "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
 				}
 				$("#selectedStatus").html(statusText);
+				
+				$("#filterStatusMaster").empty();
+				var filterStatusText = "";
+				for(var i=0;i<data.length;i++){
+					filterStatusText = filterStatusText + "<option value='" + data[i].id + "'>" + data[i].type + "</option>";
+				}
+				$("#filterStatusMaster").html(filterStatusText);
+				
+				$('#selectedStatus option').each(function() {
+					var selectedStatusType = $("#filterStatusMaster option[value='"+ $(this).attr('value') + "']").text();			
+					//console.log("selectedStatusType: " + selectedStatusType);
+					if(!$(this).is(':last-child') && selectedStatusType.indexOf("processed_lapsed") != -1) {
+				    	$(this).insertAfter($('#selectedStatus option:last-child'));	
+				    	var topSelectedOption = $('#selectedStatus option:first-child');
+				    	//console.log("selectedStatus Value: " + $(topSelectedOption).attr('value'));
+						$('#selectedStatus').val($(topSelectedOption).attr('value'));
+						//return false;
+				    }
+				});
 			}
 		}).fail(function(){
 			$.unblockUI();
@@ -1769,14 +1840,14 @@
 							code="generic.bulkputup" text="Bulk Putup">
 						</spring:message>
 				</a></li>
-			</security:authorize>
-			<security:authorize
+			</security:authorize>			
+			<%-- <security:authorize
 				access="hasAnyRole('QIS_SECTION_OFFICER')">
 				<li><a id="yaadiupdate_tab" href="#" class="tab"> <spring:message
 							code="generic.yaadiupdate" text="Yaadi Questions Update">
 						</spring:message>
 				</a></li>
-			</security:authorize>
+			</security:authorize> --%>
 			<c:if test="${questionTypeType == 'questions_starred'}">
 				<security:authorize
 					access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
@@ -1862,7 +1933,13 @@
 				</li>
 
 			</security:authorize>
-				
+			<security:authorize	access="hasAnyRole('QIS_CLERK', 'QIS_ASSISTANT')">
+				<li>
+					<a id="bulktimeout_tab" href="#" class="tab">
+						<spring:message code="generic.bulktimeout" text="Bulk Timeout"></spring:message>
+					</a>
+				</li>
+			</security:authorize>
 		</ul>
 		
 		<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE', 'MEMBER_UPPERHOUSE')">
@@ -2016,7 +2093,7 @@
 							<c:out value="${i.name}"></c:out>
 						</option>
 					</c:forEach>
-				</select> |	
+				</select> |					
 				<span id="answerReceivedStatusSpan" style="display: none;">
 					<a href="#" id="select_answerReceivedStatus" class="butSim"> <spring:message
 							code="question.answerReceivedStatus" text="Answer Received Status" />
@@ -2076,6 +2153,12 @@
 					</select>|	
 					</security:authorize>
 			</security:authorize>
+			
+			<select id="filterStatusMaster" style="display:none;">
+				<c:forEach items="${status}" var="i">
+					<option value="${i.id}"><c:out value="${i.type}"></c:out></option>
+				</c:forEach>
+			</select>
 			
 			<security:authorize	access="hasAnyRole('QIS_CLERK', 'QIS_ASSISTANT', 'QIS_SECTION_OFFICER', 'QIS_DEPUTY_SECRETARY', 'QIS_JOINT_SECRETARY', 'QIS_PRINCIPAL_SECRETARY')">
 				<a href="#" id="select_clubbingStatus" class="butSim"> 
@@ -2221,7 +2304,8 @@
 		<input type="hidden" id="member_questions_view_status_flag" value="${member_questions_view_status_flag}" />
 		<input type="hidden" id="member_admitted_questions_view_flag" value="${member_admitted_questions_view_flag}" />
 		<input type="hidden" id="member_rejected_questions_view_flag" value="${member_rejected_questions_view_flag}" />
-		<input type="hidden" id="member_unstarred_questions_view_flag" value="${member_unstarred_questions_view_flag}" />
+		<%-- <input type="hidden" id="member_unstarred_questions_view_flag" value="${member_unstarred_questions_view_flag}" /> --%>
+		<input type="hidden" id="member_unstarred_questions_view_flag" value="unstarred_visible" />
 	</div>
 </body>
 </html>

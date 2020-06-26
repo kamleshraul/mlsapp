@@ -102,6 +102,7 @@
       </footer>
     </div>
   </div>
+  <input type="hidden" id="authlocale" name="authlocale" value="${locale}"/>
   <!--   Core JS Files   -->
   <script src="./assets/js/core/jquery.min.js"></script>
   <script src="./assets/js/core/popper.min.js"></script>
@@ -240,7 +241,7 @@
     	
     function getMembersByDistrict(districtId){
     	
-    	$.get("ws/biography/membersforGrav/allMembersDistrictwise/lowerhouse/mr_IN?districtId="+districtId,function(result){
+    	$.get("ws/biography/membersforGrav/allMembersDistrictwise/lowerhouse/"+$('#authlocale').val()+"?districtId="+districtId,function(result){
     			var text ='';
 				for(var i=0;i<result.length;i++){
 					if(result[i].firstName!= null && result[i].firstName!=''){

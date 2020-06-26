@@ -49,6 +49,12 @@
 					"<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";				
 				$("#subDepartment").html(subDepartmentText);				
 			}
+			$('#originalSubDepartment').val('');
+			$('#group').val('');
+			$("#formattedGroup").val('');
+			$('#answeringDate').val('');
+			$('#answeringDate').change();
+			//$('#originalAnsweringDate').val('');
 		}).fail(function(){
 			if($("#ErrorMsg").val()!=''){
 				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});				
@@ -75,7 +81,9 @@
 				var answeringDatesText = 
 					"<option value='' selected='selected'>----" + $("#pleaseSelectMsg").val() + "----</option>";
 				$("#answeringDate").html(answeringDatesText);				
-			}			
+			}		
+			$('#answeringDate').change();
+			//$('#originalAnsweringDate').val('');
 		}).fail(function(){
 			$.unblockUI();
 			if($("#ErrorMsg").val()!=''){
@@ -297,7 +305,9 @@
 				if(wysiwygVal == "<p></p>" || wysiwygVal=="<p><br></p>" || wysiwygVal == "<br><p></p>"){
 					$(this).val("");
 				}
-			});		
+			});
+			//$('#originalSubDepartment').val($('#subDepartment').val());
+			//$('#originalAnsweringDate').val($('#answeringDate').val());
 			
 			//---------vikas dhananjay--------------------------------------
 			var deviceTypeTemp = '${selectedQuestionType}';
@@ -577,7 +587,12 @@
 		});
 		
 		$('#subDepartment').change(function(){
+			$('#originalSubDepartment').val($(this).val());
 			loadGroup($(this).val());
+		});
+		
+		$('#answeringDate').change(function(){
+			$('#originalAnsweringDate').val($(this).val());
 		});
 		
 		//print pdf
@@ -1054,7 +1069,8 @@
 	<input type="hidden" name="questionType" id="questionType" value="${questionType}">
 	<input type="hidden" name="deviceType" id="deviceType" value="${deviceType}"/>
 	<input type="hidden" name="department" id="department" value="${departmentSelected }">
-	
+	<input type="hidden" name="originalSubDepartment" id="originalSubDepartment" value="${originalSubDepartment}">
+	<input type="hidden" name="originalAnsweringDate" id="originalAnsweringDate" value="${originalAnsweringDate}">
 	
 </form:form>
 <input id="currentStatus" value="${internalStatusType }" type="hidden">

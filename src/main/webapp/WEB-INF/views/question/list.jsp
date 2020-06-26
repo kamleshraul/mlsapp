@@ -326,7 +326,14 @@
 				</span>
 				<span id="member_unstarred_questions_view_span" style="display: none;">
 				<a href="#" id="member_unstarred_questions_view" class="butSim">
-					<spring:message code="question.member_unstarred_questions_view" text="Member's Unstarred Questions Detail View"/>
+					<c:choose>
+					<c:when test="${member_unstarred_questions_view_flag=='unstarred_visible'}">
+						<spring:message code="question.member_unstarred_questions_view" text="Member's Unstarred Questions Detail View"/>
+					</c:when>
+					<c:otherwise>
+						<spring:message code="question.member_reconsidered_unstarred_questions_view" text="Member's Reconsidered Unstarred Questions Detail View"/>
+					</c:otherwise>
+					</c:choose>
 				</a> |	
 				</span>		
 			</security:authorize>

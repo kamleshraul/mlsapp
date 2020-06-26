@@ -183,6 +183,17 @@
 				showTabByIdAndUrl('details_tab','user/sendNotification?usernames='+usernames);
 			}
 		}
+		function resetHighSecurityPassword() {
+			var row = $("#key").val();
+			if(row==null||row==""){				
+				$.prompt($('#selectRowFirstMessage').val());
+				return false;							
+			}else{
+				var username = $('#grid').jqGrid('getCell', row, 'credential.username');
+				console.log("username: " + username);
+				showTabByIdAndUrl('details_tab','user/resetHighSecurityPassword?username='+username);
+			}
+		}
 	</script>
 </head>
 <body>

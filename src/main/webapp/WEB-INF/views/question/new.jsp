@@ -56,6 +56,12 @@
 					"<option value ='' selected='selected'>----" + $("#pleaseSelectMsg").val() + "----</option>";				
 				$("#subDepartment").html(subDepartmentText);				
 			}
+			$('#originalSubDepartment').val('');
+			$('#group').val('');
+			$("#formattedGroup").val('');
+			$('#answeringDate').val('');
+			$('#answeringDate').change();
+			//$('#originalAnsweringDate').val('');
 		}).fail(function(){
 			if($("#ErrorMsg").val() != ''){
 				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -81,7 +87,9 @@
 				var answeringDatesText = 
 					"<option value = '' selected = 'selected'>----" + $("#pleaseSelectMsg").val() + "----</option>";
 				$("#answeringDate").html(answeringDatesText);		
-			}			
+			}	
+			$('#answeringDate').change();
+			//$('#originalAnsweringDate').val('');
 		}).fail(function(data, s, b){
 			$("#error_p").html(data);
 			/*if($("#ErrorMsg").val()!=''){
@@ -441,6 +449,8 @@
 					$(this).val("");
 				}
 			});		
+			//$('#originalSubDepartment').val($('#subDepartment').val());
+			//$('#originalAnsweringDate').val($('#answeringDate').val());
 			
 			//---------------------vikas dhananjay---------------------
 			var deviceTypeTemp='${selectedQuestionType}';
@@ -712,7 +722,12 @@
 		});
 		
 		$('#subDepartment').change(function(){
+			$('#originalSubDepartment').val($(this).val());
 			loadGroup($(this).val());
+		});
+		
+		$('#answeringDate').change(function(){
+			$('#originalAnsweringDate').val($(this).val());
 		});
 	});
 	
@@ -1144,6 +1159,8 @@
 	<input type="hidden" name="deviceType" id="deviceType" value="${deviceType}"/>
 	<input type="hidden" name="halfHourDiscussionReference_questionId_H" id="halfHourDiscussionReference_questionId_H" />
 	<input type="hidden" name="selectedSupportingMembersIfErrors" value="${selectedSupportingMembersIfErrors}" />
+	<input type="hidden" name="originalSubDepartment" id="originalSubDepartment" value="${originalSubDepartment}">
+	<input type="hidden" name="originalAnsweringDate" id="originalAnsweringDate" value="${originalAnsweringDate}">
 </form:form>
 
 
