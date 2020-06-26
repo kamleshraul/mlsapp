@@ -465,8 +465,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 	}
 	
 	public static Member findByNameBirthDate(final String firstName,final String middleName,
-			final String lastName,final Date birthDate) throws ELSException {
-		return getMemberRepository().findByNameBirthDate(firstName,middleName,lastName,birthDate);
+			final String lastName,final Date birthDate,final String locale) throws ELSException {
+		return getMemberRepository().findByNameBirthDate(firstName,middleName,lastName,birthDate,locale);
 	}
 	
 	public String getFirstNameAliasLastName(){
@@ -831,6 +831,23 @@ import org.springframework.beans.factory.annotation.Configurable;
 	
 	public boolean isActiveMinisterOn(final Date date,final String locale){
 		return getMemberRepository().isActiveMinisterOn(this,date,locale);
+	}
+	
+	public boolean isActiveOnlyAsMember(final Date onDate, final String locale) {
+		String[] memberPresidingOfficerRoles = new String[] {"SPEAKER", "DEPUTY_SPEAKER", "CHAIRMAN", "DEPUTY_CHAIRMAN"};
+		
+		boolean isActiveMinister = this.isActiveMinisterOn(onDate, locale);
+		boolean isActivePresidingOfficer = this.isActiveMemberInAnyOfGivenRolesOn(memberPresidingOfficerRoles, onDate, locale);
+		boolean isActiveMember = this.isActiveMemberOn(onDate, locale);
+		
+		if(isActiveMember &&
+				! isActiveMinister &&
+				! isActivePresidingOfficer) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 	public boolean isPresentInMemberBallotAttendanceUH(final Session session,final DeviceType deviceType,final String locale){
@@ -2274,8 +2291,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return members;
 	}
 	
-	public static List<String> findMemberByHouseDates(final Long houseType,String fromDate,String toDate){
-		List<String> members=getMemberRepository().findMembersByHouseDates(houseType,fromDate,toDate);
+	public static List<String> findMemberByHouseDates(final Long houseType,String fromDate,String toDate,String locale){
+		List<String> members=getMemberRepository().findMembersByHouseDates(houseType,fromDate,toDate,locale);
 		return members;
 	}
 	

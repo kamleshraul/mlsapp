@@ -398,6 +398,16 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 			final String locale) throws ELSException {
 		return getRepository().startProcessAtGivenLevel(question, processDefinitionKey, processWorkflow, userGroupType, level, locale);
 	}
+	
+	public static WorkflowDetails startProcessAtGivenAssignee(final Question question, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final UserGroupType userGroupType, 
+			final int level, 
+			final String assignee,
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenAssignee(question, processDefinitionKey, processWorkflow, userGroupType, level, assignee, locale);
+	}
 			
 	//Complete task 
 	public static WorkflowDetails completeTask(final Question question) throws ELSException {
@@ -414,12 +424,16 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 //	}
 	
 	public static void endProcess(final WorkflowDetails wf) {
+		endProcess(wf, "COMPLETED");
+	}
+	
+	public static void endProcess(final WorkflowDetails wf, final String wfStatus) {
 		if(wf!=null && wf.getId()!=null) {
 			try {
-				getRepository().endProcess(wf);
+				getRepository().endProcess(wf, wfStatus);
 			} catch(Exception e) {
 				// Update WorkflowDetails
-				wf.setStatus("COMPLETED");
+				wf.setStatus(wfStatus);
 				wf.setCompletionTime(new Date());
 				wf.merge();
 			}			

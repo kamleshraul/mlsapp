@@ -39,9 +39,11 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
+import org.mkcl.els.common.vo.ProcessDefinition;
+import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.QuestionSearchVO;
-import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
+import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.NotificationController;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.domain.ballot.Ballot;
@@ -65,17 +67,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Entity
 @Table(name="questions")
 @JsonIgnoreProperties(value={"houseType", "session", "originalType", "type","creationDate","createdBy",
-	"dataEnteredBy","editedOn","editedBy","answeringDate","chartAnsweringDate",
+	"dataEnteredBy","editedOn","editedBy","answeringDate","originalAnsweringDate","chartAnsweringDate",
 	"subject","revisedSubject","questionText","revisedQuestionText","answer","priority",
 	"ballotStatus", "remarks","rejectionReason", "supportingMembers",
-	"group", "drafts", "parent", "clubbedEntities", "referencedEntities",
+	"group", "originalSubDepartment", "drafts", "parent", "clubbedEntities", "referencedEntities",
 	"halfHourDiscusionFromQuestionReference", "language", "referencedHDS","workflowDetailsId","bulkSubmitted","taskReceivedOn","workflowStartedOn","level",
 	"endFlag","localizedActorName","actor","workflowStarted","answeringAttemptsByDepartment"
 	,"markAsAnswered","prospectiveClubbings","lastDateOfAnswerReceiving","revisedBriefExplanation",
 	"briefExplanation","discussionDate","dateOfAnsweringByMinister","toBeAnsweredByMinister"
 	,"revisedReason","reason","numberOfDaysForFactualPositionReceiving",
 	"lastDateOfFactualPositionReceiving","factualPosition","questionsAskedInFactualPosition"
-	,"locale","version","versionMismatch","editedAs","questionreferenceText","rejectionReason","referenceDeviceType","referenceDeviceMember","referenceDeviceAnswerDate"},ignoreUnknown=true)
+	,"locale","version","versionMismatch","editedAs","questionreferenceText","referenceDeviceType","referenceDeviceMember","referenceDeviceAnswerDate"},ignoreUnknown=true)
 public class Question extends Device implements Serializable {
 		
     /** The Constant serialVersionUID. */
@@ -139,6 +141,11 @@ public class Question extends Device implements Serializable {
     /** The answering date. */
     @ManyToOne(fetch=FetchType.LAZY)
     private QuestionDates answeringDate;    
+    
+    /** The answering date (as submitted by member). */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="original_answering_date")
+    private QuestionDates originalAnsweringDate;
 
     @ManyToOne(fetch=FetchType.LAZY)
     private QuestionDates chartAnsweringDate;
@@ -230,16 +237,31 @@ public class Question extends Device implements Serializable {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="group_id")
     private Group group;
+    
+//    /** The group (as submitted by member). */
+//    @ManyToOne(fetch=FetchType.LAZY)
+//    @JoinColumn(name="originalgroup_id")
+//    private Group originalGroup;
 
     /** The ministry. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="ministry_id")
     private Ministry ministry;
+    
+//    /** The ministry (as submitted by member). */
+//    @ManyToOne(fetch=FetchType.LAZY)
+//    @JoinColumn(name="originalministry_id")
+//    private Ministry originalMinistry;
 
     /** The sub department. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="subdepartment_id")
     private SubDepartment subDepartment;
+    
+    /** The ministry (as submitted by member). */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="originalsubdepartment_id")
+    private SubDepartment originalSubDepartment;
 
     
     /**** DRAFTS ****/
@@ -2257,8 +2279,10 @@ public class Question extends Device implements Serializable {
 			if(this.getStatus()!=null) {
 				Status submitStatus = Status.findByType(ApplicationConstants.QUESTION_SUBMIT, this.getLocale());
 				submitStatus = Question.findCorrespondingStatusForGivenQuestionType(submitStatus, this.getOriginalType());
-				if(this.getStatus().getPriority()>=submitStatus.getPriority()) {
+				if(this.getStatus().getPriority()>=submitStatus.getPriority() && !this.getRecommendationStatus().getType().contains(ApplicationConstants.STATUS_LAPSED)) {
 					memberStatus = submitStatus;
+				} else if(this.getRecommendationStatus().getType().contains(ApplicationConstants.STATUS_LAPSED)) {
+					memberStatus = this.getRecommendationStatus();
 				} else {
 					memberStatus = this.getStatus();
 				}
@@ -2291,6 +2315,68 @@ public class Question extends Device implements Serializable {
      */
     public void addQuestionDraftForMembersideSubmission() {
     	this.addQuestionDraft();
+    }
+    
+    public void addMissingSubmissionDraft() {
+    	QuestionDraft submissionDraft = new QuestionDraft();
+    	submissionDraft.setQuestionId(this.getId());
+        submissionDraft.setLocale(this.getLocale());
+        submissionDraft.setType(this.getOriginalType());    
+        
+        submissionDraft.setSubject(this.getSubject());
+    	submissionDraft.setQuestionText(this.getQuestionText());        
+    			
+		submissionDraft.setGroup(this.findOriginalGroup());
+        submissionDraft.setMinistry(this.findOriginalMinistry());
+        submissionDraft.setSubDepartment(this.getOriginalSubDepartment());
+    	
+    	String deviceType = this.getOriginalType().getType();
+    	if(deviceType.equals(ApplicationConstants.STARRED_QUESTION)){
+    		submissionDraft.setPriority(this.getPriority());   
+    		submissionDraft.setAnsweringDate(this.getOriginalAnsweringDate());
+    		
+    		Status submitStatus = Status.findByType(ApplicationConstants.QUESTION_SUBMIT, this.getLocale());
+    		submissionDraft.setStatus(submitStatus);
+            submissionDraft.setInternalStatus(submitStatus);
+            submissionDraft.setRecommendationStatus(submitStatus);
+            
+    	}else if(deviceType.equals(ApplicationConstants.UNSTARRED_QUESTION)){
+    		Status submitStatus = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_SUBMIT, this.getLocale());
+    		submissionDraft.setStatus(submitStatus);
+            submissionDraft.setInternalStatus(submitStatus);
+            submissionDraft.setRecommendationStatus(submitStatus);
+    		
+    	}else if(deviceType.equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+    		submissionDraft.setReason(this.getReason());
+    		
+    		Status submitStatus = Status.findByType(ApplicationConstants.QUESTION_SHORTNOTICE_SUBMIT, this.getLocale());
+    		submissionDraft.setStatus(submitStatus);
+            submissionDraft.setInternalStatus(submitStatus);
+            submissionDraft.setRecommendationStatus(submitStatus);
+    		
+    	}else if(deviceType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+    		submissionDraft.setReason(this.getReason());
+            submissionDraft.setBriefExplanation(this.getBriefExplanation());
+            
+            submissionDraft.setAnsweringDate(this.getOriginalAnsweringDate()); //in case discussion date preference has to be set through answering date
+            
+    		Status submitStatus = Status.findByType(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SUBMIT, this.getLocale());
+    		submissionDraft.setStatus(submitStatus);
+            submissionDraft.setInternalStatus(submitStatus);
+            submissionDraft.setRecommendationStatus(submitStatus);    		
+    	}
+    	
+    	UserGroupType memberUGT = UserGroupType.findByType(ApplicationConstants.MEMBER, this.getLocale());
+    	submissionDraft.setEditedAs(memberUGT.getName());
+        submissionDraft.setEditedBy(this.getCreatedBy());
+        submissionDraft.setEditedOn(this.getSubmissionDate());
+        
+        Set<QuestionDraft> questionDrafts = this.getDrafts();
+        if(questionDrafts == null){
+        	questionDrafts = new HashSet<QuestionDraft>();
+        }
+        questionDrafts.add(submissionDraft);
+        this.setDrafts(questionDrafts);
     }
     
     /**
@@ -2633,6 +2719,9 @@ public class Question extends Device implements Serializable {
 		
 	}
 
+	public static boolean isSubmissionDraftAbsentForQuestion(final Question question) throws ELSException {
+		return getQuestionRepository().isSubmissionDraftAbsentForQuestion(question);
+	}
 
 	public static Integer getQuestionWithoutNumber(final Member member, final DeviceType deviceType, final Session session,String locale) throws ELSException{
     	return getQuestionRepository().getQuestionWithoutNumber(member, deviceType, session, locale);
@@ -2678,7 +2767,15 @@ public class Question extends Device implements Serializable {
 		return getQuestionRepository().findAllByRecommendationStatus(session, deviceType, internalStatus, group, locale);
 	}
     
-	
+	public static List<Question> findAllForTimeoutByStatus(final Session session,
+			final DeviceType deviceType, 
+			final Status internalStatus,
+			final Group group,
+			final SubDepartment subdepartment,
+			final Integer itemsCount,
+			final String locale) throws ELSException {
+		return getQuestionRepository().findAllForTimeoutByStatus(session, deviceType, internalStatus, group, subdepartment, itemsCount, locale);
+	}
 	
 	public static List<Question> findByDeviceAndStatus(final DeviceType deviceType, final Status status){
 		return getQuestionRepository().findByDeviceAndStatus(deviceType, status);
@@ -3278,6 +3375,14 @@ public class Question extends Device implements Serializable {
 		this.answeringDate = answeringDate;
 	}
 		
+	public QuestionDates getOriginalAnsweringDate() {
+		return originalAnsweringDate;
+	}
+
+	public void setOriginalAnsweringDate(QuestionDates originalAnsweringDate) {
+		this.originalAnsweringDate = originalAnsweringDate;
+	}
+
 	public QuestionDates getChartAnsweringDate() {
 		return chartAnsweringDate;
 	}
@@ -3426,6 +3531,26 @@ public class Question extends Device implements Serializable {
 		this.group = group;
 	}
 		
+//	public Group getOriginalGroup() {
+//		return originalGroup;
+//	}
+//
+//	public void setOriginalGroup(Group originalGroup) {
+//		this.originalGroup = originalGroup;
+//	}
+	
+	public Group findOriginalGroup() {
+		if(this.getOriginalSubDepartment()!=null && this.getSubmissionDate()!=null) {
+			try {
+				return Group.find(this.getOriginalSubDepartment(), this.getSession(), this.getLocale());
+			} catch (ELSException e) {
+				return null;
+			}
+		} else {
+			return null;
+		}
+	}
+
 	public Ministry getMinistry() {
 		return ministry;
 	}	
@@ -3433,8 +3558,23 @@ public class Question extends Device implements Serializable {
 	public void setMinistry(Ministry ministry) {
 		this.ministry = ministry;
 	}
-
 		
+//	public Ministry getOriginalMinistry() {
+//		return originalMinistry;
+//	}
+//
+//	public void setOriginalMinistry(Ministry originalMinistry) {
+//		this.originalMinistry = originalMinistry;
+//	}
+	
+	public Ministry findOriginalMinistry() {
+		if(this.getOriginalSubDepartment()!=null && this.getSubmissionDate()!=null) {
+			return this.getOriginalSubDepartment().findMinistry(this.getSubmissionDate());
+		} else {
+			return null;
+		}
+	}
+
 	public SubDepartment getSubDepartment() {
 		return subDepartment;
 	}	
@@ -3443,6 +3583,14 @@ public class Question extends Device implements Serializable {
 		this.subDepartment = subDepartment;
 	}
 		
+	public SubDepartment getOriginalSubDepartment() {
+		return originalSubDepartment;
+	}
+
+	public void setOriginalSubDepartment(SubDepartment originalSubDepartment) {
+		this.originalSubDepartment = originalSubDepartment;
+	}
+
 	public Set<QuestionDraft> getDrafts() {
 		return drafts;
 	}
@@ -12855,16 +13003,8 @@ public class Question extends Device implements Serializable {
 	private static boolean isActiveOnlyAsMember(final Member member,
 			final Date onDate,
 			final String locale) {
-		String[] memberRoles = new String[] {"SPEAKER", "DEPUTY_SPEAKER", "CHAIRMAN", "DEPUTY_CHAIRMAN"};
-		
-		boolean isActiveMinister = member.isActiveMinisterOn(onDate, locale);
-		boolean isActivePresidingOfficer = member.isActiveMemberInAnyOfGivenRolesOn(memberRoles, onDate, locale);
-		boolean isActiveMember = member.isActiveMemberOn(onDate, locale);
-		
-		if(isActiveMember &&
-				! isActiveMinister &&
-				! isActivePresidingOfficer) {
-			return true;
+		if(member!=null && member.getId()!=null) {
+			return member.isActiveOnlyAsMember(onDate, locale);
 		}
 		else {
 			return false;
@@ -13180,6 +13320,7 @@ public class Question extends Device implements Serializable {
 		
 		q.setAnsweringDate(this.getAnsweringDate());
 		q.setChartAnsweringDate(this.getChartAnsweringDate());
+		q.setOriginalAnsweringDate(this.getOriginalAnsweringDate());
 		
 		q.setGroup(this.getGroup());
 		q.setParent(this.getParent());
@@ -13187,6 +13328,7 @@ public class Question extends Device implements Serializable {
 		
 		q.setSubDepartment(this.getSubDepartment());
 		q.setMinistry(this.getMinistry());
+		q.setOriginalSubDepartment(this.getOriginalSubDepartment());
 		
 		q.setCreatedBy(this.getCreatedBy());
 		q.setCreationDate(this.getCreationDate());
@@ -13328,13 +13470,31 @@ public class Question extends Device implements Serializable {
 		WorkflowDetails.startProcessAtGivenLevel(question, ApplicationConstants.APPROVAL_WORKFLOW, workflow, userGroupType, level, locale);
     }
     
+    /** 
+     * This method starts workflow with given parameters at particular user whose username is specified in 'assignee' parameter
+     */
+    public void startWorkflowAtGivenAssignee(final Question question, final Status status, final UserGroupType userGroupType, final Integer level, final String workflowHouseType, final Boolean isFlowOnRecomStatusAfterFinalDecision, final String assignee, final String locale) throws ELSException {
+    	//end current workflow if exists
+		question.endWorkflow(question, workflowHouseType, locale);		
+    	//update question statuses & devicetype as per the workflow status
+    	question.updateForInitFlow(status, userGroupType, isFlowOnRecomStatusAfterFinalDecision, locale);
+		//find required workflow from the status
+    	Workflow workflow = Workflow.findByStatus(status, locale);
+    	//start required workflow
+		WorkflowDetails.startProcessAtGivenAssignee(question, ApplicationConstants.APPROVAL_WORKFLOW, workflow, userGroupType, level, assignee, locale);	
+    }
+    
     public void endWorkflow(final Question question, final String workflowHouseType, final String locale) throws ELSException {
+    	endWorkflow(question, workflowHouseType, ApplicationConstants.MYTASK_COMPLETED, locale);	
+	}
+    
+    public void endWorkflow(final Question question, final String workflowHouseType, final String wfStatus, final String locale) throws ELSException {
     	WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(question);
 		if(wfDetails != null) {
 			try {
-				WorkflowDetails.endProcess(wfDetails);
+				WorkflowDetails.endProcess(wfDetails, wfStatus);
 			} catch(Exception e) {
-				wfDetails.setStatus(ApplicationConstants.MYTASK_COMPLETED);
+				wfDetails.setStatus(wfStatus);
 				wfDetails.setCompletionTime(new Date());
 				wfDetails.merge();
 			} finally {

@@ -10,6 +10,7 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -91,6 +92,12 @@ public class SubDepartment extends BaseDomain implements Serializable{
 		this.remarks = remarks;
 		this.isExpired = isExpired;
 	}
+	
+	// ---------------------------------Domain Methods-------------------------------------------------
+	public Ministry findMinistry(Date onDate) {
+		return getSubDepartmentRepository().findMinistry(this.getId(), onDate);
+	}
+	
 	// ---------------------------------Getters and Setters-------------------------------------------------
 	/**
 	 * Gets the name.

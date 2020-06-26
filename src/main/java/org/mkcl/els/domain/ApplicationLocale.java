@@ -17,6 +17,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.repository.ApplicationLocaleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -121,7 +122,16 @@ public class ApplicationLocale extends BaseDomain implements Serializable {
         this.languageType = languageType;
     }
 
-    // ==================== Domain Methods ====================
+    // ==================== Domain Methods ====================    
+    public static ApplicationLocaleRepository getApplicationLocaleRepository() {
+    	ApplicationLocaleRepository applicationLocaleRepository = new ApplicationLocale().applicationLocaleRepository;
+		if (applicationLocaleRepository == null) {
+			throw new IllegalStateException(
+					"MemberRepository has not been injected in Member Domain");
+		}
+		return applicationLocaleRepository;
+	}    
+    
     /**
      * Gets the locale string.
      * 
@@ -135,6 +145,32 @@ public class ApplicationLocale extends BaseDomain implements Serializable {
             return this.language + "_" + this.country;
         }
     }
+    
+    public static String findDefaultLocale() {
+    	String defaultLocale = ApplicationConstants.DEFAULT_LOCALE;
+		CustomParameter csptDefaultLocale = CustomParameter.findByName(CustomParameter.class, "DEFAULT_LOCALE", "");
+		if(csptDefaultLocale!=null 
+				&& csptDefaultLocale.getValue()!=null && !csptDefaultLocale.getValue().isEmpty()) {
+			defaultLocale = csptDefaultLocale.getValue();
+		}
+		return defaultLocale;
+    }
+    
+    public static String findLanguageTypeFromLocale(final String locale) {
+    	return getApplicationLocaleRepository().findLanguageTypeFromLocale(locale);
+    }
+    
+    public static String findLocaleFromLanguageType(final String languageType) {
+    	return getApplicationLocaleRepository().findLocaleFromLanguageType(languageType);
+    }
+    
+    public static List<String> findAllLocales() throws ELSException {
+    	return getApplicationLocaleRepository().findAllLocales();
+	}
+	
+    public static List<ApplicationLocale> findAllLocale() throws ELSException {
+    	return getApplicationLocaleRepository().findAllLocale();
+	}
 
     // ==================== Getters & Setters ====================
     /**
@@ -217,15 +253,6 @@ public class ApplicationLocale extends BaseDomain implements Serializable {
     public String getLanguageType() {
 		return languageType;
 	}
-    
-    public static ApplicationLocaleRepository getApplicationLocaleRepository() {
-    	ApplicationLocaleRepository applicationLocaleRepository = new ApplicationLocale().applicationLocaleRepository;
-		if (applicationLocaleRepository == null) {
-			throw new IllegalStateException(
-					"MemberRepository has not been injected in Member Domain");
-		}
-		return applicationLocaleRepository;
-	}
 
     /**
      * Sets the language type.
@@ -236,7 +263,4 @@ public class ApplicationLocale extends BaseDomain implements Serializable {
 		this.languageType = languageType;
 	}
 	
-	  public static List<ApplicationLocale> findAllLocale() throws ELSException {
-	    	return getApplicationLocaleRepository().findAllLocale();
-		}
 }

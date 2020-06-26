@@ -153,12 +153,12 @@ public class UserGroup extends BaseDomain implements Serializable {
 		return getUserGroupRepository().findDiscussionMotionActor(motion, userGroupType, level, locale);
 	}
 	
-	public static UserGroup findUserGroup(String houseType, String userGroupType, String deviceType, String ministry, String subDepartment) throws ELSException {
-		return getUserGroupRepository().findUserGroup(houseType, userGroupType, deviceType, ministry, subDepartment);
+	public static UserGroup findUserGroup(String houseType, String userGroupType, String deviceType, String ministry, String subDepartment, String locale) throws ELSException {
+		return getUserGroupRepository().findUserGroup(houseType, userGroupType, deviceType, ministry, subDepartment, locale);
 	}
 	
-	public static List<UserGroup> findActiveUserGroupsOfGivenUser(final String userName,final String houseType,final String deviceType) throws ELSException {
-		return getUserGroupRepository().findActiveUserGroupsOfGivenUser(userName, houseType, deviceType);
+	public static List<UserGroup> findActiveUserGroupsOfGivenUser(final String userName,final String houseType,final String deviceType,final String locale) throws ELSException {
+		return getUserGroupRepository().findActiveUserGroupsOfGivenUser(userName, houseType, deviceType, locale);
 	}
 	
 	public static Reference findResolutionActor(Resolution resolution,String workflowHouseType,

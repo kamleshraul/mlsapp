@@ -819,7 +819,7 @@ public class Session extends BaseDomain implements Serializable {
 	public Map<String, String> getParameters(){
 						
 		//to get the date parameters formatted in current locale
-				if(!this.getLocale().equalsIgnoreCase("en_US")){	
+				if(!this.getLocale().equalsIgnoreCase(ApplicationConstants.STANDARD_LOCALE)){
 					
 					Map<String, String> localParameters = this.parameters;
 					
@@ -838,34 +838,11 @@ public class Session extends BaseDomain implements Serializable {
 									else{
 										 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
 										 dbParameter = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-									}		
-									SimpleDateFormat dateFormat;
-									SimpleDateFormat dbDateFormat;
-									Date date;
+									}									
 									
-									try {
-	
-										if (this.getLocale().equalsIgnoreCase("mr_IN")) {
-											
-											dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale("hi", "IN"));
-											dbDateFormat = new SimpleDateFormat(dbParameter.getValue(), new Locale("hi", "IN"));
-											
-										} else {
-	
-											dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale(this.getLocale()));
-											dbDateFormat = new SimpleDateFormat(dbParameter.getValue(), new Locale(this.getLocale()));
-										}
-	
-										dateFormat.setLenient(true);
-	
-										date = dbDateFormat.parse(entry.getValue());
-										
-										entry.setValue(dateFormat.format(date));
-										
-									} catch (ParseException e) {
-	
-										e.printStackTrace();
-									}
+									Date date = FormaterUtil.formatStringToDate(entry.getValue(), dbParameter.getValue(), this.getLocale());
+									
+									entry.setValue(FormaterUtil.formatDateToString(date, parameter.getValue(), this.getLocale()));
 								}
 								
 							}else if((entry.getKey().endsWith(("Dates")))){
@@ -885,34 +862,11 @@ public class Session extends BaseDomain implements Serializable {
 										else{
 											 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
 											 dbParameter = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-										}		
-										SimpleDateFormat dateFormat;
-										SimpleDateFormat dbDateFormat;
-										Date date;
-										
-										try {
-	
-											if (this.getLocale().equalsIgnoreCase("mr_IN")) {
-												
-												dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale("hi", "IN"));
-												dbDateFormat = new SimpleDateFormat(dbParameter.getValue(), new Locale("hi", "IN"));
-												
-											} else {
-	
-												dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale(this.getLocale()));
-												dbDateFormat = new SimpleDateFormat(dbParameter.getValue(), new Locale(this.getLocale()));
-											}
-	
-											dateFormat.setLenient(true);
-	
-											date = dbDateFormat.parse(dates[i]);
-											
-											dates[i] = dateFormat.format(date);
-											
-										} catch (ParseException e) {
-	
-											e.printStackTrace();
 										}
+										
+										Date date = FormaterUtil.formatStringToDate(dates[i], dbParameter.getValue(), this.getLocale());
+										
+										dates[i] = FormaterUtil.formatDateToString(date, parameter.getValue(), this.getLocale());
 									}
 								}
 								
@@ -929,22 +883,10 @@ public class Session extends BaseDomain implements Serializable {
 								
 							}else{
 								
-								try {
-									
+								try {									
 									Integer i = Integer.parseInt(entry.getValue());
-									
-									NumberFormat nf = NumberFormat.getInstance();
-							        DecimalFormat df = (DecimalFormat) nf;
-							        DecimalFormatSymbols dfs = df.getDecimalFormatSymbols();
 							        
-							        if(this.getLocale().toString().equals("en_US")){
-							            dfs.setZeroDigit('\u0030');
-							        }
-							        else if(this.getLocale().toString().equals("mr_IN")){
-							            dfs.setZeroDigit('\u0966');
-							        }
-							        df.setDecimalFormatSymbols(dfs);
-									entry.setValue(df.format(i));
+									entry.setValue(FormaterUtil.formatDecimalNumber(i, this.getLocale()));
 									
 								} catch (NumberFormatException nfe) {
 									

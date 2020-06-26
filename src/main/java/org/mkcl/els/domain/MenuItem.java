@@ -867,5 +867,9 @@ public class MenuItem extends BaseDomain implements Serializable {
 	public static List<MenuItem> findByParents(String parentsDelimitedBYComma, String locale) {
 		return getMenuItemRepository().findByParents(parentsDelimitedBYComma,locale);
 	}
+	
+	public static MenuItem findByTextKeyAndText(final String textKey, final String text, final String locale) {
+		return getMenuItemRepository().findByTextKeyAndText(textKey, text, locale);
+	}
 
 }

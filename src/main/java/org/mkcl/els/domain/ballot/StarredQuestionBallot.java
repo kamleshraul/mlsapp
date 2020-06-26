@@ -1054,20 +1054,14 @@ class StarredQuestionBallot {
 		Status internalStatus = Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
 		Status ballotStatus = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_BALLOTED, locale);
 		
-		// In findMembersEligibleForBallot/7, check that a minister or presiding officer is not
-		// chosen. Then remove the isActiveOnlyAsMember check in the for loop.
 		List<Member> eligibleMembers = Ballot.getRepository().findMembersEligibleForBallot(session, 
 				deviceType, group, answeringDate, internalStatus, ballotStatus, locale);
 		for(Member m : eligibleMembers) {
-			boolean isActiveOnlyAsMember = StarredQuestionBallot.isActiveOnlyAsMember(m, new Date(), locale);
-			
-			if(isActiveOnlyAsMember) {
-				BallotEntry ballotEntry = StarredQuestionBallot.compute(m, session, deviceType, group,
-						answeringDate, internalStatus, ballotStatus, noOfRounds, locale);
+			BallotEntry ballotEntry = StarredQuestionBallot.compute(m, session, deviceType, group,
+					answeringDate, internalStatus, ballotStatus, noOfRounds, locale);
 
-				if(ballotEntry != null) {
-					entries.add(ballotEntry);
-				}
+			if(ballotEntry != null) {
+				entries.add(ballotEntry);
 			}
 		}
 

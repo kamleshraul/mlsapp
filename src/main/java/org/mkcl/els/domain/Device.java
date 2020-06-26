@@ -31,23 +31,24 @@ public abstract class Device extends BaseDomain {
     			return;
     		}
     		try {
-        		HouseType lowerHouseType = HouseType.findByType(ApplicationConstants.LOWER_HOUSE, ApplicationConstants.DEFAULT_LOCALE);
-            	HouseType upperHouseType = HouseType.findByType(ApplicationConstants.UPPER_HOUSE, ApplicationConstants.DEFAULT_LOCALE);
+    			String locale = ApplicationLocale.findDefaultLocale();
+        		HouseType lowerHouseType = HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale);
+            	HouseType upperHouseType = HouseType.findByType(ApplicationConstants.UPPER_HOUSE, locale);
             	
             	Session latestLowerHouseSession = null;
             	Session latestUpperHouseSession = null;
             	
-            	DeviceType unstarredQuestionDeviceType = DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION, ApplicationConstants.DEFAULT_LOCALE);
-            	DeviceType hdqQuestionDeviceType = DeviceType.findByType(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION, ApplicationConstants.DEFAULT_LOCALE);
-            	DeviceType nongovResolutionDeviceType = DeviceType.findByType(ApplicationConstants.NONOFFICIAL_RESOLUTION, ApplicationConstants.DEFAULT_LOCALE);
-            	DeviceType govResolutionDeviceType = DeviceType.findByType(ApplicationConstants.GOVERNMENT_RESOLUTION, ApplicationConstants.DEFAULT_LOCALE);
-            	DeviceType callingAttentionMotionDeviceType = DeviceType.findByType(ApplicationConstants.MOTION_CALLING_ATTENTION, ApplicationConstants.DEFAULT_LOCALE);
-            	DeviceType standaloneMotionDeviceType = DeviceType.findByType(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE, ApplicationConstants.DEFAULT_LOCALE);
-            	DeviceType budgetaryCutMotionDeviceType = DeviceType.findByType(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY, ApplicationConstants.DEFAULT_LOCALE);
-            	DeviceType supplementaryCutMotionDeviceType = DeviceType.findByType(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY, ApplicationConstants.DEFAULT_LOCALE);
-            	DeviceType adjournmentMotionDeviceType = DeviceType.findByType(ApplicationConstants.ADJOURNMENT_MOTION, ApplicationConstants.DEFAULT_LOCALE);
-            	DeviceType proprietyPointDeviceType = DeviceType.findByType(ApplicationConstants.PROPRIETY_POINT, ApplicationConstants.DEFAULT_LOCALE);
-            	DeviceType specialMentionNoticeDeviceType = DeviceType.findByType(ApplicationConstants.SPECIAL_MENTION_NOTICE, ApplicationConstants.DEFAULT_LOCALE);
+            	DeviceType unstarredQuestionDeviceType = DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION, locale);
+            	DeviceType hdqQuestionDeviceType = DeviceType.findByType(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION, locale);
+            	DeviceType nongovResolutionDeviceType = DeviceType.findByType(ApplicationConstants.NONOFFICIAL_RESOLUTION, locale);
+            	DeviceType govResolutionDeviceType = DeviceType.findByType(ApplicationConstants.GOVERNMENT_RESOLUTION, locale);
+            	DeviceType callingAttentionMotionDeviceType = DeviceType.findByType(ApplicationConstants.MOTION_CALLING_ATTENTION, locale);
+            	DeviceType standaloneMotionDeviceType = DeviceType.findByType(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE, locale);
+            	DeviceType budgetaryCutMotionDeviceType = DeviceType.findByType(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY, locale);
+            	DeviceType supplementaryCutMotionDeviceType = DeviceType.findByType(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY, locale);
+            	DeviceType adjournmentMotionDeviceType = DeviceType.findByType(ApplicationConstants.ADJOURNMENT_MOTION, locale);
+            	DeviceType proprietyPointDeviceType = DeviceType.findByType(ApplicationConstants.PROPRIETY_POINT, locale);
+            	DeviceType specialMentionNoticeDeviceType = DeviceType.findByType(ApplicationConstants.SPECIAL_MENTION_NOTICE, locale);
             	
             	Integer number = null;
             	
@@ -55,7 +56,7 @@ public abstract class Device extends BaseDomain {
             	
             	if (Question.getUnStarredCurrentNumberLowerHouse() == 0) {
             		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, unstarredQuestionDeviceType);
-            		number = Question.assignQuestionNo(lowerHouseType, latestLowerHouseSession, unstarredQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		number = Question.assignQuestionNo(lowerHouseType, latestLowerHouseSession, unstarredQuestionDeviceType, locale);
         			Question.updateStarredCurrentNumberLowerHouse(number);
         			Question.updateUnStarredCurrentNumberLowerHouse(number);
         			Question.updateShortnoticeCurrentNumberLowerHouse(number);
@@ -64,7 +65,7 @@ public abstract class Device extends BaseDomain {
             	/** update upperhouse static current number for starred, unstarred and short notice questions **/
             	if (Question.getStarredCurrentNumberUpperHouse() == 0) {
             		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, unstarredQuestionDeviceType);
-            		number = Question.assignQuestionNo(upperHouseType, latestUpperHouseSession, unstarredQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		number = Question.assignQuestionNo(upperHouseType, latestUpperHouseSession, unstarredQuestionDeviceType, locale);
         			Question.updateStarredCurrentNumberUpperHouse(number);
         			Question.updateUnStarredCurrentNumberUpperHouse(number);
         			Question.updateShortnoticeCurrentNumberUpperHouse(number);
@@ -73,14 +74,14 @@ public abstract class Device extends BaseDomain {
             	/** update lowerhouse static current number for half hour discussion from questions **/
             	if (Question.getHDQCurrentNumberLowerHouse() == 0) {
             		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, hdqQuestionDeviceType);
-            		number = Question.assignQuestionNo(lowerHouseType, latestLowerHouseSession, hdqQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		number = Question.assignQuestionNo(lowerHouseType, latestLowerHouseSession, hdqQuestionDeviceType, locale);
         			Question.updateHDQCurrentNumberLowerHouse(number);
         		}
             	
             	/** update upperhouse static current number for half hour discussion from questions **/
             	if (Question.getHDQCurrentNumberUpperHouse() == 0) {
             		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, hdqQuestionDeviceType);
-            		number = Question.assignQuestionNo(upperHouseType, latestUpperHouseSession, hdqQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		number = Question.assignQuestionNo(upperHouseType, latestUpperHouseSession, hdqQuestionDeviceType, locale);
         			Question.updateHDQCurrentNumberUpperHouse(number);
         		}
             	
@@ -88,77 +89,77 @@ public abstract class Device extends BaseDomain {
             	
             	if (Resolution.getResolutionNonGovCurrentNumberLowerHouse() == 0) {
             		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, nongovResolutionDeviceType);
-            		number = Resolution.assignResolutionNo(lowerHouseType, latestLowerHouseSession, nongovResolutionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		number = Resolution.assignResolutionNo(lowerHouseType, latestLowerHouseSession, nongovResolutionDeviceType, locale);
             		Resolution.updateResolutionNonGovCurrentNumberLowerHouse(number);
         		}
             	
             	/** update upperhouse static current number for non government resolutions **/
             	if (Resolution.getResolutionNonGovCurrentNumberUpperHouse() == 0) {
             		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, nongovResolutionDeviceType);
-            		number = Resolution.assignResolutionNo(upperHouseType, latestUpperHouseSession, nongovResolutionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		number = Resolution.assignResolutionNo(upperHouseType, latestUpperHouseSession, nongovResolutionDeviceType, locale);
             		Resolution.updateResolutionNonGovCurrentNumberUpperHouse(number);
         		}
             	
             	/** update lowerhouse static current number for government resolutions **/
             	if (Resolution.getResolutionGovCurrentNumberLowerHouse() == 0) {
             		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, govResolutionDeviceType);
-            		number = Resolution.assignResolutionNo(lowerHouseType, latestLowerHouseSession, govResolutionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		number = Resolution.assignResolutionNo(lowerHouseType, latestLowerHouseSession, govResolutionDeviceType, locale);
             		Resolution.updateResolutionGovCurrentNumberLowerHouse(number);
         		}
             	
             	/** update upperhouse static current number for government resolutions **/
             	if (Resolution.getResolutionGovCurrentNumberUpperHouse() == 0) {
             		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, govResolutionDeviceType);
-            		number = Resolution.assignResolutionNo(upperHouseType, latestUpperHouseSession, govResolutionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		number = Resolution.assignResolutionNo(upperHouseType, latestUpperHouseSession, govResolutionDeviceType, locale);
             		Resolution.updateResolutionGovCurrentNumberUpperHouse(number);
         		}
             	
             	/** update lowerhouse static current number for calling attention motions **/
             	if (Motion.getCallingAttentionCurrentNumberLowerHouse() == 0) {
             		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, callingAttentionMotionDeviceType);
-            		number = Motion.assignMotionNo(lowerHouseType, latestLowerHouseSession, callingAttentionMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		number = Motion.assignMotionNo(lowerHouseType, latestLowerHouseSession, callingAttentionMotionDeviceType, locale);
             		Motion.updateCallingAttentionCurrentNumberLowerHouse(number);
         		}
             	
             	/** update upperhouse static current number for calling attention motions **/
             	if (Motion.getCallingAttentionCurrentNumberUpperHouse() == 0) {
             		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, callingAttentionMotionDeviceType);
-            		number = Motion.assignMotionNo(upperHouseType, latestUpperHouseSession, callingAttentionMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		number = Motion.assignMotionNo(upperHouseType, latestUpperHouseSession, callingAttentionMotionDeviceType, locale);
             		Motion.updateCallingAttentionCurrentNumberUpperHouse(number);
         		}
             	
             	/** update lowerhouse static current number for standalone motions **/
             	if (StandaloneMotion.getHDSCurrentNumberLowerHouse() == 0) {
             		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, standaloneMotionDeviceType);
-            		number = StandaloneMotion.assignStandaloneMotionNo(lowerHouseType, latestLowerHouseSession, standaloneMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		number = StandaloneMotion.assignStandaloneMotionNo(lowerHouseType, latestLowerHouseSession, standaloneMotionDeviceType, locale);
             		StandaloneMotion.updateHDSCurrentNumberLowerHouse(number);
         		}
             	
             	/** update upperhouse static current number for standalone motions **/
             	if (StandaloneMotion.getHDSCurrentNumberUpperHouse() == 0) {
             		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, standaloneMotionDeviceType);
-            		number = StandaloneMotion.assignStandaloneMotionNo(upperHouseType, latestUpperHouseSession, standaloneMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		number = StandaloneMotion.assignStandaloneMotionNo(upperHouseType, latestUpperHouseSession, standaloneMotionDeviceType, locale);
             		StandaloneMotion.updateHDSCurrentNumberUpperHouse(number);
         		}
             	
 //            	/** update lowerhouse static current number for budgetary cutmotions **/
 //            	if (CutMotion.getBudgetaryCutMotionCurrentNumberLowerHouse() == 0) {
 //            		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, budgetaryCutMotionDeviceType);
-//            		number = CutMotion.assignCutMotionNo(lowerHouseType, latestLowerHouseSession, budgetaryCutMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+//            		number = CutMotion.assignCutMotionNo(lowerHouseType, latestLowerHouseSession, budgetaryCutMotionDeviceType, locale);
 //            		CutMotion.updateBudgetaryCutMotionCurrentNumberLowerHouse(number);
 //        		}
 //            	
 //            	/** update upperhouse static current number for budgetary cutmotions **/
 //            	if (CutMotion.getBudgetaryCutMotionCurrentNumberUpperHouse() == 0) {
 //            		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, budgetaryCutMotionDeviceType);
-//            		number = CutMotion.assignCutMotionNo(upperHouseType, latestUpperHouseSession, budgetaryCutMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+//            		number = CutMotion.assignCutMotionNo(upperHouseType, latestUpperHouseSession, budgetaryCutMotionDeviceType, locale);
 //            		CutMotion.updateBudgetaryCutMotionCurrentNumberUpperHouse(number);
 //        		}
             	
             	/** update lowerhouse static current number for supplementary and budgetary cutmotions **/
             	if (CutMotion.getSupplementaryCutMotionCurrentNumberLowerHouse() == 0) {
             		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, supplementaryCutMotionDeviceType);
-            		number = CutMotion.assignCutMotionNo(lowerHouseType, latestLowerHouseSession, supplementaryCutMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		number = CutMotion.assignCutMotionNo(lowerHouseType, latestLowerHouseSession, supplementaryCutMotionDeviceType, locale);
             		CutMotion.updateSupplementaryCutMotionCurrentNumberLowerHouse(number);
             		CutMotion.updateBudgetaryCutMotionCurrentNumberLowerHouse(number);
         		}
@@ -166,7 +167,7 @@ public abstract class Device extends BaseDomain {
             	/** update upperhouse static current number for supplementary and budgetary cutmotions **/
             	if (CutMotion.getSupplementaryCutMotionCurrentNumberUpperHouse() == 0) {
             		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, supplementaryCutMotionDeviceType);
-            		number = CutMotion.assignCutMotionNo(upperHouseType, latestUpperHouseSession, supplementaryCutMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		number = CutMotion.assignCutMotionNo(upperHouseType, latestUpperHouseSession, supplementaryCutMotionDeviceType, locale);
             		CutMotion.updateSupplementaryCutMotionCurrentNumberUpperHouse(number);
             		CutMotion.updateBudgetaryCutMotionCurrentNumberUpperHouse(number);
         		}
@@ -175,7 +176,7 @@ public abstract class Device extends BaseDomain {
             	if (AdjournmentMotion.getCurrentNumberLowerHouse() == 0) {
             		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, adjournmentMotionDeviceType);
             		Date defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(latestLowerHouseSession, true);
-            		number = AdjournmentMotion.assignMotionNo(lowerHouseType, defaultAdjourningDate, ApplicationConstants.DEFAULT_LOCALE);
+            		number = AdjournmentMotion.assignMotionNo(lowerHouseType, defaultAdjourningDate, locale);
 					AdjournmentMotion.updateCurrentNumberLowerHouse(number);
 					AdjournmentMotion.updateCurrentAdjourningDateLowerHouse(defaultAdjourningDate);
         		}
@@ -184,7 +185,7 @@ public abstract class Device extends BaseDomain {
             	if (AdjournmentMotion.getCurrentNumberUpperHouse() == 0) {
             		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, adjournmentMotionDeviceType);
             		Date defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(latestUpperHouseSession, true);
-            		number = AdjournmentMotion.assignMotionNo(upperHouseType, defaultAdjourningDate, ApplicationConstants.DEFAULT_LOCALE);
+            		number = AdjournmentMotion.assignMotionNo(upperHouseType, defaultAdjourningDate, locale);
 					AdjournmentMotion.updateCurrentNumberUpperHouse(number);
 					AdjournmentMotion.updateCurrentAdjourningDateUpperHouse(defaultAdjourningDate);
         		}
@@ -192,14 +193,14 @@ public abstract class Device extends BaseDomain {
             	/** update lowerhouse static current number for propriety points **/
             	if (ProprietyPoint.getCurrentNumberLowerHouse() == 0) {
             		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, proprietyPointDeviceType);
-            		number = ProprietyPoint.assignNumber(lowerHouseType, latestLowerHouseSession, proprietyPointDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		number = ProprietyPoint.assignNumber(lowerHouseType, latestLowerHouseSession, proprietyPointDeviceType, locale);
 					ProprietyPoint.updateCurrentNumberLowerHouse(number);
         		}
             	
             	/** update upperhouse static current number for propriety points **/
             	if (ProprietyPoint.getCurrentNumberUpperHouse() == 0) {
             		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, proprietyPointDeviceType);
-            		number = ProprietyPoint.assignNumber(upperHouseType, latestUpperHouseSession, proprietyPointDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		number = ProprietyPoint.assignNumber(upperHouseType, latestUpperHouseSession, proprietyPointDeviceType, locale);
 					ProprietyPoint.updateCurrentNumberUpperHouse(number);
         		}
             	
@@ -207,7 +208,7 @@ public abstract class Device extends BaseDomain {
             	if (SpecialMentionNotice.getCurrentNumberUpperHouse() == 0) {
             		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, specialMentionNoticeDeviceType);
             		Date defaultSpecialMentionNoticeDate = SpecialMentionNotice.findDefaultSpecialMentionNoticeDateForSession(latestUpperHouseSession, true);
-            		number = SpecialMentionNotice.assignMotionNo(upperHouseType, defaultSpecialMentionNoticeDate, ApplicationConstants.DEFAULT_LOCALE);
+            		number = SpecialMentionNotice.assignMotionNo(upperHouseType, defaultSpecialMentionNoticeDate, locale);
             		SpecialMentionNotice.updateCurrentNumberUpperHouse(number);
             		SpecialMentionNotice.updateCurrentSpecialMentionNoticeDateUpperHouse(defaultSpecialMentionNoticeDate);
         		}
@@ -222,9 +223,18 @@ public abstract class Device extends BaseDomain {
 	
 	public static void startDeviceWorkflow(final String deviceName, final Long deviceId, final Status status, final UserGroupType userGroupType, final Integer level, final String workflowHouseType, final Boolean isFlowOnRecomStatusAfterFinalDecision, String locale) throws ELSException {
 		
+		Device.startDeviceWorkflow(deviceName, deviceId, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, "", locale);
+	}
+	
+	public static void startDeviceWorkflow(final String deviceName, final Long deviceId, final Status status, final UserGroupType userGroupType, final Integer level, final String workflowHouseType, final Boolean isFlowOnRecomStatusAfterFinalDecision, final String assignee, String locale) throws ELSException {
+		
 		if(deviceName.split("_")[0].toUpperCase().equals("QUESTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
 			Question question = Question.findById(Question.class, deviceId);
-			question.startWorkflow(question, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
+			if(assignee!=null && !assignee.isEmpty()) {
+				question.startWorkflowAtGivenAssignee(question, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, assignee, locale);
+			} else {
+				question.startWorkflow(question, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
+			}	
 		
 		} else if(deviceName.split("_")[0].toUpperCase().equals("MOTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
 			Motion motion = Motion.findById(Motion.class, deviceId);
@@ -258,7 +268,7 @@ public abstract class Device extends BaseDomain {
 			RulesSuspensionMotion rulesSuspensionMotion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, deviceId);
 			rulesSuspensionMotion.startWorkflow(rulesSuspensionMotion, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
 		
-		}	
+		}
 	}
 	
 	public static void endDeviceWorkflow(String deviceName, Long deviceId, String workflowHouseType, String locale) throws ELSException {

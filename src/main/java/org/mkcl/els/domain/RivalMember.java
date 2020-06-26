@@ -10,9 +10,6 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
-import java.text.NumberFormat;
-import java.util.Locale;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -20,6 +17,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.mkcl.els.common.util.FormaterUtil;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -82,15 +80,10 @@ public class RivalMember extends BaseDomain implements Serializable {
 
     // -------------------------------Domain_Methods--------------------------------------
     public String formatVotesReceived(){
-        if(this.getLocale().equals("mr_IN")){
-            if(this.votesReceived!=null){
-            return NumberFormat.getInstance(new Locale("hi","IN")).format(this.votesReceived);
-            }else{
-                return "";
-            }
-        }
-        else {
-            return String.valueOf(this.votesReceived);
+    	if(this.votesReceived!=null){
+            return FormaterUtil.formatNumberNoGrouping(this.votesReceived, this.getLocale());
+        } else{
+        	return "";
         }
     }
     // ------------------------------------------Getters/Setters-----------------------------------
