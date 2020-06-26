@@ -1526,6 +1526,8 @@
 	</div>
 	</c:if>
 	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
+	<input type="hidden" name="originalSubDepartment" id="originalSubDepartment" value="${originalSubDepartment}">
+	<input type="hidden" name="originalAnsweringDate" id="originalAnsweringDate" value="${originalAnsweringDate}">
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>

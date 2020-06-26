@@ -58,7 +58,7 @@
 	/**** View Details ****/
 	function viewDetails(id){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-		$.get('motion/'+id+'/details',function(data){
+		$.get('question/'+id+'/details',function(data){
 			 $.unblockUI();				
 			 $.fancybox.open(data, {autoSize: true, width: 800, height:600});
 		},'html').fail(function(){
