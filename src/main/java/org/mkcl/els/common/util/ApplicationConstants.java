@@ -9,6 +9,9 @@
  */
 package org.mkcl.els.common.util;
 
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
+
 // TODO: Auto-generated Javadoc
 /**
  * The Class ApplicationConstants.
@@ -18,6 +21,10 @@ package org.mkcl.els.common.util;
  * @since v1.0.0
  */
 public class ApplicationConstants {
+	
+	public static final String SYSTEM_PROPERTIES_FILENAME = "system"; //base-name (or location) of system.properties file on class-path (located in src/main/resources)
+	
+	public static final ResourceBundle systemPropertiesBundle = PropertyResourceBundle.getBundle(SYSTEM_PROPERTIES_FILENAME);
 	
 	/**************************************************************************************************************************/
 	/************************************************MIS AND MISCELLANEOUS BEGINS********************************************************/
@@ -33,15 +40,14 @@ public class ApplicationConstants {
 
 	/** The Constant DESC. */
 	public static final String DESC = "desc";
-
-	/** The Constant ALL_LOCALE. */
-	public static final String ALL_LOCALE = "all";
-
+	
 	/** The Constant DEFAULT_LOCALE. */
-	public static final String DEFAULT_LOCALE = "mr_IN";
+	public static final String DEFAULT_LOCALE = systemPropertiesBundle.getString("locale.default_value");
 	
 	/** System locale **/
-	public static final String SYSTEM_LOCALE = "en_US";
+	public static final String STANDARD_LOCALE = "en_US";
+	
+	public static final String STANDARD_LOCALE_INDIA = "hi_IN";
 
 	/** The Constant LOWER_HOUSE. */
 	public static final String LOWER_HOUSE="lowerhouse";
@@ -54,12 +60,6 @@ public class ApplicationConstants {
 
 	/** The Constant DEFAULT_HOUSE. */
 	public static final String DEFAULT_HOUSE="defaulthouse";
-
-	/** The Constant en_US_INFONOTFOUND. */
-	public static final String en_US_INFONOTFOUND="Information Not Available For";	
-
-	/** The Constant en_US_INFOFOUND. */
-	public static final String en_US_INFOFOUND="Information Available For";
 
 	/** The Constant SERVER_DATEFORMAT. */
 	public static final String SERVER_DATEFORMAT = "dd/MM/yyyy";
@@ -76,12 +76,8 @@ public class ApplicationConstants {
 	public static final String SERVER_DATEFORMAT_DISPLAY_2 = "dd month, yyyy";
 	
 	public static final String SERVER_DATEFORMAT_DISPLAY_3 = "d-M-yyyy";
-
-	/** The Constant en_US_LOWERHOUSE_DEAFULTROLE. */
-	public static final String en_US_LOWERHOUSE_DEAFULTROLE="Member";
-
-	/** The Constant en_US_UPPERHOUSE_DEAFULTROLE. */
-	public static final String en_US_UPPERHOUSE_DEAFULTROLE="Member";	
+	
+	public static final String SERVER_DATEFORMAT_DDMM = "ddMM";	
 
 	/** The Constant DB_DATEFORMAT. */
 	public static final String DB_DATEFORMAT="yyyy-MM-dd";
@@ -93,23 +89,17 @@ public class ApplicationConstants {
 	/** The Constant REPORT_DATEFORMAT. */
 	public static final String REPORT_DATEFORMAT="dd-MM-yyyy";
 
-	/** The Constant en_US_DAUGHTER. */
+	/** The Constant DAUGHTER. */
 	public static final String DAUGHTER="Daughter";
 
-	/** The Constant en_US_SON. */
+	/** The Constant SON. */
 	public static final String SON="Son";	
 
-	/** The Constant en_US_WIFE. */
+	/** The Constant WIFE. */
 	public static final String WIFE="Wife";
 
-	/** The Constant en_US_HUSBAND. */
-	public static final String HUSBAND="Husband";	
-
-	/** The Constant DEFAULT_FROM_DATE_LOCALE_en_US. */
-	public static final String DEFAULT_FROM_DATE_LOCALE_en_US="01/12/1950";
-
-	/** The Constant DEFAULT_TO_DATE_LOCALE_en_US. */
-	public static final String DEFAULT_TO_DATE_LOCALE_en_US="31/12/1950";
+	/** The Constant HUSBAND. */
+	public static final String HUSBAND="Husband";
 
 	/** The Constant LOWERHOUSEGRID. */
 	public static final String LOWERHOUSEGRID="MEMBER_LOWERHOUSEGRID";
@@ -122,6 +112,8 @@ public class ApplicationConstants {
 	public static final String DEFAULT_PASSWORD = "Mls@4321";
 	
 	public static final String DEFAULT_PASSWORD_LENGTH = "8";
+	
+	public static final String DEFAULT_HIGH_SECURITY_PASSWORD_INITIAL = "eGov*";
 	//====================================================
 	
 	//related to question module
@@ -2663,6 +2655,8 @@ public class ApplicationConstants {
 	
 	public static final String STATUS_FINAL_REJECTION="_final_rejection";
 	
+	public static final String STATUS_LAPSED="_lapsed";
+	
 	public static final String QUESTIONSUPPLEMENTARY_WORKFLOW = "questionsupplementary_workflow";
 	
 	public static final String QUESTION_PROCESSED_SUPPLEMENTARYCLUBBING = "question_processed_supplementaryClubbing";
@@ -2934,5 +2928,9 @@ public class ApplicationConstants {
 	public static final String ADJOURNMENTMOTION_OPTIONAL_FIELDS_IN_VALIDATION = "ADJOURNMENTMOTION_OPTIONAL_FIELDS_IN_VALIDATION";
 	
 	public static final String DEVICETYPES_HAVING_GROUPS = "DEVICETYPES_HAVING_GROUPS";
+	
+	public static final String END_FLAG_PENDING = "continue";
+	
+	public static final String END_FLAG_REACHED = "end";
 	
 }

@@ -12,6 +12,8 @@ package org.mkcl.els.common.util;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.Format;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -40,36 +42,42 @@ import com.ibm.icu.util.IndianCalendar;
  */
 public class FormaterUtil {
 
-    private static final String JAN="जानेवारी";
+    private static final String JAN_mr_IN="जानेवारी";
 
-    private static final String FEB="फेब्रुवारी";
+    private static final String FEB_mr_IN="फेब्रुवारी";
 
-    private static final String MAR="मार्च";
+    private static final String MAR_mr_IN="मार्च";
 
-    private static final String APR="एप्रिल";
+    private static final String APR_mr_IN="एप्रिल";
 
-    private static final String MAY="मे";
+    private static final String MAY_mr_IN="मे";
 
-    private static final String JUNE="जून";
+    private static final String JUNE_mr_IN="जून";
 
-    private static final String JULY="जुलै";
+    private static final String JULY_mr_IN="जुलै";
 
-    private static final String AUG="ऑगस्ट";
+    private static final String AUG_mr_IN="ऑगस्ट";
 
-    private static final String SEP="सप्टेंबर";
+    private static final String SEP_mr_IN="सप्टेंबर";
 
-    private static final String OCT="ऑक्टोबर";
+    private static final String OCT_mr_IN="ऑक्टोबर";
 
-    private static final String NOV="नोव्हेंबर";
+    private static final String NOV_mr_IN="नोव्हेंबर";
 
-    private static final String DEC="डिसेंबर";
+    private static final String DEC_mr_IN="डिसेंबर";
 
-    private static final String TUE="मंगळवार";
+    private static final String TUE_mr_IN="मंगळवार";
     
-    private static final String SHAKE_FORMAT_LABEL="शके";
+    private static final String SHAKE_FORMAT_LABEL_mr_IN="शके";
+    
+    private static final String SHAKE_FORMAT_LABEL_hi_IN="शक";
+    
+    private static final String SHAKE_FORMAT_LABEL_en_US="Shakae";
     
     /*** Indian month names ***/
     private static Map<Integer, String> indianMonths_mr_IN = new HashMap<Integer, String>();
+    
+    private static Map<Integer, String> indianMonths_hi_IN = new HashMap<Integer, String>();
     
     private static Map<Integer, String> indianMonths_en_US = new HashMap<Integer, String>();
     
@@ -81,7 +89,7 @@ public class FormaterUtil {
      */
     public static NumberFormat getNumberFormatterNoGrouping(final String locale) {
         NumberFormat formatWithoutGrouping = null;
-        if(locale.equals("mr_IN") || locale.equals("hi_IN")) {
+        if(locale.equals("mr_IN") || locale.equals(ApplicationConstants.STANDARD_LOCALE_INDIA)) {
             formatWithoutGrouping = NumberFormat.getInstance(new Locale("hi", "IN"));
             formatWithoutGrouping.setGroupingUsed(false);
         }else{
@@ -99,7 +107,7 @@ public class FormaterUtil {
      */
     public static NumberFormat getNumberFormatterGrouping(final String locale) {
         NumberFormat formatWithGrouping = null;
-        if(locale.equals("mr_IN") || locale.equals("hi_IN")){
+        if(locale.equals("mr_IN") || locale.equals(ApplicationConstants.STANDARD_LOCALE_INDIA)){
             formatWithGrouping = NumberFormat.getInstance(new Locale("hi", "IN"));
             formatWithGrouping.setGroupingUsed(true);
         }else{
@@ -109,9 +117,9 @@ public class FormaterUtil {
         return formatWithGrouping;
     }
     
-    public static NumberFormat getDeciamlFormatterWithNoGrouping(final int maxDecimalDigits,final String locale) {
+    public static NumberFormat getDecimalFormatterWithNoGrouping(final int maxDecimalDigits,final String locale) {
         NumberFormat formatWithGrouping = null;
-        if(locale.equals("mr_IN") || locale.equals("hi_IN")){
+        if(locale.equals("mr_IN") || locale.equals(ApplicationConstants.STANDARD_LOCALE_INDIA)){
             formatWithGrouping = NumberFormat.getInstance(new Locale("hi", "IN"));
             formatWithGrouping.setGroupingUsed(false);
         }else{
@@ -122,9 +130,9 @@ public class FormaterUtil {
         return formatWithGrouping;
     }
     
-    public static NumberFormat getDeciamlFormatterWithGrouping(final int maxDecimalDigits,final String locale) {
+    public static NumberFormat getDecimalFormatterWithGrouping(final int maxDecimalDigits,final String locale) {
         NumberFormat formatWithGrouping = null;
-        if(locale.equals("mr_IN") || locale.equals("hi_IN")){
+        if(locale.equals("mr_IN") || locale.equals(ApplicationConstants.STANDARD_LOCALE_INDIA)){
             formatWithGrouping = NumberFormat.getInstance(new Locale("hi", "IN"));
             formatWithGrouping.setGroupingUsed(true);
         }else{
@@ -143,7 +151,7 @@ public class FormaterUtil {
      */
     public static SimpleDateFormat getDateFormatter(final String locale) {
         SimpleDateFormat dateFormatter = null;
-        if(locale.equals("mr_IN") || locale.equals("hi_IN")){
+        if(locale.equals("mr_IN") || locale.equals(ApplicationConstants.STANDARD_LOCALE_INDIA)){
             dateFormatter = new SimpleDateFormat(ApplicationConstants.SERVER_DATEFORMAT,
             		new Locale("hi", "IN"));
         }else{
@@ -162,7 +170,7 @@ public class FormaterUtil {
      */
     public static SimpleDateFormat getDateFormatter(final String dateFormat, final String locale) {
         SimpleDateFormat dateFormatter = null;
-        if(locale.equals("mr_IN") || locale.equals("hi_IN")){
+        if(locale.equals("mr_IN") || locale.equals(ApplicationConstants.STANDARD_LOCALE_INDIA)){
             dateFormatter = new SimpleDateFormat(dateFormat,new Locale("hi", "IN"));
         }else{
             dateFormatter = new SimpleDateFormat(dateFormat,new Locale("en", "US"));
@@ -170,36 +178,36 @@ public class FormaterUtil {
         return dateFormatter;
     }
 
-    public static String formatMonthsMarathi(final String date, final String locale) {
+    public static String formatMonthsForLocaleLanguage(final String date, final String locale) {
         if(locale.equals("mr_IN")) {
             String parts[]=date.split(" ");
             if(parts.length>0){
                 String month=parts[1].trim();
                 String newDate="";
                 if(month.equals("जनवरी")) {
-                    newDate=date.replace(month,JAN);
+                    newDate=date.replace(month,JAN_mr_IN);
                 } else if(month.equals("फ़रवरी")) {
-                    newDate=date.replace(month,FEB);
+                    newDate=date.replace(month,FEB_mr_IN);
                 } else if(month.equals("मार्च")) {
-                    newDate=date.replace(month,MAR);
+                    newDate=date.replace(month,MAR_mr_IN);
                 } else if(month.equals("अप्रैल")) {
-                    newDate=date.replace(month,APR);
+                    newDate=date.replace(month,APR_mr_IN);
                 } else if(month.equals("मई")) {
-                    newDate=date.replace(month,MAY);
+                    newDate=date.replace(month,MAY_mr_IN);
                 } else if(month.equals("जून")) {
-                    newDate=date.replace(month,JUNE);
+                    newDate=date.replace(month,JUNE_mr_IN);
                 } else if(month.equals("जुलाई")) {
-                    newDate=date.replace(month,JULY);
+                    newDate=date.replace(month,JULY_mr_IN);
                 } else if(month.equals("अगस्त")) {
-                    newDate=date.replace(month,AUG);
+                    newDate=date.replace(month,AUG_mr_IN);
                 } else if(month.equals("सितंबर")) {
-                    newDate=date.replace(month,SEP);
+                    newDate=date.replace(month,SEP_mr_IN);
                 } else if(month.equals("अक्‍तूबर")) {
-                    newDate=date.replace(month,OCT);
+                    newDate=date.replace(month,OCT_mr_IN);
                 } else if(month.equals("नवंबर")) {
-                    newDate=date.replace(month,NOV);
+                    newDate=date.replace(month,NOV_mr_IN);
                 } else if(month.equals("दिसंबर")) {
-                    newDate=date.replace(month,DEC);
+                    newDate=date.replace(month,DEC_mr_IN);
                 }else {
                     newDate=date;
                 }
@@ -212,46 +220,48 @@ public class FormaterUtil {
         }
     }
 
-    public static String getMonthInMarathi(final String month, final String locale) {
+    public static String getMonthInLocaleLanguage(final String month, final String locale) {
         String formattedMonth="";
         if(locale.equals("mr_IN")) {
             if(month.equals("जनवरी")) {
-                formattedMonth=JAN;
+                formattedMonth=JAN_mr_IN;
             } else if(month.equals("फ़रवरी") || month.equals("फरवरी")) {
-                formattedMonth=FEB;;
+                formattedMonth=FEB_mr_IN;;
             } else if(month.equals("मार्च")) {
-                formattedMonth=MAR;;
+                formattedMonth=MAR_mr_IN;;
             } else if(month.equals("अप्रैल")) {
-                formattedMonth=APR;;
+                formattedMonth=APR_mr_IN;;
             } else if(month.equals("मई")) {
-                formattedMonth=MAY;;
+                formattedMonth=MAY_mr_IN;;
             } else if(month.equals("जून")) {
-                formattedMonth=JUNE;;
+                formattedMonth=JUNE_mr_IN;;
             } else if(month.equals("जुलाई")) {
-                formattedMonth=JULY;;
+                formattedMonth=JULY_mr_IN;;
             } else if(month.equals("अगस्त")) {
-                formattedMonth=AUG;;
+                formattedMonth=AUG_mr_IN;;
             } else if(month.equals("सितंबर")) {
-                formattedMonth=SEP;;
+                formattedMonth=SEP_mr_IN;;
             } else if(month.equals("अक्‍तूबर")) {
-                formattedMonth=OCT;;
+                formattedMonth=OCT_mr_IN;;
             } else if(month.equals("नवंबर")) {
-                formattedMonth=NOV;;
+                formattedMonth=NOV_mr_IN;;
             } else if(month.equals("दिसंबर")) {
-                formattedMonth=DEC;;
+                formattedMonth=DEC_mr_IN;;
+            } else {
+            	formattedMonth = month;
             }
         }else{
-            return month;
+        	formattedMonth = month;
         }
         return formattedMonth;
     }
 
-    public static String getDayInMarathi(final String day, final String locale) {
+    public static String getDayInLocaleLanguage(final String day, final String locale) {
         String formattedDay="";
         if(locale.equals("mr_IN")) {
             if(day.equals("Tuesday") || day.equals("Tue") || day.contains("Tue")
             		|| day.equals("मंगलवार") || day.equals("मंगल") || day.contains("मंगल")) {
-                formattedDay = TUE;
+                formattedDay = TUE_mr_IN;
             }else {
                 return day;
             }
@@ -261,35 +271,35 @@ public class FormaterUtil {
         return formattedDay;
     }
     
-    public static String formatMonthInMarathiDate(final String date, final String locale) {
+    public static String formatMonthInLocaleLanguageDate(final String date, final String locale) {
         if(locale.equals("mr_IN")) {
         	if(date!=null) {
         		if(!date.isEmpty()) {
         			String newDate="";
                     if(date.contains("जनवरी")) {
-                        newDate=date.replace("जनवरी",JAN);
+                        newDate=date.replace("जनवरी",JAN_mr_IN);
                     } else if(date.contains("फ़रवरी")) {
-                        newDate=date.replace("फ़रवरी",FEB);
+                        newDate=date.replace("फ़रवरी",FEB_mr_IN);
                     } else if(date.contains("मार्च")) {
-                        newDate=date.replace("मार्च",MAR);
+                        newDate=date.replace("मार्च",MAR_mr_IN);
                     } else if(date.contains("अप्रैल")) {
-                        newDate=date.replace("अप्रैल",APR);
+                        newDate=date.replace("अप्रैल",APR_mr_IN);
                     } else if(date.contains("मई")) {
-                        newDate=date.replace("मई",MAY);
+                        newDate=date.replace("मई",MAY_mr_IN);
                     } else if(date.contains("जून")) {
-                        newDate=date.replace("जून",JUNE);
+                        newDate=date.replace("जून",JUNE_mr_IN);
                     } else if(date.contains("जुलाई")) {
-                        newDate=date.replace("जुलाई",JULY);
+                        newDate=date.replace("जुलाई",JULY_mr_IN);
                     } else if(date.contains("अगस्त")) {
-                        newDate=date.replace("अगस्त",AUG);
+                        newDate=date.replace("अगस्त",AUG_mr_IN);
                     } else if(date.contains("सितंबर")) {
-                        newDate=date.replace("सितंबर",SEP);
+                        newDate=date.replace("सितंबर",SEP_mr_IN);
                     } else if(date.contains("अक्‍तूबर")) {
-                        newDate=date.replace("अक्‍तूबर",OCT);
+                        newDate=date.replace("अक्‍तूबर",OCT_mr_IN);
                     } else if(date.contains("नवंबर")) {
-                        newDate=date.replace("नवंबर",NOV);
+                        newDate=date.replace("नवंबर",NOV_mr_IN);
                     } else if(date.contains("दिसंबर")) {
-                        newDate=date.replace("दिसंबर",DEC);
+                        newDate=date.replace("दिसंबर",DEC_mr_IN);
                     }else {
                         newDate=date;
                     }
@@ -305,33 +315,33 @@ public class FormaterUtil {
         }
     }
     
-    public static String getMonthInMarathi(final Integer month, final String locale) {
+    public static String getMonthInLocaleLanguage(final Integer month, final String locale) {
         String formattedMonth="";
         if(locale.equals("mr_IN")) {
         	 if(month == 0) {
-                 formattedMonth=JAN;
+                 formattedMonth=JAN_mr_IN;
              } else if(month == 1) {
-                 formattedMonth=FEB;
+                 formattedMonth=FEB_mr_IN;
              } else if(month == 2) {
-                 formattedMonth=MAR;
+                 formattedMonth=MAR_mr_IN;
              } else if(month == 3) {
-                 formattedMonth=APR;
+                 formattedMonth=APR_mr_IN;
              } else if(month == 4) {
-                 formattedMonth=MAY;
+                 formattedMonth=MAY_mr_IN;
              } else if(month == 5) {
-                 formattedMonth=JUNE;
+                 formattedMonth=JUNE_mr_IN;
              } else if(month == 6) {
-                 formattedMonth=JULY;
+                 formattedMonth=JULY_mr_IN;
              } else if(month == 7) {
-                 formattedMonth=AUG;
+                 formattedMonth=AUG_mr_IN;
              } else if(month == 8) {
-                 formattedMonth=SEP;
+                 formattedMonth=SEP_mr_IN;
              } else if(month == 9) {
-                 formattedMonth=OCT;
+                 formattedMonth=OCT_mr_IN;
              } else if(month == 10) {
-                 formattedMonth=NOV;
+                 formattedMonth=NOV_mr_IN;
              } else if(month == 11) {
-                 formattedMonth=DEC;
+                 formattedMonth=DEC_mr_IN;
              }
         }           
         return formattedMonth;
@@ -360,9 +370,9 @@ public class FormaterUtil {
         int count=1;
         for(String i:months) {
             MasterVO masterVO=new MasterVO();
-            if(locale.equals("mr_IN")) {
+            if(locale.equals("mr_IN")) { //add here for other regional locales if DateFormatSymbols not able to extract months for those locales
                 masterVO.setId(new Long(count));
-                masterVO.setName(convertToMarathiMonth(count));
+                masterVO.setName(convertToLocaleLanguageMonth(count, locale));
             }else {
                 masterVO.setId(new Long(count));
                 masterVO.setName(i);
@@ -375,32 +385,36 @@ public class FormaterUtil {
         return masterVOs;
     }
 
-    private static String convertToMarathiMonth(final int count) {
-        if(count==1) {
-            return JAN;
-        } else if(count==2) {
-            return FEB;
-        } else if(count==3) {
-            return MAR;
-        }else if(count==4) {
-            return APR;
-        }else if(count==5) {
-            return MAY;
-        }else if(count==6) {
-            return JUNE;
-        }else if(count==7) {
-            return JULY;
-        }else if(count==8) {
-            return AUG;
-        }else if(count==9) {
-            return SEP;
-        }else if(count==10) {
-            return OCT;
-        }else if(count==11) {
-            return NOV;
-        }else {
-            return DEC;
-        }
+    private static String convertToLocaleLanguageMonth(final int count, final String locale) {
+    	String localeMonth = "";
+    	if(locale.equals("mr_IN")) {
+    		if(count==1) {
+    			localeMonth = JAN_mr_IN;
+	        } else if(count==2) {
+	            localeMonth = FEB_mr_IN;
+	        } else if(count==3) {
+	            localeMonth = MAR_mr_IN;
+	        }else if(count==4) {
+	            localeMonth = APR_mr_IN;
+	        }else if(count==5) {
+	            localeMonth = MAY_mr_IN;
+	        }else if(count==6) {
+	            localeMonth = JUNE_mr_IN;
+	        }else if(count==7) {
+	            localeMonth = JULY_mr_IN;
+	        }else if(count==8) {
+	            localeMonth = AUG_mr_IN;
+	        }else if(count==9) {
+	            localeMonth = SEP_mr_IN;
+	        }else if(count==10) {
+	            localeMonth = OCT_mr_IN;
+	        }else if(count==11) {
+	            localeMonth = NOV_mr_IN;
+	        }else {
+	            localeMonth = DEC_mr_IN;
+	        }
+    	}     
+    	return localeMonth;
     }
     
     public static Date getCurrentDate() {
@@ -523,6 +537,17 @@ public class FormaterUtil {
         return formatDate;
     }
     
+    public static String formatDecimalNumber(final Object number, final String locale) {
+        NumberFormat nf = null;
+        if(locale.equals("mr_IN") || locale.equals(ApplicationConstants.STANDARD_LOCALE_INDIA)) {
+        	nf = NumberFormat.getInstance(new Locale("hi", "IN"));
+        }else{
+        	nf = NumberFormat.getInstance(new Locale("en", "US"));
+        }
+        DecimalFormat df = (DecimalFormat) nf;
+        return df.format(number);
+    }
+    
     /**
      * @param value number to be formatted
      * @param locale locale in whi9ch number to be formatted 
@@ -600,7 +625,7 @@ public class FormaterUtil {
     //-------vikas dhananjay------------------
 	public static SimpleDateFormat getDBDateParser(final String locale){
 		 SimpleDateFormat dateFormatter = null;
-	     if(locale.equals("mr_IN") || locale.equals("hi_IN")){
+	     if(locale.equals("mr_IN") || locale.equals(ApplicationConstants.STANDARD_LOCALE_INDIA)){
 	         dateFormatter = new SimpleDateFormat(ApplicationConstants.DB_DATEFORMAT,
 	         		new Locale("hi", "IN"));
 	     }else{
@@ -620,13 +645,13 @@ public class FormaterUtil {
 			CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
 			if(dbDateFormat!=null && dbDateFormat.getValue()!=null && !dbDateFormat.getValue().isEmpty()){
 				df=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
-				//Added the following code to solve the marathi month and day issue
+				//Added the following code to solve the regional month and day issue
 				String[] strDates=df.format(date).split(",");
-				String day=FormaterUtil.getDayInMarathi(strDates[0],locale.toString());
+				String day=FormaterUtil.getDayInLocaleLanguage(strDates[0],locale.toString());
 				MessageResource dateResource = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale);
 				if(dateResource!=null && dateResource.getValue()!=null && !dateResource.getValue().isEmpty()) {
 					String[] strMonth=strDates[1].split(" ");
-					String month=FormaterUtil.getMonthInMarathi(strMonth[1], locale.toString());
+					String month=FormaterUtil.getMonthInLocaleLanguage(strMonth[1], locale.toString());
 					if(formatType.equals(ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT)) {
 						strFormatDate = day + ", " + dateResource.getValue() + " " + strMonth[0] + " " + month + ", " + strDates[2];
 					} else if(formatType.equals(ApplicationConstants.ROTATIONORDER_DATEFORMAT)) {
@@ -644,7 +669,7 @@ public class FormaterUtil {
 				strDate[0] = strDate[0].substring(1);
 			}
 			String[] strMonth=strDate[1].split(",");
-			String month=FormaterUtil.getMonthInMarathi(strMonth[0], locale.toString());
+			String month=FormaterUtil.getMonthInLocaleLanguage(strMonth[0], locale.toString());
 			strFormatDate = strDate[0] + " " + month + ", " + strDate[2];			
 		} else {
 			df = getDateFormatter(formatType, locale);	    
@@ -677,13 +702,13 @@ public class FormaterUtil {
 				CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
 				if(dbDateFormat!=null && dbDateFormat.getValue()!=null && !dbDateFormat.getValue().isEmpty()){
 					df=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
-					//Added the following code to solve the marathi month and day issue
+					//Added the following code to solve the regional month and day issue
 					String[] strDates=df.format(date).split(",");
-					String day=FormaterUtil.getDayInMarathi(strDates[0],locale.toString());
+					String day=FormaterUtil.getDayInLocaleLanguage(strDates[0],locale.toString());
 					MessageResource dateResource = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale);
 					if(dateResource!=null && dateResource.getValue()!=null && !dateResource.getValue().isEmpty()) {
 						String[] strMonth=strDates[1].split(" ");
-						String month=FormaterUtil.getMonthInMarathi(strMonth[1], locale.toString());
+						String month=FormaterUtil.getMonthInLocaleLanguage(strMonth[1], locale.toString());
 						if(dateFormat.equals(ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT)) {
 							strFormatDate = day + ", " + dateResource.getValue() + " " + strMonth[0] + " " + month + ", " + strDates[2];
 						} else if(dateFormat.equals(ApplicationConstants.ROTATIONORDER_DATEFORMAT)) {
@@ -700,7 +725,7 @@ public class FormaterUtil {
 					strDate[0] = strDate[0].substring(1);
 				}
 				String[] strMonth=strDate[1].split(",");
-				String month=FormaterUtil.getMonthInMarathi(strMonth[0], locale.toString());
+				String month=FormaterUtil.getMonthInLocaleLanguage(strMonth[0], locale.toString());
 				strFormatDate = strDate[0] + " " + month + ", " + strDate[2];
 				
 			} else {
@@ -766,7 +791,15 @@ public class FormaterUtil {
 							+ ", " + FormaterUtil.formatNumberNoGrouping(
 									indianCalendar.get(IndianCalendar.YEAR), locale.toString());
 			
-		}else if(locale.toString().equals("en_US")){
+		} else if(locale.toString().equals(ApplicationConstants.STANDARD_LOCALE_INDIA)){
+			
+			return indianMonths_hi_IN.get(indianCalendar.get(IndianCalendar.MONTH)) + " " + 
+					FormaterUtil.formatNumberNoGrouping(
+							indianCalendar.get(IndianCalendar.DAY_OF_MONTH), locale.toString())
+							+ ", " + FormaterUtil.formatNumberNoGrouping(
+									indianCalendar.get(IndianCalendar.YEAR), locale.toString());
+			
+		} else if(locale.toString().equals("en_US")){
 			
 			return indianMonths_en_US.get(indianCalendar.get(IndianCalendar.MONTH)) + " " + 
 					FormaterUtil.formatNumberNoGrouping(
@@ -790,18 +823,29 @@ public class FormaterUtil {
 					FormaterUtil.formatNumberNoGrouping(
 							indianCalendar.get(IndianCalendar.DAY_OF_MONTH), locale.toString())
 							+ ", " 
-							+ FormaterUtil.SHAKE_FORMAT_LABEL
+							+ FormaterUtil.SHAKE_FORMAT_LABEL_mr_IN
 							+ " "
 							+ FormaterUtil.formatNumberNoGrouping(
 									indianCalendar.get(IndianCalendar.YEAR), locale.toString());
 			
-		}else if(locale.toString().equals("en_US")){
+		} else if(locale.toString().equals(ApplicationConstants.STANDARD_LOCALE_INDIA)){
+			
+			return indianMonths_hi_IN.get(indianCalendar.get(IndianCalendar.MONTH)) + " " + 
+					FormaterUtil.formatNumberNoGrouping(
+							indianCalendar.get(IndianCalendar.DAY_OF_MONTH), locale.toString())
+							+ ", " 
+							+ FormaterUtil.SHAKE_FORMAT_LABEL_hi_IN
+							+ " "
+							+ FormaterUtil.formatNumberNoGrouping(
+									indianCalendar.get(IndianCalendar.YEAR), locale.toString());
+			
+		} else if(locale.toString().equals("en_US")){
 			
 			return indianMonths_en_US.get(indianCalendar.get(IndianCalendar.MONTH)) + " " + 
 					FormaterUtil.formatNumberNoGrouping(
 							indianCalendar.get(IndianCalendar.DAY_OF_MONTH), locale.toString())
 							+ ", " 
-							+ FormaterUtil.SHAKE_FORMAT_LABEL
+							+ FormaterUtil.SHAKE_FORMAT_LABEL_en_US
 							+ " "
 							+ FormaterUtil.formatNumberNoGrouping(
 									indianCalendar.get(IndianCalendar.YEAR), locale.toString());
@@ -824,7 +868,15 @@ public class FormaterUtil {
 							+ ", " + FormaterUtil.formatNumberNoGrouping(
 									indianCalendar.get(IndianCalendar.YEAR), locale);
 			
-		}else if(locale.equals("en_US")){
+		} else if(locale.equals(ApplicationConstants.STANDARD_LOCALE_INDIA)){
+			
+			return indianMonths_hi_IN.get(indianCalendar.get(IndianCalendar.MONTH)) + " " + 
+					FormaterUtil.formatNumberNoGrouping(
+							indianCalendar.get(IndianCalendar.DAY_OF_MONTH), locale.toString())
+							+ ", " + FormaterUtil.formatNumberNoGrouping(
+									indianCalendar.get(IndianCalendar.YEAR), locale.toString());
+			
+		} else if(locale.equals("en_US")){
 			
 			return indianMonths_en_US.get(indianCalendar.get(IndianCalendar.MONTH)) + " " + 
 					FormaterUtil.formatNumberNoGrouping(
@@ -850,8 +902,7 @@ public class FormaterUtil {
 		indianMonths_mr_IN.put(9, "पौष");
 		indianMonths_mr_IN.put(10, "माघ");
 		indianMonths_mr_IN.put(11, "फाल्गुन");	
-    }
-	
+    }	
 	
 	static{
     	indianMonths_en_US.put(0, "CHAITRA");
@@ -868,26 +919,53 @@ public class FormaterUtil {
     	indianMonths_en_US.put(11, "PHALGUNA");	
     }
 	
+	static{
+    	indianMonths_hi_IN.put(0, "चैत्र");
+		indianMonths_hi_IN.put(1, "बैसाख");
+		indianMonths_hi_IN.put(2, "ज्येष्ठ");
+		indianMonths_hi_IN.put(3, "आषाढ");
+		indianMonths_hi_IN.put(4, "सावन");
+		indianMonths_hi_IN.put(5, "भादों");
+		indianMonths_hi_IN.put(6, "आश्विन");
+		indianMonths_hi_IN.put(7, "कार्तिक");
+		indianMonths_hi_IN.put(8, "अगहन");
+		indianMonths_hi_IN.put(9, "पूस");
+		indianMonths_hi_IN.put(10, "माघ");
+		indianMonths_hi_IN.put(11, "फागुन");	
+    }
+	
 	public static String findIndexLetterByWord(final String word, final String locale){
-		String letters[] = {"अ", "आ", "इ", "ई", "उ", "ऊ", "ए", "ऐ", "ओ", "औ", 
-				"अं", "अः", "क", "ख", "ग", "घ", "च", "छ", "ज", "झ", "ञ", "ट", 
-				"ठ", "ड", "ढ", "ण", "त", "थ", "द", "ध", "न", "प", "फ", "ब", 
-				"भ", "म", "य", "र", "ल", "व", "श", "ष", "स", "ह", "ळ", "क्ष", "ज्ञ"};
 		String letter = null;
-		for(String l : letters){
-			if(word.indexOf(l) == 0){
-				letter = l;
-				break;
+		String lettersInLocaleLanguage[] = null;
+		if(locale.equals("mr_IN")) {
+			String letters[] = {"अ", "आ", "इ", "ई", "उ", "ऊ", "ए", "ऐ", "ओ", "औ", 
+					"अं", "अः", "क", "ख", "ग", "घ", "च", "छ", "ज", "झ", "ञ", "ट", 
+					"ठ", "ड", "ढ", "ण", "त", "थ", "द", "ध", "न", "प", "फ", "ब", 
+					"भ", "म", "य", "र", "ल", "व", "श", "ष", "स", "ह", "ळ", "क्ष", "ज्ञ"};			
+			lettersInLocaleLanguage = letters;
+			
+		} else if(locale.equals(ApplicationConstants.STANDARD_LOCALE_INDIA)) {
+			String letters[] = {"अ", "आ", "इ", "ई", "उ", "ऊ", "ए", "ऐ", "ओ", "औ", 
+					"अं", "अः", "क", "ख", "ग", "घ", "च", "छ", "ज", "झ", "ञ", "ट", 
+					"ठ", "ड", "ढ", "ण", "त", "थ", "द", "ध", "न", "प", "फ", "ब", 
+					"भ", "म", "य", "र", "ल", "व", "श", "ष", "स", "ह", "ळ", "क्ष", "ज्ञ"};			
+			lettersInLocaleLanguage = letters;
+		}		
+		if(lettersInLocaleLanguage!=null) {
+			for(String l : lettersInLocaleLanguage){
+				if(word.indexOf(l) == 0){
+					letter = l;
+					break;
+				}
 			}
-		}
-		
+		}		
 		return letter;
 	}
 	
 	public static String formatNumbersInGivenText(final String givenText, final String locale) {
 		String formattedText = givenText;
 		
-		if(formattedText!=null && !formattedText.isEmpty() && locale!=null && !locale.isEmpty() && !locale.equals("en_US")) {
+		if(formattedText!=null && !formattedText.isEmpty() && locale!=null && !locale.isEmpty() && !locale.equals(ApplicationConstants.STANDARD_LOCALE)) {
 			
 			formattedText = formattedText.replaceAll("0", FormaterUtil.formatNumberNoGrouping(0, locale));
 			formattedText = formattedText.replaceAll("1", FormaterUtil.formatNumberNoGrouping(1, locale));
