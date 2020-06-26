@@ -406,7 +406,7 @@
 	    /**** Contact Details ****/
 	    $("#viewContacts").click(function(){
 		    var primaryMember=$("#primaryMember").val();
-		    var supportingMembers=$("#selectedSupportingMembers").val();
+		    var supportingMembers=$("#supportingMembersIds").val();
 		    var members=primaryMember;
 		    if(supportingMembers!=null){
 			    if(supportingMembers!=''){
@@ -750,13 +750,27 @@
 		<c:if test="${!(empty primaryMember)}">
 			<input id="primaryMember" name="primaryMember" value="${primaryMember}" type="hidden">
 		</c:if>
-		<c:if test="${!(empty supportingMembers)}">
-	    <select  name="selectedSupportingMembers" id="selectedSupportingMembers" multiple="multiple" style="display:none;">
+		<%-- <c:if test="${!(empty supportingMembers)}">
+	    <select  name="supportingMembers" id="selectedSupportingMembers" multiple="multiple" style="display:none;">
 			<c:forEach items="${supportingMembers}" var="i">
 			<option value="${i.id}" selected="selected"></option>
 			</c:forEach>		
 			</select>
-		</c:if>	
+		</c:if> --%>
+		<c:if test="${!(empty selectedSupportingMembersIds)}">
+			<select name="supportingMembers" id="supportingMembers" multiple="multiple" style="display:none;">
+			<c:forEach items="${selectedSupportingMembersIds}" var="i">
+				<option value="${i.id}" selected="selected"></option>
+			</c:forEach>		
+			</select>
+		</c:if>
+		<c:if test="${!(empty supportingMembers)}">
+			<select  name="supportingMembersIds" id="supportingMembersIds" multiple="multiple" style="display:none;">
+			<c:forEach items="${supportingMembers}" var="i">
+				<option value="${i.id}" selected="selected"></option>
+			</c:forEach>		
+			</select>
+		</c:if>
 	</p>
 	
 	<p>

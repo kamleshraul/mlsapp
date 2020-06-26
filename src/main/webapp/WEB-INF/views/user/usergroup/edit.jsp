@@ -175,16 +175,16 @@
 			var selectedId = this.id;
 			if($(this).text()=='Expand') {
 				if(selectedId=='expandMinistry') {
-					$("#span_param_MINISTRY_mr_IN").attr('style', 'max-height: initial !important;');
+					$("#span_param_MINISTRY_"+$('#authlocale').val()).attr('style', 'max-height: initial !important;');
 				} else if(selectedId=='expandSubDepartment') {
-					$("#span_param_SUBDEPARTMENT_mr_IN").attr('style', 'max-height: initial !important;');
+					$("#span_param_SUBDEPARTMENT_"+$('#authlocale').val()).attr('style', 'max-height: initial !important;');
 				}				
 				$(this).text('Collapse');
 			} else {
 				if(selectedId=='expandMinistry') {
-					$("#span_param_MINISTRY_mr_IN").attr('style', 'max-height: ' + multiSelectMaxHeight + ' !important;');
+					$("#span_param_MINISTRY_"+$('#authlocale').val()).attr('style', 'max-height: ' + multiSelectMaxHeight + ' !important;');
 				} else if(selectedId=='expandSubDepartment') {
-					$("#span_param_SUBDEPARTMENT_mr_IN").attr('style', 'max-height: ' + multiSelectMaxHeight + ' !important;');
+					$("#span_param_SUBDEPARTMENT_"+$('#authlocale').val()).attr('style', 'max-height: ' + multiSelectMaxHeight + ' !important;');
 				}
 				
 				$(this).text('Expand');

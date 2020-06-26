@@ -424,6 +424,13 @@
 					});		
 				}else{
 					$('#bulkapproval_tab').show();
+					var usergroupType = $('#currentusergroupType').val();
+					if(device.indexOf('questions_')==0 && houseType=='lowerhouse') { //hiding bulk approval options for under secretaries as per Deputy Secretary Sathye Sir
+						if(usergroupType=='under_secretary' || usergroupType=='under_secretary_committee'){
+							$('#bulkapproval_tab').hide();
+							$('#advanced_bulkapproval_tab').hide();
+						}						
+					}					
 					$("#selectedSpecialMentionNoticeDate").val("");
 					$("#specialMentionNoticeDateDiv").hide();
 					$("#departmentDiv").show();
@@ -447,8 +454,11 @@
 			/**** workflow changes then reload grid****/			
 			$("#selectedSubWorkflow").change(function(){
 				var value=$(this).val();
-				if(value!=null){				
-					 if(($('#currentusergroupType').val()=="assistant") && value.indexOf("final")>-1&&$('#currenthousetype').val()=='lowerhouse'){
+				if(value!=null){
+					var deviceTypeForGrid = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+					var houseType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
+					
+					if(($('#currentusergroupType').val()=="assistant") && value.indexOf("final")>-1&&$('#currenthousetype').val()=='lowerhouse'){
 						$('#bulkapproval_tab').hide();
 						$('#selectedItemsCount').hide();
 						//$('#selectedFileCount').hide();
@@ -456,11 +466,17 @@
 						var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
 						if(!device.indexOf('motions_adjournment')==0){
 							$('#bulkapproval_tab').show();
+							var usergroupType = $('#currentusergroupType').val();
+							if(deviceTypeForGrid.indexOf('questions_')==0 && houseType=='lowerhouse') { //hiding bulk approval options for under secretaries as per Deputy Secretary Sathye Sir
+								if(usergroupType=='under_secretary' || usergroupType=='under_secretary_committee'){
+									$('#bulkapproval_tab').hide();
+									$('#advanced_bulkapproval_tab').hide();
+								}						
+							}
 						}						
 						$('#selectedItemsCount').show();
 						//$('#selectedFileCount').show();
-					} 
-					var deviceTypeForGrid = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+					}
 					/* if(deviceTypeForGrid=='motions_billamendment') {
 						
 					} else {
@@ -1166,7 +1182,7 @@
 					+ "&assignee=" + $("#authusername").val()
 					+ "&wfdId="+wfdId
 					+ "&houseType=" + $("#selectedHouseType").val()
-					+ "&locale=mr_IN" 
+					+ "&locale="+$("#authlocale").val() 
 					+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
 					+ "&groupNumber=" + data.number
 					+ "&reportout=starred_admit_unstarred_report"
@@ -1193,7 +1209,7 @@
 			+"&assignee="+$("#assignee").val()
 			+"&group="+(($("#selectedGroup").val()==undefined)?"":$("#selectedGroup").val())
 			+"&answeringDate="+$("#selectedAnsweringDate").val()
-			+"&locale=mr_IN"
+			+"&locale="+$("#authlocale").val()
 			+"&report=SENT_BACK_TASKS_REPORT&reportout=sent_back_tasks_report";
 			
 			showTabByIdAndUrl('process_tab', 'question/report/generalreport?'+params);
@@ -1301,7 +1317,7 @@
 					+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
 					+ "&workflowStatus=" + $("#selectedStatus").val()
 					+ "&assignee=" + $("#authusername").val()
-					+ "&locale=mr_IN" 
+					+ "&locale="+$("#authlocale").val() 
 					+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
 					+ "&reportout=resolution_workflow_summary_report"
 					+ "&report=RESOLUTION_WORKFLOW_SUMMARY_REPORT"
@@ -1326,7 +1342,7 @@
 					+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
 					+ "&assignee=" + $("#authusername").val()
 					+ "&houseType="+$("#selectedHouseType").val() 
-					+ "&locale=mr_IN" 
+					+ "&locale="+$("#authlocale").val() 
 					+ "&reportout=question_department_statement_report"
 					+ "&report=QIS_DEPARTMENT_STATEMENT_REPORT";
 					showTabByIdAndUrl('details_tab', url);
@@ -1628,6 +1644,7 @@
 				<option value="PENDING"><spring:message code="mytask.pending" text="Pending"></spring:message></option>
 				<option value="COMPLETED"><spring:message code="mytask.completed" text="Completed"></spring:message></option>
 				<option value="TIMEOUT"><spring:message code="mytask.timeout" text="Timeout"></spring:message></option>
+				<option value="LAPSED"><spring:message code="mytask.lapsed" text="Lapsed"></spring:message></option>
 				<option value="LAPSED_DUE_TO_HOUSE_DISSOLVED"><spring:message code="mytask.lapsed_due_to_house_dissolved" text="Lapsed Due To House Dissolved"></spring:message></option>
 			</select> |	
 			<hr>
@@ -1713,6 +1730,7 @@
 					<!-- <option value="100">100</option>
 					<option value="75">75</option> -->
 					<c:if test="${usergroupType=='principal_secretary'}">
+						<option value="100">100</option>
 						<option value="50">50</option>
 					</c:if>				
 					<option value="25">25</option>
