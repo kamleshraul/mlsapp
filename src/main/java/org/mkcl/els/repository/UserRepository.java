@@ -22,6 +22,8 @@ import javax.persistence.Query;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.domain.ApplicationLocale;
+import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.User;
 import org.slf4j.Logger;
@@ -150,8 +152,8 @@ public class UserRepository extends BaseRepository<User,Long>{
 	}
 	
 	public User findbyNameBirthDate(final String firstName,final String middleName,final String lastName,
-			final Date birthDate) throws ELSException {
-		return this.findByNameBirthDate(firstName, middleName, lastName, birthDate, ApplicationConstants.DEFAULT_LOCALE);
+			final Date birthDate) throws ELSException {		
+		return this.findByNameBirthDate(firstName, middleName, lastName, birthDate, ApplicationLocale.findDefaultLocale());
 	}
 	
 	public User findByNameBirthDate(final String firstName,final String middleName,final String lastName,

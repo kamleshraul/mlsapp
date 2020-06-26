@@ -128,7 +128,7 @@ public class MasterWebService {
     @RequestMapping(value = "/genders/{locale}")
     public @ResponseBody
     List<MasterVO> getGenders(@PathVariable final String locale) {
-    	List<Gender> genders=Gender.findAll(Gender.class,"name",ApplicationConstants.ALL_LOCALE, locale);
+    	List<Gender> genders=Gender.findAll(Gender.class,"name",ApplicationConstants.ASC, locale);
     	List<MasterVO> gendersVOs=new ArrayList<MasterVO>();
         for(Gender i:genders){
         	MasterVO masterVO=new MasterVO(i.getId(),i.getName());

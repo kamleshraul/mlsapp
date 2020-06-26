@@ -103,6 +103,7 @@ package org.mkcl.els.repository;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
@@ -208,5 +209,24 @@ public class MenuItemRepository extends BaseRepository<MenuItem, Long> {
 		return menuItemsA;
 	}
 
+	public MenuItem findByTextKeyAndText(final String textKey, final String text, final String locale) {
+		MenuItem menuItem = null;
+		
+		String strQuery = "SELECT m FROM MenuItem m WHERE m.textKey=:textKey AND m.text=:text AND m.locale=:locale";
+		TypedQuery<MenuItem> query = this.em().createQuery(strQuery, MenuItem.class);
+		query.setParameter("textKey", textKey);
+		query.setParameter("text", text);
+		query.setParameter("locale", locale);
+		
+		try {
+			menuItem = query.getSingleResult();
+		} catch(NoResultException nre) {
+			logger.warn("No MenuItem found for textKey: " + textKey + " with text: " + text);
+			System.out.println("No MenuItem found for textKey: " + textKey + " with text: " + text);
+			return menuItem;
+		}		
+		
+		return menuItem;
+	}
 	
 }

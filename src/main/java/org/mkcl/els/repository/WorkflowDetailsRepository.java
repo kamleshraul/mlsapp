@@ -49,6 +49,7 @@ import org.mkcl.els.domain.SpecialMentionNotice;
 import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
+import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.Workflow;
@@ -710,6 +711,43 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 		return workflowDetails;		
 	}
 	
+	public WorkflowDetails startProcessAtGivenAssignee(final Question question, final String processDefinitionKey, final Workflow processWorkflow, final UserGroupType userGroupType, final int level, final String assignee, final String locale) throws ELSException {
+		ProcessDefinition processDefinition = processService.findProcessDefinitionByKey(processDefinitionKey);
+		Map<String, String> properties = new HashMap<String, String>();
+		properties.put("pv_endflag", "continue");
+		properties.put("pv_user",assignee);
+		properties.put("pv_deviceId", String.valueOf(question.getId()));
+		properties.put("pv_deviceTypeId", String.valueOf(question.getType().getId()));
+		if(processDefinitionKey.equals(ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW)) {
+			properties.put("pv_mailflag", null);
+			properties.put("pv_timerflag", null);
+		}
+		ProcessInstance processInstance= processService.createProcessInstance(processDefinition, properties);
+		Task task= processService.getCurrentTask(processInstance);
+		String workflowType = processWorkflow.getType();
+		WorkflowDetails workflowDetails = WorkflowDetails.create(question, task, userGroupType, workflowType, Integer.toString(level));
+		question.setEndFlag("continue");
+		question.setTaskReceivedOn(new Date());
+		question.setWorkflowDetailsId(workflowDetails.getId());
+		question.setWorkflowStarted("YES");
+		question.setWorkflowStartedOn(new Date());
+		
+		User user = User.findByUserName(assignee, locale);
+		question.setActor(user.getCredential().getUsername()
+				+"#"+userGroupType.getType()
+				+"#"+level
+				+"#"+userGroupType.getName()
+				+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
+		
+		String[] actorArr = question.getActor().split("#");
+		question.setLevel(actorArr[2]);
+		question.setLocalizedActorName(actorArr[3] + "(" + actorArr[4] + ")");
+		
+		question.simpleMerge();
+		return workflowDetails;
+		
+	}
+	
 	public WorkflowDetails startProcess(final Question question, final String processDefinitionKey, final Workflow processWorkflow, final String locale) throws ELSException {
 		ProcessDefinition processDefinition = processService.findProcessDefinitionByKey(processDefinitionKey);
 		Map<String,String> properties = new HashMap<String, String>();
@@ -806,7 +844,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				if(!username.isEmpty()){
 					//Credential credential = Credential.findByFieldName(Credential.class,"username",username,"");
 					//UserGroup userGroup = UserGroup.findActive(credential, new Date(), resolution.getLocale());
-					List<UserGroup> usergroups = UserGroup.findActiveUserGroupsOfGivenUser(username, resolution.getHouseType().getName(), resolution.getType().getName());
+					List<UserGroup> usergroups = UserGroup.findActiveUserGroupsOfGivenUser(username, resolution.getHouseType().getName(), resolution.getType().getName(), resolution.getLocale());
 					for(UserGroup ug : usergroups){
 						userGroupId = String.valueOf(ug.getId());
 						userGroupType = ug.getUserGroupType().getType();
@@ -2291,6 +2329,10 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 	}
 	
 	public void endProcess(WorkflowDetails wfDetails) {
+		endProcess(wfDetails, "COMPLETED");
+	}
+	
+	public void endProcess(WorkflowDetails wfDetails, String wfStatus) {
 		// Complete task & end process
 		String taskId = wfDetails.getTaskId();
 		Task task = processService.findTaskById(taskId);
@@ -2300,10 +2342,10 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 		processService.completeTask(task, properties);
 		
 		// Update WorkflowDetails
-		wfDetails.setStatus("COMPLETED");
+		wfDetails.setStatus(wfStatus);
 		wfDetails.setCompletionTime(new Date());
 		wfDetails.merge();
-	}		
+	}
 	
 	public WorkflowDetails completeTask(final Question question) throws ELSException {
 		WorkflowDetails workflowDetails = 

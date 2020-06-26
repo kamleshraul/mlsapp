@@ -12,6 +12,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.AdjournmentMotion;
+import org.mkcl.els.domain.ApplicationLocale;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.CutMotionDate;
@@ -457,13 +458,13 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 		}
 	}
 	
-	public UserGroup findUserGroup(final String houseType,final String userGroupType,final String deviceType,final String ministry,final String subDepartment) throws ELSException {
-		Date currentDate=new Date();  
+	public UserGroup findUserGroup(final String houseType,final String userGroupType,final String deviceType,final String ministry,final String subDepartment,final String locale) throws ELSException {
+		Date currentDate=new Date();
 		String queryString = "SELECT u FROM UserGroup u JOIN u.userGroupType ugt WHERE " +
-				"ugt.type=:userGroupType AND u.parameters['HOUSETYPE_mr_IN'] LIKE:houseType"+
-				" AND u.parameters['DEVICETYPE_mr_IN'] LIKE:deviceType"+
-				" AND u.parameters['MINISTRY_mr_IN'] LIKE:ministry"+
-				" AND u.parameters['SUBDEPARTMENT_mr_IN'] LIKE:subDepartment"+
+				"ugt.type=:userGroupType AND u.parameters['HOUSETYPE_"+locale+"'] LIKE:houseType"+
+				" AND u.parameters['DEVICETYPE_"+locale+"'] LIKE:deviceType"+
+				" AND u.parameters['MINISTRY_"+locale+"'] LIKE:ministry"+
+				" AND u.parameters['SUBDEPARTMENT_"+locale+"'] LIKE:subDepartment"+
 				" AND (u.activeTo>=:currentDate OR u.activeTo IS NULL)";
 
 		Query query = this.em().createQuery(queryString);
@@ -488,12 +489,12 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 		}
 	}
 	
-	public List<UserGroup> findActiveUserGroupsOfGivenUser(final String userName,final String houseType,final String deviceType) throws ELSException {
+	public List<UserGroup> findActiveUserGroupsOfGivenUser(final String userName,final String houseType,final String deviceType,final String locale) throws ELSException {
 		Date currentDate=new Date();  
 		String queryString = "SELECT u FROM UserGroup u JOIN u.credential cr" +
 				" WHERE cr.username=:userName "+
-				" AND (u.parameters['HOUSETYPE_mr_IN'] LIKE:houseType OR u.parameters['HOUSETYPE_mr_IN'] LIKE '%दोन्ही सभागृह%')"+
-				" AND u.parameters['DEVICETYPE_mr_IN'] LIKE:deviceType"+
+				" AND (u.parameters['HOUSETYPE_"+locale+"'] LIKE:houseType OR u.parameters['HOUSETYPE_"+locale+"'] LIKE '%दोन्ही सभागृह%')"+
+				" AND u.parameters['DEVICETYPE_"+locale+"'] LIKE:deviceType"+
 				" AND (u.activeTo>=:currentDate OR u.activeTo IS NULL)";
 
 		Query query = this.em().createQuery(queryString);

@@ -184,89 +184,56 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 			final Status internalStatus,
 			final Status ballotStatus,
 			final String locale) throws ELSException{
-		// Removed for performance reason. Uncomment when Caching mechanism is added
-		// CustomParameter parameter = 
-		// CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-		// String date = new DateFormater().formatDateToString(answeringDate, parameter.getValue());
-		// String date = FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
-
-//		String strQuery = "SELECT m" +
-//		" FROM Member m" +
-//		" WHERE m.id IN (" +
-//		" SELECT DISTINCT(q.primaryMember.id)" +
-//		" FROM Question q where q.id IN("+
-//		" SELECT d.id FROM Chart c" +
-//		" JOIN c.chartEntries ce" +
-//		" JOIN ce.devices d" +
-//		" WHERE c.session.id =:sessionId" +
-//		" AND c.group.id =:groupId" + 
-//		" AND c.answeringDate <= :answeringDate" + 
-//		" AND c.deviceType.id=:deviceTypeId" +
-//		" AND c.locale = :locale" + 
-//		" AND q.parent =" + null +  
-//		" AND q.internalStatus.id = :internalStatusId" + 
-//		" AND (" +
-//		" q.ballotStatus.id != :ballotStatusId" + 
-//		" OR" +
-//		" q.ballotStatus.id =" + null +  
-//		" )" +
-//		" ))" +
-//		" ORDER BY m.lastName ASC, m.firstName ASC";
 		
 		House house = session.getHouse();
 		Date currentDate = new Date();
 		MemberRole role = MemberRole.find(house.getType(), "MEMBER", locale);
 		
-		String strQuery = "SELECT m" +
-			" FROM Member m" +
-			" WHERE m.id IN (" +
-				" SELECT mem.id" +
-				" FROM HouseMemberRoleAssociation hmra JOIN hmra.member mem" +
-				" WHERE hmra.fromDate <= :currentDate" +
-				" AND (hmra.toDate =" + null + " OR hmra.toDate >= :currentDate)" +
-				" AND hmra.role.id = :roleId" +
-				" AND hmra.house.id = :houseId" +
-				" AND hmra.locale = :locale" +
-				")" +
-			" AND m.id IN (" +
-				" SELECT DISTINCT(q.primaryMember.id)" +
-				" FROM Question q where q.id IN("+
-					" SELECT d.id FROM Chart c" +
-					" JOIN c.chartEntries ce" +
-					" JOIN ce.devices d" +
-					" WHERE c.session.id =:sessionId" +
-					" AND c.group.id =:groupId" + 
-					" AND c.answeringDate <= :answeringDate" + 
-					" AND c.deviceType.id=:deviceTypeId" +
-					" AND c.locale = :locale" + 
-					" AND q.parent =" + null +  
-					" AND q.internalStatus.id = :internalStatusId" + 
-					" AND (" +
-					" q.ballotStatus.id != :ballotStatusId" + 
-					" OR" +
-					" q.ballotStatus.id =" + null +  
-					" )" +
-			" ))" +
-			" ORDER BY m.lastName ASC, m.firstName ASC";
+		String strQuery = "SELECT DISTINCT m.*" +
+				" FROM charts c" +
+				" JOIN charts_chart_entries cce ON (c.id=cce.chart_id)" +
+				" JOIN chart_entries ce ON (cce.chart_entry_id=ce.id)" +
+				" JOIN chart_entries_devices ced ON (ce.id=ced.chart_entry_id)" +
+				" JOIN questions q ON (q.id=ced.device_id)" +
+				" JOIN members m ON (m.id=q.member_id)" +
+				" JOIN members_houses_roles mhr ON (mhr.member=m.id)" +
+				" WHERE c.session_id=:sessionId" +
+				" AND c.device_type=:deviceTypeId" +
+				" AND c.group_id=:groupId" +
+				" AND c.answering_date<=:answeringDate" +
+				" AND c.locale=:locale" +
+				" AND q.parent IS NULL" +
+				" AND q.internalstatus_id=:internalStatusId" +
+				" AND (q.ballotstatus_id IS NULL OR q.ballotstatus_id<>:ballotStatusId)" +
+				" AND mhr.house_id=:houseId" +
+				" AND mhr.role=:roleId" +
+				" AND mhr.locale=:locale" +
+				" AND mhr.from_date<=:currentDate" +
+				" AND (mhr.to_date IS NULL OR mhr.to_date>=:currentDate)" +
+				" ORDER BY m.last_name ASC, m.first_name ASC";
 		
 		List<Member> members = new ArrayList<Member>();		
 		try{	
-			Query jpQuery = this.em().createQuery(strQuery, Member.class);
-			jpQuery.setParameter("currentDate", currentDate);
-			jpQuery.setParameter("roleId", role.getId());
-			jpQuery.setParameter("houseId", house.getId());
-			jpQuery.setParameter("locale", locale);
-			jpQuery.setParameter("sessionId", session.getId());
-			jpQuery.setParameter("deviceTypeId", deviceType.getId());
-			jpQuery.setParameter("groupId", group.getId());
-			jpQuery.setParameter("answeringDate", answeringDate);
-			jpQuery.setParameter("locale", locale);
-			jpQuery.setParameter("internalStatusId", internalStatus.getId());
-			jpQuery.setParameter("ballotStatusId", ballotStatus.getId());
+			Query query = this.em().createNativeQuery(strQuery, Member.class);
+			query.setParameter("currentDate", currentDate);
+			query.setParameter("roleId", role.getId());
+			query.setParameter("houseId", house.getId());
+			query.setParameter("locale", locale);
+			query.setParameter("sessionId", session.getId());
+			query.setParameter("deviceTypeId", deviceType.getId());
+			query.setParameter("groupId", group.getId());
+			query.setParameter("answeringDate", answeringDate);
+			query.setParameter("locale", locale);
+			query.setParameter("internalStatusId", internalStatus.getId());
+			query.setParameter("ballotStatusId", ballotStatus.getId());
 		
-			List<Member> mX = jpQuery.getResultList();
+			List<Member> mX = query.getResultList();
 			if(mX != null){
-				members = mX;
+				for(Member member: mX){
+					if(member.isActiveOnlyAsMember(new Date(), locale)) {
+						members.add(member);
+					}					
+				}
 			}
 		}catch (Exception e) {
 			e.printStackTrace();

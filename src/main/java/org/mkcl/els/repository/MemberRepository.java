@@ -40,6 +40,7 @@ import org.mkcl.els.common.vo.MemberInfo;
 import org.mkcl.els.common.vo.PositionHeldVO;
 import org.mkcl.els.common.vo.RivalMemberVO;
 import org.mkcl.els.domain.Address;
+import org.mkcl.els.domain.ApplicationLocale;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Contact;
 import org.mkcl.els.domain.Credential;
@@ -250,8 +251,9 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 					e.printStackTrace();
 				}
 				String serverFormat=FormaterUtil.getDateFormatter("dd MMM yyyy",locale).format(dbFormat);
-				if(locale.equals("mr_IN")){
-					memberInfo.setBirthDate(FormaterUtil.formatMonthsMarathi(serverFormat, locale));
+				if(!locale.equals(ApplicationConstants.STANDARD_LOCALE)
+						&& !locale.equals(ApplicationConstants.STANDARD_LOCALE_INDIA)){
+					memberInfo.setBirthDate(FormaterUtil.formatMonthsForLocaleLanguage(serverFormat, locale));
 				}else{
 					memberInfo.setBirthDate(serverFormat);
 				}
@@ -614,7 +616,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		if(m.getBirthDate()==null){
 			memberBiographyVO.setBirthDate("-");
 		}else{
-			memberBiographyVO.setBirthDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(m.getBirthDate()), locale));
+			memberBiographyVO.setBirthDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(m.getBirthDate()), locale));
 		}
 		memberBiographyVO.setPlaceOfBirth(m.getBirthPlace().trim());
 
@@ -622,12 +624,12 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		if(m.getDeathDate()==null){
 			memberBiographyVO.setDeathDate("-");
 		}else{
-			memberBiographyVO.setDeathDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(m.getDeathDate()),locale));
+			memberBiographyVO.setDeathDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(m.getDeathDate()),locale));
 		}
 		if(m.getCondolenceDate()==null){
 			memberBiographyVO.setCondolenceDate("-");
 		}else{
-			memberBiographyVO.setCondolenceDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(m.getCondolenceDate()),locale));
+			memberBiographyVO.setCondolenceDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(m.getCondolenceDate()),locale));
 		}
 		if(m.getObituary()==null){
 			memberBiographyVO.setObituary("-");
@@ -637,7 +639,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		if(m.getMarriageDate()==null){
 			memberBiographyVO.setMarriageDate("-");
 		}else{
-			memberBiographyVO.setMarriageDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(m.getMarriageDate()),locale));
+			memberBiographyVO.setMarriageDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(m.getMarriageDate()),locale));
 		}
 		//qualifications.this will be separated by line
 		List<Qualification> qualifications=m.getQualifications();
@@ -1227,12 +1229,12 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 				memberBiographyVO.setNoOfVoters("-");
 			}
 			if(electionResults.get(0).getElectionResultDate()!=null){
-				memberBiographyVO.setElectionResultDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(electionResults.get(0).getElectionResultDate()),locale));
+				memberBiographyVO.setElectionResultDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(electionResults.get(0).getElectionResultDate()),locale));
 			}else{
 				memberBiographyVO.setElectionResultDate("-");
 			}
 			if(electionResults.get(0).getVotingDate()!=null){
-				memberBiographyVO.setVotingDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(electionResults.get(0).getVotingDate()),locale));
+				memberBiographyVO.setVotingDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(electionResults.get(0).getVotingDate()),locale));
 			}else{
 				memberBiographyVO.setVotingDate("-");
 			}
@@ -1305,7 +1307,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		if(m.getBirthDate()==null){
 			memberBiographyVO.setBirthDate("-");
 		}else{
-			memberBiographyVO.setBirthDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(m.getBirthDate()), locale));
+			memberBiographyVO.setBirthDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(m.getBirthDate()), locale));
 		}
 		memberBiographyVO.setBirthPlace("-");
 		if(m.getBirthPlace()!=null){
@@ -1461,12 +1463,12 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		if(m.getDeathDate()==null){
 			memberBiographyVO.setDeathDate("-");
 		}else{
-			memberBiographyVO.setDeathDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(m.getDeathDate()),locale));
+			memberBiographyVO.setDeathDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(m.getDeathDate()),locale));
 		}
 		if(m.getCondolenceDate()==null){
 			memberBiographyVO.setCondolenceDate("-");
 		}else{
-			memberBiographyVO.setCondolenceDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(m.getCondolenceDate()),locale));
+			memberBiographyVO.setCondolenceDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(m.getCondolenceDate()),locale));
 		}
 		//paname,contact no and address
 		memberBiographyVO.setPaAddress("-");
@@ -1496,12 +1498,12 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 				if(i.getToDate()==null){
 					positionHeldVO.setToDate("-");
 				}else{
-					positionHeldVO.setToDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(i.getToDate()),locale));
+					positionHeldVO.setToDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(i.getToDate()),locale));
 				}
 				if(i.getFromDate()==null){
 					positionHeldVO.setFromDate("-");
 				}else{
-					positionHeldVO.setFromDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(i.getFromDate()),locale));
+					positionHeldVO.setFromDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(i.getFromDate()),locale));
 				}
 				if(i.getPosition().isEmpty()){
 					positionHeldVO.setPosition("-");
@@ -1948,10 +1950,10 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 					electionResultVO.setElectionType(i.getElection().getElectionType().getName());
 				}
 				if(i.getElectionResultDate()!=null){
-					electionResultVO.setElectionResultDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(i.getElectionResultDate()),locale));
+					electionResultVO.setElectionResultDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(i.getElectionResultDate()),locale));
 				}
 				if(i.getVotingDate()!=null){
-					electionResultVO.setVotingDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(i.getVotingDate()),locale));
+					electionResultVO.setVotingDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(i.getVotingDate()),locale));
 				}
 				Constituency constituency=i.getConstituency();
 				if(i.getConstituency()!=null){
@@ -2257,7 +2259,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 	//	public List<MemberPartyDistrictWiseVO> findMembersByPartyDistrict(final Long house, final String locale) {
 	//		NumberFormat formatWithoutGrouping=FormaterUtil.getNumberFormatterNoGrouping(locale);
 	//		//creating query to execute
-	//		List<District> districts=District.findAll(District.class,"name", ApplicationConstants.ASC,"mr_IN");
+	//		List<District> districts=District.findAll(District.class,"name", ApplicationConstants.ASC,locale);
 	//		StringBuffer buffer=new StringBuffer();
 	//		buffer.append("SELECT "+
 	//				"p.name AS group_party_wise,"+
@@ -2265,7 +2267,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 	//		/**********************LOCALE_BASED_CODE************************************************
 	//		 * here code will be locale dependent and hence needs to be changed on adding new locale.
 	//		 ***************************************************************************************/
-	//		if(locale.equals("mr_IN")){
+	//		if(locale.equals(ApplicationLocale.findDefaultLocale())){
 	//			buffer.append("SUM(CASE WHEN g.name='à¤ªà¥�à¤°à¥�à¤·' THEN 1 ELSE 0 END) AS totalmalecount,");
 	//			buffer.append("SUM(CASE WHEN g.name='à¤¸à¥�à¤¤à¥�à¤°à¥€' THEN 1 ELSE 0 END) AS totalfemalecount, ");
 	//		}else{
@@ -2282,7 +2284,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 	//		buffer.append("JOIN election_results AS er JOIN  constituencies AS c JOIN constituencies_districts AS cd JOIN districts AS d JOIN divisions AS divi ");
 	//		buffer.append("WHERE mp.member=m.id AND mp.party=p.id AND ");
 	//		buffer.append("g.id=m.gender_id AND er.member_id=m.id AND er.constituency_id=c.id AND c.id=cd.constituency_id AND cd.district_id=d.id AND ");
-	//		buffer.append("d.division_id=divi.id AND m.locale='mr_IN'  GROUP BY group_party_wise ");
+	//		buffer.append("d.division_id=divi.id AND m.locale="+ApplicationLocale.findDefaultLocale()+" GROUP BY group_party_wise ");
 	//		String firstSelect=buffer.toString();
 	//		buffer.append("UNION ");
 	//		buffer.append("SELECT ");
@@ -3274,8 +3276,8 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 	}
 	
 	public Member findByNameBirthDate(final String firstName,final String middleName,final String lastName,
-			final Date birthDate) throws ELSException {
-		String locale = ApplicationConstants.DEFAULT_LOCALE;
+			final Date birthDate, final String locale) throws ELSException {
+		
 		Member member = null;
 		List<Member> possibleMembers = null;
 		Map<String, String> memberNameParameters = new HashMap<String, String>();
@@ -3398,7 +3400,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		User memberUser=User.findByFieldName(User.class,"credential",credential, locale.toString());
 		Member member;
 		try {
-			member = Member.findByNameBirthDate(memberUser.getFirstName(), memberUser.getMiddleName(), memberUser.getLastName(), memberUser.getBirthDate());
+			member = Member.findByNameBirthDate(memberUser.getFirstName(), memberUser.getMiddleName(), memberUser.getLastName(), memberUser.getBirthDate(), locale);
 		} catch (ELSException e) {
 			return memberDetailsForAccountingVO;
 		}
@@ -3414,7 +3416,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		if(member.getBirthDate()==null){
 			memberDetailsForAccountingVO.setBirthDate("-");
 		}else{
-			memberDetailsForAccountingVO.setBirthDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(member.getBirthDate()), locale));
+			memberDetailsForAccountingVO.setBirthDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(member.getBirthDate()), locale));
 		}
 		if(member.getAlias()==null || member.getAlias().isEmpty()){
 			memberDetailsForAccountingVO.setAlias("-");
@@ -3497,7 +3499,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		if(member.getDeathDate()==null){
 			memberDetailsForAccountingVO.setDeathDate("-");
 		}else{
-			memberDetailsForAccountingVO.setDeathDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(member.getDeathDate()),locale));
+			memberDetailsForAccountingVO.setDeathDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(member.getDeathDate()),locale));
 		}
 		
 		return memberDetailsForAccountingVO;
@@ -3608,7 +3610,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		if(m.getBirthDate()==null){
 			memberBiographyVO.setBirthDate("-");
 		}else{
-			memberBiographyVO.setBirthDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(m.getBirthDate()), locale));
+			memberBiographyVO.setBirthDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(m.getBirthDate()), locale));
 		}
 		memberBiographyVO.setPlaceOfBirth(m.getBirthPlace().trim());
 
@@ -3616,12 +3618,12 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		if(m.getDeathDate()==null){
 			memberBiographyVO.setDeathDate("-");
 		}else{
-			memberBiographyVO.setDeathDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(m.getDeathDate()),locale));
+			memberBiographyVO.setDeathDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(m.getDeathDate()),locale));
 		}
 		if(m.getCondolenceDate()==null){
 			memberBiographyVO.setCondolenceDate("-");
 		}else{
-			memberBiographyVO.setCondolenceDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(m.getCondolenceDate()),locale));
+			memberBiographyVO.setCondolenceDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(m.getCondolenceDate()),locale));
 		}
 		if(m.getObituary()==null){
 			memberBiographyVO.setObituary("-");
@@ -3631,7 +3633,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		if(m.getMarriageDate()==null){
 			memberBiographyVO.setMarriageDate("-");
 		}else{
-			memberBiographyVO.setMarriageDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(m.getMarriageDate()),locale));
+			memberBiographyVO.setMarriageDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(m.getMarriageDate()),locale));
 		}
 		//qualifications.this will be separated by line
 		List<Qualification> qualifications=m.getQualifications();
@@ -4222,12 +4224,12 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 				memberBiographyVO.setNoOfVoters("-");
 			}
 			if(electionResults.get(0).getElectionResultDate()!=null){
-				memberBiographyVO.setElectionResultDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(electionResults.get(0).getElectionResultDate()),locale));
+				memberBiographyVO.setElectionResultDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(electionResults.get(0).getElectionResultDate()),locale));
 			}else{
 				memberBiographyVO.setElectionResultDate("-");
 			}
 			if(electionResults.get(0).getVotingDate()!=null){
-				memberBiographyVO.setVotingDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(electionResults.get(0).getVotingDate()),locale));
+				memberBiographyVO.setVotingDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(electionResults.get(0).getVotingDate()),locale));
 			}else{
 				memberBiographyVO.setVotingDate("-");
 			}
@@ -4292,7 +4294,8 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		return memberBiographyVO;
 	}
 
-	public List<String> findMembersByHouseDates(Long houseTypeId, String fromDate, String toDate) {
+	@SuppressWarnings("unchecked")
+	public List<String> findMembersByHouseDates(Long houseTypeId, String fromDate, String toDate, String locale) {
 		CustomParameter parameter =
 				CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT_HYPHEN", "");
 		
@@ -4308,7 +4311,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		requestMap.put("fromDate", new String[] {fromDateSTR});
 		requestMap.put("toDate", new String[] {toDateSTR});
 		requestMap.put("houseTypeId", new String[] {houseTypeId.toString()});
-		requestMap.put("locale",new String[] {"mr_IN"});
+		requestMap.put("locale",new String[] {locale});
 		requestMap.put("field_select_query", null);
 		requestMap.put("field_header_select_query", null);
 		

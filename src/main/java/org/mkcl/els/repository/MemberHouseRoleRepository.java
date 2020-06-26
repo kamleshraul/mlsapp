@@ -319,6 +319,7 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
 				}				
 				List members=this.em().createNativeQuery(query).getResultList();
 				List<Member> activeMinistersList = Member.findActiveMinisters(new Date(), locale);
+				String[] memberAsPresidingOfficerRoles = new String[] {"SPEAKER", "DEPUTY_SPEAKER", "CHAIRMAN", "DEPUTY_CHAIRMAN"};
 				for(Object i:members){
 					Object[] o=(Object[]) i;
 					Member member = Member.findById(Member.class, Long.parseLong(o[0].toString()));
@@ -331,7 +332,8 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
 							}
 						}
 					}
-					if(!isMemberActiveMinister) {
+					//if(member.isActiveOnlyAsMember(new Date(), locale)) {
+					if(!isMemberActiveMinister && !member.isActiveMemberInAnyOfGivenRolesOn(memberAsPresidingOfficerRoles, new Date(), locale)) {
 						MasterVO masterVO=new MasterVO();
 						masterVO.setId(Long.parseLong(o[0].toString()));
 						if(o[3]!=null){
@@ -340,7 +342,7 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
 							masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString());
 						}
 						memberVOS.add(masterVO);
-					}					
+					}
 				}
 			}
 			return memberVOS;

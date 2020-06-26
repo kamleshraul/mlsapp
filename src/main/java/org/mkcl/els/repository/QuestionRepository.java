@@ -2558,6 +2558,45 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		}
 	}
 
+	public List<Question> findAllForTimeoutByStatus(final Session session,
+			final DeviceType deviceType, 
+			final Status internalStatus, 
+			final Group group,
+			final SubDepartment subdepartment,
+			final Integer itemsCount,
+			final String locale) throws ELSException {
+		
+		StringBuffer strQuery = new StringBuffer("SELECT q FROM Question q WHERE q.session.id=:sessionId"+
+				" AND q.type.id=:deviceTypeId AND q.locale=:locale"+
+				" AND q.group.id=:groupId  AND q.internalStatus.id=:internalStatusId"+
+				" AND q.parent IS NULL"+
+				" AND q.recommendationStatus IS NOT NULL "+
+				" AND (q.recommendationStatus.type LIKE '%_sendToDepartment' OR q.recommendationStatus.type LIKE '%_sendToDeskOfficer')");
+		if(subdepartment != null){
+			strQuery.append(" AND q.subDepartment.id=:subdepartmentId");
+		}
+		strQuery.append(" ORDER BY q.number");
+		try{
+			TypedQuery<Question> q=this.em().createQuery(strQuery.toString(), Question.class);
+			q.setMaxResults(itemsCount);
+			q.setParameter("sessionId", session.getId());
+			q.setParameter("deviceTypeId", deviceType.getId());
+			q.setParameter("locale", locale);
+			q.setParameter("groupId", group.getId());
+			q.setParameter("internalStatusId", internalStatus.getId());
+			if(subdepartment != null){
+				q.setParameter("subdepartmentId", subdepartment.getId());
+			}
+			return q.getResultList();
+		}catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("QuestionRepository_List<Question>_findAllByStatus",
+					"Cannot get the Question");
+			throw elsException;
+		}
+	}
 	
 	//todos 1
 		@SuppressWarnings("unchecked")
@@ -2733,6 +2772,62 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		tQuery.setMaxResults(1);
 		QuestionDraft draft = tQuery.getSingleResult();
 		return draft;
+	}
+	
+//	public boolean isSubmissionDraftAbsentForQuestion(final Question question) throws ELSException {
+//		boolean isSubmissionDraftAbsentForQuestion = true;
+//		
+//		QuestionDraft submissionDraft = null;
+//		String query = "SELECT qd" +
+//					" FROM Question q join q.drafts qd" +
+//					" WHERE q.id=:qid" +
+//					" AND qd.internalStatus.id=:submissionStatusId" +
+//					" ORDER BY qd.editedOn ASC";
+//		TypedQuery<QuestionDraft> tQuery = 
+//			this.em().createQuery(query, QuestionDraft.class);
+//		tQuery.setParameter("qid", question.getId());
+//		Status submissionStatus = Status.findByType(ApplicationConstants.QUESTION_SUBMIT, question.getLocale());
+//		submissionStatus = Question.findCorrespondingStatusForGivenQuestionType(submissionStatus, question.getOriginalType());
+//		tQuery.setParameter("submissionStatusId", submissionStatus.getId());
+//		List<QuestionDraft> drafts = tQuery.getResultList();
+//		if(drafts!=null && !drafts.isEmpty()){
+//			submissionDraft = drafts.get(0);
+//		}
+//		if(submissionDraft!=null && submissionDraft.getId()!=null) {
+//			isSubmissionDraftAbsentForQuestion = false;
+//		}
+//		
+//		return isSubmissionDraftAbsentForQuestion;
+//	}
+	
+	public boolean isSubmissionDraftAbsentForQuestion(final Question question) throws ELSException {
+		boolean isSubmissionDraftAbsentForQuestion = true;
+		
+		QuestionDraft submissionDraft = null;
+		String query = "SELECT qd.id" +
+					" FROM question_drafts qd" +
+					" WHERE qd.question_id=:qid" +
+					" AND qd.internalstatus_id=:submissionStatusId" +
+					" ORDER BY qd.edited_on ASC";
+		Query tQuery = 
+			this.em().createNativeQuery(query, QuestionDraft.class);
+		tQuery.setParameter("qid", question.getId());
+		Status submissionStatus = Status.findByType(ApplicationConstants.QUESTION_SUBMIT, question.getLocale());
+		submissionStatus = Question.findCorrespondingStatusForGivenQuestionType(submissionStatus, question.getOriginalType());
+		tQuery.setParameter("submissionStatusId", submissionStatus.getId());
+		@SuppressWarnings("unchecked")
+		List<QuestionDraft> drafts = tQuery.getResultList();
+		if(drafts!=null && !drafts.isEmpty()){
+			submissionDraft = drafts.get(0);
+		}
+		if(submissionDraft!=null && submissionDraft.getId()!=null) {
+			UserGroupType ugt = UserGroupType.findByName(UserGroupType.class, submissionDraft.getEditedAs(), question.getLocale());
+			if(ugt!=null && (ugt.getType().equals(ApplicationConstants.MEMBER) || ugt.getType().equals(ApplicationConstants.TYPIST))) {
+				isSubmissionDraftAbsentForQuestion = false;
+			}
+		}
+		
+		return isSubmissionDraftAbsentForQuestion;
 	}
 	
 	public boolean isAdmittedThroughClubbing(final Question question) {

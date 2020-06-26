@@ -232,7 +232,7 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 			return results;
 		}		
 		return null;
-	}
+	} 
 	
 	@SuppressWarnings("rawtypes")
 	public List findResultListOfGivenClass(final String report,final Map<String, String[]> requestMap, Class className, final Boolean handleIN) {

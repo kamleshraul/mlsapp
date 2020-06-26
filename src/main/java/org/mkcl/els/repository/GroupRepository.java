@@ -249,7 +249,7 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 							}if(entry[2]!=null){
 								Date date=dbFormat.parse(entry[2].toString());
 								questionDatesVO.setAnsweringDate(format.format(date));
-								questionDatesVO.setDayOfWeek(FormaterUtil.getDayInMarathi(dayOfWeekFormat.format(date), locale));
+								questionDatesVO.setDayOfWeek(FormaterUtil.getDayInLocaleLanguage(dayOfWeekFormat.format(date), locale));
 							}if(entry[3]!=null){
 								Date date=dbFormat.parse(entry[3].toString());
 								questionDatesVO.setFinalSubmissionDate(format.format(date));
@@ -370,9 +370,9 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 					//Added the following code to solve the marathi month and day issue
 					if(dbDateFormat!=null && dbFormat!=null) {
 		            	String[] strAnsweringDates=dbFormat.format(i.getAnsweringDate()).split(",");
-	            		String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+	            		String answeringDay=FormaterUtil.getDayInLocaleLanguage(strAnsweringDates[0],locale.toString());
 	            		String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-	            		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+	            		String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 	            		String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"Date";
 	            		String formattedAnsweringDate = answeringDay+", "+ genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strAnsweringDates[2];
 	            		Reference referenceVO=new Reference(i.getId().toString(),formattedAnsweringDate);
