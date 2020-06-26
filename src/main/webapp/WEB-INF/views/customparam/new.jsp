@@ -51,11 +51,12 @@
 			<label class="small"><spring:message code="customparam.locale" text="Locale"/></label>
 			<form:select path="locale" cssClass="sSelect">
 				<form:option value=''><spring:message code='please.select' text='Please Select'/></form:option>
-				<form:option value="mr_IN">mr_IN</form:option>
-				<form:option value="en_US">en_US</form:option>
+				<c:forEach var="locale_value" items="${availableLocales}">
+					<form:option value="${locale_value}">${locale_value}</form:option>
+				</c:forEach>
 			</form:select>	
 	        <form:errors path="locale" cssClass="validationError"/>	
-			</p>
+		</p>
 		
 		<p>
 			<label class="small"><spring:message code="customparam.name" text="Name"/></label>

@@ -271,6 +271,8 @@
 					$(this).val("");
 				}
 			});		
+			/*$.prompt("Submission is offline till further instructions!");
+			return false;*/
 			$.prompt($('#submissionMsg').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){

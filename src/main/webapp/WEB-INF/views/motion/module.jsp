@@ -672,7 +672,7 @@
 			$("#selectionDiv1").hide();
 			$.get(url,function(data){
 				if(data){
-					showTabByIdAndUrl('details_tab','motion/report/motion/jodpatra?sessionId='+data.id+"&deviceTypeId="+$("#selectedMotionType").val()+"&statusId=" + $("#selectedStatus").val() + "&locale=mr_IN&report=MOTION_JODPATRA_REPORT_"+houseType+"&reportout=motionjodpatra&discussionDate="+$("#jodPatraDate").val());
+					showTabByIdAndUrl('details_tab','motion/report/motion/jodpatra?sessionId='+data.id+"&deviceTypeId="+$("#selectedMotionType").val()+"&statusId=" + $("#selectedStatus").val() + "&locale="+$('#moduleLocale').val()+"&report=MOTION_JODPATRA_REPORT_"+houseType+"&reportout=motionjodpatra&discussionDate="+$("#jodPatraDate").val());
 				}
 			});
 		}
@@ -684,7 +684,7 @@
 			$("#selectionDiv1").hide();
 			$.get(url,function(data){
 				if(data){
-					showTabByIdAndUrl('details_tab','motion/report/motion/genreport?sessionId='+data.id + "&locale=mr_IN&report=MOTION_DISCUSSION_STATUS_REPORT&reportout=motiondiscussionstatusreport&discussionDate="+$("#discStatusDate").val()+"&houseType="+$("#selectedHouseType").val());
+					showTabByIdAndUrl('details_tab','motion/report/motion/genreport?sessionId='+data.id + "&locale="+$('#moduleLocale').val()+"&report=MOTION_DISCUSSION_STATUS_REPORT&reportout=motiondiscussionstatusreport&discussionDate="+$("#discStatusDate").val()+"&houseType="+$("#selectedHouseType").val());
 				}
 			});
 		}
@@ -696,7 +696,7 @@
 			$("#selectionDiv1").hide();
 			$.get(url,function(data){
 				if(data){
-					showTabByIdAndUrl('details_tab','motion/report/motion/genreport?sessionId='+data.id + "&locale=mr_IN&report=MOTION_DATE_SELECTED&reportout=selmotionreport&discussionDate="+$("#selMotionDate").val()+"&houseType="+$("#selectedHouseType").val());
+					showTabByIdAndUrl('details_tab','motion/report/motion/genreport?sessionId='+data.id + "&locale="+$('#moduleLocale').val()+"&report=MOTION_DATE_SELECTED&reportout=selmotionreport&discussionDate="+$("#selMotionDate").val()+"&houseType="+$("#selectedHouseType").val());
 				}
 			});
 		}
@@ -739,11 +739,11 @@
 		
 		function formJodPatra(){
 			var houseType = $("#selectedHouseType").val().trim().toUpperCase();
-			$("#formJodPatra").attr('href','motion/report/motion/jodpatraformation?sessionId='+$("#loadedSession").val()+"&deviceTypeId="+$("#selectedMotionType").val()+"&statusId=" + $("#selectedStatus").val() + "&locale=mr_IN&report=MOTION_JODPATRA_REPORT_" + houseType +"&reportout=motionjodpatra&discussionDate="+$("#jodPatraDate").val()+"&reportFormat=" + $("#defaultReportFormat").val()+"&currUser="+$("#ugparam").val());			
+			$("#formJodPatra").attr('href','motion/report/motion/jodpatraformation?sessionId='+$("#loadedSession").val()+"&deviceTypeId="+$("#selectedMotionType").val()+"&statusId=" + $("#selectedStatus").val() + "&locale="+$('#moduleLocale').val()+"&report=MOTION_JODPATRA_REPORT_" + houseType +"&reportout=motionjodpatra&discussionDate="+$("#jodPatraDate").val()+"&reportFormat=" + $("#defaultReportFormat").val()+"&currUser="+$("#ugparam").val());			
 		}
 		
 		function formDiscussionStatus(){
-			$("#formDiscStatus").attr('href','motion/report/motion/discussionstatusformation?sessionId='+$("#loadedSession").val()+ "&locale=mr_IN&report=MOTION_DISCUSSION_STATUS_REPORT&reportout=discussionstatus&discussionDate="+$("#discStatusDate").val()+"&reportFormat=" + $("#defaultReportFormat").val()+"&houseType="+$("#selectedHouseType").val());			
+			$("#formDiscStatus").attr('href','motion/report/motion/discussionstatusformation?sessionId='+$("#loadedSession").val()+ "&locale="+$('#moduleLocale').val()+"&report=MOTION_DISCUSSION_STATUS_REPORT&reportout=discussionstatus&discussionDate="+$("#discStatusDate").val()+"&reportFormat=" + $("#defaultReportFormat").val()+"&houseType="+$("#selectedHouseType").val());			
 		}
 		
 		function showAdmissionReport(id){
@@ -901,7 +901,7 @@
 			$("#generateVivranReport").attr('href','motion/report/motion/vivranreport?sessionId='+$("#loadedSession").val()
 					+"&deviceTypeId="+$("#selectedMotionType").val()
 					+"&statusId=" + $("#selectedStatus").val() 
-					+"&locale=mr_IN&report=MOIS_VIVRAN_REPORT" 
+					+"&locale="+$('#moduleLocale').val()+"&report=MOIS_VIVRAN_REPORT" 
 					+"&reportout=vivranreport&discussionDate="+$("#jodPatraDate").val()
 					+"&reportFormat=" + $("#defaultReportFormat").val()
 					+"&currUser="+$("#ugparam").val());			
@@ -909,7 +909,7 @@
 		
 		function generateMemberMotionStatisticalReport(){
 			showTabByIdAndUrl("details_tab","motion/report/motion/genreport?sessionId="+$("#loadedSession").val()
-					+"&locale=mr_IN&report=MOIS_MEMBERWISE_MOTION_STATISTICAL_REPORT" 
+					+"&locale="+$('#moduleLocale').val()+"&report=MOIS_MEMBERWISE_MOTION_STATISTICAL_REPORT" 
 					+"&reportout=memberMotionStatisticReport");			
 		}
 	</script>

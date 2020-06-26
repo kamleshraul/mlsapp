@@ -9,11 +9,11 @@
 	<script type="text/javascript" src="./resources/js/ui.sexyselect.min.0.55.js"></script>	 -->
 
 <script type="text/javascript">
-	function translateNumerals(input, locale) {
+	function translateNumerals(input, locale) { //instead use ajax request "'ref/format_numeric_text?numericText='+input+'&locale='+locale" to get formatted numeric text of input parameter
 	  var offset=null;
-	  //zero digit value must be defined for each locale 
+	  //zero digit value must be defined for each locale
 	  if(locale=="mr_IN"){
-		  offset=2358;
+		  offset=2358; //this offset actually corresponds to alphabet 'sha' in marathi.. very difficult to find corresponding alphabet for other locale
 	  }
 	  var formattedDigit=new Array();
 	  for (var i=0;i<input.length; i++) {
@@ -142,23 +142,29 @@
 			}//for			
 			//**************algorithm*********for display name 
 			if(constituencyNumber!=""){
-				cNo=translateNumerals(constituencyNumber,$("#locale").val());
-				if(constituencyDistrict.length>1){	
-					if(constituencyIsReserved=="true"){
-						if(constituencyReservedFor!=""){
-							$("#displayName").val(cNo+"-"+constituencyName+"("+constituencyReservedFor+"), "+$("#districtMsg").val()+" "+constituencyDistrict);
-						}//reserved for
+				$.get('ref/format_numeric_text?numericText='+constituencyNumber+'&locale='+$("#locale").val(), function(data) {
+					cNo = data;
+				}).done(function() {					
+					if(constituencyDistrict.length>1){	
+						if(constituencyIsReserved=="true"){
+							if(constituencyReservedFor!=""){
+								$("#displayName").val(cNo+"-"+constituencyName+"("+constituencyReservedFor+"), "+$("#districtMsg").val()+" "+constituencyDistrict);
+							}//reserved for
+							else{
+								alert($("#selectReservedForMsg").val());
+							}//reserved for
+						}//is reserved 
 						else{
-							alert($("#selectReservedForMsg").val());
-						}//reserved for
-					}//is reserved 
+							$("#displayName").val(cNo+"-"+constituencyName+", "+$("#districtMsg").val()+" "+constituencyDistrict);			
+						}//is reserved 
+					}//district
 					else{
-						$("#displayName").val(cNo+"-"+constituencyName+", "+$("#districtMsg").val()+" "+constituencyDistrict);			
-					}//is reserved 
-				}//district
-				else{
-					alert($("#selectDistrictMsg").val());							
-				}//district	
+						alert($("#selectDistrictMsg").val());							
+					}//district	
+				}).fail(function() {
+					alert("Some error occurred in formatting constituency number for display name!");
+					return false;
+				});				
 			}//number
 			else{
 				if(constituencyDistrict.length>1){	

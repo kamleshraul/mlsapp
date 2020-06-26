@@ -90,7 +90,7 @@
 		
 		function testReport() {
 			console.log("test report started..");
-			form_submit('admin/test_report', {locale: 'mr_IN'}, 'post');
+			form_submit('admin/test_report', {locale: $('#authlocale').val()}, 'post');
 		}
 	</script>
 </head>

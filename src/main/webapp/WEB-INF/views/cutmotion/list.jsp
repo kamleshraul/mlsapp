@@ -49,6 +49,12 @@
 				memberCutMotionsView();
 			});
 			
+			/**** Departmentwise Submitted Counts ****/
+			$("#departmentwise_submitted_counts_report").click(function() {
+				$("#selectionDiv1").hide();
+				generateDepartmentwiseSubmittedCountsReport();
+			});
+			
 			$("#generateCurrentStatusReport").click(function(){
 				var selectedMotionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
 				
@@ -140,15 +146,21 @@
 				</a> |
 			</security:authorize> --%>
 			<security:authorize access="!hasAnyRole('CMOIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<a href="#" id="departmentwise_submitted_counts_report" class="butSim">
+					<spring:message code="cutmotion.departmentwise_submitted_counts_report" text="Departmentwise Submitted Counts"/>
+				</a> |
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="cutmotion.generateCurrentStatusReport" text="Generate Current Status Report"/>
 				</a> |
-			</security:authorize>	
-			<security:authorize access="hasAnyRole('CMOIS_ASSISTANT','CMOIS_SECTION_OFFICER')">				
 				<a href="#" id="generateYaadiReport" class="butSim">
 					<spring:message code="cutmotion.generateYaadiReport" text="Generate Yaadi Report"/>
 				</a> |
-			</security:authorize>
+			</security:authorize>	
+			<%-- <security:authorize access="hasAnyRole('CMOIS_ASSISTANT','CMOIS_SECTION_OFFICER')">				
+				<a href="#" id="generateYaadiReport" class="butSim">
+					<spring:message code="cutmotion.generateYaadiReport" text="Generate Yaadi Report"/>
+				</a> |
+			</security:authorize> --%>
 			<p>&nbsp;</p>
 		</div>
 	</div>
