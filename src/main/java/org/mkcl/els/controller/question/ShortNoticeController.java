@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -668,8 +669,7 @@ class ShortNoticeController {
 		}else{
 			throw new ELSException("StarredQuestionController.populatenew/5", 
 					"session_isnull");
-		}
-		
+		}		
 		
 		//Populate Ministries
 		List<Ministry> ministries = Ministry.
@@ -678,7 +678,10 @@ class ShortNoticeController {
 		
 		//Populate Ministry
 		Ministry ministry = domain.getMinistry();
-		model.addAttribute("ministrySelected", ministry.getId());
+		if(ministry != null) {
+			model.addAttribute("formattedMinistry", ministry.getName());
+			model.addAttribute("ministrySelected", ministry.getId());
+		}
 		
 		//Populate Group
 		Group group = domain.getGroup();
@@ -700,7 +703,11 @@ class ShortNoticeController {
 		if(subDepartment != null) {
 			model.addAttribute("subDepartmentSelected",subDepartment.getId());
 		}
-							
+		//populate original subdepartment
+		SubDepartment originalSubDepartment = domain.getOriginalSubDepartment();
+		if(originalSubDepartment != null) {
+			model.addAttribute("originalSubDepartment", originalSubDepartment.getId());
+		}							
 	}
 
 	public static void populateCreateIfNoErrors(final Question domain,
@@ -919,6 +926,11 @@ class ShortNoticeController {
 		if(subDepartment != null) {
 			model.addAttribute("subDepartmentSelected",subDepartment.getId());
 		}
+		//populate original subdepartment
+		SubDepartment originalSubDepartment = domain.getOriginalSubDepartment();
+		if(originalSubDepartment != null) {
+			model.addAttribute("originalSubDepartment", originalSubDepartment.getId());
+		}
 		
 		//Populate SubmissionDate, creationDate, workflowStartedOnDate, taskReceivedOnDate
 		CustomParameter dateTimeFormat=CustomParameter.
@@ -1003,6 +1015,22 @@ class ShortNoticeController {
 				&& !usergroupType.equals(ApplicationConstants.TYPIST)
 				&& (domain.getDrafts()==null || domain.getDrafts().isEmpty())) {
 			domain.addQuestionDraftForMembersideSubmission();
+			domain.simpleMerge();
+		} else if(domain.getNumber()!=null 
+				&& (domain.getDrafts()==null || domain.getDrafts().isEmpty())) {
+			List<QuestionDraft> drafts = QuestionDraft.findAllByFieldName(QuestionDraft.class, "questionId", domain.getId(), "id", ApplicationConstants.ASC, domain.getLocale());
+			if(drafts!=null && !drafts.isEmpty()) {
+				domain.setDrafts(new LinkedHashSet<QuestionDraft>(drafts));
+				domain.simpleMerge();
+			} else {
+				//create submission draft from original fields
+				domain.addMissingSubmissionDraft();
+				domain.simpleMerge();
+			}
+		} else if(domain.getNumber()!=null 
+				&& Question.isSubmissionDraftAbsentForQuestion(domain)) {
+			//create submission draft from original fields
+			domain.addMissingSubmissionDraft();
 			domain.simpleMerge();
 		}
 
@@ -1467,6 +1495,11 @@ class ShortNoticeController {
 		SubDepartment subDepartment = domain.getSubDepartment();
 		if(subDepartment != null) {
 			model.addAttribute("subDepartmentSelected", subDepartment.getId());
+		}
+		//populate original subdepartment
+		SubDepartment originalSubDepartment = domain.getOriginalSubDepartment();
+		if(originalSubDepartment != null) {
+			model.addAttribute("originalSubDepartment", originalSubDepartment.getId());
 		}
 		
 		String strCreationDate = request.getParameter("setCreationDate");

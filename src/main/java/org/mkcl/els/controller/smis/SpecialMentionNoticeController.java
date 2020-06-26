@@ -440,7 +440,7 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 			final String locale,
 			final HttpServletRequest request) {
 		AuthUser authUser = this.getCurrentUser();
-		domain.setLocale("mr_IN");
+		domain.setLocale(locale);
 		try {
 			/**** House Type ****/
 			String selectedHouseType=authUser.getHouseType();

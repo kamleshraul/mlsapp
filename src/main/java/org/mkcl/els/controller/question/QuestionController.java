@@ -938,6 +938,111 @@ public class QuestionController extends GenericController<Question> {
 			}
 			return null;
 		}
+		
+		@RequestMapping(value="/bulktimeout/init", method=RequestMethod.GET)
+		public String getBulkTimeoutInit(final ModelMap model,
+				final HttpServletRequest request,
+				final Locale locale) {
+			AuthUser authUser = this.getCurrentUser();
+			try {
+				DeviceType deviceType = QuestionController.getDeviceTypeById(request, locale.toString());
+				String deviceTypeType = deviceType.getType();
+				
+				if(deviceTypeType.equals(ApplicationConstants.STARRED_QUESTION)) {
+					return StarredQuestionController.
+							getBulkTimeoutInit(request, model, authUser, locale);
+				}
+				else {
+					throw new ELSException("QuestionController.getBulkTimeoutInit/3", 
+							"Method invoked for inappropriate device type");
+				}
+			}
+			catch(ELSException elsx) {
+				elsx.printStackTrace();
+			}
+			catch(Exception ex) {
+				ex.printStackTrace();
+			}
+			return null;
+		}
+		
+		@RequestMapping(value="/bulktimeout/view", method=RequestMethod.GET)
+		public String getBulkTimeoutView(final ModelMap model,
+				final HttpServletRequest request,
+				final Locale locale) {
+			try {
+				QuestionController.getBulkTimeoutQuestions(model, request, locale.toString());
+			} catch (ELSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return "question/bulk_timeout_view";
+		}
+		
+		public static void getBulkTimeoutQuestions(final ModelMap model,
+		final HttpServletRequest request, 
+		final String locale) throws ELSException {
+			/**** Request Params ****/
+			HouseType houseType = QuestionController.getHouseTypebyType(request, locale);
+			SessionType sessionType = QuestionController.getSessionType(request, locale);
+			DeviceType deviceType = QuestionController.getDeviceType(request, locale);
+			Integer sessionYear = QuestionController.stringToIntegerYear(request, locale);
+			Integer itemCount = QuestionController.stringToIntegerItemCount(request, locale);
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType,sessionType, sessionYear);
+			String strStatus = request.getParameter("status");
+			String strGroup = request.getParameter("group");
+			String strDepartment = request.getParameter("department");
+			if(strStatus != null && !(strStatus.isEmpty())) {
+				List<Question> questions = new ArrayList<Question>();
+				Group group=null;
+				if(strGroup!=null && strGroup !=""){
+					group=Group.findById(Group.class, Long.parseLong(strGroup));
+				}
+				SubDepartment subdepartment = null;
+				if(strDepartment != null && !strDepartment.equals("-")){
+					subdepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strDepartment));
+				}
+	
+				Status internalStatus = Status.findById(Status.class,Long.parseLong(strStatus));
+				questions = Question.findAllForTimeoutByStatus(session, deviceType, internalStatus,group , subdepartment,
+						itemCount, locale);
+				
+				model.addAttribute("questions", questions);
+				if(questions != null && ! questions.isEmpty()) {
+					model.addAttribute("questionId", questions.get(0).getId());
+				}
+			}
+		}	
+		
+		
+
+		@Transactional
+		@RequestMapping(value="/bulktimeout/update", method=RequestMethod.POST)
+		public String bulkTimeout(final ModelMap model,
+				final HttpServletRequest request,
+				final Locale locale) {	
+			AuthUser authUser = this.getCurrentUser();
+			try {
+				DeviceType deviceType = QuestionController.getDeviceType(request, locale.toString());
+				String deviceTypeType = deviceType.getType();
+				
+				if(deviceTypeType.equals(ApplicationConstants.STARRED_QUESTION)) {
+					return StarredQuestionController.
+							bulkTimeout(request, model, authUser, processService, logger, locale);
+				}
+				else {
+					throw new ELSException("QuestionController.bulkTimeout/3", 
+							"Method invoked for inappropriate device type");
+				}
+			}
+			catch(ELSException elsx) {
+				elsx.printStackTrace();
+			}
+			catch(Exception ex) {
+				ex.printStackTrace();
+			}
+			return null;
+		}
 	
 		@RequestMapping(value="/viewquestion",method=RequestMethod.GET)
 		public String viewQuestion(final HttpServletRequest request,

@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -719,6 +720,11 @@ class UnstarredQuestionController {
 		if(subDepartment != null) {
 			model.addAttribute("subDepartmentSelected",subDepartment.getId());
 		}
+		//populate original subdepartment
+		SubDepartment originalSubDepartment = domain.getOriginalSubDepartment();
+		if(originalSubDepartment != null) {
+			model.addAttribute("originalSubDepartment", originalSubDepartment.getId());
+		}
 		
 		//populate Answering Dates
 		if(group != null){
@@ -740,7 +746,11 @@ class UnstarredQuestionController {
 					getDateFormatter(domain.getLocale()).format(questionDate.getAnsweringDate()));
 			model.addAttribute("answeringDateSelected",questionDate.getId());
 		}
-		
+		//populate original answering date
+		QuestionDates originalAnsweringDate = domain.getOriginalAnsweringDate();
+		if(originalAnsweringDate != null) {
+			model.addAttribute("originalAnsweringDate", originalAnsweringDate.getId());
+		}		
 		
 		//Populate Priorities
 		CustomParameter customParameter = CustomParameter.
@@ -782,6 +792,14 @@ class UnstarredQuestionController {
 				if(domain.getSubmissionDate() == null) {
 					domain.setSubmissionDate(new Date());
 				}
+//				//set original sub-department
+//				if(domain.getSubDepartment()!=null){
+//					domain.setOriginalSubDepartment(domain.getSubDepartment());
+//				}
+//				//set original answering date
+//				if(domain.getAnsweringDate()!=null){
+//					domain.setOriginalAnsweringDate(domain.getAnsweringDate());
+//				}
 				
 				//set Supporting member			
 				if(domain.getSupportingMembers() != null && !domain.getSupportingMembers().isEmpty()) {
@@ -1018,6 +1036,11 @@ class UnstarredQuestionController {
 		if(subDepartment != null) {
 			model.addAttribute("subDepartmentSelected",subDepartment.getId());
 		}
+		//populate original subdepartment
+		SubDepartment originalSubDepartment = domain.getOriginalSubDepartment();
+		if(originalSubDepartment != null) {
+			model.addAttribute("originalSubDepartment", originalSubDepartment.getId());
+		}
 		
 		//populate Answering Dates
 		if(group != null){
@@ -1038,6 +1061,11 @@ class UnstarredQuestionController {
 			model.addAttribute("formattedAnsweringDate",FormaterUtil.
 					getDateFormatter(locale).format(questionDate.getAnsweringDate()));
 			model.addAttribute("answeringDateSelected",questionDate.getId());
+		}
+		//populate original answering date
+		QuestionDates originalAnsweringDate = domain.getOriginalAnsweringDate();
+		if(originalAnsweringDate != null) {
+			model.addAttribute("originalAnsweringDate", originalAnsweringDate.getId());
 		}
 		
 	
@@ -1125,6 +1153,22 @@ class UnstarredQuestionController {
 				&& !usergroupType.equals(ApplicationConstants.TYPIST)
 				&& (domain.getDrafts()==null || domain.getDrafts().isEmpty())) {
 			domain.addQuestionDraftForMembersideSubmission();
+			domain.simpleMerge();
+		} else if(domain.getNumber()!=null 
+				&& (domain.getDrafts()==null || domain.getDrafts().isEmpty())) {
+			List<QuestionDraft> drafts = QuestionDraft.findAllByFieldName(QuestionDraft.class, "questionId", domain.getId(), "id", ApplicationConstants.ASC, domain.getLocale());
+			if(drafts!=null && !drafts.isEmpty()) {
+				domain.setDrafts(new LinkedHashSet<QuestionDraft>(drafts));
+				domain.simpleMerge();
+			} else {
+				//create submission draft from original fields
+				domain.addMissingSubmissionDraft();
+				domain.simpleMerge();
+			}
+		} else if(domain.getNumber()!=null 
+				&& Question.isSubmissionDraftAbsentForQuestion(domain)) {
+			//create submission draft from original fields
+			domain.addMissingSubmissionDraft();
 			domain.simpleMerge();
 		}
 		
@@ -1717,6 +1761,11 @@ class UnstarredQuestionController {
 		if(subDepartment != null) {
 			model.addAttribute("subDepartmentSelected", subDepartment.getId());
 		}
+		//populate original subdepartment
+		SubDepartment originalSubDepartment = domain.getOriginalSubDepartment();
+		if(originalSubDepartment != null) {
+			model.addAttribute("originalSubDepartment", originalSubDepartment.getId());
+		}
 		
 		//populate Answering Dates
 		if(group != null){
@@ -1737,6 +1786,11 @@ class UnstarredQuestionController {
 			model.addAttribute("formattedAnsweringDate", FormaterUtil.
 					getDateFormatter(locale).format(questionDate.getAnsweringDate()));
 			model.addAttribute("answeringDateSelected", questionDate.getId());
+		}
+		//populate original answering date
+		QuestionDates originalAnsweringDate = domain.getOriginalAnsweringDate();
+		if(originalAnsweringDate != null) {
+			model.addAttribute("originalAnsweringDate", originalAnsweringDate.getId());
 		}
 		
 	
@@ -2108,6 +2162,14 @@ class UnstarredQuestionController {
 					if(domain.getSubmissionDate() == null){
 						domain.setSubmissionDate(new Date());
 					}
+//					//set original sub-department
+//					if(domain.getSubDepartment()!=null){
+//						domain.setOriginalSubDepartment(domain.getSubDepartment());
+//					}
+//					//set original answering date
+//					if(domain.getAnsweringDate()!=null){
+//						domain.setOriginalAnsweringDate(domain.getAnsweringDate());
+//					}
 					// set Supporting Members
 					List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
 					if(domain.getSupportingMembers() != null && !domain.getSupportingMembers().isEmpty()){
@@ -2619,6 +2681,15 @@ class UnstarredQuestionController {
 							"type", strUserGroupType, question.getLocale());
 					question.setEditedAs(userGroupType.getName());
 				}
+				
+//				//set original sub-department
+//				if(question.getSubDepartment()!=null){
+//					question.setOriginalSubDepartment(question.getSubDepartment());
+//				}
+//				//set original answering date
+//				if(question.getAnsweringDate()!=null){
+//					question.setOriginalAnsweringDate(question.getAnsweringDate());
+//				}
 
 				/**** Bulk Submitted ****/
 				question.setBulkSubmitted(true);

@@ -339,29 +339,29 @@ public class CutMotionWorkflowController extends BaseController {
 		/**** Supporting Members ****/
 		List<SupportingMember> selectedSupportingMembers = domain.getSupportingMembers();
 		List<Member> supportingMembers = new ArrayList<Member>();
-		if (selectedSupportingMembers != null) {
-			if (!selectedSupportingMembers.isEmpty()) {
+		if(selectedSupportingMembers != null){
+			if(!selectedSupportingMembers.isEmpty()){
 				StringBuffer bufferFirstNamesFirst = new StringBuffer();
-				for (SupportingMember i : selectedSupportingMembers) {
-					/****
-					 * All Supporting Members Are Preserved.But the names that
-					 * appear in supporting members list will vary.
-					 ****/
+				for(SupportingMember i : selectedSupportingMembers){
 					Member m = i.getMember();
 					supportingMembers.add(m);
-					if (i.getDecisionStatus() != null
-							&& i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+					if(i.getDecisionStatus() != null
+							&& i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
 						bufferFirstNamesFirst.append(m.getFullname() + ",");
 					}
 				}
+				if(bufferFirstNamesFirst.length()>1) {
+					bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
+				}
 				model.addAttribute("supportingMembersName", bufferFirstNamesFirst.toString());
 				model.addAttribute("supportingMembers", supportingMembers);
+				model.addAttribute("selectedSupportingMembersIds", selectedSupportingMembers);
 				memberNames = primaryMemberName + "," + bufferFirstNamesFirst.toString();
 				model.addAttribute("memberNames", memberNames);
-			} else {
+			} else{
 				model.addAttribute("memberNames", memberNames);
 			}
-		} else {
+		} else{
 			model.addAttribute("memberNames", memberNames);
 		}
 		/**** Ministries And Sub Departments ****/

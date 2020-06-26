@@ -1838,7 +1838,7 @@ class CommitteeWFUtility {
 				
 				// As a way around following piece of code is added
 				UserGroup userGroup = 
-					UserGroup.findActive(credential, ug.getUserGroupType(), new Date(), ApplicationConstants.DEFAULT_LOCALE);
+					UserGroup.findActive(credential, ug.getUserGroupType(), new Date(), ug.getLocale());
 				return userGroup;
 			}
 		}

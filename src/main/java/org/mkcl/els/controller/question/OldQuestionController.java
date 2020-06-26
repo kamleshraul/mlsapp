@@ -2800,14 +2800,14 @@
 //				Reference reference = new Reference();
 //
 //				reference.setId(selYear.toString());
-//				reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear), "mr_IN"));
+//				reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear), domain.getLocale()));
 //				halfhourdiscussion_sessionYears.add(reference);
 //
 //				reference = null;
 //				reference = new Reference();
 //
 //				reference.setId((new Integer(selYear.intValue()-1)).toString());
-//				reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear-1), "mr_IN"));
+//				reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear-1), domain.getLocale()));
 //				halfhourdiscussion_sessionYears.add(reference);
 //				model.addAttribute("halfhourdiscussion_sessionYears",halfhourdiscussion_sessionYears);
 //
@@ -3035,14 +3035,14 @@
 //				Reference reference = new Reference();
 //
 //				reference.setId(selYear.toString());
-//				reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear), "mr_IN"));
+//				reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear), domain.getLocale()));
 //				halfhourdiscussion_sessionYears.add(reference);
 //
 //				reference = null;
 //				reference = new Reference();
 //
 //				reference.setId((new Integer(selYear.intValue()-1)).toString());
-//				reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear-1), "mr_IN"));
+//				reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear-1), domain.getLocale()));
 //				halfhourdiscussion_sessionYears.add(reference);				
 //
 //				model.addAttribute("halfhourdiscussion_sessionYears", halfhourdiscussion_sessionYears);

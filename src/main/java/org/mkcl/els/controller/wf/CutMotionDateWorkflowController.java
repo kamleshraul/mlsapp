@@ -468,7 +468,7 @@ public class CutMotionDateWorkflowController extends BaseController {
 			Date budgetLayDate = null;			
 			String strBudgetLayDate = session.getParameter(deviceType.getType() + "_budgetLayDate");
 			if(strBudgetLayDate != null && !strBudgetLayDate.isEmpty()){
-				budgetLayDate = FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT, ApplicationConstants.SYSTEM_LOCALE).parse(strBudgetLayDate);
+				budgetLayDate = FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT, ApplicationConstants.STANDARD_LOCALE).parse(strBudgetLayDate);
 			}			
 			if(deviceType.getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY) && budgetLayDate == null){
 				model.addAttribute("errorcode", "budgetLayDate_setting_error");
@@ -530,7 +530,7 @@ public class CutMotionDateWorkflowController extends BaseController {
 			Date budgetLayDate = null;			
 			String strBudgetLayDate = session.getParameter(deviceType.getType() + "_budgetLayDate");
 			if(strBudgetLayDate != null && !strBudgetLayDate.isEmpty()){
-				budgetLayDate = FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT, ApplicationConstants.SYSTEM_LOCALE).parse(strBudgetLayDate);
+				budgetLayDate = FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT, ApplicationConstants.STANDARD_LOCALE).parse(strBudgetLayDate);
 			}			
 			if(deviceType.getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY) && budgetLayDate == null){
 				model.addAttribute("errorcode", "budgetLayDate_setting_error");

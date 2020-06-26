@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -509,13 +510,13 @@ class HalfHourDiscussionFromQuestionController {
 			List<Reference> halfhourdiscussion_sessionYears = new ArrayList<Reference> ();
 			Reference reference = new Reference();
 			reference.setId(sessionYear.toString());
-			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(sessionYear), "mr_IN"));
+			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(sessionYear), locale));
 			halfhourdiscussion_sessionYears.add(reference);
 			
 			reference = null;
 			reference = new Reference();
 			reference.setId((new Integer(sessionYear.intValue()-1)).toString());
-			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(sessionYear-1), "mr_IN"));
+			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(sessionYear-1), locale));
 			halfhourdiscussion_sessionYears.add(reference);
 			model.addAttribute("halfhourdiscussion_sessionYears", halfhourdiscussion_sessionYears);
 
@@ -935,15 +936,37 @@ class HalfHourDiscussionFromQuestionController {
 			if(constituency != null){
 				model.addAttribute("constituency", constituency.getDisplayName());
 			}
-		}
-		
-		
+		}		
 			
 		//Populate Ministries
-
 		List<Ministry> ministries = Ministry.
 				findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
-		model.addAttribute("ministries",ministries);
+		model.addAttribute("ministries",ministries);	
+		
+		//Populate Ministry
+		Ministry ministry = domain.getMinistry();
+		if(ministry != null) {
+			model.addAttribute("formattedMinistry", ministry.getName());
+			model.addAttribute("ministrySelected", ministry.getId());
+		}
+		
+		//Populate SubDepartments
+		if(ministry != null) {
+			List<SubDepartment> subDepartments = MemberMinister.
+					findAssignedSubDepartments(ministry, selectedSession.getStartDate(), locale);
+			model.addAttribute("subDepartments",subDepartments);
+		}
+		
+		//populate subdepartment
+		SubDepartment subDepartment = domain.getSubDepartment();
+		if(subDepartment != null) {
+			model.addAttribute("subDepartmentSelected",subDepartment.getId());
+		}
+		//populate original subdepartment
+		SubDepartment originalSubDepartment = domain.getOriginalSubDepartment();
+		if(originalSubDepartment != null) {
+			model.addAttribute("originalSubDepartment", originalSubDepartment.getId());
+		}
 		
 		//Populate Referenced Devices
 		if (selectedSession != null) {	
@@ -967,13 +990,13 @@ class HalfHourDiscussionFromQuestionController {
 			List<Reference> halfhourdiscussion_sessionYears = new ArrayList<Reference> ();
 			Reference reference = new Reference();
 			reference.setId(sessionYear.toString());
-			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(sessionYear), "mr_IN"));
+			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(sessionYear), locale));
 			halfhourdiscussion_sessionYears.add(reference);
 			
 			reference = null;
 			reference = new Reference();
 			reference.setId((new Integer(sessionYear.intValue()-1)).toString());
-			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(sessionYear-1), "mr_IN"));
+			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(sessionYear-1), locale));
 			halfhourdiscussion_sessionYears.add(reference);
 			model.addAttribute("halfhourdiscussion_sessionYears", halfhourdiscussion_sessionYears);
 
@@ -1324,6 +1347,11 @@ class HalfHourDiscussionFromQuestionController {
 		if(subDepartment != null) {
 			model.addAttribute("subDepartmentSelected",subDepartment.getId());
 		}
+		//populate original subdepartment
+		SubDepartment originalSubDepartment = domain.getOriginalSubDepartment();
+		if(originalSubDepartment != null) {
+			model.addAttribute("originalSubDepartment", originalSubDepartment.getId());
+		}
 		
 		//Populate SubmissionDate, creationDate, workflowStartedOnDate, taskReceivedOnDate
 		CustomParameter dateTimeFormat=CustomParameter.
@@ -1402,6 +1430,22 @@ class HalfHourDiscussionFromQuestionController {
 				&& !usergroupType.equals(ApplicationConstants.TYPIST)
 				&& (domain.getDrafts()==null || domain.getDrafts().isEmpty())) {
 			domain.addQuestionDraftForMembersideSubmission();
+			domain.simpleMerge();
+		} else if(domain.getNumber()!=null 
+				&& (domain.getDrafts()==null || domain.getDrafts().isEmpty())) {
+			List<QuestionDraft> drafts = QuestionDraft.findAllByFieldName(QuestionDraft.class, "questionId", domain.getId(), "id", ApplicationConstants.ASC, domain.getLocale());
+			if(drafts!=null && !drafts.isEmpty()) {
+				domain.setDrafts(new LinkedHashSet<QuestionDraft>(drafts));
+				domain.simpleMerge();
+			} else {
+				//create submission draft from original fields
+				domain.addMissingSubmissionDraft();
+				domain.simpleMerge();
+			}
+		} else if(domain.getNumber()!=null 
+				&& Question.isSubmissionDraftAbsentForQuestion(domain)) {
+			//create submission draft from original fields
+			domain.addMissingSubmissionDraft();
 			domain.simpleMerge();
 		}
 
@@ -1602,13 +1646,13 @@ class HalfHourDiscussionFromQuestionController {
 
 		Reference reference = new Reference();
 		reference.setId(selYear.toString());
-		reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear), "mr_IN"));
+		reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear), locale));
 		halfhourdiscussion_sessionYears.add(reference);
 
 		reference = null;
 		reference = new Reference();
 		reference.setId((new Integer(selYear.intValue()-1)).toString());
-		reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear-1), "mr_IN"));
+		reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear-1), locale));
 		halfhourdiscussion_sessionYears.add(reference);				
 
 		model.addAttribute("halfhourdiscussion_sessionYears", halfhourdiscussion_sessionYears);
@@ -1995,6 +2039,11 @@ class HalfHourDiscussionFromQuestionController {
 		if(subDepartment != null) {
 			model.addAttribute("subDepartmentSelected",subDepartment.getId());
 		}
+		//populate original subdepartment
+		SubDepartment originalSubDepartment = domain.getOriginalSubDepartment();
+		if(originalSubDepartment != null) {
+			model.addAttribute("originalSubDepartment", originalSubDepartment.getId());
+		}
 		
 		//Populate SubmissionDate, creationDate, workflowStartedOnDate, taskReceivedOnDate
 		CustomParameter dateTimeFormat=CustomParameter.
@@ -2270,13 +2319,13 @@ class HalfHourDiscussionFromQuestionController {
 	
 		Reference reference = new Reference();
 		reference.setId(selYear.toString());
-		reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear), "mr_IN"));
+		reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear), locale));
 		halfhourdiscussion_sessionYears.add(reference);
 	
 		reference = null;
 		reference = new Reference();
 		reference.setId((new Integer(selYear.intValue()-1)).toString());
-		reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear-1), "mr_IN"));
+		reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear-1), locale));
 		halfhourdiscussion_sessionYears.add(reference);				
 	
 		model.addAttribute("halfhourdiscussion_sessionYears", halfhourdiscussion_sessionYears);

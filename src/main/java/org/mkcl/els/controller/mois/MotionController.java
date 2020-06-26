@@ -30,6 +30,7 @@ import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.controller.NotificationController;
 import org.mkcl.els.controller.mis.MemberOtherController;
+import org.mkcl.els.domain.ApplicationLocale;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -1086,7 +1087,7 @@ public class MotionController extends GenericController<Motion>{
 					
 					String locale = domain.getLocale();
 					if(locale == null){
-						locale = ApplicationConstants.DEFAULT_LOCALE;
+						locale = ApplicationLocale.findDefaultLocale();
 					}
 					
 					CustomParameter csptAllowedForAutoApproval = CustomParameter.findByName(CustomParameter.class, "MOIS_SUPPORT_MEMBERAUTO_APPROVAL_ALLOWED", "");

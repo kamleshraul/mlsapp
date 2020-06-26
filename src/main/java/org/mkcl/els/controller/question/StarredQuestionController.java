@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -56,6 +57,7 @@ import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.service.IProcessService;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -901,6 +903,11 @@ class StarredQuestionController {
 			if(subDepartment != null) {
 				model.addAttribute("subDepartmentSelected",subDepartment.getId());
 			}
+			//populate original subdepartment
+			SubDepartment originalSubDepartment = domain.getOriginalSubDepartment();
+			if(originalSubDepartment != null) {
+				model.addAttribute("originalSubDepartment", originalSubDepartment.getId());
+			}
 			
 			//populate Answering Dates
 			if(group != null){
@@ -921,6 +928,11 @@ class StarredQuestionController {
 				model.addAttribute("formattedAnsweringDate",FormaterUtil.
 						getDateFormatter(domain.getLocale()).format(questionDate.getAnsweringDate()));
 				model.addAttribute("answeringDateSelected",questionDate.getId());
+			}
+			//populate original answering date
+			QuestionDates originalAnsweringDate = domain.getOriginalAnsweringDate();
+			if(originalAnsweringDate != null) {
+				model.addAttribute("originalAnsweringDate", originalAnsweringDate.getId());
 			}
 		}
 		
@@ -971,6 +983,14 @@ class StarredQuestionController {
 				if(domain.getSubmissionDate() == null){
 					domain.setSubmissionDate(new Date());
 				}
+//				//set original sub-department
+//				if(domain.getSubDepartment()!=null){
+//					domain.setOriginalSubDepartment(domain.getSubDepartment());
+//				}
+//				//set original answering date
+//				if(domain.getAnsweringDate()!=null){
+//					domain.setOriginalAnsweringDate(domain.getAnsweringDate());
+//				}
 				
 				//set Supporting member			
 				if(domain.getSupportingMembers() != null && !domain.getSupportingMembers().isEmpty()){
@@ -1289,6 +1309,11 @@ class StarredQuestionController {
 			if(subDepartment != null) {
 				model.addAttribute("subDepartmentSelected",subDepartment.getId());
 			}
+			//populate original subdepartment
+			SubDepartment originalSubDepartment = domain.getOriginalSubDepartment();
+			if(originalSubDepartment != null) {
+				model.addAttribute("originalSubDepartment", originalSubDepartment.getId());
+			}
 			
 			//populate Answering Dates
 			if(group != null){
@@ -1309,6 +1334,11 @@ class StarredQuestionController {
 				model.addAttribute("formattedAnsweringDate",FormaterUtil.
 						getDateFormatter(locale).format(questionDate.getAnsweringDate()));
 				model.addAttribute("answeringDateSelected",questionDate.getId());
+			}
+			//populate original answering date
+			QuestionDates originalAnsweringDate = domain.getOriginalAnsweringDate();
+			if(originalAnsweringDate != null) {
+				model.addAttribute("originalAnsweringDate", originalAnsweringDate.getId());
 			}
 		}
 	
@@ -1403,6 +1433,22 @@ class StarredQuestionController {
 				&& !usergroupType.equals(ApplicationConstants.TYPIST)
 				&& (domain.getDrafts()==null || domain.getDrafts().isEmpty())) {
 			domain.addQuestionDraftForMembersideSubmission();
+			domain.simpleMerge();
+		} else if(domain.getNumber()!=null 
+				&& (domain.getDrafts()==null || domain.getDrafts().isEmpty())) {
+			List<QuestionDraft> drafts = QuestionDraft.findAllByFieldName(QuestionDraft.class, "questionId", domain.getId(), "id", ApplicationConstants.ASC, domain.getLocale());
+			if(drafts!=null && !drafts.isEmpty()) {
+				domain.setDrafts(new LinkedHashSet<QuestionDraft>(drafts));
+				domain.simpleMerge();
+			} else {
+				//create submission draft from original fields
+				domain.addMissingSubmissionDraft();
+				domain.simpleMerge();
+			}
+		} else if(domain.getNumber()!=null 
+				&& Question.isSubmissionDraftAbsentForQuestion(domain)) {
+			//create submission draft from original fields
+			domain.addMissingSubmissionDraft();
 			domain.simpleMerge();
 		}
 
@@ -2059,6 +2105,11 @@ class StarredQuestionController {
 			if(subDepartment != null) {
 				model.addAttribute("subDepartmentSelected", subDepartment.getId());
 			}
+			//populate original subdepartment
+			SubDepartment originalSubDepartment = domain.getOriginalSubDepartment();
+			if(originalSubDepartment != null) {
+				model.addAttribute("originalSubDepartment", originalSubDepartment.getId());
+			}
 			
 			//populate Answering Dates
 			if(group != null){
@@ -2079,6 +2130,11 @@ class StarredQuestionController {
 				model.addAttribute("formattedAnsweringDate", FormaterUtil.
 						getDateFormatter(locale).format(questionDate.getAnsweringDate()));
 				model.addAttribute("answeringDateSelected", questionDate.getId());
+			}
+			//populate original answering date
+			QuestionDates originalAnsweringDate = domain.getOriginalAnsweringDate();
+			if(originalAnsweringDate != null) {
+				model.addAttribute("originalAnsweringDate", originalAnsweringDate.getId());
 			}
 		}
 	
@@ -2470,6 +2526,14 @@ class StarredQuestionController {
 					if(domain.getSubmissionDate() == null){
 						domain.setSubmissionDate(new Date());
 					}
+//					//set original sub-department
+//					if(domain.getSubDepartment()!=null){
+//						domain.setOriginalSubDepartment(domain.getSubDepartment());
+//					}
+//					//set original answering date
+//					if(domain.getAnsweringDate()!=null){
+//						domain.setOriginalAnsweringDate(domain.getAnsweringDate());
+//					}
 					/**** Update Timed Out Supporting Members (can be disabled for starting hour of submission start time using custom parameter) ****/
 					Status timeoutStatus = Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, domain.getLocale());					
 					CustomParameter csptTimeoutOfSupportingMembersDisabled = CustomParameter.findByName(CustomParameter.class, "QIS_SUPPORTINGMEMBERS_TIMEOUT_DISABLED", "");
@@ -3451,6 +3515,15 @@ class StarredQuestionController {
 							question.setEditedAs(userGroupType.getName());
 						}
 		
+//						//set original sub-department
+//						if(question.getSubDepartment()!=null){
+//							question.setOriginalSubDepartment(question.getSubDepartment());
+//						}
+//						//set original answering date
+//						if(question.getAnsweringDate()!=null){
+//							question.setOriginalAnsweringDate(question.getAnsweringDate());
+//						}
+						
 						/**** Bulk Submitted ****/
 						question.setBulkSubmitted(true);
 		
@@ -3883,6 +3956,156 @@ class StarredQuestionController {
 
 		QuestionController.getBulkSubmissionQuestions(model, request, locale.toString());
 		return "question/bulksubmissionassistantview";
+	}
+	
+	public static String getBulkTimeoutInit(
+			final HttpServletRequest request, 
+			final ModelMap model, 
+			final AuthUser authUser,
+			final Locale locale) throws ELSException {
+		/**** Request Params ****/
+		String retVal = "question/error";
+		HouseType houseType = QuestionController.getHouseType(request, locale.toString());
+		DeviceType deviceType = QuestionController.getDeviceTypeById(request, locale.toString());
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strStatus = request.getParameter("status");
+		String strRole = request.getParameter("role");
+		String strUsergroup = request.getParameter("usergroup");
+		String strUsergroupType = request.getParameter("usergroupType");
+		String strItemsCount = request.getParameter("itemscount");
+		String strGroup = request.getParameter("group");
+		String strDepartment = request.getParameter("department");
+
+		if( strSessionType != null && !(strSessionType.isEmpty())
+				&& strSessionYear != null && !(strSessionYear.isEmpty())
+				&& strStatus != null && !(strStatus.isEmpty())
+				&& strRole != null && !(strRole.isEmpty())
+				&& strUsergroupType != null && !(strUsergroupType.isEmpty())
+				&& strItemsCount != null && !(strItemsCount.isEmpty())) {
+			
+			/**** Decision Status Available for Timeout ****/			
+			/**** QUESTION_BULK_TIMEOUT_OPTIONS_ + QUESTION_TYPE + STATUS_TYPE ****/
+			CustomParameter statusBasedStatuses = null;
+			Status currentStatus = Status.findById(Status.class, new Long(strStatus));
+			if(currentStatus!=null) {
+				statusBasedStatuses =  CustomParameter.findByName(CustomParameter.class,
+								"QUESTION_BULK_TIMEOUT_OPTIONS_" + deviceType.getType().toUpperCase() + "_" +
+								currentStatus.getType().toUpperCase(), "");
+			}			 
+			/**** QUESTION_BULK_TIMEOUT_OPTIONS_ + QUESTION_TYPE + USERGROUP_TYPE ****/
+			CustomParameter defaultStatus = CustomParameter.findByName(CustomParameter.class,
+					"QUESTION_BULK_TIMEOUT_OPTIONS_" + deviceType.getType().toUpperCase() + "_" +
+							 strUsergroupType.toUpperCase(), "");
+			List<Status> internalStatuses = new ArrayList<Status>(); 
+			if(!strUsergroupType.equals(ApplicationConstants.CLERK)){
+				try {
+					if(statusBasedStatuses!=null) {
+						internalStatuses = Status.findStatusContainedIn(statusBasedStatuses.getValue(),locale.toString());
+					} else {
+						internalStatuses = Status.findStatusContainedIn(defaultStatus.getValue(),locale.toString());
+					}				
+					
+				} catch (ELSException e) {
+					model.addAttribute("error", e.getParameter());
+				}
+			}
+			model.addAttribute("internalStatuses", internalStatuses);
+			
+			/**** Request Params To Model Attribute ****/
+			model.addAttribute("houseType", houseType.getType());
+			model.addAttribute("sessionType", strSessionType);
+			model.addAttribute("sessionYear", strSessionYear);
+			model.addAttribute("questionType", deviceType.getType());
+			model.addAttribute("status", strStatus);
+			model.addAttribute("role", strRole);
+			model.addAttribute("usergroup", strUsergroup);
+			model.addAttribute("usergroupType", strUsergroupType);
+			model.addAttribute("itemscount", strItemsCount);
+			model.addAttribute("group", strGroup);
+			model.addAttribute("department", strDepartment);
+
+			retVal = "question/bulk_timeout_init";
+		}else{
+			model.addAttribute("errorcode","CAN_NOT_INITIATE");
+		}
+
+		return retVal;
+	}
+	
+	public static String bulkTimeout(final HttpServletRequest request,
+			final ModelMap model, 
+			final AuthUser authUser,
+			final IProcessService processService, 
+			final Logger logger,
+			final Locale locale) throws ELSException {
+		String[] selectedItems = request.getParameterValues("items[]");
+		String strStatus = request.getParameter("currentStatus");
+		
+		StringBuffer clarificationFromDepartment = new StringBuffer();
+		StringBuffer clarificationFromMember = new StringBuffer();
+		StringBuffer clarificationFromMemberAndDepartment = new StringBuffer();
+
+		if(selectedItems != null && selectedItems.length > 0
+				&& strStatus != null && !strStatus.isEmpty() && !strStatus.equals("-")) {
+			Long statusId = Long.parseLong(strStatus);
+			Status status = Status.findById(Status.class, statusId);
+			Status putupStatus = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale.toString());
+
+			for(String i : selectedItems) {
+				try {
+					Long id = Long.parseLong(i);
+					Question question = Question.findById(Question.class, id);
+					
+					question.endWorkflow(question, question.getHouseType().getType(), ApplicationConstants.MYTASK_TIMEOUT, locale.toString());
+					
+					//TODO:
+					if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
+						System.out.println("timeout member's task also"); //remove this statement after code added
+					}
+					
+					if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+						
+						question.setInternalStatus(putupStatus);						
+						question.setRecommendationStatus(status);
+						question.simpleMerge();
+						clarificationFromDepartment.append(question.formatNumber() + ",");
+						
+					} else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+						
+						question.setInternalStatus(putupStatus);						
+						question.setRecommendationStatus(status);
+						question.simpleMerge();
+						clarificationFromMember.append(question.formatNumber() + ",");
+						
+					} else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
+						
+						question.setInternalStatus(putupStatus);
+						question.setRecommendationStatus(status);
+						question.simpleMerge();
+						clarificationFromMemberAndDepartment.append(question.formatNumber() + ",");
+					}				
+					
+				} catch(ELSException e) {
+					e.printStackTrace();
+					logger.error(e.getParameter());
+					logger.error("Problem in bulk timeout of question with ID = "+i);
+					continue;
+				} catch(Exception e) {
+					e.printStackTrace();
+					logger.error(e.getMessage());
+					logger.error("Problem in bulk timeout of question with ID = "+i);
+					continue;
+				}				
+			}
+
+			model.addAttribute("clarificationFromDepartment", clarificationFromDepartment.toString());
+			model.addAttribute("clarificationFromMember", clarificationFromMember.toString());
+			model.addAttribute("clarificationFromMemberAndDepartment", clarificationFromMemberAndDepartment.toString());
+		}
+
+		QuestionController.getBulkTimeoutQuestions(model, request, locale.toString());
+		return "question/bulk_timeout_view";
 	}
 
 }

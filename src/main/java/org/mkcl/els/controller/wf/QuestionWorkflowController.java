@@ -546,8 +546,12 @@ public class QuestionWorkflowController  extends BaseController{
 			model.addAttribute("subDepartments", subDepartments); 
 			SubDepartment subDepartment = domain.getSubDepartment();
 			if(subDepartment != null){
-
 				model.addAttribute("subDepartmentSelected", subDepartment.getId());				
+			}
+			//populate original subdepartment
+			SubDepartment originalSubDepartment = domain.getOriginalSubDepartment();
+			if(originalSubDepartment != null) {
+				model.addAttribute("originalSubDepartment", originalSubDepartment.getId());
 			}
 
 
@@ -570,6 +574,11 @@ public class QuestionWorkflowController  extends BaseController{
 						model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.getDateFormatter(locale).
 								format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
 					}						
+				}
+				//populate original answering date
+				QuestionDates originalAnsweringDate = domain.getOriginalAnsweringDate();
+				if(originalAnsweringDate != null) {
+					model.addAttribute("originalAnsweringDate", originalAnsweringDate.getId());
 				}
 			}			
 			
@@ -1428,14 +1437,14 @@ public class QuestionWorkflowController  extends BaseController{
 			Reference reference = new Reference();
 
 			reference.setId(selYear.toString());
-			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear), "mr_IN"));
+			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear), domain.getLocale()));
 			halfhourdiscussion_sessionYears.add(reference);
 
 			reference = null;
 			reference = new Reference();
 
 			reference.setId((new Integer(selYear.intValue()-1)).toString());
-			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear-1), "mr_IN"));
+			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear-1), domain.getLocale()));
 			halfhourdiscussion_sessionYears.add(reference);				
 
 			model.addAttribute("halfhourdiscussion_sessionYears", halfhourdiscussion_sessionYears);
@@ -2511,7 +2520,7 @@ public class QuestionWorkflowController  extends BaseController{
 					&&strItemsCount!=null&&!(strItemsCount.isEmpty())
 					&&strWorkflowSubType!=null&&!(strWorkflowSubType.isEmpty())){	
 				/**** List of Statuses ****/
-				if(strWorkflowSubType.equals("request_to_supporting_member")){
+				if(strWorkflowSubType.equals(ApplicationConstants.REQUEST_TO_SUPPORTING_MEMBER)){
 					Status approveStatus = Status.
 							findByType(ApplicationConstants.SUPPORTING_MEMBER_APPROVED, locale.toString());
 					Status rejectStatus = Status.
