@@ -195,6 +195,7 @@
 			
 			if (text == 'questions_starred') {
 				$("#chart_tab").show();
+				$("#currentDeviceType").val("questions_starred");
 			} else {
 				$("#chart_tab").hide();
 			}

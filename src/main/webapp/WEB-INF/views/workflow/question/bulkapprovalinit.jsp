@@ -139,7 +139,7 @@
 		}	
 		var internalstatus="";
 		if($("#apprworkflowSubType").val() == 'request_to_supporting_member'){
-			status=$("#apprInternalStatus").val();
+			internalstatus=$("#apprInternalStatus").val();
 		}else{
 			internalstatus=$("#apprInternalStatusWf").val();			
 		}
