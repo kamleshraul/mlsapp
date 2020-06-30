@@ -122,6 +122,14 @@ $(function () {
         	} else {
         		openNotificationsWindow();
         	}
+			//display top notification on home page for important events if any:
+			if($('#topNotificationForUser').val()!='') {
+				/*var arrCouncilMembers = ['shriambadasdanve','shrianikettatkare','shrianilbhosle','shrianilsole','shriabdullakhandurrani','shriamarnathrajurkar','shriamolmitkari','shriarunkakajagtap','shribhaijagtap','shrikapilpatil','shrikishordarade','shrigirishvyas','shrigopikishanbajoria','shrigopichandpadalkar','shrichandulalpatel','shrijayantppatil','shridattatraysawant','shridiwakarrawate','shridushyantchaturvedi','shrinarendradarade','shrinagoganar','shriniranjandavkhare','shrinilaynaik','shriparinayfuke','shripravindarekar','shripravinpotepatil','shripravindatke','shriprashantparicharak','shriprasadlad','shribalarampatil','drmanishakayande','shrimahadevjankar','shrimohanraokadam','drranjitpatil','shriranjitsinhmohitepatil','shrirameshnpatil','shrirameshkarad','shriravindraphatak','shrirajeshrathod','shriramdaskadam','shriramdasambatkar','shriramniwassingh','shriramraopatil','drwajahatmirza','shrivikramkale','shrivijaygirkar','shrivinayakmete','shriviplovebajoria','shrivilaspotnis','shrisharadranpise','shrishashikantshinde','shrishrikantdeshpande','shrisanjaydaund','shrisatishchavan','shrisatejpatil','shrisadashivkhot','shrisujitsinhthakur','drsudhirtambe','shrisureshdhas'];
+				if(jQuery.inArray($('#authusername').val(), arrCouncilMembers) != -1) {
+					addMessage($('#system_notifier_name').val(), $('#topNotificationForUser').val(), new Date(), true);
+				}*/
+				addMessage($('#system_notifier_name').val(), $('#topNotificationForUser').val(), new Date(), true);
+			}
 		},
 		methods: {
 			readNotification: function(notificationIndex) {
@@ -249,5 +257,50 @@ $(function () {
 	    });
 	    $('#notification_counter').fadeOut('slow');		// HIDE THE COUNTER.
 	    return false;
+    }
+	
+	function addMessage(senderName, message, datetime, isVolatile) {
+    	var toastMessage = senderName + " @ " +
+				+ (datetime.getHours() < 10 ? '0' + datetime.getHours() : datetime.getHours()) + ':'
+		        + (datetime.getMinutes() < 10 ? '0' + datetime.getMinutes() : datetime.getMinutes())
+		        + '<br/>' + message;
+    	
+        //$.prompt(toastMessage); 
+    	//var notificationToast =  $().toastmessage('showNoticeToast', toastMessage);
+    	var notificationToast =  $().toastmessage('showToast', {
+    	    text     : toastMessage,
+    	    sticky   : isVolatile,
+    	    //position : 'left-bottom',
+    	    //inEffectDuration : 800,
+    	    stayTime : 5000,
+    	    type     : 'notice', //isVolatile==true? 'warning':'notice',
+    	    close    : function () {
+    	    				/*console.log("toast is closed ...");
+    	    				if(!isVolatile) {
+    	    					$.ajax({
+    								url: 'notification/'+vueVM.notificationsList[0].id+'/markAsRead',
+    								type: 'POST',
+    								async: false,
+    						        success: function(marked) {
+    						        	if(marked) {
+    						        		vueVM.notificationsList[0].markedAsReadByReceiver = true;
+    						        		vueVM.selectedNotification = vueVM.notificationsList[0];
+    										$('.fbox').fancybox({
+    											autoSize: false,
+    											width: self.selectedNotification.title==self.selectedNotification.message? 580 : 720,
+												height: self.selectedNotification.title==self.selectedNotification.message? 125 : 420,
+    											afterShow: function() {
+    												
+    										    }
+    										});										
+    										//$.fancybox.open($('#notificationViewerPopUp').html(),{autoSize:false,width:400,height:300});
+    						        	} else {
+    						        		alert("Some error occurred in marking the notification as read!");
+    						        	}
+    						        }
+    							});
+    	    				}*/			    	    	
+    	    		   }
+    	});
     }
 });

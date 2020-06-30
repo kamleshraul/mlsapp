@@ -159,12 +159,12 @@
 				
 				if($('#pushNotificationsEnabled').val()=="YES") {
 					$.getScript("./resources/js/atmosphere.js?v=1", function() {
-						$.getScript("./resources/js/atmosphere_notifications.js?v=2", function() {
+						$.getScript("./resources/js/atmosphere_notifications.js?v=3", function() {
 							//console.log("atmosphere push notifications loaded..");
 						});
 					});
 				} else {
-					$.getScript("./resources/js/vue_notifications.js?v=2", function() {
+					$.getScript("./resources/js/vue_notifications.js?v=3", function() {
 						//console.log("notifications widget loaded..");
 					});
 				}
@@ -230,6 +230,8 @@
         	<input type="hidden" id="notification_alert" value="${notification_alert}"/>
         	<input type="hidden" id="notifications_visibleMaxCount" value="${notifications_visibleMaxCount}"/>
         	<input type="hidden" id="specialDashCharacter" value="${specialDashCharacter}"/>
+        	<input type="hidden" id="topNotificationForUser" value="<spring:message code='generic.topNotificationForUser' text=''/>"/>
+       		<input type="hidden" id="system_notifier_name" value="<spring:message code='notification.system_username' text='System Notifier'/>"/>
         	
         <div id="container" class="clearfix">
 			<div id="page">
