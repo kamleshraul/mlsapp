@@ -327,7 +327,7 @@
 										text+="referencing(" + data[i].id + ");' style='margin:10px; color: #00FF00;'>";
 									}else{
 										console.log(data[i].statusType);
-										if(data[i].ballotStatus=="NOT" && (data[i].statusType !='question_final_rejection' && data[i].statusType !='question_unstarred_final_rejection')){
+										if(data[i].ballotStatus=="NOT" && (data[i].statusType !='question_final_rejection' && data[i].statusType !='question_unstarred_final_rejection' && data[i].statusType !='question_unstarred_final_admission')){
 											text+="javascript:void(0);' style='margin:10px; color: #FF0000;' disabled='disabled'>";
 										}else{
 											text+="referencing(" + data[i].id + ");' style='margin:10px; color: #00FF00;'>";

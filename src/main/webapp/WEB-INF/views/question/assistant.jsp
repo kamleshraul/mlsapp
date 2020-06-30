@@ -366,6 +366,12 @@
 		});
 	}
 	$(document).ready(function(){
+		/* temporary blocking of second batch questions till further instructions */
+		$('#submitBlocked').click(function() {
+			$.prompt("second batch questions cannot be processed till further instructions!");
+			return false;
+		});
+		
 		/** Warn if revised question text of parent is changed while its child pending for clubbing approval has some modifications in the same **/
 		var isPendingClubbedQuestionSearched = false;
 	    var isPendingClubbedQuestionFound = false;
@@ -1768,7 +1774,14 @@
 									&& recommendationStatusType ne 'question_shortnotice_recommend_reject_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_shortnotice_final_reject_clubbingWithUnstarredFromPreviousSession'))
 						}">
 						<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT')">
-							<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+							<c:choose>
+								<c:when test="${houseTypeType=='upperhouse' && internalStatusType=='question_submit'}">
+									<input id="submitBlocked" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+								</c:when>
+								<c:otherwise>
+									<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+								</c:otherwise>
+							</c:choose>														
 						</security:authorize>
 						<security:authorize access="hasAnyRole('QIS_ASSISTANT')">
 							<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
