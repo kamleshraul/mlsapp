@@ -157,7 +157,7 @@
 							<input id="readonly_admissionNumber" name="admissionNumber" value="${domain.admissionNumber}" type="hidden">
 							<form:errors path="admissionNumber" cssClass="validationError"/>	
 						</c:when>
-						<c:otherwise">
+						<c:otherwise>
 							<input id="admissionNumber" name="admissionNumber" value="${domain.admissionNumber}" type="hidden">
 						</c:otherwise>
 						</c:choose>

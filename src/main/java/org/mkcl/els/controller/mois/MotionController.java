@@ -115,8 +115,7 @@ public class MotionController extends GenericController<Motion>{
 				// Populate default House type
 				HouseType authUserHouseType = null;
 				if(houseTypes!=null && houseTypes.size()==1) {
-					authUserHouseType = houseTypes.get(0);
-					model.addAttribute("houseType", authUserHouseType.getType());
+					authUserHouseType = houseTypes.get(0);					
 				} else {
 					try {
 						authUserHouseType = QuestionController.getHouseType(currentUser, locale);
@@ -124,9 +123,9 @@ public class MotionController extends GenericController<Motion>{
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					model.addAttribute("houseType", authUserHouseType.getType());
 				}	
 				String houseType = authUserHouseType.getType();
+				model.addAttribute("houseType", houseType);			
 
 				/**** Session Types. ****/
 				List<SessionType> sessionTypes = SessionType.findAll(SessionType.class, "sessionType",ApplicationConstants.ASC, locale);

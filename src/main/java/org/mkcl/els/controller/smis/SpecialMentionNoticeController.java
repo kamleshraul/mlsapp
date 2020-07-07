@@ -129,32 +129,39 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 					}
 				} else {
 					Session lastSessionCreated=null;
-					/****
-					 * House Types .If housetype=bothhouse then lowerhouse will be
-					 * selected by default
-					 ****/
-					List<HouseType> houseTypes = new ArrayList<HouseType>();				
+					/**** House Types ****/
+					// Populate House types configured for the current user
+					List<HouseType> houseTypes=null;
+					HouseType authUserHouseType = null;
 					if(houseType==null) {
-						houseType = this.getCurrentUser().getHouseType();
-					}				
-					if (houseType.equals("lowerhouse")) {
-						houseTypes = HouseType.findAllByFieldName(HouseType.class,"type", houseType, "name",ApplicationConstants.ASC, locale);
-					} else if (houseType.equals("upperhouse")) {
-						houseTypes = HouseType.findAllByFieldName(HouseType.class,"type", houseType, "name",ApplicationConstants.ASC, locale);
-					} else if (houseType.equals("bothhouse")) {
-						houseTypes = HouseType.findAll(HouseType.class, "type",ApplicationConstants.ASC, locale);
+						try {
+							houseTypes = QuestionController.getHouseTypes(currentUser, deviceType, locale);
+						} catch (ELSException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						model.addAttribute("houseTypes", houseTypes);
+						// Populate default House type						
+						if(houseTypes!=null && houseTypes.size()==1) {
+							authUserHouseType = houseTypes.get(0);							
+						} else {
+							try {
+								authUserHouseType = QuestionController.getHouseType(currentUser, locale);
+							} catch (ELSException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						model.addAttribute("houseType", authUserHouseType.getType());
+						houseType = authUserHouseType.getType();
+					} else {						
+						model.addAttribute("houseType", houseType);
+						authUserHouseType = HouseType.findByType(houseType, locale);
 					}
-					model.addAttribute("houseTypes", houseTypes);
-					if (houseType.equals("bothhouse")) {
-						houseType = "lowerhouse";
-					}
-					model.addAttribute("houseType", houseType);
 
 					/**** Session Types. ****/
 					List<SessionType> sessionTypes = SessionType.findAll(SessionType.class, "sessionType",ApplicationConstants.ASC, locale);
 					/**** Latest Session of a House Type ****/
-					HouseType authUserHouseType = HouseType.findByFieldName(HouseType.class, "type", houseType, locale);
-					
 					lastSessionCreated = Session.findLatestSession(authUserHouseType);
 
 					/***
