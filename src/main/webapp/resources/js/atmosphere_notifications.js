@@ -123,6 +123,8 @@ $(function () {
         	} else {        		
         		openNotificationsWindow();
         	}
+			//display top notification/s on home page for important events if any
+			displayTopNotifications();
 		},
 		methods: {
 			readNotification: function(notificationIndex) {
@@ -415,4 +417,45 @@ $(function () {
 	    $('#notification_counter').fadeOut('slow');		// HIDE THE COUNTER.
 	    return false;
     }
+    
+  	//display top notification on home page for important events if any
+	function displayTopNotifications() {		
+		//for all users
+		if($('#topNotificationForAllUsers').val()!='') {
+			addMessage($('#system_notifier_name').val(), $('#topNotificationForAllUsers').val(), new Date(), true);
+		}
+		//for all lowerhouse users
+		if($('#topNotificationForLowerhouseUsers').val()!='' && ($('#authhousetype').val()=='lowerhouse' || $('#authhousetype').val()=='bothhouse')) {
+			addMessage($('#system_notifier_name').val(), $('#topNotificationForLowerhouseUsers').val(), new Date(), true);
+		}
+		//for all upperhouse users
+		if($('#topNotificationForUpperhouseUsers').val()!='' && ($('#authhousetype').val()=='upperhouse' || $('#authhousetype').val()=='bothhouse')) {
+			addMessage($('#system_notifier_name').val(), $('#topNotificationForUpperhouseUsers').val(), new Date(), true);
+		}
+		//for all members (ministers not included)
+		if($('#topNotificationForMembers').val()!='' && $('#isMemberLogin').val()=='YES' 
+				&& $('#isMinisterLogin').val()!='YES' && $('#isSpeakerOrChairmanLogin').val()!='YES') {
+			addMessage($('#system_notifier_name').val(), $('#topNotificationForMembers').val(), new Date(), true);
+		}
+		//for members who are ministers currently
+		if($('#topNotificationForMinisters').val()!='' && $('#isMinisterLogin').val()=='YES') {
+			addMessage($('#system_notifier_name').val(), $('#topNotificationForMinisters').val(), new Date(), true);
+		}
+		//for all lowerhouse members
+		if($('#topNotificationForLowerhouseMembers').val()!='' && $('#isMemberLogin').val()=='YES'
+				&& $('#isMinisterLogin').val()!='YES' && $('#isSpeakerOrChairmanLogin').val()!='YES' 
+				&& ($('#authhousetype').val()=='lowerhouse')) {
+			addMessage($('#system_notifier_name').val(), $('#topNotificationForLowerhouseMembers').val(), new Date(), true);
+		}
+		//for all upperhouse members
+		if($('#topNotificationForUpperhouseMembers').val()!='' && $('#isMemberLogin').val()=='YES'
+				&& $('#isMinisterLogin').val()!='YES' && $('#isSpeakerOrChairmanLogin').val()!='YES' 
+				&& ($('#authhousetype').val()=='upperhouse')) {
+			addMessage($('#system_notifier_name').val(), $('#topNotificationForUpperhouseMembers').val(), new Date(), true);
+		}
+		//for department users
+		if($('#topNotificationForDepartmentUsers').val()!='' && $('#isDepartmentLogin').val()=='YES') {
+			addMessage($('#system_notifier_name').val(), $('#topNotificationForDepartmentUsers').val(), new Date(), true);
+		}		
+	}
 });

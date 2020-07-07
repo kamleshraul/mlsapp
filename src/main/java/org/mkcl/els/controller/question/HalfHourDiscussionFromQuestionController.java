@@ -77,12 +77,18 @@ class HalfHourDiscussionFromQuestionController {
 		model.addAttribute("questionTypeType", deviceType.getType());
 		
 		// Populate House types configured for the current user
-		List<HouseType> houseTypes = QuestionController.getHouseTypes(currentUser, locale);
+		List<HouseType> houseTypes = QuestionController.getHouseTypes(currentUser, deviceType, locale);
 		model.addAttribute("houseTypes", houseTypes);
 		
 		// Populate default House type
-		HouseType houseType = QuestionController.getHouseType(currentUser, locale);
-		model.addAttribute("houseType", houseType.getType());
+		HouseType houseType = null;
+		if(houseTypes!=null && houseTypes.size()==1) {
+			houseType = houseTypes.get(0);
+			model.addAttribute("houseType", houseType.getType());
+		} else {
+			houseType = QuestionController.getHouseType(currentUser, locale);
+			model.addAttribute("houseType", houseType.getType());
+		}
 		
 		// Populate Session types
 		List<SessionType> sessionTypes = QuestionController.getSessionTypes(locale);

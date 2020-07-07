@@ -11,6 +11,7 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -37,6 +38,7 @@ public class MessageResource extends BaseDomain implements Serializable {
     private String code;
 
     /** The value. */
+    @Column(length = 1500)
     private String value;
 
     /** The description. */

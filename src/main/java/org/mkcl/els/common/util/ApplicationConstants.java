@@ -815,6 +815,12 @@ public class ApplicationConstants {
 	
 	public static final String ROLE_SUPER_ADMIN = "SUPER_ADMIN";
 	
+	public static final String ROLE_DEPARTMENT_USER = "DEPARTMENT_USER";
+	
+	public static final String ROLE_SPEAKER = "SPEAKER";
+	
+	public static final String ROLE_CHAIRMAN = "CHAIRMAN";
+	
 	/**** User Group Types    ****/
 	/**** Member			  ****/
 	public static final String MEMBER="member"; 

@@ -5656,11 +5656,13 @@ public class QuestionWorkflowController  extends BaseController{
 			String strGroup = request.getParameter("group");
 			String strSubDepartment = request.getParameter("subdepartment");
 			String assignee = this.getCurrentUser().getActualUsername();
-			String strItemsCount = null;
-			CustomParameter itemsCountParameter = CustomParameter.findByName(CustomParameter.class, "ADVANCED_BULKAPPROVAL_ITEM_COUNT", "");
-			if(itemsCountParameter != null){
-				strItemsCount = itemsCountParameter.getValue();
-			}
+			String strItemsCount = request.getParameter("itemsCount");
+			if(strItemsCount==null || strItemsCount.isEmpty()) {
+				CustomParameter itemsCountParameter = CustomParameter.findByName(CustomParameter.class, "ADVANCED_BULKAPPROVAL_ITEM_COUNT", "");
+				if(itemsCountParameter != null){
+					strItemsCount = itemsCountParameter.getValue();
+				}
+			}			
 			/**** usergroup,usergroupType,role *****/
 			List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
 			Credential credential = Credential.findByFieldName(Credential.class, "username", this.getCurrentUser().getActualUsername(), null);

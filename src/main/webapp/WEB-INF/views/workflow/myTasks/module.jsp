@@ -32,6 +32,7 @@
 			$("#selectedHouseType").change(function(){
 				var value=$(this).val();
 				if(value!=""){	
+					loadAssignedGroupsInSession();
 					/** Update Device Type Display Names as per Selected House Type **/
 					var selectedDeviceType = $('#selectedDeviceType').val();
 					var houseType = $("#houseTypeMaster option[value='"+value+"']").text();					
@@ -428,7 +429,7 @@
 					if(device.indexOf('questions_')==0 && houseType=='lowerhouse') { //hiding bulk approval options for under secretaries as per Deputy Secretary Sathye Sir
 						if(usergroupType=='under_secretary' || usergroupType=='under_secretary_committee'){
 							$('#bulkapproval_tab').hide();
-							$('#advanced_bulkapproval_tab').hide();
+							//$('#advanced_bulkapproval_tab').hide();
 						}						
 					}					
 					$("#selectedSpecialMentionNoticeDate").val("");
@@ -470,7 +471,7 @@
 							if(deviceTypeForGrid.indexOf('questions_')==0 && houseType=='lowerhouse') { //hiding bulk approval options for under secretaries as per Deputy Secretary Sathye Sir
 								if(usergroupType=='under_secretary' || usergroupType=='under_secretary_committee'){
 									$('#bulkapproval_tab').hide();
-									$('#advanced_bulkapproval_tab').hide();
+									//$('#advanced_bulkapproval_tab').hide();
 								}						
 							}
 						}						
@@ -906,6 +907,7 @@
 				answeringDate:$('#selectedAnsweringDate').val(),
 				status:$("#selectedStatus").val(),
 				workflowSubType:$("#selectedSubWorkflow").val(),
+				itemsCount:$("#selectedItemsCount").val(),
 				subdepartment: $("#selectedDepartment").val(),
 				adjourningDate: selectedAdjourningDate
 				},function(data){
@@ -1555,7 +1557,7 @@
 					</a>
 				</li>
 			</c:if>
-			<c:if test="${usergroupType=='deputy_secretary' or usergroupType=='deputy_secretary1' or usergroupType=='deputy_secretary2' or usergroupType=='under_secretary' or usergroupType=='secretary' or usergroupType=='principal_secretary' or usergroupType=='speaker' or usergroupType=='chairman'}">
+			<c:if test="${usergroupType=='deputy_secretary' or usergroupType=='deputy_secretary1' or usergroupType=='deputy_secretary2' or usergroupType=='under_secretary' or usergroupType=='under_secretary_committee' or usergroupType=='secretary' or usergroupType=='principal_secretary' or usergroupType=='speaker' or usergroupType=='chairman'}">
 				<li>
 					<a id="advanced_bulkapproval_tab" href="#" class="tab">
 					   <spring:message code="generic.advancedbulkputup" text="Advance Bulk Putup"></spring:message>
@@ -1732,8 +1734,10 @@
 					<c:if test="${usergroupType=='principal_secretary'}">
 						<option value="100">100</option>
 						<option value="50">50</option>
-					</c:if>				
-					<option value="25">25</option>
+					</c:if>
+					<c:if test="${!(houseType=='lowerhouse' && (usergroupType=='under_secretary' || usergroupType=='under_secretary_committee'))}">	
+						<option value="25">25</option>
+					</c:if>
 					<option value="10">10</option>
 					<option value="5">05</option>		
 				</select> |

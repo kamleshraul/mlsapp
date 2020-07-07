@@ -211,6 +211,7 @@ public class HomeController extends BaseController {
         model.addAttribute("authfirstname", this.getCurrentUser().getFirstName());
         model.addAttribute("authmiddlename", this.getCurrentUser().getMiddleName());
         model.addAttribute("authlastname", this.getCurrentUser().getLastName());
+        model.addAttribute("authhousetype", this.getCurrentUser().getHouseType());
         
         //TODO: add code to populate active usergrouptype of authenticatedUser
         
@@ -239,6 +240,22 @@ public class HomeController extends BaseController {
         CustomParameter rolesAllowedForDeptSecretaryDashBoardViewCP = CustomParameter.findByName(CustomParameter.class, "ROLES_ALLOWED_FOR_DEPARTMENT_SECRETARY_DASHBOARD_VIEW", "");
         CustomParameter rolesAllowedForStatisticalDashBoardViewCP = CustomParameter.findByName(CustomParameter.class, "ROLES_ALLOWED_FOR_STATISTICAL_DASHBOARD_VIEW", "");
         for(Role i:roles){
+        	if(i.getType().equalsIgnoreCase(ApplicationConstants.MEMBER_LOWERHOUSE)
+        			|| i.getType().equalsIgnoreCase(ApplicationConstants.MEMBER_UPPERHOUSE)) {
+        		model.addAttribute("isMemberLogin", "YES");
+        		
+        	} else if(i.getType().endsWith(ApplicationConstants.ROLE_DEPARTMENT_USER) && model.get("isDepartmentLogin")==null) {
+        		model.addAttribute("isDepartmentLogin", "YES");		
+        		
+        	} else if(i.getType().endsWith(ApplicationConstants.MINISTER) && model.get("isMinisterLogin")==null) {
+        		model.addAttribute("isMinisterLogin", "YES");	
+        		
+        	} else if((i.getType().endsWith(ApplicationConstants.ROLE_SPEAKER) || i.getType().endsWith(ApplicationConstants.ROLE_CHAIRMAN))
+        					&& model.get("isSpeakerOrChairmanLogin")==null) {
+        		
+        		model.addAttribute("isSpeakerOrChairmanLogin", "YES");
+        	}
+        	
         	if(rolesAllowedForMemberDashBoardViewCP!=null 
         			&& rolesAllowedForMemberDashBoardViewCP.getValue()!=null
         			&& !rolesAllowedForMemberDashBoardViewCP.getValue().isEmpty()) {

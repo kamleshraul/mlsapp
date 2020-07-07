@@ -1107,7 +1107,7 @@ public class QuestionController extends GenericController<Question> {
 		return deviceTypes;
 	}
 	
-	public static List<HouseType> getHouseTypes(final AuthUser user,
+	public static List<HouseType> getHouseTypes(final AuthUser user, final DeviceType deviceType,
 			final String locale) throws ELSException {
 		List<HouseType> houseTypes = new ArrayList<HouseType>();
 		
@@ -1118,7 +1118,21 @@ public class QuestionController extends GenericController<Question> {
 					"type", strHouseType, "name", ApplicationConstants.ASC, locale);
 		}
 		else if(strHouseType.equals(ApplicationConstants.BOTH_HOUSE)) {
-			houseTypes = HouseType.findAll(HouseType.class, "type", ApplicationConstants.ASC, locale);
+			//check for lower house in the active usergroup having selected device type
+			HouseType lowerHouseType = HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale);
+			List<UserGroup> currentUserGroupsWithDeviceTypeForLowerHouse = UserGroup.findActiveUserGroupsOfGivenUser(user.getActualUsername(), lowerHouseType.getName(), deviceType.getName(), locale);
+			if(currentUserGroupsWithDeviceTypeForLowerHouse!=null && !currentUserGroupsWithDeviceTypeForLowerHouse.isEmpty()) {
+				houseTypes.add(lowerHouseType);
+			}
+			//check for upper house in the active usergroup having selected device type
+			HouseType upperHouseType = HouseType.findByType(ApplicationConstants.UPPER_HOUSE, locale);
+			List<UserGroup> currentUserGroupsWithDeviceTypeForUpperHouse = UserGroup.findActiveUserGroupsOfGivenUser(user.getActualUsername(), upperHouseType.getName(), deviceType.getName(), locale);
+			if(currentUserGroupsWithDeviceTypeForUpperHouse!=null && !currentUserGroupsWithDeviceTypeForUpperHouse.isEmpty()) {
+				houseTypes.add(upperHouseType);
+			}
+			if(houseTypes.isEmpty()) { //no active usergroup for the user or no need for having usergroup for the user
+				houseTypes = HouseType.findAll(HouseType.class, "type", ApplicationConstants.ASC, locale);
+			}			
 		}
 		else {
 			throw new ELSException("QuestionController.getHouseTypes/2", 

@@ -27,6 +27,7 @@ import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.controller.NotificationController;
+import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -93,26 +94,35 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 			/**** StandaloneMotion Types Filter Ends ****/
 
 			/**** House Types Filter Starts ****/
-			List<HouseType> houseTypes = new ArrayList<HouseType>();
-			String houseType = this.getCurrentUser().getHouseType();
-			if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
-				houseTypes = HouseType.findAllByFieldName(HouseType.class, "type",houseType,"name",ApplicationConstants.ASC, locale);
-			}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
-				houseTypes = HouseType.findAllByFieldName(HouseType.class, "type",houseType,"name",ApplicationConstants.ASC, locale);
-			}else if(houseType.equals(ApplicationConstants.BOTH_HOUSE)){
-				houseTypes = HouseType.findAll(HouseType.class, "type", ApplicationConstants.ASC, locale);
+			// Populate House types configured for the current user
+			List<HouseType> houseTypes=null;
+			try {
+				houseTypes = QuestionController.getHouseTypes(currentUser, deviceType, locale);
+			} catch (ELSException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
-			model.addAttribute("houseTypes", houseTypes);
-			if(houseType.equals("bothhouse")){
-				houseType = "lowerhouse";
-			}
-			model.addAttribute("houseType",houseType);
+			model.addAttribute("houseTypes", houseTypes);			
+			// Populate default House type
+			HouseType authUserHouseType = null;
+			if(houseTypes!=null && houseTypes.size()==1) {
+				authUserHouseType = houseTypes.get(0);
+				model.addAttribute("houseType", authUserHouseType.getType());
+			} else {
+				try {
+					authUserHouseType = QuestionController.getHouseType(currentUser, locale);
+				} catch (ELSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				model.addAttribute("houseType", authUserHouseType.getType());
+			}	
+			String houseType = authUserHouseType.getType();
 			/**** House Types Filter Ends ****/
 
 			/**** Session Types Filter Starts ****/
 			List<SessionType> sessionTypes = SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
 			model.addAttribute("sessionTypes",sessionTypes);		
-			HouseType authUserHouseType = HouseType.findByFieldName(HouseType.class, "type",houseType, locale);
 			Session lastSessionCreated = null;
 			Integer year=new GregorianCalendar().get(Calendar.YEAR);
 			try {

@@ -159,12 +159,12 @@
 				
 				if($('#pushNotificationsEnabled').val()=="YES") {
 					$.getScript("./resources/js/atmosphere.js?v=1", function() {
-						$.getScript("./resources/js/atmosphere_notifications.js?v=3", function() {
+						$.getScript("./resources/js/atmosphere_notifications.js?v=4", function() {
 							//console.log("atmosphere push notifications loaded..");
 						});
 					});
 				} else {
-					$.getScript("./resources/js/vue_notifications.js?v=3", function() {
+					$.getScript("./resources/js/vue_notifications.js?v=4", function() {
 						//console.log("notifications widget loaded..");
 					});
 				}
@@ -204,6 +204,12 @@
             <input type="hidden" id="authusername" name="authusername" value="${authusername}"/>
             <input type="hidden" id="authfullname" name="authfullname" value="${authtitle} ${authfirstname} ${authmiddlename} ${authlastname}"/>    
             <input type="hidden" id="authlocale" name="authlocale" value="${locale}"/>
+            <input type="hidden" id="authhousetype" name="authhousetype" value="${authhousetype}"/>
+            <input type="hidden" id="isMemberLogin" name="isMemberLogin" value="${isMemberLogin}"/>
+            <input type="hidden" id="isMinisterLogin" name="isMinisterLogin" value="${isMinisterLogin}"/>
+            <input type="hidden" id="isSpeakerOrChairmanLogin" name="isSpeakerOrChairmanLogin" value="${isSpeakerOrChairmanLogin}"/>
+            <input type="hidden" id="isDepartmentLogin" name="isDepartmentLogin" value="${isDepartmentLogin}"/>
+            
             <!-- uncomment in HomeController to use following parameter if needed --> 
             <input type="hidden" id="zeroDigitForLocale" name="zeroDigitForLocale" value="${zeroDigitForLocale}"/>
             
@@ -230,7 +236,15 @@
         	<input type="hidden" id="notification_alert" value="${notification_alert}"/>
         	<input type="hidden" id="notifications_visibleMaxCount" value="${notifications_visibleMaxCount}"/>
         	<input type="hidden" id="specialDashCharacter" value="${specialDashCharacter}"/>
-        	<input type="hidden" id="topNotificationForUser" value="<spring:message code='generic.topNotificationForUser' text=''/>"/>
+        	<input type="hidden" id="topNotificationForAllUsers" value="<spring:message code='generic.topNotificationForAllUsers' text=''/>"/>
+        	<input type="hidden" id="topNotificationForMembers" value="<spring:message code='generic.topNotificationForMembers' text=''/>"/>
+        	<input type="hidden" id="topNotificationForMinisters" value="<spring:message code='generic.topNotificationForMinisters' text=''/>"/>
+        	<input type="hidden" id="topNotificationForDepartmentUsers" value="<spring:message code='generic.topNotificationForDepartmentUsers' text=''/>"/>
+        	<input type="hidden" id="topNotificationForLowerhouseUsers" value="<spring:message code='generic.topNotificationForLowerhouseUsers' text=''/>"/>
+        	<input type="hidden" id="topNotificationForUpperhouseUsers" value="<spring:message code='generic.topNotificationForUpperhouseUsers' text=''/>"/>
+        	<input type="hidden" id="topNotificationForLowerhouseMembers" value="<spring:message code='generic.topNotificationForLowerhouseMembers' text=''/>"/>
+        	<input type="hidden" id="topNotificationForUpperhouseMembers" value="<spring:message code='generic.topNotificationForUpperhouseMembers' text=''/>"/>
+       		
        		<input type="hidden" id="system_notifier_name" value="<spring:message code='notification.system_username' text='System Notifier'/>"/>
         	
         <div id="container" class="clearfix">
