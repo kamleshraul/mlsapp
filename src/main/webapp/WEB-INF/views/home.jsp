@@ -129,7 +129,7 @@
 			};
 			
 			$(document).ready(function(){
-				<!-- This is done to fire the assembly module when a user login to the system. -->
+				//This is done to fire the assembly module when a user login to the system.
 				//triggering mis lowerhouse module on login
 				var locale=$('#authlocale').val();
 				var startURL=$("#startURL").val();
@@ -244,7 +244,7 @@
         	<input type="hidden" id="topNotificationForUpperhouseUsers" value="<spring:message code='generic.topNotificationForUpperhouseUsers' text=''/>"/>
         	<input type="hidden" id="topNotificationForLowerhouseMembers" value="<spring:message code='generic.topNotificationForLowerhouseMembers' text=''/>"/>
         	<input type="hidden" id="topNotificationForUpperhouseMembers" value="<spring:message code='generic.topNotificationForUpperhouseMembers' text=''/>"/>
-       		
+       		<input type="hidden" id="markAllNotificationsAsReadPrompt" value="<spring:message code='notification.markAllAsReadPrompt' text='Do you really want to mark all pending notifications as read?'/>"/>
        		<input type="hidden" id="system_notifier_name" value="<spring:message code='notification.system_username' text='System Notifier'/>"/>
         	
         <div id="container" class="clearfix">

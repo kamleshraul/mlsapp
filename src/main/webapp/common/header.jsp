@@ -30,9 +30,9 @@
 		</div>
 		<div id="notifications" v-if="notificationsList.length > 0">
             <div class="notifications_header">
-            	<label><spring:message code="generic.notification" text="Notifications"/></label>            	
+            	<label><spring:message code="generic.notification" text="Notifications"/></label>       
+            	<a href="#" v-on:click="markAllNotificationsAsRead" style="font-size: 12px !important;"><spring:message code="notification.markAllAsRead" text="Mark all as read"/></a>
             	<a href="#" v-on:click="clearAllReadNotifications" style="font-size: 12px !important;"><spring:message code="notification.clearAllRead" text="Clear all read"/></a>
-            	<%-- <a href="#" v-on:click="markAllNotificationsAsRead"><spring:message code="notification.markAllAsRead" text="Mark all as read"/></a> --%>
             </div>
             <div class="notifications_content">
 				<!-- <ol>

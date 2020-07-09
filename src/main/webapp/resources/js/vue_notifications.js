@@ -171,38 +171,56 @@ $(function () {
 				}
 			},
 			markAllNotificationsAsRead: function() {
-				var self = this;
-				$.ajax({
-					url: 'notification/'+$('#authusername').val()+'/markAllAsRead',
-					type: 'POST',
-			        success: function(marked) {
-			        	if(marked) {
-			        		for(var i=0; i<self.notificationsList.length; i++) {
-			        			self.notificationsList[i].markedAsReadByReceiver = true;
-				        	}
-			        	} else {
-			        		alert("Some error occurred in marking the notifications!");
-			        	}
-			        }
-				});
+				var self_ui = this;
+				if(self_ui.notificationsCount > 0) {
+					$.prompt($('#markAllNotificationsAsReadPrompt').val(), {
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+							$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 	
+							$.ajax({
+								url: 'notification/'+$('#authusername').val()+'/markAllAsRead',
+								type: 'POST',
+						        success: function(marked) {
+						        	if(marked) {
+						        		for(var i=0; i<self_ui.notificationsList.length; i++) {
+						        			self_ui.notificationsList[i].markedAsReadByReceiver = true;
+							        	}
+						        		$('#notification_counter').fadeOut('slow');		// HIDE THE COUNTER.
+						        		$.unblockUI();
+						        	} else {
+						        		alert("Some error occurred in marking the notifications!");
+						        	}
+						        }
+							});						
+				        }
+					}});
+				} else {
+					$.prompt("There are no pending notifications to process!");
+				}							
+		        return false;
 			},
 			clearAllReadNotifications: function() {
-				var self = this;
-				$.ajax({
-					url: 'notification/'+$('#authusername').val()+'/clearAllRead',
-					type: 'POST',
-			        success: function(cleared) {
-			        	if(cleared) {
-			        		for(var i=0; i<self.notificationsList.length; i++) {
-			        			if(self.notificationsList[i].markedAsReadByReceiver) {
-			        				self.notificationsList[i].clearedByReceiver = true;
-			        			}       			
+				var self_ui = this;
+				if(self_ui.notificationsCount > 0) {
+					$.ajax({
+						url: 'notification/'+$('#authusername').val()+'/clearAllRead',
+						type: 'POST',
+				        success: function(cleared) {
+				        	if(cleared) {
+				        		for(var i=0; i<self_ui.notificationsList.length; i++) {
+				        			if(self_ui.notificationsList[i].markedAsReadByReceiver) {
+				        				self_ui.notificationsList[i].clearedByReceiver = true;
+				        			}       			
+					        	}
+				        	} else {
+				        		alert("Some error occurred in clearing the notifications!");
 				        	}
-			        	} else {
-			        		alert("Some error occurred in clearing the notifications!");
-			        	}
-			        }
-				});
+				        }
+					});
+				} else {
+					$.prompt("There are no notifications to clear now!");
+					return false;
+				}				
 			},
 			viewAllNotifications: function() {
 				$('#notifications').fadeOut('fast');
@@ -249,7 +267,7 @@ $(function () {
 	        }
 	        else $('#notifyIcon').css('background-color', '#FFF');		// CHANGE BACKGROUND COLOR OF THE BUTTON. */
 	    });
-	    $('#notification_counter').fadeOut('slow');		// HIDE THE COUNTER.
+	    //$('#notification_counter').fadeOut('slow');		// HIDE THE COUNTER.
 	    return false;
     }
 	
