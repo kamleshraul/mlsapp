@@ -159,12 +159,12 @@
 				
 				if($('#pushNotificationsEnabled').val()=="YES") {
 					$.getScript("./resources/js/atmosphere.js?v=1", function() {
-						$.getScript("./resources/js/atmosphere_notifications.js?v=4", function() {
+						$.getScript("./resources/js/atmosphere_notifications.js?v=5", function() {
 							//console.log("atmosphere push notifications loaded..");
 						});
 					});
 				} else {
-					$.getScript("./resources/js/vue_notifications.js?v=4", function() {
+					$.getScript("./resources/js/vue_notifications.js?v=5", function() {
 						//console.log("notifications widget loaded..");
 					});
 				}

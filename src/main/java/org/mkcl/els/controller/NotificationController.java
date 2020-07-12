@@ -166,6 +166,9 @@ public class NotificationController extends GenericController<Notification> {
 		boolean markedAsRead = false;
 		Notification notification = Notification.findById(Notification.class, notificationId);
 		if(notification!=null) {
+			if(notification.getReceivedOn()==null) {
+				notification.setReceivedOn(new Date());
+			}
 			notification.setMarkedAsReadByReceiver(true);
 			notification.merge();
 			markedAsRead = true;
@@ -195,6 +198,9 @@ public class NotificationController extends GenericController<Notification> {
 			for(Notification notification: notifications) {
 				if(notification!=null) {
 					if(notification.getMarkedAsReadByReceiver()==null || notification.getMarkedAsReadByReceiver().booleanValue()!=true) {
+						if(notification.getReceivedOn()==null) {
+							notification.setReceivedOn(new Date());
+						}
 						notification.setMarkedAsReadByReceiver(true);
 						notification.merge();
 					}										

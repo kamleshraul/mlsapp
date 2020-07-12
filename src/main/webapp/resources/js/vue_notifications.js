@@ -56,6 +56,8 @@ $(function () {
 		data: {
 			vueMsg: 'Hello Vue!',
 			notificationsCount: 0,
+			markedAllNotificationsAsRead: 'NO',
+			clearedAllReadNotifications: 'NO',
 			notificationsList: [],
 			selectedNotification: {}
 		},
@@ -135,6 +137,11 @@ $(function () {
 			        success: function(marked) {
 			        	if(marked) {
 			        		self.notificationsList[notificationIndex].markedAsReadByReceiver = true;
+			        		self.notificationsCount = self.notificationsCount - 1;
+			        		if(self.notificationsCount == 0) {
+			        			self.markedAllNotificationsAsRead = 'YES';
+			        			$('#notification_counter').fadeOut('slow');		// HIDE THE COUNTER.
+			        		}
 			        		self.selectedNotification = self.notificationsList[notificationIndex];
 							$('.fbox').fancybox({
 								autoSize: false,
@@ -172,7 +179,7 @@ $(function () {
 			},
 			markAllNotificationsAsRead: function() {
 				var self_ui = this;
-				if(self_ui.notificationsCount > 0) {
+				if(self_ui.markedAllNotificationsAsRead == 'NO' && self_ui.notificationsCount > 0) {
 					$.prompt($('#markAllNotificationsAsReadPrompt').val(), {
 						buttons: {Ok:true, Cancel:false}, callback: function(v){
 				        if(v){
@@ -185,9 +192,12 @@ $(function () {
 						        		for(var i=0; i<self_ui.notificationsList.length; i++) {
 						        			self_ui.notificationsList[i].markedAsReadByReceiver = true;
 							        	}
+						        		self_ui.markedAllNotificationsAsRead = 'YES';
+						        		self_ui.notificationsCount = 0;
 						        		$('#notification_counter').fadeOut('slow');		// HIDE THE COUNTER.
 						        		$.unblockUI();
 						        	} else {
+						        		$.unblockUI();
 						        		alert("Some error occurred in marking the notifications!");
 						        	}
 						        }
@@ -195,24 +205,28 @@ $(function () {
 				        }
 					}});
 				} else {
-					$.prompt("There are no pending notifications to process!");
-				}							
+					$.prompt("You have already read all the notifications!");
+				}
 		        return false;
 			},
 			clearAllReadNotifications: function() {
 				var self_ui = this;
-				if(self_ui.notificationsCount > 0) {
+				if(self_ui.clearedAllReadNotifications != 'YES') {
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 
 					$.ajax({
 						url: 'notification/'+$('#authusername').val()+'/clearAllRead',
 						type: 'POST',
 				        success: function(cleared) {
 				        	if(cleared) {
 				        		for(var i=0; i<self_ui.notificationsList.length; i++) {
-				        			if(self_ui.notificationsList[i].markedAsReadByReceiver) {
+				        			if(self_ui.notificationsList[i].markedAsReadByReceiver && !self_ui.notificationsList[i].clearedByReceiver) {
 				        				self_ui.notificationsList[i].clearedByReceiver = true;
+						        		self_ui.clearedAllReadNotifications = 'YES';
 				        			}       			
 					        	}
+				        		$.unblockUI();
 				        	} else {
+				        		$.unblockUI();
 				        		alert("Some error occurred in clearing the notifications!");
 				        	}
 				        }
