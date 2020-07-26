@@ -2602,7 +2602,8 @@ public class MotionController extends GenericController<Motion>{
 					}else{
 						Member primaryMember=Member.findMember(this.getCurrentUser().getFirstName(),this.getCurrentUser().getMiddleName(),this.getCurrentUser().getLastName(),this.getCurrentUser().getBirthDate(),locale.toString());
 						if(primaryMember != null){
-							motions = Motion.findAllByMember(session,primaryMember,motionType,itemsCount,strLocale);
+							//motions = Motion.findAllByMember(session,primaryMember,motionType,itemsCount,strLocale);
+							motions = Motion.findAllCompleteByCreator(session, this.getCurrentUser().getUsername(),motionType,itemsCount,strLocale);
 						}
 					}
 				}

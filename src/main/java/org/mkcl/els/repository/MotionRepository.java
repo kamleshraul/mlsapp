@@ -702,24 +702,26 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 	}
 
 
-	public List<Motion> findAllCompleteByCreator(Session session,
-			String username, DeviceType motionType, Integer itemsCount,
-			String strLocale) {
+	public List<Motion> findAllCompleteByCreator(final Session session,
+			final String username, final DeviceType motionType, 
+			final Integer itemsCount, final String strLocale) {
 		List<Motion> motions = new ArrayList<Motion>();
 		Status status = Status.findByType(ApplicationConstants.MOTION_COMPLETE, strLocale);
 		try {
 			String strQuery = "SELECT m FROM Motion m" +
-					" WHERE m.session=:session" +
-					" AND m.type=:motionType" +
+					" WHERE m.session.id=:sessionId" +
+					" AND m.type.id=:motionTypeId" +
 					" AND m.locale=:locale" +
-					" AND m.status=:status" + 
+					" AND m.status.id=:statusId" +
 					" AND m.createdBy=:createdBy" +
-					" ORDER BY m.submissionPriority "+ ApplicationConstants.ASC;
+					" ORDER BY m.submissionPriority "+ ApplicationConstants.ASC +
+					" , m.id "+ ApplicationConstants.ASC;
 			TypedQuery<Motion> query = this.em().createQuery(strQuery, Motion.class);
-			query.setParameter("session", session);
-			query.setParameter("motionType", motionType);
+			query.setMaxResults(itemsCount);
+			query.setParameter("sessionId", session.getId());
+			query.setParameter("motionTypeId", motionType.getId());
 			query.setParameter("locale", strLocale);
-			query.setParameter("status", status);
+			query.setParameter("statusId", status.getId());
 			query.setParameter("createdBy", username);
 			motions = query.getResultList();
 		} catch (Exception e) {
