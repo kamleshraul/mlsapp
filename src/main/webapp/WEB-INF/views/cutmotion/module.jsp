@@ -147,6 +147,30 @@
 		showTabByIdAndUrl('details_tab','cutmotion/report/genreport?'+parameters);
 	}
 	
+	function memberRepliedCutMotionsView() {
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		+ "&sessionYear=" + $("#selectedSessionYear").val()
+		+ "&sessionType=" + $("#selectedSessionType").val()
+		+ "&cutMotionType=" + $("#selectedCutMotionType").val()
+		+ "&createdBy=" + $("#ugparam").val()
+		+"&locale="+$("#moduleLocale").val()
+		+ "&report=MEMBER_REPLIED_CUTMOTIONS_VIEW"
+		+ "&reportout=member_replied_cutmotions_view";
+		showTabByIdAndUrl('details_tab','cutmotion/report/genreport?'+parameters);
+	}
+	
+	function memberRepliedSupportedCutMotionsView() {
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		+ "&sessionYear=" + $("#selectedSessionYear").val()
+		+ "&sessionType=" + $("#selectedSessionType").val()
+		+ "&cutMotionType=" + $("#selectedCutMotionType").val()
+		+ "&supportedBy=" + $("#ugparam").val()
+		+"&locale="+$("#moduleLocale").val()
+		+ "&report=MEMBER_REPLIED_SUPPORTED_CUTMOTIONS_VIEW"
+		+ "&reportout=member_replied_supported_cutmotions_view";
+		showTabByIdAndUrl('details_tab','cutmotion/report/genreport?'+parameters);
+	}
+	
 	function generateDepartmentwiseSubmittedCountsReport() {
 		var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
 		+ "/" + $("#selectedSessionYear").val()

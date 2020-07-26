@@ -27,6 +27,7 @@ import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
+import org.mkcl.els.controller.NotificationController;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
@@ -1040,7 +1041,15 @@ public class CutMotionWorkflowController extends BaseController {
 									ProcessDefinition processDefinition1 =processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 									ProcessInstance processInstance1 = processService.createProcessInstance(processDefinition1, parameters);
 									Task newMembertask = processService.getCurrentTask(processInstance1);
-									WorkflowDetails.create(domain,newMembertask,currentDeviceTypeWorkflowType,level);												
+									WorkflowDetails.create(domain,newMembertask,currentDeviceTypeWorkflowType,level);
+									
+									//Send Notification of Reply Received to Primary Member
+									NotificationController.sendReplyReceivedIntimationToPrimaryMemberOfDevice(domain.getSession(), domain.getDeviceType(), domain.getNumber().toString(), domain.findCreatedBy(), domain.getLocale());
+									//Send Notification of Reply Received to All Supporting Members
+									String supportedBy = domain.findSupportedBy();
+									if(supportedBy!=null && !supportedBy.isEmpty()) {
+										NotificationController.sendReplyReceivedIntimationToSupportingMembersOfDevice(domain.getSession(), domain.getDeviceType(), domain.getNumber().toString(), supportedBy, domain.getLocale());
+									}
 								}
 							}							
 							
@@ -1065,6 +1074,14 @@ public class CutMotionWorkflowController extends BaseController {
 								ProcessInstance processInstance1 = processService.createProcessInstance(processDefinition1, parameters);
 								Task newMembertask = processService.getCurrentTask(processInstance1);
 								WorkflowDetails.create(domain,newMembertask,currentDeviceTypeWorkflowType,level);
+								
+								//Send Notification of Reply Received to Primary Member
+								NotificationController.sendReplyReceivedIntimationToPrimaryMemberOfDevice(domain.getSession(), domain.getDeviceType(), domain.getNumber().toString(), domain.findCreatedBy(), domain.getLocale());
+								//Send Notification of Reply Received to All Supporting Members
+								String supportedBy = domain.findSupportedBy();
+								if(supportedBy!=null && !supportedBy.isEmpty()) {
+									NotificationController.sendReplyReceivedIntimationToSupportingMembersOfDevice(domain.getSession(), domain.getDeviceType(), domain.getNumber().toString(), supportedBy, domain.getLocale());
+								}
 							}
 						}
 					}

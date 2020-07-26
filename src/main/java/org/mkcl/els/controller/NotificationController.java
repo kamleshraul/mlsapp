@@ -145,13 +145,20 @@ public class NotificationController extends GenericController<Notification> {
 	@RequestMapping(value = "/find_id_by_pushmessage_receiver", method = RequestMethod.GET)
 	public @ResponseBody long findByPushMessageAtReceiver(final HttpServletRequest request, Locale locale) {
 		String pushMessageId = request.getParameter("pushmessage_id");
+		//System.out.println("pushMessageId: " + pushMessageId);
 		String receiver = request.getParameter("receiver");
+		//System.out.println("receiver: " + receiver);
 		long notificationId = new Long(0);
 		try {
 			PushMessage pushMessage = PushMessage.findById(PushMessage.class, Long.parseLong(pushMessageId));
-			Notification notification = Notification.findByPushMessageAtReceiver(pushMessage, receiver, locale.toString());
+			/*if(pushMessage!=null) {
+				System.out.println("pushMessage found!");
+			}*/
+			Notification notification = Notification.findByPushMessageAtReceiver(pushMessage, receiver, locale.toString());			
 			if(notification!=null) {
+				//System.out.println("notification found!");
 				notificationId = notification.getId();
+				//System.out.println("notificationId: " + notificationId);
 			}
 		} catch(Exception e) {
 			logger.error(e.getMessage());
@@ -382,6 +389,26 @@ public class NotificationController extends GenericController<Notification> {
 		templateParameters.put("currentSubDepartment", new String[]{currentSubDepartment});
 		templateParameters.put("currentSubDepartmentLike", new String[]{"%"+currentSubDepartment+"##%"});		
 		getNotificationService().sendNotificationWithTitleUsingTemplate("DEPARTMENT_REPLY_REMINDER_LETTER1", templateParameters, locale);
+	}
+	
+	public static void sendReplyReceivedIntimationToPrimaryMemberOfDevice(final Session session, final DeviceType deviceType, final String deviceNumber, final String primaryMemberUserName, final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("sessionId", new String[]{session.getId().toString()});
+		templateParameters.put("deviceTypeName", new String[]{deviceType.getName()});
+		templateParameters.put("deviceNumber", new String[]{deviceNumber});
+		templateParameters.put("primaryMemberUserName", new String[]{primaryMemberUserName});
+		getNotificationService().sendNotificationWithTitleUsingTemplate("REPLY_RECEIVED_INTIMATION_TO_PRIMARY_MEMBER_OF_DEVICE", templateParameters, locale);
+	}
+	
+	public static void sendReplyReceivedIntimationToSupportingMembersOfDevice(final Session session, final DeviceType deviceType, final String deviceNumber, final String supportingMembersUserNames, final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("sessionId", new String[]{session.getId().toString()});
+		templateParameters.put("deviceTypeName", new String[]{deviceType.getName()});
+		templateParameters.put("deviceNumber", new String[]{deviceNumber});
+		templateParameters.put("supportingMembersUserNames", new String[]{supportingMembersUserNames});
+		getNotificationService().sendNotificationWithTitleUsingTemplate("REPLY_RECEIVED_INTIMATION_TO_SUPPORTING_MEMBERS_OF_DEVICE", templateParameters, locale);
 	}
 	
 	public static void sendNotificationFromAdminPage(final String notificationTitle, final String notificationMessage, final boolean isVolatile, final String receivers, final String locale) {

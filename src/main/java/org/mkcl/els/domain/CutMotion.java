@@ -2185,6 +2185,48 @@ public class CutMotion extends Device implements Serializable {
 	public String getCreatedBy() {
 		return createdBy;
 	}
+	
+	public String findCreatedBy() throws ELSException {
+		if(this.getCreatedBy()!=null 
+				&& !this.getCreatedBy().isEmpty()
+				&& !this.getCreatedBy().contains("typist")) {
+			return this.getCreatedBy();
+		} else {
+			User mUser = User.findbyNameBirthDate(
+								this.getPrimaryMember().getFirstName(),
+								this.getPrimaryMember().getMiddleName(),this.getPrimaryMember().getLastName(),
+								this.getPrimaryMember().getBirthDate()
+						 );
+			Credential mCredential=mUser.getCredential();
+			return mCredential.getUsername();
+		}
+	}
+	
+	public String findSupportedBy() throws ELSException {
+		String supportedBy = "";
+		List<SupportingMember> selectedSupportingMembers = this.getSupportingMembers();
+		if(selectedSupportingMembers != null && !selectedSupportingMembers.isEmpty()){
+			User mUser = null;
+			Credential mCredential = null;
+			StringBuffer supportingMembersUserNames = new StringBuffer("");
+			for(SupportingMember i : selectedSupportingMembers){
+				if(i.getDecisionStatus()!=null
+						&& i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+					mUser = User.
+							findbyNameBirthDate(i.getMember().getFirstName(),
+									i.getMember().getMiddleName(),i.getMember().getLastName(),
+									i.getMember().getBirthDate());
+					mCredential=mUser.getCredential();
+					supportingMembersUserNames.append(mCredential.getUsername() + ",");
+				}
+			}
+			if(supportingMembersUserNames.length()>1) {
+				supportingMembersUserNames.deleteCharAt(supportingMembersUserNames.length()-1);
+			}
+			supportedBy = supportingMembersUserNames.toString();
+		}
+		return supportedBy;
+	}
 
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;

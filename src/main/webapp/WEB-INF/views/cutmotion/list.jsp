@@ -49,6 +49,18 @@
 				memberCutMotionsView();
 			});
 			
+			/****Member's Replied CutMotions View ****/
+			$("#member_replied_cutmotions_view").click(function() {
+				$("#selectionDiv1").hide();
+				memberRepliedCutMotionsView();
+			});
+			
+			/****Member's Replied Supported CutMotions View ****/
+			$("#member_replied_supported_cutmotions_view").click(function() {
+				$("#selectionDiv1").hide();
+				memberRepliedSupportedCutMotionsView();
+			});
+			
 			/**** Departmentwise Submitted Counts ****/
 			$("#departmentwise_submitted_counts_report").click(function() {
 				$("#selectionDiv1").hide();
@@ -140,11 +152,18 @@
 			<a href="#" id="refreshList" class="butSim">
 				<spring:message code="generic.refresh" text="Refresh"/>
 			</a> |	
-			<%-- <security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE')">
 				<a href="#" id="member_cutmotions_view" class="butSim">
 					<spring:message code="cutmotion.member_cutmotions_view" text="Member's CutMotions View"/>
 				</a> |
-			</security:authorize> --%>
+				<hr/>
+				<a href="#" id="member_replied_cutmotions_view" class="butSim">
+					<spring:message code="cutmotion.member_replied_cutmotions_view" text="Member's Replied CutMotions View"/>
+				</a> |
+				<a href="#" id="member_replied_supported_cutmotions_view" class="butSim">
+					<spring:message code="cutmotion.member_replied_supported_cutmotions_view" text="Replied Supported CutMotions View"/>
+				</a> |
+			</security:authorize>
 			<security:authorize access="!hasAnyRole('CMOIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 				<a href="#" id="departmentwise_submitted_counts_report" class="butSim">
 					<spring:message code="cutmotion.departmentwise_submitted_counts_report" text="Departmentwise Submitted Counts"/>

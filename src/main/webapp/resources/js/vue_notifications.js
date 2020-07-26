@@ -130,33 +130,72 @@ $(function () {
 		methods: {
 			readNotification: function(notificationIndex) {
 				var self = this;
-				$.ajax({
-					url: 'notification/'+self.notificationsList[notificationIndex].id+'/markAsRead',
-					type: 'POST',
-					async: false,
-			        success: function(marked) {
-			        	if(marked) {
-			        		self.notificationsList[notificationIndex].markedAsReadByReceiver = true;
-			        		self.notificationsCount = self.notificationsCount - 1;
-			        		if(self.notificationsCount == 0) {
-			        			self.markedAllNotificationsAsRead = 'YES';
-			        			$('#notification_counter').fadeOut('slow');		// HIDE THE COUNTER.
-			        		}
-			        		self.selectedNotification = self.notificationsList[notificationIndex];
-							$('.fbox').fancybox({
-								autoSize: false,
-								width: self.selectedNotification.title==self.selectedNotification.message? 580 : 720,
-								height: self.selectedNotification.title==self.selectedNotification.message? 125 : 420,
-								afterShow: function() {
-									
-							    }
-							});										
-							//$.fancybox.open($('#notificationViewerPopUp').html(),{autoSize:false,width:400,height:300});
-			        	} else {
-			        		alert("Some error occurred in reading the notification!");
-			        	}
-			        }
-				});
+				if(self.notificationsList[notificationIndex].id>0) { //normal case: notification with id is present
+					$.ajax({
+						url: 'notification/'+self.notificationsList[notificationIndex].id+'/markAsRead',
+						type: 'POST',
+						async: false,
+				        success: function(marked) {
+				        	if(marked) {
+				        		self.notificationsList[notificationIndex].markedAsReadByReceiver = true;
+				        		self.notificationsCount = self.notificationsCount - 1;
+				        		if(self.notificationsCount == 0) {
+				        			self.markedAllNotificationsAsRead = 'YES';
+				        			$('#notification_counter').fadeOut('slow');		// HIDE THE COUNTER.
+				        		}
+				        		self.selectedNotification = self.notificationsList[notificationIndex];
+								$('.fbox').fancybox({
+									autoSize: false,
+									width: self.selectedNotification.title==self.selectedNotification.message? 580 : 720,
+									height: self.selectedNotification.title==self.selectedNotification.message? 125 : 420,
+									afterShow: function() {
+										
+								    }
+								});										
+								//$.fancybox.open($('#notificationViewerPopUp').html(),{autoSize:false,width:400,height:300});
+				        	} else {
+				        		alert("Some error occurred in reading the notification!");
+				        	}
+				        }
+					});
+				} else { //abnormal case: notification id is not set due to some reason
+					self.notificationsList[notificationIndex].markedAsReadByReceiver = true;
+	        		self.notificationsCount = self.notificationsCount - 1;
+	        		if(self.notificationsCount == 0) {
+	        			self.markedAllNotificationsAsRead = 'YES';
+	        			$('#notification_counter').fadeOut('slow');		// HIDE THE COUNTER.
+	        		}
+	        		self.selectedNotification = self.notificationsList[notificationIndex];
+					$('.fbox').fancybox({
+						autoSize: false,
+						width: self.selectedNotification.title==self.selectedNotification.message? 580 : 720,
+						height: self.selectedNotification.title==self.selectedNotification.message? 125 : 420,
+						afterShow: function() {
+							
+					    }
+					});
+					//find and update notification id for the concerned abnormal notification
+					var abnormal_notification_identifiers = {
+				        	'pushmessage_id': self.notificationsList[notificationIndex].pushMessageId,
+				        	'receiver': $('#authusername').val()
+				        };
+					$.get('notification/find_id_by_pushmessage_receiver', abnormal_notification_identifiers)
+	        		.done(function(notificationId) {
+	        			if(notificationId!=undefined && notificationId>0) {
+	        				self.notificationsList[notificationIndex].id = notificationId;
+	        				$.ajax({
+	    						url: 'notification/'+self.notificationsList[notificationIndex].id+'/markAsRead',
+	    						type: 'POST',
+	    						async: false,
+	    				        success: function(marked) {
+	    				        	if(!marked) {
+	    				        		alert("Some error occurred in reading the notification!");
+	    				        	}
+	    				        }
+	    					});
+	        			}
+	        		});
+				}			
 			},
 			clearNotification: function(notificationIndex) {
 				var self = this;

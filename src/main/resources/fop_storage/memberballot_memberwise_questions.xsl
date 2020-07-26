@@ -342,7 +342,7 @@
 																<fo:block font-weight="normal"><xsl:value-of select="questionSubject"/></fo:block>
 															</fo:table-cell>
 															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
-																<fo:block font-weight="normal"><xsl:value-of select="questionReason"/></fo:block>
+																<fo:block font-weight="normal"><xsl:apply-templates select="questionReason"/></fo:block>
 															</fo:table-cell>
 														</fo:table-row>																																					
 														</xsl:for-each>

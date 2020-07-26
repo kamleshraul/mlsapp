@@ -2663,6 +2663,8 @@ public class ApplicationConstants {
 	
 	public static final String STATUS_LAPSED="_lapsed";
 	
+	public static final String STATUS_PENDING_FOR_CLUBBING_APPROVAL="_clubbing";
+	
 	public static final String QUESTIONSUPPLEMENTARY_WORKFLOW = "questionsupplementary_workflow";
 	
 	public static final String QUESTION_PROCESSED_SUPPLEMENTARYCLUBBING = "question_processed_supplementaryClubbing";

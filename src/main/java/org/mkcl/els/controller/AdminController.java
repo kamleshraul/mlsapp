@@ -19,6 +19,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.xmlvo.TestXmlVO;
 import org.mkcl.els.domain.AdjournmentMotion;
+import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotion;
@@ -43,6 +44,7 @@ import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.domain.chart.ChartEntry;
 import org.mkcl.els.service.INotificationService;
@@ -378,6 +380,7 @@ public class AdminController extends BaseController {
 		return "SUCCESS";	
 	}
 	
+	@Transactional
 	@RequestMapping(value="club_with_original_unstarred/{childIds}/{parentId}", method=RequestMethod.GET)
 	public @ResponseBody String ClubStarredToOriginalUnstarred(@PathVariable("childIds") final String childIds,
 			@PathVariable("parentId") final String parentId,
@@ -435,6 +438,213 @@ public class AdminController extends BaseController {
 					returnMsg.append(unclubbedNumbers);
 					returnMsg.append(" not clubbed");
 				}				
+			} else {
+				returnMsg.append("NO CHILD QUESTIONS PROVIDED FOR CLUBBING!");
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "ERROR";
+		}
+		
+		return returnMsg.toString();
+	}
+	
+	@Transactional
+	@RequestMapping(value="club_questions_on_record/child/{childIds}/parent/{parentId}", method=RequestMethod.GET)
+	public @ResponseBody String ClubQuestionsOnRecord(@PathVariable("childIds") final String childIds,
+			@PathVariable("parentId") final String parentId,
+			final Locale appLocale) {
+		StringBuffer returnMsg = new StringBuffer();
+		StringBuffer clubbedNumbers = new StringBuffer();
+		StringBuffer unclubbedNumbers = new StringBuffer();
+		try {
+			String locale = appLocale.toString();
+			String[] cIds = childIds.split(","); 
+			Question parentQuestion = Question.findById(Question.class, Long.parseLong(parentId));
+			Status systemClubbedStatus = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED, locale);
+			Status admitStatus = Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
+			if(parentQuestion.getParent()!=null) {
+				returnMsg.append("NOT ALLOWED: Parent question number " + parentQuestion.getNumber() + " is already clubbed");
+				return returnMsg.toString();
+			}
+			if(cIds.length>0){
+				for(int i=0 ; i<cIds.length;i++){
+					Question childQuestion = Question.findById(Question.class, Long.parseLong(cIds[i]));
+					if(childQuestion.getParent()!=null) {
+//						childQuestion = childQuestion.getParent();
+						if(unclubbedNumbers.length()>0) {
+							unclubbedNumbers.append(", " + childQuestion.getNumber() + " (already clubbed)");
+						} else {
+							unclubbedNumbers.append(childQuestion.getNumber() + " (already clubbed)");
+						}
+						continue;
+					}
+					try {
+						List<ClubbedEntity> parentClubbedEntities=new ArrayList<ClubbedEntity>();
+						String latestQuestionText = null;
+						if(parentQuestion.getClubbedEntities()!=null && !parentQuestion.getClubbedEntities().isEmpty()){
+							for(ClubbedEntity j:parentQuestion.getClubbedEntities()){
+								// parent & child need not be disjoint. They could
+								// be present in each other's hierarchy.
+								Long childQnId = childQuestion.getId();
+								Question clubbedQn = j.getQuestion();
+								Long clubbedQnId = clubbedQn.getId();
+								if(! childQnId.equals(clubbedQnId)) {
+									/** fetch parent's latest question text from first of its children **/
+									if(latestQuestionText==null) {
+										latestQuestionText = clubbedQn.getRevisedQuestionText();
+										if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+											latestQuestionText = clubbedQn.getQuestionText();
+										}
+									}
+									parentClubbedEntities.add(j);
+								}
+							}			
+						}
+						
+						List<ClubbedEntity> childClubbedEntities=new ArrayList<ClubbedEntity>();
+						if(childQuestion.getClubbedEntities()!=null && !childQuestion.getClubbedEntities().isEmpty()){
+							for(ClubbedEntity k:childQuestion.getClubbedEntities()){
+								// parent & child need not be disjoint. They could
+								// be present in each other's hierarchy.
+								Long parentQnId = parentQuestion.getId();
+								Question clubbedQn = k.getQuestion();
+								Long clubbedQnId = clubbedQn.getId();
+								if(! parentQnId.equals(clubbedQnId)) {
+									childClubbedEntities.add(k);
+								}
+							}
+						}
+						
+						WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(childQuestion);
+						if(wfDetails != null) {
+							WorkflowDetails.endProcess(wfDetails);
+						}
+						childQuestion.removeExistingWorkflowAttributes();
+						
+						/** fetch parent's latest question text **/
+						if(latestQuestionText==null) {
+							latestQuestionText = parentQuestion.getRevisedQuestionText();
+							if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+								latestQuestionText = parentQuestion.getQuestionText();
+							}
+						}
+						
+						childQuestion.setParent(parentQuestion);
+						childQuestion.setClubbedEntities(null);		
+						
+						Status newStatus = parentQuestion.getStatus();
+						childQuestion.setStatus(newStatus);
+						Status newInternalStatus = null;
+						if(parentQuestion.getStatus().getPriority().intValue()<admitStatus.getPriority().intValue()) {														
+							newInternalStatus = Question.findCorrespondingStatusForGivenQuestionType(systemClubbedStatus, childQuestion.getType());
+						} else {	
+							childQuestion.setType(parentQuestion.getType());
+							newInternalStatus = parentQuestion.getInternalStatus();
+						}						
+						childQuestion.setInternalStatus(newInternalStatus);
+						Status newRecommendationStatus = null;
+						if(parentQuestion.getStatus().getPriority().intValue()<admitStatus.getPriority().intValue()) {
+							newRecommendationStatus = Question.findCorrespondingStatusForGivenQuestionType(systemClubbedStatus, childQuestion.getType());
+						} else {	
+							childQuestion.setType(parentQuestion.getType());
+							newRecommendationStatus = parentQuestion.getRecommendationStatus();
+						}						
+						childQuestion.setRecommendationStatus(newRecommendationStatus);
+						
+						childQuestion.setRevisedQuestionText(latestQuestionText);
+						Question.updateDomainFieldsOnClubbingFinalisation(parentQuestion, childQuestion);
+						UserGroupType clerkUGT = UserGroupType.findByType(ApplicationConstants.CLERK, locale);
+						childQuestion.setEditedAs(clerkUGT.getDisplayName());
+						childQuestion.setEditedBy("qis_clerk");
+						childQuestion.setEditedOn(new Date());
+						childQuestion.merge();
+
+						ClubbedEntity clubbedEntity=new ClubbedEntity();
+						clubbedEntity.setDeviceType(childQuestion.getType());
+						clubbedEntity.setLocale(childQuestion.getLocale());
+						clubbedEntity.setQuestion(childQuestion);
+						clubbedEntity.persist();
+						parentClubbedEntities.add(clubbedEntity);
+						
+						if(childClubbedEntities!=null&& !childClubbedEntities.isEmpty()){
+							for(ClubbedEntity ce:childClubbedEntities){
+								Question question=ce.getQuestion();					
+								/** end current clubbing workflow if pending **/
+								wfDetails = WorkflowDetails.findCurrentWorkflowDetail(question);
+								if(wfDetails != null) {
+									WorkflowDetails.endProcess(wfDetails);
+								}
+								question.removeExistingWorkflowAttributes();
+								
+								question.setEditedAs(childQuestion.getEditedAs());
+								question.setEditedBy(childQuestion.getEditedBy());
+								question.setEditedOn(childQuestion.getEditedOn());
+								question.setParent(parentQuestion);
+								if(question.getRecommendationStatus().getType().contains(ApplicationConstants.STATUS_PENDING_FOR_CLUBBING_APPROVAL)) {
+//									if(parentQuestion.getStatus().getPriority().intValue()<admitStatus.getPriority().intValue()) {														
+//										question.setInternalStatus(Question.findCorrespondingStatusForGivenQuestionType(systemClubbedStatus, question.getType()));
+//									} else {
+//										question.setInternalStatus(parentQuestion.getInternalStatus());
+//									}						
+//									if(parentQuestion.getStatus().getPriority().intValue()<admitStatus.getPriority().intValue()) {
+//										newRecommendationStatus = Question.findCorrespondingStatusForGivenQuestionType(systemClubbedStatus, question.getType());
+//									} else {	
+//										question.setType(parentQuestion.getType());
+//										newRecommendationStatus = parentQuestion.getRecommendationStatus();
+//									}
+									
+									//TODO: either unclub this or keep ready for fresh clubbing approval as per its state
+									
+								} else {
+									question.setType(childQuestion.getType());
+									question.setStatus(newStatus);
+									question.setInternalStatus(newInternalStatus);
+									question.setRecommendationStatus(newRecommendationStatus);				
+									question.setRevisedQuestionText(latestQuestionText);
+									Question.updateDomainFieldsOnClubbingFinalisation(parentQuestion, question);
+									question.merge();
+									parentClubbedEntities.add(ce);
+								}								
+							}			
+						}
+						parentQuestion.setClubbedEntities(parentClubbedEntities);
+						parentQuestion.simpleMerge();
+
+						List<ClubbedEntity> clubbedEntities=parentQuestion.findClubbedEntitiesByQuestionNumber(ApplicationConstants.ASC,locale);
+						Integer position=1;
+						for(ClubbedEntity pce:clubbedEntities){
+							pce.setPosition(position);
+							position++;
+							pce.merge();
+						}
+						
+						if(clubbedNumbers.length()>0) {
+							clubbedNumbers.append(", " + childQuestion.getNumber());
+						} else {
+							clubbedNumbers.append(childQuestion.getNumber());
+						}
+					} catch(Exception e) {
+						if(unclubbedNumbers.length()>0) {
+							unclubbedNumbers.append(", " + childQuestion.getNumber() + " (some exception)");
+						} else {
+							unclubbedNumbers.append(childQuestion.getNumber() + " (some exception)");
+						}
+						continue;
+					}					
+				}
+				returnMsg.append("SUCCESS: ");
+				if(clubbedNumbers.length()>0) {					
+					returnMsg.append(clubbedNumbers);
+					returnMsg.append(" clubbed... ");
+				}
+				if(unclubbedNumbers.length()>0) {
+					returnMsg.append(unclubbedNumbers);
+					returnMsg.append(" not clubbed");
+				}				
+			} else {
+				returnMsg.append("NO CHILD QUESTIONS PROVIDED FOR CLUBBING!");
 			}
 		}
 		catch(Exception e) {
@@ -561,11 +771,27 @@ public class AdminController extends BaseController {
 			
 			Boolean isFlowOnRecomStatusAfterFinalDecision = Boolean.valueOf(request.getParameter("isFlowOnRecomStatusAfterFinalDecision"));
 			
+			String assignee = request.getParameter("assignee");
+			
 			String[] deviceIdArr = deviceIds.split(",");
 			
 			for(String deviceId: deviceIdArr) {
 				
-				Device.startDeviceWorkflow(deviceName, Long.parseLong(deviceId), status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
+				if(assignee!=null && !assignee.isEmpty()) {
+					try {
+						User assigneeUser = User.findByUserName(assignee, locale);
+						if(assigneeUser!=null && assigneeUser.getId()!=null) {
+							Device.startDeviceWorkflow(deviceName, Long.parseLong(deviceId), status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, assignee, locale);
+						} else {
+							return "USER_NOT_FOUND";
+						}
+					} catch(Exception e1) {
+						e1.printStackTrace();
+						return "USER_NOT_FOUND";
+					}
+				} else {
+					Device.startDeviceWorkflow(deviceName, Long.parseLong(deviceId), status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
+				}
 				
 			}		
 		}
