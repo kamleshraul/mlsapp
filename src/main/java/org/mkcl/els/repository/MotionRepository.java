@@ -753,7 +753,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 				+"  mi.name as ministry,"
 				+"  sd.name as subdepartment,st.type as statustype," 
 				+"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName,"
-				+"  mo.discussion_date as discussionDate,"
+				+"  (CASE WHEN mo.discussion_date IS NOT NULL THEN mo.discussion_date ELSE mo.answering_date END) as discussionDate,"
 				+"  mo.localized_actor_name as actor" 
 				+"  FROM motions as mo "
 				+"  LEFT JOIN housetypes as ht ON(mo.housetype_id=ht.id) "

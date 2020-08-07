@@ -1498,6 +1498,12 @@ class StarredQuestionChart {
 	private static Chart processSourceGroupChartUH(
 			final Question question,
 			final Group sourceGroup) throws ELSException {
+		return StarredQuestionChart.processSourceGroupChartCommon(question, sourceGroup);
+	}
+	
+	private static Chart processSourceGroupChartCommon(
+			final Question question,
+			final Group sourceGroup) throws ELSException {
 		Chart chart = Chart.find(question);
 		
 		if(chart != null) {
@@ -1557,7 +1563,7 @@ class StarredQuestionChart {
 			question.simpleMerge();
 		}
 		
-		String chartQuestionDetails = Chart.findNextEligibleChartQuestionDetailsOnGroupChangeUH(chart, question.getPrimaryMember());
+		String chartQuestionDetails = Chart.findNextEligibleChartQuestionDetailsOnGroupChange(chart, question.getPrimaryMember());
 		if(chartQuestionDetails!=null && !chartQuestionDetails.isEmpty()) {
 			Chart eligibleChart = Chart.findById(Chart.class, new Long(chartQuestionDetails.split("~")[0]));
 			Question eligibleQuestion = Question.findById(Question.class, new Long(chartQuestionDetails.split("~")[1]));
@@ -1931,28 +1937,73 @@ class StarredQuestionChart {
 			StarredQuestionChart.isAssistantProcessed(question);
 		
 		if(isAssistantProcessed) {
-			Session session = question.getSession();
-			Group group = question.getGroup();
-			DeviceType deviceType = question.getType();
-			String locale = question.getLocale();
-			
-			Chart latestChart = 
-				StarredQuestionChart.findLatestChart(session, group, 
-						deviceType, locale);
-			
-			if(latestChart != null) {
-				boolean isEligibleForChart = 
-					StarredQuestionChart.isEligibleForChartLH(latestChart, 
-							question);
+			CustomParameter csptAllowQuestionAcrossAllCharts = CustomParameter.findByName(CustomParameter.class, "ALLOW_QUESTION_ACROSS_ALL_CHARTS_LOWERHOUSE", "");
+			if(csptAllowQuestionAcrossAllCharts!=null 
+					&& csptAllowQuestionAcrossAllCharts.getValue()!=null
+					&& csptAllowQuestionAcrossAllCharts.getValue().equalsIgnoreCase("YES")) { //special case when question can be putup on previous chart than latest
+				Group group = question.getGroup();
+				List<Date> answeringDates = new ArrayList<Date>();
+				if(question.getAnsweringDate() == null) {
+					answeringDates = group.getAnsweringDates(ApplicationConstants.ASC);
+				}
+				else {
+					Date answeringDate = question.getAnsweringDate().getAnsweringDate();
+					answeringDates = StarredQuestionChart.getAnsweringDatesGTEQ(group, 
+							answeringDate);
+				}
 				
-				if(isEligibleForChart) {
-					House house = session.getHouse();
-					HouseType houseType = house.getType();
+				Session session = question.getSession();
+				DeviceType deviceType = question.getType();
+				String locale = question.getLocale();
+				
+				House house = session.getHouse();
+				HouseType houseType = house.getType();
+				Integer maxNoOfQuestions = 
+					StarredQuestionChart.maxChartedQuestions(houseType);
+				
+				for(Date d : answeringDates) {
+					Date finalSubmissionDate = group.getFinalSubmissionDate(d);
+					Date endTime = StarredQuestionChart.getSubmissionEndTime(
+									session, locale);
+					int comparisonResult = finalSubmissionDate.compareTo(question.getSubmissionDate());
+					int comparisonResult1 = endTime.compareTo(new Date());
+					if(comparisonResult>=0 && comparisonResult1>=0){
+						Chart chart = StarredQuestionChart.find(session, 
+								group, d, deviceType, locale);
+						if(chart != null) {
+							boolean isAddedToChart = 
+								StarredQuestionChart.addToChartIfApplicable(chart, 
+										question, maxNoOfQuestions);
+							if(isAddedToChart) {
+								return true;
+							}
+						}
+					}
+				}
+			} else {
+				Session session = question.getSession();
+				Group group = question.getGroup();
+				DeviceType deviceType = question.getType();
+				String locale = question.getLocale();
+				
+				Chart latestChart = 
+					StarredQuestionChart.findLatestChart(session, group, 
+							deviceType, locale);
+				
+				if(latestChart != null) {
+					boolean isEligibleForChart = 
+						StarredQuestionChart.isEligibleForChartLH(latestChart, 
+								question);
 					
-					Integer maxQnsOnChart = 
-						StarredQuestionChart.maxChartedQuestions(houseType);
-					return StarredQuestionChart.addToChartIfApplicable(
-							latestChart, question, maxQnsOnChart);
+					if(isEligibleForChart) {
+						House house = session.getHouse();
+						HouseType houseType = house.getType();
+						
+						Integer maxQnsOnChart = 
+							StarredQuestionChart.maxChartedQuestions(houseType);
+						return StarredQuestionChart.addToChartIfApplicable(
+								latestChart, question, maxQnsOnChart);
+					}
 				}
 			}
 		}
@@ -2083,9 +2134,15 @@ class StarredQuestionChart {
 			final Group sourceGroup,
 			final Group targetGroup,
 			final boolean isForceAddToTargetGroupChart) throws ELSException {
-		Chart sourceChart = 
-			StarredQuestionChart.processSourceGroupChart(question, 
-					sourceGroup);
+		Chart sourceChart = null;
+		CustomParameter csptAllowQuestionAcrossAllCharts = CustomParameter.findByName(CustomParameter.class, "ALLOW_QUESTION_ACROSS_ALL_CHARTS_LOWERHOUSE", "");
+		if(csptAllowQuestionAcrossAllCharts!=null 
+				&& csptAllowQuestionAcrossAllCharts.getValue()!=null
+				&& csptAllowQuestionAcrossAllCharts.getValue().equalsIgnoreCase("YES")) { //special case when question can be putup on previous chart than latest
+			sourceChart = StarredQuestionChart.processSourceGroupChart(question, sourceGroup);
+		} else {
+			sourceChart = StarredQuestionChart.processSourceGroupChartLH(question, sourceGroup);
+		}		
 		
 		if(sourceChart != null && isForceAddToTargetGroupChart) {
 			Chart targetChart = 
@@ -2107,9 +2164,15 @@ class StarredQuestionChart {
 			List<Question> kids = StarredQuestionChart.findClubbings(question);
 			
 			// Apply source group chart processing to parent
-			Chart sourceChart = 
-				StarredQuestionChart.processSourceGroupChart(question, 
-						sourceGroup);
+			Chart sourceChart = null;
+			CustomParameter csptAllowQuestionAcrossAllCharts = CustomParameter.findByName(CustomParameter.class, "ALLOW_QUESTION_ACROSS_ALL_CHARTS_LOWERHOUSE", "");
+			if(csptAllowQuestionAcrossAllCharts!=null 
+					&& csptAllowQuestionAcrossAllCharts.getValue()!=null
+					&& csptAllowQuestionAcrossAllCharts.getValue().equalsIgnoreCase("YES")) { //special case when question can be putup on previous chart than latest
+				sourceChart = StarredQuestionChart.processSourceGroupChart(question, sourceGroup);
+			} else {
+				sourceChart = StarredQuestionChart.processSourceGroupChartLH(question, sourceGroup);
+			}
 			
 			// Apply source group chart processing to kids
 			for(Question kid : kids) {
@@ -2843,7 +2906,7 @@ class StarredQuestionChart {
 	 * 
 	 * Returns the processed source group Chart.
 	 */
-	private static Chart processSourceGroupChart(final Question question,
+	private static Chart processSourceGroupChartLH(final Question question,
 			final Group sourceGroup) throws ELSException {
 		Chart chart = Chart.find(question);
 		if(chart != null) {
@@ -2855,6 +2918,7 @@ class StarredQuestionChart {
 			Group group = chart.getGroup();
 			Date answeringDate = chart.getAnsweringDate();
 			Chart latestChart = findLatestChart(session, group, question.getOriginalType(), locale);
+			
 			Date latestChartAnsweringDate = latestChart.getAnsweringDate();
 			ChartEntry ce = 
 				StarredQuestionChart.find(chart.getChartEntries(), member);
@@ -2927,6 +2991,26 @@ class StarredQuestionChart {
 				StarredQuestionChart.marshallQuestions(reorderedQuestions);
 			ce.setDevices(reorderedDevices);
 			ce.merge();
+		}
+		
+		return chart;
+	}
+	
+	private static Chart processSourceGroupChart(final Question question,
+			final Group sourceGroup) throws ELSException {
+		Chart chart = Chart.find(question);
+		if(chart != null) {
+			String locale = chart.getLocale();
+			Session session = question.getSession();
+			String submissionEndDate = session.getParameter("questions_starred_submissionEndDate");
+			Date lastSubmissionDate = FormaterUtil.formatStringToDate(submissionEndDate, ApplicationConstants.DB_DATETIME_FORMAT, locale);
+			// As the shifting of chart questions can be done only till the last submission date, post group change
+			// only the device will be removed from the chart without shifting.
+			if(lastSubmissionDate.compareTo(new Date())>=0){
+				shiftChartQuestionsRecursive(question, chart, true, locale);
+			}else{
+				processSourceGroupChartCommon(question, sourceGroup);
+			}
 		}
 		
 		return chart;
@@ -3119,6 +3203,17 @@ class StarredQuestionChart {
 		StringBuffer key = new StringBuffer();
 		key.append(ApplicationConstants
 				.QUESTION_STARRED_SECONDBATCH_SUBMISSION_ENDTIME);
+		String value = session.getParameter(key.toString());
+		
+		return getFormattedTime(value, locale);
+	}
+	
+	private static Date getSubmissionEndTime(
+			final Session session,
+			final String locale) {
+		StringBuffer key = new StringBuffer();
+		key.append(ApplicationConstants
+				.QUESTION_STARRED_SUBMISSION_ENDTIME);
 		String value = session.getParameter(key.toString());
 		
 		return getFormattedTime(value, locale);

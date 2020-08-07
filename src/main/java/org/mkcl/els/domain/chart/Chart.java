@@ -727,8 +727,8 @@ public class Chart extends BaseDomain implements Serializable {
 		}
 	}
 	
-	public static String findNextEligibleChartQuestionDetailsOnGroupChangeUH(final Chart chart, final Member member) {
-		return Chart.getChartRepository().findNextEligibleChartQuestionDetailsOnGroupChangeUH(chart, member);
+	public static String findNextEligibleChartQuestionDetailsOnGroupChange(final Chart chart, final Member member) {
+		return Chart.getChartRepository().findNextEligibleChartQuestionDetailsOnGroupChange(chart, member);
 	}
 	
 	//===============================================

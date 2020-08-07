@@ -1467,7 +1467,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		
 	}
 	
-	public String findNextEligibleChartQuestionDetailsOnGroupChangeUH(final Chart chart, final Member member) {
+	public String findNextEligibleChartQuestionDetailsOnGroupChange(final Chart chart, final Member member) {
 		String strQuery = "SELECT CONCAT(c.id, '~', q.id) AS chart_question_details FROM charts c"
 				+ " INNER JOIN charts_chart_entries cce ON (cce.chart_id = c.id)"
 				+ " INNER JOIN chart_entries ce ON (cce.chart_entry_id = ce.id)"
