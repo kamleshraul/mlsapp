@@ -2170,14 +2170,16 @@ class StarredQuestionChart {
 					&& csptAllowQuestionAcrossAllCharts.getValue()!=null
 					&& csptAllowQuestionAcrossAllCharts.getValue().equalsIgnoreCase("YES")) { //special case when question can be putup on previous chart than latest
 				sourceChart = StarredQuestionChart.processSourceGroupChart(question, sourceGroup);
+				// Apply source group chart processing to kids
+				for(Question kid : kids) {
+					StarredQuestionChart.processSourceGroupChart(kid, sourceGroup);
+				}
 			} else {
 				sourceChart = StarredQuestionChart.processSourceGroupChartLH(question, sourceGroup);
-			}
-			
-			// Apply source group chart processing to kids
-			for(Question kid : kids) {
-				StarredQuestionChart.processSourceGroupChart(kid, 
-						sourceGroup);
+				// Apply source group chart processing to kids
+				for(Question kid : kids) {
+					StarredQuestionChart.processSourceGroupChartLH(kid, sourceGroup);
+				}
 			}
 			
 			if(sourceChart != null) {
