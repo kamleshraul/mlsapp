@@ -312,13 +312,22 @@ public class QuestionWorkflowController  extends BaseController{
 			if(longWorkflowdetails == null){
 				longWorkflowdetails = Long.parseLong(request.getParameter("workflowdetails"));
 			}
-			workflowDetails = WorkflowDetails.findById(WorkflowDetails.class,longWorkflowdetails);
+			workflowDetails = WorkflowDetails.findById(WorkflowDetails.class,longWorkflowdetails);			
+			Question domain = Question.findById(Question.class, Long.parseLong(workflowDetails.getDeviceId()));
+			if(workflowDetails.getWorkflowSubType().contains("clarification")
+					&& workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_TIMEOUT)) {
+				/**** display message ****/
+				model.addAttribute("type","clarification_task_alreadytimeout");
+				return "workflow/info";
+			} else if(workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_TIMEOUT)) {
+				/**** display message ****/
+				model.addAttribute("type","task_already_timeout");
+				return "workflow/info";
+			}
 			/**** Adding workflowdetails and task to model ****/
 			model.addAttribute("workflowdetails", workflowDetails.getId());
 			model.addAttribute("workflowstatus", workflowDetails.getStatus());
 			model.addAttribute("workflowSubType", workflowDetails.getWorkflowSubType());
-			Question domain = Question.findById(Question.class, Long.parseLong(workflowDetails.getDeviceId()));
-
 			Set<Role> roles = this.getCurrentUser().getRoles();
 			for(Role r : roles){
 				if(r != null && (r.getType().startsWith("QIS_") || r.getType().startsWith("MEMBER_"))){
@@ -2715,7 +2724,7 @@ public class QuestionWorkflowController  extends BaseController{
 											||status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_RECIEVED)){
 										Status toBePutUp = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale.toString());
 										question.setInternalStatus(toBePutUp);
-										question.setRecommendationStatus(toBePutUp);
+										question.setRecommendationStatus(status);
 										question.setEndFlag(null);
 										question.setActor(null);
 										question.setLevel(null);

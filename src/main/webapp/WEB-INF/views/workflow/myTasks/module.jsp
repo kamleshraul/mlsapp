@@ -647,6 +647,15 @@
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
 			}
+			var selectedTaskStatus = $('#grid').jqGrid('getCell',row,'status');
+			var selectedTaskWorkflowSubType = $('#grid').jqGrid('getCell',row,'workflowSubType');
+			var usergroupType = $("#currentusergroupType").val();
+			if(selectedTaskStatus=='TIMEOUT'
+					&& (usergroupType=='department' || usergroupType=='department_deskofficer')
+					&& selectedTaskWorkflowSubType.indexOf("_clarification")>0){
+				$.prompt($('#clarificationTaskTimeoutPromptMessage').val());
+				return false;
+			}
 			$("#cancelFn").val("process");
 			$("#selectionDiv").hide();
 			if($("#selectedModule").val()=='EDITING'){
@@ -700,7 +709,16 @@
 
 		function rowDblClickHandler(row, iRow, iCol, e) {			
 			
-			var row = $('#key').val();
+			var row = $('#key').val();			
+			var selectedTaskStatus = $('#grid').jqGrid('getCell',row,'status');
+			var selectedTaskWorkflowSubType = $('#grid').jqGrid('getCell',row,'workflowSubType');
+			var usergroupType = $("#currentusergroupType").val();
+			if(selectedTaskStatus=='TIMEOUT'
+					&& (usergroupType=='department' || usergroupType=='department_deskofficer')
+					&& selectedTaskWorkflowSubType.indexOf("_clarification")>0){
+				$.prompt($('#clarificationTaskTimeoutPromptMessage').val());
+				return false;
+			}
 			$("#cancelFn").val("rowDblClickHandler");
 			$("#selectionDiv").hide();
 			if($("#selectedModule").val()=='EDITING'){
@@ -1820,6 +1838,7 @@
 		<input type="hidden" id="selectedFileCount" value="-">
 		<input type="hidden" id="pleaseSelectOption" name="pleaseSelectOption" value="<spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message>">
 		<input type="hidden" id="moduleLocale" value="${moduleLocale}" />
+		<input type="hidden" id="clarificationTaskTimeoutPromptMessage" value="<spring:message code='clarification_task_alreadytimeout' text='This task of sending clarification for given device has been timed out!'/>">
 	</div> 
 </body>
 </html>

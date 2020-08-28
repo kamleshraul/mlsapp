@@ -1537,6 +1537,10 @@ class StarredQuestionController {
 					QuestionController.
 					populateInternalStatus(model,internalStatus.getType(),usergroupType,locale,deviceType.getType());
 				}*/
+			}else if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("section_officer")){
+				if(domain.getOriginalType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+					QuestionController.populateInternalStatus(model,ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP,usergroupType,locale,deviceType.getType());
+				}				
 			}
 		}
 		
@@ -4004,17 +4008,15 @@ class StarredQuestionController {
 					"QUESTION_BULK_TIMEOUT_OPTIONS_" + deviceType.getType().toUpperCase() + "_" +
 							 strUsergroupType.toUpperCase(), "");
 			List<Status> internalStatuses = new ArrayList<Status>(); 
-			if(!strUsergroupType.equals(ApplicationConstants.CLERK)){
-				try {
-					if(statusBasedStatuses!=null) {
-						internalStatuses = Status.findStatusContainedIn(statusBasedStatuses.getValue(),locale.toString());
-					} else {
-						internalStatuses = Status.findStatusContainedIn(defaultStatus.getValue(),locale.toString());
-					}				
-					
-				} catch (ELSException e) {
-					model.addAttribute("error", e.getParameter());
-				}
+			try {
+				if(statusBasedStatuses!=null) {
+					internalStatuses = Status.findStatusContainedIn(statusBasedStatuses.getValue(),locale.toString());
+				} else {
+					internalStatuses = Status.findStatusContainedIn(defaultStatus.getValue(),locale.toString());
+				}				
+				
+			} catch (ELSException e) {
+				model.addAttribute("error", e.getParameter());
 			}
 			model.addAttribute("internalStatuses", internalStatuses);
 			
