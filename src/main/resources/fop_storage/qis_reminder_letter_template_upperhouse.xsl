@@ -80,7 +80,7 @@
 		            					<fo:table-cell>
 		            						<fo:block-container>
 			            						<fo:block text-decoration="underline">तात्काळ</fo:block>
-			            						<fo:block>स्मरणपत्र क्रमांक : विवरण पत्रात नमूद केल्याप्रमाणे</fo:block>
+			            						<fo:block>स्मरणपत्र क्रमांक : १</fo:block>
 		            						</fo:block-container>
 		            					</fo:table-cell>	            					
 		            					<fo:table-cell>
@@ -104,7 +104,7 @@
 	            		</fo:block>       		
 						<fo:block text-align="left">
 							<fo:block>प्रेषक :</fo:block>						
-							<fo:block margin-left="1.5cm">सचिव (कार्यभार),</fo:block>
+							<fo:block margin-left="1.5cm">सचिव,</fo:block>
 							<fo:block margin-left="1.5cm">महाराष्ट्र विधानमंडळ सचिवालय.</fo:block>
 						</fo:block>		
 						
@@ -122,15 +122,19 @@
 						
 						<fo:block text-align="center" font-weight="bold">
 							<fo:inline>विषय</fo:inline>
-							:
+							: आपल्या विभागाकडे पाठविलेल्या
 							<xsl:choose>
 								<xsl:when test="element_1[1]/element_1_2='questions_starred'">तारांकित</xsl:when>
 								<xsl:when test="element_1[1]/element_1_2='questions_unstarred'">अतारांकित</xsl:when>
 							</xsl:choose>
-							स्वीकृत प्रश्नांची उत्तरे पाठविण्याबाबत.
+							स्वीकृत प्रश्नांची उत्तरे त्वरीत पाठविण्याबाबत.
 						</fo:block>	
 						
-						<fo:block font-size="12px">&#160;</fo:block>
+						<fo:block font-size="6px">&#160;</fo:block>
+						
+						<fo:block font-weight="bold">महोदय,</fo:block>	
+						
+						<fo:block font-size="4px">&#160;</fo:block>
 						
 						<fo:block text-align="justify">							
 							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;उपरोक्त विषयाच्या अनुषंगाने निर्देशानुसार आपणांस कळविण्यात येते की, आपल्या विभागाकडे खालील
@@ -145,11 +149,11 @@
 							<fo:block>
 								<fo:table border="solid 0.2mm black" table-layout="fixed">
 									<fo:table-column column-number="1" column-width="1.2cm" />
-									<fo:table-column column-number="2" column-width="2.0cm" />
+									<fo:table-column column-number="2" column-width="3.2cm" />
 									<fo:table-column column-number="3" column-width="6.5cm" />
-									<fo:table-column column-number="4" column-width="3.2cm" />
+									<fo:table-column column-number="4" column-width="4.4cm" />
 			                        <fo:table-column column-number="5" column-width="3.0cm" />
-			                        <fo:table-column column-number="6" column-width="2.4cm" />
+			                        <!-- <fo:table-column column-number="6" column-width="2.4cm" /> -->
 			                        <fo:table-header>
 			                        	<fo:table-row>
 			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
@@ -157,8 +161,8 @@
 			                        		</fo:table-cell>
 			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
 			                        			<fo:block-container font-weight="bold">
-			                        				<fo:block>प्रश्न</fo:block>
-			                        				<fo:block>क्रमांक</fo:block>
+			                        				<fo:block>प्रश्न क्रमांक,</fo:block>
+			                        				<fo:block>अधिवेशन</fo:block>
 			                        			</fo:block-container>
 			                        		</fo:table-cell>
 			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
@@ -176,12 +180,12 @@
 			                        				<fo:block>उत्तर पाठविण्याचा दिनांक</fo:block>
 			                        			</fo:block-container>							                        			
 			                        		</fo:table-cell>
-			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center" margin-right="0.3cm">
+			                        		<!-- <fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center" margin-right="0.3cm">
 			                        			<fo:block-container font-weight="bold">
 			                        				<fo:block>स्मरणपत्र</fo:block>
 			                        				<fo:block>क्रमांक</fo:block>
 			                        			</fo:block-container>
-			                        		</fo:table-cell>
+			                        		</fo:table-cell> -->
 			                        	</fo:table-row>
 			                        </fo:table-header>
 			                        <fo:table-body>
@@ -191,8 +195,9 @@
 				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.3cm">
 				                        			<fo:block><xsl:value-of select="../element_3[$rowCount]"/>.</fo:block>
 				                        		</fo:table-cell>
-				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.4cm">
-				                        			<fo:block><xsl:value-of select="element_1_1"/></fo:block>
+				                        		<fo:table-cell border="solid 0.2mm black" display-align="before">
+				                        			<fo:block text-align="center" font-weight="bold"><xsl:value-of select="element_1_1"/></fo:block>
+				                        			<fo:block text-align="center"><xsl:value-of select="element_1_10"/></fo:block>
 				                        		</fo:table-cell>
 				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.2cm" margin-right="0.2cm">
 				                        			<fo:block><xsl:value-of select="element_1_9"/></fo:block>
@@ -203,9 +208,9 @@
 				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.6cm">
 				                        			<fo:block><xsl:value-of select="../element_2[$rowCount]"/></fo:block>
 				                        		</fo:table-cell>
-				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.2cm">
+				                        		<!-- <fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.2cm">
 				                        			<fo:block>&#160;</fo:block>
-				                        		</fo:table-cell>
+				                        		</fo:table-cell> -->
 			                        	</fo:table-row>
 			                        	</xsl:for-each>			                        	
 			                        </fo:table-body>

@@ -3701,4 +3701,30 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			return 0;
 		}		
 	}
+	
+	public List<Long> findQuestionIDsHavingPendingAnswersPostLastDateOfAnswerReceiving(final HouseType houseType, final DeviceType deviceType, final SubDepartment subDepartment, final String locale) throws ELSException {
+		List<Long> questionIds = new ArrayList<Long>();
+		org.mkcl.els.domain.Query nativeQuery=org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", ApplicationConstants.QUERYNAME_QIS_PENDING_FOR_ANSWER_POST_LAST_ANSWERING_DATE, "");
+		String strquery = nativeQuery.getQuery();
+		Query query=this.em().createNativeQuery(strquery);
+		query.setParameter("houseTypeId",houseType.getId());
+		query.setParameter("deviceTypeId",deviceType.getId());
+		Status admittedStatus = Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
+		Status admittedStatusForDeviceType = null;
+		try {
+			admittedStatusForDeviceType = Question.findCorrespondingStatusForGivenQuestionType(admittedStatus, deviceType);
+		} catch (ELSException e) {
+			e.printStackTrace();
+			e.setParameter("QuestionRepository_Question_findQuestionIDsHavingPendingAnswersPostLastDateOfAnswerReceiving", "Cannot get the Admitted Status ");
+			throw e;
+		}
+		query.setParameter("admittedStatusIdForDeviceType",admittedStatusForDeviceType.getId());
+		query.setParameter("subDepartmentId",subDepartment.getId());
+		List result =query.getResultList();
+		for(Object i : result) {
+			Long questionId = Long.parseLong(i.toString());
+			questionIds.add(questionId);
+		}
+		return questionIds;
+	}
 }

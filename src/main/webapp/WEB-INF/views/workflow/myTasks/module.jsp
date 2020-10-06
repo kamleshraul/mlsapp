@@ -50,6 +50,18 @@
 					}).done(function() {						
 						if($("#selectedDeviceType").val()!=undefined && $("#selectedDeviceType").val()!=null) {
 							var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+							
+							if(device=='questions_unstarred' && houseType=='upperhouse') {
+								if($("#currentusergroupType").val()=='department' 
+									||$("#currentusergroupType").val()=='department_deskofficer' ){
+									$("#reminderLetterSpan").show();
+								} else {
+									$("#reminderLetterSpan").hide();
+								}
+							} else {
+								$("#reminderLetterSpan").hide();
+							}
+							
 							if(device=='motions_adjournment') {
 								$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
 										+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
@@ -988,9 +1000,11 @@
 		
 		/**** To Generate Intimation Letter ****/
 		function generateIntimationLetter() {	
-			if($("#intimationLetterFilter").val()=='reminder1ToDepartmentForReply') { //for reminder letter 1
+			if($("#intimationLetterFilter").val()=='reminderToDepartmentForReply') { //for reminder letter (unstarred questions etc.)
+				generateReminderLetter();
+			} else if($("#intimationLetterFilter").val()=='reminder1ToDepartmentForReply') { //for reminder letter 1 (adjournment motions etc.)
 				generateReminderLetter1();
-			} else if($("#intimationLetterFilter").val()=='reminder2ToDepartmentForReply') { //for reminder letter 1
+			} else if($("#intimationLetterFilter").val()=='reminder2ToDepartmentForReply') { //for reminder letter 2 (adjournment motions etc.)
 				//TODO: generateReminderLetter2();
 				alert("Yet to be provided!");
 			} else {
@@ -1040,6 +1054,68 @@
 					}
 				}
 			}			
+		}
+		
+		/**** To Generate Reminder Letter (Unstarred Questions) ****/
+		function generateReminderLetter() {
+			var currentDevice = $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text();
+			//var workflowId = $("#grid").jqGrid ('getGridParam', 'selrow');
+			/* if(workflowId==undefined || workflowId=='') {
+				$.prompt($('#selectRowFirstMessage').val());
+				return false;
+			} else {	
+				if(currentDevice.indexOf('questions_unstarred')==0){
+					$('#generateIntimationLetter').attr('href', 'question/report/generateReminderLetter1?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
+				}
+			} */
+			if(currentDevice.indexOf('questions_unstarred')==0){
+				if($("#selectedDepartment").val()==undefined 
+						|| $("#selectedDepartment").val()=='' 
+						|| $("#selectedDepartment").val()==null
+						|| $("#selectedDepartment").val()=='null') {
+					$.prompt('Please select a department for reminder letter of concerned unstarred questions!');
+					return false;
+				}
+				var selectedQuestionIds = '';
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				$.get('ref/workflow/findDevicesForReminderOfReply?'
+						+ 'houseType=' + $('#selectedHouseType').val()
+						+ '&sessionYear=' + $('#selectedSessionYear').val()
+						+ '&sessionType=' + $('#selectedSessionType').val()
+						+ '&deviceType=' + $('#selectedDeviceType').val()
+						+ '&department=' + $('#selectedDepartment').val(),function(data){
+					$.unblockUI();
+					selectedQuestionIds = data;
+				}).done(function(){
+					if(selectedQuestionIds!=undefined && selectedQuestionIds.length>=1) {
+						form_submit(
+								'question/report/generateReminderLetter', 
+								{
+									questionIds: selectedQuestionIds,
+									houseType: $('#selectedHouseType').val(),  
+									//sessionYear: $('#selectedSessionYear').val(),  
+									//sessionType: $('#selectedSessionType').val(), 
+									usergroupType: $("#currentusergroupType").val(),
+									locale: $('#moduleLocale').val(), 
+									reportQuery: 'QIS_REMINDER_LETTER', 
+									outputFormat: 'WORD',
+									isDepartmentLogin: $("#isDepartmentLogin").val()
+								}, 
+								'GET'
+						);
+					} else {
+						$.prompt('No unstarred questions found to be reminded for reply currently!');
+						return false;
+					}					
+				}).fail(function(){
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				});				
+			}
 		}
 		
 		/**** To Generate Reminder Letter 1 ****/
@@ -1354,17 +1430,30 @@
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			$.get('ref/sessionbyparametername?houseType='+$("#selectedHouseType").val() +
 					'&sessionType=' + $("#selectedSessionType").val() + 
-					'&year=' + $("#selectedSessionYear").val(),function(data){
-				
+					'&year=' + $("#selectedSessionYear").val(),function(data){		
+				var url = "";
 				if(data){
-					var url = "question/report/generalreport?sessionId=" + data.id
-					+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
-					+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
-					+ "&assignee=" + $("#authusername").val()
-					+ "&houseType="+$("#selectedHouseType").val() 
-					+ "&locale="+$("#authlocale").val() 
-					+ "&reportout=question_department_statement_report"
-					+ "&report=QIS_DEPARTMENT_STATEMENT_REPORT";
+					var currentDevice = $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text();
+					if(currentDevice.indexOf('motions_cutmotion_budgetary')==0
+							|| currentDevice.indexOf('motions_cutmotion_supplementary')==0){
+						url = "cutmotion/report/generalreport?sessionId=" + data.id
+						+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
+						+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
+						+ "&assignee=" + $("#authusername").val()
+						+ "&houseType="+$("#selectedHouseType").val() 
+						+ "&locale="+$("#authlocale").val() 
+						+ "&reportout=cutmotion_department_statement_report"
+						+ "&report=CMOIS_DEPARTMENT_STATEMENT_REPORT";
+					} else {
+						url = "question/report/generalreport?sessionId=" + data.id
+						+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
+						+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
+						+ "&assignee=" + $("#authusername").val()
+						+ "&houseType="+$("#selectedHouseType").val() 
+						+ "&locale="+$("#authlocale").val() 
+						+ "&reportout=question_department_statement_report"
+						+ "&report=QIS_DEPARTMENT_STATEMENT_REPORT";
+					}					
 					showTabByIdAndUrl('details_tab', url);
 					$.unblockUI();
 				}

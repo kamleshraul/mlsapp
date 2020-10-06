@@ -3278,6 +3278,10 @@ public class Question extends Device implements Serializable {
 		return getQuestionRepository().find(session, deviceType, qNumber, locale);
 	}
 	
+	public static List<Long> findQuestionIDsHavingPendingAnswersPostLastDateOfAnswerReceiving(final HouseType houseType, final DeviceType deviceType, final SubDepartment subDepartment, final String locale) throws ELSException {
+		return getQuestionRepository().findQuestionIDsHavingPendingAnswersPostLastDateOfAnswerReceiving(houseType, deviceType, subDepartment, locale);
+	}
+	
 	/**** Getters and Setters ****/
 	public HouseType getHouseType() {
 		return houseType;
@@ -10051,9 +10055,12 @@ public class Question extends Device implements Serializable {
         			}
     			    
     			    /*
-    			     * Invoke Chart.groupChange/3 on the Question
+    			     * Invoke Chart.groupChange/3 on each of the Questions
     			     */
         			Chart.groupChange(question, fromGroup, true);
+        			for(Question offspring : clubbings) {
+        				Chart.groupChange(offspring, fromGroup, true);
+        			}
         			
         			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 	    				userGroupType = ApplicationConstants.DEPARTMENT;

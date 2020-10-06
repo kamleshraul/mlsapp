@@ -1210,11 +1210,17 @@ public class QuestionReportController extends BaseController{
 		List<Object[]> resultList = Query.findReport(request.getParameter("reportQuery"), requestMap, true);
 		
     	if(resultList!=null && !resultList.isEmpty()) {
+    		Question question = null;
+    		DeviceType deviceType = null;
+    		String departmentName = "";    		
     		List<String> serialNumbers = populateSerialNumbers(resultList, locale);
     		List<String> expectedAnswerReceivingDates = new ArrayList<String>();
     		for(int i=0; i<resultList.size(); i++) {
     			Object[] resultUnit = resultList.get(i);
-    			if(resultUnit[5]!=null && !resultUnit[5].toString().isEmpty()) {
+    			question = Question.findById(Question.class, Long.parseLong(resultUnit[10].toString()));
+    			deviceType = question.getType();
+    			departmentName = question.getSubDepartment().getMinistryDisplayName();
+    			if(resultUnit[5]!=null && !resultUnit[5].toString().isEmpty()) {    				
     				if(resultUnit[1].toString().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
     					Date answerRequestedDate = FormaterUtil.formatStringToDate(resultUnit[5].toString(), ApplicationConstants.DB_DATETIME_FORMAT);
     					Integer expectedAnswerReceivingDateDuration = 30;
@@ -1236,6 +1242,12 @@ public class QuestionReportController extends BaseController{
     		if(strHouseType!=null && !strHouseType.isEmpty()) {
     			houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
     			if(houseType==null || houseType.getId()==null) {
+    				CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+					if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+						if(csptServer.getValue().equals("TOMCAT")){
+							strHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");					
+						}
+					}
     				houseType=HouseType.findByFieldName(HouseType.class,"name",strHouseType, locale.toString());
     			}
     			if(houseType==null || houseType.getId()==null) {
@@ -1246,6 +1258,20 @@ public class QuestionReportController extends BaseController{
     		if(reportFile!=null) {
     			System.out.println("Report generated successfully in " + request.getParameter("outputFormat") + " format!");
     			openOrSaveReportFileFromBrowser(response, reportFile, request.getParameter("outputFormat"));
+    			/**** SEND NOTIFICATION TO DEPARTMENT USERS IF REMINDER LETTER IS GENERATED FROM QUESTIONS BRANCH AT VIDHAN BHAVAN ****/
+    			if(deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) { //currently required only for unstarred questions
+    				String isDepartmentLogin = request.getParameter("isDepartmentLogin");
+        			if(!isDepartmentLogin.equals("YES")) {       
+        				/** find co-ordination department user for sending notification **/    	
+        				String departmentCoordinationUsername = "";
+    	    			Reference actorAtDepartmentLevel = WorkflowConfig.findActorVOAtGivenLevel(question, question.getStatus(), ApplicationConstants.DEPARTMENT, 9, locale.toString());
+    					if(actorAtDepartmentLevel!=null) {
+    						String userAtDepartmentLevel = actorAtDepartmentLevel.getId();
+        					departmentCoordinationUsername = userAtDepartmentLevel.split("#")[0];
+            				NotificationController.sendReminderLetterForReplyNotReceivedFromDepartmentUsers(houseType, deviceType, departmentCoordinationUsername, departmentName, locale.toString());
+    					}    					
+        			}
+    			}    			
     		}
     	}		
 	}

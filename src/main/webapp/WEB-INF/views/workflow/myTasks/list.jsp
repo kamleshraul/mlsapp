@@ -5,6 +5,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function(){
+			var houseTypeList = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
+			
 			if($("#deviceTypeType").val() == 'motions_calling_attention'){
 				displayNewAdvanceCopyForMotion();
 				$("#advanceCopyDiv").css("display","inline");
@@ -18,8 +20,14 @@
 			if($("#deviceTypeType").val() == 'motions_adjournment'){
 				$("#intimationLetterFilter option[class=adjournmentmotion]").show();
 				$("#intimationLetterFilter option[class=question]").hide();
+				$("#intimationLetterFilter option[class=unstarred_question]").hide();
+			} else if($("#deviceTypeType").val() == 'questions_unstarred'){
+				$("#intimationLetterFilter option[class=unstarred_question]").show();				
+				$("#intimationLetterFilter option[class=question]").show();		
+				$("#intimationLetterFilter option[class=adjournmentmotion]").hide();
 			} else {
 				$("#intimationLetterFilter option[class=adjournmentmotion]").hide();
+				$("#intimationLetterFilter option[class=unstarred_question]").hide();
 				$("#intimationLetterFilter option[class=question]").show();
 			}
 			if($("#deviceTypeType").val() == 'motions_cutmotion_budgetary' || $("#deviceTypeType").val() == 'motions_cutmotion_supplementary'){
@@ -31,6 +39,16 @@
 				}				
 			} else {
 				$("#yaadiReportSpan").hide();
+			}
+			if($("#deviceTypeType").val() == 'questions_unstarred' && houseTypeList=='upperhouse'){
+				if($("#currentusergroupType").val()=='department' 
+					||$("#currentusergroupType").val()=='department_deskofficer' ){
+					$("#reminderLetterSpan").show();
+				} else {
+					$("#reminderLetterSpan").hide();
+				}				
+			} else {
+				$("#reminderLetterSpan").hide();
 			}
 			var selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
 			/**** Initially we want to get only those tasks which belongs to current user and of selected status ****/
@@ -62,6 +80,11 @@
 			$("#generateIntimationLetter").click(function(){
 				$(this).attr('href','#');
 				generateIntimationLetter();				
+			});
+			/**** Generate Reminder Letter ****/			
+			$("#generateReminderLetter").click(function(){
+				$(this).attr('href','#');
+				generateReminderLetter();				
 			});
 			/**** Generate Yaadi Report ****/
 			$("#generateYaadiReport").click(function(){				
@@ -208,6 +231,7 @@
 						<option class="question" value="discussiondate"><spring:message code='question.intimationletter.discussiondate' text='discussion date' /></option>
 						<option class="question" value="groupChangedAfterBallot"><spring:message code='question.intimationletter.groupChangedAfterBallot' text='group changed after ballot' /></option>
 						<option class="question" value="answeringDateForwarded"><spring:message code='question.intimationletter.answeringDateForwarded' text='answering date forwarded' /></option>
+						<option class="unstarred_question" value="reminderToDepartmentForReply"><spring:message code='intimationletter.reminderToDepartmentForReply' text='reminder for reply' /></option>
 						<option class="adjournmentmotion" value="reminder1ToDepartmentForReply"><spring:message code='intimationletter.reminder1ToDepartmentForReply' text='reminder 1 for reply' /></option>
 						<option class="adjournmentmotion" value="reminder2ToDepartmentForReply"><spring:message code='intimationletter.reminder2ToDepartmentForReply' text='reminder 2 for reply' /></option>
 				</select>				
@@ -247,6 +271,11 @@
 				 </div>
 			 </security:authorize>
 			 <security:authorize access="hasAnyRole('QIS_DEPARTMENT_USER')">
+			 	 <span id="reminderLetterSpan" style="display: none;">
+			 	 <a href="#" id="generateReminderLetter" class="butSim">
+					<spring:message code="generic.mytask.device.ReminderLetter" text="Reminder Letter"/>
+				 </a> |
+				 </span>
 			 	 <span id="yaadiReportSpan" style="display: none;">
 			 	 <a href="#" id="generateYaadiReport" class="butSim">
 					<spring:message code="generic.mytask.device.YaadiReport" text="Yaadi Report"/>

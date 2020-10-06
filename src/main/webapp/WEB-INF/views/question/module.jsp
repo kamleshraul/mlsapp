@@ -1122,7 +1122,7 @@
 		} else {
 			//$('#generateIntimationLetter').attr('href', 'question/report/generateReminderLetter?'+'questionIds='+selectedQuestionIds);
 			//console.log("selectedQuestionIds: " + selectedQuestionIds);
-			form_submit('question/report/generateReminderLetter', {questionIds: selectedQuestionIds, houseType: $('#selectedHouseType').val(), locale: $('#moduleLocale').val(), reportQuery: 'QIS_REMINDER_LETTER', outputFormat: 'WORD'}, 'GET');
+			form_submit('question/report/generateReminderLetter', {questionIds: selectedQuestionIds, houseType: $('#selectedHouseType').val(), locale: $('#moduleLocale').val(), reportQuery: 'QIS_REMINDER_LETTER', outputFormat: 'WORD', isDepartmentLogin: $("#isDepartmentLogin").val()}, 'GET');
 		}
 	}
 	/**** To Generate Clubbed Intimation Letter ****/

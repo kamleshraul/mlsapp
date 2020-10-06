@@ -10841,4 +10841,66 @@ public class ReferenceController extends BaseController {
 		return formattedNumericText;
 	}
 	
+	@RequestMapping(value="/workflow/findDevicesForReminderOfReply", method=RequestMethod.GET)
+	public @ResponseBody List<Long> findDevicesForReminderOfReply_WorkflowPage(HttpServletRequest request, ModelMap model,Locale locale){
+		//String[] devicesForReminderOfReply = new String[]();
+		List<Long> devicesForReminderOfReply = new ArrayList<Long>();
+		
+		String strDeviceType=request.getParameter("deviceType");
+		String strHouseType=request.getParameter("houseType");
+		String strSessionType=request.getParameter("sessionType");
+		String strSessionYear=request.getParameter("sessionYear");
+		String strDepartment=request.getParameter("department");
+		
+		if(strDeviceType!=null && !strDeviceType.isEmpty()
+			&& strHouseType!=null && !strHouseType.isEmpty()
+			&& strSessionType!=null && !strSessionType.isEmpty()
+			&& strSessionYear!=null && !strSessionYear.isEmpty()){
+			try {
+				CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(csptDeployment!=null){
+					String server=csptDeployment.getValue();
+					if(server.equals("TOMCAT")){
+						strDeviceType = new String(strDeviceType.getBytes("ISO-8859-1"),"UTF-8");
+						strSessionType = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
+						strHouseType = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
+						strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
+						if(strDepartment!=null && !strDepartment.isEmpty()) {
+							strDepartment = new String(strDepartment.getBytes("ISO-8859-1"),"UTF-8");
+						}						
+					}
+				}
+				
+				HouseType houseType = HouseType.findByName(strHouseType, locale.toString());
+				SessionType sessionType = SessionType.findByFieldName(SessionType.class, "sessionType", strSessionType, locale.toString());
+				Integer sessionYear = new Integer(FormaterUtil.getDecimalFormatterWithNoGrouping(0,locale.toString()).parse(strSessionYear).toString());
+				Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+				
+				DeviceType deviceType = DeviceType.findByName(DeviceType.class, strDeviceType, locale.toString());
+				if(deviceType!=null && deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+					SubDepartment subDepartment = SubDepartment.findByName(SubDepartment.class, strDepartment, locale.toString());
+					//TODO: call query method to find reminder questions		
+					List<Long> questionIds = Question.findQuestionIDsHavingPendingAnswersPostLastDateOfAnswerReceiving(houseType, deviceType, subDepartment, locale.toString());
+					if(questionIds!=null && !questionIds.isEmpty()) {
+//						for(Long questionId: questionIds) {
+//							devicesForReminderOfReply.append(questionId);
+//							devicesForReminderOfReply.append(",");
+//						}
+//						devicesForReminderOfReply.deleteCharAt(devicesForReminderOfReply.length()-1);
+						devicesForReminderOfReply = null;
+						devicesForReminderOfReply = questionIds;
+					}
+				}
+
+			} catch (ParseException e) {
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			} catch (ELSException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return devicesForReminderOfReply;
+	}
 }

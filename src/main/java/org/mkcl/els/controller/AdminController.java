@@ -549,7 +549,7 @@ public class AdminController extends BaseController {
 							newRecommendationStatus = Question.findCorrespondingStatusForGivenQuestionType(systemClubbedStatus, childQuestion.getType());
 						} else {	
 							childQuestion.setType(parentQuestion.getType());
-							newRecommendationStatus = parentQuestion.getRecommendationStatus();
+							newRecommendationStatus = parentQuestion.getInternalStatus();
 						}						
 						childQuestion.setRecommendationStatus(newRecommendationStatus);
 						
@@ -601,7 +601,7 @@ public class AdminController extends BaseController {
 									question.setType(childQuestion.getType());
 									question.setStatus(newStatus);
 									question.setInternalStatus(newInternalStatus);
-									question.setRecommendationStatus(newRecommendationStatus);				
+									question.setRecommendationStatus(newInternalStatus);
 									question.setRevisedQuestionText(latestQuestionText);
 									Question.updateDomainFieldsOnClubbingFinalisation(parentQuestion, question);
 									question.merge();

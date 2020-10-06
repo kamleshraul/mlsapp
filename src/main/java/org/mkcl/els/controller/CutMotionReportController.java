@@ -67,15 +67,18 @@ public class CutMotionReportController extends BaseController{
 		return retVal;		
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	private void genReport(HttpServletRequest request, Model model, Locale locale){
 			Map<String, String[]> requestMap = request.getParameterMap();
-			List<Object[]> report = Query.findReport(request.getParameter("report"), requestMap);
+			Boolean havingIN = Boolean.parseBoolean(request.getParameter("havingIN")); //optionally for selective parameter with IN query
+			List<Object[]> report = Query.findReport(request.getParameter("report"), requestMap, havingIN);
 			if(report != null && !report.isEmpty()){
 				Object[] obj = (Object[])report.get(0);
 				if(obj != null){
 					model.addAttribute("topHeader", obj[0].toString().split(";"));
 				}
+				List<String> serialNumbers = populateSerialNumbers(report, locale);
+				model.addAttribute("serialNumbers", serialNumbers);
 				for(Object[] reObjArr: report) {
 					for(int i=0; i<reObjArr.length; i++) {
 						if(reObjArr[i]!=null && reObjArr[i].toString().startsWith("<span class=\"currency>")) {

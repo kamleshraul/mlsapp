@@ -1920,6 +1920,14 @@ public class QuestionWorkflowController  extends BaseController{
 										|| domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_SENDTODEPARTMENT))
 								&& (domain.getAnswer()==null || domain.getAnswer().isEmpty())) {
 							domain.setAnswerRequestedDate(new Date());
+							String daysCountForReceivingAnswerFromDepartment = "30";
+							CustomParameter csptDaysCountForReceivingAnswerFromDepartment = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_"+domain.getHouseType().getType().toUpperCase()+"_"+ApplicationConstants.DAYS_COUNT_FOR_RECEIVING_ANSWER_FROM_DEPARTMENT, "");
+							if(csptDaysCountForReceivingAnswerFromDepartment!=null
+									&& csptDaysCountForReceivingAnswerFromDepartment.getValue()!=null) {
+								daysCountForReceivingAnswerFromDepartment = csptDaysCountForReceivingAnswerFromDepartment.getValue();
+							}
+							Date lastDateOfAnswerReceiving = Holiday.getNextWorkingDateFrom(domain.getAnswerRequestedDate(), Integer.parseInt(daysCountForReceivingAnswerFromDepartment), locale.toString());
+							domain.setLastDateOfAnswerReceiving(lastDateOfAnswerReceiving);
 						}
 						
 						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
@@ -1930,14 +1938,16 @@ public class QuestionWorkflowController  extends BaseController{
 							domain.setAnswerReceivedMode(ApplicationConstants.ANSWER_RECEIVED_MODE_ONLINE);
 						}
 						
-						String strLastDateOfAnswerReceiving = request.getParameter("setLastDateOfAnswerReceiving");
-						if(strLastDateOfAnswerReceiving!=null && !strLastDateOfAnswerReceiving.isEmpty()) {
-							Date lastDateOfAnswerReceiving = FormaterUtil.getDateFormatter("en_US").parse(strLastDateOfAnswerReceiving);
-							//Added the above code as the following code was giving exception of unparseble date
-							//Date lastDateOfAnswerReceiving = FormaterUtil.formatStringToDate(strLastDateOfAnswerReceiving, ApplicationConstants.DB_DATEFORMAT, locale.toString());
-							domain.setLastDateOfAnswerReceiving(lastDateOfAnswerReceiving);
-						}			
-					}						
+						if(domain.getLastDateOfAnswerReceiving()==null) {
+							String strLastDateOfAnswerReceiving = request.getParameter("setLastDateOfAnswerReceiving");
+							if(strLastDateOfAnswerReceiving!=null && !strLastDateOfAnswerReceiving.isEmpty()) {
+								Date lastDateOfAnswerReceiving = FormaterUtil.getDateFormatter("en_US").parse(strLastDateOfAnswerReceiving);
+								//Added the above code as the following code was giving exception of unparseble date
+								//Date lastDateOfAnswerReceiving = FormaterUtil.formatStringToDate(strLastDateOfAnswerReceiving, ApplicationConstants.DB_DATEFORMAT, locale.toString());
+								domain.setLastDateOfAnswerReceiving(lastDateOfAnswerReceiving);
+							}
+						}
+					}
 	
 					/**** setting the date of factual position receiving. ****/
 					userGroupType=workflowDetails.getAssigneeUserGroupType();
