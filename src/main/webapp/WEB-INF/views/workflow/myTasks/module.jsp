@@ -1151,8 +1151,15 @@
 			var currentDevice = $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text();
 			var workflowId = $("#grid").jqGrid ('getGridParam', 'selrow');
 			if(workflowId==undefined || workflowId=='') {
-				$.prompt($('#selectRowFirstMessage').val());
-				return false;
+				if($('#authusername').val()=='finance' || $('#authusername').val()=='pad') {
+					$.get('cutmotion/report/yaadi_report/init?'+$("#gridURLParams").val(), function(data){
+					    $.fancybox.open(data, {autoSize: false, width: 370, height:210});
+				    },'html');		    	
+				    return false;
+				} else {
+					$.prompt($('#selectRowFirstMessage').val());
+					return false;
+				}
 			} else {	
 				var internalStatus = $("#grid").jqGrid('getCell', workflowId, 'internalStatus');
 				var finalAdmissionStatus = $("#selectedSubWorkflow option[value$='final_admission']").first().text();
@@ -1436,7 +1443,7 @@
 					var currentDevice = $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text();
 					if(currentDevice.indexOf('motions_cutmotion_budgetary')==0
 							|| currentDevice.indexOf('motions_cutmotion_supplementary')==0){
-						url = "cutmotion/report/generalreport?sessionId=" + data.id
+						url = "cutmotion/report/genreport?sessionId=" + data.id
 						+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
 						+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
 						+ "&assignee=" + $("#authusername").val()

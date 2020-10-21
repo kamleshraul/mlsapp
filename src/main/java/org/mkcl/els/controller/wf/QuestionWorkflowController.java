@@ -1184,7 +1184,7 @@ public class QuestionWorkflowController  extends BaseController{
 				
 				if(userGroup.getUserGroupType().getType().equals(ApplicationConstants.MEMBER)
 						&& internalStatusType.
-								equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)){
+								endsWith(ApplicationConstants.STATUS_FINAL_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)){
 					
 				}else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.CLUBBING_POST_ADMISSION_WORKFLOW)
 						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.UNCLUBBING_WORKFLOW)
@@ -2388,8 +2388,8 @@ public class QuestionWorkflowController  extends BaseController{
 										}
 										
 										/**** FOr CLarificationFromMember and Department ****/
-										if(domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
-												&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)){
+										if(domain.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_FINAL_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)
+												&& domain.getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_PROCESSED_SENDTODEPARTMENT)){
 												
 												Map<String, String> parameters = new HashMap<String, String>();
 												User user = User.find(domain.getPrimaryMember());

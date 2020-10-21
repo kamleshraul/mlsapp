@@ -96,9 +96,9 @@
 								<th style="text-align: center; font-size: 12px; width: 40px;">${topHeader[0]}</th>
 								<th style="text-align: center; font-size: 12px; width: 60px;">${topHeader[1]}</th>
 								<th style="text-align: center; font-size: 12px; width: 200px;">${topHeader[2]}</th>
-								<th style="text-align: center; font-size: 12px; width: 250px;">${topHeader[3]}</th>
+								<th style="text-align: center; font-size: 12px; width: 340px;">${topHeader[3]}</th>
 								<th style="text-align: center; font-size: 12px; width: 90px;">${topHeader[4]}</th>
-								<th style="text-align: center; font-size: 12px; width: 90px;">${topHeader[5]}</th>
+								<%-- <th style="text-align: center; font-size: 12px; width: 90px;">${topHeader[5]}</th> --%>
 								<th style="text-align: center; font-size: 12px; width: 90px;">${topHeader[6]}</th>
 								<th style="text-align: center; font-size: 12px; width: 90px;">${topHeader[6]}</th>
 								<th style="text-align: center; font-size: 12px; width: 90px;">${topHeader[7]}</th>					
@@ -120,9 +120,9 @@
 										<td style="text-align: center; font-size: 12px; width: 30px;">${indexNo}</td>
 										<td style="text-align: left; font-size: 12px; width: 60px;">${formater.formatNumberNoGrouping(r[2], locale)}</td>
 										<td style="text-align: center; font-size: 12px; width: 200px;">${r[4]}</td>
-										<td style="text-align: justify; font-size: 12px; width: 250px;">${r[5]}</td>
+										<td style="text-align: justify; font-size: 12px; width: 340px;">${r[5]}</td>
 										<td style="text-align: justify; font-size: 12px; width: 90px;">${r[8]}</td>
-										<td style="text-align: left; font-size: 12px; width: 90px;">${r[9]}</td>
+										<%-- <td style="text-align: left; font-size: 12px; width: 90px;">${r[9]}</td> --%>
 										<td style="text-align: justify; font-size: 12px; width: 50px;">
 											<c:set var="department" value="${r[11]}"/>
 											<c:forEach items = "${report}" begin="${countVar}" end ="${report.size()}" var="j" varStatus="innerCount">
@@ -166,8 +166,9 @@
 												<td style="text-align: center; font-size: 12px; width: 40px;">${formater.formatNumberNoGrouping(counter.count, locale)}</td>
 												<td style="text-align: left; font-size: 12px; width: 60px;">${formater.formatNumberNoGrouping(r[2], locale)}</td>
 												<td style="text-align: center; font-size: 12px; width: 200px;">${r[4]}</td>
-												<td style="text-align: justify; font-size: 12px; width: 250px;">${r[5]}</td>
+												<td style="text-align: justify; font-size: 12px; width: 340px;">${r[5]}</td>
 												<td style="text-align: justify; font-size: 12px; width: 90px;">${r[8]}</td>
+												comment below line if uncommented this block of comments
 												<td style="text-align: left; font-size: 12px; width: 90px;">${r[9]}</td>
 												<td style="text-align: justify; font-size: 12px; width: 90px;">
 													<c:choose>

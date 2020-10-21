@@ -2,6 +2,8 @@ package org.mkcl.els.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -17,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.xmlvo.XmlVO;
 import org.mkcl.els.domain.ActivityLog;
@@ -128,6 +131,168 @@ public class CutMotionReportController extends BaseController{
 				
 		response.setContentType("text/html; charset=utf-8");		
 		return CutMotionReportHelper.getCurrentStatusReportData(id, model, request, response, locale);
+	}
+	
+	//TODO: yaadi report for all departments through single screen
+	@RequestMapping(value = "/yaadi_report/init", method = RequestMethod.GET)
+	public String getYaadiReportInit(final ModelMap model, final HttpServletRequest request, final Locale locale) {
+		String yaadiInitPage = "workflow/myTasks/error";
+		
+		CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		HouseType houseType = null;
+		String strHouseType = request.getParameter("houseType");
+		if(strHouseType!=null && !strHouseType.isEmpty()) {
+			houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+			if(houseType==null || houseType.getId()==null) {
+				if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+					if(csptServer.getValue().equals("TOMCAT")){
+						try {
+							strHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");
+						} catch (UnsupportedEncodingException e) {
+							logger.error("request parameter for HouseType has invalid value");
+							model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");
+							return yaadiInitPage;
+						}					
+					}
+				}
+				houseType=HouseType.findByFieldName(HouseType.class,"name",strHouseType, locale.toString());
+			}
+			if(houseType==null || houseType.getId()==null) {
+				houseType=HouseType.findById(HouseType.class,Long.parseLong(strHouseType));
+			}
+			if(houseType==null || houseType.getId()==null) { //still not found then error
+				logger.error("request parameter for HouseType has invalid value");
+				model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");
+				return yaadiInitPage;
+			}
+			model.addAttribute("houseType", houseType.getType());
+			model.addAttribute("houseTypeId", houseType.getId());
+		} else {
+			logger.error("request parameter for HouseType is not set");
+			model.addAttribute("errorcode", "REQUEST_PARAMETER_NOT_SET");
+			return yaadiInitPage;
+		}
+		
+		SessionType sessionType = null;
+		String strSessionType = request.getParameter("sessionType");
+		if(strSessionType!=null && !strSessionType.isEmpty()) {			
+			if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+				if(csptServer.getValue().equals("TOMCAT")){
+					try {
+						strSessionType = new String(strSessionType.getBytes("ISO-8859-1"), "UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						logger.error("request parameter for SessionType has invalid value");
+						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");
+						return yaadiInitPage;
+					}					
+				}
+				sessionType=SessionType.findByFieldName(SessionType.class,"sessionType",strSessionType, locale.toString());
+			}
+			if(sessionType==null || sessionType.getId()==null) {
+				sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
+			}
+			if(sessionType==null || sessionType.getId()==null) { //still not found then error
+				logger.error("request parameter for SessionType has invalid value");
+				model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");
+				return yaadiInitPage;
+			}
+			model.addAttribute("sessionType", sessionType.getId());
+			model.addAttribute("sessionTypeName", sessionType.getSessionType());
+		} else {
+			logger.error("request parameter for SessionType is not set");
+			model.addAttribute("errorcode", "REQUEST_PARAMETER_NOT_SET");
+			return yaadiInitPage;
+		}
+		
+		Integer sessionYear = null;
+		String strSessionYear = request.getParameter("sessionYear");
+		if(strSessionYear!=null && !strSessionYear.isEmpty()) {			
+			if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+				if(csptServer.getValue().equals("TOMCAT")){
+					try {
+						strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"), "UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						logger.error("request parameter for SessionYear has invalid value");
+						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");
+						return yaadiInitPage;
+					}					
+				}
+				try {
+					sessionYear=Integer.parseInt(strSessionYear);
+				} catch (Exception e) {
+					logger.error("request parameter for SessionYear has invalid value");
+					model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");
+					return yaadiInitPage;
+				}
+			}
+			if(sessionYear==null) {
+				logger.error("request parameter for SessionYear has invalid value");
+				model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");
+				return yaadiInitPage;
+			}
+			model.addAttribute("sessionYear", sessionYear);
+			model.addAttribute("formattedSessionYear", strSessionYear);
+		} else {
+			logger.error("request parameter for SessionYear is not set");
+			model.addAttribute("errorcode", "REQUEST_PARAMETER_NOT_SET");
+			return yaadiInitPage;
+		}
+		
+		DeviceType deviceType = null;
+		String strDeviceType = request.getParameter("deviceType");
+		if(strDeviceType!=null && !strDeviceType.isEmpty()) {
+			if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+				if(csptServer.getValue().equals("TOMCAT")){
+					try {
+						strDeviceType = new String(strDeviceType.getBytes("ISO-8859-1"), "UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						logger.error("request parameter for DeviceType has invalid value");
+						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");
+						return yaadiInitPage;
+					}					
+				}
+				deviceType=DeviceType.findByFieldName(DeviceType.class,"name",strDeviceType, locale.toString());
+			}
+			if(deviceType==null || deviceType.getId()==null) {
+				deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(strDeviceType));
+			}
+			if(deviceType==null || deviceType.getId()==null) { //still not found then error
+				logger.error("request parameter for DeviceType has invalid value");
+				model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");
+				return yaadiInitPage;
+			}
+			model.addAttribute("deviceType", deviceType.getId());
+			model.addAttribute("deviceTypeName", deviceType.getName());
+		} else {
+			logger.error("request parameter for DeviceType is not set");
+			model.addAttribute("errorcode", "REQUEST_PARAMETER_NOT_SET");
+			return yaadiInitPage;
+		}
+		
+		Session session = null;
+		try {
+			session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+			model.addAttribute("sessionId", session.getId());
+			
+			//populate cmois departments for session & devicetype
+			List<MasterVO> allYaadiDepartmentDetails = CutMotion.findAllYaadiDepartmentDetails(session, deviceType, locale.toString());
+			if(allYaadiDepartmentDetails==null || allYaadiDepartmentDetails.isEmpty()) {
+				logger.warn("No department having cmois yaadi for given session and devicetype");
+				model.addAttribute("errorcode", "NO_YAADI_FOUND");
+				return yaadiInitPage;
+			}
+			model.addAttribute("allYaadiDepartmentDetails", allYaadiDepartmentDetails);
+			
+			model.addAttribute("locale", locale.toString());
+			yaadiInitPage = "cutmotion/reports/yaadi_report_init";
+			
+		} catch (ELSException e) {
+			logger.error("session not found with given parameters");
+			model.addAttribute("errorcode", "SESSION_NOT_FOUND");
+			return yaadiInitPage;
+		}		
+		
+		return yaadiInitPage;
 	}
 	
 	@SuppressWarnings("unchecked")

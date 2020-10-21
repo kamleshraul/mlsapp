@@ -36,6 +36,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.repository.CutMotionRepository;
@@ -1074,6 +1075,10 @@ public class CutMotion extends Device implements Serializable {
 	
 	public static List<CutMotionDraft> findDraftsForGivenDevice(final Long deviceId) {
 		return getCutMotionRepository().findDraftsForGivenDevice(deviceId);
+	}
+	
+	public static List<MasterVO> findAllYaadiDepartmentDetails(final Session session, final DeviceType cutMotionType, final String locale) {
+		return getCutMotionRepository().findAllYaadiDepartmentDetails(session, cutMotionType, locale);
 	}
 	
 	//************************Clubbing**********************

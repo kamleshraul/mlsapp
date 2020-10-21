@@ -71,9 +71,9 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 					" FROM Resolution r JOIN r.session s JOIN r.type rt WHERE s.id =:sessionId " +
 					" AND rt.type =:resolutionType ORDER BY r.number " +ApplicationConstants.DESC;
 		}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)) {
-			Session lowerHouseSession = Session.find(session.getYear(),
-					session.getType().getType(), ApplicationConstants.LOWER_HOUSE);
-			lowerHouse = lowerHouseSession.getHouse();
+//			Session lowerHouseSession = Session.find(session.getYear(),
+//					session.getType().getType(), ApplicationConstants.LOWER_HOUSE);
+			lowerHouse = Session.findCorrespondingAssemblyHouseForCouncilSession(session);
 
 			CustomParameter dbDateFormat =
 					CustomParameter.findByName(CustomParameter.class,"DB_DATETIMEFORMAT", "");

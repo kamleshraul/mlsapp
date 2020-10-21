@@ -72,4 +72,13 @@
 		<p></p>
 	</div>
 </c:when>
+<c:otherwise>
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="generic.errorcode.some_exception_occurred" text="Some Exception Occurred."/>
+		</p>
+		<p></p>
+	</div>
+</c:otherwise>
 </c:choose>

@@ -60,6 +60,7 @@ import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.QuestionDraft;
 import org.mkcl.els.domain.ReferenceUnit;
+import org.mkcl.els.domain.ReminderLetter;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -1204,22 +1205,77 @@ public class QuestionReportController extends BaseController{
 	public @ResponseBody void generateReminderLetter(HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
 		File reportFile = null;
 		
+		HouseType houseType = null;
+		String strHouseType = request.getParameter("houseType");
+		if(strHouseType!=null && !strHouseType.isEmpty()) {
+			houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+			if(houseType==null || houseType.getId()==null) {
+				CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+					if(csptServer.getValue().equals("TOMCAT")){
+						strHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");					
+					}
+				}
+				houseType=HouseType.findByFieldName(HouseType.class,"name",strHouseType, locale.toString());
+			}
+			if(houseType==null || houseType.getId()==null) {
+				houseType=HouseType.findById(HouseType.class,Long.parseLong(strHouseType));
+			}
+		}
+		
 		@SuppressWarnings("unchecked")
 		Map<String, String[]> requestMap = request.getParameterMap();
 		@SuppressWarnings("unchecked")
 		List<Object[]> resultList = Query.findReport(request.getParameter("reportQuery"), requestMap, true);
 		
     	if(resultList!=null && !resultList.isEmpty()) {
-    		Question question = null;
+    		String isDepartmentLogin = request.getParameter("isDepartmentLogin");
+    		if(isDepartmentLogin==null || isDepartmentLogin.isEmpty()) {
+    			isDepartmentLogin = "NO";
+    		}
+    		Question latestQuestion = null;
     		DeviceType deviceType = null;
-    		String departmentName = "";    		
+    		SubDepartment subDepartment = null;
+    		String departmentName = ""; 
+    		String reminderNumberStartLimitingDate = "";
+    		String reminderNumberEndLimitingDate = "";
+    		
+    		Object[] latestResultUnit = resultList.get(resultList.size()-1);
+    		latestQuestion = Question.findById(Question.class, Long.parseLong(latestResultUnit[10].toString()));
+    		deviceType = latestQuestion.getType();
+			subDepartment = latestQuestion.getSubDepartment();
+			departmentName = latestQuestion.getSubDepartment().getMinistryDisplayName();
+			Session qSession = latestQuestion.getSession();
+			
+			if(deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+				if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+    				House correspondingAssemblyHouse = Session.findCorrespondingAssemblyHouseForCouncilSession(qSession);
+    				Date houseStartDate = correspondingAssemblyHouse.getFirstDate();
+    				reminderNumberStartLimitingDate = FormaterUtil.formatDateToString(houseStartDate, ApplicationConstants.DB_DATEFORMAT);
+    				Date houseEndDate = correspondingAssemblyHouse.getLastDate();
+    				reminderNumberEndLimitingDate = FormaterUtil.formatDateToString(houseEndDate, ApplicationConstants.DB_DATEFORMAT);
+    			} else {
+    				Date houseStartDate = qSession.getHouse().getFirstDate();
+    				reminderNumberStartLimitingDate = FormaterUtil.formatDateToString(houseStartDate, ApplicationConstants.DB_DATEFORMAT);
+    				Date houseEndDate = qSession.getHouse().getLastDate();
+    				reminderNumberEndLimitingDate = FormaterUtil.formatDateToString(houseEndDate, ApplicationConstants.DB_DATEFORMAT);
+    			}
+			} else {
+				reminderNumberStartLimitingDate = FormaterUtil.formatDateToString(qSession.getStartDate(), ApplicationConstants.DB_DATEFORMAT);
+				reminderNumberEndLimitingDate = FormaterUtil.formatDateToString(qSession.getEndDate(), ApplicationConstants.DB_DATEFORMAT);
+			}
+    		
+    		StringBuffer deviceIds = new StringBuffer("");
     		List<String> serialNumbers = populateSerialNumbers(resultList, locale);
     		List<String> expectedAnswerReceivingDates = new ArrayList<String>();
     		for(int i=0; i<resultList.size(); i++) {
+    			//include each question id in 'deviceIds' to be saved in domain of this reminder letter
     			Object[] resultUnit = resultList.get(i);
-    			question = Question.findById(Question.class, Long.parseLong(resultUnit[10].toString()));
-    			deviceType = question.getType();
-    			departmentName = question.getSubDepartment().getMinistryDisplayName();
+    			deviceIds.append(resultUnit[10].toString());
+    			if(i!=resultList.size()-1) {
+    				deviceIds.append(",");
+    			}      
+    			
     			if(resultUnit[5]!=null && !resultUnit[5].toString().isEmpty()) {    				
     				if(resultUnit[1].toString().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
     					Date answerRequestedDate = FormaterUtil.formatStringToDate(resultUnit[5].toString(), ApplicationConstants.DB_DATETIME_FORMAT);
@@ -1236,39 +1292,77 @@ public class QuestionReportController extends BaseController{
     			} else {
     				expectedAnswerReceivingDates.add("");
     			}
+    		}    
+    		
+    		String reminderLetterNumber = "";
+    		Map<String, String> reminderLetterIdentifiers = new HashMap<String, String>();
+    		reminderLetterIdentifiers.put("houseType", houseType.getType());
+    		reminderLetterIdentifiers.put("deviceType", deviceType.getType());
+    		reminderLetterIdentifiers.put("reminderFor", ApplicationConstants.REMINDER_FOR_REPLY_FROM_DEPARTMENT);
+    		reminderLetterIdentifiers.put("reminderTo", subDepartment.getId().toString());
+    		reminderLetterIdentifiers.put("reminderNumberStartLimitingDate", reminderNumberStartLimitingDate);
+    		reminderLetterIdentifiers.put("reminderNumberEndLimitingDate", reminderNumberEndLimitingDate);
+    		reminderLetterIdentifiers.put("locale", locale.toString());
+    		ReminderLetter latestReminderLetter = ReminderLetter.findLatestByFieldNames(reminderLetterIdentifiers, locale.toString());
+    		if(latestReminderLetter!=null) {
+    			if(!isDepartmentLogin.equals("YES")) {
+    				reminderLetterNumber = FormaterUtil.formatNumberNoGrouping((Integer.parseInt(latestReminderLetter.getReminderNumber())+1), locale.toString());
+    			} else {
+    				reminderLetterNumber = latestReminderLetter.getReminderNumber();
+    			}    			
+    		} else {
+    			reminderLetterNumber = FormaterUtil.formatNumberNoGrouping(1, locale.toString());
     		}
-    		HouseType houseType = null;
-    		String strHouseType = request.getParameter("houseType");
-    		if(strHouseType!=null && !strHouseType.isEmpty()) {
-    			houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
-    			if(houseType==null || houseType.getId()==null) {
-    				CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-					if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
-						if(csptServer.getValue().equals("TOMCAT")){
-							strHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");					
-						}
-					}
-    				houseType=HouseType.findByFieldName(HouseType.class,"name",strHouseType, locale.toString());
-    			}
-    			if(houseType==null || houseType.getId()==null) {
-    				houseType=HouseType.findById(HouseType.class,Long.parseLong(strHouseType));
-    			}
-    		}    		
-    		reportFile = generateReportUsingFOP(new Object[] {resultList, expectedAnswerReceivingDates, serialNumbers}, "qis_reminder_letter_template_"+houseType.getType().toLowerCase().trim(), request.getParameter("outputFormat"), "qis_reminder_letter", locale.toString()); 		
+    		
+    		reportFile = generateReportUsingFOP(new Object[] {resultList, expectedAnswerReceivingDates, serialNumbers, reminderLetterNumber, isDepartmentLogin}, "qis_reminder_letter_template_"+houseType.getType().toLowerCase().trim(), request.getParameter("outputFormat"), "qis_reminder_letter", locale.toString()); 		
     		if(reportFile!=null) {
     			System.out.println("Report generated successfully in " + request.getParameter("outputFormat") + " format!");
-    			openOrSaveReportFileFromBrowser(response, reportFile, request.getParameter("outputFormat"));
+    			openOrSaveReportFileFromBrowser(response, reportFile, request.getParameter("outputFormat"));  
+    			
+    			ReminderLetter currentReminderLetter = null;
+    			if(!isDepartmentLogin.equals("YES")) {
+    				/** SAVE CURRENT REMINDER LETTER ENTRY **/
+        			currentReminderLetter = new ReminderLetter();
+        			currentReminderLetter.setHouseType(houseType.getType());
+        			currentReminderLetter.setDeviceType(deviceType.getType());
+        			currentReminderLetter.setDeviceIds(deviceIds.toString());
+        			currentReminderLetter.setReminderFor(ApplicationConstants.REMINDER_FOR_REPLY_FROM_DEPARTMENT);
+        			currentReminderLetter.setReminderTo(subDepartment.getId().toString());
+        			currentReminderLetter.setReminderNumberStartLimitingDate(reminderNumberStartLimitingDate);
+        			currentReminderLetter.setReminderNumberEndLimitingDate(reminderNumberEndLimitingDate);
+        			currentReminderLetter.setReminderNumber(reminderLetterNumber);
+        			currentReminderLetter.setReminderDate(new Date());
+        			currentReminderLetter.setStatus(ApplicationConstants.REMINDER_LETTER_DISPATCHED_STATUS);
+        			currentReminderLetter.setGeneratedBy(this.getCurrentUser().getActualUsername());
+        			currentReminderLetter.setLocale(locale.toString());
+        			currentReminderLetter.persist();
+        			
+    			} else {
+    				if(latestReminderLetter!=null && latestReminderLetter.getId()!=null
+    						&& latestReminderLetter.getStatus().equals(ApplicationConstants.REMINDER_LETTER_DISPATCHED_STATUS)) {
+    					/** ACKNOWLEDGE CURRENT REMINDER LETTER ENTRY **/
+    					latestReminderLetter.setStatus(ApplicationConstants.REMINDER_LETTER_ACKNOWLEDGED_STATUS);
+    					if(latestReminderLetter.getReminderAcknowledgementDate()==null) {
+    						latestReminderLetter.setReminderAcknowledgementDate(new Date());
+    					}    					
+    					latestReminderLetter.merge();
+    				} 				
+    			}
+    			
     			/**** SEND NOTIFICATION TO DEPARTMENT USERS IF REMINDER LETTER IS GENERATED FROM QUESTIONS BRANCH AT VIDHAN BHAVAN ****/
     			if(deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) { //currently required only for unstarred questions
-    				String isDepartmentLogin = request.getParameter("isDepartmentLogin");
-        			if(!isDepartmentLogin.equals("YES")) {       
-        				/** find co-ordination department user for sending notification **/    	
+    				if(!isDepartmentLogin.equals("YES")) {       
+        				/** find co-ordination department user for sending notification **/
         				String departmentCoordinationUsername = "";
-    	    			Reference actorAtDepartmentLevel = WorkflowConfig.findActorVOAtGivenLevel(question, question.getStatus(), ApplicationConstants.DEPARTMENT, 9, locale.toString());
+    	    			Reference actorAtDepartmentLevel = WorkflowConfig.findActorVOAtGivenLevel(latestQuestion, latestQuestion.getStatus(), ApplicationConstants.DEPARTMENT, 9, locale.toString());
     					if(actorAtDepartmentLevel!=null) {
     						String userAtDepartmentLevel = actorAtDepartmentLevel.getId();
         					departmentCoordinationUsername = userAtDepartmentLevel.split("#")[0];
             				NotificationController.sendReminderLetterForReplyNotReceivedFromDepartmentUsers(houseType, deviceType, departmentCoordinationUsername, departmentName, locale.toString());
+            				
+            				/** UPDATE RECEIVERS IN CURRENT REMINDER LETTER ENTRY **/
+            				currentReminderLetter.setReceivers(departmentCoordinationUsername);
+                			currentReminderLetter.merge();
     					}    					
         			}
     			}    			

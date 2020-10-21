@@ -15,6 +15,7 @@ import name.fraser.neil.plaintext.diff_match_patch.Diff;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -78,9 +79,9 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 					//+ " AND s.id=:sessionId"
 					+ " ORDER BY m.number " +ApplicationConstants.DESC;
 		} else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)) {
-			Session lowerHouseSession = Session.find(session.getYear(),
-					session.getType().getType(), ApplicationConstants.LOWER_HOUSE);
-			House lowerHouse = lowerHouseSession.getHouse();
+//			Session lowerHouseSession = Session.find(session.getYear(),
+//					session.getType().getType(), ApplicationConstants.LOWER_HOUSE);
+			House lowerHouse = Session.findCorrespondingAssemblyHouseForCouncilSession(session);
 			
 			CustomParameter dbDateFormat =
 				CustomParameter.findByName(CustomParameter.class,"DB_DATETIMEFORMAT", "");
@@ -586,4 +587,28 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 		drafts = query.getResultList();
 		return drafts;
 	}
+	
+	public List<MasterVO> findAllYaadiDepartmentDetails(final Session session, final DeviceType cutMotionType, final String locale) {
+		List<MasterVO> allYaadiDepartments = new ArrayList<MasterVO>();
+		
+		org.mkcl.els.domain.Query queryDB = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "CMOIS_ALL_YAADI_DEPARTMENTS_QUERY", locale);
+		if(queryDB!=null)	{
+			String queryString = queryDB.getQuery();
+			Query query=this.em().createNativeQuery(queryString);
+			query.setParameter("sessionId", session.getId());
+			query.setParameter("cutMotionType", cutMotionType.getId());
+			query.setParameter("locale", locale);
+			List results = query.getResultList();
+			for(int i = 0; i < results.size(); i++) {
+				Object[] o = (Object[]) results.get(i);
+				MasterVO yaadiDepartment = new MasterVO();
+				yaadiDepartment.setValue(o[0].toString());
+				yaadiDepartment.setName(o[1].toString());
+				allYaadiDepartments.add(yaadiDepartment);
+			}
+		}
+		
+		return allYaadiDepartments;
+	}
+	
 }

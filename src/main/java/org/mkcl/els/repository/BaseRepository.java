@@ -21,6 +21,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -248,6 +249,15 @@ public class BaseRepository<T, ID extends Serializable> extends
         }
         else if (! locale.isEmpty()) {
         	search.addFilterEqual("locale", locale);
+        }
+        
+        if (sortBy!=null && !sortBy.isEmpty() 
+        		&& sortOrder != null && !sortOrder.isEmpty()) {
+        	if(sortOrder.equalsIgnoreCase(ApplicationConstants.DESC)) {
+        		search.addSortDesc(sortBy);
+        	} else {
+        		search.addSortAsc(sortBy);
+        	}
         }
         
         final List<U> records = this._search(persistenceClass, search);

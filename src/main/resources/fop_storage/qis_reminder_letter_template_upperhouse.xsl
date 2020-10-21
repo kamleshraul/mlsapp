@@ -80,7 +80,7 @@
 		            					<fo:table-cell>
 		            						<fo:block-container>
 			            						<fo:block text-decoration="underline">तात्काळ</fo:block>
-			            						<fo:block>स्मरणपत्र क्रमांक : १</fo:block>
+			            						<fo:block>स्मरणपत्र क्रमांक : <xsl:value-of select="element_4"></xsl:value-of></fo:block>
 		            						</fo:block-container>
 		            					</fo:table-cell>	            					
 		            					<fo:table-cell>
@@ -255,6 +255,7 @@
 						<fo:block>
 							<fo:block font-weight="bold">याची प्रत :</fo:block>
 							<fo:block margin-left="1.5cm">१) सचिव, महाराष्ट्र शासन, संसदीय कार्य विभाग, मंत्रालय, मुंबई - ४०० ०३२.</fo:block>
+							<fo:block margin-left="1.5cm">२) मा.सभापती, महाराष्ट्र विधानपरिषद यांचे सचिव, विधान भवन, मुंबई - ४०० ०३२.</fo:block>
 						</fo:block>										
 					</fo:block>							          
 	            </fo:flow>

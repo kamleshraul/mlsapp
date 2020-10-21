@@ -274,7 +274,20 @@ public class Session extends BaseDomain implements Serializable {
 		return getSessionRepository().findSessionsByHouseAndYearForGivenDeviceTypeEnabled(house,sessionYear,deviceType);
 	}
 	
-
+	public static House findCorrespondingAssemblyHouseForCouncilSession(final Session councilSession) {
+		House correspondingAssemblyHouseForCouncilSession = null;
+		String locale = councilSession.getLocale();		
+		HouseType assemblyHouseType = HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale);
+		List<House> assemblyHouses = House.findAllByFieldName(House.class, "type", assemblyHouseType, "firstDate", ApplicationConstants.DESC, locale);
+		for(House h: assemblyHouses) {
+			if(h.getFirstDate().before(councilSession.getStartDate())
+					&& h.getLastDate().after(councilSession.getStartDate())) {
+				correspondingAssemblyHouseForCouncilSession = h;
+				break;
+			}
+		}		
+		return correspondingAssemblyHouseForCouncilSession;
+	}
 	
 	//------------------dhananjayb_23012013----------------------------
 	public static List<String> getParametersSetForDeviceType(final Long sessionId, final String deviceType) throws ELSException {

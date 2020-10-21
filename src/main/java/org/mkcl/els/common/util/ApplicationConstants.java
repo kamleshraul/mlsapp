@@ -2657,6 +2657,10 @@ public class ApplicationConstants {
 	
 	public static final String STATUS_FINAL_CLARIFICATION_FROM_DEPARTMENT="_final_clarificationNeededFromDepartment";
 	
+	public static final String STATUS_FINAL_CLARIFICATION_FROM_MEMBER="_final_clarificationNeededFromMember";
+	
+	public static final String STATUS_FINAL_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT="_final_clarificationNeededFromMemberAndDepartment";
+	
 	public static final String STATUS_PROCESSED_SENDTODEPARTMENT="_processed_sendToDepartment";
 	
 	public static final String STATUS_PROCESSED_SENDTODESKOFFICER = "_processed_sendToDeskOfficer";
@@ -2942,5 +2946,13 @@ public class ApplicationConstants {
 	public static final String END_FLAG_PENDING = "continue";
 	
 	public static final String END_FLAG_REACHED = "end";
+	
+	public static final String REMINDER_FOR_REPLY_FROM_DEPARTMENT = "reminder_for_reply_from_department";
+	
+	public static final String REMINDER_LETTER_DISPATCHED_STATUS = "dispatched";
+	
+	public static final String REMINDER_LETTER_ACKNOWLEDGED_STATUS = "acknowledged";
+	
+	public static final String REMINDER_LETTER_TIMEOUT_STATUS = "timeout";
 	
 }

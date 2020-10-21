@@ -110,9 +110,9 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			}
 		}
 		else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)) {
-			Session lowerHouseSession = Session.find(session.getYear(),
-					session.getType().getType(), ApplicationConstants.LOWER_HOUSE);
-			House lowerHouse = lowerHouseSession.getHouse();
+//			Session lowerHouseSession = Session.find(session.getYear(),
+//					session.getType().getType(), ApplicationConstants.LOWER_HOUSE);
+			House lowerHouse = Session.findCorrespondingAssemblyHouseForCouncilSession(session);
 			
 			CustomParameter dbDateFormat =
 				CustomParameter.findByName(CustomParameter.class,"DB_DATETIMEFORMAT", "");
