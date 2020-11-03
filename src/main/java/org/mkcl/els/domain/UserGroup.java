@@ -98,6 +98,15 @@ public class UserGroup extends BaseDomain implements Serializable {
     @Autowired
     private transient UserGroupRepository userGroupRepository;
     
+    @Column(length=300)
+	private String firstName="";
+    
+    @Column(length=300)
+	private String middleName="";
+    
+    @Column(length=300)
+	private String lastName="";
+    
 
     // --------------------------------Constructors----------------------------------------------
     public UserGroup() {
@@ -356,6 +365,30 @@ public class UserGroup extends BaseDomain implements Serializable {
 
 	public void setDrafts(List<UserGroupDraft> drafts) {
 		this.drafts = drafts;
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public String getMiddleName() {
+		return middleName;
+	}
+
+	public void setMiddleName(String middleName) {
+		this.middleName = middleName;
 	}	
 	
 }
