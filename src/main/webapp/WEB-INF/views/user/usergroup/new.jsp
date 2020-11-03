@@ -149,6 +149,21 @@
 		<form:errors path="userGroupType" cssClass="validationError"/>	
 	</p>
 	<p>
+		<label class="small"><spring:message
+				code="usergroup.firstName" text="First Name" /></label>
+		<form:input cssClass="sText " path="firstName" />		
+	</p>
+	<p>
+		<label class="small"><spring:message
+				code="usergroup.middleName" text="Middle Name" /></label>
+		<form:input cssClass="sText " path="middleName" />		
+	</p>
+	<p>
+		<label class="small"><spring:message
+				code="usergroup.lastName" text="Last Name" /></label>
+		<form:input cssClass="sText " path="lastName" />		
+	</p>
+	<p>
 		<label class="small"><spring:message code="usergroup.devicetype" text="Device Type" /></label>			
 		<select  id="param_DEVICETYPE_${locale}" name="param_DEVICETYPE_${locale}" multiple="multiple" size="5" style="max-width:300px;min-width:275px;">
 			<c:forEach items="${deviceTypes}" var="i">				
