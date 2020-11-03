@@ -239,6 +239,22 @@
 		<form:select cssClass="sSelect" path="userGroupType" items="${userGroupTypes}" itemLabel="name" itemValue="id"/>
 		<form:errors path="userGroupType" cssClass="validationError"/>	
 	</p>
+	<p>
+		<label class="small"><spring:message
+				code="usergroup.firstName" text="First Name" /></label>
+		<form:input cssClass="sText " path="firstName" />		
+	</p>
+	<p>
+		<label class="small"><spring:message
+				code="usergroup.middleName" text="Middle Name" /></label>
+		<form:input cssClass="sText " path="middleName" />		
+	</p>
+	<p>
+		<label class="small"><spring:message
+				code="usergroup.lastName" text="Last Name" /></label>
+		<form:input cssClass="sText " path="lastName" />		
+	</p>
+	
 	<input type="hidden" id="selectedDevices" value="${selectedDeviceType}" />
 	<p>
 		<label class="small"><spring:message code="usergroup.devicetype" text="Device Type" /></label>			
