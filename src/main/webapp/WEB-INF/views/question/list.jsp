@@ -387,7 +387,8 @@
 						<option value="groupchanged"><spring:message code='question.intimationletter.groupChanged' text='group changed' /></option>
 						<option value="groupChangedAfterBallot"><spring:message code='question.intimationletter.groupChangedAfterBallot' text='group changed after ballot' /></option>
 						<option value="answeringDateForwarded"><spring:message code='question.intimationletter.answeringDateForwarded' text='answering date forwarded' /></option>
-						<option value="reminderToDepartmentForAnswer"><spring:message code='question.intimationletter.reminderToDepartmentForAnswer' text='reminder for answer' /></option>
+						<option value="reminderReportForAnswer"><spring:message code='question.intimationletter.reminderReportForAnswer' text='reminder report for answer' /></option>
+						<option value="reminderToDepartmentForAnswer"><spring:message code='question.intimationletter.reminderToDepartmentForAnswer' text='reminder generation for answer' /></option>
 				</select> | 
 				<a href="#" id="generateClubbedIntimationLetter" class="butSim">
 					<spring:message code="question.generateClubbedIntimationLetter" text="Generate Clubbed Intimation Letter"/>

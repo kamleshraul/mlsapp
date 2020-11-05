@@ -1095,8 +1095,15 @@
 	}
 	/**** To Generate Intimation Letter ****/
 	function generateIntimationLetter() {		 
-		if($("#intimationLetterFilter").val()=='reminderToDepartmentForAnswer') { //for reminder letter
-			generateReminderLetter();
+		if($("#intimationLetterFilter").val()=='reminderReportForAnswer') { //for reminder letter report only
+			generateReminderLetter(false);
+		} else if($("#intimationLetterFilter").val()=='reminderToDepartmentForAnswer') { //for reminder letter generation to be saved as entry
+			$.prompt("Do you really want to send reminder letter to department now?",{
+				buttons: {Ok:true, Cancel:false}, callback: function(v){
+		        if(v){
+					generateReminderLetter(true);
+    	        }
+			}});			
 		} else {
 			var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
 			if(selectedQuestionId.length<1) {
@@ -1114,16 +1121,70 @@
 		}		 		
 	}
 	/**** To Generate Reminder Letter ****/
-	function generateReminderLetter() {
-		var selectedQuestionIds = $("#grid").jqGrid ('getGridParam', 'selarrrow');
-		if(selectedQuestionIds.length<1) {
-			$.prompt($('#selectRowFirstMessage').val());
-			return false;
+	function generateReminderLetter(isRequiredToSend) {
+		var devicetype = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
+		if(devicetype.indexOf('questions_unstarred')==0){
+			if($("#selectedSubDepartment").val()==undefined 
+					|| $("#selectedSubDepartment").val()=='' 
+					|| $("#selectedSubDepartment").val()=='0') {
+				$.prompt('Please select a department for reminder letter of concerned unstarred questions!');
+				return false;
+			}
+			var selectedQuestionIds = '';
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			$.get('ref/device/findDevicesForReminderOfReply?'
+					+ 'houseType=' + $('#selectedHouseType').val()
+					+ '&sessionYear=' + $('#selectedSessionYear').val()
+					+ '&sessionType=' + $('#selectedSessionType').val()
+					+ '&deviceType=' + $('#selectedQuestionType').val()
+					+ '&department=' + $('#selectedSubDepartment').val(),function(data){
+				$.unblockUI();
+				selectedQuestionIds = data;
+			}).done(function(){
+				if(selectedQuestionIds!=undefined && selectedQuestionIds.length>=1) {
+					var outputFormat = 'WORD';
+					if($('#currentusergroupType').val()=='department' || $('#currentusergroupType').val()=='department_deskofficer') {
+						outputFormat = 'PDF';
+					}
+					form_submit(
+							'question/report/generateReminderLetter', 
+							{
+								questionIds: selectedQuestionIds,
+								houseType: $('#selectedHouseType').val(),  
+								//sessionYear: $('#selectedSessionYear').val(),  
+								//sessionType: $('#selectedSessionType').val(), 
+								usergroupType: $("#currentusergroupType").val(),
+								locale: $('#moduleLocale').val(), 
+								reportQuery: 'QIS_REMINDER_LETTER', 
+								outputFormat: outputFormat,
+								isDepartmentLogin: $("#isDepartmentLogin").val(),
+								isRequiredToSend: isRequiredToSend
+							}, 
+							'GET'
+					);
+				} else {
+					$.prompt('No unstarred questions found to be reminded for reply currently!');
+					return false;
+				}					
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});				
 		} else {
-			//$('#generateIntimationLetter').attr('href', 'question/report/generateReminderLetter?'+'questionIds='+selectedQuestionIds);
-			//console.log("selectedQuestionIds: " + selectedQuestionIds);
-			form_submit('question/report/generateReminderLetter', {questionIds: selectedQuestionIds, houseType: $('#selectedHouseType').val(), locale: $('#moduleLocale').val(), reportQuery: 'QIS_REMINDER_LETTER', outputFormat: 'WORD', isDepartmentLogin: $("#isDepartmentLogin").val()}, 'GET');
-		}
+			var selectedQuestionIds = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+			if(selectedQuestionIds.length<1) {
+				$.prompt($('#selectRowFirstMessage').val());
+				return false;
+			} else {
+				//$('#generateIntimationLetter').attr('href', 'question/report/generateReminderLetter?'+'questionIds='+selectedQuestionIds);
+				//console.log("selectedQuestionIds: " + selectedQuestionIds);
+				form_submit('question/report/generateReminderLetter', {questionIds: selectedQuestionIds, houseType: $('#selectedHouseType').val(), locale: $('#moduleLocale').val(), reportQuery: 'QIS_REMINDER_LETTER', outputFormat: 'WORD', isDepartmentLogin: $("#isDepartmentLogin").val(), isRequiredToSend: isRequiredToSend}, 'GET');
+			}
+		}		
 	}
 	/**** To Generate Clubbed Intimation Letter ****/
 	function generateClubbedIntimationLetter() {			

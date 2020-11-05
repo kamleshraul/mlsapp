@@ -1585,7 +1585,7 @@ public class QuestionWorkflowController  extends BaseController{
 			
 			if(userGroupType.equals(ApplicationConstants.MEMBER)
 				&&	domain.getInternalStatus().getType().
-				equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)){
+				endsWith(ApplicationConstants.STATUS_FINAL_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)){
 				Question question = Question.findById(Question.class, domain.getId());
 				if(domain.getFactualPositionFromMember() != null && !domain.getFactualPositionFromMember().isEmpty()){
 					question.setFactualPositionFromMember(domain.getFactualPositionFromMember());

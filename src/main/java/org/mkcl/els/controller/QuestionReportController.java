@@ -1304,9 +1304,19 @@ public class QuestionReportController extends BaseController{
     		reminderLetterIdentifiers.put("reminderNumberEndLimitingDate", reminderNumberEndLimitingDate);
     		reminderLetterIdentifiers.put("locale", locale.toString());
     		ReminderLetter latestReminderLetter = ReminderLetter.findLatestByFieldNames(reminderLetterIdentifiers, locale.toString());
+    		//boolean isReminderLetterAlreadyGenerated = false;
+    		boolean isRequiredToSend = false;
+    		String isRequiredToSendStr = request.getParameter("isRequiredToSend");
+    		if(isRequiredToSendStr!=null) {
+    			isRequiredToSend = Boolean.parseBoolean(isRequiredToSendStr);
+    		}
     		if(latestReminderLetter!=null) {
     			if(!isDepartmentLogin.equals("YES")) {
-    				reminderLetterNumber = FormaterUtil.formatNumberNoGrouping((Integer.parseInt(latestReminderLetter.getReminderNumber())+1), locale.toString());
+    				if(isRequiredToSend) {
+    					reminderLetterNumber = FormaterUtil.formatNumberNoGrouping((Integer.parseInt(latestReminderLetter.getReminderNumber())+1), locale.toString());
+    				} else {
+    					reminderLetterNumber = latestReminderLetter.getReminderNumber();
+    				}    				
     			} else {
     				reminderLetterNumber = latestReminderLetter.getReminderNumber();
     			}    			
@@ -1321,22 +1331,23 @@ public class QuestionReportController extends BaseController{
     			
     			ReminderLetter currentReminderLetter = null;
     			if(!isDepartmentLogin.equals("YES")) {
-    				/** SAVE CURRENT REMINDER LETTER ENTRY **/
-        			currentReminderLetter = new ReminderLetter();
-        			currentReminderLetter.setHouseType(houseType.getType());
-        			currentReminderLetter.setDeviceType(deviceType.getType());
-        			currentReminderLetter.setDeviceIds(deviceIds.toString());
-        			currentReminderLetter.setReminderFor(ApplicationConstants.REMINDER_FOR_REPLY_FROM_DEPARTMENT);
-        			currentReminderLetter.setReminderTo(subDepartment.getId().toString());
-        			currentReminderLetter.setReminderNumberStartLimitingDate(reminderNumberStartLimitingDate);
-        			currentReminderLetter.setReminderNumberEndLimitingDate(reminderNumberEndLimitingDate);
-        			currentReminderLetter.setReminderNumber(reminderLetterNumber);
-        			currentReminderLetter.setReminderDate(new Date());
-        			currentReminderLetter.setStatus(ApplicationConstants.REMINDER_LETTER_DISPATCHED_STATUS);
-        			currentReminderLetter.setGeneratedBy(this.getCurrentUser().getActualUsername());
-        			currentReminderLetter.setLocale(locale.toString());
-        			currentReminderLetter.persist();
-        			
+    				if(isRequiredToSend) {
+    					/** SAVE CURRENT REMINDER LETTER ENTRY **/
+        				currentReminderLetter = new ReminderLetter();
+            			currentReminderLetter.setHouseType(houseType.getType());
+            			currentReminderLetter.setDeviceType(deviceType.getType());
+            			currentReminderLetter.setDeviceIds(deviceIds.toString());
+            			currentReminderLetter.setReminderFor(ApplicationConstants.REMINDER_FOR_REPLY_FROM_DEPARTMENT);
+            			currentReminderLetter.setReminderTo(subDepartment.getId().toString());
+            			currentReminderLetter.setReminderNumberStartLimitingDate(reminderNumberStartLimitingDate);
+            			currentReminderLetter.setReminderNumberEndLimitingDate(reminderNumberEndLimitingDate);
+            			currentReminderLetter.setReminderNumber(reminderLetterNumber);
+            			currentReminderLetter.setReminderDate(new Date());
+            			currentReminderLetter.setStatus(ApplicationConstants.REMINDER_LETTER_DISPATCHED_STATUS);
+            			currentReminderLetter.setGeneratedBy(this.getCurrentUser().getActualUsername());
+            			currentReminderLetter.setLocale(locale.toString());
+            			currentReminderLetter.persist();
+    				}  			
     			} else {
     				if(latestReminderLetter!=null && latestReminderLetter.getId()!=null
     						&& latestReminderLetter.getStatus().equals(ApplicationConstants.REMINDER_LETTER_DISPATCHED_STATUS)) {
@@ -1351,19 +1362,21 @@ public class QuestionReportController extends BaseController{
     			
     			/**** SEND NOTIFICATION TO DEPARTMENT USERS IF REMINDER LETTER IS GENERATED FROM QUESTIONS BRANCH AT VIDHAN BHAVAN ****/
     			if(deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) { //currently required only for unstarred questions
-    				if(!isDepartmentLogin.equals("YES")) {       
-        				/** find co-ordination department user for sending notification **/
-        				String departmentCoordinationUsername = "";
-    	    			Reference actorAtDepartmentLevel = WorkflowConfig.findActorVOAtGivenLevel(latestQuestion, latestQuestion.getStatus(), ApplicationConstants.DEPARTMENT, 9, locale.toString());
-    					if(actorAtDepartmentLevel!=null) {
-    						String userAtDepartmentLevel = actorAtDepartmentLevel.getId();
-        					departmentCoordinationUsername = userAtDepartmentLevel.split("#")[0];
-            				NotificationController.sendReminderLetterForReplyNotReceivedFromDepartmentUsers(houseType, deviceType, departmentCoordinationUsername, departmentName, locale.toString());
-            				
-            				/** UPDATE RECEIVERS IN CURRENT REMINDER LETTER ENTRY **/
-            				currentReminderLetter.setReceivers(departmentCoordinationUsername);
-                			currentReminderLetter.merge();
-    					}    					
+    				if(!isDepartmentLogin.equals("YES")) {
+    					if(isRequiredToSend) {
+    						/** find co-ordination department user for sending notification **/
+            				String departmentCoordinationUsername = "";
+        	    			Reference actorAtDepartmentLevel = WorkflowConfig.findActorVOAtGivenLevel(latestQuestion, latestQuestion.getStatus(), ApplicationConstants.DEPARTMENT, 9, locale.toString());
+        					if(actorAtDepartmentLevel!=null) {
+        						String userAtDepartmentLevel = actorAtDepartmentLevel.getId();
+            					departmentCoordinationUsername = userAtDepartmentLevel.split("#")[0];
+                				NotificationController.sendReminderLetterForReplyNotReceivedFromDepartmentUsers(houseType, deviceType, departmentCoordinationUsername, departmentName, locale.toString());
+                				
+                				/** UPDATE RECEIVERS IN CURRENT REMINDER LETTER ENTRY **/
+                				currentReminderLetter.setReceivers(departmentCoordinationUsername);
+                    			currentReminderLetter.merge();
+        					}
+    					}        				    					
         			}
     			}    			
     		}

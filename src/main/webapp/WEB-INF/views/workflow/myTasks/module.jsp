@@ -1088,6 +1088,10 @@
 					selectedQuestionIds = data;
 				}).done(function(){
 					if(selectedQuestionIds!=undefined && selectedQuestionIds.length>=1) {
+						var outputFormat = 'WORD';
+						if($('#currentusergroupType').val()=='department' || $('#currentusergroupType').val()=='department_deskofficer') {
+							outputFormat = 'PDF';
+						}
 						form_submit(
 								'question/report/generateReminderLetter', 
 								{
@@ -1098,7 +1102,7 @@
 									usergroupType: $("#currentusergroupType").val(),
 									locale: $('#moduleLocale').val(), 
 									reportQuery: 'QIS_REMINDER_LETTER', 
-									outputFormat: 'WORD',
+									outputFormat: outputFormat,
 									isDepartmentLogin: $("#isDepartmentLogin").val()
 								}, 
 								'GET'
