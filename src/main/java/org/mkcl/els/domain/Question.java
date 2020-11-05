@@ -72,7 +72,7 @@ import org.springframework.transaction.annotation.Transactional;
 	"ballotStatus", "remarks","rejectionReason", "supportingMembers",
 	"group", "originalSubDepartment", "drafts", "parent", "clubbedEntities", "referencedEntities",
 	"halfHourDiscusionFromQuestionReference", "language", "referencedHDS","workflowDetailsId","bulkSubmitted","taskReceivedOn","workflowStartedOn","level",
-	"endFlag","localizedActorName","actor","workflowStarted","answeringAttemptsByDepartment"
+	"endFlag","actor","workflowStarted","answeringAttemptsByDepartment"
 	,"markAsAnswered","prospectiveClubbings","lastDateOfAnswerReceiving","revisedBriefExplanation",
 	"briefExplanation","discussionDate","dateOfAnsweringByMinister","toBeAnsweredByMinister"
 	,"revisedReason","reason","numberOfDaysForFactualPositionReceiving",
