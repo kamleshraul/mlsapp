@@ -1074,7 +1074,8 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 				+ " OR r." + houseType + "_internalstatus_id=" + repeatAdmittedStatusId
 				+ " OR r." + houseType + "_internalstatus_id=" + repeatRejectedStatusId
 				+ " OR r." + houseType + "_internalstatus_id=" + clarificationFromDepartment
-				+ " OR r." + houseType + "_internalstatus_id=" + clarificationFromMemberAndDepartment + ")"
+				+ " OR r." + houseType + "_internalstatus_id=" + clarificationFromMemberAndDepartment
+				+ " OR (r.factual_position IS NOT NULL AND r.factual_position<>'' AND r.factual_position<>'<p></p>' AND r.factual_position<>'<p>-</p>' AND r.factual_position NOT LIKE '---%'))"
 				+ " AND ht.type='" + houseType +"'"
 				+ " AND s.id IN (" + sb + ")";
 		
@@ -1624,15 +1625,21 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 		Status statusRejected = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REJECTION,question.getLocale());
 		Status statusRepeatAdmitted = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REPEATADMISSION,question.getLocale());
 		Status statusRepeatRejected = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REPEATREJECTION,question.getLocale());
+		Status statusClarificationFromDepartment = Status.findByType(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT,question.getLocale());
+		Status statusClarificationFromMemberAndDepartment = Status.findByType(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_AND_DEPARTMENT,question.getLocale());
 		String admittedStatusId = null;
 		String rejectedStatusId = null;
 		String repeatAdmittedStatusId = null;
 		String repeatRejectedStatusId = null;
+		String clarificationFromDepartment = null;
+		String clarificationFromMemberAndDepartment= null;
 		if (statusAdmitted != null && statusRejected != null) {
 			admittedStatusId = statusAdmitted.getId().toString();
 			rejectedStatusId = statusRejected.getId().toString();
 			repeatAdmittedStatusId = statusRepeatAdmitted.getId().toString();
 			repeatRejectedStatusId = statusRepeatRejected.getId().toString();
+			clarificationFromDepartment = statusClarificationFromDepartment.getId().toString();
+			clarificationFromMemberAndDepartment= statusClarificationFromMemberAndDepartment.getId().toString();
 		}
 
 		String selectQuery = "SELECT m.id as id,m.number as number,"
@@ -1658,7 +1665,10 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 				+ " AND (m.internalstatus_id=" + admittedStatusId
 				+ " OR m.internalstatus_id=" + rejectedStatusId  
 				+ " OR m.internalstatus_id=" + repeatAdmittedStatusId
-				+ " OR m.internalstatus_id=" + repeatRejectedStatusId + ")"
+				+ " OR m.internalstatus_id=" + repeatRejectedStatusId
+				+ " OR m.internalstatus_id=" + clarificationFromDepartment
+				+ " OR m.internalstatus_id=" + clarificationFromMemberAndDepartment
+				+ " OR (m.factual_position IS NOT NULL AND m.factual_position<>'' AND m.factual_position<>'<p></p>' AND m.factual_position<>'<p>-</p>' AND m.factual_position NOT LIKE '---%'))"
 				+ " AND ht.type='" + houseType +"'"
 				+ " AND m.parent IS NULL"
 				+ " AND s.id IN (" + session.getId() + ")";
@@ -1787,10 +1797,14 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 		Status statusRejected = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REJECTION,question.getLocale());
 		Status statusRepeatAdmitted = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REPEATADMISSION,question.getLocale());
 		Status statusRepeatRejected = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REPEATREJECTION,question.getLocale());
+		Status statusClarificationFromDepartment = Status.findByType(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT,question.getLocale());
+		Status statusClarificationFromMemberAndDepartment = Status.findByType(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_AND_DEPARTMENT,question.getLocale());
 		String admittedStatusId = null;
 		String rejectedStatusId = null;
 		String repeatAdmittedStatusId = null;
 		String repeatRejectedStatusId = null;
+		String clarificationFromDepartment = null;
+		String clarificationFromMemberAndDepartment= null;
 		
 		// to find the session to be searched
 		List<Session> totalSessions = new ArrayList<Session>();
@@ -1828,6 +1842,8 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 			rejectedStatusId = statusRejected.getId().toString();
 			repeatAdmittedStatusId = statusRepeatAdmitted.getId().toString();
 			repeatRejectedStatusId = statusRepeatRejected.getId().toString();
+			clarificationFromDepartment = statusClarificationFromDepartment.getId().toString();
+			clarificationFromMemberAndDepartment= statusClarificationFromMemberAndDepartment.getId().toString();
 		}
 
 		String selectQuery = "SELECT q.id as id,q.number as number,"
@@ -1846,7 +1862,10 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 				+ " AND (q.internalstatus_id=" + admittedStatusId
 				+ " OR q.internalstatus_id=" + rejectedStatusId  
 				+ " OR q.internalstatus_id=" + repeatAdmittedStatusId
-				+ " OR q.internalstatus_id=" + repeatRejectedStatusId + ")"
+				+ " OR q.internalstatus_id=" + repeatRejectedStatusId
+				+ " OR q.internalstatus_id=" + clarificationFromDepartment
+				+ " OR q.internalstatus_id=" + clarificationFromMemberAndDepartment
+				+ " OR (q.factual_position IS NOT NULL AND q.factual_position<>'' AND q.factual_position<>'<p></p>' AND q.factual_position<>'<p>-</p>' AND q.factual_position NOT LIKE '---%'))"
 				+ " AND ht.type='" + houseType +"'"
 				+ "AND s.id IN (" + sb + ")";
 		

@@ -104,10 +104,16 @@
 							</tr>						
 						</thead>
 						<tbody>
+							<c:set var="discussionDate" value=""></c:set>
 							<c:forEach items="${report}" var="r" varStatus="counter">
-								<tr>
-									<td colspan="7">${topHeader[1]} - ${r[6]}</td>
-								</tr>
+								<c:choose>
+									<c:when test="${discussionDate ne r[6]}">
+										<tr>
+											<td colspan="7">${topHeader[1]} - ${r[6]}</td>
+										</tr>
+										<c:set var="discussionDate" value="${r[6]}"></c:set>
+									</c:when>
+								</c:choose>								
 								<tr class="page-break">
 									<td style="width: 20px; text-align: center;">${formater.formatNumberNoGrouping(counter.count, locale)}</td>
 									<td style="width: 20px; text-align: center;">${formater.formatNumberNoGrouping(r[1], locale)}</td>

@@ -639,8 +639,8 @@
 	<%@ include file="/common/info.jsp" %>
 	<h2>
 		${formattedMotionType}: ${formattedNumber}
-		<c:if test="${not empty discussionStatus}">
-			(${discussionStatus})
+		<c:if test="${not empty discussionDetailsText}">
+			&nbsp;&nbsp;(${discussionDetailsText})
 		</c:if>
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>

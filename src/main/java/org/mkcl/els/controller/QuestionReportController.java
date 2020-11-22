@@ -447,7 +447,7 @@ public class QuestionReportController extends BaseController{
 				}
 				SubDepartment subDepartment = question.getSubDepartment();
 				if(subDepartment!=null) {
-					letterVO.setSubDepartment(subDepartment.getName().trim());
+					letterVO.setSubDepartment(subDepartment.getDisplayName().trim());
 				}
 				Department department = subDepartment.getDepartment();
 				if(department!=null) {

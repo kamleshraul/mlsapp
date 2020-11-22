@@ -580,6 +580,21 @@ import org.springframework.transaction.annotation.Transactional;
 		return getMotionRepository().getRevisions(motionId,
 				locale);
 	}
+	
+	public String findDiscussionDetailsText() {
+		String discussionDetailsText = "";
+		Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+		parametersMap.put("locale", new String[]{this.getLocale()});
+		parametersMap.put("motionId", new String[]{this.getId().toString()});
+		@SuppressWarnings("rawtypes")
+		List discussionDetailsTextResult = org.mkcl.els.domain.Query.findReport("MOTION_DISCUSSION_DETAILS_TEXT", parametersMap);
+		if(discussionDetailsTextResult!=null && !discussionDetailsTextResult.isEmpty()) {
+			if(discussionDetailsTextResult.get(0)!=null) {
+				discussionDetailsText = discussionDetailsTextResult.get(0).toString();
+			}
+		}
+		return discussionDetailsText;
+	}
 
 	public static List<Motion> findAllByMember(final Session session,
 			final Member primaryMember,final DeviceType motionType,final Integer itemsCount,

@@ -921,6 +921,9 @@ public class MotionController extends GenericController<Motion>{
 				//if there comes status which is post discussed, then need to check discussed on drafts here..
 				model.addAttribute("discussionStatus","");
 			}
+			/** populate discussion details text if question is discussed **/
+			String discussionDetailsText = domain.findDiscussionDetailsText();
+			model.addAttribute("discussionDetailsText", discussionDetailsText);
 		}
 		
 		/**** Referenced Entities are collected in refentities****/		
@@ -1689,6 +1692,9 @@ public class MotionController extends GenericController<Motion>{
 				//if there comes status which is post discussed, then need to check discussed on drafts here..
 				model.addAttribute("discussionStatus","");
 			}
+			/** populate discussion details text if question is discussed **/
+			String discussionDetailsText = domain.findDiscussionDetailsText();
+			model.addAttribute("discussionDetailsText", discussionDetailsText);			
 		}
 		super.populateUpdateIfErrors(model, domain, request);
 	}
@@ -3817,7 +3823,11 @@ public class MotionController extends GenericController<Motion>{
 						}else{
 							if(strDate!= null && !strDate.isEmpty()){
 								Date discussionDate = FormaterUtil.formatStringToDate(strDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
-								motion.setAnsweringDate(discussionDate);
+								if(status.getType().equals(ApplicationConstants.MOTION_PROCESSED_DISCUSSED)) {
+									motion.setDiscussionDate(discussionDate);
+								} else {
+									motion.setAnsweringDate(discussionDate);
+								}
 							}
 						}
 						motion.setRecommendationStatus(status);

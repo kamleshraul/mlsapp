@@ -46,6 +46,10 @@ public class SubDepartment extends BaseDomain implements Serializable{
     /** The type. */
     @Column(length = 600)
     private String name;
+    
+    /** The display name. */
+    @Column(length = 600)
+    private String displayName;
 
     /** The department. */
     @ManyToOne(fetch=FetchType.LAZY)
@@ -115,6 +119,14 @@ public class SubDepartment extends BaseDomain implements Serializable{
 	 */
 	public void setName(final String name) {
 		this.name = name;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
 
 	/**
