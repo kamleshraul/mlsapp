@@ -86,7 +86,7 @@
 							</fo:block>						
 							<fo:block margin-right="0.40cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 							<fo:block margin-right="1.21cm">विधान भवन, मुंबई/नागपूर</fo:block>
-							<fo:block margin-right="1.82cm">दिनांक - &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
+							<fo:block margin-right="2.00cm">दिनांक - <xsl:value-of select="element_1[1]/element_1_14"/></fo:block>
 						</fo:block>	
 						
 						<fo:block text-align="left" font-weight="bold">

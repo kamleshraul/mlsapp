@@ -51,7 +51,7 @@
 						if($("#selectedDeviceType").val()!=undefined && $("#selectedDeviceType").val()!=null) {
 							var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
 							
-							if(device=='questions_unstarred' && houseType=='upperhouse') {
+							if(device=='questions_unstarred') {
 								if($("#currentusergroupType").val()=='department' 
 									||$("#currentusergroupType").val()=='department_deskofficer' ){
 									$("#reminderLetterSpan").show();
@@ -324,6 +324,17 @@
 					}else{
 						$('#fileDiv').css("display","inline");
 					}  */
+				}
+				if(device == 'motions_cutmotion_budgetary' || device == 'motions_cutmotion_supplementary'){
+					if($("#currentusergroupType").val()=='department' 
+						|| $("#currentusergroupType").val()=='department_deskofficer'
+							|| $("#currentusergroupType").val()=='member'){
+						$("#yaadiReportSpan").show();
+					} else {
+						$("#yaadiReportSpan").hide();
+					}				
+				} else {
+					$("#yaadiReportSpan").hide();
 				}
 				//to hide and show adjournmentdatediv
 				if(device=='motions_rules_suspension' || device=='motions_adjournment' || device=='notices_specialmention'){
@@ -1001,7 +1012,17 @@
 		/**** To Generate Intimation Letter ****/
 		function generateIntimationLetter() {	
 			if($("#intimationLetterFilter").val()=='reminderToDepartmentForReply') { //for reminder letter (unstarred questions etc.)
-				generateReminderLetter();
+				if($("#currentusergroupType").val()=='department' 
+					||$("#currentusergroupType").val()=='department_deskofficer' ){
+					generateReminderLetter(false);
+				} else {					
+					$.prompt("Do you really want to send reminder letter to department now?",{
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+				        	generateReminderLetter(true);
+		    	        }
+					}});
+				}
 			} else if($("#intimationLetterFilter").val()=='reminder1ToDepartmentForReply') { //for reminder letter 1 (adjournment motions etc.)
 				generateReminderLetter1();
 			} else if($("#intimationLetterFilter").val()=='reminder2ToDepartmentForReply') { //for reminder letter 2 (adjournment motions etc.)
@@ -1057,7 +1078,7 @@
 		}
 		
 		/**** To Generate Reminder Letter (Unstarred Questions) ****/
-		function generateReminderLetter() {
+		function generateReminderLetter(isRequiredToSend) {
 			var currentDevice = $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text();
 			//var workflowId = $("#grid").jqGrid ('getGridParam', 'selrow');
 			/* if(workflowId==undefined || workflowId=='') {
@@ -1103,7 +1124,8 @@
 									locale: $('#moduleLocale').val(), 
 									reportQuery: 'QIS_REMINDER_LETTER', 
 									outputFormat: outputFormat,
-									isDepartmentLogin: $("#isDepartmentLogin").val()
+									isDepartmentLogin: $("#isDepartmentLogin").val(),
+									isRequiredToSend: isRequiredToSend
 								}, 
 								'GET'
 						);
@@ -1155,7 +1177,8 @@
 			var currentDevice = $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text();
 			var workflowId = $("#grid").jqGrid ('getGridParam', 'selrow');
 			if(workflowId==undefined || workflowId=='') {
-				if($('#authusername').val()=='finance' || $('#authusername').val()=='pad') {
+				if($("#currentusergroupType").val()=='member'
+						|| $('#authusername').val()=='finance' || $('#authusername').val()=='pad') {
 					$.get('cutmotion/report/yaadi_report/init?'+$("#gridURLParams").val(), function(data){
 					    $.fancybox.open(data, {autoSize: false, width: 370, height:210});
 				    },'html');		    	

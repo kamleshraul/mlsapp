@@ -32,7 +32,8 @@
 			}
 			if($("#deviceTypeType").val() == 'motions_cutmotion_budgetary' || $("#deviceTypeType").val() == 'motions_cutmotion_supplementary'){
 				if($("#currentusergroupType").val()=='department' 
-					||$("#currentusergroupType").val()=='department_deskofficer' ){
+					|| $("#currentusergroupType").val()=='department_deskofficer'
+						|| $("#currentusergroupType").val()=='member'){
 					$("#yaadiReportSpan").show();
 				} else {
 					$("#yaadiReportSpan").hide();
@@ -40,7 +41,7 @@
 			} else {
 				$("#yaadiReportSpan").hide();
 			}
-			if($("#deviceTypeType").val() == 'questions_unstarred' && houseTypeList=='upperhouse'){
+			if($("#deviceTypeType").val() == 'questions_unstarred'){
 				if($("#currentusergroupType").val()=='department' 
 					||$("#currentusergroupType").val()=='department_deskofficer' ){
 					$("#reminderLetterSpan").show();
@@ -84,7 +85,17 @@
 			/**** Generate Reminder Letter ****/			
 			$("#generateReminderLetter").click(function(){
 				$(this).attr('href','#');
-				generateReminderLetter();				
+				if($("#currentusergroupType").val()=='department' 
+					||$("#currentusergroupType").val()=='department_deskofficer' ){
+					generateReminderLetter(false);
+				} else {					
+					$.prompt("Do you really want to send reminder letter to department now?",{
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+				        	generateReminderLetter(true);
+		    	        }
+					}});
+				}								
 			});
 			/**** Generate Yaadi Report ****/
 			$("#generateYaadiReport").click(function(){				
@@ -269,6 +280,13 @@
 					&nbsp; &nbsp;<input type="text" class="sText datetimemask" id="sumRepToDate" style="display: inline;width:115px">
 					<div id="goResolutionRep" style="display: inline; border: 2px solid black; width: 10px; height: 10px;">Go</div>
 				 </div>
+			 </security:authorize>
+			 <security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE')">
+			 	<span id="yaadiReportSpan" style="display: none;">
+			 	 <a href="#" id="generateYaadiReport" class="butSim">
+					<spring:message code="generic.mytask.device.YaadiReport" text="Yaadi Report"/>
+				 </a> |
+				 </span>
 			 </security:authorize>
 			 <security:authorize access="hasAnyRole('QIS_DEPARTMENT_USER')">
 			 	 <span id="reminderLetterSpan" style="display: none;">
