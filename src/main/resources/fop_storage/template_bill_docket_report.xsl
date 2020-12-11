@@ -429,7 +429,7 @@
 							<xsl:when test="element_18='marathi'">
 								<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px">
 									<xsl:value-of select="element_26"/>,<fo:block/>									
-									सचिव (कार्यभार),<fo:block/>
+									सचिव,<fo:block/>
 									महाराष्ट्र <xsl:value-of select="element_19"/>.
 								</fo:block>
 							</xsl:when>
@@ -443,7 +443,7 @@
 							<xsl:when test="element_18='hindi'">
 								<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px">
 									<xsl:value-of select="element_26"/>,<fo:block/>
-									सचिव (कार्यभार),<fo:block/>
+									सचिव,<fo:block/>
 									महाराष्ट्र <xsl:value-of select="element_19"/>.
 								</fo:block>
 							</xsl:when>

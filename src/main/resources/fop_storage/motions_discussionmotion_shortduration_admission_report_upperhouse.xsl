@@ -213,7 +213,7 @@
 <fo:block font-weight="bold">अवर सचिव :</fo:block>
 <fo:block>&#160;</fo:block>    
 <fo:block>&#160;</fo:block>
-<fo:block font-weight="bold" >सचिव (कार्यभार) : </fo:block>
+<fo:block font-weight="bold" >सचिव : </fo:block>
 <fo:block>&#160;</fo:block>    
 <fo:block>&#160;</fo:block>
 <fo:block font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;मा. अध्यक्ष :</fo:block>

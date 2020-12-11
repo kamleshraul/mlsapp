@@ -200,7 +200,7 @@
 														
 														<fo:table-row>
 															<fo:table-cell width="200px" text-align="center">
-																<fo:block font-weight="bold">सचिव (कार्यभार)</fo:block>
+																<fo:block font-weight="bold">सचिव</fo:block>
 															</fo:table-cell>
 														</fo:table-row>
 														

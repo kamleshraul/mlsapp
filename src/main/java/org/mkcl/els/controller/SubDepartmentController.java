@@ -72,6 +72,9 @@ public class SubDepartmentController extends GenericController<SubDepartment> {
 			if(domain.getMinistryDisplayName()==null || domain.getMinistryDisplayName().isEmpty()) {
 				domain.setMinistryDisplayName(domain.getName());
 			}
+			if(domain.getDisplayName()==null || domain.getDisplayName().isEmpty()) {
+				domain.setDisplayName(domain.getName());
+			}
 		}
 
 
@@ -80,15 +83,25 @@ public class SubDepartmentController extends GenericController<SubDepartment> {
 				SubDepartment domain, HttpServletRequest request)
 				throws Exception {
 			SubDepartment originalSubDepartment = SubDepartment.findById(SubDepartment.class, domain.getId());
+			
 			if(originalSubDepartment.getMinistryDisplayName()!=null 
 					&& originalSubDepartment.getMinistryDisplayName().equals(originalSubDepartment.getName())
 					&& !originalSubDepartment.getName().equals(domain.getName())) {
 				
 				domain.setMinistryDisplayName(domain.getName());
-			}
-			
+			}			
 			if(originalSubDepartment.getMinistryDisplayName()==null || originalSubDepartment.getMinistryDisplayName().isEmpty()) {
 				domain.setMinistryDisplayName(domain.getName());
+			}
+			
+			if(originalSubDepartment.getDisplayName()!=null 
+					&& originalSubDepartment.getDisplayName().equals(originalSubDepartment.getName())
+					&& !originalSubDepartment.getName().equals(domain.getName())) {
+				
+				domain.setDisplayName(domain.getName());
+			}			
+			if(originalSubDepartment.getDisplayName()==null || originalSubDepartment.getDisplayName().isEmpty()) {
+				domain.setDisplayName(domain.getName());
 			}
 		}
 	    
