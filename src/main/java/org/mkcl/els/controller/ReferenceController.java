@@ -48,104 +48,7 @@ import org.mkcl.els.common.vo.SectionVO;
 import org.mkcl.els.common.vo.TemplateVO;
 import org.mkcl.els.controller.mois.CutMotionDateControllerUtility;
 import org.mkcl.els.controller.wf.EditingWorkflowController;
-import org.mkcl.els.domain.Abbreviation;
-import org.mkcl.els.domain.AdjournmentMotion;
-import org.mkcl.els.domain.Airport;
-import org.mkcl.els.domain.BaseDomain;
-import org.mkcl.els.domain.Bill;
-import org.mkcl.els.domain.BillAmendmentMotion;
-import org.mkcl.els.domain.BillKind;
-import org.mkcl.els.domain.BillType;
-import org.mkcl.els.domain.ClubbedEntity;
-import org.mkcl.els.domain.Committee;
-import org.mkcl.els.domain.CommitteeMeeting;
-import org.mkcl.els.domain.CommitteeMember;
-import org.mkcl.els.domain.CommitteeMemberAttendance;
-import org.mkcl.els.domain.CommitteeName;
-import org.mkcl.els.domain.CommitteeTour;
-import org.mkcl.els.domain.CommitteeType;
-import org.mkcl.els.domain.Constituency;
-import org.mkcl.els.domain.Credential;
-import org.mkcl.els.domain.Creek;
-import org.mkcl.els.domain.CustomParameter;
-import org.mkcl.els.domain.CutMotion;
-import org.mkcl.els.domain.CutMotionDate;
-import org.mkcl.els.domain.Dam;
-import org.mkcl.els.domain.Department;
-import org.mkcl.els.domain.Device;
-import org.mkcl.els.domain.DeviceType;
-import org.mkcl.els.domain.DiscussionMotion;
-import org.mkcl.els.domain.District;
-import org.mkcl.els.domain.Division;
-import org.mkcl.els.domain.Document;
-import org.mkcl.els.domain.DocumentLink;
-import org.mkcl.els.domain.Election;
-import org.mkcl.els.domain.ElectionType;
-import org.mkcl.els.domain.EventMotion;
-import org.mkcl.els.domain.Fort;
-import org.mkcl.els.domain.Ghat;
-import org.mkcl.els.domain.GovernmentCorporation;
-import org.mkcl.els.domain.GovernmentProgram;
-import org.mkcl.els.domain.GovernmentProject;
-import org.mkcl.els.domain.GovernmentScheme;
-import org.mkcl.els.domain.Grid;
-import org.mkcl.els.domain.Group;
-import org.mkcl.els.domain.Highway;
-import org.mkcl.els.domain.House;
-import org.mkcl.els.domain.HouseType;
-import org.mkcl.els.domain.IdentificationKey;
-import org.mkcl.els.domain.Language;
-import org.mkcl.els.domain.Member;
-import org.mkcl.els.domain.MemberMinister;
-import org.mkcl.els.domain.MemberRole;
-import org.mkcl.els.domain.MenuItem;
-import org.mkcl.els.domain.MessageResource;
-import org.mkcl.els.domain.Ministry;
-import org.mkcl.els.domain.Motion;
-import org.mkcl.els.domain.Ordinance;
-import org.mkcl.els.domain.Part;
-import org.mkcl.els.domain.Party;
-import org.mkcl.els.domain.PartyType;
-import org.mkcl.els.domain.Proceeding;
-import org.mkcl.els.domain.ProceedingCitation;
-import org.mkcl.els.domain.ProprietyPoint;
-import org.mkcl.els.domain.Query;
-import org.mkcl.els.domain.Question;
-import org.mkcl.els.domain.QuestionDates;
-import org.mkcl.els.domain.QuestionDraft;
-import org.mkcl.els.domain.RailwayStation;
-import org.mkcl.els.domain.ReferenceUnit;
-import org.mkcl.els.domain.ReferencedEntity;
-import org.mkcl.els.domain.Reporter;
-import org.mkcl.els.domain.Resolution;
-import org.mkcl.els.domain.River;
-import org.mkcl.els.domain.Roster;
-import org.mkcl.els.domain.RulesSuspensionMotion;
-import org.mkcl.els.domain.Sanctuary;
-import org.mkcl.els.domain.Section;
-import org.mkcl.els.domain.SectionOrderSeries;
-import org.mkcl.els.domain.Session;
-import org.mkcl.els.domain.SessionType;
-import org.mkcl.els.domain.Slot;
-import org.mkcl.els.domain.SpecialMentionNotice;
-import org.mkcl.els.domain.StandaloneMotion;
-import org.mkcl.els.domain.State;
-import org.mkcl.els.domain.Status;
-import org.mkcl.els.domain.SubDepartment;
-import org.mkcl.els.domain.SupportingMember;
-import org.mkcl.els.domain.Tehsil;
-import org.mkcl.els.domain.TextDraft;
-import org.mkcl.els.domain.TourItinerary;
-import org.mkcl.els.domain.Town;
-import org.mkcl.els.domain.University;
-import org.mkcl.els.domain.User;
-import org.mkcl.els.domain.UserGroup;
-import org.mkcl.els.domain.UserGroupType;
-import org.mkcl.els.domain.WorkflowActor;
-import org.mkcl.els.domain.WorkflowConfig;
-import org.mkcl.els.domain.WorkflowDetails;
-import org.mkcl.els.domain.YaadiDetails;
-import org.mkcl.els.domain.Zillaparishad;
+import org.mkcl.els.domain.*;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.service.ISecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10878,8 +10781,48 @@ public class ReferenceController extends BaseController {
 				
 				DeviceType deviceType = DeviceType.findByName(DeviceType.class, strDeviceType, locale.toString());
 				if(deviceType!=null && deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+					
 					SubDepartment subDepartment = SubDepartment.findByName(SubDepartment.class, strDepartment, locale.toString());
-					List<Long> questionIds = Question.findQuestionIDsHavingPendingAnswersPostLastDateOfAnswerReceiving(houseType, deviceType, subDepartment, locale.toString());
+					List<Long> questionIds = new ArrayList<Long>();
+					String userGroupType = request.getParameter("userGroupType");
+					if(userGroupType!=null 
+							&& (userGroupType.equalsIgnoreCase(ApplicationConstants.DEPARTMENT) || userGroupType.equalsIgnoreCase(ApplicationConstants.DEPARTMENT_DESKOFFICER))) {
+						
+			    		String reminderNumberStartLimitingDate = "";
+			    		String reminderNumberEndLimitingDate = "";
+						if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+		    				House correspondingAssemblyHouse = Session.findCorrespondingAssemblyHouseForCouncilSession(session);
+		    				Date houseStartDate = correspondingAssemblyHouse.getFirstDate();
+		    				reminderNumberStartLimitingDate = FormaterUtil.formatDateToString(houseStartDate, ApplicationConstants.DB_DATEFORMAT);
+		    				Date houseEndDate = correspondingAssemblyHouse.getLastDate();
+		    				reminderNumberEndLimitingDate = FormaterUtil.formatDateToString(houseEndDate, ApplicationConstants.DB_DATEFORMAT);
+		    			} else {
+		    				Date houseStartDate = session.getHouse().getFirstDate();
+		    				reminderNumberStartLimitingDate = FormaterUtil.formatDateToString(houseStartDate, ApplicationConstants.DB_DATEFORMAT);
+		    				Date houseEndDate = session.getHouse().getLastDate();
+		    				reminderNumberEndLimitingDate = FormaterUtil.formatDateToString(houseEndDate, ApplicationConstants.DB_DATEFORMAT);
+		    			}
+						Map<String, String> reminderLetterIdentifiers = new HashMap<String, String>();
+			    		reminderLetterIdentifiers.put("houseType", houseType.getType());
+			    		reminderLetterIdentifiers.put("deviceType", deviceType.getType());
+			    		reminderLetterIdentifiers.put("reminderFor", ApplicationConstants.REMINDER_FOR_REPLY_FROM_DEPARTMENT);
+			    		reminderLetterIdentifiers.put("reminderTo", subDepartment.getId().toString());
+			    		reminderLetterIdentifiers.put("reminderNumberStartLimitingDate", reminderNumberStartLimitingDate);
+			    		reminderLetterIdentifiers.put("reminderNumberEndLimitingDate", reminderNumberEndLimitingDate);
+			    		reminderLetterIdentifiers.put("locale", locale.toString());
+			    		ReminderLetter latestReminderLetter = ReminderLetter.findLatestByFieldNames(reminderLetterIdentifiers, locale.toString());
+			    		
+			    		if(latestReminderLetter!=null) {
+			    			String devices = latestReminderLetter.getDeviceIds();
+			    			if(devices!=null) {
+			    				for(String qid: devices.split(",")) {
+			    					questionIds.add(Long.parseLong(qid));
+			    				}
+			    			}
+			    		}
+					} else {
+						questionIds = Question.findQuestionIDsHavingPendingAnswersPostLastDateOfAnswerReceiving(houseType, deviceType, subDepartment, locale.toString());
+					}
 					if(questionIds!=null && !questionIds.isEmpty()) {
 //						for(Long questionId: questionIds) {
 //							devicesForReminderOfReply.append(questionId);

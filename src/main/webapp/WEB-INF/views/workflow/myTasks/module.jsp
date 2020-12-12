@@ -1104,7 +1104,8 @@
 						+ '&sessionYear=' + $('#selectedSessionYear').val()
 						+ '&sessionType=' + $('#selectedSessionType').val()
 						+ '&deviceType=' + $('#selectedDeviceType').val()
-						+ '&department=' + $('#selectedDepartment').val(),function(data){
+						+ '&department=' + $('#selectedDepartment').val()
+						+ '&userGroupType='+$("#currentusergroupType").val(),function(data){
 					$.unblockUI();
 					selectedQuestionIds = data;
 				}).done(function(){

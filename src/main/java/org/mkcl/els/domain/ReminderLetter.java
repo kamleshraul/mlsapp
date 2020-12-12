@@ -1,26 +1,22 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.mkcl.els.common.util.ApplicationConstants;
-import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.repository.ReminderLetterRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 @Configurable
@@ -89,6 +85,9 @@ public class ReminderLetter extends BaseDomain implements Serializable {
 	@OneToMany(fetch=FetchType.LAZY)
     @JoinColumn(name = "reminder_letter_id", referencedColumnName = "id")
 	private List<ReminderLetterTask> reminderLetterTasks;
+
+    @Autowired
+    private transient ReminderLetterRepository reminderLetterRepository;
     
     // ---------------------------------Constructors----------------------//
     /**
@@ -99,15 +98,17 @@ public class ReminderLetter extends BaseDomain implements Serializable {
 	}
 	
 	// ---------------------------------Domain Methods----------------------//
-	public static ReminderLetter findLatestByFieldNames(final Map<String, String> reminderLetterIdentifiers, final String locale) {
-		ReminderLetter latestReminderLetter = null;
-		List<ReminderLetter> reminderLetters = ReminderLetter.findAllByFieldNames(ReminderLetter.class, reminderLetterIdentifiers, "id", ApplicationConstants.DESC, locale);
-		if(reminderLetters!=null) {
-			if(!reminderLetters.isEmpty()) {
-				latestReminderLetter = reminderLetters.get(0);
-			}
-		}
-		return latestReminderLetter;
+	public static ReminderLetterRepository getReminderLetterRepository() {
+		ReminderLetterRepository reminderLetterRepository = new ReminderLetter().reminderLetterRepository;
+        if (reminderLetterRepository == null) {
+            throw new IllegalStateException(
+                    "ReminderLetterRepository has not been injected in ReminderLetter Domain");
+        }
+        return reminderLetterRepository;
+    }
+	
+	public static ReminderLetter findLatestByFieldNames(final Map<String, String> reminderLetterIdentifiers, final String locale) throws ELSException {
+		return getReminderLetterRepository().findLatestByFieldNames(reminderLetterIdentifiers, locale);
 	}
 	
 //	public Boolean isApproved() {
