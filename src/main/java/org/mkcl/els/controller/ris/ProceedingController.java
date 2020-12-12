@@ -3907,6 +3907,29 @@ public class ProceedingController extends GenericController<Proceeding>{
 		Boolean returnValue = false;
 		try{
 			Proceeding proceeding = Proceeding.findById(Proceeding.class, id);
+			Part part=Part.findByFieldName(Part.class, "proceeding", proceeding, locale.toString());
+			if(part.getId()!=null){
+				if(part!=null){
+					PartDraft partDraft=new PartDraft();
+					partDraft.setPageHeading(part.getPageHeading());
+					partDraft.setRevisedContent(part.getRevisedContent());
+					partDraft.setMainHeading(part.getMainHeading());
+					partDraft.setRevisedContent(part.getRevisedContent());
+					partDraft.setOriginalText(part.getProceedingContent());
+					String editedBy = request.getParameter("editingUser");
+					partDraft.setEditedBy(editedBy);
+					partDraft.setLocale(locale.toString());
+					partDraft.setEditedOn(new Date());
+					partDraft.setUniqueIdentifierForUndo(UUID.randomUUID().toString());
+					partDraft.setWorkflowCopy(false);
+					part.getPartDrafts().add(partDraft);
+			}
+				((BaseDomain)part).merge();
+			}else{
+				((BaseDomain)part).persist();
+			}
+			
+			
 			Slot slot = proceeding.getSlot();
 			slot.setCompleted(true);
 			slot.setCompletedDate(new Date());
