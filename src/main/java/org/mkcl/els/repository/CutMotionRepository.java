@@ -3,6 +3,7 @@ package org.mkcl.els.repository;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -609,6 +610,39 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 		}
 		
 		return allYaadiDepartments;
+	}
+	
+	public List<MasterVO> findInternalMinistriesForDepartment(final Session session,
+			final DeviceType cutMotionType,
+			final SubDepartment subDepartment,
+			Date onDate,
+			final String locale) {
+		
+		List<MasterVO> internalMinistries = new ArrayList<MasterVO>();
+		
+		org.mkcl.els.domain.Query queryDB = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "CUTMOTION_INTERNAL_MINISTRIES_FOR_DEPARTMENT_QUERY", locale);
+		if(queryDB!=null)	{
+			String queryString = queryDB.getQuery();
+			Query query=this.em().createNativeQuery(queryString);
+			query.setParameter("sessionId", session.getId());
+			query.setParameter("deviceTypeId", cutMotionType.getId());
+			query.setParameter("subDepartmentId", subDepartment.getId());
+			String onDateStr = FormaterUtil.formatDateToString(onDate, ApplicationConstants.DB_DATEFORMAT);
+			onDate = FormaterUtil.formatStringToDate(onDateStr, ApplicationConstants.DB_DATEFORMAT);
+			query.setParameter("onDate", onDate);
+			//query.setParameter("locale", locale);
+			List results = query.getResultList();
+			for(int i = 0; i < results.size(); i++) {
+				Object[] o = (Object[]) results.get(i);
+				MasterVO internalMinistry = new MasterVO();
+				internalMinistry.setId(Long.parseLong(o[0].toString()));
+				internalMinistry.setName(o[1].toString());
+				internalMinistry.setDisplayName(o[2].toString());
+				internalMinistries.add(internalMinistry);
+			}
+		}
+		
+		return internalMinistries;
 	}
 	
 }

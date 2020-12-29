@@ -373,6 +373,9 @@ public class CutMotionWorkflowController extends BaseController {
 			e.printStackTrace();
 		}
 		model.addAttribute("ministries", ministries);
+		/**** Subset of Ministries for the department of the current cutmotion (to facilitate internal ministry changes without transfer in department user login only) ****/
+		List<MasterVO> internalMinistries = domain.findInternalMinistriesForDepartment();
+		model.addAttribute("internalMinistries", internalMinistries);
 		Ministry ministry = domain.getMinistry();
 		if (ministry != null) {
 			model.addAttribute("ministrySelected", ministry.getId());

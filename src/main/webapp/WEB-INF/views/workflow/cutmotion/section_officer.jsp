@@ -204,9 +204,12 @@
 					}
 					$("#actor").html(text);
 					$("#actorDiv").show();				
-					/**** in case of section officer, only recommendation status is changed ****/
-					$("#internalStatus").val($("#oldInternalStatus").val());
-					$("#recommendationStatus").val(value);	
+					if(value==sendback || value==discuss || value==sendToDepartment || value==replyReceived || value==rejectedWithReason) {
+						$("#internalStatus").val($("#oldInternalStatus").val());
+					} else {
+						$("#internalStatus").val(value);
+					}					
+					$("#recommendationStatus").val(value);
 					/**** setting level,localizedActorName ****/
 					 var actor1=data[0].id;
 					 var temp=actor1.split("#");

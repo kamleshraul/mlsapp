@@ -181,7 +181,7 @@
 					<a href="#" id="rsmois_notice_statement" class="butSim">
 						<spring:message code="rsmois.notice_statement" text="Notice Statement"/>
 					</a> |
-					<security:authorize access="hasAnyRole('RSMOIS_SECRETARY')">
+					<security:authorize access="hasAnyRole('RSMOIS_SECTION_OFFICER','RSMOIS_PRINCIPAL_SECRETARY')">
 						<a href="#" id="rsmois_decision_report" class="butSim">
 							<spring:message code="rsmois.decision_report" text="Decision Report"/>
 						</a> |

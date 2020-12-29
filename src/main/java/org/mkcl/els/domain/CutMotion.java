@@ -2077,18 +2077,32 @@ public class CutMotion extends Device implements Serializable {
 	
     public String findYaadiDetailsText() {
 		String yaadiDetailsText = "";
-		Map<String, String[]> parametersMap = new HashMap<String, String[]>();
-		parametersMap.put("locale", new String[]{this.getLocale()});
-		parametersMap.put("cutMotionId", new String[]{this.getId().toString()});
-		@SuppressWarnings("rawtypes")
-		List yaadiDetailsTextResult = org.mkcl.els.domain.Query.findReport("CUTMOTION_YADI_DETAILS_TEXT", parametersMap);
-		if(yaadiDetailsTextResult!=null && !yaadiDetailsTextResult.isEmpty()) {
-			if(yaadiDetailsTextResult.get(0)!=null) {
-				yaadiDetailsText = yaadiDetailsTextResult.get(0).toString();
+		if(this.getId()!=null && this.getYaadiLayingDate()!=null) {
+			Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+			parametersMap.put("locale", new String[]{this.getLocale()});
+			parametersMap.put("cutMotionId", new String[]{this.getId().toString()});
+			@SuppressWarnings("rawtypes")
+			List yaadiDetailsTextResult = org.mkcl.els.domain.Query.findReport("CUTMOTION_YADI_DETAILS_TEXT", parametersMap);
+			if(yaadiDetailsTextResult!=null && !yaadiDetailsTextResult.isEmpty()) {
+				if(yaadiDetailsTextResult.get(0)!=null) {
+					yaadiDetailsText = yaadiDetailsTextResult.get(0).toString();
+				}
 			}
-		}
+		}		
 		return yaadiDetailsText;
 	}
+    
+    public List<MasterVO> findInternalMinistriesForDepartment() {
+    	List<MasterVO> internalMinistries = new ArrayList<MasterVO>();
+    	if(this.getNumber()!=null && this.getDepartment()!=null) {
+    		Date onDate = new Date();
+    		if(this.getSession().getEndDate().after(new Date())) {
+    			onDate = this.getSession().getEndDate();
+    		}
+    		internalMinistries = getCutMotionRepository().findInternalMinistriesForDepartment(this.getSession(), this.getDeviceType(), this.getSubDepartment(), onDate, this.getLocale());
+    	}
+    	return internalMinistries;
+    }
 	
 	/**** Getter Setters ****/
 	public HouseType getHouseType() {

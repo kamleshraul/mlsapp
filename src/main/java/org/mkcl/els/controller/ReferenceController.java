@@ -10909,4 +10909,51 @@ public class ReferenceController extends BaseController {
 		
 		return devicesForReminderOfReply;
 	}
+	
+	@RequestMapping(value="/cutmotion/validate_department",method=RequestMethod.GET)
+	public @ResponseBody String validateDepartmentForCutMotion(HttpServletRequest request, Locale locale){
+		String validationResponse = "";
+		String strSubDepartment = request.getParameter("subDepartment");
+		String strSession = request.getParameter("session");
+		String strDeviceType = request.getParameter("deviceType");
+		if(strSubDepartment != null && !strSubDepartment.isEmpty()
+			&& strSession != null && !strSession.isEmpty()
+			&& strDeviceType != null && !strDeviceType.isEmpty()){
+			SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strSubDepartment));
+			Session session = Session.findById(Session.class, Long.parseLong(strSession));
+			DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+			try {
+				if(subDepartment!=null && session!=null && deviceType!=null) {
+					Status dateAdmitted = Status.findByType(ApplicationConstants.CUTMOTIONDATE_FINAL_DATE_ADMISSION, locale.toString());
+					//Status dateAdmissionProcessed = Status.findByType(ApplicationConstants.CUTMOTIONDATE_PROCESSED_DATE_ADMISSION, locale.toString());
+					CutMotionDate cutMotionDate = CutMotionDate.findCutMotionDateSessionDeviceType(session, deviceType, locale.toString());
+					if(cutMotionDate != null){
+						if(cutMotionDate.getStatus().getType().equals(dateAdmitted.getType())){
+							for(CutMotionDepartmentDatePriority p : cutMotionDate.getDepartmentDates()){
+								if(subDepartment != null){
+									if(p.getSubDepartment().getName().equals(subDepartment.getName())/* && p.getDepartment().getName().equals(cutMotion.getSubDepartment().getDepartment().getName())*/){
+										if((new Date()).after(p.getSubmissionEndDate())){
+											validationResponse = "expired";
+											break;
+										} else {
+											validationResponse = "available";
+											break;
+										}
+									}
+								}
+							}
+							if(validationResponse.isEmpty()) {
+								validationResponse = "unavailable";
+							}
+						}
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+		}
+		return validationResponse;
+	}
+	
 }

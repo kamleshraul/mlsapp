@@ -284,6 +284,33 @@
 		    $.unblockUI();
 		}
 	}	
+	/**** Load Ministries ****/
+	function loadMinistries(){
+		$.get('ref/session/'+$('#session').val()+'/ministries',	function(data){
+			$("#ministry").empty();
+			var ministryText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+			if(data.length>0){
+			for(var i=0;i<data.length;i++){
+				ministryText+="<option value='"+data[i].id+"'>"+data[i].name;
+			}
+			$("#ministry").html(ministryText);
+			}else{
+				$("#ministry").empty();
+				var ministryText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
+				$("#ministry").html(ministryText);	
+			}
+			$("#subDepartment").empty();
+			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
+			$("#subDepartment").html(subDepartmentText);
+		}).fail(function(){
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		});
+	}
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
 		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
@@ -308,7 +335,13 @@
 			}
 			scrollTop();
 		});
-	}	   
+	}
+	function resetMinistries() {
+		$('#ministry').html($('#internalMinistry').html());
+	}
+	function resetSubDepartments() {
+		$('#subDepartment').html($('#originalSubDepartment').html());
+	}
 	/**** Load Clarifications ****/
 	function loadClarifications(){
 		$.get('ref/clarifications',function(data){
@@ -339,15 +372,6 @@
 		if($('#workflowstatus').val()=="PENDING") {
 			$("#replyP").hide();			
 		}
-		/*******Actor changes*************/
-		$("#actor").change(function(){
-		    var actor=$(this).val();
-		    var temp=actor.split("#");
-		    $("#level").val(temp[2]);		    
-		    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
-		    $("#actorName").val(temp[4]);
-		    $("#actorName").css('display','inline');
-	    });
 		var demandNumberWithoutSpace = $('#demandNumber').val().replace(/ /g,''); //added in order to remove spaces in between.. to be removed if populated through master entries
 		demandNumberWithoutSpace = demandNumberWithoutSpace.replace($('#specialDashCharacter').val(), "-");
 		demandNumberWithoutSpace = demandNumberWithoutSpace.replace(",", "");
@@ -432,34 +456,42 @@
 			    $("#submit").attr("disabled","disabled");
 			}		    
 	    });
+	    /*******Actor changes*************/
 	    $("#actor").change(function(){
 		    var actor=$(this).val();
 		    var temp=actor.split("#");
 		    $("#level").val(temp[2]);		    
 		    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+		    $("#actorName").val(temp[4]);
+		    $("#actorName").css('display','inline');
 	    });
 	  	//************Hiding Unselected Options In Ministry,Department,SubDepartment ***************//
-		$("#ministry option[selected!='selected']").hide();
+		//$("#ministry option[selected!='selected']").hide();
 		$("#subDepartment option[selected!='selected']").hide(); 
 		
 		$('#isTransferable').change(function() {
 	        if ($(this).is(':checked')) {
-	        	$("#ministry option[selected!='selected']").show();
+	        	loadMinistries();
+	        	//$("#ministry option[selected!='selected']").show();
 	    		$("#subDepartment option[selected!='selected']").show(); 
 	    		$("#transferP").css("display","inline-block");
 	    		$("#submit").css("display","none");
 	        }else{
-	        	$("#ministry option[selected!='selected']").hide();
+	        	resetMinistries();
+	        	resetSubDepartments();
+	        	//$("#ministry option[selected!='selected']").hide();
 	    		$("#subDepartment option[selected!='selected']").hide(); 
 	    		$("#transferP").css("display","none");
 	    		$("#submit").css("display","inline-block");
+	    		$('#mlsBranchNotifiedOfTransfer').removeAttr('checked');
+	    		$('#transferToDepartmentAccepted').removeAttr('checked');
 	        }
 	    });
 		
 		$('#mlsBranchNotifiedOfTransfer').change(function() {
 	        if ($(this).is(':checked') && $("#isTransferable").is(':checked')) {
 	        	$("#submit").css("display","inline-block");
-	        }else{
+	        } else if ($("#isTransferable").is(':checked')) {
 	        	$("#submit").css("display","none");
 	        }
 	    });
@@ -468,6 +500,14 @@
 		$('#submit').click(function(){					
 			if($('#changeInternalStatus').val()=="-") {
 				$.prompt("Please select the action");
+				return false;
+			}
+			if($("#ministry").val()==''){
+				$.prompt("Please select the ministry!");
+				return false;
+			}
+			if($("#subDepartment").val()==''){
+				$.prompt("Please select the department!");
 				return false;
 			}			
 			$(".wysiwyg").each(function(){
@@ -535,17 +575,15 @@
 		
 	    /**** On page Load ****/
 		if($("#ministrySelected").val()==''){
-			$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
-		}else{
-			$("#ministry").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");		
+			$("#ministry option[value='']").attr('selected', 'selected');
+			//$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 		}
 		if($("#subDepartmentSelected").val()==''){
-			$("#subDepartment").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
-		}else{
-			$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");			
+			$("#subDepartment option[value='']").attr('selected', 'selected');
+			//$("#subDepartment").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 		}			    
 		//************Hiding Unselected Options In Ministry,Department,SubDepartment ***************//
-		$("#ministry option[selected!='selected']").hide();
+		//$("#ministry option[selected!='selected']").hide();
 		$("#subDepartment option[selected!='selected']").hide(); 
 		if($('#workflowstatus').val()!='COMPLETED'){
 			var statusType = $("#internalStatusType").val().split("_");
@@ -703,7 +741,20 @@
 				<label class="small"><spring:message code="cutmotion.ministry" text="Ministry"/>*</label>
 				<select name="ministry" id="ministry" class="sSelect">
 					<option value=""><spring:message code='please.select' text='Please Select'/></option>
-					<c:forEach items="${ministries }" var="i">
+					<c:forEach items="${internalMinistries }" var="i">
+						<c:choose>
+							<c:when test="${i.id==ministrySelected }">
+								<option value="${i.id }" selected="selected">${i.name}</option>
+							</c:when>
+							<c:otherwise>
+								<option value="${i.id }" >${i.name}</option>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
+				</select>
+				<select name="internalMinistry" id="internalMinistry" class="sSelect" hidden="true">
+					<option value=""><spring:message code='please.select' text='Please Select'/></option>
+					<c:forEach items="${internalMinistries }" var="i">
 						<c:choose>
 							<c:when test="${i.id==ministrySelected }">
 								<option value="${i.id }" selected="selected">${i.name}</option>
@@ -721,6 +772,19 @@
 			<p style="display: inline;">
 				<label class="small"><spring:message code="generic.subdepartment" text="Department"/></label>
 				<select name="subDepartment" id="subDepartment" class="sSelect">
+					<option value=""><spring:message code='please.select' text='Please Select'/></option>
+					<c:forEach items="${subDepartments }" var="i">
+						<c:choose>
+							<c:when test="${i.id==subDepartmentSelected }">
+								<option value="${i.id }" selected="selected">${i.name}</option>
+							</c:when>
+							<c:otherwise>
+								<option value="${i.id }" >${i.name}</option>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
+				</select>
+				<select name="originalSubDepartment" id="originalSubDepartment" class="sSelect" hidden="true">
 					<option value=""><spring:message code='please.select' text='Please Select'/></option>
 					<c:forEach items="${subDepartments }" var="i">
 						<c:choose>

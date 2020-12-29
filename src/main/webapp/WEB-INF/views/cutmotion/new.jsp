@@ -61,6 +61,25 @@
 				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
 			}
 		});	
+		
+		/**** SubDepartment Changes (Validate as per Department Priorities) ****/
+		$("#subDepartment").change(function(){
+			if($(this).val()!=''){
+				var subDepartment = $(this).val();
+				$.get('ref/cutmotion/validate_department?subDepartment='+subDepartment+'&session='+$('#session').val()+'&deviceType='+$('#deviceType').val(),
+						function(result){
+					if(result=='unavailable') {
+						$.prompt($("#subDepartment option[value="+subDepartment+"]").text() + ": " + $('#departmentUnavailableForDiscussionMsg').val());
+						$("#subDepartment").val("");
+						return false;
+					} else if(result=='expired') {
+						$.prompt($("#subDepartment option[value="+subDepartment+"]").text() + ": " + $('#submissionTimeForDepartmentOverMsg').val());
+						$("#subDepartment").val("");
+						return false;
+					}
+				});
+			}
+		});
 						
 		/**** On Load ****/
 		if($('#ministrySelected').val()=="" || $('#ministrySelected').val()==undefined){		
@@ -498,6 +517,7 @@
 		<input id="submissionMsg" value="<spring:message code='client.prompt.cutmotion.submit' text='Do you want to submit the motion.'></spring:message>" type="hidden">
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 		<input id="submissionTimeForDepartmentOverMsg" value="<spring:message code='cutmotion.submissionTimeForDepartmentOverMsg' text='Submission Time for This Department is over now!'/>" type="hidden">
+		<input id="departmentUnavailableForDiscussionMsg" value="<spring:message code='cutmotion.departmentUnavailableForDiscussionMsg' text='This Department is unavailable for discussion!'/>" type="hidden">
 	</div>
 </body>
 </html>
