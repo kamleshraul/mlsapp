@@ -913,6 +913,24 @@ public class AdminController extends BaseController {
 		return "SUCCESS";
 	}
 	
+	@Transactional
+	@RequestMapping(value="/encrypt_high_security_passwords", method=RequestMethod.POST)
+	public @ResponseBody String encryptHighSecurityPasswords(HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		List<Credential> credentials = Credential.findAll(Credential.class, "username", ApplicationConstants.ASC, "");
+		if(credentials!=null && !credentials.isEmpty()) {
+			for(Credential cr: credentials) {
+				if(cr!=null && cr.getUsername()!=null && cr.getHighSecurityPassword()!=null && !cr.getHighSecurityPassword().isEmpty()) {
+					String encodedPassword = securityService.getEncodedPassword(cr.getHighSecurityPassword());
+					cr.setHighSecurityPassword(encodedPassword);
+					cr.merge();					
+				}				
+			}
+		} else {
+			return "NO CREDENTIAL FOUND";
+		}
+		return "SUCCESS";
+	}
+	
 	/**
 	 * Recovers all the drafts for given question
 	 * Sample: /els/admin/recover_drafts/question/id/3072

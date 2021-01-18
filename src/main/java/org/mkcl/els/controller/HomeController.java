@@ -50,8 +50,10 @@ import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportLog;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
+import org.mkcl.els.service.ISecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -76,6 +78,9 @@ public class HomeController extends BaseController {
 
     /** The Constant ASC. */
     private static final String ASC = "asc";
+    
+    @Autowired 
+	private ISecurityService securityService;
 
     /**
      * Login.
@@ -459,26 +464,36 @@ public class HomeController extends BaseController {
 		
 		if(highSecurityPassword != null) {
 			try {
-				Object supportUserName = request.getSession().getAttribute("supportUserName");
-				if(supportUserName!=null) {
-					Credential credential=Credential.findByFieldName(Credential.class, "username",supportUserName.toString(), "");
-			        if(highSecurityPassword.equals(credential.getPassword())) {
-			        	isHighSecurityValidated = true;
-			        }
-			        if(!isHighSecurityValidated) {
-			        	AuthUser user=this.getCurrentUser();
-				        credential=Credential.findByFieldName(Credential.class, "username",user.getUsername(), "");
-				        if(highSecurityPassword.equals(credential.getHighSecurityPassword())) {
-				        	isHighSecurityValidated = true;
-				        }
-			        }
-				} else {
-					AuthUser user=this.getCurrentUser();
-			        Credential credential=Credential.findByFieldName(Credential.class, "username",user.getUsername(), "");
-			        if(highSecurityPassword.equals(credential.getHighSecurityPassword())) {
-			        	isHighSecurityValidated = true;
-			        }
-				}				
+//				Object supportUserName = request.getSession().getAttribute("supportUserName");
+//				if(supportUserName!=null) {
+//					Credential credential=Credential.findByFieldName(Credential.class, "username",supportUserName.toString(), "");
+//			        if(highSecurityPassword.equals(credential.getPassword())) {
+//			        	isHighSecurityValidated = true;
+//			        }
+//			        if(!isHighSecurityValidated) {
+//			        	AuthUser user=this.getCurrentUser();
+//				        credential=Credential.findByFieldName(Credential.class, "username",user.getUsername(), "");				        
+////				        if(highSecurityPassword.equals(credential.getHighSecurityPassword())) {
+////				        	isHighSecurityValidated = true;
+////				        }
+//				        //TODO: create separate service method for validating high security password
+//				        if(securityService.isAuthenticated(highSecurityPassword, credential.getHighSecurityPassword())) {
+//				        	isHighSecurityValidated = true;
+//				        }
+//			        }
+//				} else {
+//					AuthUser user=this.getCurrentUser();
+//			        Credential credential=Credential.findByFieldName(Credential.class, "username",user.getUsername(), "");
+//			        if(highSecurityPassword.equals(credential.getHighSecurityPassword())) {
+//			        	isHighSecurityValidated = true;
+//			        }
+//				}	
+				AuthUser user=this.getCurrentUser();
+		        Credential credential=Credential.findByFieldName(Credential.class, "username",user.getUsername(), "");	
+		        //TODO: create separate service method for validating high security password
+		        if(securityService.isAuthenticated(highSecurityPassword, credential.getHighSecurityPassword())) {
+		        	isHighSecurityValidated = true;
+		        }
 			} 
 //			catch (ELSException e) {
 //				return false;
