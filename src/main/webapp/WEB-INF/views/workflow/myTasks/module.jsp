@@ -22,11 +22,23 @@
 			});	
 			/**** Bulk Approval ****/
 			$("#bulkapproval_tab").click(function(){
-				bulkApproval();					
+				if($('#selectedSubWorkflow').val().indexOf('clubbing')>=0) {
+					//bulkApproval();
+					$.prompt("Bulk approval for clubbing flows is not allowed!");
+					return false;
+				} else {
+					bulkApproval();
+				}					
 			});
 			
 			$("#advanced_bulkapproval_tab").click(function(){
-				advancedBulkApproval();
+				if($('#selectedSubWorkflow').val().indexOf('clubbing')>=0) {
+					//bulkApproval();
+					$.prompt("Bulk approval for clubbing flows is not allowed!");
+					return false;
+				} else {
+					advancedBulkApproval();
+				}
 			});
 			/**** house type changes then reload grid****/			
 			$("#selectedHouseType").change(function(){
