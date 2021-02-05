@@ -35,11 +35,9 @@ import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.common.xmlvo.ResolutionXmlVO;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.controller.question.QuestionController;
-import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
-import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.Holiday;
@@ -50,9 +48,6 @@ import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Query;
-import org.mkcl.els.domain.Resolution;
-import org.mkcl.els.domain.ResolutionDraft;
-import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.ResolutionDraft;
 import org.mkcl.els.domain.Role;
@@ -67,6 +62,7 @@ import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
+import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.service.IProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -1152,6 +1148,7 @@ public class ResolutionController extends GenericController<Resolution> {
 				model.addAttribute("internalStatus",internalStatus.getId());
 				model.addAttribute("internalStatusType", internalStatus.getType());
 				model.addAttribute("formattedInternalStatus", internalStatus.getName());
+				model.addAttribute("recommendationStatus",recommendationStatus);
 				/***********EndFlag,Level and Workflowstarted**********************/
 				if(usergroupType!=null&&!(usergroupType.isEmpty())
 						&&(usergroupType.equals("assistant")||usergroupType.equals("section_officer"))
