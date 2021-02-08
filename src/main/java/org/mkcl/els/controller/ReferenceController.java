@@ -9180,6 +9180,7 @@ public class ReferenceController extends BaseController {
 		String questionNumber = request.getParameter("questionNumber");
 		String sessionId = request.getParameter("sessionId");
 		String deviceTypeId = request.getParameter("deviceTypeId");
+		String houseDurationCategory = request.getParameter("houseDurationCategory");
 		
 		try {
 			CustomParameter deploymentServerCP = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
@@ -9193,6 +9194,7 @@ public class ReferenceController extends BaseController {
 	    	parameterMap.put("questionNumber", new String[]{questionNumber});
 	    	parameterMap.put("sessionId", new String[]{sessionId});
 	    	parameterMap.put("deviceTypeId", new String[]{deviceTypeId});
+	    	parameterMap.put("houseDurationCategory", new String[]{houseDurationCategory});
 	    	List resultList = Query.findReport("QIS_YAADI_MANUAL_NUMBER_VALIDATION_DETAILS", parameterMap);
 	    	
 	    	if(resultList==null || resultList.size()!=1) {

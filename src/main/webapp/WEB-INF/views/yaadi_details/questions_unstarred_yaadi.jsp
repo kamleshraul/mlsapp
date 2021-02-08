@@ -54,6 +54,12 @@
 				
 				$('#linkForReport').css('font-size','20px');
 				
+				if($('#selectedHouseType').val()=='upperhouse') {
+					$('#houseDurationCategoryPara').show();
+				} else {
+					$('#houseDurationCategoryPara').hide();
+				}
+				//console.log("houseDurationCategory: " + $('#houseDurationCategory').val());
 				$('#yaadiNumber').change(function() {	
 					if($('#yaadiNumber').val()==undefined || $('#yaadiNumber').val()=="") {
 						$.prompt("Please select yaadi number");
@@ -224,7 +230,8 @@
 					var parameters = "questionNumber="+manualNumber
 								+'&sessionId='+$('#sessionId').val()
 								+'&deviceTypeId='+$('#deviceTypeId').val()
-								+"&yaadiDetailsId="+$('#yaadiDetailsId').val();
+								+"&yaadiDetailsId="+$('#yaadiDetailsId').val()
+								+"&houseDurationCategory="+$('#houseDurationCategory').val();
 					
 					$.ajax({url: 'ref/yaadidetails/validateAndLoadQuestionDetailsForUnstarredYaadi', data: parameters, 
 						type: 'GET',
@@ -535,7 +542,15 @@
 					<option value="${gn.number}">${gn.name}</option>
 				</c:forEach>
 			</select>			
+		</p>
+		<p id="houseDurationCategoryPara" style="display: none;">
+			<label class="small"><spring:message code='question.unstarred_yaadi_report.houseDurationCategory' text='House Duration'/></label>
+			<select id="houseDurationCategory"  class="sSelect" name="houseDurationCategory">
+				<option value="currentHouse" selected="selected"><spring:message code='house.category.current' text='Current House'/></option>
+				<option value="previousHouse"><spring:message code='house.category.previous' text='Previous House'/></option>
+			</select>			
 		</p>		
+		
 		<div id="yaadiDevicesDiv">
 			<p id="yaadiDevicesCountPara" style="margin-top: 10px;margin-bottom: 10px;">
 				<label class="small"><spring:message code='question.unstarred_yaadi_report.yaadiDevicesCount' text='Total Number of Questions'/></label>
