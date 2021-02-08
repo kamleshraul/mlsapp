@@ -24,7 +24,7 @@
 	div#reportDiv table tfoot { display: table-footer-group;}
 	div#reportDiv table tbody { display: table-row-group;}
 	div#reportDiv .page-break { page-break-after:auto;}
-	div#reportDiv .page-break-before-forced {page-break-before:auto;}
+	div#reportDiv .page-break-before-forced {page-break-before:always;}
 
 	div#reportDiv .centerdiv h2{font-size: 24px; font-weight: bold; }
 	div#reportDiv .centerdiv h3{font-size: 22px; font-weight: bold; }

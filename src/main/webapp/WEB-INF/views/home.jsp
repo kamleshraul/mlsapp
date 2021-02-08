@@ -87,7 +87,7 @@
 		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/vue_notifications.css?v=1" />
 		
 		<!-- Printer Friendly CSS -->
-		<link rel="stylesheet" type="text/css" media="print" href="./resources/css/printerfriendly.css?v=4" />
+		<link rel="stylesheet" type="text/css" media="print" href="./resources/css/printerfriendly.css?v=5" />
 		
 		<!-- See Interface Configuration --> 
 		<script type="text/javascript" src="./resources/js/template/seeui.js"></script>
