@@ -185,7 +185,7 @@
 										<fo:block font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;सचिव, महाराष्ट्र शासन,  <xsl:value-of select="./element_1/element_1_8"></xsl:value-of>, यांच्याकडे पुढील आवश्यक कार्यवाहीसाठी अग्रेषित.</fo:block>
 									</xsl:when>
 									<xsl:otherwise>
-										<fo:block font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;सचिव, महाराष्ट्र शासन,  <xsl:value-of select="./element_1/element_1_8"></xsl:value-of>, यांच्याकडे आवश्यक कारवाईसाठी अग्रेषित.</fo:block>
+										<fo:block font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;सचिव, महाराष्ट्र शासन,  <xsl:value-of select="./element_1/element_1_8"></xsl:value-of>, यांच्याकडे आवश्यक कार्यवाहीसाठी अग्रेषित.</fo:block>
 									</xsl:otherwise>
 								</xsl:choose>
 								
