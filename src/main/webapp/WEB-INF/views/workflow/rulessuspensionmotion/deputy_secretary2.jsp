@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="rulessuspensionmotion_${houseTypeType}" text="Adjournment Motion"/>
+	<spring:message code="rulessuspensionmotion_${houseTypeType}" text="Rules Suspension Motion"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
@@ -57,7 +57,6 @@
 			scrollTop();
 		});
 	}
-	
 	/**** refresh clubbing and referencing ****/
 	function refreshEdit(id){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
@@ -265,6 +264,7 @@
 				}
 			});			
 		});
+		
 		/**** Ministry Changes ****/
 		$("#ministries").change(function(){
 		
@@ -272,7 +272,7 @@
 				loadSubDepartment($(this).val());
 			}
 		});
-		
+								
 		/**** Citations ****/
 		$("#viewCitation").click(function(){
 			$.get('rulessuspensionmotion/citations/'+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){
@@ -280,6 +280,7 @@
 		    },'html');
 		    return false;
 		});	
+		
 		/**** Revise subject and text****/
 		$("#reviseSubject").click(function(){
 			$(".revise1").toggle();
@@ -300,7 +301,7 @@
 			return false;			
 		});
 		/**** Revisions ****/
-	    $(".viewRevision").click(function(){
+	    $("#viewRevision").click(function(){
 	    	$.get('rulessuspensionmotion/revisions/'+$("#id").val(), function(data){
 	    		$.fancybox.open(data);			    	
 		    });
@@ -340,7 +341,7 @@
 		    var actor=$(this).val();
 		    var temp=actor.split("#");
 		    $("#level").val(temp[2]);		    
-		    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");		
+		    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
 		    $("#actorName").val(temp[4]);
 		    $("#actorName").css('display','inline');
 		});
@@ -352,18 +353,18 @@
 		} else {
 			$('#remarks_div').hide();
 		}
-		/**** To show/hide viewClubbedRulesSuspensionMotionTextDiv to view clubbed adjournment motion's text starts****/
-		$("#clubbedRulesSuspensionMotionTextDiv").hide();
+		/**** To show/hide viewClubbedRules SuspensionMotionTextsDiv to view clubbed adjournment motion's text starts****/
+		$("#clubbedRulesSuspensionMotionTextsDiv").hide();
 		$("#hideClubMTDiv").hide();
-		$("#viewClubbedRulesSuspensionMotionTextDiv").click(function(){
+		$("#viewClubbedRulesSuspensionMotionTextsDiv").click(function(){
 			var parent = $("#key").val();
 			if(parent==undefined || parent==''){
 				parent = ($("#id").val()!=undefined && $("#id").val()!='')? $("#id").val():"";
 			}
 			if(parent!=undefined && parent!=''){			
 				
-				if($("#clubbedRulesSuspensionMotionTextDiv").css('display')=='none'){
-					$("#clubbedRulesSuspensionMotionTextDiv").empty();
+				if($("#clubbedRulesSuspensionMotionTextsDiv").css('display')=='none'){
+					$("#clubbedRulesSuspensionMotionTextsDiv").empty();
 					$.get('ref/rulessuspensionmotion/'+parent+'/clubbedmotiontext',function(data){
 						
 						var text="";
@@ -371,22 +372,22 @@
 						for(var i = 0; i < data.length; i++){
 							text += "<p>"+data[i].name+"</p><p>"+data[i].value+"</p><hr />";
 						}						
-						$("#clubbedRulesSuspensionMotionTextDiv").html(text);
+						$("#clubbedRulesSuspensionMotionTextsDiv").html(text);
 						
 					});	
 					$("#hideClubMTDiv").show();
-					$("#clubbedRulesSuspensionMotionTextDiv").show();
+					$("#clubbedRulesSuspensionMotionTextsDiv").show();
 				}else{
-					$("#clubbedRulesSuspensionMotionTextDiv").hide();
+					$("#clubbedRulesSuspensionMotionTextsDiv").hide();
 					$("#hideClubMTDiv").hide();
 				}
 			}
 		});
 		$("#hideClubMTDiv").click(function(){
 			$(this).hide();
-			$('#clubbedRulesSuspensionMotionTextDiv').hide();
+			$('#clubbedRulesSuspensionMotionTextsDiv').hide();
 		});
-		/**** To show/hide viewClubbedRulesSuspensionMotionTextDiv to view clubbed adjournment motion's text end****/
+		/**** To show/hide viewClubbedRules SuspensionMotionTextsDiv to view clubbed adjournment motion's text end****/
 		
 		/**** Right Click Menu ****/
 		$(".clubbedRefMotions").contextMenu({
@@ -413,27 +414,6 @@
 				});	
 				}else{
 					$.prompt("Unclubbing not allowed");
-				}			
-			}else if(action=='dereferencing'){
-				if(id.indexOf("rq")!=-1){					
-				var motionId=$("#id").val();
-				var refId=id.split("rq")[1];				
-				$.post('refentity/rulessuspensionmotion/dereferencing?pId='+motionId+"&rId="+refId,function(data){
-					if(data=='SUCCESS'){
-						$.prompt("Dereferencing Successful");				
-						}else{
-							$.prompt("Dereferencing Failed");
-						}							
-				},'html').fail(function(){
-					if($("#ErrorMsg").val()!=''){
-						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-					}else{
-						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-					}
-					scrollTop();
-				});	
-				}else{
-					$.prompt("Referencing not allowed");					
 				}			
 			}
 	    });
@@ -518,7 +498,7 @@
             }
         }
         
-        #clubbedRulesSuspensionMotionTextDiv{
+        #clubbedRulesSuspensionMotionTextsDiv{
         	background: none repeat-x scroll 0 0 #FFF;
 		    box-shadow: 0 2px 5px #888888;
 		    max-height: 260px;
@@ -595,7 +575,7 @@
 				<input id="number" name="number" value="${domain.number}" type="hidden">
 				<form:errors path="number" cssClass="validationError"/>
 				
-				<label class="small"><spring:message code="rulessuspensionmotion.selectrulesuspensiondate" text="Rule Suspension Date"/></label>
+				<label class="small"><spring:message code="rulessuspensionmotion.selectrulessuspensiondate" text="Rule Suspension Date"/></label>
 				<input id="formattedRuleSuspensionDate" name="formattedRuleSuspensionDate" value="${formattedRuleSuspensionDate}" class="sText" readonly="readonly">
 				<input id="ruleSuspensionDate" name="ruleSuspensionDate" type="hidden"  value="${selectedRuleSuspensionDate}">
 			</p>		
@@ -628,8 +608,7 @@
 						</c:choose>
 					</c:forEach>
 				</select> 	
-				<form:errors path="ministries" cssClass="validationError"/>	
-					
+				<form:errors path="ministries" cssClass="validationError"/>		
 				<label class="small"><spring:message code="rulesuspensionmotion.subdepartment" text="Sub Department"/></label>
 				<select name="subDepartments" id="subDepartments" multiple="multiple" size="5">
 					<c:forEach items="${subDepartments}" var="i">
@@ -677,6 +656,7 @@
 				<c:if test="${bulkedit!='yes' and domain.internalStatus.type!='rulessuspensionmotion_system_clubbed'}">
 			
 				<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="rulessuspensionmotion.clubbing" text="Clubbing"></spring:message></a>
+				<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="rulessuspensionmotion.referencing" text="Referencing"></spring:message></a>
 				<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="rulessuspensionmotion.refresh" text="Refresh"></spring:message></a>
 				</c:if>	
 			</p>
@@ -702,7 +682,7 @@
 						<c:forEach items="${clubbedMotions }" var="i">
 							<a href="#" id="cq${i.number}" class="clubbedRefMotions" onclick="viewMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
 						</c:forEach>
-						<a href="javascript:void(0);" id="viewClubbedRulesSuspensionMotionTextDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="rulessuspensionmotion.clubbed.texts" text="C"></spring:message></a>
+						<a href="javascript:void(0);" id="viewClubbedRules SuspensionMotionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="rulessuspensionmotion.clubbed.texts" text="C"></spring:message></a>
 					</c:when>
 					<c:otherwise>
 						<c:out value="-"></c:out>
@@ -730,7 +710,7 @@
 			<p>
 				<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="rulessuspensionmotion.reviseSubject" text="Revise Subject"></spring:message></a>
 				<a href="#" id="reviseNoticeContent" style="margin-right: 20px;"><spring:message code="rulessuspensionmotion.reviseNoticeContent" text="Revise Notice Content"></spring:message></a>
-				<a href="#" class="viewRevision"><spring:message code="rulessuspensionmotion.viewrevisions" text="View Revisions"></spring:message></a>
+				<a href="#" id="viewRevision"><spring:message code="rulessuspensionmotion.viewrevisions" text="View Revisions"></spring:message></a>
 			</p>	
 			
 			<p style="display:none;" class="revise1" id="revisedSubjectDiv">
@@ -750,128 +730,47 @@
 				<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 			</p>
 			
-			<p style="text-align: right; width: 720px;">
-				<a href="#" class="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
-			</p>
-			<table class="uiTable" style="margin-left:165px;">
-				<thead>
-					<tr>
-					<th>
-					<spring:message code="qis.latestrevisions.user" text="Usergroup"></spring:message>
-					</th>
-					<th>
-					<spring:message code="qis.latestrevisions.decision" text="Decision"></spring:message>
-					</th>
-					<th>
-					<spring:message code="qis.latestrevisions.remarks" text="Remarks"></spring:message>
-					</th>
-					</tr>
-				</thead>
-				<tbody>	
-					<c:set var="startingActor" value="${startingActor}"></c:set>
-					<c:set var="count" value="0"></c:set>
-					<c:set var="startingActorCount" value="0"></c:set>
-					<c:forEach items="${latestRevisions}" var="i">	
-						<c:choose>
-							<c:when test="${i[0]==startingActor}">	
-								<c:set var="startingActorCount" value="${count}"></c:set>
-								<c:set var="count" value="${count+1 }"></c:set>
+			<p>	
+				<label class="small"><spring:message code="rulessuspensionmotion.putupfor" text="Put up for"/></label>	
+				<select id="changeInternalStatus" class="sSelect">
+				<option value="-"><spring:message code='please.select' text='Please Select'/></option>
+				<c:forEach items="${internalStatuses}" var="i">
+					<c:choose>
+							<c:when test="${i.id==internalStatusSelected }">
+								<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
 							</c:when>
 							<c:otherwise>
-								<c:set var="count" value="${count+1 }"></c:set>
+							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
 							</c:otherwise>
-						</c:choose>
-					</c:forEach>
-					
-					<c:set var="count" value="0"></c:set>
-					<c:forEach items="${latestRevisions }" var="i">
-						<c:choose>
-							<c:when test="${count>= startingActorCount}">
-								<tr>
-									<td>
-									${i[0]}<br>${i[1]}
-									</td>
-									<td>
-									<c:choose>
-										<c:when test="${fn:endsWith(i[12],'recommend_sendback')
-												|| fn:endsWith(i[12],'recommend_discuss')}">
-											${i[3]}
-										</c:when>
-										<c:otherwise>${i[2]}</c:otherwise>
-									</c:choose>							
-									</td>
-									<td style="max-width:400px;">
-									${i[4]}
-									</td>
-								</tr>
-								<c:set var="count" value="${count+1 }"></c:set>
-							</c:when>
-							<c:otherwise>
-								<c:set var="count" value="${count+1 }"></c:set>
-							</c:otherwise>
-						</c:choose>
-					</c:forEach>
-					<c:if test="${workflowstatus != 'COMPLETED'}">
-						<tr>
-							<td>
-								${userName}<br>
-								${userGroupName}
-							</td>
-							<td>
-								<select id="changeInternalStatus" class="sSelect">
-									<c:forEach items="${internalStatuses}" var="i">
-										<c:choose>
-											<c:when test="${i.type=='question_system_groupchanged' }">
-												<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
-											</c:when>
-											<c:otherwise>
-												<c:choose>
-													<c:when test="${i.id==internalStatus }">
-														<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-													</c:when>
-													<c:otherwise>
-														<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-													</c:otherwise>
-												</c:choose>
-											</c:otherwise>
-										</c:choose>
-									</c:forEach>
-								</select>
-							</td>
-							<td>
-								<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
-								<form:hidden path="remarksAboutDecision"/>
-							</td>
-						</tr>
-					</c:if>	
-				</tbody>
-			</table>
-			<c:if test="${workflowstatus != 'COMPLETED'}">
-				<p>
-					 <a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
-				</p>
-			</c:if>
-			
-			<c:if test="${workflowstatus!='COMPLETED' }">	
-			<p>
-			<select id="internalStatusMaster" style="display:none;">
-			<c:forEach items="${internalStatuses}" var="i">
-			<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-			</c:forEach>
-			</select>	
-			<form:errors path="internalStatus" cssClass="validationError"/>	
-			</p>
-			
-			<p id="actorDiv" style="display:none;">
-			<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
-			<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
-			<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
-			</p>		
-			</c:if>			
-				
+					</c:choose>
+				</c:forEach>
+				</select>
+								
+				<select id="internalStatusMaster" style="display:none;">
+				<c:forEach items="${internalStatuses}" var="i">
+				<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+				</c:forEach>
+				</select>	
+				<form:errors path="internalStatus" cssClass="validationError"/>
+			</p>				
+			<p id="actorDiv" style="display: none;">
+				<label class="small"><spring:message code="rulessuspensionmotion.nextactor" text="Next Users"/></label>
+				<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
+				<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
+			</p>	
 			<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus}">
 			<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
 					
+			<p>
+				<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="rulessuspensionmotion.viewcitation" text="View Citations"></spring:message></a>	
+			</p>
+			
+			<p>
+			<label class="wysiwyglabel"><spring:message code="rulessuspensionmotion.remarks" text="Remarks"/></label>
+			<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
+			<form:hidden path="remarksAboutDecision"/>
+			</p>	
+			
 			</div>
 				
 			<c:if test="${workflowstatus!='COMPLETED' }">
@@ -937,14 +836,12 @@
 	</div>
 	<div id="clubbingResultDiv" style="display:none;"></div>
 	<!--To show the motion texts of the clubbed motions -->
-	<div id="clubbedRulesSuspensionMotionTextDiv">
+	<div id="clubbedRulesSuspensionMotionTextsDiv">
 		<h1>		
 			<spring:message code="rulessuspensionmotion.clubbedMotionTexts" text="Motion texts of clubbed motions:"></spring:message>
 		</h1>
 	</div>
 	<div id="hideClubMTDiv" style="background: #FF0000; color: #FFF; position: fixed; bottom: 0; right: 10px; width: 15px; border-radius: 10px; cursor: pointer;">&nbsp;X&nbsp;</div>
 	
-	<div id="referencingResultDiv" style="display:none;">
-	</div>
 </body>
 </html>
