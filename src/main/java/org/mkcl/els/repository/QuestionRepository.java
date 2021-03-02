@@ -2804,7 +2804,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		boolean isSubmissionDraftAbsentForQuestion = true;
 		
 		QuestionDraft submissionDraft = null;
-		String query = "SELECT qd.id" +
+		String query = "SELECT qd.*" +
 					" FROM question_drafts qd" +
 					" WHERE qd.question_id=:qid" +
 					" AND qd.internalstatus_id=:submissionStatusId" +

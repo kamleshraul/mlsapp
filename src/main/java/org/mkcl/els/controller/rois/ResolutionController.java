@@ -35,6 +35,7 @@ import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.common.xmlvo.ResolutionXmlVO;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.controller.question.QuestionController;
+import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
@@ -1148,7 +1149,6 @@ public class ResolutionController extends GenericController<Resolution> {
 				model.addAttribute("internalStatus",internalStatus.getId());
 				model.addAttribute("internalStatusType", internalStatus.getType());
 				model.addAttribute("formattedInternalStatus", internalStatus.getName());
-				model.addAttribute("recommendationStatus",recommendationStatus);
 				/***********EndFlag,Level and Workflowstarted**********************/
 				if(usergroupType!=null&&!(usergroupType.isEmpty())
 						&&(usergroupType.equals("assistant")||usergroupType.equals("section_officer"))
@@ -1557,6 +1557,25 @@ public class ResolutionController extends GenericController<Resolution> {
 		}
 	}
 	
+	@Transactional
+	@Override
+	protected Boolean preDelete(final ModelMap model, final BaseDomain domain,
+			final HttpServletRequest request,final Long id) {
+		Resolution resolution=Resolution.findById(Resolution.class, id);
+		if(resolution!=null){			
+			Status status=resolution.getStatusLowerHouse();
+			if(status==null) {
+				status=resolution.getStatusUpperHouse();
+			}
+			if(status.getType().equals(ApplicationConstants.RESOLUTION_INCOMPLETE)||status.getType().equals(ApplicationConstants.RESOLUTION_COMPLETE)){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}	
 	
 	@Override
 	protected void customValidateCreate(final Resolution domain, final BindingResult result,
