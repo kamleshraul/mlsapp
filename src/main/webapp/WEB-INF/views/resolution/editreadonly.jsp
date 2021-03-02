@@ -175,6 +175,13 @@
 	<label class="small"><spring:message code="resolution.currentStatus" text="Current Status"/></label>
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
+	
+	<c:if test="${not empty domain.factualPosition}">
+	<p>
+		<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Postion"/></label>
+		<textarea id="factualPositionEdit" class="wysiwyg" readonly="readonly">${domain.factualPosition}</textarea>
+	</p>
+	</c:if>
 		
 	<p>
 	<label class="wysiwyglabel"><spring:message code="resolution.remarks" text="Remarks"/></label>

@@ -149,7 +149,7 @@
 					<spring:message code="question.member_rulessuspensionmotions_view" text="Member's Rules Suspension Motions View"/>
 				</a> |
 			</security:authorize>	
-			<security:authorize access="hasAnyRole('RSMOIS_CLERK', 'RSMOIS_ASSISTANT', 'RSMOIS_SECTION_OFFICER','RSMOIS_SECRETARY')">
+			<security:authorize access="hasAnyRole('RSMOIS_CLERK', 'RSMOIS_ASSISTANT', 'RSMOIS_SECTION_OFFICER','RSMOIS_DEPUTY_SECRETARY')">
 			<a href="#" id="rsmois_current_status_report" class="butSim">
 				<spring:message code="rsmois.current_status_report" text="Current Status Report"/>
 			</a> |		
@@ -181,7 +181,7 @@
 					<a href="#" id="rsmois_notice_statement" class="butSim">
 						<spring:message code="rsmois.notice_statement" text="Notice Statement"/>
 					</a> |
-					<security:authorize access="hasAnyRole('RSMOIS_SECTION_OFFICER','RSMOIS_PRINCIPAL_SECRETARY')">
+					<security:authorize access="hasAnyRole('RSMOIS_SECTION_OFFICER','RSMOIS_DEPUTY_SECRETARY')">
 						<a href="#" id="rsmois_decision_report" class="butSim">
 							<spring:message code="rsmois.decision_report" text="Decision Report"/>
 						</a> |

@@ -751,7 +751,7 @@
 			</a> |
 			</security:authorize>	
 			
-			<security:authorize access="hasAnyRole('RSMOIS_CLERK', 'RSMOIS_ASSISTANT', 'RSMOIS_SECTION_OFFICER', 'RSMOIS_SECRETARY')">					
+			<security:authorize access="hasAnyRole('RSMOIS_CLERK', 'RSMOIS_ASSISTANT', 'RSMOIS_SECTION_OFFICER', 'RSMOIS_DEPUTY_SECRETARY')">					
 				<a href="javascript:void(0);" id="reports_link" class="butSim" style="float: right;">
 					<spring:message code="rulessuspensionmotion.reports" text="Reports"/>
 				</a>
