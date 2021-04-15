@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.exception.SessionExpiredException;
+import org.mkcl.els.domain.CustomParameter;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 /**
@@ -41,6 +42,7 @@ public class SessionCheckInterceptor extends HandlerInterceptorAdapter {
     throws Exception {
         String redirectUrl = this.createRedirectUrl(request);
         if (request.getRequestURI().contains("login")) {
+        	checkAndSetCaptchRquiredAttribute(request);
             return true;
         }
         if (request.getRequestURI().contains("/ws/")) {
@@ -75,7 +77,22 @@ public class SessionCheckInterceptor extends HandlerInterceptorAdapter {
 
     }
 
-    /**
+    private void checkAndSetCaptchRquiredAttribute(HttpServletRequest request) {
+    	CustomParameter captchaCust = CustomParameter.findByName(CustomParameter.class, "CAPTCHA_REQUIRED", "");
+	    String captchaRequired="0";
+		if(captchaCust!=null && captchaCust.getValue()!=null 
+	    		&& captchaCust.getValue().trim().length()>0 
+	    		&& captchaCust.getValue().trim().equals("1")){
+	    	captchaRequired="1";
+	    }else{
+	    	captchaRequired="0";
+	    }
+		request.setAttribute("captchaRequired",captchaRequired);
+		//request.getSession().setAttribute("captchaRequired",captchaRequired);
+		
+	}
+
+	/**
      * Creates the redirect url.
      *
      * @param request the request
