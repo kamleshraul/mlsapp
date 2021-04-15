@@ -105,6 +105,12 @@
 	      });
 
 	    }, 600); */
+	    
+	    function changeimage(){
+			var img='captcha.jpg?' + Math.random();
+			document.getElementById('captcha_id2').style.backgroundImage="url("+img+")";
+			return false;		
+		}
 	</script>
 	
 	<style type="text/css">
@@ -262,7 +268,11 @@
 		<c:if test="${not empty param['error']}">
 			<p class="error">${sessionScope["SPRING_SECURITY_LAST_EXCEPTION"].message}</p>
 			<c:remove var = "SPRING_SECURITY_LAST_EXCEPTION" scope = "session" />
-		</c:if> 
+		</c:if>
+		
+		<if test="${not empty sessionScope.captchaError}">
+			<p class="error">${sessionScope.captchaError}</p>
+		</if> 
 		
 		<c:if test="${empty param['error']}"> 
 	  		<p class="info"></p>
@@ -295,6 +305,34 @@
 			<label for="password"><spring:message code="user_lbl_password" text="Password" /></label>
 			<input type="password" id="j_password"  value="" name="j_password" autocomplete="false"/>
 		</p>
+		
+				<c:if test="${requestScope.captchaRequired=='1'}">
+		<p id="captchaSection">
+			<p>
+			<table style="width: 49%;border: 1px solid #d9dbdd; padding: 0;margin-left:27%">
+		        	<tr>
+                    <td style="width: 75%" >
+                        <div id="captcha_id2" style="width:100%;height:40px;background:url('captcha.jpg') no-repeat center;background-size: cover;">
+                            <!-- <img id="captcha_id" name="imgCaptcha" src="captcha.jpg" width="100%" height="40px"> -->
+                        </div>
+                    </td>
+ 
+                    <td align="left"><a href="javascript:;"
+                        title="change captcha image"
+                        onclick="changeimage()">
+                             <img  alt=" Change image" width="80%" height="40px"  src="resources/images/refresh2D.png">
+                    </a></td>                    
+                    </tr>
+ 			</table>
+ 			</p>
+ 			 <p>
+ 			 	<label></label>
+                <input type="text" name="captcha" class="round full-width-input" placeholder="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+             </p>
+             
+		</p>
+		</c:if>
+		
 		
 		<a href="#" id="viewContactsForSupport" style="margin-left:20px;float: right;margin-top: -42px;display: none;">
 			<img width="30" height="25" src="./resources/images/contactus.jpg">
