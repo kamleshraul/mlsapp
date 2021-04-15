@@ -145,10 +145,29 @@
 			<param-value>true</param-value>
 		</init-param>
 	</filter>
+	
+	<servlet>
+		<servlet-name>CaptchaServlet</servlet-name>
+		<servlet-class>org.mkcl.els.common.captcha.CaptchaGenServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CaptchaServlet</servlet-name>
+		<url-pattern>/captcha.jpg</url-pattern>
+	</servlet-mapping>
+	
 	<filter-mapping>
 		<filter-name>SetCharacterEncodingFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
+	<filter>    	
+    	<display-name>CaptchaFilter</display-name>
+    	<filter-name>CaptchaFilter</filter-name>
+    	<filter-class>org.mkcl.els.common.filter.CaptchaFilter</filter-class>
+    </filter>
+    <filter-mapping>
+    	<filter-name>CaptchaFilter</filter-name>    	
+    	<url-pattern>/j_spring_security_check</url-pattern>
+    </filter-mapping>
 	<filter>
 		<filter-name>springSecurityFilterChain</filter-name>
 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
