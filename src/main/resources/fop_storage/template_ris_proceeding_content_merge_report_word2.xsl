@@ -160,7 +160,7 @@
 											</xsl:when>
 											<xsl:otherwise>
 												<fo:block text-align="center" font-weight="bold">
-													(अध्यक्षस्थानी  माननीय <xsl:apply-templates select="memberrole"></xsl:apply-templates> &#160; <xsl:apply-templates select="chairperson"></xsl:apply-templates>)
+													(उपाध्यक्षस्थानी  माननीय <xsl:apply-templates select="memberrole"></xsl:apply-templates> &#160; <xsl:apply-templates select="chairperson"></xsl:apply-templates>)
 												</fo:block>
 												<fo:block>&#160;</fo:block>
 											</xsl:otherwise>
@@ -233,7 +233,7 @@
 										<xsl:when test="(position()=1 or boolean(preceding-sibling::childVOs[position()-1])=false or preceding-sibling::childVOs[1]/primaryMember!=./primaryMember) and string-length(./primaryMember)>0">
 											<xsl:variable name="member" select="./primaryMember"/>
 		         							<xsl:choose>
-												<xsl:when test="./primaryMemberMinistry!='' or ./primaryMember='अध्यक्ष' or ./primaryMember='सभापती'">
+												<xsl:when test="./primaryMemberMinistry!='' or ./primaryMember='उपाध्यक्ष' or ./primaryMember='सभापती'">
 													<fo:inline font-weight="bold" >
 														<xsl:value-of select="./primaryMember"></xsl:value-of>
 														<xsl:if test="./constituency!=''">

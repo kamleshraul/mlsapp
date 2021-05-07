@@ -162,7 +162,7 @@
 						<fo:block margin-left="1cm">
 							या सूचनेवरील मा.
 							<xsl:choose>
-								<xsl:when test="houseType='lowerhouse'">अध्यक्षांचे</xsl:when>
+								<xsl:when test="houseType='lowerhouse'">उपाध्यक्षांचे</xsl:when>
 								<xsl:when test="houseType='upperhouse'">सभापतींचे</xsl:when>
 							</xsl:choose>
 							आदेश नंतर कळविण्यात येतील.

@@ -150,7 +150,7 @@
 						<fo:block>
 							&#160;&#160;&#160;&#160;&#160;&#160;चालू अधिवेशनासाठी मा.
 							<xsl:choose>
-								<xsl:when test="houseType='lowerhouse'">अध्यक्षांनी</xsl:when>
+								<xsl:when test="houseType='lowerhouse'">उपाध्यक्षांनी</xsl:when>
 								<xsl:when test="houseType='upperhouse'">सभापतींनी</xsl:when>
 							</xsl:choose>
 							ही सूचना मान्य केली आहे. उपरोक्त विषयावरील चर्चा सभागृहात दिनांक &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; रोजी घेण्यात येईल.

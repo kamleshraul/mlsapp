@@ -155,7 +155,7 @@
 								&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 								विभागाने केलेला वरील खुलासा पाहता आपला प्रश्न
 								<xsl:choose>
-									<xsl:when test="houseType='lowerhouse'">मा.अध्यक्षांनी</xsl:when>
+									<xsl:when test="houseType='lowerhouse'">मा.उपाध्यक्षांनी</xsl:when>
 									<xsl:when test="houseType='upperhouse'">मा.सभापतींनी</xsl:when>
 								</xsl:choose>
 								अस्वीकृत केला आहे असे कळविण्याचा मला निर्देश आहे.

@@ -123,7 +123,7 @@
 						<fo:block margin-left="1.5cm">							
 							&#160;&#160;&#160;&#160;&#160;&#160;&#160;माननीय  
 							<xsl:choose>
-								<xsl:when test="houseType='lowerhouse'">अध्यक्षांनी</xsl:when>
+								<xsl:when test="houseType='lowerhouse'">उपाध्यक्षांनी</xsl:when>
 								<xsl:when test="houseType='upperhouse'">सभापतींनी</xsl:when>
 							</xsl:choose>
 							खाली उदधृत केलेला <xsl:value-of select="houseTypeName"/>&#160; अल्प सूचना प्रश्न स्वीकृत केला आहे. त्या प्रश्नाचे उत्तर देण्यासंबंधी माहिती पुढीलप्रमाणे आहे –&#160;
@@ -290,7 +290,7 @@
 								</xsl:choose>
 								यांचा अल्पसूचना प्रश्न क्रमांक <xsl:value-of select="number"/> मा.
 								<xsl:choose>
-									<xsl:when test="houseType='lowerhouse'">अध्यक्षांनी</xsl:when>
+									<xsl:when test="houseType='lowerhouse'">उपाध्यक्षांनी</xsl:when>
 									<xsl:when test="houseType='upperhouse'">सभापतींनी</xsl:when>
 								</xsl:choose>
 								स्वीकृत केला आहे. त्याची प्रत सोबत जोडली आहे.
@@ -350,7 +350,7 @@
 								</xsl:choose>
 								ताबडतोब उत्तर देण्यास तयार नसल्यास, सदर प्रश्नास अल्पावधी प्रश्न म्हणून उत्तर का देता येणार नाही याची कारणे त्यांनी मा.
 								<xsl:choose>
-									<xsl:when test="houseType='lowerhouse'">अध्यक्ष</xsl:when>
+									<xsl:when test="houseType='lowerhouse'">उपाध्यक्ष</xsl:when>
 									<xsl:when test="houseType='upperhouse'">सभापती</xsl:when>
 								</xsl:choose>
 								महोदयांना कळवावीत अशी त्यांना विनंती करण्यात यावी(पहा-

@@ -165,7 +165,7 @@
 						<fo:block margin-left="1cm">							
 							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;वरील माहिती सूचनेच्या मान्यतेसाठी 
 							<xsl:choose>
-									<xsl:when test="houseType='lowerhouse'">मा. अध्यक्षांना</xsl:when>
+									<xsl:when test="houseType='lowerhouse'">मा. उपाध्यक्षांना</xsl:when>
 									<xsl:when test="houseType='upperhouse'">मा. सभापतीना</xsl:when>
 							</xsl:choose> जाणून घ्यावयाची असल्याने ती या सचिवालयाकडे  
 							&#160;<fo:inline font-weight="bold" text-decoration="underline">त्वरित</fo:inline> पाठवावी.

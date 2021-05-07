@@ -136,7 +136,7 @@
 						<fo:block margin-left="1.5cm">							
 							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;खालील उदधृत केलेला <xsl:value-of select="houseTypeName"/> अतारांकित प्रश्न माननीय
 							<xsl:choose>
-								<xsl:when test="houseType='lowerhouse'">अध्यक्षांनी</xsl:when>
+								<xsl:when test="houseType='lowerhouse'">उपाध्यक्षांनी</xsl:when>
 								<xsl:when test="houseType='upperhouse'">सभापतींनी</xsl:when>
 							</xsl:choose>
 							स्वीकृत केला आहे. सदरहू प्रश्नाचे उत्तर

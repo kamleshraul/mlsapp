@@ -150,7 +150,7 @@
 							</xsl:choose>							
 							  
 							<xsl:choose>
-								<xsl:when test="houseType='lowerhouse'">अध्यक्षांनी</xsl:when>
+								<xsl:when test="houseType='lowerhouse'">उपाध्यक्षांनी</xsl:when>
 								<xsl:when test="houseType='upperhouse'">सभापतींनी</xsl:when>
 							</xsl:choose>
 							अस्वीकृत केला आहे, असे आपणांस कळविण्यास मला निदेश दिला आहे.							

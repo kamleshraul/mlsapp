@@ -167,7 +167,7 @@
 						<fo:block>&#160;</fo:block>
 						<fo:block>&#160;</fo:block>
 						<fo:block>
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;विद्यमान अधिवेशनासाठी मा. अध्यक्षांनी ही सूचना मान्य केली आहे. उपरोक्त विषयावरील चर्चा सभागृहात  <fo:inline font-weight="bold" text-decoration="underline"> <xsl:value-of select="./element_2/element_2_6"></xsl:value-of></fo:inline>  रोजी घेण्यात येईल					
+							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;विद्यमान अधिवेशनासाठी मा. उपाध्यक्षांनी ही सूचना मान्य केली आहे. उपरोक्त विषयावरील चर्चा सभागृहात  <fo:inline font-weight="bold" text-decoration="underline"> <xsl:value-of select="./element_2/element_2_6"></xsl:value-of></fo:inline>  रोजी घेण्यात येईल					
 						</fo:block>
 						<fo:block>&#160;</fo:block>
 						<fo:block>&#160;</fo:block>

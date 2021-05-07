@@ -151,7 +151,7 @@
 						<fo:block>
 							&#160;&#160;&#160;&#160; या सचिवालयाकडून आपल्या विभागाकडे वस्तुस्थितीसाठी पाठविलेला &#160;<xsl:value-of select="deviceType"/> क्रमांक - <xsl:value-of select="number"/>
 							<xsl:choose>
-								<xsl:when test="houseType='lowerhouse'"> माननीय अध्यक्षांनी अस्वीकृत केला आहे.</xsl:when>
+								<xsl:when test="houseType='lowerhouse'"> माननीय उपाध्यक्षांनी अस्वीकृत केला आहे.</xsl:when>
 								<xsl:when test="houseType='upperhouse'"> माननीय सभापतींनी अस्वीकृत केला आहे.</xsl:when>
 							</xsl:choose>
 						</fo:block>	

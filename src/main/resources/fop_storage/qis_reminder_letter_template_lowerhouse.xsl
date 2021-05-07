@@ -221,7 +221,7 @@
 								</xsl:choose>
 								याच्या तरतुदीचे पालन का झालेले नाही याची कारणे माननीय
 								<xsl:choose>
-									<xsl:when test="element_1[1]/element_1_4='lowerhouse'">अध्यक्षांच्या</xsl:when>
+									<xsl:when test="element_1[1]/element_1_4='lowerhouse'">उपाध्यक्षांच्या</xsl:when>
 									<xsl:when test="element_1[1]/element_1_4='upperhouse'">सभापतींच्या</xsl:when>
 								</xsl:choose>
 								माहितीसाठी कळवावीत अशी आपणांस विनंती आहे.
