@@ -97,6 +97,25 @@ public class ReferenceController extends BaseController {
 		
 		return districts;
 	}
+	
+	@RequestMapping(value = "/{username}/isMemberActiveInSession", method = RequestMethod.GET)
+	public @ResponseBody boolean isMemberActiveInLoginSession(@PathVariable("username") final String username, final ModelMap map, final Locale locale) {
+		boolean isMemberActiveInLoginSession = false;
+		try {
+			String loggedInUsername = this.getCurrentUser().getActualUsername();
+			if(username!=null && loggedInUsername.equals(username)) {
+				User memberUser = User.findByUserName(username, locale.toString());
+				logger.debug("memberUser found with ID: " + memberUser.getId());
+				Member member = Member.findByNameBirthDate(memberUser.getFirstName(), memberUser.getMiddleName(), memberUser.getLastName(), memberUser.getBirthDate(), locale.toString());
+				logger.debug("member found with ID: " + member.getId());
+				isMemberActiveInLoginSession = true;
+			}
+		} catch (ELSException e) {
+			e.printStackTrace();
+			logger.error("Invalid username: " + username);
+		}		
+		return isMemberActiveInLoginSession;
+	}
 
 	/**
 	 * Gets the tehsils by district.
