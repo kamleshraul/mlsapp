@@ -2843,6 +2843,14 @@ class StarredQuestionController {
 				}
 			}			
 		}
+		
+		/**** reset localized actor name and level if the question is just saved by assistant instead of putup ****/
+		if(domain.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_SYSTEM_ASSISTANTPROCESSED)
+				|| domain.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_SYSTEM_PUTUP)) {
+			domain.setActor(null);
+			domain.setLocalizedActorName("");
+			domain.setLevel("1");
+		}
 	}
 
 

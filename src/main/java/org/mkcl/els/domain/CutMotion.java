@@ -371,6 +371,7 @@ public class CutMotion extends Device implements Serializable {
 								number = CutMotion.
 										assignCutMotionNo(this.getHouseType(), this.getSession(), this.getDeviceType(), this.getLocale());
 								CutMotion.updateBudgetaryCutMotionCurrentNumberLowerHouse(number);
+								CutMotion.updateSupplementaryCutMotionCurrentNumberLowerHouse(number);
 							}
 						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)
 								&& cutMotionType.equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY)) {					
@@ -378,6 +379,7 @@ public class CutMotion extends Device implements Serializable {
 								number = CutMotion.
 										assignCutMotionNo(this.getHouseType(), this.getSession(), this.getDeviceType(), this.getLocale());
 								CutMotion.updateBudgetaryCutMotionCurrentNumberUpperHouse(number);
+								CutMotion.updateSupplementaryCutMotionCurrentNumberUpperHouse(number);
 							}
 						} else if (houseType.equals(ApplicationConstants.LOWER_HOUSE) 
 								&& cutMotionType.equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)) {					
@@ -385,6 +387,7 @@ public class CutMotion extends Device implements Serializable {
 								number = CutMotion.
 										assignCutMotionNo(this.getHouseType(), this.getSession(), this.getDeviceType(), this.getLocale());
 								CutMotion.updateSupplementaryCutMotionCurrentNumberLowerHouse(number);
+								CutMotion.updateBudgetaryCutMotionCurrentNumberLowerHouse(number);
 							}
 						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)
 								&& cutMotionType.equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)) {					
@@ -392,6 +395,7 @@ public class CutMotion extends Device implements Serializable {
 								number = CutMotion.
 										assignCutMotionNo(this.getHouseType(), this.getSession(), this.getDeviceType(), this.getLocale());
 								CutMotion.updateSupplementaryCutMotionCurrentNumberUpperHouse(number);
+								CutMotion.updateBudgetaryCutMotionCurrentNumberUpperHouse(number);
 							}
 						}
 						
@@ -399,18 +403,22 @@ public class CutMotion extends Device implements Serializable {
 								&& cutMotionType.equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY)) {
 	            			this.setNumber(CutMotion.getBudgetaryCutMotionCurrentNumberLowerHouse() + 1);
 	            			CutMotion.updateBudgetaryCutMotionCurrentNumberLowerHouse(CutMotion.getBudgetaryCutMotionCurrentNumberLowerHouse() + 1);
+	            			CutMotion.updateSupplementaryCutMotionCurrentNumberLowerHouse(CutMotion.getSupplementaryCutMotionCurrentNumberLowerHouse() + 1);
 	            		} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE) 
 								&& cutMotionType.equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY)) {
 	            			this.setNumber(CutMotion.getBudgetaryCutMotionCurrentNumberUpperHouse() + 1);
 	            			CutMotion.updateBudgetaryCutMotionCurrentNumberUpperHouse(CutMotion.getBudgetaryCutMotionCurrentNumberUpperHouse() + 1);
+	            			CutMotion.updateSupplementaryCutMotionCurrentNumberUpperHouse(CutMotion.getSupplementaryCutMotionCurrentNumberUpperHouse() + 1);
 	            		} else if(houseType.equals(ApplicationConstants.LOWER_HOUSE) 
 								&& cutMotionType.equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)) {
 	            			this.setNumber(CutMotion.getSupplementaryCutMotionCurrentNumberLowerHouse() + 1);
 	            			CutMotion.updateSupplementaryCutMotionCurrentNumberLowerHouse(CutMotion.getSupplementaryCutMotionCurrentNumberLowerHouse() + 1);
+	            			CutMotion.updateBudgetaryCutMotionCurrentNumberLowerHouse(CutMotion.getBudgetaryCutMotionCurrentNumberLowerHouse() + 1);
 	            		} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE) 
 								&& cutMotionType.equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)) {
 	            			this.setNumber(CutMotion.getSupplementaryCutMotionCurrentNumberUpperHouse() + 1);
 	            			CutMotion.updateSupplementaryCutMotionCurrentNumberUpperHouse(CutMotion.getSupplementaryCutMotionCurrentNumberUpperHouse() + 1);
+	            			CutMotion.updateBudgetaryCutMotionCurrentNumberUpperHouse(CutMotion.getBudgetaryCutMotionCurrentNumberUpperHouse() + 1);
 	            		}
 	            		
 	            		addCutMotionDraft();
@@ -540,6 +548,7 @@ public class CutMotion extends Device implements Serializable {
 								number = CutMotion.
 										assignCutMotionNo(this.getHouseType(), this.getSession(), this.getDeviceType(), this.getLocale());
 								CutMotion.updateBudgetaryCutMotionCurrentNumberLowerHouse(number);
+								CutMotion.updateSupplementaryCutMotionCurrentNumberLowerHouse(number);
 							}
 						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)
 								&& cutMotionType.equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY)) {					
@@ -547,6 +556,7 @@ public class CutMotion extends Device implements Serializable {
 								number = CutMotion.
 										assignCutMotionNo(this.getHouseType(), this.getSession(), this.getDeviceType(), this.getLocale());
 								CutMotion.updateBudgetaryCutMotionCurrentNumberUpperHouse(number);
+								CutMotion.updateSupplementaryCutMotionCurrentNumberUpperHouse(number);
 							}
 						} else if (houseType.equals(ApplicationConstants.LOWER_HOUSE) 
 								&& cutMotionType.equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)) {					
@@ -554,6 +564,7 @@ public class CutMotion extends Device implements Serializable {
 								number = CutMotion.
 										assignCutMotionNo(this.getHouseType(), this.getSession(), this.getDeviceType(), this.getLocale());
 								CutMotion.updateSupplementaryCutMotionCurrentNumberLowerHouse(number);
+								CutMotion.updateBudgetaryCutMotionCurrentNumberLowerHouse(number);
 							}
 						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)
 								&& cutMotionType.equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)) {					
@@ -561,6 +572,7 @@ public class CutMotion extends Device implements Serializable {
 								number = CutMotion.
 										assignCutMotionNo(this.getHouseType(), this.getSession(), this.getDeviceType(), this.getLocale());
 								CutMotion.updateSupplementaryCutMotionCurrentNumberUpperHouse(number);
+								CutMotion.updateBudgetaryCutMotionCurrentNumberUpperHouse(number);
 							}
 						}
 						
@@ -568,18 +580,22 @@ public class CutMotion extends Device implements Serializable {
 								&& cutMotionType.equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY)) {
 	            			this.setNumber(CutMotion.getBudgetaryCutMotionCurrentNumberLowerHouse() + 1);
 	            			CutMotion.updateBudgetaryCutMotionCurrentNumberLowerHouse(CutMotion.getBudgetaryCutMotionCurrentNumberLowerHouse() + 1);
+	            			CutMotion.updateSupplementaryCutMotionCurrentNumberLowerHouse(CutMotion.getSupplementaryCutMotionCurrentNumberLowerHouse() + 1);
 	            		} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE) 
 								&& cutMotionType.equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY)) {
 	            			this.setNumber(CutMotion.getBudgetaryCutMotionCurrentNumberUpperHouse() + 1);
 	            			CutMotion.updateBudgetaryCutMotionCurrentNumberUpperHouse(CutMotion.getBudgetaryCutMotionCurrentNumberUpperHouse() + 1);
+	            			CutMotion.updateSupplementaryCutMotionCurrentNumberUpperHouse(CutMotion.getSupplementaryCutMotionCurrentNumberUpperHouse() + 1);
 	            		} else if(houseType.equals(ApplicationConstants.LOWER_HOUSE) 
 								&& cutMotionType.equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)) {
 	            			this.setNumber(CutMotion.getSupplementaryCutMotionCurrentNumberLowerHouse() + 1);
 	            			CutMotion.updateSupplementaryCutMotionCurrentNumberLowerHouse(CutMotion.getSupplementaryCutMotionCurrentNumberLowerHouse() + 1);
+	            			CutMotion.updateBudgetaryCutMotionCurrentNumberLowerHouse(CutMotion.getBudgetaryCutMotionCurrentNumberLowerHouse() + 1);
 	            		} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE) 
 								&& cutMotionType.equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)) {
 	            			this.setNumber(CutMotion.getSupplementaryCutMotionCurrentNumberUpperHouse() + 1);
 	            			CutMotion.updateSupplementaryCutMotionCurrentNumberUpperHouse(CutMotion.getSupplementaryCutMotionCurrentNumberUpperHouse() + 1);
+	            			CutMotion.updateBudgetaryCutMotionCurrentNumberUpperHouse(CutMotion.getBudgetaryCutMotionCurrentNumberUpperHouse() + 1);
 	            		}
 	            		
 						addCutMotionDraft();

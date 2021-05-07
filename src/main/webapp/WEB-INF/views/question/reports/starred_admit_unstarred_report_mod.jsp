@@ -105,14 +105,14 @@
 								<th style="text-align: center; font-size: 12px; width: 90px;">${topHeader[3]}</th>
 								<th style="text-align: center; font-size: 12px; width: 420px">${topHeader[4]}</th>
 								<th style="text-align: center; font-size: 12px; width: 420px">${topHeader[5]}</th>
-								<c:if test="${report[0][15]=='question_recommend_rejection' or report[0][15]=='question_final_rejection'}">
+								<c:if test="${fn:endsWith(report[0][15], '_rejection')}">
 								<th style="text-align: center; font-size: 12px; width: 420px">${topHeader[6]}</th>
 								</c:if>
 							</tr>
 						
 							<tr>
 								<c:choose>
-								<c:when test="${report[0][15]=='question_recommend_rejection' or report[0][15]=='question_final_rejection'}">
+								<c:when test="${fn:endsWith(report[0][15], '_rejection')}">
 								<td colspan="7">&nbsp;</td>
 								</c:when>
 								<c:otherwise>
@@ -137,7 +137,7 @@
 													<td style="text-align: center; font-size: 12px; width: 90px;">${r[10]}</td>
 													<td style="text-align: left; font-size: 12px; width: 90px;">${r[9]}</td>
 													<td style="text-align: justify; font-size: 12px; width: 420px;">${r[13]}</td>	
-													<c:if test="${r[15]=='question_recommend_rejection' or r[15]=='question_final_rejection'}">
+													<c:if test="${fn:endsWith(r[15], '_rejection')}">
 													<td style="text-align: justify; font-size: 12px; width: 420px;">${r[14]}</td>	
 													</c:if>		
 												</tr>
@@ -154,7 +154,7 @@
 													<td style="text-align: center; font-size: 12px; width: 90px;">${r[10]}</td>
 													<td style="text-align: left; font-size: 12px; width: 90px;">${r[9]}</td>
 													<td style="text-align: justify; font-size: 12px; width: 420px;">${r[13]}</td>
-													<c:if test="${r[15]=='question_recommend_rejection' or r[15]=='question_final_rejection'}">
+													<c:if test="${fn:endsWith(r[15], '_rejection')}">
 													<td style="text-align: justify; font-size: 12px; width: 420px;">${r[14]}</td>	
 													</c:if>				
 												</tr>
@@ -173,7 +173,7 @@
 											<td style="text-align: center; font-size: 12px; width: 90px;">${r[10]}</td>
 											<td style="text-align: left; font-size: 12px; width: 90;">${r[9]}</td>
 											<td style="text-align: justify; font-size: 12px; width: 420px;">${r[13]}</td>
-											<c:if test="${r[15]=='question_recommend_rejection' or r[15]=='question_final_rejection'}">
+											<c:if test="${fn:endsWith(r[15], '_rejection')}">
 												<td style="text-align: justify; font-size: 12px; width: 420px;">${r[14]}</td>	
 											</c:if>		
 										</tr>

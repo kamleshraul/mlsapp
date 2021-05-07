@@ -230,7 +230,7 @@
 	<div class="commandbar">
 		<div class="commandbarContent">
 			<hr>
-			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','HDS_SECTION_OFFICER','QIS_DEPARTMENT_USER','ROIS_ASSISTANT','ROIS_SECTION_OFFICER','ROIS_DEPARTMENT_USER','AMOIS_SECTION_OFFICER','SMIS_ASSISTANT','SMIS_SECTION_OFFICER','MEMBER_UPPERHOUSE')">
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','HDS_SECTION_OFFICER','QIS_DEPARTMENT_USER','ROIS_ASSISTANT','ROIS_SECTION_OFFICER','ROIS_DEPARTMENT_USER','AMOIS_SECTION_OFFICER','CMOIS_SECTION_OFFICER','SMIS_ASSISTANT','SMIS_SECTION_OFFICER','MEMBER_UPPERHOUSE')">
 				<a href="#" id="generateIntimationLetter" class="butSim">
 					<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
 				</a> 				

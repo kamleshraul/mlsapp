@@ -100,7 +100,52 @@
 				$("#selectionDiv1").hide();
 				searchInt();
 			});
+			
+			/**** Toggle Reports Div ****/
+			$("#reports_link").click(function(e){
+				$("#assistantReportDiv").toggle("slow");
+			});
+			$("#members").change(function(){
+				var val = $(this).val();
+				if(val!="" && val!='-'){
+					memberWiseReport($(this).val());
+				}
+			});
+			$("#department_report").click(function(e){
+				var dept = $("#selectedSubDepartment").val();
+				if(dept!="" && dept!='0'){
+					departmentWiseReport(dept);	
+				}
+			});
 		});
+		
+		/**** Load Session ****/
+		function loadSession(){
+			$.get("ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+				+ "/" + $("#selectedSessionYear").val() + "/" + $("#selectedSessionType").val(),
+				function(data){
+					if(data){
+						$("#loadedSession").val(data.id);
+						loadMembers();
+						//loadParties();
+					}
+				});
+		}
+		
+		function loadMembers(){
+			memberArray = [];
+			$.get('ref/alleligiblemembers?session='+$("#loadedSession").val(), function(data){
+				if(data.length>0){
+					var text="<option value='-'>"+$("#pleaseSelect").val()+"</option>";
+					for(var i = 0; i < data.length; i++){
+						memberArray.push(data[i].name);
+						text+="<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+					}
+					$("#members").empty();
+					$("#members").html(text);
+				}
+			});
+		}
 		
 		 function loadStatus(){
 			var params = "deviceType=" + $("#selectedDeviceType").val() +
@@ -138,6 +183,7 @@
 					+'&usergroupType='+$("#currentusergroupType").val()
 					+'&subDepartment='+$("#selectedSubdepartment").val()
 				);	
+			loadSession();
 		}
 		
 		function memberResolutionsView() {
@@ -420,6 +466,45 @@
 				        "&deviceType="+$("#selectedDeviceType").val();		
 			showTabByIdAndUrl('search_tab','devicesearch/init?'+params);
 		}
+		
+		/**** Memberwise Devices Report Generation ****/
+		function memberWiseReport(memberId){
+			var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+			+ "/" + $("#selectedSessionYear").val()
+			+ "/" + $("#selectedSessionType").val();
+			$.get(url,function(data){
+				if(data){
+					
+					var selectedStatus = $("#selectedStatus").val();
+					var statusType = $("#statusMaster option[value='" + selectedStatus + "']").text().trim();
+					
+					showTabByIdAndUrl("details_tab","resolution/report/generalreport?"
+							+"sessionId="+data.id
+							+"&deviceTypeId="+$("#selectedMotionType").val()
+							+"&memberId="+memberId 
+							+"&locale="+$("#moduleLocale").val()
+							+"&statusId="+selectedStatus
+							+"&report=ROIS_MEMBER_WISE_REPORT_"+$('#selectedHouseType').val().toUpperCase()+"&reportout=resolutionMemberReport");
+				}
+			});
+		}
+		/**** Departmentwise Devices Report Generation ****/
+		function departmentWiseReport(dept){
+			var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+			+ "/" + $("#selectedSessionYear").val()
+			+ "/" + $("#selectedSessionType").val();
+			$.get(url,function(data){
+				if(data){
+					
+					showTabByIdAndUrl("details_tab","adjournmentmotion/report/generalreport?"
+							+"sessionId="+data.id
+							+"&deviceTypeId="+$("#selectedMotionType").val()
+							+"&subd="+dept 
+							+"&locale="+$("#moduleLocale").val()
+							+"&report=ROIS_DEPARTMENT_WISE_REPORT&reportout=resolutionDepartmentReport");
+				}
+			});
+		}
 
 	</script>
 </head>
@@ -623,6 +708,28 @@
 				</c:if>						
 				</select>
 			</security:authorize>
+			
+			<security:authorize access="hasAnyRole('ROIS_CLERK', 'ROIS_ASSISTANT', 'ROIS_SECTION_OFFICER', 'ROIS_PRINCIPAL_SECRETARY')">					
+				<a href="javascript:void(0);" id="reports_link" class="butSim" style="float: right;">
+					<spring:message code="adjournmentmotion.reports" text="Reports"/>
+				</a>
+				<div id="assistantReportDiv" style="display: none; border: 1px solid green; border-radius: 6px; margin: 10px 0px 10px 0px; padding: 5px;">
+					<a href="javascript:void(0);" id="member_report" class="butSim" >
+						<spring:message code="generic.memberWiseReport" text="Member-wise Report"/>
+					</a>						
+					<select id="members" class="sSelect" style="display: inline; width:100px;">
+					</select>|
+					<a href="javascript:void(0);" id="department_report" class="butSim" >
+						<spring:message code="generic.departmentWiseReport" text="Department-wise Report"/>
+					</a>|
+					<%-- <a href="javascript:void(0);" id="party_report" class="butSim" >
+						<spring:message code="generic.partyWiseReport" text="Party-wise Report"/>
+					</a>						
+					<select id="parties" class="sSelect" style="display: inline; width:100px;">
+					</select>|<br> --%>
+					<hr>
+				</div>
+			</security:authorize>
 		</div>		
 				
 		<div class="tabContent">
@@ -643,6 +750,7 @@
 		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" />
 		
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>	
+		<input type="hidden" id="loadedSession" value="" />
 		<%--<input type="hidden" id="ballotSuccessMsg" value="<spring:message code='ballot.success' text='Member Ballot Created Succesfully'/>">			
 		<input type="hidden" id="ballotAlreadyCreatedMsg" value="<spring:message code='ballot.success' text='Member Ballot Already Created'/>">			
 		<input type="hidden" id="ballotFailedMsg" value="<spring:message code='ballot.failed' text='Member Ballot Couldnot be Created.Try Again'/>">			
