@@ -125,6 +125,7 @@
 					loadChartAnsweringDateByGroup($("#selectedGroup").val());
 				}
 			}
+			loadSession();
 			reloadQuestionGrid();
 		});
 		/**** session year changes then reload grid****/
@@ -141,6 +142,7 @@
 				}
 				loadProcessingMode();
 			}
+			loadSession();
 			reloadQuestionGrid();
 		});
 		/**** session type changes then reload grid****/
@@ -161,6 +163,7 @@
 			if($("#selectedGroup").val()!='' && $("#selectedGroup").val()!=null){
 				loadChartAnsweringDateByGroup($("#selectedGroup").val());
 			}
+			loadSession();
 			reloadQuestionGrid();
 		});
 		/**** question type changes then reload grid****/
@@ -255,6 +258,15 @@
 				$('#determine_ordering_for_submission_span').show();				
 			} else {
 				$('#determine_ordering_for_submission_span').hide();
+			}
+			
+			/**** show/hide memberballotchoice as per selected devicetype ****/
+			if($('#currentusergroupType').val()=='member' 
+					&& text == 'questions_starred'
+					&& $('#processMode').val()  == 'upperhouse') {
+				$("#memberballotchoice_span").show();
+			} else {
+				$("#memberballotchoice_span").hide();
 			}
 			
 			if (value != "") {
@@ -555,6 +567,14 @@
 				$("#memberballot_tab").hide();
 				$("#ballot_tab").hide();
 			}
+			/**** show/hide memberballotchoice as per selected devicetype ****/
+			if($('#currentusergroupType').val()=='member' 
+					&& selectedDeviceType == 'questions_starred'
+					&& $('#processMode').val()  == 'upperhouse') {
+				$("#memberballotchoice_span").show();
+			} else {
+				$("#memberballotchoice_span").hide();
+			}
 		});
 	}
 	
@@ -692,6 +712,20 @@
 			scrollTop();
 		});
 	}
+	
+	/**** Load Session ****/
+	function loadSession(){
+		$.get("ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+			+ "/" + $("#selectedSessionYear").val() + "/" + $("#selectedSessionType").val(),
+			function(data){
+				if(data){
+					$("#loadedSession").val(data.id);
+					//console.log("loaded session id: " + $('#loadedSession').val());
+					//loadMembers();
+					//loadParties();
+				}
+			});
+	}
 
 	/**** displaying grid ****/
 	function showQuestionList() {
@@ -707,6 +741,7 @@
 				+ "&role=" + $("#srole").val() + "&usergroup="
 				+ $("#currentusergroup").val() + "&usergroupType="
 				+ $("#currentusergroupType").val()+"&subdepartment="+(($("#selectedSubDepartment").val()==undefined)?'0':$("#selectedSubDepartment").val()));
+		loadSession();
 	}
 	
 	function determineOrderingForSubmission() {
@@ -717,6 +752,14 @@
 		+ "&createdBy=" + $("#ugparam").val()
 		+ "&locale="+$("#moduleLocale").val();
 		showTabByIdAndUrl('details_tab','question/determine_ordering_for_submission?'+parameters);
+	}
+	
+	function fillMemberBallotChoices() {
+		var parameters = "session=" + $("#loadedSession").val()
+		+ "&questionType=" + $("#selectedQuestionType").val()
+		+ "&role_filling_questionchoices=" + $("#srole").val()
+		+ "&locale="+$("#moduleLocale").val();
+		showTabByIdAndUrl('details_tab','ballot/memberballot/listchoices?'+parameters);
 	}
 	
 	function memberQuestionsView(status_filter) {
@@ -2344,6 +2387,7 @@
 		<div class="tabContent"></div>
 
 		<input type="hidden" id="key" name="key"> 
+		<input type="hidden" id="loadedSession" value="" />
 		<input type="hidden" name="ugparam" id="ugparam" value="${ugparam }">
 		<input type="hidden" name="srole" id="srole" value="${role}">
 		<input type="hidden" name="currentusergroup" id="currentusergroup" value="${usergroup}">

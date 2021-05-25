@@ -70,6 +70,7 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallot;
 import org.mkcl.els.domain.MemberBallotAttendance;
 import org.mkcl.els.domain.MemberBallotChoice;
+import org.mkcl.els.domain.MemberBallotChoiceAudit;
 import org.mkcl.els.domain.MemberBallotChoiceDraft;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
@@ -2654,18 +2655,43 @@ public class BallotController extends BaseController{
 			logger.error("error", e);
 		}
 		
+		boolean isMemberFillingQuestionChoices = false;
+		
 		try{
 			String strQuestionType=request.getParameter("questionType");
 			String strSession=request.getParameter("session");
 			String strMember=request.getParameter("member");
 
-			if(strQuestionType!=null&&strSession!=null&&strMember!=null){
+			if(strQuestionType!=null&&strSession!=null){
 				Session session=Session.findById(Session.class,Long.parseLong(strSession));
 				DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
 
 				/**** Populating New page ****/
 				/**** Member whose choice is being filled ****/
-				Member member=Member.findById(Member.class,Long.parseLong(strMember));
+				Member member=null;
+				if(strMember==null) {
+					String roleFillingQuestionChoices = request.getParameter("role_filling_questionchoices");
+					if(roleFillingQuestionChoices!=null && !roleFillingQuestionChoices.isEmpty() && roleFillingQuestionChoices.split("_")[0].equalsIgnoreCase(ApplicationConstants.MEMBER)) {
+						AuthUser authUser = this.getCurrentUser();
+						member = Member.findMember(authUser.getFirstName(), authUser.getMiddleName(),
+								authUser.getLastName(), authUser.getBirthDate(), locale.toString());
+						if(member==null) {
+							model.addAttribute("type","MEMBER_NOT_FOUND");
+							return "ballot/error";
+						} else {
+							isMemberFillingQuestionChoices = true;
+							model.addAttribute("session",session.getId());
+							model.addAttribute("questionType",questionType.getId());
+							model.addAttribute("role_filling_questionchoices",roleFillingQuestionChoices);
+							model.addAttribute("member_name",member.getFullname());
+						}
+					} else{
+						model.addAttribute("type","REQUEST_PARAMETER_NULL");
+						return "ballot/error";
+					}
+				} else {
+					member=Member.findById(Member.class,Long.parseLong(strMember));
+				}				
 				model.addAttribute("member",member);
 
 				/**** Total admitted questions of member and list of admitted questions ****/
@@ -2733,7 +2759,12 @@ public class BallotController extends BaseController{
 			model.addAttribute("type","REQUEST_PARAMETER_NULL");
 			return "ballot/error";
 		}
-		return "ballot/listmemberballotchoice";
+		
+		if(isMemberFillingQuestionChoices) {
+			return "ballot/memberballotchoicebymember";
+		} else {
+			return "ballot/listmemberballotchoice";
+		}
 	}
 
 	/****** Member Ballot(Council) Member Ballot Choices Update Page ****/
@@ -2743,6 +2774,8 @@ public class BallotController extends BaseController{
 			final HttpServletResponse response,
 			final ModelMap model,final Locale locale){
 		boolean fillStatus=false;
+		
+		boolean isMemberFillingQuestionChoices = false;
 		
 		try{
 			/**** Log the activity ****/
@@ -2758,11 +2791,40 @@ public class BallotController extends BaseController{
 			String strMember=request.getParameter("member");
 			String strTotalRounds=request.getParameter("totalRounds");
 			if(strNoOfAdmittedQuestions!=null
-					&&strQuestionType!=null&&strSession!=null&&strMember!=null
+					&&strQuestionType!=null
+					&&strSession!=null
 					&&strTotalRounds!=null){
 				Session session=Session.findById(Session.class,Long.parseLong(strSession));
 				DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
-				Member member=Member.findById(Member.class,Long.parseLong(strMember));
+				
+				Member member=null;
+				if(strMember==null) {
+					String roleFillingQuestionChoices = request.getParameter("role_filling_questionchoices");
+					if(roleFillingQuestionChoices!=null && !roleFillingQuestionChoices.isEmpty() && roleFillingQuestionChoices.split("_")[0].equalsIgnoreCase(ApplicationConstants.MEMBER)) {
+						AuthUser authUser = this.getCurrentUser();
+						member = Member.findMember(authUser.getFirstName(), authUser.getMiddleName(),
+								authUser.getLastName(), authUser.getBirthDate(), locale.toString());
+						if(member==null) {
+							model.addAttribute("type","MEMBER_NOT_FOUND");
+							return "ballot/error";
+						} else {
+							isMemberFillingQuestionChoices = true;
+						}
+					} else{
+						model.addAttribute("type","REQUEST_PARAMETER_NULL");
+						return "ballot/error";
+					}
+				} else {
+					member=Member.findById(Member.class,Long.parseLong(strMember));
+				}
+				
+				String reasonForChoicesUpdate = request.getParameter("reasonForChoicesUpdate");
+				if(!isMemberFillingQuestionChoices
+						&& (reasonForChoicesUpdate==null || reasonForChoicesUpdate.isEmpty())) {
+					model.addAttribute("type","REQUEST_PARAMETER_NULL");
+					return "ballot/error";
+				}
+				
 				int totalRounds=Integer.parseInt(strTotalRounds);
 				int noOfAdmittedQuestions=Integer.parseInt(strNoOfAdmittedQuestions);
 
@@ -2781,6 +2843,66 @@ public class BallotController extends BaseController{
 						totalRounds,noOfAdmittedQuestions,session,
 						questionType,member,locale.toString(),
 						request);
+				
+				MemberBallotChoiceAudit memberBallotChoiceAudit = new MemberBallotChoiceAudit();
+				memberBallotChoiceAudit.setLocale(locale.toString());
+				memberBallotChoiceAudit.setSession(session);
+				memberBallotChoiceAudit.setDeviceType(questionType);
+				memberBallotChoiceAudit.setMember(member);
+				
+				List<MemberBallotChoiceDraft> choiceEntries=new ArrayList<MemberBallotChoiceDraft>();
+				List<MemberBallotChoice> choices=MemberBallotChoice.findByMember(session, questionType, member, locale.toString());
+				if(choices!=null && !choices.isEmpty()){
+					for(MemberBallotChoice c: choices){
+						MemberBallotChoiceDraft choiceEntry = new MemberBallotChoiceDraft();
+						choiceEntry.setAutoFilled(c.getAutoFilled());
+						choiceEntry.setBlankFormAutoFilled(c.getBlankFormAutoFilled());
+						choiceEntry.setChoice(c.getChoice());
+						choiceEntry.setClubbingUpdated(c.getClubbingUpdated());
+						choiceEntry.setNewAnsweringDate(c.getNewAnsweringDate());
+						choiceEntry.setProcessed(c.getProcessed());
+						choiceEntry.setLocale(c.getLocale());
+						choiceEntry.setQuestion(c.getQuestion());
+						choiceEntry.setMemberballotChoiceId(c.getId());
+						choiceEntry.setMemberballotId(c.findCorrespondingMemberBallot().getId());
+						choiceEntry.setEditedBy(c.getEditedBy());
+						choiceEntry.setEditedOn(c.getEditedOn());
+						choiceEntry.setEditedAs(c.getEditedAs());
+						choiceEntry.persist();
+						choiceEntries.add(choiceEntry);
+					}
+					memberBallotChoiceAudit.setChoiceEntries(choiceEntries);
+				}				
+				
+				String username = this.getCurrentUser().getActualUsername();
+				Credential credential = Credential.findByFieldName(Credential.class, "username", username, null);
+				memberBallotChoiceAudit.setEditedBy(username);
+				memberBallotChoiceAudit.setEditedOn(new Date());
+				UserGroup usergroup =  UserGroup.findActive(credential, new Date(), locale.toString());
+				if(usergroup!= null){
+					memberBallotChoiceAudit.setEditedAs(usergroup.getUserGroupType());
+				}
+				
+				if(isMemberFillingQuestionChoices) {
+					memberBallotChoiceAudit.setIsFilledByMember(true);
+					//member filled choices notification
+					CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, "MEMBERBALLOT_QUESTIONS_CHOICES_FILLED_BY_MEMBER_NOTIFICATION_DISABLED", "");
+					if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
+							|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
+						NotificationController.sendMemberBallotQuestionChoicesFilledByMemberNotification(questionType, session, member.getFullname(), locale.toString());
+					}
+				} else {
+					memberBallotChoiceAudit.setIsFilledByMember(false);
+					memberBallotChoiceAudit.setReasonForChoicesUpdate(reasonForChoicesUpdate);					
+					//branch filled updated choices notification
+					CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, "MEMBERBALLOT_QUESTIONS_CHOICES_FILLED_BY_BRANCH_NOTIFICATION_DISABLED", "");
+					if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
+							|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
+						NotificationController.sendMemberBallotQuestionChoicesFilledByBranchNotification(questionType, session, member.getFullname(), this.getCurrentUser().getActualUsername(), locale.toString());
+					}
+				}
+				
+				memberBallotChoiceAudit.persist();
 
 				/**** Populating Edit page ****/
 				/**** Member whose choice is being filled ****/
@@ -2923,30 +3045,6 @@ public class BallotController extends BaseController{
 						memberBallot.merge();
 						/**** remove all previous entries ****/
 						for(MemberBallotChoice c:choices){
-							/**** To Maintain Revision of the Member Choices following code is added ****/
-							MemberBallotChoiceDraft draft = new MemberBallotChoiceDraft();
-							draft.setAutoFilled(c.getAutoFilled());
-							draft.setBlankFormAutoFilled(c.getBlankFormAutoFilled());
-							draft.setChoice(c.getChoice());
-							draft.setClubbingUpdated(c.getClubbingUpdated());
-							draft.setNewAnsweringDate(c.getNewAnsweringDate());
-							draft.setProcessed(c.getProcessed());
-							draft.setLocale(c.getLocale());
-							draft.setQuestion(c.getQuestion());
-							draft.setMemberballotChoiceId(c.getId());
-							draft.setMemberballotId(memberBallot.getId());
-//							String username = this.getCurrentUser().getActualUsername();
-//							Credential credential = Credential.findByFieldName(Credential.class, "username", username, null);
-//							draft.setEditedBy(username);
-//							draft.setEditedOn(new Date());
-//							UserGroup usergroup =  UserGroup.findActive(credential, new Date(), locale);
-//							if(usergroup!= null){
-//								draft.setEditedAs(usergroup.getUserGroupType().getType());
-//							}
-							draft.setEditedBy(c.getEditedAs());
-							draft.setEditedOn(c.getEditedOn());
-							draft.setEditedAs(c.getEditedAs());
-							draft.persist();
 							c.remove();
 						}					
 					}
@@ -3243,6 +3341,64 @@ public class BallotController extends BaseController{
 			logger.error(e.getMessage());
 		}
 		return false;
+	}
+	
+	@RequestMapping(value="/memberballot/questionchoices_status",method=RequestMethod.GET)
+	public String viewMemberBallotQuestionChoicesStatus(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		String errorpage="ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		try{
+			String strQuestionType=request.getParameter("questionType");
+			String strSession=request.getParameter("session");
+			String strNoOfRounds=request.getParameter("noofrounds");
+			List<Reference> presentMemberBallot=new ArrayList<Reference>();
+			List<Reference> absentMemberBallot=new ArrayList<Reference>();
+			if(strQuestionType!=null&&!strQuestionType.isEmpty()
+					&&strNoOfRounds!=null&&!strNoOfRounds.isEmpty()
+					&&strSession!=null&&!strSession.isEmpty()){
+				Session session=Session.findById(Session.class,Long.parseLong(strSession));
+				DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+				Integer noOfRounds=Integer.parseInt(strNoOfRounds);
+				for(int i=1;i<=noOfRounds;i++){
+					int count=MemberBallot.findEntryCount(session,questionType,i,true,locale.toString());
+					Reference reference=new Reference();
+					reference.setId(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i));
+					reference.setNumber(String.valueOf(i));
+					if(count>0){						
+						reference.setName("COMPLETE");
+					}else{
+						reference.setName("INCOMPLETE");
+					}
+					presentMemberBallot.add(reference);
+				}
+				for(int i=1;i<=noOfRounds;i++){
+					int count=MemberBallot.findEntryCount(session,questionType,i,false,locale.toString());
+					Reference reference=new Reference();
+					reference.setId(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i));
+					reference.setNumber(String.valueOf(i));
+					if(count>0){						
+						reference.setName("COMPLETE");
+					}else{
+						reference.setName("INCOMPLETE");
+					}
+					absentMemberBallot.add(reference);
+				}
+				model.addAttribute("presentBallot",presentMemberBallot);
+				model.addAttribute("absentBallot",absentMemberBallot);
+			}
+		}catch(Exception ex){
+			logger.error("failed",ex);
+			model.addAttribute("type","DB_EXCEPTION");
+			return errorpage;
+		}
+		return "ballot/memberballotstatus";
 	}
 
 	/****** Member Ballot(Council) Member Ballot Update Clubbing Page ****/

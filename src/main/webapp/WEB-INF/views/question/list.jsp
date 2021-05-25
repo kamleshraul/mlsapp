@@ -56,6 +56,13 @@
 			} else {
 				$("#determine_ordering_for_submission_span").hide();
 			}
+			if($('#currentusergroupType').val()=='member' 
+					&& currentDeviceType == 'questions_starred'
+					&& $('#processMode').val()  == 'upperhouse') {
+				$("#memberballotchoice_span").show();
+			} else {
+				$("#memberballotchoice_span").hide();
+			}
 			$("#member_statistics").click(function(){
 				memberStatistics();
 			});
@@ -86,6 +93,12 @@
 			$("#determine_ordering_for_submission").click(function() {
 				$("#selectionDiv1").hide();
 				determineOrderingForSubmission();
+			});
+			
+			/****Provide questions choices for first batch choices post member ballot ****/
+			$("#memberballotchoice").click(function() {
+				$("#selectionDiv1").hide();
+				fillMemberBallotChoices();
 			});
 			
 			/****Member's Questions View ****/
@@ -295,6 +308,11 @@
 				<span id="determine_ordering_for_submission_span">
 				<a href="#" id="determine_ordering_for_submission" class="butSim">
 					<spring:message code="question.determine_ordering_for_submission" text="Determine Ordering for Submission"/>
+				</a> |
+				</span>
+				<span id="memberballotchoice_span">
+				<a href="#" id="memberballotchoice" class="butSim link">
+					<spring:message code="memberballot.memberballotchoice" text="Question Choices"/>
 				</a> |
 				</span>
 				<hr/>

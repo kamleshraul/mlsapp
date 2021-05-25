@@ -39,6 +39,13 @@
 			var noOfAdmittedQuestion=parseInt($("#noOfAdmittedQuestions").val());
 			var blankFormAutoFillingStartsAt=parseInt($("#blankFormAutoFillingStartsAt").val());
 			var noOfMemberBallotChoicesExceptLast=parseInt($("#noOfMemberBallotChoicesExceptLast").val());
+			
+			/**** validation about providing reason for entering/updating question choices ****/
+			if($('#reasonForChoicesUpdate').val()==undefined || $('#reasonForChoicesUpdate').val()=='') {
+				$.unblockUI();
+				$.prompt($("#blankReasonForChoicesUpdateMsg").val());
+				return false;
+			}
 
 			/**** For Manually Entering Choices ****/
 			if(autofillingstartsat==0){				
@@ -238,6 +245,8 @@
 	value="<spring:message code='memberballotchoice.blankForm' text='No choices filled.If you want to auto fill choices from chart starting from last round click auto fill at last round'/>">
 	<input type="hidden" name="totalFilledLessThanAdmitted" id="totalFilledLessThanAdmitted"
 	value="<spring:message code='memberballotchoice.totalFilledLessThanAdmitted' text='Total choices filled is less than total admitted questions.If you want to auto fill choices from chart starting from last round click auto fill at last round'/>">
+	<input type="hidden" id="blankReasonForChoicesUpdateMsg"
+	value="<spring:message code='memberballotchoice.blankReasonForChoicesUpdateMsg' text='Please provide the reason for updating the question choices for selected member'/>">
 	
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </body>

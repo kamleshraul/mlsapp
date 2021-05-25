@@ -152,6 +152,11 @@ public class MemberBallotChoice extends BaseDomain implements Serializable{
 				questionType,member,pattern,
 				orderby,sortorder,locale);
 	}
+    
+    public MemberBallot findCorrespondingMemberBallot() {
+    	return getMemberBallotChoiceRepository().findCorrespondingMemberBallot(this);
+    }
+    
 
     /**** Getter and Setters for the MemberBallotChoice ****/
     

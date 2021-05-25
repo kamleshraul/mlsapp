@@ -349,6 +349,52 @@ public class NotificationController extends GenericController<Notification> {
 		getNotificationService().sendNotificationWithTitleUsingTemplate("BALLOT_CREATION_NOTIFICATION", templateParameters, locale);
 	}
 	
+	public static void sendMemberBallotQuestionChoicesFilledByMemberNotification(final DeviceType deviceType,
+					final Session session,
+					final String memberName,
+					final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("sessionId", new String[]{session.getId().toString()});
+		templateParameters.put("memberName", new String[]{memberName});
+		templateParameters.put("deviceTypeNameLike", new String[]{"%"+deviceType.getName()+"%"});
+		templateParameters.put("houseTypeNameLike", new String[]{"%"+session.getHouse().getType().getName()+"%"});
+		String usergroupTypes = "";
+		CustomParameter csptUserGroupTypesForQuestionChoicesFilledByMemberNotification = CustomParameter.findByName(CustomParameter.class, "USERGROUPTYPES_FOR_MEMBERBALLOT_QUESTION_CHOICES_FILLED_BY_MEMBER_NOTIFICATION", "");
+		if(csptUserGroupTypesForQuestionChoicesFilledByMemberNotification!=null 
+				&& csptUserGroupTypesForQuestionChoicesFilledByMemberNotification.getValue()!=null) {
+			usergroupTypes = csptUserGroupTypesForQuestionChoicesFilledByMemberNotification.getValue();
+		} else {
+			usergroupTypes = "section_officer,under_secretary,under_secretary_committee,deputy_secretary,deputy_secretary1,deputy_secretary2";
+		}
+		templateParameters.put("usergroupTypes", new String[]{usergroupTypes});		
+		getNotificationService().sendNotificationWithTitleUsingTemplate("MEMBERBALLOT_QUESTION_CHOICES_FILLED_BY_MEMBER_NOTIFICATION", templateParameters, locale);
+	}
+	
+	public static void sendMemberBallotQuestionChoicesFilledByBranchNotification(final DeviceType deviceType,
+					final Session session,
+					final String memberName,
+					final String choicesFillingUserName,
+					final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("sessionId", new String[]{session.getId().toString()});
+		templateParameters.put("memberName", new String[]{memberName});
+		templateParameters.put("choicesFillingUserName", new String[]{choicesFillingUserName});
+		templateParameters.put("deviceTypeNameLike", new String[]{"%"+deviceType.getName()+"%"});
+		templateParameters.put("houseTypeNameLike", new String[]{"%"+session.getHouse().getType().getName()+"%"});
+		String usergroupTypes = "";
+		CustomParameter csptUserGroupTypesForQuestionChoicesFilledByBranchNotification = CustomParameter.findByName(CustomParameter.class, "USERGROUPTYPES_FOR_MEMBERBALLOT_QUESTION_CHOICES_FILLED_BY_BRANCH_NOTIFICATION", "");
+		if(csptUserGroupTypesForQuestionChoicesFilledByBranchNotification!=null 
+				&& csptUserGroupTypesForQuestionChoicesFilledByBranchNotification.getValue()!=null) {
+			usergroupTypes = csptUserGroupTypesForQuestionChoicesFilledByBranchNotification.getValue();
+		} else {
+			usergroupTypes = "under_secretary,under_secretary_committee,deputy_secretary,deputy_secretary1,deputy_secretary2";
+		}
+		templateParameters.put("usergroupTypes", new String[]{usergroupTypes});		
+		getNotificationService().sendNotificationWithTitleUsingTemplate("MEMBERBALLOT_QUESTION_CHOICES_FILLED_BY_BRANCH_NOTIFICATION", templateParameters, locale);
+	}
+	
 	public static void sendCommitteeMeetingEntryNotification(final CommitteeMeeting committeeMeeting, final String locale) {
 		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
 		templateParameters.put("locale", new String[]{locale});

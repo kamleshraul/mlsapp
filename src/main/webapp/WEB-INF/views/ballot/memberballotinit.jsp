@@ -41,6 +41,11 @@
 				$(this).css("color","blue");
 				viewMemberBallotStatus();
 			});	
+			$('#view_memberballot_questionchoices_status').click(function(){
+				$(".link").css("color","#8D8B8B");
+				$(this).css("color","blue");
+				viewMemberBallotQuestionChoicesStatus();
+			});
 			/**** Level 2 Links ****/				
 			$('#memberballotchoice').click(function(event, isHighSecurityValidationRequired) {
 				//isHighSecurityValidationRequired = false;
@@ -319,8 +324,7 @@
 					});					
 				}
 			});			
-		}	
-		
+		}		
 		function viewMemberBallotStatus(){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			var parameters = "session="+$("#session").val()
@@ -340,6 +344,25 @@
 				scrollTop();
 			});
 		}	
+		function viewMemberBallotQuestionChoicesStatus(){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var parameters = "session="+$("#session").val()
+							 +"&questionType="+$("#questionType").val()
+			 				 +"&noofrounds="+$("#noOfRounds").val();
+			var resourceURL = 'ballot/memberballot/questionchoices_status?'+ parameters;
+			$.get(resourceURL,function(data){
+			$("#resultDiv").html(data);
+			$.unblockUI();				
+			},'html').fail(function(){
+				$.unblockUI();
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.");
+				}
+				scrollTop();
+			});
+		}		
 		function memberballotchoice(){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			var parameters = "session="+$("#session").val()
@@ -556,6 +579,9 @@
 			</security:authorize>	
 			<a href="#" id="view_member_ballot_status" class="butSim link">
 				<spring:message code="memberballot.memberballotstatus" text="Member Ballot Status"/>
+			</a> |	
+			<a href="#" id="view_memberballot_questionchoices_status" class="butSim link">
+				<spring:message code="memberballot.memberballot_questionchoices_status" text="Question Choices Status"/>
 			</a> |		
 			<hr>
 			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">

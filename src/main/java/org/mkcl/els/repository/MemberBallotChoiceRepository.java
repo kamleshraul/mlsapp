@@ -17,6 +17,7 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberBallot;
 import org.mkcl.els.domain.MemberBallotChoice;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Session;
@@ -182,6 +183,20 @@ public class MemberBallotChoiceRepository extends BaseRepository<MemberBallotCho
 			choiceFlag = true;
 		}
 		return choiceFlag;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public MemberBallot findCorrespondingMemberBallot(final MemberBallotChoice choice) {
+		String strQuery="SELECT mb FROM MemberBallot mb JOIN mb.questionChoices mbc "
+					 +" WHERE mbc.id=:choiceId";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("choiceId",choice.getId());
+		List<MemberBallot> results=query.getResultList();
+		if(results!=null && ! results.isEmpty()){
+			return results.get(0);
+		}else{
+			return null;
+		}
 	}
 
 }
