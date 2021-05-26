@@ -347,12 +347,11 @@
 		function viewMemberBallotQuestionChoicesStatus(){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			var parameters = "session="+$("#session").val()
-							 +"&questionType="+$("#questionType").val()
-			 				 +"&noofrounds="+$("#noOfRounds").val();
-			var resourceURL = 'ballot/memberballot/questionchoices_status?'+ parameters;
+							 +"&questionType="+$("#questionType").val();
+			var resourceURL = 'ballot/memberballot/choices_status?'+ parameters;
 			$.get(resourceURL,function(data){
-			$("#resultDiv").html(data);
-			$.unblockUI();				
+				$("#resultDiv").html(data);
+				$.unblockUI();				
 			},'html').fail(function(){
 				$.unblockUI();
 				if($("#ErrorMsg").val()!=''){
@@ -580,9 +579,11 @@
 			<a href="#" id="view_member_ballot_status" class="butSim link">
 				<spring:message code="memberballot.memberballotstatus" text="Member Ballot Status"/>
 			</a> |	
+			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY','QIS_SECRETARY','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_SECTION_OFFICER','QIS_PRINCIPAL_SECRETARY')">
 			<a href="#" id="view_memberballot_questionchoices_status" class="butSim link">
 				<spring:message code="memberballot.memberballot_questionchoices_status" text="Question Choices Status"/>
 			</a> |		
+			</security:authorize>
 			<hr>
 			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 			<a href="#" id="memberballotchoice" class="butSim link">

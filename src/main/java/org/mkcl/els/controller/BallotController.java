@@ -3343,8 +3343,8 @@ public class BallotController extends BaseController{
 		return false;
 	}
 	
-	@RequestMapping(value="/memberballot/questionchoices_status",method=RequestMethod.GET)
-	public String viewMemberBallotQuestionChoicesStatus(final HttpServletRequest request,final ModelMap model,final Locale locale){
+	@RequestMapping(value="/memberballot/choices_status",method=RequestMethod.GET)
+	public String viewMemberBallotChoicesStatus(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String errorpage="ballot/error";
 		
 		try{
@@ -3356,49 +3356,48 @@ public class BallotController extends BaseController{
 		
 		try{
 			String strQuestionType=request.getParameter("questionType");
-			String strSession=request.getParameter("session");
-			String strNoOfRounds=request.getParameter("noofrounds");
-			List<Reference> presentMemberBallot=new ArrayList<Reference>();
-			List<Reference> absentMemberBallot=new ArrayList<Reference>();
-			if(strQuestionType!=null&&!strQuestionType.isEmpty()
-					&&strNoOfRounds!=null&&!strNoOfRounds.isEmpty()
-					&&strSession!=null&&!strSession.isEmpty()){
+			String strSession=request.getParameter("session");			
+			if(strQuestionType!=null && !strQuestionType.isEmpty()
+					&& strSession!=null && !strSession.isEmpty()) {
+				
 				Session session=Session.findById(Session.class,Long.parseLong(strSession));
+				model.addAttribute("session",session.getId());
+				
 				DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
-				Integer noOfRounds=Integer.parseInt(strNoOfRounds);
-				for(int i=1;i<=noOfRounds;i++){
-					int count=MemberBallot.findEntryCount(session,questionType,i,true,locale.toString());
-					Reference reference=new Reference();
-					reference.setId(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i));
-					reference.setNumber(String.valueOf(i));
-					if(count>0){						
-						reference.setName("COMPLETE");
-					}else{
-						reference.setName("INCOMPLETE");
+				model.addAttribute("questionType",questionType.getId());
+				
+				Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+				queryParameters.put("deviceTypeId", new String[]{questionType.getId().toString()});
+				queryParameters.put("sessionId", new String[]{session.getId().toString()});
+				queryParameters.put("locale", new String[]{locale.toString()});
+				
+				@SuppressWarnings("rawtypes")
+				List report = Query.findReport("MEMBERBALLOT_CHOICES_STATUS_REPORT", queryParameters);
+				if(report != null && !report.isEmpty()){
+					Object[] obj = (Object[])report.get(0);
+					if(obj != null){
+						
+						model.addAttribute("colHeaders", obj[0].toString().split(";"));
+						model.addAttribute("statusMessages", obj[5].toString().split(";"));
 					}
-					presentMemberBallot.add(reference);
+					List<String> serialNumbers = populateSerialNumbers(report, locale);
+					model.addAttribute("serialNumbers", serialNumbers);
 				}
-				for(int i=1;i<=noOfRounds;i++){
-					int count=MemberBallot.findEntryCount(session,questionType,i,false,locale.toString());
-					Reference reference=new Reference();
-					reference.setId(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i));
-					reference.setNumber(String.valueOf(i));
-					if(count>0){						
-						reference.setName("COMPLETE");
-					}else{
-						reference.setName("INCOMPLETE");
-					}
-					absentMemberBallot.add(reference);
-				}
-				model.addAttribute("presentBallot",presentMemberBallot);
-				model.addAttribute("absentBallot",absentMemberBallot);
+				model.addAttribute("formater", new FormaterUtil());
+				model.addAttribute("locale", locale.toString());
+				model.addAttribute("report", report);
+				
+			} else{
+				logger.error("**** Check request parameter 'session,questionType' for null values ****");
+				model.addAttribute("type", "REQUEST_PARAMETER_NULL");
+				return errorpage;
 			}
 		}catch(Exception ex){
 			logger.error("failed",ex);
 			model.addAttribute("type","DB_EXCEPTION");
 			return errorpage;
 		}
-		return "ballot/memberballotstatus";
+		return "ballot/memberballotchoice_status";
 	}
 
 	/****** Member Ballot(Council) Member Ballot Update Clubbing Page ****/
