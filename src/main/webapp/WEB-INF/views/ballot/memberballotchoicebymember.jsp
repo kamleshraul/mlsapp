@@ -544,7 +544,19 @@
 						</c:forEach>
 					</c:forEach>				
 				</table>
-				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" style="text-align:center;">
+				<div class="fields">
+					<p style="margin-top: 20px;"></p>
+					<c:if test="${isMemberFillingQuestionChoices!='YES'}">
+						<p>
+							<label class="centerlabel" style="margin-top: 10px;"><spring:message code="memberballotchoice.reasonForChoicesUpdate" text="Reason for choices update"/>*</label>
+							<textarea id="reasonForChoicesUpdate" name="reasonForChoicesUpdate" rows="2" cols="50"></textarea>
+						</p>
+						<h2></h2>			
+					</c:if>
+					<p class="tright">
+						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" style="text-align:center;">
+					</p>
+				</div>
 			</div>
 			<input id="noOfAdmittedQuestions" name="noOfAdmittedQuestions" value="${noOfAdmittedQuestions }" type="hidden">
 			<input id="totalRounds" name="totalRounds" value="${totalRounds }" type="hidden">

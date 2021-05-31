@@ -2684,6 +2684,7 @@ public class BallotController extends BaseController{
 							model.addAttribute("questionType",questionType.getId());
 							model.addAttribute("role_filling_questionchoices",roleFillingQuestionChoices);
 							model.addAttribute("member_name",member.getFullname());
+							model.addAttribute("isMemberFillingQuestionChoices", "YES");
 						}
 					} else{
 						model.addAttribute("type","REQUEST_PARAMETER_NULL");
@@ -2809,6 +2810,7 @@ public class BallotController extends BaseController{
 							return "ballot/error";
 						} else {
 							isMemberFillingQuestionChoices = true;
+							model.addAttribute("isMemberFillingQuestionChoices","YES");
 						}
 					} else{
 						model.addAttribute("type","REQUEST_PARAMETER_NULL");
