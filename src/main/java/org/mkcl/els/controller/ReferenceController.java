@@ -31,6 +31,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -51,7 +53,11 @@ import org.mkcl.els.controller.wf.EditingWorkflowController;
 import org.mkcl.els.domain.*;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.service.ISecurityService;
+import org.mkcl.els.service.impl.JwtServiceImpl;
+import org.omg.CORBA.Request;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Controller;
@@ -78,6 +84,9 @@ public class ReferenceController extends BaseController {
 
 	@Autowired
 	SessionRegistry sessionRegistry;
+	
+	@Autowired
+	JwtServiceImpl jwtService;
 	/**
 	 * Gets the districts by state id.
 	 *
@@ -99,18 +108,47 @@ public class ReferenceController extends BaseController {
 	}
 	
 	@RequestMapping(value = "/{username}/isMemberActiveInSession", method = RequestMethod.GET)
-	public @ResponseBody boolean isMemberActiveInLoginSession(@PathVariable("username") final String username, final ModelMap map, final Locale locale) {
+	public @ResponseBody boolean isMemberActiveInLoginSession(@PathVariable("username") final String username, final ModelMap map,HttpServletRequest request,HttpSession session ,final Locale locale) {
 		boolean isMemberActiveInLoginSession = false;
 		try {
-			String loggedInUsername = this.getCurrentUser().getActualUsername();
-			if(username!=null && loggedInUsername.equals(username)) {
-				User memberUser = User.findByUserName(username, locale.toString());
-				logger.debug("memberUser found with ID: " + memberUser.getId());
-				Member member = Member.findByNameBirthDate(memberUser.getFirstName(), memberUser.getMiddleName(), memberUser.getLastName(), memberUser.getBirthDate(), locale.toString());
-				logger.debug("member found with ID: " + member.getId());
-				isMemberActiveInLoginSession = true;
+			
+			List<Object> allPrincipals = sessionRegistry.getAllPrincipals();
+			List<SessionInformation> allSessions=new ArrayList<SessionInformation>();
+			
+			for(Object obj:allPrincipals) {
+				AuthUser authUser=(AuthUser)obj;
+				if(authUser!=null && authUser.getActualUsername()!=null 
+						&& authUser.getActualUsername().trim().equalsIgnoreCase(username) ) {
+					isMemberActiveInLoginSession=true;
+					allSessions = sessionRegistry.getAllSessions(obj,false);
+					break;
+				}
 			}
-		} catch (ELSException e) {
+			
+			
+			String token = request.getHeader("authorization");
+			if(token!=null && token.trim().length()>0) {
+				boolean verifyJwtToken = jwtService.verifyJwtToken(token,username,allSessions);
+				
+				if(verifyJwtToken==true) {
+					if(username!=null && username.trim().length()>0) {
+						User memberUser = User.findByUserName(username, locale.toString());
+						logger.debug("memberUser found with ID: " + memberUser.getId());
+						Member member = Member.findByNameBirthDate(memberUser.getFirstName(), memberUser.getMiddleName(), memberUser.getLastName(), memberUser.getBirthDate(), locale.toString());
+						logger.debug("member found with ID: " + member.getId());
+						if(member!=null && member.getId()!=null &&member.getId()>0)
+							isMemberActiveInLoginSession = true;					
+						else
+							isMemberActiveInLoginSession=false;
+					}
+				}else {
+					//as jwt token is invalid
+					isMemberActiveInLoginSession=false;
+				}
+			}
+			//String loggedInUsername = this.getCurrentUser().getActualUsername();
+			
+		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("Invalid username: " + username);
 		}		
