@@ -216,11 +216,23 @@
 			<param-value>SAMEORIGIN</param-value>
 		</init-param>
 	</filter>
+	<filter>
+		<description>
+		</description>
+		<display-name>CORSFilter</display-name>
+		<filter-name>CORSFilter</filter-name>
+		<filter-class>org.mkcl.els.common.filter.CORSFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>CORSFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<error-page> 
 	<filter-mapping>
 		<filter-name>clickJackingFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-	<error-page>  
+	 
        <error-code>403</error-code>  
        <location>/WEB-INF/views/errors/general-error.jsp</location>  
    </error-page>
