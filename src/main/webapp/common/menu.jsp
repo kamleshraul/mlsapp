@@ -15,7 +15,7 @@
 	                               // due to slight rounding differences and font-family 
 	        }).superfish();  // call supersubs first, then superfish, so that subs are 
 
-	        $('.menu_link').click(function(){				
+	        $('.menu_link').click(function(event){				
 				//This is done so as to change authhousetype to the housetype of clicked menu					   
 				var text=$(this).text();						
 				if(text==$('#lowerhouse').val()){
@@ -26,6 +26,10 @@
 					   $('#authhousetype').val("upperhouse");
 				}else if(text=="Council"){
 					   $('#authhousetype').val("upperhouse");
+				}else if(this.href.endsWith('/external')){
+					window.open(this.href, '_blank').focus();
+					event.preventDefault();
+					return false;
 				}        
 		        if(this.href.indexOf("home")==-1){
 		           $("#alertmod").remove();//this is done as fix to jqgrid warning box that shows up at bottom of the page 
