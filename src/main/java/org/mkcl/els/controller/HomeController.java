@@ -153,7 +153,15 @@ public class HomeController extends BaseController {
         	response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
         	response.setHeader("Location", "home.htm");
         }
-        return "login";
+        CustomParameter cpNewloginpageFlag = CustomParameter.findByName(CustomParameter.class, "NEW_LOGINPAGE", "");
+    	String newloginpageFlag = cpNewloginpageFlag.getValue();
+        if(newloginpageFlag!= null && newloginpageFlag.equals("YES")) {
+        return "newlogin";
+        }
+        else
+        {
+            return "login";
+        }
     }
 
     /**
