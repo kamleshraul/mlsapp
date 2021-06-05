@@ -1,0 +1,236 @@
+@font-face {
+  font-family: "Noto Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Noto Sans"), local("NotoSans"), url(../fonts/notosans/NotoSans-Regular_dev.woff2) format("woff2");
+}
+@font-face {
+  font-family: "Noto Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Noto Sans"), local("NotoSans"), url(../fonts/notosans/NotoSans-Regular.woff2) format("woff2");
+}
+@font-face {
+  font-family: "Noto Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local("Noto Sans Bold"), local("NotoSans-Bold"), url(../fonts/notosans/NotoSans-Bold_dev.woff2) format("woff2");
+}
+@font-face {
+  font-family: "Noto Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local("Noto Sans Bold"), local("NotoSans-Bold"), url(../fonts/notosans/NotoSans-Bold.woff2) format("woff2");
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: 400;
+  color: #555;
+  background: #fff;
+  font-family: "Noto Sans", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #1d3446;
+}
+
+a, .btn-link {
+  color: #3e6cc5;
+}
+a:hover, a:focus, .btn-link:hover, .btn-link:focus {
+  color: #3056a0;
+}
+
+.lp-wrapper .lp-holder {
+  background: #fff;
+  width: 100%;
+  margin: auto;
+  overflow: hidden;
+}
+.lp-wrapper .form-wrapper {
+  padding: 30px 30px;
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.lp-wrapper .form-wrapper .form-group {
+  margin-bottom: 18px;
+}
+.lp-wrapper .form-wrapper .form-group .input-group {
+  position: relative;
+}
+.lp-wrapper .form-wrapper .form-group .input-group i {
+  position: absolute;
+  top: 14px;
+  left: 18px;
+  z-index: 5;
+  font-size: 20px;
+  line-height: 1;
+}
+.lp-wrapper .form-wrapper .form-group .input-group .form-control {
+  padding-left: 56px;
+}
+.lp-wrapper .form-wrapper .form-group label {
+  margin-bottom: 6px;
+  font-size: 18px;
+  line-height: 24px;
+  color: #5c5c5c;
+}
+.lp-wrapper .form-wrapper .form-group .form-control {
+  height: 49px;
+  border: none;
+  border-radius: 5px;
+  background-color: #eee;
+  box-shadow: inset 0 0 0 1px #d6dce0;
+}
+.lp-wrapper .form-wrapper .form-group .form-control:focus {
+  box-shadow: inset 0 0 0 2px #527bcb;
+}
+.lp-wrapper .form-wrapper .form-action {
+  padding: 5px 0;
+}
+.lp-wrapper .form-wrapper .btn-login {
+  padding: 13px 30px;
+  border: none;
+  border-radius: 5px;
+  background: #527bcb;
+  color: #fff;
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: 18px;
+  line-height: 24px;
+  box-shadow: 0 0 20px 0 rgba(82, 123, 203, 0.4);
+}
+.lp-wrapper .form-wrapper .btn-login:hover, .lp-wrapper .form-wrapper .btn-login:focus {
+  background: #3e6cc5;
+}
+.lp-wrapper .form-wrapper .link-holder {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+  line-height: 24px;
+}
+.lp-wrapper .form-wrapper .link-holder a, .lp-wrapper .form-wrapper .link-holder .btn {
+  padding: 1px 5px;
+  font-size: 15px;
+  line-height: 24px;
+}
+.lp-wrapper .form-wrapper hr {
+  margin: 18px 0;
+  border-top: 2px solid #efefef;
+}
+.lp-wrapper .form-holder {
+  margin-bottom: 30px;
+}
+
+.logo-wrapper {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.logo-wrapper .logo-m {
+  height: 80px;
+  margin-bottom: 10px;
+}
+
+.logo-title {
+  margin: 0;
+  font-size: 30px;
+  line-height: 40px;
+  font-weight: 700;
+  color: #2a2a2a;
+}
+
+.login-footer {
+  margin-bottom: -20px;
+  text-align: center;
+}
+.login-footer .version {
+  font-size: 12px;
+  line-height: 16px;
+  margin-bottom: 10px;
+  color: #444;
+}
+.login-footer .copyright {
+  font-size: 12px;
+  line-height: 18px;
+  margin: 0;
+  color: #777;
+}
+
+.img-wrapper {
+  position: relative;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100%;
+}
+.img-wrapper:before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  content: "";
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.login .modal-title {
+  margin-bottom: 20px;
+}
+.login .modal-body .close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 12px;
+  font-size: 24px;
+  line-height: 1;
+}
+
+@media (min-width: 768px) {
+  .lp-wrapper .form-wrapper {
+    padding-left: 60px;
+    padding-right: 60px;
+  }
+}
+@media (min-width: 1400px) {
+  .lp-wrapper .form-wrapper {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+  .lp-wrapper .form-wrapper .form-group {
+    margin-bottom: 25px;
+  }
+  .lp-wrapper .form-wrapper .link-holder a, .lp-wrapper .form-wrapper .link-holder .btn {
+    padding: 2px 5px;
+  }
+  .lp-wrapper .form-wrapper hr {
+    margin: 30px 0;
+  }
+  .lp-wrapper .form-holder {
+    margin-bottom: 60px;
+  }
+
+  .logo-wrapper {
+    margin-top: 10px;
+    margin-bottom: 40px;
+  }
+  .logo-wrapper .logo-m {
+    height: 100px;
+    margin-bottom: 20px;
+  }
+}/*# sourceMappingURL=custom.css.map */

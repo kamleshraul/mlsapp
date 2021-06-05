@@ -1,0 +1,202 @@
+$pricolor: #527bcb;
+
+
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Noto Sans'), local('NotoSans'), url(../fonts/notosans/NotoSans-Regular_dev.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Noto Sans'), local('NotoSans'), url(../fonts/notosans/NotoSans-Regular.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Noto Sans Bold'), local('NotoSans-Bold'), url(../fonts/notosans/NotoSans-Bold_dev.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Noto Sans Bold'), local('NotoSans-Bold'), url(../fonts/notosans/NotoSans-Bold.woff2) format('woff2');
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: 400;
+  color: #555;
+  background: #fff;
+  font-family: 'Noto Sans', sans-serif;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #1d3446;
+}
+
+a, .btn-link {color: darken($pricolor, 5%);
+  &:hover, &:focus {color: darken($pricolor, 15%);}
+}
+
+.lp-wrapper {
+  .lp-holder {
+    background: #fff;
+    width: 100%;
+    margin: auto;
+    overflow: hidden; 
+  }
+  .form-wrapper {
+    padding: 30px 30px;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    .form-group{
+      margin-bottom: 18px;
+      .input-group {position: relative;
+        i {position: absolute; top: 14px; left: 18px; z-index: 5; font-size: 20px; line-height: 1;}
+        .form-control {padding-left: 56px;}
+      }
+      label {margin-bottom: 6px; font-size: 18px; line-height: 24px; color: #5c5c5c;}
+      .form-control {height: 49px; border: none; border-radius: 5px; background-color: #eee; box-shadow: inset 0 0 0 1px #d6dce0;
+        &:focus {box-shadow: inset 0 0 0 2px $pricolor;}
+      }
+    }
+    .form-action {padding: 5px 0;}
+    .btn-login {
+      padding: 13px 30px;
+      border: none;
+      border-radius: 5px;
+      background: $pricolor;
+      color: #fff;
+      display: block;
+      width: 100%;
+      text-align: center;
+      font-size: 18px;
+      line-height: 24px;
+      box-shadow: 0 0 20px 0 rgba($pricolor, 0.4);
+      &:hover, &:focus {background: darken($pricolor, 5%);}
+    }
+    .link-holder{
+      display: flex;
+      justify-content: space-between;
+      font-size: 15px;
+      line-height: 24px;
+      a, .btn {padding: 1px 5px; font-size: 15px; line-height: 24px;}
+    }
+    hr {margin: 18px 0; border-top: 2px solid #efefef;}
+  }
+  .form-holder {margin-bottom: 30px;}
+}
+
+
+.logo-wrapper{
+  text-align: center;
+  margin-bottom: 30px;
+  .logo-m{
+    height: 80px;
+    margin-bottom: 10px;
+  }
+}
+.logo-title{
+  margin: 0;
+  font-size: 30px;
+  line-height: 40px;
+  font-weight: 700;
+  color: #2a2a2a;
+}
+
+.login-footer{
+  // margin-top: auto;
+  margin-bottom: -20px;
+  // padding-top: 10px;
+  text-align: center;
+  .version{
+    font-size: 12px;
+    line-height: 16px;
+    margin-bottom: 10px;
+    color: #444;
+  }
+  .copyright{
+    font-size: 12px;
+    line-height: 18px;
+    margin:0;
+    color: #777;
+  }
+}
+
+.img-wrapper {
+  position: relative;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100%;
+  &:before {position: absolute; top: 0; bottom: 0; left: 0; right: 0; content: ''; background: rgba(0, 0, 0, 0.1);}
+}
+
+.login {
+  .modal-title {margin-bottom: 20px;}
+  .modal-body {
+    .close {position: absolute; top: 0; right: 0; padding: 12px; font-size: 24px; line-height: 1;}
+    // p, ul, ol {
+    //   &:last-child {margin-bottom: 0;}
+    // }
+  }
+}
+
+
+@media (min-width: 576px) {}
+
+@media (min-width: 768px) {
+.lp-wrapper {
+  .form-wrapper {
+    padding-left: 60px; padding-right: 60px;
+  }
+}
+}
+
+@media (min-width: 992px) {}
+
+@media (min-width: 1200px) {}
+
+@media (min-width: 1400px) {
+.lp-wrapper {
+  .form-wrapper {
+    padding-top: 40px; padding-bottom: 40px;
+    .form-group{
+      margin-bottom: 25px;
+    }
+    .link-holder{
+      a, .btn {padding: 2px 5px;}
+    }
+    hr {margin: 30px 0;}
+  }
+  .form-holder {margin-bottom: 60px;}
+}
+
+.logo-wrapper{
+  margin-top: 10px;
+  margin-bottom: 40px;
+  .logo-m{
+    height: 100px;
+    margin-bottom: 20px;
+  }
+}
+}
