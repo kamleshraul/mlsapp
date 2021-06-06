@@ -112,6 +112,11 @@ public class SubmissionRestrictionInterceptor extends HandlerInterceptorAdapter 
 									}
 								}								
 								
+							} else if(restrictionURL.contains("memberballot/listchoices")
+										|| restrictionURL.contains("ballot/memberballot/choices")) {
+								csptRestStartTime = CustomParameter.findByName(CustomParameter.class, "MEMBERBALLOT_CHOICE_RESTRICTION_START_TIME", "");
+								csptRestEndTime = CustomParameter.findByName(CustomParameter.class, "MEMBERBALLOT_CHOICE_RESTRICTION_END_TIME", "");
+								
 							} else {
 								csptRestStartTime = CustomParameter.findByName(CustomParameter.class, "RESTRICTION_START_TIME", "");
 								csptRestEndTime = CustomParameter.findByName(CustomParameter.class, "RESTRICTION_END_TIME", "");

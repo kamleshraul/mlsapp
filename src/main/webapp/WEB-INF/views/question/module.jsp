@@ -759,6 +759,7 @@
 		+ "&questionType=" + $("#selectedQuestionType").val()
 		+ "&role_filling_questionchoices=" + $("#srole").val()
 		+ "&locale="+$("#moduleLocale").val();
+		//showTabByIdAndUrl('details_tab','ballot/memberballot/listchoices?'+parameters, $('#questionChoiceSubmissionWindowClosedMsg').val());
 		showTabByIdAndUrl('details_tab','ballot/memberballot/listchoices?'+parameters);
 	}
 	
@@ -2405,6 +2406,7 @@
 		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" />
 		<input type="hidden" id="chartAnsweringDate" name="chartAnsweringDate" value="-">
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>" />
+		<%-- <input type="hidden" id="questionChoiceSubmissionWindowClosedMsg" value="<spring:message code='memberballotchoice.SubmissionWindowClosedMsg' text='Submission window for filling questions choices is closed.'/>"/> --%>
 		<input type="hidden" id="moduleLocale" value="${moduleLocale}" />
 		<input type="hidden" id="processMode" value="${processMode}" />
 		<input type="hidden" id="member_questions_view_status_flag" value="${member_questions_view_status_flag}" />

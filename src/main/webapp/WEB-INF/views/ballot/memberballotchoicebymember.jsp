@@ -326,7 +326,7 @@
 	
 	function submitForm(){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-		$.post($('form').attr('action'),  
+		$.post($('form').attr('action')+'?operation=submit',
 	            $("form").serialize(),  
 	            function(data){
 					$("#listchoices").empty();	
@@ -334,13 +334,29 @@
    					$('html').animate({scrollTop:0}, 'slow');
    				 	$('body').animate({scrollTop:0}, 'slow');	
 					$.unblockUI();	   				 	   				
-	            },'html').fail(function(){
+	            },'html').fail(function(xhr, textStatus, errorThrown){ //referred from function showTabByIdAndUrl in common.js
+	            	var code = parseInt(xhr.status);
+	            	//console.log("Code:="+code);
 					$.unblockUI();
-					if($("#ErrorMsg").val()!=''){
-						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-					}else{
-						$("#error_p").html("Error occured contact for support.");
-					}
+	            	if(code==403) { //submission window is closed for logged in member
+	            		$('#submit').attr('disabled', 'disabled');
+	            		$('#submitQuestionChoicesP').hide();
+						if($("#questionChoiceSubmissionWindowClosedMsg").val()!=''){
+							$("#error_p").html($("#questionChoiceSubmissionWindowClosedMsg").val()).css({'color':'red', 'display':'block'});
+							
+						}else if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+							
+						}else{
+							$("#error_p").html("Error occured contact for support.");
+						}          		
+	            	} else {
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.");
+						}	            		
+	            	}
 					scrollTop();
 			});
 	}
@@ -553,7 +569,7 @@
 						</p>
 						<h2></h2>			
 					</c:if>
-					<p class="tright">
+					<p id="submitQuestionChoicesP" class="tright">
 						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" style="text-align:center;">
 					</p>
 				</div>
@@ -568,7 +584,6 @@
 			
 			<input id="questionsInLastRoundByDefault" name="questionsInLastRoundByDefault" type="hidden" value="${questionsInLastRoundByDefault}">
 			<input id="noOfMemberBallotChoicesExceptLast" name="noOfMemberBallotChoicesExceptLast" type="hidden" value="${noOfMemberBallotChoicesExceptLast}">
-			<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 			<input type="hidden" id="resetAll" value="<spring:message code='generic.resetAll' text='Do you want to clear choices for all rounds ?'/>"/>
 			<input type="hidden" id="resetParticularRound" value="<spring:message code='generic.resetParticularRound' text='Do you want to clear choices for round : '/>"/>
 		</div>
@@ -601,6 +616,7 @@
 	<input type="hidden" name="totalFilledLessThanAdmitted" id="totalFilledLessThanAdmitted"
 	value="<spring:message code='memberballotchoice.totalFilledLessThanAdmitted' text='Total choices filled is less than total admitted questions.If you want to auto fill choices from chart starting from last round click auto fill at last round'/>">
 	
+	<input type="hidden" id="questionChoiceSubmissionWindowClosedMsg" value="<spring:message code='memberballotchoice.SubmissionWindowClosedMsg' text='Submission window for filling questions choices is closed.'/>"/>
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </body>
 </html>

@@ -10,7 +10,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mkcl.els.common.interceptor.CorsInterceptor;
+//import org.mkcl.els.common.interceptor.CorsInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CORSFilter implements Filter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CorsInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CORSFilter.class);
 
     public static final String REQUEST_ORIGIN_NAME = "Origin";
 

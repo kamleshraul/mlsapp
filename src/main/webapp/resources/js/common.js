@@ -387,6 +387,32 @@ function showTabByIdAndUrl(id, url) {
 	scrollTop();
 };
 
+function showTabByIdAndUrl(id, url, restrictionErrorMessage) {
+	$('a').removeClass('selected');
+	//id refers to the tab name and it is used just to highlight the selected tab
+	$('#'+ id).addClass('selected');
+	//tabcontent is the content area where result of the url load will be displayed
+	$('.tabContent').load(url, function (response, status, xhr) {
+		var code = parseInt(xhr.status);
+		var msg = "";
+		if(code > 399){
+			msg = ""+xhr.status+" ";
+			if(code==403){
+				if(restrictionErrorMessage!=null && restrictionErrorMessage!='' && restrictionErrorMessage!=undefined) {
+					msg = restrictionErrorMessage;
+				} else {
+					msg += "ACTION PERFORMED IS NOT ALLOWED CURRENTLY.<br>Please Try again later.";	
+				}
+			}else if(code==500){
+				msg += "Contact administrator.";
+			}
+			
+			$("#error_p").html(msg).css({'color':'red', 'display':'block'});
+		}
+  });
+	scrollTop();
+};
+
 function form_submit(path, params, method) {
 	form_submit_with_target(path, params, method, '_self');
 }

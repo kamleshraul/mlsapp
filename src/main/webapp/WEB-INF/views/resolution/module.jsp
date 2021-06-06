@@ -21,6 +21,7 @@
 			$("#selectedHouseType").change(function(){
 				var value=$(this).val();
 				if(value!=""){	
+					loadSession();
 					loadStatus();
 					reloadResolutionGrid();									
 				}	
@@ -29,6 +30,7 @@
 			$("#selectedSessionYear").change(function(){
 				var value=$(this).val();
 				if(value!=""){		
+					loadSession();
 					loadStatus();
 					reloadResolutionGrid();							
 				}			
@@ -37,6 +39,7 @@
 			$("#selectedSessionType").change(function(){
 				var value=$(this).val();
 				if(value!=""){		
+					loadSession();
 					loadStatus();
 					reloadResolutionGrid();						
 				}			
