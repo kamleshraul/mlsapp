@@ -13,20 +13,17 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.vo.MemberBallotChoiceRevisionVO;
 import org.mkcl.els.repository.MemberBallotChoiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -118,6 +115,18 @@ public class MemberBallotChoice extends BaseDomain implements Serializable{
     public static List<MemberBallotChoice> findByMember(final Session session,
             final DeviceType deviceType, final Member member, final String locale) throws ELSException {
         return getMemberBallotChoiceRepository().findByMember(session,deviceType,member,locale);
+    }
+    
+    /**
+     * Gets the revisions.
+     *
+     * @param memberId the member id
+	 * @param sessionId the session id
+     * @param locale the locale
+     * @return the revisions
+     */
+    public static List<MemberBallotChoiceRevisionVO> getRevisions(final Long memberId, final Long sessionId, final String locale) {
+        return getMemberBallotChoiceRepository().getRevisions(memberId, sessionId, locale);
     }
 
     /**

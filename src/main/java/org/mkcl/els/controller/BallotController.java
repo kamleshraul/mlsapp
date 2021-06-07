@@ -15,7 +15,6 @@ import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -25,24 +24,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.hibernate.mapping.Array;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
-import org.mkcl.els.common.vo.BallotEntryVO;
 import org.mkcl.els.common.vo.BallotMemberVO;
 import org.mkcl.els.common.vo.BallotVO;
 import org.mkcl.els.common.vo.BillBallotVO;
 import org.mkcl.els.common.vo.GroupVO;
 import org.mkcl.els.common.vo.MasterVO;
-import org.mkcl.els.common.vo.MemberBallotFinalBallotQuestionVO;
+import org.mkcl.els.common.vo.MemberBallotChoiceRevisionVO;
 import org.mkcl.els.common.vo.MemberBallotFinalBallotVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseCountVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseQuestionVO;
@@ -88,11 +84,11 @@ import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
-import org.mkcl.els.domain.UserGroupType;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -3400,6 +3396,18 @@ public class BallotController extends BaseController{
 			return errorpage;
 		}
 		return "ballot/memberballotchoice_status";
+	}
+
+	@RequestMapping(value="/memberballotchoice/revisions/{memberId}/session/{sessionId}",method=RequestMethod.GET)
+	public String getDrafts(final Locale locale,
+							@PathVariable("memberId")  final Long memberId,
+							@PathVariable("sessionId")  final Long sessionId,
+							final ModelMap model){
+		
+		List<MemberBallotChoiceRevisionVO> revisions = MemberBallotChoice.getRevisions(memberId, sessionId, locale.toString());
+		model.addAttribute("revisions", revisions);
+		
+		return "ballot/memberballotchoice_revisions";
 	}
 
 	/****** Member Ballot(Council) Member Ballot Update Clubbing Page ****/

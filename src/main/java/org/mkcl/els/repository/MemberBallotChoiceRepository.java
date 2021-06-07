@@ -1,20 +1,15 @@
 package org.mkcl.els.repository;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.Parameter;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
-import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.common.vo.MemberBallotChoiceRevisionVO;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallot;
@@ -197,6 +192,81 @@ public class MemberBallotChoiceRepository extends BaseRepository<MemberBallotCho
 		}else{
 			return null;
 		}
+	}
+	
+	/**
+	 * Gets the revisions.
+	 *
+	 * @param memberId the member id
+	 * @param sessionId the session id
+	 * @param locale the locale
+	 * @return the revisions
+	 */
+	@SuppressWarnings("rawtypes")
+	public List<MemberBallotChoiceRevisionVO> getRevisions(final Long memberId, final Long sessionId, final String locale) {
+		org.mkcl.els.domain.Query revisionQuery=org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOTCHOICE_GET_REVISION", "");
+		String strquery = revisionQuery.getQuery();
+		Query query=this.em().createNativeQuery(strquery);
+		query.setParameter("memberId", memberId);
+		query.setParameter("sessionId", sessionId);
+		query.setParameter("locale", locale);
+		List results = query.getResultList();
+		List<MemberBallotChoiceRevisionVO> choiceRevisionVOs = new ArrayList<MemberBallotChoiceRevisionVO>();
+		for(int i=0;i<results.size();i++){
+			Object[] o = (Object[]) results.get(i);
+			MemberBallotChoiceRevisionVO choiceRevisionVO = new MemberBallotChoiceRevisionVO();
+			if(o[0]!=null) {
+				choiceRevisionVO.setQuestionNumber(o[0].toString());
+			} else {
+				choiceRevisionVO.setQuestionNumber("");
+			}
+			if(o[1]!=null) {
+				choiceRevisionVO.setRevisionsCount(Integer.parseInt(o[1].toString()));
+			} else {
+				choiceRevisionVO.setRevisionsCount(1);
+			}
+			if(o[2]!=null) {
+				choiceRevisionVO.setEditedOn(o[2].toString());
+			} else {
+				choiceRevisionVO.setEditedOn("");
+			}
+			if(o[3]!=null) {
+				choiceRevisionVO.setEditedAs(o[3].toString());
+			} else {
+				choiceRevisionVO.setEditedAs("");
+			}
+			if(o[4]!=null) {
+				choiceRevisionVO.setEditedBY(o[4].toString());
+			} else {
+				choiceRevisionVO.setEditedBY("");
+			}
+			if(o[5]!=null) {
+				choiceRevisionVO.setRound(o[5].toString());
+			} else {
+				choiceRevisionVO.setRound("");
+			}
+			if(o[6]!=null) {
+				choiceRevisionVO.setChoice(o[6].toString());
+			} else {
+				choiceRevisionVO.setChoice("");
+			}
+			if(o[7]!=null) {
+				choiceRevisionVO.setAnsweringDate(o[7].toString());
+			} else {
+				choiceRevisionVO.setAnsweringDate("");
+			}
+			if(o[8]!=null) {
+				choiceRevisionVO.setIsAutoFilled(o[8].toString());
+			} else {
+				choiceRevisionVO.setIsAutoFilled("");
+			}
+			if(o[9]!=null) {
+				choiceRevisionVO.setReasonForChoiceUpdate(o[9].toString());
+			} else {
+				choiceRevisionVO.setReasonForChoiceUpdate("");
+			}
+		}
+		return choiceRevisionVOs;
 	}
 
 }

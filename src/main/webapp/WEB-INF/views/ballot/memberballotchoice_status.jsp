@@ -6,7 +6,18 @@
 	<script type="text/javascript">
 		$(document).ready(function() {	
 			$('.viewChoicesRevision').click(function() {
-				alert("Revisions in progress!");
+				var memberId = $(this).attr('id').split("_")[1];
+				$.get('ballot/memberballotchoice/revisions/'+memberId+'/session/'+$("#sessionId").val(), function(data) {
+				    $.fancybox.open(data,{autoSize: false, width: 800, height:700});
+			    }).fail(function(){
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				});
+			    return false;
 			});
 		});
 	</script>
@@ -53,14 +64,14 @@
 						</c:choose>
 					</td>
 					<td style="text-align: center; font-size: 12px; width: 200px;">
-						<a href="#" id="viewChoicesRevision${r[1]}" class="viewChoicesRevision"><spring:message code="question.viewrevisions" text="View Revisions"/></a>						
+						<a href="#" id="viewChoicesRevision_${r[1]}" class="viewChoicesRevision"><spring:message code="question.viewrevisions" text="View Revisions"/></a>						
 					</td>
 				</tr>
 			</c:forEach>
 		</tbody>	
 	</table>
 	</div>
-	<input type="hidden" id="session" name="session" value="${session }">
+	<input type="hidden" id="sessionId" name="sessionId" value="${session}">
 	<input type="hidden" id="questionType" name="questionType" value="${questionType}">
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </body>
