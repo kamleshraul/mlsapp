@@ -265,6 +265,7 @@ public class MemberBallotChoiceRepository extends BaseRepository<MemberBallotCho
 			} else {
 				choiceRevisionVO.setReasonForChoiceUpdate("");
 			}
+			choiceRevisionVOs.add(choiceRevisionVO);
 		}
 		return choiceRevisionVOs;
 	}
