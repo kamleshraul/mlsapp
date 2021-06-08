@@ -29,24 +29,23 @@
 				
 				<c:set var="currentQuestionNumber" value="${revisions[0].questionNumber}" />
 				<c:forEach items="${revisions}" var="i" varStatus="revisionCounter">
+					<tr>
 					<c:choose>
 						<c:when test="${revisionCounter.count==1}">
-							<tr>
-								<td rowspan="${i.revisionsCount}">${i.questionNumber}</td>
+							<td rowspan="${i.revisionsCount}">${i.questionNumber}</td>
 						</c:when>
 						<c:when test="${i.questionNumber ne currentQuestionNumber}">
-							</tr>
-							<tr>
-								<td rowspan="${i.revisionsCount}">${i.questionNumber}</td>
+							<td rowspan="${i.revisionsCount}">${i.questionNumber}</td>
 							<c:set var="currentQuestionNumber" value="${i.questionNumber}" />
 						</c:when>
 					</c:choose>
-					<td>${i.editedAs}<br>${i.editedBY}<br>${i.editedOn}</td>
-					<td>${i.round}</td>
-					<td>${i.choice}</td>
-					<td>${i.answeringDate}</td>
-					<td>${i.isAutoFilled}</td>
-					<td>${i.reasonForChoiceUpdate}</td>
+						<td>${i.editedAs}<br>${i.editedBY}<br>${i.editedOn}</td>
+						<td>${i.round}</td>
+						<td>${i.choice}</td>
+						<td>${i.answeringDate}</td>
+						<td>${i.isAutoFilled}</td>
+						<td>${i.reasonForChoiceUpdate}</td>
+					</tr>							
 				</c:forEach>
 			</table>
 		</c:when>
