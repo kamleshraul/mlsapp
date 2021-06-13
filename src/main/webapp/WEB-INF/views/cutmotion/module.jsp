@@ -381,6 +381,61 @@
 		}
 		form_submit('cutmotion/report/yaadi_report', parameters, 'GET');
 	}
+	
+	/**** To Generate Reminder Letter ****/
+	function generateReminderLetter(isRequiredToSend) {
+		//var devicetype = $("#deviceTypeMaster option[value='" + $("#selectedCutMotionType").val() + "']").text();
+		if($("#selectedSubDepartment").val()==undefined 
+				|| $("#selectedSubDepartment").val()=='' 
+				|| $("#selectedSubDepartment").val()=='0') {
+			$.prompt('Please select a department for reminder letter of concerned unstarred questions!');
+			return false;
+		}
+		var selectedCutMotionIds = '';
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		$.get('ref/device/findDevicesForReminderOfReply?'
+				+ 'houseType=' + $('#selectedHouseType').val()
+				+ '&sessionYear=' + $('#selectedSessionYear').val()
+				+ '&sessionType=' + $('#selectedSessionType').val()
+				+ '&deviceType=' + $('#selectedCutMotionType').val()
+				+ '&department=' + $('#selectedSubDepartment').val(),function(data){
+			$.unblockUI();
+			selectedCutMotionIds = data;
+		}).done(function(){
+			if(selectedCutMotionIds!=undefined && selectedCutMotionIds.length>=1) {
+				var outputFormat = 'WORD';
+				if($('#currentusergroupType').val()=='department' || $('#currentusergroupType').val()=='department_deskofficer') {
+					outputFormat = 'PDF';
+				}
+				form_submit(
+						'cutmotion/report/generateReminderLetter', 
+						{
+							cutmotionIds: selectedCutMotionIds,
+							houseType: $('#selectedHouseType').val(),  
+							//sessionYear: $('#selectedSessionYear').val(),  
+							//sessionType: $('#selectedSessionType').val(), 
+							usergroupType: $("#currentusergroupType").val(),
+							locale: $('#moduleLocale').val(), 
+							reportQuery: 'CMOIS_REMINDER_LETTER', 
+							outputFormat: outputFormat,
+							isDepartmentLogin: $("#isDepartmentLogin").val(),
+							isRequiredToSend: isRequiredToSend
+						}, 
+						'GET'
+				);
+			} else {
+				$.prompt('No cutmotions found to be reminded for reply currently!');
+				return false;
+			}					
+		}).fail(function(){
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		});		
+	}
 </script>
 <style type="text/css">
 	.butSim:link{

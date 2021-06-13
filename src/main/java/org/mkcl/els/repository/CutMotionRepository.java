@@ -645,4 +645,24 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 		return internalMinistries;
 	}
 	
+
+	
+	public List<Long> findCutMotionIDsHavingPendingReplyPostLastDateOfReplyReceiving(final HouseType houseType, final DeviceType deviceType, final SubDepartment subDepartment, final String locale) throws ELSException {
+		List<Long> cutmotionIds = new ArrayList<Long>();
+		org.mkcl.els.domain.Query nativeQuery=org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", ApplicationConstants.QUERYNAME_CMOIS_PENDING_FOR_REPLY_POST_LAST_ANSWERING_DATE, "");
+		String strquery = nativeQuery.getQuery();
+		Query query=this.em().createNativeQuery(strquery);
+		query.setParameter("houseTypeId",houseType.getId());
+		query.setParameter("deviceTypeId",deviceType.getId());
+		Status admittedStatus = Status.findByType(ApplicationConstants.CUTMOTION_FINAL_ADMISSION, locale);
+		query.setParameter("admittedStatusIdForDeviceType",admittedStatus.getId());
+		query.setParameter("subDepartmentId",subDepartment.getId());
+		List result =query.getResultList();
+		for(Object i : result) {
+			Long cutmotionId = Long.parseLong(i.toString());
+			cutmotionIds.add(cutmotionId);
+		}
+		return cutmotionIds;
+	}
+	
 }

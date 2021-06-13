@@ -3,9 +3,7 @@ package org.mkcl.els.controller;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -21,20 +19,18 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
-import org.mkcl.els.common.xmlvo.XmlVO;
-import org.mkcl.els.domain.ActivityLog;
-import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.Holiday;
+import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.MessageResource;
-import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Query;
-import org.mkcl.els.domain.Roster;
+import org.mkcl.els.domain.ReminderLetter;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
-import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
@@ -44,7 +40,6 @@ import org.mkcl.els.domain.WorkflowDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -415,6 +410,185 @@ public class CutMotionReportController extends BaseController{
 		}
 		
 		//return retVal;
+	}	
+	
+	@RequestMapping(value="/generateReminderLetter", method=RequestMethod.GET)
+	public @ResponseBody void generateReminderLetter(HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		File reportFile = null;
+		
+		HouseType houseType = null;
+		String strHouseType = request.getParameter("houseType");
+		if(strHouseType!=null && !strHouseType.isEmpty()) {
+			houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+			if(houseType==null || houseType.getId()==null) {
+				CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+					if(csptServer.getValue().equals("TOMCAT")){
+						strHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");					
+					}
+				}
+				houseType=HouseType.findByFieldName(HouseType.class,"name",strHouseType, locale.toString());
+			}
+			if(houseType==null || houseType.getId()==null) {
+				houseType=HouseType.findById(HouseType.class,Long.parseLong(strHouseType));
+			}
+		}
+		
+		@SuppressWarnings("unchecked")
+		Map<String, String[]> requestMap = request.getParameterMap();
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = Query.findReport(request.getParameter("reportQuery"), requestMap, true);
+		
+    	if(resultList!=null && !resultList.isEmpty()) {
+    		String isDepartmentLogin = request.getParameter("isDepartmentLogin");
+    		if(isDepartmentLogin==null || isDepartmentLogin.isEmpty()) {
+    			isDepartmentLogin = "NO";
+    		} 
+    		String countOfCutMotionsInReminder = FormaterUtil.formatNumberNoGrouping(resultList.size(), locale.toString());
+    		CutMotion latestCutMotion = null;
+    		DeviceType deviceType = null;
+    		SubDepartment subDepartment = null;
+    		String departmentName = "";
+    		String reminderNumberStartLimitingDate = "";
+    		String reminderNumberEndLimitingDate = "";
+    		
+    		Object[] latestResultUnit = resultList.get(resultList.size()-1);
+    		latestCutMotion = CutMotion.findById(CutMotion.class, Long.parseLong(latestResultUnit[10].toString()));
+    		deviceType = latestCutMotion.getDeviceType();
+			subDepartment = latestCutMotion.getSubDepartment();
+			//departmentName = latestResultUnit[2].toString();
+			departmentName = subDepartment.getMinistryDisplayName();
+			Session qSession = latestCutMotion.getSession();
+			
+			if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+				House correspondingAssemblyHouse = Session.findCorrespondingAssemblyHouseForCouncilSession(qSession);
+				Date houseStartDate = correspondingAssemblyHouse.getFirstDate();
+				reminderNumberStartLimitingDate = FormaterUtil.formatDateToString(houseStartDate, ApplicationConstants.DB_DATEFORMAT);
+				Date houseEndDate = correspondingAssemblyHouse.getLastDate();
+				reminderNumberEndLimitingDate = FormaterUtil.formatDateToString(houseEndDate, ApplicationConstants.DB_DATEFORMAT);
+			} else {
+				Date houseStartDate = qSession.getHouse().getFirstDate();
+				reminderNumberStartLimitingDate = FormaterUtil.formatDateToString(houseStartDate, ApplicationConstants.DB_DATEFORMAT);
+				Date houseEndDate = qSession.getHouse().getLastDate();
+				reminderNumberEndLimitingDate = FormaterUtil.formatDateToString(houseEndDate, ApplicationConstants.DB_DATEFORMAT);
+			}
+    		
+    		StringBuffer deviceIds = new StringBuffer("");
+    		List<String> serialNumbers = populateSerialNumbers(resultList, locale);
+    		List<String> expectedAnswerReceivingDates = new ArrayList<String>();
+    		for(int i=0; i<resultList.size(); i++) {
+    			//include each cutmotion id in 'deviceIds' to be saved in domain of this reminder letter
+    			Object[] resultUnit = resultList.get(i);
+    			deviceIds.append(resultUnit[10].toString());
+    			if(i!=resultList.size()-1) {
+    				deviceIds.append(",");
+    			}      
+    			
+    			if(resultUnit[5]!=null && !resultUnit[5].toString().isEmpty()) {
+    				Date answerRequestedDate = FormaterUtil.formatStringToDate(resultUnit[5].toString(), ApplicationConstants.DB_DATETIME_FORMAT);
+					Integer expectedAnswerReceivingDateDuration = 30;
+					CustomParameter expectedAnswerReceivingDateDurationCP = CustomParameter.findByName(CustomParameter.class, "CUTMOTION_EXPECTED_ANSWER_RECEIVING_DATE_DURATION", "");
+					if(expectedAnswerReceivingDateDurationCP!=null && expectedAnswerReceivingDateDurationCP.getValue()!=null) {
+						expectedAnswerReceivingDateDuration = Integer.parseInt(expectedAnswerReceivingDateDurationCP.getValue());
+					}
+					Date expectedAnswerReceivingDate = Holiday.getNextWorkingDateFrom(answerRequestedDate, expectedAnswerReceivingDateDuration, locale.toString());
+					expectedAnswerReceivingDates.add(FormaterUtil.formatDateToString(expectedAnswerReceivingDate, ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_3, locale.toString()));
+    			} else {
+    				expectedAnswerReceivingDates.add("");
+    			}
+    		}    
+    		
+    		String reminderLetterNumber = "";
+    		Map<String, String> reminderLetterIdentifiers = new HashMap<String, String>();
+    		reminderLetterIdentifiers.put("houseType", houseType.getType());
+    		reminderLetterIdentifiers.put("deviceType", deviceType.getType());
+    		reminderLetterIdentifiers.put("reminderFor", ApplicationConstants.REMINDER_FOR_REPLY_FROM_DEPARTMENT);
+    		reminderLetterIdentifiers.put("reminderTo", subDepartment.getId().toString());
+    		reminderLetterIdentifiers.put("reminderNumberStartLimitingDate", reminderNumberStartLimitingDate);
+    		reminderLetterIdentifiers.put("reminderNumberEndLimitingDate", reminderNumberEndLimitingDate);
+    		reminderLetterIdentifiers.put("locale", locale.toString());
+    		ReminderLetter latestReminderLetter = ReminderLetter.findLatestByFieldNames(reminderLetterIdentifiers, locale.toString());
+    		//boolean isReminderLetterAlreadyGenerated = false;
+    		boolean isRequiredToSend = false;
+    		String isRequiredToSendStr = request.getParameter("isRequiredToSend");
+    		if(isRequiredToSendStr!=null) {
+    			isRequiredToSend = Boolean.parseBoolean(isRequiredToSendStr);
+    		}
+    		if(latestReminderLetter!=null) {
+    			if(!isDepartmentLogin.equals("YES")) {
+    				if(isRequiredToSend) {
+    					reminderLetterNumber = FormaterUtil.formatNumberNoGrouping((Integer.parseInt(latestReminderLetter.getReminderNumber())+1), locale.toString());
+    				} else {
+    					reminderLetterNumber = latestReminderLetter.getReminderNumber();
+    				}    				
+    			} else {
+    				reminderLetterNumber = latestReminderLetter.getReminderNumber();
+    			}    			
+    		} else {
+    			reminderLetterNumber = FormaterUtil.formatNumberNoGrouping(1, locale.toString());
+    		}
+    		
+    		String deviceTypeName = "";
+    		if(deviceType.getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY)) {
+    			deviceTypeName = ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY_DISPLAYNAME;
+    		} else {
+    			deviceTypeName = ApplicationConstants.MOTIONS_CUTMOTION_SUPPPLEMENTARY_DISPLAYNAME;
+    		}
+    		reportFile = generateReportUsingFOP(new Object[] {resultList, expectedAnswerReceivingDates, serialNumbers, reminderLetterNumber, isDepartmentLogin, countOfCutMotionsInReminder}, deviceTypeName+"_reminder_letter_template", request.getParameter("outputFormat"), deviceTypeName+"_reminder_letter", locale.toString());
+    		if(reportFile!=null) {
+    			System.out.println("Report generated successfully in " + request.getParameter("outputFormat") + " format!");
+    			openOrSaveReportFileFromBrowser(response, reportFile, request.getParameter("outputFormat"));  
+    			
+    			ReminderLetter currentReminderLetter = null;
+    			if(!isDepartmentLogin.equals("YES")) {
+    				if(isRequiredToSend) {
+    					/** SAVE CURRENT REMINDER LETTER ENTRY **/
+        				currentReminderLetter = new ReminderLetter();
+            			currentReminderLetter.setHouseType(houseType.getType());
+            			currentReminderLetter.setDeviceType(deviceType.getType());
+            			currentReminderLetter.setDeviceIds(deviceIds.toString());
+            			currentReminderLetter.setReminderFor(ApplicationConstants.REMINDER_FOR_REPLY_FROM_DEPARTMENT);
+            			currentReminderLetter.setReminderTo(subDepartment.getId().toString());
+            			currentReminderLetter.setReminderNumberStartLimitingDate(reminderNumberStartLimitingDate);
+            			currentReminderLetter.setReminderNumberEndLimitingDate(reminderNumberEndLimitingDate);
+            			currentReminderLetter.setReminderNumber(reminderLetterNumber);
+            			currentReminderLetter.setReminderDate(new Date());
+            			currentReminderLetter.setStatus(ApplicationConstants.REMINDER_LETTER_DISPATCHED_STATUS);
+            			currentReminderLetter.setGeneratedBy(this.getCurrentUser().getActualUsername());
+            			currentReminderLetter.setLocale(locale.toString());
+            			currentReminderLetter.persist();
+    				}  			
+    			} else {
+    				if(latestReminderLetter!=null && latestReminderLetter.getId()!=null
+    						&& latestReminderLetter.getStatus().equals(ApplicationConstants.REMINDER_LETTER_DISPATCHED_STATUS)) {
+    					/** ACKNOWLEDGE CURRENT REMINDER LETTER ENTRY **/
+    					latestReminderLetter.setStatus(ApplicationConstants.REMINDER_LETTER_ACKNOWLEDGED_STATUS);
+    					if(latestReminderLetter.getReminderAcknowledgementDate()==null) {
+    						latestReminderLetter.setReminderAcknowledgementDate(new Date());
+    					}    					
+    					latestReminderLetter.merge();
+    				} 				
+    			}
+    			
+    			/**** SEND NOTIFICATION TO DEPARTMENT USERS IF REMINDER LETTER IS GENERATED FROM CUTMOTIONS (D-3) BRANCH AT VIDHAN BHAVAN ****/
+    			if(!isDepartmentLogin.equals("YES")) {
+					if(isRequiredToSend) {
+						/** find co-ordination department user for sending notification **/
+        				String departmentCoordinationUsername = "";
+    	    			Reference actorAtDepartmentLevel = WorkflowConfig.findActorVOAtGivenLevel(latestCutMotion, latestCutMotion.getStatus(), ApplicationConstants.DEPARTMENT, 9, locale.toString());
+    					if(actorAtDepartmentLevel!=null) {
+    						String userAtDepartmentLevel = actorAtDepartmentLevel.getId();
+        					departmentCoordinationUsername = userAtDepartmentLevel.split("#")[0];
+            				NotificationController.sendReminderLetterForReplyNotReceivedFromDepartmentUsers(houseType, deviceType, departmentCoordinationUsername, departmentName, locale.toString());
+            				
+            				/** UPDATE RECEIVERS IN CURRENT REMINDER LETTER ENTRY **/
+            				currentReminderLetter.setReceivers(departmentCoordinationUsername);
+                			currentReminderLetter.merge();
+    					}
+					}        				    					
+    			}    			
+    		}
+    	}		
 	}
 
 }
@@ -429,6 +603,7 @@ class CutMotionReportHelper{
 			String strDevice = request.getParameter("device"); 
 			if(strDevice != null && !strDevice.isEmpty()){
 				CutMotion qt = CutMotion.findById(CutMotion.class, id);
+				@SuppressWarnings("rawtypes")
 				List report = generatetCurrentStatusReport(qt, strDevice, locale.toString());				
 				Map<String, Object[]> dataMap = new LinkedHashMap<String, Object[]>();
 				if(report != null && !report.isEmpty()){

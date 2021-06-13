@@ -10883,13 +10883,56 @@ public class ReferenceController extends BaseController {
 						questionIds = Question.findQuestionIDsHavingPendingAnswersPostLastDateOfAnswerReceiving(houseType, deviceType, subDepartment, locale.toString());
 					}
 					if(questionIds!=null && !questionIds.isEmpty()) {
-//						for(Long questionId: questionIds) {
-//							devicesForReminderOfReply.append(questionId);
-//							devicesForReminderOfReply.append(",");
-//						}
-//						devicesForReminderOfReply.deleteCharAt(devicesForReminderOfReply.length()-1);
 						devicesForReminderOfReply = null;
 						devicesForReminderOfReply = questionIds;
+					}
+					
+				} else if(deviceType!=null && deviceType.getType().startsWith(ApplicationConstants.DEVICE_CUTMOTIONS)) {
+					
+					SubDepartment subDepartment = SubDepartment.findByName(SubDepartment.class, strDepartment, locale.toString());
+					List<Long> cutmotionIds = new ArrayList<Long>();
+					String userGroupType = request.getParameter("userGroupType");
+					if(userGroupType!=null 
+							&& (userGroupType.equalsIgnoreCase(ApplicationConstants.DEPARTMENT) || userGroupType.equalsIgnoreCase(ApplicationConstants.DEPARTMENT_DESKOFFICER))) {
+						
+			    		String reminderNumberStartLimitingDate = "";
+			    		String reminderNumberEndLimitingDate = "";
+						if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+		    				House correspondingAssemblyHouse = Session.findCorrespondingAssemblyHouseForCouncilSession(session);
+		    				Date houseStartDate = correspondingAssemblyHouse.getFirstDate();
+		    				reminderNumberStartLimitingDate = FormaterUtil.formatDateToString(houseStartDate, ApplicationConstants.DB_DATEFORMAT);
+		    				Date houseEndDate = correspondingAssemblyHouse.getLastDate();
+		    				reminderNumberEndLimitingDate = FormaterUtil.formatDateToString(houseEndDate, ApplicationConstants.DB_DATEFORMAT);
+		    			} else {
+		    				Date houseStartDate = session.getHouse().getFirstDate();
+		    				reminderNumberStartLimitingDate = FormaterUtil.formatDateToString(houseStartDate, ApplicationConstants.DB_DATEFORMAT);
+		    				Date houseEndDate = session.getHouse().getLastDate();
+		    				reminderNumberEndLimitingDate = FormaterUtil.formatDateToString(houseEndDate, ApplicationConstants.DB_DATEFORMAT);
+		    			}
+						Map<String, String> reminderLetterIdentifiers = new HashMap<String, String>();
+			    		reminderLetterIdentifiers.put("houseType", houseType.getType());
+			    		reminderLetterIdentifiers.put("deviceType", deviceType.getType());
+			    		reminderLetterIdentifiers.put("reminderFor", ApplicationConstants.REMINDER_FOR_REPLY_FROM_DEPARTMENT);
+			    		reminderLetterIdentifiers.put("reminderTo", subDepartment.getId().toString());
+			    		reminderLetterIdentifiers.put("reminderNumberStartLimitingDate", reminderNumberStartLimitingDate);
+			    		reminderLetterIdentifiers.put("reminderNumberEndLimitingDate", reminderNumberEndLimitingDate);
+			    		reminderLetterIdentifiers.put("locale", locale.toString());
+			    		ReminderLetter latestReminderLetter = ReminderLetter.findLatestByFieldNames(reminderLetterIdentifiers, locale.toString());
+			    		
+			    		if(latestReminderLetter!=null) {
+			    			String devices = latestReminderLetter.getDeviceIds();
+			    			if(devices!=null) {
+			    				for(String qid: devices.split(",")) {
+			    					cutmotionIds.add(Long.parseLong(qid));
+			    				}
+			    			}
+			    		}
+					} else {
+						cutmotionIds = CutMotion.findCutMotionIDsHavingPendingReplyPostLastDateOfReplyReceiving(houseType, deviceType, subDepartment, locale.toString());
+					}
+					if(cutmotionIds!=null && !cutmotionIds.isEmpty()) {
+						devicesForReminderOfReply = null;
+						devicesForReminderOfReply = cutmotionIds;
 					}
 				}
 
@@ -10920,47 +10963,29 @@ public class ReferenceController extends BaseController {
 			&& strHouseType!=null && !strHouseType.isEmpty()
 			&& strSessionType!=null && !strSessionType.isEmpty()
 			&& strSessionYear!=null && !strSessionYear.isEmpty()){
-			try {
-//				CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-//				if(csptDeployment!=null){
-//					String server=csptDeployment.getValue();
-//					if(server.equals("TOMCAT")){
-//						strDeviceType = new String(strDeviceType.getBytes("ISO-8859-1"),"UTF-8");
-//						strSessionType = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
-//						strHouseType = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
-//						strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
-//						if(strDepartment!=null && !strDepartment.isEmpty()) {
-//							strDepartment = new String(strDepartment.getBytes("ISO-8859-1"),"UTF-8");
-//						}						
-//					}
-//				}
-				
+			try {				
 				HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
-				SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
-				Integer sessionYear = new Integer(strSessionYear);
-				Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-				
+				//SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+				//Integer sessionYear = new Integer(strSessionYear);
+				//Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
 				DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+				
 				if(deviceType!=null && deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
 					SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strDepartment));
 					List<Long> questionIds = Question.findQuestionIDsHavingPendingAnswersPostLastDateOfAnswerReceiving(houseType, deviceType, subDepartment, locale.toString());
 					if(questionIds!=null && !questionIds.isEmpty()) {
-//						for(Long questionId: questionIds) {
-//							devicesForReminderOfReply.append(questionId);
-//							devicesForReminderOfReply.append(",");
-//						}
-//						devicesForReminderOfReply.deleteCharAt(devicesForReminderOfReply.length()-1);
 						devicesForReminderOfReply = null;
 						devicesForReminderOfReply = questionIds;
 					}
+					
+				} else if(deviceType!=null && deviceType.getType().startsWith(ApplicationConstants.DEVICE_CUTMOTIONS)) {
+					SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strDepartment));
+					List<Long> cutmotionIds = CutMotion.findCutMotionIDsHavingPendingReplyPostLastDateOfReplyReceiving(houseType, deviceType, subDepartment, locale.toString());
+					if(cutmotionIds!=null && !cutmotionIds.isEmpty()) {
+						devicesForReminderOfReply = cutmotionIds;
+					}
 				}
-
-			} 
-//			catch (ParseException e) {
-//				e.printStackTrace();
-//			} catch (UnsupportedEncodingException e) {
-//				e.printStackTrace();
-//			} 
+			}
 			catch (ELSException e) {
 				e.printStackTrace();
 			}

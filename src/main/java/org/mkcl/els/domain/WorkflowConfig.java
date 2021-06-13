@@ -390,6 +390,9 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 	/***************************EventMotion*******************************/
 	
 	/***************************CutMotion*********************************/
+	public static Reference findActorVOAtGivenLevel(final CutMotion question, final Status status, final String usergroupType, final int level, final String locale) throws ELSException {
+		return getWorkflowConfigRepository().findActorVOAtGivenLevel(question, status, usergroupType, level, locale);
+	}
 	public static Reference findActorVOAtFirstLevel(final CutMotion motion, final Workflow processWorkflow, final String locale) {
 		return getWorkflowConfigRepository().findActorVOAtFirstLevel(motion, processWorkflow, locale);
 	}

@@ -103,6 +103,18 @@
 				generateYaadiReport();
 			});
 			
+			/**** Generate Reminder Letter ****/			
+			$("#generateReminderLetter").click(function(){
+				$(this).attr('href','#');
+				$.prompt("Do you really want to send reminder letter to department now?",{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){
+			        	generateReminderLetter(true);
+	    	        } else {
+	    	        	generateReminderLetter(false);
+	    	        }
+				}});								
+			});
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -152,6 +164,7 @@
 			<a href="#" id="refreshList" class="butSim">
 				<spring:message code="generic.refresh" text="Refresh"/>
 			</a> |	
+			<hr>
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE')">
 				<a href="#" id="member_cutmotions_view" class="butSim">
 					<spring:message code="cutmotion.member_cutmotions_view" text="Member's CutMotions View"/>
@@ -174,6 +187,9 @@
 				<a href="#" id="generateYaadiReport" class="butSim">
 					<spring:message code="cutmotion.generateYaadiReport" text="Generate Yaadi Report"/>
 				</a> |
+				 <a href="#" id="generateReminderLetter" class="butSim">
+					<spring:message code="generic.mytask.device.ReminderLetter" text="Reminder Letter"/>
+				 </a> |
 			</security:authorize>	
 			<%-- <security:authorize access="hasAnyRole('CMOIS_ASSISTANT','CMOIS_SECTION_OFFICER')">				
 				<a href="#" id="generateYaadiReport" class="butSim">

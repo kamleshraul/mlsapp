@@ -1806,8 +1806,11 @@ public class ApplicationConstants {
 	/****CutMotion****/
 	public static final String MOTIONS_CUTMOTION_BUDGETARY = "motions_cutmotion_budgetary";
 	public static final String MOTIONS_CUTMOTION_SUPPLEMENTARY = "motions_cutmotion_supplementary";
-	/**** Statuses ****/
 	
+	public static final String MOTIONS_CUTMOTION_BUDGETARY_DISPLAYNAME = "budgetary_cutmotion";
+	public static final String MOTIONS_CUTMOTION_SUPPPLEMENTARY_DISPLAYNAME = "supplementary_cutmotion";
+	
+	/**** Statuses ****/	
 	public static final String CUTMOTION_INCOMPLETE = "cutmotion_incomplete";
 	public static final String CUTMOTION_COMPLETE = "cutmotion_complete";
 	public static final String CUTMOTION_SUBMIT = "cutmotion_submit";
@@ -2566,6 +2569,8 @@ public class ApplicationConstants {
 	public static final String QUERYNAME_STATUS_RECOMMENDATIONS_FOR_INIT_FLOW = "STATUS_RECOMMENDATIONS_FOR_INIT_FLOW";
 	
 	public static final String QUERYNAME_QIS_PENDING_FOR_ANSWER_POST_LAST_ANSWERING_DATE = "QIS_PENDING_FOR_ANSWER_POST_LAST_ANSWERING_DATE";
+	
+	public static final String QUERYNAME_CMOIS_PENDING_FOR_REPLY_POST_LAST_ANSWERING_DATE = "CMOIS_PENDING_FOR_REPLY_POST_LAST_ANSWERING_DATE";
 	
 	public static final String ADJOURNMENT_MOTION_CLUBBING_MODE = "ADJOURNMENT_MOTION_CLUBBING_MODE";
 

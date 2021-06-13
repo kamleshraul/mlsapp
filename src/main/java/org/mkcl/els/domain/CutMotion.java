@@ -2119,6 +2119,10 @@ public class CutMotion extends Device implements Serializable {
     	}
     	return internalMinistries;
     }
+    
+    public static List<Long> findCutMotionIDsHavingPendingReplyPostLastDateOfReplyReceiving(final HouseType houseType, final DeviceType deviceType, final SubDepartment subDepartment, final String locale) throws ELSException {
+    	return getCutMotionRepository().findCutMotionIDsHavingPendingReplyPostLastDateOfReplyReceiving(houseType, deviceType, subDepartment, locale);
+    }
 	
 	/**** Getter Setters ****/
 	public HouseType getHouseType() {

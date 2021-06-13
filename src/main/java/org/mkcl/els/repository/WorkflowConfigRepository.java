@@ -2714,6 +2714,15 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 	/********************************StandaloneMotion*********************/
 	
 	/********************************CutMotion*********************/
+	public Reference findActorVOAtGivenLevel(final CutMotion cutMotion, final Status status, 
+			final String usergroupType, final int level, final String locale) throws ELSException {
+		Reference actorAtGivenLevel = null;
+		WorkflowConfig workflowConfig = getLatest(cutMotion, status.getType(), locale.toString());
+		UserGroupType userGroupType = UserGroupType.findByType(usergroupType, locale);
+		WorkflowActor workflowActorAtGivenLevel = getWorkflowActor(workflowConfig,userGroupType,level);
+		actorAtGivenLevel = findActorDetails(cutMotion, workflowActorAtGivenLevel, locale);
+		return actorAtGivenLevel;
+	}
 	public Reference findActorVOAtGivenLevel(final CutMotion motion, final Workflow processWorkflow,
 			final UserGroupType userGroupType, final int level, final String locale) {
 		Reference actorAtGivenLevel = null;

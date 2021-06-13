@@ -74,7 +74,9 @@
 	            <fo:flow flow-name="xsl-region-body">	
 	            	<fo:block font-family="Mangal" font-size="10.5px">	  
 	            		<fo:block font-weight="bold">
-	            			<fo:table>
+	            			<fo:table table-layout="fixed" width="100%">
+	            				<fo:table-column column-number="1" column-width="70%" />
+								<fo:table-column column-number="2" column-width="30%" />
 	            				<fo:table-body>
 		            				<fo:table-row>
 		            					<fo:table-cell>
@@ -84,9 +86,9 @@
 		            						</fo:block-container>
 		            					</fo:table-cell>	            					
 		            					<fo:table-cell>
-		            						<fo:block-container margin-left="4cm">
+		            						<fo:block-container>
 			            						<fo:block>
-			            							क्रमांक : ___________&#160;/
+			            							क्रमांक : _______&#160;/
 													<xsl:choose>
 														<xsl:when test="element_1[1]/element_1_4='lowerhouse'">ब-१</xsl:when>
 														<xsl:when test="element_1[1]/element_1_4='upperhouse'">ई-१</xsl:when>

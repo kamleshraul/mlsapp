@@ -41,8 +41,11 @@
 			} else {
 				$("#yaadiReportSpan").hide();
 			}
-			if($("#deviceTypeType").val() == 'questions_unstarred'){
-				if($("#currentusergroupType").val()=='department' 
+			if($("#deviceTypeType").val() == 'questions_unstarred'
+					|| $("#deviceTypeType").val() == 'motions_cutmotion_budgetary'
+					|| $("#deviceTypeType").val() == 'motions_cutmotion_supplementary'){
+				if($("#currentusergroupType").val()=='section_officer'
+					|| $("#currentusergroupType").val()=='department'
 					||$("#currentusergroupType").val()=='department_deskofficer' ){
 					$("#reminderLetterSpan").show();
 				} else {
@@ -93,6 +96,8 @@
 						buttons: {Ok:true, Cancel:false}, callback: function(v){
 				        if(v){
 				        	generateReminderLetter(true);
+		    	        } else {
+		    	        	generateReminderLetter(false);
 		    	        }
 					}});
 				}								
@@ -288,12 +293,15 @@
 				 </a> |
 				 </span>
 			 </security:authorize>
-			 <security:authorize access="hasAnyRole('QIS_DEPARTMENT_USER')">
+			 <security:authorize access="hasAnyRole('QIS_DEPARTMENT_USER', 'CMOIS_SECTION_OFFICER', 'CMOIS_DEPARTMENT_USER')">
+			 	 |
 			 	 <span id="reminderLetterSpan" style="display: none;">
 			 	 <a href="#" id="generateReminderLetter" class="butSim">
 					<spring:message code="generic.mytask.device.ReminderLetter" text="Reminder Letter"/>
 				 </a> |
-				 </span>
+				 </span>			 	
+			 </security:authorize>
+			 <security:authorize access="hasAnyRole('QIS_DEPARTMENT_USER')">
 			 	 <span id="yaadiReportSpan" style="display: none;">
 			 	 <a href="#" id="generateYaadiReport" class="butSim">
 					<spring:message code="generic.mytask.device.YaadiReport" text="Yaadi Report"/>
@@ -304,11 +312,11 @@
 				 </a>|
 				 <a href="javascript:void(0);" id="deviceSupplement" class="butSim">
 					<spring:message code="device.deviceSupplement" text="Device Supplement"/>
-				 </a>
+				 </a>|
 				 <div id="supplementaryNotificationDiv" style="display:none;" title="<spring:message code="device.deviceSupplementCount" text="Device Supplement Count"/>">
 					
-				 </div>
-			 </security:authorize>|
+				 </div>|
+			 </security:authorize>
 			
 			<div id="advanceCopyDiv" style="display:none;">
 				<a href="javascript:void(0);" id="advanceCopy" class="butSim">
