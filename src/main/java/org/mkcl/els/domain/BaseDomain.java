@@ -21,10 +21,11 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.TableGenerator;
 import javax.persistence.Version;
 
-import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.repository.BaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -56,6 +57,16 @@ public class BaseDomain {
     /** The base repository. */
     @Autowired
     private transient BaseRepository<BaseDomain, Serializable> baseRepository;
+    
+    /**
+     * Gets the current user.
+     *
+     * @return the current user
+     */
+    protected AuthUser getCurrentUser() {
+        return (AuthUser) SecurityContextHolder.getContext()
+        .getAuthentication().getPrincipal();
+    }
 
     // ==================== Constructors ====================
     /**

@@ -10,13 +10,17 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.vo.BillSearchVO;
@@ -41,6 +45,11 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;
+    
+    /** The created on. */
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="created_on")
+    private Date createdOn;    
 
     /** The position. */
     private Integer position;

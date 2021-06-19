@@ -2725,20 +2725,22 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 								questions.add(j.getQuestion());
 //								Question question=Question.findById(Question.class, j.getQuestion().getId());
 //								question.setParent(newPrimaryQuestion);
-//								question.merge();
+//								question.mergeWithDraftOnly();
 								newPrimaryclubbedEntities.add(j);
 							}
 						}
 						
 						for(Question q: questions){
 							q.setParent(newPrimaryQuestion);
-							q.merge();
+							q.mergeWithDraftOnly();
 						}
 						newPrimaryclubbedEntities.add(oldPrimaryClubbedEntity);
 						
 						oldPrimaryQuestion.setParent(newPrimaryQuestion);
 						oldPrimaryQuestion.setClubbedEntities(null);
-						oldPrimaryQuestion.merge();
+						oldPrimaryQuestion.mergeWithDraftOnly();
+						Status oldPrimaryQuestionInternalStaus = oldPrimaryQuestion.getInternalStatus();
+						String oldPrimaryQuestionLevel = oldPrimaryQuestion.getLevel();
 						String actor = oldPrimaryQuestion.getActor();
 						UserGroupType usergroupType = null;
 						if(actor!= null && !actor.isEmpty()){
@@ -2751,9 +2753,9 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						newPrimaryQuestion.setRevisedQuestionText(oldPrimaryQuestion.getRevisedQuestionText());
 						newPrimaryQuestion.setRevisedSubject(oldPrimaryQuestion.getRevisedSubject());
 						newPrimaryQuestion.setClubbedEntities(newPrimaryclubbedEntities);
-						newPrimaryQuestion.merge();
+						newPrimaryQuestion.mergeWithDraftOnly();
 						
-						Question.startDeviceWorkflow(newPrimaryQuestion.getType().getType(), newPrimaryQuestion.getId(), oldPrimaryQuestion.getInternalStatus(), usergroupType, Integer.parseInt(oldPrimaryQuestion.getLevel()), oldPrimaryQuestion.getHouseType().getType(), false, locale);
+						Question.startDeviceWorkflow(newPrimaryQuestion.getType().getDevice(), newPrimaryQuestion.getId(), oldPrimaryQuestionInternalStaus, usergroupType, Integer.parseInt(oldPrimaryQuestionLevel), oldPrimaryQuestion.getHouseType().getType(), false, locale);
 						
 						
 						//newPrimaryClubbedEntity.remove();

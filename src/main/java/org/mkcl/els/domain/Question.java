@@ -39,11 +39,8 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
-import org.mkcl.els.common.vo.ProcessDefinition;
-import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
-import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.NotificationController;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.domain.ballot.Ballot;
@@ -1177,6 +1174,27 @@ public class Question extends Device implements Serializable {
     			this.setDrafts(dbQuestion.getDrafts());
     		}
     	}
+        Question q = (Question) super.merge();
+        return q;
+    }
+    
+    /**
+     * The merge function, besides updating Question, performs various actions
+     * based on Question's status. What if we need just the simple functionality
+     * of updating along-with creation of its draft? Use this method.
+     *
+     * @return the question
+     */
+    public Question mergeWithDraftOnly() {
+		String username = this.getCurrentUser().getActualUsername();
+		this.setEditedBy(username);
+		Credential credential = Credential.findByFieldName(Credential.class, "username", username, null);
+		UserGroup usergroup =  UserGroup.findActive(credential, new Date(), this.getLocale());
+		if(usergroup!= null){
+			this.setEditedAs(usergroup.getUserGroupType().getName());
+		}
+    	this.setEditedOn(new Date());
+    	this.addQuestionDraft();
         Question q = (Question) super.merge();
         return q;
     }

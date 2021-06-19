@@ -125,7 +125,7 @@
 								<xsl:when test="element_1[1]/element_1_2='motions_cutmotion_budgetary'">अर्थसंकल्पीय</xsl:when>
 								<xsl:when test="element_1[1]/element_1_2='motions_cutmotion_supplementary'">पूरक</xsl:when>
 							</xsl:choose>
-							कपात सूचनांची निवेदने पाठविण्याबाबत...
+							कपात सूचनांची उत्तरे पाठविण्याबाबत...
 						</fo:block>	
 						
 						<fo:block font-size="6px">&#160;</fo:block>
@@ -142,9 +142,9 @@
 									<xsl:when test="element_1[1]/element_1_2='motions_cutmotion_budgetary'">अर्थसंकल्पीय</xsl:when>
 									<xsl:when test="element_1[1]/element_1_2='motions_cutmotion_supplementary'">पूरक</xsl:when>
 								</xsl:choose>
-								कपात सूचना आवश्यक त्या कार्यवाहीसाठी आपल्या विभागाकडे पाठविण्यात आल्या असून मा.अध्यक्ष, महाराष्ट्र विधानसभा यांनी सभागृहात दिलेल्या निदेशानुसार कपात सूचनेची निवेदने 
+								कपात सूचना आवश्यक त्या कार्यवाहीसाठी आपल्या विभागाकडे पाठविण्यात आल्या असून मा.अध्यक्ष, महाराष्ट्र विधानसभा यांनी सभागृहात दिलेल्या निदेशानुसार कपात सूचनेची उत्तरे 
 								संबंधित सदस्यांना <fo:inline font-weight="bold">तीस दिवसांच्या आत</fo:inline> पाठविण्याबाबत कळविण्यात आले आहे. 
-								त्यानुषंगाने सदर कपात सूचनांची निवेदने तीस दिवसात मा.सदस्यांना पाठविणे अपेक्षित होते. 
+								त्यानुषंगाने सदर कपात सूचनांची उत्तरे तीस दिवसात मा.सदस्यांना पाठविणे अपेक्षित होते. 
 								तथापि, अद्यापही 
 								<fo:inline font-weight="bold">
 									<xsl:value-of select="element_6"/>
@@ -153,9 +153,9 @@
 										<xsl:when test="element_1[1]/element_1_2='motions_cutmotion_supplementary'"> पूरक</xsl:when>
 									</xsl:choose>
 								</fo:inline> 
-								कपात सूचनांची निवेदने मा.सदस्यांना पाठविण्यात आलेली नाहीत. 
-								तसेच निवेदनाची एक प्रत या सचिवालयाकडेही प्राप्त झालेली नाही. तसेच निवेदन पाठविण्यास मुदतवाढ मिळण्याबाबत विनंतीही करण्यात आलेली नाही. 
-								<fo:inline font-weight="bold">(अद्यापही निवेदने प्राप्त न झालेल्या प्रलंबित 
+								कपात सूचनांची उत्तरे मा.सदस्यांना पाठविण्यात आलेली नाहीत. 
+								तसेच उत्तराची एक प्रत या सचिवालयाकडेही प्राप्त झालेली नाही. तसेच उत्तर पाठविण्यास मुदतवाढ मिळण्याबाबत विनंतीही करण्यात आलेली नाही. 
+								<fo:inline font-weight="bold">(अद्यापही उत्तरे प्राप्त न झालेल्या प्रलंबित 
 								<xsl:choose>
 									<xsl:when test="element_1[1]/element_1_2='motions_cutmotion_budgetary'"> अर्थसंकल्पीय</xsl:when>
 									<xsl:when test="element_1[1]/element_1_2='motions_cutmotion_supplementary'"> पूरक</xsl:when>
@@ -173,19 +173,19 @@
 										<xsl:when test="element_1[1]/element_1_2='motions_cutmotion_supplementary'"> पूरक</xsl:when>
 									</xsl:choose>
 								</fo:inline>
-								कपात सूचनांची निवेदने विहित मुदतीत का पाठविण्यात आली नाहीत.
+								कपात सूचनांची उत्तरे विहित मुदतीत का पाठविण्यात आली नाहीत.
 								अपवादात्मक परिस्थितीत काही विशिष्ट कारणामुळे विलंब होणार असल्यास मुदतवाढ मिळण्याबाबतची विनंती का करण्यात आली नाही. याची कारणे या सचिवालयास कळविण्यात यावीत.
 							</fo:block>
 							<fo:block font-size="4px">&#160;</fo:block>	
 							<fo:block>
 								&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-								तसेच निवेदन पाठविण्यास झालेल्या विलंबास कोण जबाबदार आहे त्यांच्यावर जबाबदारी निश्चित करुन केलेल्या कार्यवाहीसह प्रलंबित 
+								तसेच उत्तर पाठविण्यास झालेल्या विलंबास कोण जबाबदार आहे त्यांच्यावर जबाबदारी निश्चित करुन केलेल्या कार्यवाहीसह प्रलंबित 
 								<xsl:choose>
 									<xsl:when test="element_1[1]/element_1_2='motions_cutmotion_budgetary'">अर्थसंकल्पीय</xsl:when>
 									<xsl:when test="element_1[1]/element_1_2='motions_cutmotion_supplementary'">पूरक</xsl:when>
 								</xsl:choose>
-								कपात सुचनांची निवेदने मा.सदस्यांना तात्काळ पाठवून 
-								निवेदनाच्या प्रती या सचिवालयास पाठविण्यात याव्यात, अशी आपणांस विनंती आहे.
+								कपात सुचनांची उत्तरे मा.सदस्यांना तात्काळ पाठवून 
+								उत्तराच्या प्रती या सचिवालयास पाठविण्यात याव्यात, अशी आपणांस विनंती आहे.
 							</fo:block>										
 						</fo:block>	
 						
@@ -270,7 +270,7 @@
 		                        			<fo:block font-weight="bold">पाठविल्याचा दिनांक</fo:block>
 		                        		</fo:table-cell>
 		                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
-		                        			<fo:block font-weight="bold">विभागाकडून निवेदन</fo:block>
+		                        			<fo:block font-weight="bold">विभागाकडून उत्तर</fo:block>
 		                        			<fo:block font-weight="bold">येण्याचा दिनांक</fo:block>
 		                        		</fo:table-cell>
 		                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">

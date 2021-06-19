@@ -4373,7 +4373,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 	public ClubbedEntity findByQuestion(final Question question,
 			final String locale) {
 		String strQuery="SELECT ce FROM ClubbedEntity ce JOIN ce.question q "
-				+ " WHERE q.id=:question AND q.locale=:locale";
+				+ " WHERE q.id=:question AND q.locale=:locale ORDER BY ce.id DESC";
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("question",question.getId());
 		query.setParameter("locale",locale);
