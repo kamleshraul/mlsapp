@@ -3448,12 +3448,14 @@ public class BallotController extends BaseController{
 				}
 			}else{
 				logger.error("**** Check request parameters 'session and deviceType' for null values ****");
-				model.addAttribute("type", "MEMBERBALLOTUPDATECLUBBING_REQUEST_PARAMETER_NULL");
+				model.addAttribute("type", "REQUEST_PARAMETER_NULL");
 				return "ballot/error";
 			}
 		}catch (ELSException e) {
-			logger.error("**** Check request parameters 'session and deviceType' for null values ****");
-			model.addAttribute("type", "MEMBERBALLOTUPDATECLUBBING_REQUEST_PARAMETER_NULL");
+			if(e.getParameter("MemberBallotRepository_exception_updateclubbing")!=null) {
+				logger.error(e.getParameter("MemberBallotRepository_exception_updateclubbing"));
+			}
+			model.addAttribute("type", "DB_EXCEPTION");
 			return "ballot/error";
 		}
 		model.addAttribute("type", "success");

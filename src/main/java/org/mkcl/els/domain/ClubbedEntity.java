@@ -43,13 +43,9 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Table(name="clubbed_entities")
 public class ClubbedEntity extends BaseDomain implements Serializable{
 
-    /** The Constant serialVersionUID. */
-    private static final long serialVersionUID = 1L;
-    
-    /** The created on. */
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="created_on")
-    private Date createdOn;    
+	// ---------------------------------Attributes-------------------------------
+	/** The Constant serialVersionUID. */
+    private static final long serialVersionUID = 1L;    
 
     /** The position. */
     private Integer position;
@@ -97,16 +93,31 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
     /** The Rule Suspension motion. */
     @ManyToOne(fetch=FetchType.LAZY)
     private RulesSuspensionMotion rulesSuspensionMotion;
+    
+    /** The created on. */
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="created_on")
+    private Date createdOn;
+    
+    /** The edited on. */
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="edited_on")
+    private Date editedOn;
 
 	@Autowired
     private transient ClubbedEntityRepository clubbedEntityRepository;
+	
+	
+	// --------------------------------Constructors----------------------------------
     /**
      * Instantiates a new clubbed entity.
      */
     public ClubbedEntity() {
         super();
-    }
+    }    
     
+    
+    // -------------------------------Domain_Methods---------------------------------
     public static ClubbedEntityRepository getClubbedEntityRepository() {
     	ClubbedEntityRepository clubbedEntityRepository = new ClubbedEntity().clubbedEntityRepository;
         if (clubbedEntityRepository == null) {
@@ -114,159 +125,7 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
                     "ClubbedEntityRepository has not been injected in Clubbed Entity Domain");
         }
         return clubbedEntityRepository;
-    }
-
-    
-
-    /**
-     * Gets the position.
-     *
-     * @return the position
-     */
-    public Integer getPosition() {
-        return position;
-    }
-
-
-    /**
-     * Sets the position.
-     *
-     * @param position the new position
-     */
-    public void setPosition(final Integer position) {
-        this.position = position;
-    }
-
-
-    /**
-     * Gets the question.
-     *
-     * @return the question
-     */
-    public Question getQuestion() {
-        return question;
-    }
-
-
-    /**
-     * Sets the question.
-     *
-     * @param question the new question
-     */
-    public void setQuestion(final Question question) {
-        this.question = question;
-    }
-
-
-    /**
-     * Sets the device type.
-     *
-     * @param deviceType the new device type
-     */
-    public void setDeviceType(final DeviceType deviceType) {
-        this.deviceType = deviceType;
-    }
-    
-    public Motion getMotion() {
-		return motion;
-	}
-
-	public void setMotion(Motion motion) {
-		this.motion = motion;
-	}
-
-	public CutMotion getCutMotion() {
-		return cutMotion;
-	}
-
-	public void setCutMotion(CutMotion cutMotion) {
-		this.cutMotion = cutMotion;
-	}
-	
-	public EventMotion getEventMotion(){
-		return eventMotion;
-	}
-	
-	public void setEventMotion(EventMotion eventMotion){
-		this.eventMotion = eventMotion;
-	}
-	
-    public StandaloneMotion getStandaloneMotion() {
-		return standaloneMotion;
-	}
-
-	public void setStandaloneMotion(StandaloneMotion standaloneMotion) {
-		this.standaloneMotion = standaloneMotion;
-	}
-	
-	public DiscussionMotion getDiscussionMotion() {
-		return discussionMotion;
-	}
-
-	public void setDiscussionMotion(DiscussionMotion discussionMotion) {
-		this.discussionMotion = discussionMotion;
-	}
-
-	public Bill getBill() {
-		return bill;
-	}
-
-	public void setBill(Bill bill) {
-		this.bill = bill;
-	}
-
-	public BillAmendmentMotion getBillAmendmentMotion() {
-		return billAmendmentMotion;
-	}
-
-	public void setBillAmendmentMotion(BillAmendmentMotion billAmendmentMotion) {
-		this.billAmendmentMotion = billAmendmentMotion;
-	}
-
-	/**
-	 * @return the adjournmentMotion
-	 */
-	public AdjournmentMotion getAdjournmentMotion() {
-		return adjournmentMotion;
-	}
-
-	/**
-	 * @param adjournmentMotion the adjournmentMotion to set
-	 */
-	public void setAdjournmentMotion(AdjournmentMotion adjournmentMotion) {
-		this.adjournmentMotion = adjournmentMotion;
-	}
-	
-	/**
-	 * @return the specialMentionNotice
-	 */
-	public SpecialMentionNotice getSpecialMentionNotice() {
-		return specialMentionNotice;
-	}
-
-	/**
-	 * @param specialMentionNotice the specialMentionNotice to set
-	 */
-	public void setSpecialMentionNotice(SpecialMentionNotice specialMentionNotice) {
-		this.specialMentionNotice = specialMentionNotice;
-	}
-
-	/**
-     * Gets the device type.
-     *
-     * @return the device type
-     */
-    public DeviceType getDeviceType() {
-        return deviceType;
-    }    
-    
-	public RulesSuspensionMotion getRulesSuspensionMotion() {
-		return rulesSuspensionMotion;
-	}
-
-	public void setRulesSuspensionMotion(RulesSuspensionMotion rulesSuspensionMotion) {
-		this.rulesSuspensionMotion = rulesSuspensionMotion;
-	}
+    }  
     
     
     /**** Search questions for clubbing 
@@ -498,5 +357,187 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
 			final String locale,
 			final Map<String, String[]> requestMap) {
 		return getClubbedEntityRepository().fullTextSearchClubbing(param, notice, start, noOfRecords, locale, requestMap);
+	}
+	
+	@Override
+    public ClubbedEntity persist() {
+		this.setCreatedOn(new Date());
+		ClubbedEntity ce = (ClubbedEntity) super.persist();
+		return ce;
+	}
+	
+	@Override
+    public ClubbedEntity merge() {
+		this.setEditedOn(new Date());
+		ClubbedEntity ce = (ClubbedEntity) super.merge();
+		return ce;
+	}
+	
+	
+	// -------------------------------Getters & Setters-------------------------------
+    /**
+     * Gets the position.
+     *
+     * @return the position
+     */
+    public Integer getPosition() {
+        return position;
+    }
+
+
+    /**
+     * Sets the position.
+     *
+     * @param position the new position
+     */
+    public void setPosition(final Integer position) {
+        this.position = position;
+    }
+
+
+    /**
+     * Gets the question.
+     *
+     * @return the question
+     */
+    public Question getQuestion() {
+        return question;
+    }
+
+
+    /**
+     * Sets the question.
+     *
+     * @param question the new question
+     */
+    public void setQuestion(final Question question) {
+        this.question = question;
+    }
+
+
+    /**
+     * Sets the device type.
+     *
+     * @param deviceType the new device type
+     */
+    public void setDeviceType(final DeviceType deviceType) {
+        this.deviceType = deviceType;
+    }
+    
+    public Motion getMotion() {
+		return motion;
+	}
+
+	public void setMotion(Motion motion) {
+		this.motion = motion;
+	}
+
+	public CutMotion getCutMotion() {
+		return cutMotion;
+	}
+
+	public void setCutMotion(CutMotion cutMotion) {
+		this.cutMotion = cutMotion;
+	}
+	
+	public EventMotion getEventMotion(){
+		return eventMotion;
+	}
+	
+	public void setEventMotion(EventMotion eventMotion){
+		this.eventMotion = eventMotion;
+	}
+	
+    public StandaloneMotion getStandaloneMotion() {
+		return standaloneMotion;
+	}
+
+	public void setStandaloneMotion(StandaloneMotion standaloneMotion) {
+		this.standaloneMotion = standaloneMotion;
+	}
+	
+	public DiscussionMotion getDiscussionMotion() {
+		return discussionMotion;
+	}
+
+	public void setDiscussionMotion(DiscussionMotion discussionMotion) {
+		this.discussionMotion = discussionMotion;
+	}
+
+	public Bill getBill() {
+		return bill;
+	}
+
+	public void setBill(Bill bill) {
+		this.bill = bill;
+	}
+
+	public BillAmendmentMotion getBillAmendmentMotion() {
+		return billAmendmentMotion;
+	}
+
+	public void setBillAmendmentMotion(BillAmendmentMotion billAmendmentMotion) {
+		this.billAmendmentMotion = billAmendmentMotion;
+	}
+
+	/**
+	 * @return the adjournmentMotion
+	 */
+	public AdjournmentMotion getAdjournmentMotion() {
+		return adjournmentMotion;
+	}
+
+	/**
+	 * @param adjournmentMotion the adjournmentMotion to set
+	 */
+	public void setAdjournmentMotion(AdjournmentMotion adjournmentMotion) {
+		this.adjournmentMotion = adjournmentMotion;
+	}
+	
+	/**
+	 * @return the specialMentionNotice
+	 */
+	public SpecialMentionNotice getSpecialMentionNotice() {
+		return specialMentionNotice;
+	}
+
+	/**
+	 * @param specialMentionNotice the specialMentionNotice to set
+	 */
+	public void setSpecialMentionNotice(SpecialMentionNotice specialMentionNotice) {
+		this.specialMentionNotice = specialMentionNotice;
+	}
+
+	/**
+     * Gets the device type.
+     *
+     * @return the device type
+     */
+    public DeviceType getDeviceType() {
+        return deviceType;
+    }    
+    
+	public RulesSuspensionMotion getRulesSuspensionMotion() {
+		return rulesSuspensionMotion;
+	}
+
+	public void setRulesSuspensionMotion(RulesSuspensionMotion rulesSuspensionMotion) {
+		this.rulesSuspensionMotion = rulesSuspensionMotion;
+	}
+
+	public Date getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(Date createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public Date getEditedOn() {
+		return editedOn;
+	}
+
+	public void setEditedOn(Date editedOn) {
+		this.editedOn = editedOn;
 	}
 }
