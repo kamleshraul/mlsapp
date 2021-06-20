@@ -2752,11 +2752,14 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						newPrimaryQuestion.setParent(null);
 						newPrimaryQuestion.setRevisedQuestionText(oldPrimaryQuestion.getRevisedQuestionText());
 						newPrimaryQuestion.setRevisedSubject(oldPrimaryQuestion.getRevisedSubject());
+						newPrimaryQuestion.setAnswer(oldPrimaryQuestion.getAnswer());
+						newPrimaryQuestion.setRejectionReason(oldPrimaryQuestion.getRejectionReason());
 						newPrimaryQuestion.setClubbedEntities(newPrimaryclubbedEntities);
 						newPrimaryQuestion.mergeWithDraftOnly();
 						
-						Question.startDeviceWorkflow(newPrimaryQuestion.getType().getDevice(), newPrimaryQuestion.getId(), oldPrimaryQuestionInternalStaus, usergroupType, Integer.parseInt(oldPrimaryQuestionLevel), oldPrimaryQuestion.getHouseType().getType(), false, locale);
-						
+						if(actor!= null && !actor.isEmpty()) {
+							Question.startDeviceWorkflow(newPrimaryQuestion.getType().getDevice(), newPrimaryQuestion.getId(), oldPrimaryQuestionInternalStaus, usergroupType, Integer.parseInt(oldPrimaryQuestionLevel), oldPrimaryQuestion.getHouseType().getType(), false, locale);
+						}						
 						
 						//newPrimaryClubbedEntity.remove();
 
