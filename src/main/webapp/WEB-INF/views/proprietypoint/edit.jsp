@@ -193,6 +193,7 @@
 		//save the state of propriety point
 		$("#submit").click(function(e){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			$('#proprietyPointDate').removeAttr('disabled');
 			//removing <p><br></p>  from wysiwyg editor
 			$(".wysiwyg").each(function(){
 				var wysiwygVal=$(this).val().trim();
@@ -240,7 +241,8 @@
 			$.prompt($('#sendForApprovalMsg').val()+$("#selectedSupportingMembers").val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
-		        	$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+		        	$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			
+					$('#proprietyPointDate').removeAttr('disabled');        
 					$.post($('form').attr('action')+'?operation=approval',  
 		    	            $("form").serialize(),  
 		    	            function(data){
@@ -277,6 +279,7 @@
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
 		        	$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+					$('#proprietyPointDate').removeAttr('disabled');
 		        	$.post($('form').attr('action')+'?operation=submit',  
 		    	            $("form").serialize(),  
 		    	            function(data){
@@ -376,10 +379,29 @@
 			}						
 		});
 		
+	 	$('#changeProprietyPointDate').click(function() {
+			var yesLabel = $('#yesLabel').val();
+			var noLabel = $('#noLabel').val();
+			$.prompt('Do you really want to change the propriety point date?', {
+				buttons: [
+					{title: yesLabel, value: true},
+					{title: noLabel, value: false}
+				],
+				callback: function(v) {
+					if(v) {
+						$('#proprietyPointDate').removeAttr('disabled');
+						$('#changeProprietyPointDate').hide();
+					} else {
+						return false;
+					}
+				}
+			});			
+		});
+		
 		if($("#currentStatus").val()=='proprietypoint_submit'){
 			$("#ministry").attr("disabled","disabled");
 			$("#subDepartment").attr("disabled","disabled");
-			$("#subject").attr("readonly","readonly");
+			$("#proprietyPointDate").attr("disabled","disabled");
 			$("#subject").attr("readonly","readonly");
 			$("#pointsOfPropriety").attr("readonly","readonly");
 		}
@@ -413,9 +435,17 @@
 			<br />
 			<h2>
 				${formattedDeviceType}
-				<c:if test="${not empty formattedNumber}">
-					(<spring:message code="generic.number" text="Number"/> ${formattedNumber})
-				</c:if>
+				<c:choose>
+					<c:when test="${not empty formattedProprietyPointDate and not empty formattedNumber}">
+						(${formattedProprietyPointDate} - <spring:message code="generic.number" text="Number"/> ${formattedNumber})
+					</c:when>
+					<c:when test="${not empty formattedProprietyPointDate and empty formattedNumber}">
+						(${formattedProprietyPointDate})
+					</c:when>
+					<c:when test="${not empty formattedNumber}">
+						(<spring:message code="generic.number" text="Number"/> ${formattedNumber})
+					</c:when>
+				</c:choose>
 			</h2>
 			<form:errors path="version" cssClass="validationError"/>
 			
@@ -503,7 +533,7 @@
 			</p>	
 			</security:authorize>
 			
-			<p style="display: none;">
+			<p style="display: ${houseTypeType=='lowerhouse'?'none;':'inline-block;'}">
 				<label class="small"><spring:message code="proprietypoint.ministry" text="Ministry"/></label>
 				<input id="formattedMinistry" name="formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
 				<input name="ministry" id="ministry" type="hidden" value="${ministrySelected}">
@@ -519,7 +549,6 @@
 					</c:choose>
 				</c:forEach>
 				</form:select> --%>
-				<form:errors path="ministry" cssClass="validationError"/>			
 				<label class="small"><spring:message code="proprietypoint.subdepartment" text="Sub Department"/></label>
 				<select name="subDepartment" id="subDepartment" class="sSelect">
 				<c:forEach items="${subDepartments}" var="i">
@@ -533,6 +562,12 @@
 					</c:choose>
 				</c:forEach>
 				</select>						
+			</p>
+			
+			<p>
+				<form:errors path="ministry" cssClass="validationError" />	
+				
+				<form:errors path="subDepartment" cssClass="validationError" style="margin-left:27%"/>	
 			</p>
 			
 			<p style="display: none;">
@@ -551,6 +586,21 @@
 			</p>
 			
 			<h2></h2>
+			
+			<c:if test="${houseTypeType=='upperhouse'}">
+			<p>
+				<label class="small"><spring:message code="proprietypoint.selectProprietyPointdate" text="Propriety Point Date"/></label>
+				<%-- <input name="proprietyPointDate" id="proprietyPointDate" value="${selectedProprietyPointDate}"  style="width:130px;height: 40px;" readonly="readonly"> --%>		
+				<select name="proprietyPointDate" id="proprietyPointDate" style="width:130px;height: 25px;" disabled="disabled">
+				<c:forEach items="${sessionDates}" var="i">
+					<option value="${i[0]}" ${i[0]==selectedProprietyPointDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
+				</c:forEach>
+				</select>
+				<c:if test="${empty domain.number}">
+					<a href="#" id="changeProprietyPointDate" style="margin-left: 10px;"><spring:message code="proprietypoint.changeProprietyPointDate" text="Change Propriety Point Date"/></a>
+				</c:if>
+			</p>
+			</c:if>
 			
 			<p>
 				<label class="centerlabel"><spring:message code="proprietypoint.subject" text="Subject"/>*</label>

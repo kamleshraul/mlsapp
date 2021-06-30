@@ -2740,7 +2740,9 @@ public class ApplicationConstants {
 	public static final String PROPRIETYPOINT_PUTUP_REJECTION="proprietypoint_putup_rejection";
 	
 	/**** Other constants ****/
-	public static final String PROPRIETYPOINT_GET_REVISION = "PROPRIETYPOINT_GET_REVISION";
+	public static final String PROPRIETYPOINT_GET_REVISION = "PROPRIETYPOINT_GET_REVISION";	
+
+	public static final String PROPRIETYPOINT_OPTIONAL_FIELDS_IN_VALIDATION = "PROPRIETYPOINT_OPTIONAL_FIELDS_IN_VALIDATION";
 	/**************** Propriety Point Completed ********************/
 	
 	/**** Temporary Count for confirming performance issues if any ****/

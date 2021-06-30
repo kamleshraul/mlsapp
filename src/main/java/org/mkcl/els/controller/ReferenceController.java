@@ -7795,6 +7795,54 @@ public class ReferenceController extends BaseController {
 		return ruleSuspensionDates;
 	}
 	
+	@RequestMapping(value = "/proprietypoint/proprietypointdatesforsession", method = RequestMethod.GET)
+	public @ResponseBody List<Object[]> findProprietyPointDatesForSession(HttpServletRequest request, Locale locale) throws Exception{
+		String houseTypeStr = request.getParameter("houseType");
+		String sessionTypeStr= request.getParameter("sessionType");
+		String sessionYearStr= request.getParameter("sessionYear");
+		String usergroupType = request.getParameter("usergroupType");
+		if(houseTypeStr==null||houseTypeStr.isEmpty()||sessionTypeStr==null||sessionTypeStr.isEmpty()||sessionYearStr==null||sessionYearStr.isEmpty()||usergroupType==null||usergroupType.isEmpty()) {
+			throw new ELSException();
+		}
+		CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		if(csptDeployment!=null && csptDeployment.getValue()!=null){
+			if(csptDeployment.getValue().equals("TOMCAT")){
+				houseTypeStr = new String(houseTypeStr.getBytes("ISO-8859-1"),"UTF-8");
+				sessionTypeStr = new String(sessionTypeStr.getBytes("ISO-8859-1"),"UTF-8");
+				sessionYearStr = new String(sessionYearStr.getBytes("ISO-8859-1"),"UTF-8");
+			}
+		}
+		HouseType houseType = HouseType.findByType(houseTypeStr, locale.toString());		
+		if(houseType==null) {
+			houseType = HouseType.findByName(HouseType.class, houseTypeStr, locale.toString());
+		}
+		SessionType sessionType = null;
+		try {
+			sessionType = SessionType.findById(SessionType.class, Long.parseLong(sessionTypeStr));
+		} catch(NumberFormatException ne) {
+			sessionType = SessionType.findByFieldName(SessionType.class, "sessionType", sessionTypeStr, locale.toString());
+		}
+		Integer sessionYear = Integer.parseInt(sessionYearStr);
+		Session session = Session.find(sessionYear, sessionType.getType(), houseType.getType());
+		if(session==null || session.getId()==null) {
+			throw new ELSException();
+		}
+		/** populate session dates as possible proprietypoint dates **/
+		List<Date> sessionDates = session.findAllSessionDates();
+		List<Object[]> proprietypointDates = this.populateDateListUsingCustomParameterFormat(sessionDates, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", locale.toString());
+		
+		/** populate default proprietypoint date for the session **/
+		Date defaultProprietyPointDate = null;
+		if(usergroupType.equals(ApplicationConstants.MEMBER)) {
+			defaultProprietyPointDate = ProprietyPoint.findDefaultProprietyPointDateForSession(session, true);
+		} else {
+			defaultProprietyPointDate = ProprietyPoint.findDefaultProprietyPointDateForSession(session, false);
+		}		
+		proprietypointDates.add(new Object[]{FormaterUtil.formatDateToString(defaultProprietyPointDate, ApplicationConstants.SERVER_DATEFORMAT)});
+		
+		return proprietypointDates;
+	}
+	
 	@RequestMapping(value = "/selectedStatusType", method = RequestMethod.GET)
 	public @ResponseBody String findStatusTypeById(HttpServletRequest request, Locale locale) {
 		String statusType = "";
@@ -9123,6 +9171,8 @@ public class ReferenceController extends BaseController {
 			}else if(strDevice.equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY)
 					|| strDevice.equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)){
 				CutMotion.updateCurNumber(num, houseType, strDevice);
+			}else if(strDevice.equals(ApplicationConstants.PROPRIETY_POINT)){
+				ProprietyPoint.updateCurNumber(num, houseType, strDevice);
 			}
 			
 			return "SUCCESS";

@@ -1,6 +1,7 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,10 +20,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.DateUtil;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.repository.ProprietyPointRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +84,17 @@ public class ProprietyPoint extends Device implements Serializable {
             joinColumns={@JoinColumn(name="proprietypoint_id", referencedColumnName="id")},
             inverseJoinColumns={@JoinColumn(name="supportingmember_id", referencedColumnName="id")})
     private List<SupportingMember> supportingMembers;
+	
+    /** The propriety point date
+     *  Numbering & Processing of devices will be based on this date for upperhouse processing only.
+     */
+    @Temporal(TemporalType.DATE)
+	@Column(name="propriety_point_date")
+	private Date proprietyPointDate;
+	
+	/** The formatted propriety point date. */
+	@Transient
+	private String formattedProprietyPointDate;
     
     /** The subject. */
     @Column(length=30000)
@@ -195,6 +210,8 @@ public class ProprietyPoint extends Device implements Serializable {
 	private static transient volatile Integer CUR_NUM_LOWER_HOUSE = 0;
 	
     private static transient volatile Integer CUR_NUM_UPPER_HOUSE = 0;
+	
+    private static transient volatile Date CUR_PROPRIETYPOINT_DATE_UPPER_HOUSE = new Date();
     //=========================================================================================//
     
     /** The propriety point repository. */
@@ -235,18 +252,27 @@ public class ProprietyPoint extends Device implements Serializable {
 //				}
 				synchronized (ProprietyPoint.class) {                	
                 	Integer number = null;
+                	Boolean isProprietyPointDateDifferent = false;
 					try {
 						String houseType = this.getHouseType().getType();
 						
-						if (houseType.equals(ApplicationConstants.LOWER_HOUSE)) {					
+						if (houseType.equals(ApplicationConstants.LOWER_HOUSE)) {
 							if (ProprietyPoint.getCurrentNumberLowerHouse() == 0) {
 								number = ProprietyPoint.assignNumber(this.getHouseType(), this.getSession(), this.getDeviceType(), this.getLocale());
 								ProprietyPoint.updateCurrentNumberLowerHouse(number);
 							}
-						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {					
-							if (ProprietyPoint.getCurrentNumberUpperHouse() == 0) {
-								number = ProprietyPoint.assignNumber(this.getHouseType(), this.getSession(), this.getDeviceType(), this.getLocale());
+						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+							if(ProprietyPoint.getCurrentProprietyPointDateUpperHouse()==null) {
+	                    		isProprietyPointDateDifferent = true;
+	                    	} else if(DateUtil.compareDatePartOnly(new Date(), this.getSession().getEndDate())==0) {
+	                    		isProprietyPointDateDifferent = true;
+	                    	} else if(ProprietyPoint.getCurrentProprietyPointDateUpperHouse().compareTo(this.getProprietyPointDate())!=0) {
+	                    		isProprietyPointDateDifferent = true;
+	                    	}
+							if (ProprietyPoint.getCurrentNumberUpperHouse()==0 || isProprietyPointDateDifferent) {
+								number = ProprietyPoint.assignNumber(this.getHouseType(), this.getSession(), this.getProprietyPointDate(), this.getLocale());
 								ProprietyPoint.updateCurrentNumberUpperHouse(number);
+								ProprietyPoint.updateCurrentProprietyPointDateUpperHouse(this.getProprietyPointDate());
 							}
 						}			
 						
@@ -287,6 +313,7 @@ public class ProprietyPoint extends Device implements Serializable {
 //				}
 				synchronized (ProprietyPoint.class) {                	
                 	Integer number = null;
+                	Boolean isProprietyPointDateDifferent = false;
 					try {
 						String houseType = this.getHouseType().getType();
 						
@@ -296,9 +323,17 @@ public class ProprietyPoint extends Device implements Serializable {
 								ProprietyPoint.updateCurrentNumberLowerHouse(number);
 							}
 						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {					
-							if (ProprietyPoint.getCurrentNumberUpperHouse() == 0) {
-								number = ProprietyPoint.assignNumber(this.getHouseType(), this.getSession(), this.getDeviceType(), this.getLocale());
+							if(ProprietyPoint.getCurrentProprietyPointDateUpperHouse()==null) {
+	                    		isProprietyPointDateDifferent = true;
+	                    	} else if(DateUtil.compareDatePartOnly(new Date(), this.getSession().getEndDate())==0) {
+	                    		isProprietyPointDateDifferent = true;
+	                    	} else if(ProprietyPoint.getCurrentProprietyPointDateUpperHouse().compareTo(this.getProprietyPointDate())!=0) {
+	                    		isProprietyPointDateDifferent = true;
+	                    	}
+							if (ProprietyPoint.getCurrentNumberUpperHouse()==0 || isProprietyPointDateDifferent) {
+								number = ProprietyPoint.assignNumber(this.getHouseType(), this.getSession(), this.getProprietyPointDate(), this.getLocale());
 								ProprietyPoint.updateCurrentNumberUpperHouse(number);
+								ProprietyPoint.updateCurrentProprietyPointDateUpperHouse(this.getProprietyPointDate());
 							}
 						}			
 						
@@ -394,6 +429,11 @@ public class ProprietyPoint extends Device implements Serializable {
 		return getProprietyPointRepository().assignNumber(houseType,session,type,locale);
 	}
     
+    public static Integer assignNumber(final HouseType houseType,
+			final Session session,final Date proprietyPointDate,final String locale) {
+		return getProprietyPointRepository().assignNumber(houseType,session,proprietyPointDate,locale);
+	}
+    
     /**
      * The merge function, besides updating  Propriety Point, performs various actions
      * based on Propriety Point's status. What if we need just the simple functionality
@@ -405,6 +445,36 @@ public class ProprietyPoint extends Device implements Serializable {
     	ProprietyPoint proprietyPoint = (ProprietyPoint) super.merge();
         return proprietyPoint;
     }
+
+	public static Date findDefaultProprietyPointDateForSession(final Session session, final Boolean isForMemberLogin) throws ELSException {
+		if(session==null || session.getId()==null) {
+			throw new ELSException();
+		}
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.DATE, 1); 
+		Date currentDatePlusOne = c.getTime();
+		
+		if(Session.isGivenDateInSession(currentDatePlusOne,session)) {
+			if(!isForMemberLogin || ProprietyPoint.validateSubmissionEndTime(session, new Date()) && !Holiday.isHolidayOnDate(currentDatePlusOne, session.getLocale())) {
+				return currentDatePlusOne;
+			} else {
+				Date nextSessionWorkingDay = session.getNextSessionDate(currentDatePlusOne, 1, session.getLocale());
+				if(nextSessionWorkingDay!=null) {
+					return nextSessionWorkingDay;
+				} else {
+					return session.getEndDate();
+				}
+			}						
+		} else {
+//			Date nextSessionWorkingDay = session.getNextSessionDate(currentDatePlusOne, 1, session.getLocale());
+//			if(nextSessionWorkingDay!=null) {
+//				return nextSessionWorkingDay;
+//			} else {
+//				return session.getEndDate();
+//			}
+			return session.getEndDate();
+		}
+	}
     
     public static List<ProprietyPoint> findAllReadyForSubmissionByMember(final Session session,
 			final Member primaryMember,
@@ -551,6 +621,123 @@ public class ProprietyPoint extends Device implements Serializable {
 		this.setLocalizedActorName("");	
 		this.simpleMerge();
 	}
+    
+    public Boolean validateSubmissionDate() {
+    	Date nextWorkingDate = Holiday.getNextWorkingDateFrom(new Date(), 1, this.getLocale());
+    	if(DateUtil.compareDatePartOnly(this.getProprietyPointDate(), nextWorkingDate) == 0
+    			//&& (DateUtil.compareDatePartOnly(this.getSubmissionDate(), new Date())) == 0
+    			&& !(Holiday.isHolidayOnDate(this.getProprietyPointDate(), this.getLocale()))) {
+    		return true;
+    	} else if(DateUtil.compareDatePartOnly(new Date(), this.getSession().getEndDate()) == 0
+    			&& (DateUtil.compareDatePartOnly(this.getProprietyPointDate(), this.getSession().getEndDate())) == 0
+    			&& !(Holiday.isHolidayOnDate(this.getProprietyPointDate(), this.getLocale()))) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+    
+    public static Boolean validateSubmissionTime(final Session proprietyPointSession, Date proprietyPointDate,Date currentSubmissionTime) {
+    	boolean isSubmissionDateValidated = false;    	
+    	CustomParameter csptSubmissionStartTimeValidationRequired = CustomParameter.findByName(CustomParameter.class, "PROIS_SUBMISSION_START_TIME_VALIDATION_REQUIRED", "");
+    	if(csptSubmissionStartTimeValidationRequired!=null && csptSubmissionStartTimeValidationRequired.getValue().equals("YES")) {	    		   	
+        	if(DateUtil.compareDatePartOnly(new Date(), proprietyPointSession.getEndDate()) < 0
+        			&& DateUtil.compareDatePartOnly(proprietyPointDate, new Date()) > 0) {
+        		isSubmissionDateValidated = true;
+        	} else if(DateUtil.compareDatePartOnly(new Date(), proprietyPointSession.getEndDate()) == 0
+        			&& DateUtil.compareDatePartOnly(proprietyPointDate, proprietyPointSession.getEndDate()) == 0) {
+        		isSubmissionDateValidated = true;
+        	}
+        	if(isSubmissionDateValidated) {
+        		Date submissionStartTime = ProprietyPoint.findSubmissionStartTime(proprietyPointSession, currentSubmissionTime);
+            	Date submissionEndTime = ProprietyPoint.findSubmissionEndTime(proprietyPointSession, currentSubmissionTime);    	
+            	if(currentSubmissionTime.compareTo(submissionStartTime)>=0 && currentSubmissionTime.compareTo(submissionEndTime)<=0) {
+            		return true;
+            	} else {
+            		return false;
+            	}
+        	} else {
+        		return false;
+        	}
+    	} else {
+    		return ProprietyPoint.validateSubmissionEndTime(proprietyPointSession, currentSubmissionTime);
+    	}    	    	
+    }
+    	
+	 public static Boolean validateSubmissionEndTime(final Session proprietyPointSession, Date currentSubmissionTime) {
+	    	Date submissionEndTime = ProprietyPoint.findSubmissionEndTime(proprietyPointSession, currentSubmissionTime);
+	    	if(currentSubmissionTime.compareTo(submissionEndTime)<=0) {
+	    		return true;
+	    	} else {
+	    		return false;
+	    	}    	
+	    }
+   
+   public static Date findSubmissionStartTime(final Session proprietyPointSession, Date proprietyPointDate) {
+    	//find submission start date part
+    	String strProprietyPointDate = FormaterUtil.formatDateToString(proprietyPointDate, ApplicationConstants.SERVER_DATEFORMAT);
+    	String submissionStartDatePart = strProprietyPointDate;
+    	//find submission start time part
+    	String submissionStartTimePart = "00:00:00";
+    	if(proprietyPointSession!=null) {
+    		String submissionStartTimeParameter = proprietyPointSession.getParameter(ApplicationConstants.PROPRIETY_POINT+"_submissionStartTime_"+strProprietyPointDate);
+    		if(submissionStartTimeParameter!=null && !submissionStartTimeParameter.isEmpty()) {
+    			submissionStartTimePart = submissionStartTimeParameter + ":00";
+    		} else {
+    			String submissionStartTimeDefaultSessionParameter = proprietyPointSession.getParameter(ApplicationConstants.PROPRIETY_POINT+"_submissionStartTime");
+        		if(submissionStartTimeDefaultSessionParameter!=null && !submissionStartTimeDefaultSessionParameter.isEmpty()) {
+        			String[] submissionStartTimeDefaultSessionParameters =  submissionStartTimeDefaultSessionParameter.split(" ");
+    				submissionStartTimePart = submissionStartTimeDefaultSessionParameters[1];
+        		} else {
+        			CustomParameter csptsubmissionStartTime = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.PROPRIETY_POINT.toUpperCase()+"_SUBMISSIONSTARTTIME_"+proprietyPointSession.getHouse().getType().getType().toUpperCase(), "");
+            		if(csptsubmissionStartTime!=null && csptsubmissionStartTime.getValue()!=null && !csptsubmissionStartTime.getValue().isEmpty()) {
+            			submissionStartTimePart = csptsubmissionStartTime.getValue() + ":00";
+            		}
+        		}
+    		}
+    	} else {
+    		CustomParameter csptsubmissionStartTime = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.PROPRIETY_POINT.toUpperCase()+"_SUBMISSIONSTARTTIME_"+proprietyPointSession.getHouse().getType().getType().toUpperCase(), "");
+    		if(csptsubmissionStartTime!=null && csptsubmissionStartTime.getValue()!=null && !csptsubmissionStartTime.getValue().isEmpty()) {
+    			submissionStartTimePart = csptsubmissionStartTime.getValue() + ":00";
+    		}
+    	}
+    	//find submission start time
+    	String submissionStartTime = submissionStartDatePart + " " + submissionStartTimePart;
+    	return FormaterUtil.formatStringToDate(submissionStartTime, ApplicationConstants.SERVER_DATETIMEFORMAT);
+    }
+
+   public static Date findSubmissionEndTime(final Session proprietyPointSession, Date proprietyPointDate) {
+    	//find submission end date part
+    	String strProprietyPointDate = FormaterUtil.formatDateToString(proprietyPointDate, ApplicationConstants.SERVER_DATEFORMAT);
+    	String submissionEndDatePart = strProprietyPointDate;
+    	//find submission end time part
+    	String submissionEndTimePart = "00:00:00";
+    	if(proprietyPointSession!=null) {
+    		String submissionEndTimeParameter = proprietyPointSession.getParameter(ApplicationConstants.PROPRIETY_POINT+"_submissionEndTime_"+strProprietyPointDate);
+    		if(submissionEndTimeParameter!=null && !submissionEndTimeParameter.isEmpty()) {
+    			submissionEndTimePart = submissionEndTimeParameter + ":00";
+    		} else {
+    			String submissionEndTimeDefaultSessionParameter = proprietyPointSession.getParameter(ApplicationConstants.PROPRIETY_POINT+"_submissionEndTime");
+        		if(submissionEndTimeDefaultSessionParameter!=null && !submissionEndTimeDefaultSessionParameter.isEmpty()) {
+        			String[] submissionEndTimeDefaultSessionParameters =  submissionEndTimeDefaultSessionParameter.split(" ");
+        			submissionEndTimePart = submissionEndTimeDefaultSessionParameters[1];
+        		} else {
+        			CustomParameter csptsubmissionEndTime = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.PROPRIETY_POINT.toUpperCase()+"_SUBMISSIONENDTIME_"+proprietyPointSession.getHouse().getType().getType().toUpperCase(), "");
+            		if(csptsubmissionEndTime!=null && csptsubmissionEndTime.getValue()!=null && !csptsubmissionEndTime.getValue().isEmpty()) {
+            			submissionEndTimePart = csptsubmissionEndTime.getValue() + ":00";
+            		}
+        		}
+    		}
+    	} else {
+    		CustomParameter csptsubmissionEndTime = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.PROPRIETY_POINT.toUpperCase()+"_SUBMISSIONENDTIME_"+proprietyPointSession.getHouse().getType().getType().toUpperCase(), "");
+    		if(csptsubmissionEndTime!=null && csptsubmissionEndTime.getValue()!=null && !csptsubmissionEndTime.getValue().isEmpty()) {
+    			submissionEndTimePart = csptsubmissionEndTime.getValue() + ":00";
+    		}
+    	}
+    	//find submission end time
+    	String submissionEndTime = submissionEndDatePart + " " + submissionEndTimePart;
+    	return FormaterUtil.formatStringToDate(submissionEndTime, ApplicationConstants.SERVER_DATETIMEFORMAT);
+    }
 
 	/********************************************* Getters & Setters *******************************************/
 	public HouseType getHouseType() {
@@ -623,6 +810,30 @@ public class ProprietyPoint extends Device implements Serializable {
 
 	public void setSupportingMembers(List<SupportingMember> supportingMembers) {
 		this.supportingMembers = supportingMembers;
+	}
+
+	public Date getProprietyPointDate() {
+		return proprietyPointDate;
+	}
+
+	public void setProprietyPointDate(Date proprietyPointDate) {
+		this.proprietyPointDate = proprietyPointDate;
+	}
+
+	/**
+	 * @return the formattedProprietyPointDate
+	 */
+	public String getFormattedProprietyPointDate() {
+		if(this.proprietyPointDate!=null) {
+			try {
+				formattedProprietyPointDate = FormaterUtil.formatDateToStringUsingCustomParameterFormat(this.proprietyPointDate, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", this.getLocale());
+			} catch (ELSException e) {
+				formattedProprietyPointDate = "";
+			}
+		} else {
+			formattedProprietyPointDate = "";
+		}
+		return formattedProprietyPointDate;
 	}
 
 	public String getSubject() {
@@ -878,5 +1089,51 @@ public class ProprietyPoint extends Device implements Serializable {
 	public static synchronized Integer getCurrentNumberUpperHouse(){
 		return ProprietyPoint.CUR_NUM_UPPER_HOUSE;
 	}
+	
+	public static void updateCurrentProprietyPointDateUpperHouse(Date proprietyPointDate){
+		synchronized (ProprietyPoint.CUR_PROPRIETYPOINT_DATE_UPPER_HOUSE) {
+			ProprietyPoint.CUR_PROPRIETYPOINT_DATE_UPPER_HOUSE = proprietyPointDate;
+		}
+	}
+
+	public static synchronized Date getCurrentProprietyPointDateUpperHouse(){
+		return ProprietyPoint.CUR_PROPRIETYPOINT_DATE_UPPER_HOUSE;
+	}
+	
+	public static org.mkcl.els.common.vo.Reference getCurNumber(final Session session, final DeviceType deviceType){
+    	
+    	org.mkcl.els.common.vo.Reference ref = new org.mkcl.els.common.vo.Reference();
+    	String strHouseType = session.getHouse().getType().getType();
+    	
+    	if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
+    		
+			ref.setName(ApplicationConstants.PROPRIETY_POINT);
+			ref.setNumber(ProprietyPoint.getCurrentNumberLowerHouse().toString());
+    		ref.setId(ApplicationConstants.LOWER_HOUSE);
+    		
+    	}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
+    		
+    		ref.setName(ApplicationConstants.PROPRIETY_POINT);
+			ref.setNumber(ProprietyPoint.getCurrentNumberUpperHouse().toString());
+    		ref.setId(ApplicationConstants.UPPER_HOUSE);
+    	}
+    	
+    	return ref;
+    }
+    
+    public static void updateCurNumber(final Integer num, final String houseType, final String device){
+    	
+    	if(device.equals(ApplicationConstants.PROPRIETY_POINT)){
+    		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+    			ProprietyPoint.updateCurrentNumberLowerHouse(num);
+    		}
+    		
+    		if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+    			ProprietyPoint.updateCurrentNumberUpperHouse(num);
+    		}
+	    	
+	    	
+    	}
+    }
 	
 }

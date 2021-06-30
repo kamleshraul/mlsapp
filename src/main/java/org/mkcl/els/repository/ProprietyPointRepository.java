@@ -2,6 +2,7 @@ package org.mkcl.els.repository;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import name.fraser.neil.plaintext.diff_match_patch.Diff;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.DeviceType;
@@ -53,6 +55,38 @@ public class ProprietyPointRepository extends BaseRepository<AdjournmentMotion, 
 				}else{
 					return proprietyPoints.get(0).getNumber();
 				}
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return 0;
+		}
+	}
+	
+	public Integer assignNumber(final HouseType houseType,
+								final Session session,
+								final Date proprietyPointDate,
+								final String locale) {
+		boolean isTodaySessionEndDate = false;
+		if(DateUtil.compareDatePartOnly(new Date(), session.getEndDate())==0) {
+			isTodaySessionEndDate = true;
+		}
+		String strQuery = "SELECT MAX(number) FROM propriety_points"
+				+ " WHERE session_id=:sessionId"
+				+ " AND propriety_point_date=:proprietyPointDate"
+				+ " AND (CASE WHEN :isTodaySessionEndDate IS TRUE AND number IS NOT NULL THEN DATE(submission_date)=:sessionEndDate ELSE TRUE END)";
+		try {
+			Query query=this.em().createNativeQuery(strQuery);
+			query.setParameter("sessionId",session.getId());
+			query.setParameter("proprietyPointDate", proprietyPointDate);
+			query.setParameter("isTodaySessionEndDate", isTodaySessionEndDate);
+			query.setParameter("sessionEndDate", session.getEndDate());
+			
+			Integer maxNumber = (Integer) query.getSingleResult();
+			if(maxNumber == null) {
+				return 0;
+			} else {
+				return maxNumber;
 			}
 		}
 		catch(Exception e) {

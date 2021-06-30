@@ -50,6 +50,9 @@
 			/**** On Page Load ****/
 			var currentDeviceType = $("#currentDeviceType").val();
 			var currentHouseType = $("#currentHouseType").val();
+			if(currentHouseType=='upperhouse') {
+				$('#select_proprietypointdate_div').show();
+			}
 			$("#bulkputup_tab").hide();
 			/*Tooltip*/
 			$(".toolTip").hide();					
@@ -68,22 +71,132 @@
 			/**** house type changes then reload grid****/			
 			$("#selectedHouseType").change(function(){
 				var value=$(this).val();
-				if(value!=""){	
-					reloadProprietyPointGrid();								
-				}	
+				
+				if(value=='lowerhouse'){	
+					$('#select_proprietypointdate_div').hide();
+					reloadProprietyPointGrid();	
+					
+				} else if(value=='upperhouse'){
+					$.get('ref/proprietypoint/proprietypointdatesforsession?houseType='+$('#selectedHouseType').val()
+							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+						if(data.length>1) {
+							var defaultProprietyPointDate = data[data.length-1][0];
+							$('#selectedProprietyPointDate').empty();
+							var htmlText = "";
+							for(var i=0; i<data.length-1; i++) {
+								htmlText += "<option value='"+data[i][0]+"'";
+								if(data[i][0]==defaultProprietyPointDate) {
+									htmlText += "selected='selected'";
+								}
+								htmlText += ">"+data[i][1]+"</option>";									
+							}	
+							$('#selectedProprietyPointDate').html(htmlText);
+						} else {
+							$.prompt("some error..please contact administrator");
+						}
+						
+					}).done(function() {
+						$('#isProprietyPointDateSelected').attr('checked', 'checked');
+						$('#selectedProprietyPointDate').removeAttr('disabled');
+						$('#select_proprietypointdate_div').show();
+						//reloadProprietyPointGrid();
+						showProprietyPointList();
+						
+					}).fail(function() {
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+						}
+						//resetControls();
+						scrollTop();
+					});
+				}
 			});	
 			/**** session year changes then reload grid****/			
 			$("#selectedSessionYear").change(function(){
 				var value=$(this).val();
-				if(value!=""){	
-					reloadProprietyPointGrid();						
+				
+				if($('#selectedHouseType').val()=='lowerhouse') {	
+					reloadProprietyPointGrid();	
+					
+				} else if($('#selectedHouseType').val()=='upperhouse') {
+					$.get('ref/proprietypoint/proprietypointdatesforsession?houseType='+$('#selectedHouseType').val()
+							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+						if(data.length>1) {
+							var defaultProprietyPointDate = data[data.length-1][0];
+							$('#selectedProprietyPointDate').empty();
+							var htmlText = "";
+							for(var i=0; i<data.length-1; i++) {
+								htmlText += "<option value='"+data[i][0]+"'";
+								if(data[i][0]==defaultProprietyPointDate) {
+									htmlText += "selected='selected'";
+								}
+								htmlText += ">"+data[i][1]+"</option>";									
+							}	
+							$('#selectedProprietyPointDate').html(htmlText);
+						} else {
+							$.prompt("some error..please contact administrator");
+						}
+						
+					}).done(function() {
+						$('#isProprietyPointDateSelected').attr('checked', 'checked');
+						$('#selectedProprietyPointDate').removeAttr('disabled');
+						//reloadProprietyPointGrid();
+						showProprietyPointList();
+						
+					}).fail(function() {
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+						}
+						//resetControls();
+						scrollTop();
+					});
 				}			
 			});
 			/**** session type changes then reload grid****/
 			$("#selectedSessionType").change(function(){
 				var value=$(this).val();
-				if(value!=""){			
-					reloadProprietyPointGrid();										
+				
+				if($('#selectedHouseType').val()=='lowerhouse') {	
+					reloadProprietyPointGrid();	
+					
+				} else if($('#selectedHouseType').val()=='upperhouse') {
+					$.get('ref/proprietypoint/proprietypointdatesforsession?houseType='+$('#selectedHouseType').val()
+							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+						if(data.length>1) {
+							var defaultProprietyPointDate = data[data.length-1][0];
+							$('#selectedProprietyPointDate').empty();
+							var htmlText = "";
+							for(var i=0; i<data.length-1; i++) {
+								htmlText += "<option value='"+data[i][0]+"'";
+								if(data[i][0]==defaultProprietyPointDate) {
+									htmlText += "selected='selected'";
+								}
+								htmlText += ">"+data[i][1]+"</option>";									
+							}	
+							$('#selectedProprietyPointDate').html(htmlText);
+						} else {
+							$.prompt("some error..please contact administrator");
+						}
+						
+					}).done(function() {
+						$('#isProprietyPointDateSelected').attr('checked', 'checked');
+						$('#selectedProprietyPointDate').removeAttr('disabled');
+						//reloadProprietyPointGrid();
+						showProprietyPointList();
+						
+					}).fail(function() {
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+						}
+						//resetControls();
+						scrollTop();
+					});
 				}			
 			});
 			/**** proprietypoint type changes ****/		
@@ -119,6 +232,37 @@
 				$("#selectionDiv1").hide();
 				bulkPutupAssistant();
 			});		
+			
+			/**** propriety point date changes then reload grid ****/
+			$("#selectedProprietyPointDate").change(function(){
+				var value=$(this).val();
+				if(value!=""){				
+					reloadProprietyPointGrid();
+					$("#selectedFileCount").val("-");
+				}
+			});
+			$('#isProprietyPointDateSelected').change(function(){	
+				if($("#isProprietyPointDateSelected").is(":checked")) {
+					$('#selectedProprietyPointDate').removeAttr('disabled');
+					//reloadProprietyPointGrid();
+					showProprietyPointList();
+					$("#selectedFileCount").val("-");
+				} else {
+					$('#selectedProprietyPointDate').attr('disabled', 'disabled');
+					//reloadProprietyPointGrid();
+					showProprietyPointList();
+					$("#selectedFileCount").val("-");
+				}				
+			});
+			/**** Submission Time Window ****/
+			$("#submission_time_window").click(function(event, isHighSecurityValidationRequired){			
+				if(isHighSecurityValidationRequired!=false) {
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+					return false;
+				}
+				$(this).attr('href','#');
+				setSubmissionTimeWindow();
+			});
 			/**** show proprietypoint list method is called by default.****/
 			showProprietyPointList();	
 			/**** Toggle Reports Div ****/
@@ -151,6 +295,10 @@
 		});
 		/**** displaying grid ****/					
 		function showProprietyPointList() {
+			var selectedProprietyPointDate = "";
+			if($("#selectedHouseType").val()=='upperhouse' && $("#isProprietyPointDateSelected").is(":checked")) {
+				selectedProprietyPointDate = convertToDbFormat($('#selectedProprietyPointDate').val());
+			}
 			showTabByIdAndUrl('list_tab','proprietypoint/list?houseType='+$('#selectedHouseType').val()
 					+'&deviceType='+$("#selectedDeviceType").val()
 					+'&sessionYear='+$("#selectedSessionYear").val()
@@ -160,6 +308,7 @@
 					+"&role="+$("#srole").val()
 					+"&usergroup="+$("#currentusergroup").val()
 					+"&usergroupType="+$("#currentusergroupType").val()				
+					+"&proprietyPointDate="+selectedProprietyPointDate			
 					+"&subDepartment="+$("#selectedSubDepartment").val()
 			);
 			loadSession();
@@ -247,6 +396,10 @@
 		}
 		/**** reload grid ****/
 		function reloadProprietyPointGrid(){
+			var selectedProprietyPointDate = "";
+			if($("#selectedHouseType").val()=='upperhouse' && $("#isProprietyPointDateSelected").is(":checked")) {
+				selectedProprietyPointDate = convertToDbFormat($('#selectedProprietyPointDate').val());
+			}
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
 					+"&sessionYear="+$("#selectedSessionYear").val()+
 					"&sessionType="+$("#selectedSessionType").val()+
@@ -255,7 +408,8 @@
 					+"&status="+$("#selectedStatus").val()
 					+"&role="+$("#srole").val()
 					+"&usergroup="+$("#currentusergroup").val()
-					+"&usergroupType="+$("#currentusergroupType").val()		
+					+"&usergroupType="+$("#currentusergroupType").val()					
+					+"&proprietyPointDate="+selectedProprietyPointDate	
 					+"&subDepartment="+$("#selectedSubDepartment").val()
 			);
 			console.log($("#gridURLParams").val());
@@ -266,6 +420,40 @@
 			$("#grid").trigger("reloadGrid");
 			
 			loadSession();
+		}		
+		/**** Set Submission Time Window ****/
+	 	function setSubmissionTimeWindow() {
+			var selectedProprietyPointDate = $('#selectedProprietyPointDate').val();
+			if(selectedProprietyPointDate==undefined || selectedProprietyPointDate=="") {
+				$.prompt("Please select proprietypoint date for setting submission window!");
+				return false;
+			} else {
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
+				var parameters="houseType="+$("#selectedHouseType").val()
+				+"&sessionYear="+$("#selectedSessionYear").val()
+				+"&sessionType="+$("#selectedSessionType").val()
+				+"&deviceType="+$("#selectedDeviceType").val()
+				+"&proprietyPointDate="+$("#selectedProprietyPointDate").val()
+				+"&formattedProprietyPointDate="+$("#selectedProprietyPointDate").text()
+				+"&ugparam="+$("#ugparam").val()
+				+"&status="+$("#selectedStatus").val()
+				+"&role="+$("#srole").val()
+				+"&usergroup="+$("#currentusergroup").val()
+				+"&usergroupType="+$("#currentusergroupType").val();
+				var resourceURL='proprietypoint/submissionwindow?'+parameters;
+				$.get(resourceURL,function(data){
+					$.unblockUI();
+					$.fancybox.open(data,{autoSize:false,width:360,height:270});
+				},'html').fail(function(){
+					$.unblockUI();
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				});
+			}			
 		}
 		/**** Bulk putup(Member)****/
 		function bulkPutup(){
@@ -570,6 +758,18 @@
 			<option value="5">05</option>		
 			</select>|	
 			</security:authorize> --%>		
+
+			<div id="select_proprietypointdate_div" style="display: none;">
+			<hr>
+			
+			<a href="#" id="select_proprietypointdate" class="butSim"><spring:message code="proprietypointdate.selectProprietyPointdate" text="Select Propriety Point Date"/></a>
+			<input class="sCheck" type="checkbox" id="isProprietyPointDateSelected" name="isProprietyPointDateSelected" checked="checked"/>
+			<select name="selectedProprietyPointDate" id="selectedProprietyPointDate" style="width:130px;height: 25px;">	
+			<c:forEach items="${sessionDates}" var="i">
+				<option value="${i[0]}" ${i[0]==defaultProprietyPointDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
+			</c:forEach>
+			</select>
+			</div>
 			
 			<security:authorize access="hasAnyRole('PROIS_CLERK', 'PROIS_ASSISTANT', 'PROIS_SECTION_OFFICER', 'PROIS_UNDER_SECRETARY', 'PROIS_SECRETARY', 'PROIS_PRINCIPAL_SECRETARY')">	
 				<a href="javascript:void(0);" id="reports_link" class="butSim" style="float: right;">

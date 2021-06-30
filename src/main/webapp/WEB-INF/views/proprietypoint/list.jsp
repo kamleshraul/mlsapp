@@ -6,7 +6,13 @@
 	<script type="text/javascript">	
 		$(document).ready(function(){
 			$(".toolTip").hide();
-			$("#selectionDiv1").show();		
+			$("#selectionDiv1").show();
+			var selectedProprietyPointDate = "";
+			if($('#selectedHouseType').val()=='upperhouse') {
+				if($("#isProprietyPointDateSelected").is(":checked")) {
+					selectedProprietyPointDate = convertToDbFormat($('#selectedProprietyPointDate').val());
+				}
+			}
 			/**** grid params which is sent to load grid data being sent ****/				
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
 					+"&sessionYear="+$("#selectedSessionYear").val()
@@ -17,6 +23,7 @@
 					+"&role="+$("#srole").val()
 					+"&usergroup="+$("#currentusergroup").val()
 					+"&usergroupType="+$("#currentusergroupType").val()
+					+"&proprietyPointDate="+selectedProprietyPointDate
 					+"&subDepartment="+$("#selectedSubDepartment").val()
 			);
 			/*******For Enabling the new Propriety Point link in the edit page********/
