@@ -439,7 +439,7 @@
 				+"&sessionYear="+$("#selectedSessionYear").val()
 				+"&sessionType="+$("#selectedSessionType").val()
 				+"&motionType="+$("#selectedMotionType").val()
-				+"&specialMentionNticeDate="+$("#selectedSpecialMentionNoticeDate").val()
+				+"&specialMentionNoticeDate="+$("#selectedSpecialMentionNoticeDate").val()
 				+"&formattedSpecialMentionNoticeDate="+$("#selectedSpecialMentionNoticeDate").text()
 				+"&ugparam="+$("#ugparam").val()
 				+"&status="+$("#selectedStatus").val()

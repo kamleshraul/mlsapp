@@ -2,10 +2,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="
-
-
-mentionnotice" text="Special Mention Notice"/>
+	<spring:message code="specialmentionnotice" text="Special Mention Notice"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	
