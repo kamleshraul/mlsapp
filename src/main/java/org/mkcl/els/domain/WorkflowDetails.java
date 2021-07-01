@@ -560,6 +560,20 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 				strStatus, strWorkflowSubType, specialmentionNoticeDate, assignee, strItemsCount, strLocale);
 	}
 	
+	public static List<WorkflowDetails> findAllForProprietyPoints(final String strHouseType,
+			final String strSessionType,
+			final String strSessionYear,
+			final String strDeviceType,
+			final String strStatus,
+			final String strWorkflowSubType,
+			final Date proprietyPointDate,
+			final String assignee,
+			final String strItemsCount,
+			final String strLocale) throws ELSException {
+		return getRepository().findAllForProprietyPoints(strHouseType, strSessionType, strSessionYear, strDeviceType,
+				strStatus, strWorkflowSubType, proprietyPointDate, assignee, strItemsCount, strLocale);
+	}
+	
 	public static List<WorkflowDetails> findPendingWorkflowOfCurrentUser(final Map<String, String> parameters, 
 			final String orderBy,
 			final String sortOrder) {

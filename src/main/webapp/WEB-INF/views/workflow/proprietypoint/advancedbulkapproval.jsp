@@ -210,7 +210,11 @@
 		<%@ include file="/common/info.jsp"%>
 		<div id="bulkResultDiv">	
 				<c:choose>
-				<c:when test="${!(empty bulkapprovals) }">			
+				<c:when test="${!(empty bulkapprovals) }">	
+					<div style="font-size: 16px; font-weight: bold; margin-bottom: 20px;">
+					    <spring:message code="generic.date" text="Date"></spring:message>
+						${bulkapprovals[0].formattedAdjourningDate} <spring:message code="proprietypoint.advancebulkapproval.header" text="Propriety Point Notices"></spring:message> ${selectedWorkflowStatus})
+					</div>		
 					<div style="overflow: scroll;">
 					<form action="workflow/proprietypoint/advancedbulkapproval" method="POST">
 						<table class="uiTable">

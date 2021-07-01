@@ -596,18 +596,21 @@
 			<%@ include file="/common/info.jsp" %>
 			<div id="reportDiv">
 			<h2>
-			<c:if test="${workflowstatus=='COMPLETED'}">
-			<spring:message code="generic.taskcompleted" text="Task Already Completed Successfully"/>
-			<br>
-			</c:if>			
-			${formattedDeviceType}
-			<c:choose>
-				<c:when test="${not empty formattedAdjourningDate and not empty formattedNumber}">
-					(${formattedAdjourningDate} - <spring:message code="generic.number" text="Number"/> ${formattedNumber})
-				</c:when>
-				<c:when test="${not empty formattedAdjourningDate and empty formattedNumber}">
-					(${formattedAdjourningDate})
-				</c:when>
+				<c:if test="${workflowstatus=='COMPLETED'}">
+				<spring:message code="generic.taskcompleted" text="Task Already Completed Successfully"/>
+				<br>
+				</c:if>			
+				${formattedDeviceType}
+				<c:choose>
+					<c:when test="${not empty formattedProprietyPointDate and not empty formattedNumber}">
+						(${formattedProprietyPointDate} - <spring:message code="generic.number" text="Number"/> ${formattedNumber})
+					</c:when>
+					<c:when test="${not empty formattedProprietyPointDate and empty formattedNumber}">
+						(${formattedProprietyPointDate})
+					</c:when>
+					<c:when test="${not empty formattedNumber}">
+						(<spring:message code="generic.number" text="Number"/> ${formattedNumber})
+					</c:when>
 				</c:choose>
 			</h2>
 			
@@ -647,12 +650,26 @@
 				<input id="number" name="number" value="${domain.number}" type="hidden">
 				<form:errors path="number" cssClass="validationError"/>
 				
-				<c:if test="${!(empty submissionDate)}">
+				<c:if test="${houseTypeType=='lowerhouse' and !(empty submissionDate)}">
 					<label class="small"><spring:message code="proprietypoint.submissionDate" text="Submitted On"/></label>
 					<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
 					<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
 				</c:if>
+				
+				<c:if test="${houseTypeType=='upperhouse'}">
+					<label class="small"><spring:message code="proprietypoint.selectproprietypointdate" text="Propriety Point Date"/></label>
+					<input id="formattedProprietyPointDate" name="formattedProprietyPointDate" value="${formattedProprietyPointDate}" class="sText" readonly="readonly">
+					<input id="proprietyPointDate" name="proprietyPointDate" type="hidden"  value="${selectedProprietyPointDate}">
+				</c:if>
 			</p>
+			
+			<c:if test="${houseTypeType=='upperhouse' and !(empty submissionDate)}">
+			<p>
+				<label class="small"><spring:message code="proprietypoint.submissionDate" text="Submitted On"/></label>
+				<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
+				<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
+			</p>
+			</c:if>
 				
 			<p>
 				<label class="small"><spring:message code="proprietypoint.ministry" text="Ministry"/></label>

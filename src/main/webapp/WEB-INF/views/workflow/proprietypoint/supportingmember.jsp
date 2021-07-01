@@ -75,6 +75,12 @@
 	</p>
 	
 	<p>
+		<label class="small"><spring:message code="proprietypoint.proprietypointdate" text="Propriety Point Date"/>*</label>
+		<input id="formattedApprovedAdjourningDate" class="sText" type="text" value="${formattedApprovedAdjourningDate}" readonly="readonly">
+		<input type="hidden" id="approvedAdjourningDate" name="approvedAdjourningDate" value="${approvedAdjourningDate}" readonly="readonly">
+	</p>
+	
+	<p>
 		<label class="centerlabel"><spring:message code="proprietypoint.subject" text="Subject"/>*</label>
 		<form:textarea path="approvedSubject" readonly="true" rows="2" cols="50"></form:textarea>
 	</p>	

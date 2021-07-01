@@ -1417,6 +1417,50 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	public List<WorkflowDetails> findAllForProprietyPoints(String strHouseType,
+			String strSessionType, String strSessionYear, String strDeviceType,
+			String strStatus, String strWorkflowSubType, Date proprietyPointDate, 
+			String assignee, String strItemsCount, 
+			String strLocale) throws ELSException {
+		
+		StringBuffer buffer=new StringBuffer();
+		buffer.append("SELECT wd FROM WorkflowDetails wd" +
+				" WHERE houseType=:houseType"+
+				" AND sessionType=:sessionType" +
+				" AND sessionYear=:sessionYear"+
+				" AND assignee=:assignee" +
+				" AND deviceType=:deviceType"+
+				" AND status=:status"+
+				" AND workflowSubType=:workflowSubType"+
+				" AND adjourningDate=:proprietyPointDate"+
+				" AND locale=:locale"+
+				" ORDER BY numericalDevice");
+		
+		List<WorkflowDetails> workflowDetails=new ArrayList<WorkflowDetails>();
+		try{
+			Query query=this.em().createQuery(buffer.toString());
+			query.setParameter("houseType",strHouseType);
+			query.setParameter("sessionType",strSessionType);
+			query.setParameter("sessionYear",strSessionYear);
+			query.setParameter("assignee",assignee);
+			query.setParameter("deviceType",strDeviceType);
+			query.setParameter("locale",strLocale);
+			query.setParameter("status",strStatus);
+			query.setParameter("workflowSubType",strWorkflowSubType);
+			query.setParameter("proprietyPointDate", proprietyPointDate);
+			query.setMaxResults(Integer.parseInt(strItemsCount));
+			workflowDetails=query.getResultList();
+			return workflowDetails;
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findAllForSpecialMentionNotices", "WorkflowDetails Not found");
+			throw elsException;
+		}
+	}
+	
 	public WorkflowDetails findCurrentWorkflowDetail(final UserGroup userGroup,
 			final String domainIds,
 			final String workflowType,

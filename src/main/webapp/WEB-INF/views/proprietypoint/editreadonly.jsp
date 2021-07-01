@@ -148,11 +148,15 @@
 						</c:if>
 					</p>
 					
+					<h2></h2>
+						
+					<c:if test="${houseTypeType=='upperhouse'}">
 					<p>
-						<label class="small"><spring:message code="proprietypoint.primaryMemberConstituency" text="Constituency"/>*</label>
-						<input type="text" readonly="readonly" value="${constituency}" class="sText">
-						<a href="#" id="readonly_viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
-					</p>			
+						<label class="small"><spring:message code="proprietypoint.selectproprietypointdate" text="Propriety Point Date"/></label>
+						<input id="readonly_formattedProprietyPointDate" value="${formattedProprietyPointDate}" class="sText" readonly="readonly">
+						<input id="readonly_proprietyPointDate" type="hidden" value="${selectedProprietyPointDate}">
+					</p>
+					</c:if>			
 					
 					<p>
 						<label class="centerlabel"><spring:message code="proprietypoint.subject" text="Subject"/>*</label>

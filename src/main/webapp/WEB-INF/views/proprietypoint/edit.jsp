@@ -589,7 +589,7 @@
 			
 			<c:if test="${houseTypeType=='upperhouse'}">
 			<p>
-				<label class="small"><spring:message code="proprietypoint.selectProprietyPointdate" text="Propriety Point Date"/></label>
+				<label class="small"><spring:message code="proprietypoint.selectproprietypointdate" text="Propriety Point Date"/></label>
 				<%-- <input name="proprietyPointDate" id="proprietyPointDate" value="${selectedProprietyPointDate}"  style="width:130px;height: 40px;" readonly="readonly"> --%>		
 				<select name="proprietyPointDate" id="proprietyPointDate" style="width:130px;height: 25px;" disabled="disabled">
 				<c:forEach items="${sessionDates}" var="i">

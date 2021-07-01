@@ -75,7 +75,7 @@
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="adjournmentmotion.primaryMember" text="Primary Member"/>*</label>
+		<label class="small"><spring:message code="adjournmentmotion.adjourningDate" text="Adjourning Date"/>*</label>
 		<input id="formattedApprovedAdjourningDate" class="sText" type="text" value="${formattedApprovedAdjourningDate}" readonly="readonly">
 		<input type="hidden" id="approvedAdjourningDate" name="approvedAdjourningDate" value="${approvedAdjourningDate}" readonly="readonly">
 	</p>

@@ -25,6 +25,7 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
 import org.mkcl.els.controller.question.QuestionController;
+import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
@@ -134,7 +135,20 @@ public class ProprietyPointWorkflowController  extends BaseController {
 					}
 					if(i.getApprovedText()==null) {
 						i.setApprovedText(proprietyPoint.getPointsOfPropriety());
-					}
+					}	
+					if(proprietyPoint.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+						Date approvedAdjourningDate = i.getApprovedAdjourningDate();
+						if(approvedAdjourningDate==null) {
+							approvedAdjourningDate = proprietyPoint.getProprietyPointDate();
+							if(approvedAdjourningDate==null) {
+								approvedAdjourningDate = ProprietyPoint.findDefaultProprietyPointDateForSession(proprietyPoint.getSession(), true);
+							}
+						}
+						if(approvedAdjourningDate!=null) {
+							model.addAttribute("approvedAdjourningDate", FormaterUtil.formatDateToString(approvedAdjourningDate, ApplicationConstants.SERVER_DATEFORMAT));
+							model.addAttribute("formattedApprovedAdjourningDate", FormaterUtil.formatDateToStringUsingCustomParameterFormat(approvedAdjourningDate, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", proprietyPoint.getLocale()));
+						}
+					}					
 					model.addAttribute("currentSupportingMember", i.getMember().getId());
 					model.addAttribute("domain", i);
 					if (i.getDecisionStatus() != null) {
@@ -409,6 +423,16 @@ public class ProprietyPointWorkflowController  extends BaseController {
 		/**** Number ****/
 		if(domain.getNumber()!=null){
 			model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
+		}				
+		/** populate session dates as possible propriety point dates for upperhouse **/
+		if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+			if(selectedSession!=null && selectedSession.getId()!=null) {
+				List<Date> sessionDates = selectedSession.findAllSessionDatesHavingNoHoliday();
+				model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));				
+			}
+			/**** populate propriety point date ****/
+			model.addAttribute("selectedProprietyPointDate", FormaterUtil.formatDateToString(domain.getProprietyPointDate(), ApplicationConstants.SERVER_DATEFORMAT, "en_US"));
+			model.addAttribute("formattedProprietyPointDate", FormaterUtil.formatDateToStringUsingCustomParameterFormat(domain.getProprietyPointDate(), "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));				
 		}
 		/**** populate Submission Date and Creation date****/
 		if(domain.getSubmissionDate()!=null) {
@@ -678,6 +702,7 @@ public class ProprietyPointWorkflowController  extends BaseController {
 			String strDeviceType = request.getParameter("deviceType");
 			String strStatus = request.getParameter("status");
 			String strWorkflowSubType = request.getParameter("workflowSubType");
+			String strAdjourningDate = request.getParameter("proprietyPointDate");
 			String strLocale = locale.toString();
 			String assignee = this.getCurrentUser().getActualUsername();
 			String strItemsCount = null;
@@ -743,6 +768,9 @@ public class ProprietyPointWorkflowController  extends BaseController {
 				strDeviceType = request.getSession().getAttribute("deviceType").toString();
 				strWorkflowSubType = request.getSession().getAttribute("workflowSubType").toString();
 				strStatus = request.getSession().getAttribute("status").toString();
+				if(request.getSession().getAttribute("proprietyPointDate") != null){
+					strAdjourningDate = request.getSession().getAttribute("proprietyPointDate").toString();
+				}
 			}
 	
 			if(strHouseType!=null&&!(strHouseType.isEmpty())
@@ -821,11 +849,25 @@ public class ProprietyPointWorkflowController  extends BaseController {
 					model.addAttribute("internalStatuses", internalStatuses);
 					model.addAttribute("selectedWorkflowStatus", internalStatus.getName());
 					model.addAttribute("workflowSubType", strWorkflowSubType);
+					Date proprietyPointDate = null;
+					if(strAdjourningDate != null && !strAdjourningDate.isEmpty()){
+						 proprietyPointDate=FormaterUtil.
+								 formatStringToDate(strAdjourningDate, ApplicationConstants.DB_DATEFORMAT);
+						 model.addAttribute("proprietyPointDate", strAdjourningDate);
+					}
 					/**** Workflow Details ****/
-					List<WorkflowDetails> workflowDetails = WorkflowDetails.
+					List<WorkflowDetails> workflowDetails = new ArrayList<WorkflowDetails>();
+					if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+						workflowDetails = WorkflowDetails.
+								findAllForProprietyPoints(strHouseType, strSessionType, strSessionYear,
+										strDeviceType, ApplicationConstants.MYTASK_PENDING, strWorkflowSubType,
+										proprietyPointDate, assignee, strItemsCount, strLocale);					
+					} else {
+						workflowDetails = WorkflowDetails.
 								findAll(strHouseType, strSessionType, strSessionYear,
 										strDeviceType, ApplicationConstants.MYTASK_PENDING, strWorkflowSubType,
 										assignee, strItemsCount, strLocale);
+					}
 					/**** Populating Bulk Approval VOs ****/
 					List<BulkApprovalVO> bulkapprovals = new ArrayList<BulkApprovalVO>();
 					NumberFormat format = FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
@@ -836,6 +878,10 @@ public class ProprietyPointWorkflowController  extends BaseController {
 						{
 							bulkApprovalVO.setId(String.valueOf(i.getId()));
 							bulkApprovalVO.setDeviceId(String.valueOf(proprietyPoint.getId()));	
+							
+							if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+								bulkApprovalVO.setFormattedAdjourningDate(FormaterUtil.formatDateToStringUsingCustomParameterFormat(proprietyPoint.getProprietyPointDate(), "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", proprietyPoint.getLocale()));
+							}						
 							
 							Map<String, String[]> parameters = new HashMap<String, String[]>();
 							parameters.put("locale", new String[]{locale.toString()});
@@ -1001,6 +1047,7 @@ public class ProprietyPointWorkflowController  extends BaseController {
 						wfDetails.setInternalStatus(proprietyPoint.getInternalStatus().getName());
 						wfDetails.setRecommendationStatus(proprietyPoint.getRecommendationStatus().getName());
 						wfDetails.setCompletionTime(new Date());
+						wfDetails.setAdjourningDate(proprietyPoint.getProprietyPointDate());
 						wfDetails.setDecisionInternalStatus(proprietyPoint.getInternalStatus().getName());
 						wfDetails.setDecisionRecommendStatus(proprietyPoint.getRecommendationStatus().getName());
 						wfDetails.merge();																
@@ -1073,6 +1120,7 @@ public class ProprietyPointWorkflowController  extends BaseController {
 						wfDetails.setInternalStatus(proprietyPoint.getInternalStatus().getName());
 						wfDetails.setRecommendationStatus(proprietyPoint.getRecommendationStatus().getName());
 						wfDetails.setCompletionTime(new Date());
+						wfDetails.setAdjourningDate(proprietyPoint.getProprietyPointDate());
 						wfDetails.setDecisionInternalStatus(proprietyPoint.getInternalStatus().getName());
 						wfDetails.setDecisionRecommendStatus(proprietyPoint.getRecommendationStatus().getName());
 						wfDetails.merge();																
@@ -1095,6 +1143,10 @@ public class ProprietyPointWorkflowController  extends BaseController {
 			request.getSession().setAttribute("deviceType", tempProprietyPoint.getDeviceType().getName());
 			request.getSession().setAttribute("workflowSubType", tempProprietyPoint.getInternalStatus().getType());
 			
+		}
+		String proprietyPointDate = request.getParameter("proprietyPointDate");
+		if(proprietyPointDate != null && !proprietyPointDate.isEmpty()){
+			request.getSession().setAttribute("proprietyPointDate", proprietyPointDate);
 		}
 		String status = request.getParameter("status");
 		if(status != null && !status.isEmpty()){
