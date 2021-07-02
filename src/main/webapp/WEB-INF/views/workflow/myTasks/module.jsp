@@ -113,7 +113,10 @@
 									} else {
 										$.prompt("some error..please contact administrator");
 									}
-								});
+								}).done(function() {
+									$("#adjourningDateDiv").show();
+									//$("#departmentDiv").hide();
+								});	;
 							}else if(device=='motions_rules_suspension'){
 								$.get('ref/rulessuspensionmotion/rulesuspensiondatesforsession?houseType='+$('#selectedHouseType').val()
 										+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
@@ -133,8 +136,44 @@
 									} else {
 										$.prompt("some error..please contact administrator");
 									}
+								}).done(function() {
+									$("#adjourningDateDiv").show();
+									//$("#departmentDiv").hide();
+								});	;
+							}else if(device=='proprietypoint' && houseType=='upperhouse') {
+								$.get('ref/proprietypoint/proprietypointdatesforsession?houseType='+$('#selectedHouseType').val()
+										+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+									if(data.length>1) {
+										var usergroupType = $("#currentusergroupType").val();
+										var defaultProprietyPointDate = data[data.length-1][0];
+										var formattedDefaultProprietyPointDate = data[data.length-1][1];
+										$('#selectedAdjourningDate').empty();
+										var htmlText = "";
+										for(var i=0; i<data.length-1; i++) {
+											htmlText += "<option value='"+data[i][0]+"'";
+											if(data[i][0]==defaultProprietyPointDate) {
+												htmlText += "selected='selected'";
+											}
+											htmlText += ">"+data[i][1]+"</option>";									
+										}	
+										$('#selectedAdjourningDate').html(htmlText);
+										if(usergroupType=='department' || usergroupType=='department_deskofficer'){
+											prependOptionToSelectedAdjourningDate();
+										}
+										else if(defaultProprietyPointDate!=undefined && defaultProprietyPointDate!=null && defaultProprietyPointDate!='') {
+											prependSelectedAdjourningDateOption(defaultProprietyPointDate, formattedDefaultProprietyPointDate);
+										} else {
+											prependOptionToSelectedAdjourningDate();
+										}
+										
+									} else {
+										$.prompt("some error..please contact administrator");
+									}
+								}).done(function() {
+									$("#adjourningDateDiv").show();
+									//$("#departmentDiv").hide();
 								});
-							}if(device=='notices_specialmention') {
+							}else if(device=='notices_specialmention') {
 								$.get('ref/specialmentionnotice/specialmentionnoticedatesforsession?houseType='+$('#selectedHouseType').val()
 										+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
 									if(data.length>1) {
@@ -162,7 +201,18 @@
 									} else {
 										$.prompt("some error..please contact administrator");
 									}
-								});
+								}).done(function() {
+									$("#adjourningDateDiv").show();
+									//$("#departmentDiv").hide();
+								});	;
+							}else {
+								$('#selectedAdjourningDate').empty();
+								var pleaseSelectOptionValue = $('#pleaseSelectOption').val();
+								var pleaseSelectOption = "<option value='' selected>" + pleaseSelectOptionValue + "</option>";
+								$('#selectedAdjourningDate').html(pleaseSelectOption);
+								$("#selectedAdjourningDate").val("");
+								$("#adjourningDateDiv").hide();
+								$("#departmentDiv").show();
 							}
 						}
 						reloadMyTaskGrid();
@@ -186,6 +236,7 @@
 				if(value!=""){
 					if($("#selectedDeviceType").val()!=undefined && $("#selectedDeviceType").val()!=null) {
 						var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+						var houseType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
 						if(device=='motions_adjournment') {
 							$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
 									+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
@@ -205,7 +256,10 @@
 								} else {
 									$.prompt("some error..please contact administrator");
 								}
-							});
+							}).done(function() {
+								$("#adjourningDateDiv").show();
+								//$("#departmentDiv").hide();
+							});	;
 						}else if(device=='motions_rules_suspension'){
 							$.get('ref/rulessuspensionmotion/rulesuspensiondatesforsession?houseType='+$('#selectedHouseType').val()
 									+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
@@ -225,6 +279,42 @@
 								} else {
 									$.prompt("some error..please contact administrator");
 								}
+							}).done(function() {
+								$("#adjourningDateDiv").show();
+								//$("#departmentDiv").hide();
+							});	;
+						}else if(device=='proprietypoint' && houseType=='upperhouse') {
+							$.get('ref/proprietypoint/proprietypointdatesforsession?houseType='+$('#selectedHouseType').val()
+									+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+								if(data.length>1) {
+									var usergroupType = $("#currentusergroupType").val();
+									var defaultProprietyPointDate = data[data.length-1][0];
+									var formattedDefaultProprietyPointDate = data[data.length-1][1];
+									$('#selectedAdjourningDate').empty();
+									var htmlText = "";
+									for(var i=0; i<data.length-1; i++) {
+										htmlText += "<option value='"+data[i][0]+"'";
+										if(data[i][0]==defaultProprietyPointDate) {
+											htmlText += "selected='selected'";
+										}
+										htmlText += ">"+data[i][1]+"</option>";									
+									}	
+									$('#selectedAdjourningDate').html(htmlText);
+									if(usergroupType=='department' || usergroupType=='department_deskofficer'){
+										prependOptionToSelectedAdjourningDate();
+									}
+									else if(defaultProprietyPointDate!=undefined && defaultProprietyPointDate!=null && defaultProprietyPointDate!='') {
+										prependSelectedAdjourningDateOption(defaultProprietyPointDate, formattedDefaultProprietyPointDate);
+									} else {
+										prependOptionToSelectedAdjourningDate();
+									}
+									
+								} else {
+									$.prompt("some error..please contact administrator");
+								}
+							}).done(function() {
+								$("#adjourningDateDiv").show();
+								//$("#departmentDiv").hide();
 							});
 						}else if(device=='notices_specialmention') {
 							$.get('ref/specialmentionnotice/specialmentionnoticedatesforsession?houseType='+$('#selectedHouseType').val()
@@ -245,7 +335,18 @@
 								} else {
 									$.prompt("some error..please contact administrator");
 								}
-							});
+							}).done(function() {
+								$("#adjourningDateDiv").show();
+								//$("#departmentDiv").hide();
+							});	;
+						}else {
+							$('#selectedAdjourningDate').empty();
+							var pleaseSelectOptionValue = $('#pleaseSelectOption').val();
+							var pleaseSelectOption = "<option value='' selected>" + pleaseSelectOptionValue + "</option>";
+							$('#selectedAdjourningDate').html(pleaseSelectOption);
+							$("#selectedAdjourningDate").val("");
+							$("#adjourningDateDiv").hide();
+							$("#departmentDiv").show();
 						}
 					}
 					reloadMyTaskGrid();
@@ -258,6 +359,7 @@
 					loadAssignedGroupsInSession();
 					if($("#selectedDeviceType").val()!=undefined && $("#selectedDeviceType").val()!=null) {
 						var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+						var houseType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
 						if(device=='motions_adjournment') {
 							$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
 									+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
@@ -277,7 +379,10 @@
 								} else {
 									$.prompt("some error..please contact administrator");
 								}
-							});
+							}).done(function() {
+								$("#adjourningDateDiv").show();
+								//$("#departmentDiv").hide();
+							});	;
 						}else if(device=='motions_rules_suspension'){
 							$.get('ref/rulessuspensionmotion/rulesuspensiondatesforsession?houseType='+$('#selectedHouseType').val()
 									+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
@@ -297,6 +402,42 @@
 								} else {
 									$.prompt("some error..please contact administrator");
 								}
+							}).done(function() {
+								$("#adjourningDateDiv").show();
+								//$("#departmentDiv").hide();
+							});	;
+						}else if(device=='proprietypoint' && houseType=='upperhouse') {
+							$.get('ref/proprietypoint/proprietypointdatesforsession?houseType='+$('#selectedHouseType').val()
+									+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+								if(data.length>1) {
+									var usergroupType = $("#currentusergroupType").val();
+									var defaultProprietyPointDate = data[data.length-1][0];
+									var formattedDefaultProprietyPointDate = data[data.length-1][1];
+									$('#selectedAdjourningDate').empty();
+									var htmlText = "";
+									for(var i=0; i<data.length-1; i++) {
+										htmlText += "<option value='"+data[i][0]+"'";
+										if(data[i][0]==defaultProprietyPointDate) {
+											htmlText += "selected='selected'";
+										}
+										htmlText += ">"+data[i][1]+"</option>";									
+									}	
+									$('#selectedAdjourningDate').html(htmlText);
+									if(usergroupType=='department' || usergroupType=='department_deskofficer'){
+										prependOptionToSelectedAdjourningDate();
+									}
+									else if(defaultProprietyPointDate!=undefined && defaultProprietyPointDate!=null && defaultProprietyPointDate!='') {
+										prependSelectedAdjourningDateOption(defaultProprietyPointDate, formattedDefaultProprietyPointDate);
+									} else {
+										prependOptionToSelectedAdjourningDate();
+									}
+									
+								} else {
+									$.prompt("some error..please contact administrator");
+								}
+							}).done(function() {
+								$("#adjourningDateDiv").show();
+								//$("#departmentDiv").hide();
 							});
 						}else if(device=='notices_specialmention'){
 							$.get('ref/specialmentionnotice/specialmentionnoticedatesforsession?houseType='+$('#selectedHouseType').val()
@@ -317,7 +458,18 @@
 								} else {
 									$.prompt("some error..please contact administrator");
 								}
-							});
+							}).done(function() {
+								$("#adjourningDateDiv").show();
+								//$("#departmentDiv").hide();
+							});	;
+						}else {
+							$('#selectedAdjourningDate').empty();
+							var pleaseSelectOptionValue = $('#pleaseSelectOption').val();
+							var pleaseSelectOption = "<option value='' selected>" + pleaseSelectOptionValue + "</option>";
+							$('#selectedAdjourningDate').html(pleaseSelectOption);
+							$("#selectedAdjourningDate").val("");
+							$("#adjourningDateDiv").hide();
+							$("#departmentDiv").show();
 						}
 					}
 					reloadMyTaskGrid();
@@ -327,6 +479,7 @@
 			$("#selectedDeviceType").change(function(){
 				var value=$(this).val();
 				var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+				var houseType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
 				$("#deviceTypeType").val(device);
 				if(device=='questions_shortnotice'){
 					$("#shortNoticeAnswerDateDiv").show();
@@ -364,7 +517,6 @@
 				else{
 					$("#adjourningDateDiv").hide();
 				}
-				var houseType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
 				if(device.indexOf('motions_')==0  
 						|| device.indexOf('resolutions_')==0
 						|| device.indexOf('bills_')==0){
@@ -431,7 +583,7 @@
 						}
 					}).done(function() {
 						$("#adjourningDateDiv").show();
-						$("#departmentDiv").hide();
+						//$("#departmentDiv").hide();
 					});												
 				}else if(device.indexOf('motions_rules_suspension')==0){
 						$('#bulkapproval_tab').hide();
@@ -453,7 +605,43 @@
 							} else {
 								$.prompt("some error..please contact administrator");
 							}
-						});
+						}).done(function() {
+							$("#adjourningDateDiv").show();
+							//$("#departmentDiv").hide();
+						});	;
+				}else if(device.indexOf('proprietypoint')==0 && houseType=='upperhouse') {
+					$.get('ref/proprietypoint/proprietypointdatesforsession?houseType='+$('#selectedHouseType').val()
+							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+						if(data.length>1) {
+							var usergroupType = $("#currentusergroupType").val();
+							var defaultProprietyPointDate = data[data.length-1][0];
+							var formattedDefaultProprietyPointDate = data[data.length-1][1];
+							$('#selectedAdjourningDate').empty();
+							var htmlText = "";
+							for(var i=0; i<data.length-1; i++) {
+								htmlText += "<option value='"+data[i][0]+"'";
+								if(data[i][0]==defaultProprietyPointDate) {
+									htmlText += "selected='selected'";
+								}
+								htmlText += ">"+data[i][1]+"</option>";									
+							}	
+							$('#selectedAdjourningDate').html(htmlText);
+							if(usergroupType=='department' || usergroupType=='department_deskofficer'){
+								prependOptionToSelectedAdjourningDate();
+							}
+							else if(defaultProprietyPointDate!=undefined && defaultProprietyPointDate!=null && defaultProprietyPointDate!='') {
+								prependSelectedAdjourningDateOption(defaultProprietyPointDate, formattedDefaultProprietyPointDate);
+							} else {
+								prependOptionToSelectedAdjourningDate();
+							}
+							
+						} else {
+							$.prompt("some error..please contact administrator");
+						}
+					}).done(function() {
+						$("#adjourningDateDiv").show();
+						//$("#departmentDiv").hide();
+					});
 				}else if(device.indexOf('notices_specialmention')==0){
 					$('#bulkapproval_tab').hide();
 					$.get('ref/specialmentionnotice/specialmentionnoticedatesforsession?houseType='+$('#selectedHouseType').val()
@@ -487,7 +675,7 @@
 						}
 					}).done(function() {
 						$("#adjourningDateDiv").show();
-						$("#departmentDiv").hide();
+						//$("#departmentDiv").hide();
 					});		
 				}else{
 					$('#bulkapproval_tab').show();
@@ -497,10 +685,16 @@
 							$('#bulkapproval_tab').hide();
 							//$('#advanced_bulkapproval_tab').hide();
 						}						
-					}					
+					}	
+					$('#selectedAdjourningDate').empty();
+					var pleaseSelectOptionValue = $('#pleaseSelectOption').val();
+					var pleaseSelectOption = "<option value='' selected>" + pleaseSelectOptionValue + "</option>";
+					$('#selectedAdjourningDate').html(pleaseSelectOption);
+					$("#selectedAdjourningDate").val("");
+					$("#adjourningDateDiv").hide();
+					$("#departmentDiv").show();
 					$("#selectedSpecialMentionNoticeDate").val("");
 					$("#specialMentionNoticeDateDiv").hide();
-					$("#departmentDiv").show();
 				}
 				//console.log($('#deviceTypeType').val());
 			
@@ -523,7 +717,7 @@
 				var value=$(this).val();
 				if(value!=null){
 					var deviceTypeForGrid = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
-					var houseType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
+					var houseTypeForGrid = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
 					
 					if(($('#currentusergroupType').val()=="assistant") && value.indexOf("final")>-1&&$('#currenthousetype').val()=='lowerhouse'){
 						$('#bulkapproval_tab').hide();
@@ -551,7 +745,7 @@
 					} */	
 					// Department users are allowed to search by number,subject and member ,
 					//so new mytask grid is defined in db for department users.
-					showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid+'&currentusergroupType='+$('#currentusergroupType').val()+'&status='+$('#selectedStatus').val());
+					showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid+'&houseTypeForGrid='+houseTypeForGrid+'&currentusergroupType='+$('#currentusergroupType').val()+'&status='+$('#selectedStatus').val());
 				}
 			});
 
@@ -621,9 +815,10 @@
 		        }
 			});
 			var deviceTypeForGrid = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+			var houseTypeForGrid = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
 			// Department users are allowed to search by number,subject and member ,
 			//so new mytask grid is defined in db for department users.
-			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid+'&currentusergroupType='+$('#currentusergroupType').val()+'&status='+$('#selectedStatus').val());
+			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid+'&houseTypeForGrid='+houseTypeForGrid+'&currentusergroupType='+$('#currentusergroupType').val()+'&status='+$('#selectedStatus').val());
 			pendingNewTasks();
 			if($("#getNewTasks").val() != undefined && $("#getNewTasks").val() != ''){
 				pendingTasksReference = setInterval(function(){pendingNewTasks();}, 900000);
@@ -702,9 +897,10 @@
 		function showList() {
 			$("#selectionDiv").show();
 			var deviceTypeForGrid = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+			var houseTypeForGrid = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
 			// Department users are allowed to search by number,subject and member ,
 			//so new mytask grid is defined in db for department users.
-			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid+'&currentusergroupType='+$('#currentusergroupType').val()+'&status='+$('#selectedStatus').val());
+			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid+'&houseTypeForGrid='+houseTypeForGrid+'&currentusergroupType='+$('#currentusergroupType').val()+'&status='+$('#selectedStatus').val());
 		}
 		
 		function process(row) {
@@ -923,10 +1119,14 @@
 				}				
 			}else if($('#deviceTypeType').val().indexOf("questions_")==0){
 				resourceURL="workflow/question/bulkapproval/init";
-			}else if($('#deviceTypeType').val().indexOf("notices_specialmention")==0){
-		
-				resourceURL="workflow/specialmentionnotice/bulkapproval/init";					
-			}
+				
+			}else if($('#deviceTypeType').val().indexOf("notices_specialmention")==0){		
+				resourceURL="workflow/specialmentionnotice/bulkapproval/init";			
+				
+			}/*else if($('#deviceTypeType').val().indexOf("proprietypoint")==0){		
+				resourceURL="workflow/proprietypoint/bulkapproval/init";
+				
+			}*/
 			$("#selectionDiv").hide();
 			var file=$("#selectedFileCount").val();	
 			$.post(resourceURL,{houseType:$("#selectedHouseType").val(),

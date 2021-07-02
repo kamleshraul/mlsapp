@@ -6,6 +6,7 @@
 	<script type="text/javascript">
 		$(document).ready(function(){
 			var houseTypeList = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
+			var houseTypeType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
 			
 			if($("#deviceTypeType").val() == 'motions_calling_attention'){
 				displayNewAdvanceCopyForMotion();
@@ -14,7 +15,10 @@
 				$("#advanceCopyDiv").hide();
 			}
 			$('.datetimemask').mask("99-99-9999,99:99:99");			
-			if($("#deviceTypeType").val() != 'motions_adjournment' || $("#deviceTypeType").val() != 'motions_rules_suspension'){
+			if($("#deviceTypeType").val() != 'motions_adjournment' 
+					|| $("#deviceTypeType").val() != 'motions_rules_suspension'
+					|| $("#deviceTypeType").val() != 'notices_specialmention'
+				    || !(houseTypeType == 'upperhouse' && $("#deviceTypeType").val() == 'proprietypoint')){
 				$("#selectedAdjourningDate").val("");				
 			}
 			if($("#deviceTypeType").val() == 'motions_adjournment'){

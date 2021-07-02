@@ -617,6 +617,7 @@ public class WorkflowController extends BaseController {
 		String newUrlPattern=urlPattern;
 		String deviceTypeForGrid = request.getParameter("deviceTypeForGrid");
 		String strCurrentUserGroupType = request.getParameter("currentusergroupType");
+		String houseTypeForGrid = request.getParameter("houseTypeForGrid");
 		if(deviceTypeForGrid!=null && !deviceTypeForGrid.isEmpty() && !deviceTypeForGrid.equals("-")) {
 			if(deviceTypeForGrid.equals(ApplicationConstants.BILLAMENDMENT_MOTION)) {
 				newUrlPattern=urlPattern+"?devicetype="+ApplicationConstants.BILLAMENDMENT_MOTION;
@@ -633,6 +634,22 @@ public class WorkflowController extends BaseController {
 			}
 			else if(deviceTypeForGrid.equals(ApplicationConstants.SPECIAL_MENTION_NOTICE)) {
 				newUrlPattern=urlPattern+"?devicetype="+ApplicationConstants.SPECIAL_MENTION_NOTICE;
+				if(strCurrentUserGroupType!=null && !strCurrentUserGroupType.isEmpty()) {
+					if(strCurrentUserGroupType.equals(ApplicationConstants.DEPARTMENT)
+							||strCurrentUserGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+						newUrlPattern = newUrlPattern + "&usergroup="+ApplicationConstants.DEPARTMENT;
+					}
+				}
+			}
+			else if(deviceTypeForGrid.equals(ApplicationConstants.PROPRIETY_POINT)
+					&& houseTypeForGrid!=null && houseTypeForGrid.equals(ApplicationConstants.UPPER_HOUSE)) {
+				newUrlPattern=urlPattern+"?devicetype="+ApplicationConstants.PROPRIETY_POINT+"&housetype="+ApplicationConstants.UPPER_HOUSE;
+				if(strCurrentUserGroupType!=null && !strCurrentUserGroupType.isEmpty()) {
+					if(strCurrentUserGroupType.equals(ApplicationConstants.DEPARTMENT)
+							||strCurrentUserGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+						newUrlPattern = newUrlPattern + "&usergroup="+ApplicationConstants.DEPARTMENT;
+					}
+				}
 			}else {
 				if(strCurrentUserGroupType!=null && !strCurrentUserGroupType.isEmpty()) {
 					if(strCurrentUserGroupType.equals(ApplicationConstants.DEPARTMENT)
