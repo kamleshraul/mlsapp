@@ -7837,8 +7837,9 @@ public class ReferenceController extends BaseController {
 			defaultProprietyPointDate = ProprietyPoint.findDefaultProprietyPointDateForSession(session, true);
 		} else {
 			defaultProprietyPointDate = ProprietyPoint.findDefaultProprietyPointDateForSession(session, false);
-		}		
-		proprietypointDates.add(new Object[]{FormaterUtil.formatDateToString(defaultProprietyPointDate, ApplicationConstants.SERVER_DATEFORMAT)});
+		}
+		String formattedDefaultProprietyPointDate = FormaterUtil.formatDateToStringUsingCustomParameterFormat(defaultProprietyPointDate, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", locale.toString());
+		proprietypointDates.add(new Object[]{FormaterUtil.formatDateToString(defaultProprietyPointDate, ApplicationConstants.SERVER_DATEFORMAT), formattedDefaultProprietyPointDate});
 		
 		return proprietypointDates;
 	}

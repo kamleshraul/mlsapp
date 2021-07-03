@@ -702,7 +702,7 @@ public class ProprietyPointWorkflowController  extends BaseController {
 			String strDeviceType = request.getParameter("deviceType");
 			String strStatus = request.getParameter("status");
 			String strWorkflowSubType = request.getParameter("workflowSubType");
-			String strAdjourningDate = request.getParameter("proprietyPointDate");
+			String strAdjourningDate = request.getParameter("adjourningDate");
 			String strLocale = locale.toString();
 			String assignee = this.getCurrentUser().getActualUsername();
 			String strItemsCount = null;
@@ -769,7 +769,7 @@ public class ProprietyPointWorkflowController  extends BaseController {
 				strWorkflowSubType = request.getSession().getAttribute("workflowSubType").toString();
 				strStatus = request.getSession().getAttribute("status").toString();
 				if(request.getSession().getAttribute("proprietyPointDate") != null){
-					strAdjourningDate = request.getSession().getAttribute("proprietyPointDate").toString();
+					strAdjourningDate = request.getSession().getAttribute("adjourningDate").toString();
 				}
 			}
 	
@@ -853,7 +853,7 @@ public class ProprietyPointWorkflowController  extends BaseController {
 					if(strAdjourningDate != null && !strAdjourningDate.isEmpty()){
 						 proprietyPointDate=FormaterUtil.
 								 formatStringToDate(strAdjourningDate, ApplicationConstants.DB_DATEFORMAT);
-						 model.addAttribute("proprietyPointDate", strAdjourningDate);
+						 model.addAttribute("adjourningDate", strAdjourningDate);
 					}
 					/**** Workflow Details ****/
 					List<WorkflowDetails> workflowDetails = new ArrayList<WorkflowDetails>();
@@ -1144,9 +1144,9 @@ public class ProprietyPointWorkflowController  extends BaseController {
 			request.getSession().setAttribute("workflowSubType", tempProprietyPoint.getInternalStatus().getType());
 			
 		}
-		String proprietyPointDate = request.getParameter("proprietyPointDate");
-		if(proprietyPointDate != null && !proprietyPointDate.isEmpty()){
-			request.getSession().setAttribute("proprietyPointDate", proprietyPointDate);
+		String adjourningDate = request.getParameter("adjourningDate");
+		if(adjourningDate != null && !adjourningDate.isEmpty()){
+			request.getSession().setAttribute("strAdjourningDate", adjourningDate);
 		}
 		String status = request.getParameter("status");
 		if(status != null && !status.isEmpty()){

@@ -5680,6 +5680,9 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				if(proprietyPoint.getNumber()!=null){
 					workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(proprietyPoint.getLocale()).format(proprietyPoint.getNumber()));
 					workflowDetails.setNumericalDevice(proprietyPoint.getNumber());
+				}				
+				if(proprietyPoint.getProprietyPointDate()!=null){
+					workflowDetails.setAdjourningDate(proprietyPoint.getProprietyPointDate());
 				}
 				if(proprietyPoint.getPrimaryMember()!=null){
 					workflowDetails.setDeviceOwner(proprietyPoint.getPrimaryMember().getFullname());
@@ -5799,6 +5802,9 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				if(proprietyPoint.getNumber()!=null){
 					workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(proprietyPoint.getLocale()).format(proprietyPoint.getNumber()));
 					workflowDetails.setNumericalDevice(proprietyPoint.getNumber());
+				}				
+				if(proprietyPoint.getProprietyPointDate()!=null){
+					workflowDetails.setAdjourningDate(proprietyPoint.getProprietyPointDate());
 				}
 				if(proprietyPoint.getPrimaryMember()!=null){
 					workflowDetails.setDeviceOwner(proprietyPoint.getPrimaryMember().getFullname());
