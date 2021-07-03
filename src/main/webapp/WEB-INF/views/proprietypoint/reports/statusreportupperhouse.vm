@@ -1,29 +1,30 @@
 <div style="width: 750px; margin-top: 0px !important;">
 	<table style="width: 750px; margin-top: 0px !important;">
 		<tr>
-			<td style="font-size: 18px; text-decoration: underline; width:230px; text-align: center;">$formatData.get(11)</td>
+			<td style="font-size: 18px; text-decoration: underline; width:230px; text-align: center;">$formatData.get(9)</td>
 			<td style="font-size: 22px; text-decoration: underline; width:290px; text-align: center;">
 				महाराष्ट्र विधानपरिषद
 			</td>	
 			<td style="font-size: 18px; text-decoration: underline; width:230px; text-align: center;">
-				$formatData.get(26)
+				$formatData.get(22)
 			</td>
 		</tr>		
 		<tr>
 			<td style="width: 750px; text-align: right; font-size: 12px;" colspan="3">
 				<!--<span style="font-weight: bold; font-size: 17px;">प्रपत्र क्रमांक :</span><br />
-				दिनांक : $formatData.get(30) <br />	-->		
-				निर्वाचन क्षेत्र: $formatData.get(16)
+				दिनांक : $formatData.get(26) <br />	-->		
+				निर्वाचन क्षेत्र: $formatData.get(14)
 			</td>
 		</tr>
 	</table>
+	
 	<table>
 		<tr style="font-weight: bold;">
 			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">
 				सदस्यांचे नाव
 			</td>
 			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				<!--$memberName<br />--> $formatData.get(17)
+				$formatData.get(15)
 			</td>
 		</tr>
 		<tr style="font-weight: bold;">													
@@ -31,62 +32,41 @@
 				क्रमांक
 			</td>
 			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				$formatData.get(9)
+				$formatData.get(7)
 			</td>
 		</tr>
+		#**
 		<tr style="font-weight: bold;">
-			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">
-				गट क्रमांक
-			</td>
-			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">					
-				#if($formatData.get(19))
-					$formatData.get(19)
-				#else
-					-
-				#end
-				 &nbsp;&nbsp;&nbsp;&nbsp;(
-				#if($formatData.get(20))
-					$formatData.get(20)
-				#else
-					-
-				#end  
-				 )
-			</td>	
-		</tr>
-		
-		<tr style="font-weight: bold;">
-			<td style="font-size: 18px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
-				चर्चेचा दिनांक 
-			</td>
-			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				#if($formatData.get(21))
-					$formatData.get(21)
-				#else
-					-
-				#end
-			</td>	
-		</tr>
-		<!--
-			<tr style="font-weight: bold;">
 			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
-				विभागाला पाठवण्याची दिनांक 
+				विभाग  
 			</td>
 			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				#if($formatData.get(22))
-					$formatData.get(22)
+				#if($formatData.get(17))
+					$formatData.get(17) विभाग
 				#else
 					-
-				#end
+				#end				
 			</td>	
-		</tr>-->
+		</tr>
+		*#
+		#if($currentStatusReportAllowedBeforeApproval=="NO")
 		<tr>
 			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
 				स्थिती 
 			</td>
 			<td colspan="2" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-				$formatData.get(29)
+				#if($formatData.get(29))
+					#if($formatData.get(29)!='proprietypoint_submit' && $formatData.get(29)!='proprietypoint_system_assistantprocessed')
+						$formatData.get(25)
+					#else
+						
+					#end
+				#else
+					
+				#end
 			</td>
 		</tr>
+		#end		
 		<tr>
 			<td colspan="3">&nbsp;</td>
 		</tr>		
@@ -98,46 +78,41 @@
 				$formatData.get(5)
 			</td>
 		</tr>
-		<tr>
-			<td colspan="2">&nbsp;</td>
-		</tr>
-		#if($formatData.get(25)=='lowerhouse')
-			<tr>
-				<td colspan="3" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-					$formatData.get(4)
-				</td>
-			</tr>
-			<br>
-		#else
-			<tr>
-				<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-					$formatData.get(7)
-				</td>
-			</tr>
-			<br>
-			<tr>
-				<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-					$formatData.get(8)
-				</td>
-			</tr>
-		#end
+		<br>
 		
+		<tr>
+			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px; text-align:justify;">
+				$formatData.get(4)
+			</td>
+		</tr>	
 	</table>
 </div>
+<br/>
 <div style="width: 750px; border-top: 2px dotted black;">&nbsp;</div>
+
+#if($currentStatusReportAllowedBeforeApproval=="NO")
 <div style="width: 750px;">	
 	<table style="width: 750px; font-weight: bold; border: 2px solid black; font-size: 16px;" class="uiTable">
 		#foreach($r in $data)
-					
 			<tr class="page-break" style="font-weight: bold;">
 				<td style="width: 120px; padding: 2px; text-align: center; min-height: 30px;">
-					#if($r.get(27)!='assistant' && $r.get(27)!='principal_secretary')
+					#if($r.get(23)!='assistant' && $r.get(23)!='principal_secretary')
 						$r.get(1)<br>$r.get(0)
 					#else
 						&nbsp;<br>$r.get(0)
 					#end
 				</td>
-				<td style="width: 100px; padding: 2px; text-align: center;">$r.get(28)</td>
+				<td style="width: 100px; padding: 2px; text-align: center;">
+					#if($formatData.get(28))
+						#if($formatData.get(28)!='proprietypoint_submit' && $formatData.get(28)!='proprietypoint_system_assistantprocessed')
+							$r.get(24)
+						#else
+							
+						#end
+					#else
+						
+					#end
+				</td>
 				<td style="width: 410px; padding: 2px;">$r.get(6)</td>
 				<!--<td style="width: 120px; padding: 2px; text-align: center;">&nbsp;</td>-->
 			</tr>
@@ -157,11 +132,11 @@
 				<br>
 				(&nbsp&nbsp;स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अस्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;चर्चा करावा&nbsp&nbsp;)<br>
 				<br><br>
-				मा. सभापती
-			</td>
-			
+				मा. उपाध्यक्ष
+			</td>		
 		</tr>
 	</table>
 </div>
+#end
 <span class='page-break-before-forced'>&nbsp;</span>
 <hr>

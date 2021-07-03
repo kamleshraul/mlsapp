@@ -640,8 +640,8 @@
 			<p style="display:none;">
 				<label class="small"><spring:message code="proprietypoint.type" text="Type"/>*</label>
 				<input id="formattedDeviceType" name="formattedDeviceType" value="${formattedDeviceType}" class="sText" readonly="readonly">
-				<input id="type" name="type" value="${deviceType}" type="hidden">
-				<form:errors path="type" cssClass="validationError"/>		
+				<input id="deviceType" name="deviceType" value="${deviceType}" type="hidden">
+				<form:errors path="deviceType" cssClass="validationError"/>		
 			</p>
 			
 			<p>

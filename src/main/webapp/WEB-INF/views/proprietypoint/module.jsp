@@ -51,7 +51,9 @@
 			var currentDeviceType = $("#currentDeviceType").val();
 			var currentHouseType = $("#currentHouseType").val();
 			if(currentHouseType=='upperhouse') {
-				$('#select_proprietypointdate_div').show();
+				$('.proprietypointdate_display').show();
+			} else {
+				$('.proprietypointdate_display').hide();
 			}
 			$("#bulkputup_tab").hide();
 			/*Tooltip*/
@@ -73,7 +75,7 @@
 				var value=$(this).val();
 				
 				if(value=='lowerhouse'){	
-					$('#select_proprietypointdate_div').hide();
+					$('.proprietypointdate_display').hide();
 					reloadProprietyPointGrid();	
 					
 				} else if(value=='upperhouse'){
@@ -98,7 +100,7 @@
 					}).done(function() {
 						$('#isProprietyPointDateSelected').attr('checked', 'checked');
 						$('#selectedProprietyPointDate').removeAttr('disabled');
-						$('#select_proprietypointdate_div').show();
+						$('.proprietypointdate_display').show();
 						//reloadProprietyPointGrid();
 						showProprietyPointList();
 						
@@ -757,19 +759,17 @@
 			<option value="10">10</option>
 			<option value="5">05</option>		
 			</select>|	
-			</security:authorize> --%>		
-
-			<div id="select_proprietypointdate_div" style="display: none;">
-			<hr>
+			</security:authorize> --%>
 			
-			<a href="#" id="select_proprietypointdate" class="butSim"><spring:message code="proprietypointdate.selectProprietyPointdate" text="Select Propriety Point Date"/></a>
-			<input class="sCheck" type="checkbox" id="isProprietyPointDateSelected" name="isProprietyPointDateSelected" checked="checked"/>
-			<select name="selectedProprietyPointDate" id="selectedProprietyPointDate" style="width:130px;height: 25px;">	
+			<hr class="proprietypointdate_display">
+			
+			<a href="#" id="select_proprietypointdate" class="butSim proprietypointdate_display"><spring:message code="proprietypointdate.selectProprietyPointdate" text="Select Propriety Point Date"/></a>
+			<input class="sCheck proprietypointdate_display" type="checkbox" id="isProprietyPointDateSelected" name="isProprietyPointDateSelected" checked="checked"/>
+			<select name="selectedProprietyPointDate" id="selectedProprietyPointDate" class="proprietypointdate_display" style="width:130px;height: 25px;">	
 			<c:forEach items="${sessionDates}" var="i">
 				<option value="${i[0]}" ${i[0]==defaultProprietyPointDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
 			</c:forEach>
 			</select>
-			</div>
 			
 			<security:authorize access="hasAnyRole('PROIS_CLERK', 'PROIS_ASSISTANT', 'PROIS_SECTION_OFFICER', 'PROIS_UNDER_SECRETARY', 'PROIS_SECRETARY', 'PROIS_PRINCIPAL_SECRETARY')">	
 				<a href="javascript:void(0);" id="reports_link" class="butSim" style="float: right;">

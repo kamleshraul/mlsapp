@@ -718,6 +718,7 @@
 				if(value!=null){
 					var deviceTypeForGrid = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
 					var houseTypeForGrid = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
+					var houseType = houseTypeForGrid;
 					
 					if(($('#currentusergroupType').val()=="assistant") && value.indexOf("final")>-1&&$('#currenthousetype').val()=='lowerhouse'){
 						$('#bulkapproval_tab').hide();
@@ -1172,6 +1173,8 @@
 					resourceURL="workflow/rulessuspensionmotion/advancedbulkapproval";
 				}else if($('#deviceTypeType').val().indexOf("notices_specialmention")==0){
 					resourceURL="workflow/specialmentionnotice/advancedbulkapproval";
+				}else if($('#deviceTypeType').val().indexOf("proprietypoint")==0){
+					resourceURL="workflow/proprietypoint/advancedbulkapproval";
 				}else{
 					resourceURL="workflow/motion/advancedbulkapproval";
 				}				
