@@ -2739,6 +2739,47 @@ public class ApplicationConstants {
 	/**** Put Up ****/
 	public static final String PROPRIETYPOINT_PUTUP_REJECTION="proprietypoint_putup_rejection";
 	
+	/**** Clubbing related statuses ****/
+	public static final String PROPRIETYPOINT_SYSTEM_CLUBBED="proprietypoint_system_clubbed";
+	
+	public static final String PROPRIETYPOINT_SYSTEM_CLUBBED_WITH_PENDING="proprietypoint_system_clubbedwithpending";
+	
+	public static final String PROPRIETYPOINT_PUTUP_CLUBBING="proprietypoint_putup_clubbing";
+	
+	public static final String PROPRIETYPOINT_RECOMMEND_CLUBBING="proprietypoint_recommend_clubbing";
+	
+	public static final String PROPRIETYPOINT_RECOMMEND_REJECT_CLUBBING="proprietypoint_recommend_reject_clubbing";
+	
+	public static final String PROPRIETYPOINT_FINAL_CLUBBING = "proprietypoint_final_clubbing";
+
+	public static final String PROPRIETYPOINT_FINAL_REJECT_CLUBBING = "proprietypoint_final_reject_clubbing";
+	
+	public static final String PROPRIETYPOINT_PUTUP_CLUBBING_POST_ADMISSION="proprietypoint_putup_clubbingPostAdmission";
+
+	public static final String PROPRIETYPOINT_RECOMMEND_CLUBBING_POST_ADMISSION="proprietypoint_recommend_clubbingPostAdmission";
+
+	public static final String PROPRIETYPOINT_RECOMMEND_REJECT_CLUBBING_POST_ADMISSION="proprietypoint_recommend_reject_clubbingPostAdmission";
+	
+	public static final String PROPRIETYPOINT_FINAL_CLUBBING_POST_ADMISSION = "proprietypoint_final_clubbingPostAdmission";
+
+	public static final String PROPRIETYPOINT_FINAL_REJECT_CLUBBING_POST_ADMISSION = "proprietypoint_final_reject_clubbingPostAdmission";
+
+	public static final String PROPRIETYPOINT_PUTUP_ADMIT_DUE_TO_REVERSE_CLUBBING = "proprietypoint_putup_admitDueToReverseClubbing";
+	
+	public static final String PROPRIETYPOINT_RECOMMEND_ADMIT_DUE_TO_REVERSE_CLUBBING = "proprietypoint_recommend_admitDueToReverseClubbing";
+	
+	public static final String PROPRIETYPOINT_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING = "proprietypoint_final_admitDueToReverseClubbing";
+	
+	public static final String PROPRIETYPOINT_PUTUP_UNCLUBBING="proprietypoint_putup_unclubbing";
+	
+	public static final String PROPRIETYPOINT_RECOMMEND_UNCLUBBING="proprietypoint_recommend_unclubbing";
+	
+	public static final String PROPRIETYPOINT_RECOMMEND_REJECT_UNCLUBBING = "proprietypoint_recommend_reject_unclubbing";
+	
+	public static final String PROPRIETYPOINT_FINAL_UNCLUBBING="proprietypoint_final_unclubbing";
+	
+	public static final String PROPRIETYPOINT_FINAL_REJECT_UNCLUBBING = "proprietypoint_final_reject_unclubbing";
+	
 	/**** Other constants ****/
 	public static final String PROPRIETYPOINT_GET_REVISION = "PROPRIETYPOINT_GET_REVISION";	
 

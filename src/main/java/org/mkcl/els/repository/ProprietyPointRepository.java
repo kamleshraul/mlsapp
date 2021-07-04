@@ -16,7 +16,8 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
-import org.mkcl.els.domain.AdjournmentMotion;
+import org.mkcl.els.domain.ProprietyPoint;
+import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
@@ -28,7 +29,7 @@ import org.mkcl.els.domain.UserGroupType;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ProprietyPointRepository extends BaseRepository<AdjournmentMotion, Serializable> {
+public class ProprietyPointRepository extends BaseRepository<ProprietyPoint, Serializable> {
 
 	public Integer assignNumber(final HouseType houseType,final Session session,
 			final DeviceType type,final String locale) {
@@ -161,10 +162,28 @@ public class ProprietyPointRepository extends BaseRepository<AdjournmentMotion, 
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	public List<ClubbedEntity> findClubbedEntitiesByPosition(final ProprietyPoint proprietyPoint) {
+		String strQuery = "SELECT ce FROM ProprietyPoint m JOIN m.clubbedEntities ce" +
+				" WHERE m.id =:proprietyPointId ORDER BY ce.position " + ApplicationConstants.ASC;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("proprietyPointId", proprietyPoint.getId());
+		return query.getResultList();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ClubbedEntity> findClubbedEntitiesByDeviceNumber(final ProprietyPoint proprietyPoint, final String sortOrder) {
+		String strQuery = "SELECT ce FROM ProprietyPoint m JOIN m.clubbedEntities ce" +
+				" WHERE m.id =:proprietyPointId ORDER BY ce.proprietyPoint.number " + sortOrder;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("proprietyPointId", proprietyPoint.getId());
+		return query.getResultList();
+	}
+	
 	/**
 	 * Gets the revisions.
 	 *
-	 * @param adjournmentMotionId the adjournmentMotion id
+	 * @param proprietyPointId the proprietyPoint id
 	 * @param locale the locale
 	 * @return the revisions
 	 */

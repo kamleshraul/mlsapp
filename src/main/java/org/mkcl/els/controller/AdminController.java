@@ -35,6 +35,7 @@ import org.mkcl.els.domain.MemberDepartment;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDraft;
@@ -1328,6 +1329,211 @@ public class AdminController extends BaseController {
 		}
 		
 		return retVal;
+	}
+	
+	@Transactional
+	@RequestMapping(value="club_proprietypoints_on_record/child/{childIds}/parent/{parentId}", method=RequestMethod.GET)
+	public @ResponseBody String ClubProprietyPointsOnRecord(@PathVariable("childIds") final String childIds,
+			@PathVariable("parentId") final String parentId,
+			final Locale appLocale) {
+		StringBuffer returnMsg = new StringBuffer();
+		StringBuffer clubbedNumbers = new StringBuffer();
+		StringBuffer unclubbedNumbers = new StringBuffer();
+		try {
+			String locale = appLocale.toString();
+			String[] cIds = childIds.split(","); 
+			ProprietyPoint parentProprietyPoint = ProprietyPoint.findById(ProprietyPoint.class, Long.parseLong(parentId));
+			Status systemClubbedStatus = Status.findByType(ApplicationConstants.PROPRIETYPOINT_SYSTEM_CLUBBED, locale);
+			Status admitStatus = Status.findByType(ApplicationConstants.PROPRIETYPOINT_FINAL_ADMISSION, locale);
+			if(parentProprietyPoint.getParent()!=null) {
+				returnMsg.append("NOT ALLOWED: Parent proprietyPoint number " + parentProprietyPoint.getNumber() + " is already clubbed");
+				return returnMsg.toString();
+			}
+			if(cIds.length>0){
+				for(int i=0 ; i<cIds.length;i++){
+					ProprietyPoint childProprietyPoint = ProprietyPoint.findById(ProprietyPoint.class, Long.parseLong(cIds[i]));
+					if(childProprietyPoint.getParent()!=null) {
+//						childProprietyPoint = childProprietyPoint.getParent();
+						if(unclubbedNumbers.length()>0) {
+							unclubbedNumbers.append(", " + childProprietyPoint.getNumber() + " (already clubbed)");
+						} else {
+							unclubbedNumbers.append(childProprietyPoint.getNumber() + " (already clubbed)");
+						}
+						continue;
+					}
+					try {
+						List<ClubbedEntity> parentClubbedEntities=new ArrayList<ClubbedEntity>();
+						String latestProprietyPointText = null;
+						if(parentProprietyPoint.getClubbedEntities()!=null && !parentProprietyPoint.getClubbedEntities().isEmpty()){
+							for(ClubbedEntity j:parentProprietyPoint.getClubbedEntities()){
+								// parent & child need not be disjoint. They could
+								// be present in each other's hierarchy.
+								Long childQnId = childProprietyPoint.getId();
+								ProprietyPoint clubbedQn = j.getProprietyPoint();
+								Long clubbedQnId = clubbedQn.getId();
+								if(! childQnId.equals(clubbedQnId)) {
+									/** fetch parent's latest proprietyPoint text from first of its children **/
+									if(latestProprietyPointText==null) {
+										latestProprietyPointText = clubbedQn.getRevisedPointsOfPropriety();
+										if(latestProprietyPointText==null || latestProprietyPointText.isEmpty()) {
+											latestProprietyPointText = clubbedQn.getPointsOfPropriety();
+										}
+									}
+									parentClubbedEntities.add(j);
+								}
+							}			
+						}
+						
+						List<ClubbedEntity> childClubbedEntities=new ArrayList<ClubbedEntity>();
+						if(childProprietyPoint.getClubbedEntities()!=null && !childProprietyPoint.getClubbedEntities().isEmpty()){
+							for(ClubbedEntity k:childProprietyPoint.getClubbedEntities()){
+								// parent & child need not be disjoint. They could
+								// be present in each other's hierarchy.
+								Long parentQnId = parentProprietyPoint.getId();
+								ProprietyPoint clubbedQn = k.getProprietyPoint();
+								Long clubbedQnId = clubbedQn.getId();
+								if(! parentQnId.equals(clubbedQnId)) {
+									childClubbedEntities.add(k);
+								}
+							}
+						}
+						
+						WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(childProprietyPoint);
+						if(wfDetails != null) {
+							WorkflowDetails.endProcess(wfDetails);
+						}
+						childProprietyPoint.removeExistingWorkflowAttributes();
+						
+						/** fetch parent's latest proprietyPoint text **/
+						if(latestProprietyPointText==null) {
+							latestProprietyPointText = parentProprietyPoint.getRevisedPointsOfPropriety();
+							if(latestProprietyPointText==null || latestProprietyPointText.isEmpty()) {
+								latestProprietyPointText = parentProprietyPoint.getPointsOfPropriety();
+							}
+						}
+						
+						childProprietyPoint.setParent(parentProprietyPoint);
+						childProprietyPoint.setClubbedEntities(null);		
+						
+						Status newStatus = parentProprietyPoint.getStatus();
+						childProprietyPoint.setStatus(newStatus);
+						Status newInternalStatus = null;
+						if(parentProprietyPoint.getStatus().getPriority().intValue()<admitStatus.getPriority().intValue()) {														
+							newInternalStatus = systemClubbedStatus;
+						} else {	
+							childProprietyPoint.setDeviceType(parentProprietyPoint.getDeviceType());
+							newInternalStatus = parentProprietyPoint.getInternalStatus();
+						}						
+						childProprietyPoint.setInternalStatus(newInternalStatus);
+						Status newRecommendationStatus = null;
+						if(parentProprietyPoint.getStatus().getPriority().intValue()<admitStatus.getPriority().intValue()) {
+							newRecommendationStatus = systemClubbedStatus;
+						} else {	
+							childProprietyPoint.setDeviceType(parentProprietyPoint.getDeviceType());
+							newRecommendationStatus = parentProprietyPoint.getInternalStatus();
+						}						
+						childProprietyPoint.setRecommendationStatus(newRecommendationStatus);
+						
+						childProprietyPoint.setRevisedPointsOfPropriety(latestProprietyPointText);
+						ProprietyPoint.updateDomainFieldsOnClubbingFinalisation(parentProprietyPoint, childProprietyPoint);
+						UserGroupType clerkUGT = UserGroupType.findByType(ApplicationConstants.CLERK, locale);
+						childProprietyPoint.setEditedAs(clerkUGT.getDisplayName());
+						childProprietyPoint.setEditedBy("qis_clerk");
+						childProprietyPoint.setEditedOn(new Date());
+						childProprietyPoint.merge();
+
+						ClubbedEntity clubbedEntity=new ClubbedEntity();
+						clubbedEntity.setDeviceType(childProprietyPoint.getDeviceType());
+						clubbedEntity.setLocale(childProprietyPoint.getLocale());
+						clubbedEntity.setProprietyPoint(childProprietyPoint);
+						clubbedEntity.persist();
+						parentClubbedEntities.add(clubbedEntity);
+						
+						if(childClubbedEntities!=null&& !childClubbedEntities.isEmpty()){
+							for(ClubbedEntity ce:childClubbedEntities){
+								ProprietyPoint proprietyPoint=ce.getProprietyPoint();					
+								/** end current clubbing workflow if pending **/
+								wfDetails = WorkflowDetails.findCurrentWorkflowDetail(proprietyPoint);
+								if(wfDetails != null) {
+									WorkflowDetails.endProcess(wfDetails);
+								}
+								proprietyPoint.removeExistingWorkflowAttributes();
+								
+								proprietyPoint.setEditedAs(childProprietyPoint.getEditedAs());
+								proprietyPoint.setEditedBy(childProprietyPoint.getEditedBy());
+								proprietyPoint.setEditedOn(childProprietyPoint.getEditedOn());
+								proprietyPoint.setParent(parentProprietyPoint);
+								if(proprietyPoint.getRecommendationStatus().getType().contains(ApplicationConstants.STATUS_PENDING_FOR_CLUBBING_APPROVAL)) {
+//									if(parentProprietyPoint.getStatus().getPriority().intValue()<admitStatus.getPriority().intValue()) {														
+//										proprietyPoint.setInternalStatus(ProprietyPoint.findCorrespondingStatusForGivenProprietyPointType(systemClubbedStatus, proprietyPoint.getDeviceType()));
+//									} else {
+//										proprietyPoint.setInternalStatus(parentProprietyPoint.getInternalStatus());
+//									}						
+//									if(parentProprietyPoint.getStatus().getPriority().intValue()<admitStatus.getPriority().intValue()) {
+//										newRecommendationStatus = ProprietyPoint.findCorrespondingStatusForGivenProprietyPointType(systemClubbedStatus, proprietyPoint.getDeviceType());
+//									} else {	
+//										proprietyPoint.setDeviceType(parentProprietyPoint.getDeviceType());
+//										newRecommendationStatus = parentProprietyPoint.getRecommendationStatus();
+//									}
+									
+									//TODO: either unclub this or keep ready for fresh clubbing approval as per its state
+									
+								} else {
+									proprietyPoint.setDeviceType(childProprietyPoint.getDeviceType());
+									proprietyPoint.setStatus(newStatus);
+									proprietyPoint.setInternalStatus(newInternalStatus);
+									proprietyPoint.setRecommendationStatus(newInternalStatus);
+									proprietyPoint.setRevisedPointsOfPropriety(latestProprietyPointText);
+									ProprietyPoint.updateDomainFieldsOnClubbingFinalisation(parentProprietyPoint, proprietyPoint);
+									proprietyPoint.merge();
+									parentClubbedEntities.add(ce);
+								}								
+							}			
+						}
+						parentProprietyPoint.setClubbedEntities(parentClubbedEntities);
+						parentProprietyPoint.simpleMerge();
+
+						List<ClubbedEntity> clubbedEntities=parentProprietyPoint.findClubbedEntitiesByDeviceNumber(ApplicationConstants.ASC);
+						Integer position=1;
+						for(ClubbedEntity pce:clubbedEntities){
+							pce.setPosition(position);
+							position++;
+							pce.merge();
+						}
+						
+						if(clubbedNumbers.length()>0) {
+							clubbedNumbers.append(", " + childProprietyPoint.getNumber());
+						} else {
+							clubbedNumbers.append(childProprietyPoint.getNumber());
+						}
+					} catch(Exception e) {
+						if(unclubbedNumbers.length()>0) {
+							unclubbedNumbers.append(", " + childProprietyPoint.getNumber() + " (some exception)");
+						} else {
+							unclubbedNumbers.append(childProprietyPoint.getNumber() + " (some exception)");
+						}
+						continue;
+					}					
+				}
+				returnMsg.append("SUCCESS: ");
+				if(clubbedNumbers.length()>0) {					
+					returnMsg.append(clubbedNumbers);
+					returnMsg.append(" clubbed... ");
+				}
+				if(unclubbedNumbers.length()>0) {
+					returnMsg.append(unclubbedNumbers);
+					returnMsg.append(" not clubbed");
+				}				
+			} else {
+				returnMsg.append("NO CHILD PROPRIETYPOINTS PROVIDED FOR CLUBBING!");
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "ERROR";
+		}
+		
+		return returnMsg.toString();
 	}
 	
 }

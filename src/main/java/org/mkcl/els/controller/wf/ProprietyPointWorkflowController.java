@@ -24,6 +24,7 @@ import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
+import org.mkcl.els.controller.prois.ProprietyPointController;
 import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.ProprietyPoint;
@@ -367,6 +368,7 @@ public class ProprietyPointWorkflowController  extends BaseController {
 		UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.parseLong(usergroup));
 		String usergroupType = workflowDetails.getAssigneeUserGroupType();
 		model.addAttribute("usergroupType",usergroupType);
+		UserGroupType userGroupType = UserGroupType.findByType(usergroupType, locale);
 		/**** Ministries & SubDepartments ****/
 		Date currentDate = new Date();
 		if(currentDate.equals(rotationOrderPubDate) || currentDate.after(rotationOrderPubDate)) {
@@ -444,6 +446,29 @@ public class ProprietyPointWorkflowController  extends BaseController {
 		}
 		//Populate createdby
 		model.addAttribute("createdBy",domain.getCreatedBy());
+		/**** Referenced Propriety Points Starts ****/
+		CustomParameter clubbedReferencedEntitiesVisibleUserGroups = CustomParameter.
+				findByName(CustomParameter.class, "PROIS_ALLOWED_USERGROUP_TO_DO_VIEW_CLUBBING_REFERENCING", "");   
+		if(clubbedReferencedEntitiesVisibleUserGroups != null){
+			List<UserGroupType> userGroupTypes = 
+					this.populateListOfObjectExtendingBaseDomainByDelimitedTypes(UserGroupType.class, clubbedReferencedEntitiesVisibleUserGroups.getValue(), ",", locale);
+			Boolean isUserGroupAllowed = this.isObjectExtendingBaseDomainAvailableInList(userGroupTypes, userGroupType);
+			if(isUserGroupAllowed){
+				//populate parent
+				if(domain.getParent()!=null){
+					model.addAttribute("formattedParentNumber",FormaterUtil.formatNumberNoGrouping(domain.getParent().getNumber(), locale));
+					model.addAttribute("parent",domain.getParent().getId());
+				}
+				//populate referenced entity
+//				if(domain.getReferencedProprietyPoint()!=null){
+//					Reference referencedEntityReference = ProprietyPointController.populateReferencedEntityAsReference(domain, locale);
+//					model.addAttribute("referencedProprietyPoint",referencedEntityReference);
+//				}
+				// Populate clubbed entities
+				List<Reference> clubEntityReferences = ProprietyPointController.populateClubbedEntityReferences(domain, locale);
+				model.addAttribute("clubbedProprietyPoints",clubEntityReferences);
+			}
+		}
 		/**** Status,Internal Status and recommendation Status ****/
 		Status status=domain.getStatus();
 		Status internalStatus=domain.getInternalStatus();

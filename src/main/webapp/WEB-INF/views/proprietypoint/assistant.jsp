@@ -4,8 +4,85 @@
 	<title>
 	<spring:message code="proprietypoint" text="Propriety Point"/>
 	</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
+	/**** detail of clubbed propriety points ****/
+	function viewProprietyPointDetail(id){
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
+		var parameters="houseType="+$("#selectedHouseType").val()
+		+"&sessionYear="+$("#selectedSessionYear").val()
+		+"&sessionType="+$("#selectedSessionType").val()
+		+"&deviceType="+$("#selectedDeviceType").val()
+		+"&ugparam="+$("#ugparam").val()
+		+"&status="+$("#selectedStatus").val()
+		+"&role="+$("#srole").val()
+		+"&usergroup="+$("#currentusergroup").val()
+		+"&usergroupType="+$("#currentusergroupType").val()
+		+"&edit=false";
+		var resourceURL='proprietypoint/'+id+'/edit?'+parameters;
+		$.get(resourceURL,function(data){
+			$.unblockUI();
+			$.fancybox.open(data,{autoSize:false,width:750,height:700});
+		},'html').fail(function(){
+			$.unblockUI();
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		});	
+	}
+	/**** Clubbing ****/
+	function clubbingInt(id){
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		var params="proprietyPointId="+id
+					+"&usergroup="+$("#currentusergroup").val()
+			        +"&usergroupType="+$("#currentusergroupType").val();		
+		$.get('clubentity/init?'+params,function(data){
+			$.unblockUI();	
+			//$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			$("#clubbingResultDiv").html(data);
+			$("#clubbingResultDiv").show();
+			$("#referencingResultDiv").hide();
+			$("#assistantDiv").hide();
+			$("#backToMotionDiv").show();			
+		},'html').fail(function(){
+			$.unblockUI();
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		});
+	}
+	/**** refresh clubbing and referencing ****/
+	function refreshEdit(id){
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		var parameters="houseType="+$("#selectedHouseType").val()
+		+"&sessionYear="+$("#selectedSessionYear").val()
+		+"&sessionType="+$("#selectedSessionType").val()
+		+"&deviceType="+$("#selectedDeviceType").val()
+		+"&ugparam="+$("#ugparam").val()
+		+"&status="+$("#selectedStatus").val()
+		+"&role="+$("#srole").val()
+		+"&usergroup="+$("#currentusergroup").val()
+        +"&usergroupType="+$("#currentusergroupType").val();
+		
+		var resourceURL='proprietypoint/'+id+'/edit?'+parameters;
+		$('a').removeClass('selected');
+		//id refers to the tab name and it is used just to highlight the selected tab
+		$('#'+ id).addClass('selected');
+		//tabcontent is the content area where result of the url load will be displayed
+		$('.tabContent').load(resourceURL,function(data){
+			scrollTop();
+			$.unblockUI();
+		});
+		$("#referencingResultDiv").hide();
+		$("#clubbingResultDiv").hide();
+		$("#assistantDiv").show();					
+	}
 	/**** load actors ****/
 	function loadActors(value){
 		if(value!='-'){
@@ -428,7 +505,49 @@
 				<label class="small"><spring:message code="proprietypoint.primaryMemberConstituency" text="Constituency"/>*</label>
 				<input type="text" readonly="readonly" value="${constituency}" class="sText">
 				<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
+			</p>	
+			
+			<p>
+				<c:if test="${bulkedit!='yes' and domain.internalStatus.type!='proprietypoint_system_clubbed'}">
+			
+				<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="proprietypoint.clubbing" text="Clubbing"></spring:message></a>
+				<%-- <a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="proprietypoint.referencing" text="Referencing"></spring:message></a> --%>
+				<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="proprietypoint.refresh" text="Refresh"></spring:message></a>
+				</c:if>	
 			</p>			
+			
+			<p>
+				<label class="small"><spring:message code="proprietypoint.parent" text="Clubbed To"></spring:message></label>
+				<c:choose>
+					<c:when test="${!(empty parent)}">	
+						<a href="#" id="p${parent}" onclick="viewProprietyPointDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
+					</c:when>
+					<c:otherwise>
+						<c:out value="-"></c:out>
+					</c:otherwise>
+				</c:choose>
+				<input type="hidden" id="parent" name="parent" value="${parent}">
+			</p>
+			
+			<p>
+				<label class="small"><spring:message code="proprietypoint.clubbedmotions" text="Clubbed Motions"></spring:message></label>
+				<c:choose>
+					<c:when test="${!(empty clubbedProprietyPoints) }">
+						<c:forEach items="${clubbedProprietyPoints }" var="i">
+							<a href="#" id="cq${i.number}" class="clubbedRefProprietyPoints" onclick="viewProprietyPointDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+						</c:forEach>
+						<a href="javascript:void(0);" id="viewClubbedProprietyPointTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="proprietypoint.clubbed.texts" text="C"></spring:message></a>
+					</c:when>
+					<c:otherwise>
+						<c:out value="-"></c:out>
+					</c:otherwise>
+				</c:choose>
+				<select id="clubbedEntities" name="clubbedEntities" multiple="multiple" style="display:none;">
+					<c:forEach items="${clubbedProprietyPoints}" var="i">
+						<option value="${i.id}" selected="selected"></option>
+					</c:forEach>
+				</select>
+			</p>		
 			
 			<p>
 				<label class="centerlabel"><spring:message code="proprietypoint.subject" text="Subject"/>*</label>

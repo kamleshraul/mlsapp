@@ -94,6 +94,10 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
     @ManyToOne(fetch=FetchType.LAZY)
     private RulesSuspensionMotion rulesSuspensionMotion;
     
+    /** The propriety point. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    private ProprietyPoint proprietyPoint;
+    
     /** The created on. */
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="created_on")
@@ -524,6 +528,16 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
 	public void setRulesSuspensionMotion(RulesSuspensionMotion rulesSuspensionMotion) {
 		this.rulesSuspensionMotion = rulesSuspensionMotion;
 	}
+
+	public ProprietyPoint getProprietyPoint() {
+		return proprietyPoint;
+	}
+
+
+	public void setProprietyPoint(ProprietyPoint proprietyPoint) {
+		this.proprietyPoint = proprietyPoint;
+	}
+
 
 	public Date getCreatedOn() {
 		return createdOn;

@@ -92,6 +92,10 @@
 	$(document).ready(function(){
 		initControls();
 		
+		if($('#selectedHouseType').val()=='upperhouse') {
+			$('#supportingMemberPara').show();
+		}
+		
 		if($("#subDepartmentSelected").val()==''){
 			$("#subDepartment").
 			prepend("<option value='' selected='selected'>----" + $("#pleaseSelectMsg").val() + "----</option>");			
@@ -534,7 +538,7 @@
 			</security:authorize>
 			
 			<p style="display: ${houseTypeType=='lowerhouse'?'none;':'inline-block;'}">
-				<label class="small"><spring:message code="proprietypoint.ministry" text="Ministry"/></label>
+				<label class="small"><spring:message code="proprietypoint.ministry" text="Ministry"/>*</label>
 				<input id="formattedMinistry" name="formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
 				<input name="ministry" id="ministry" type="hidden" value="${ministrySelected}">
 				<%-- <form:select path="ministry" id="ministry" class="sSelect">
@@ -549,7 +553,7 @@
 					</c:choose>
 				</c:forEach>
 				</form:select> --%>
-				<label class="small"><spring:message code="proprietypoint.subdepartment" text="Sub Department"/></label>
+				<label class="small"><spring:message code="proprietypoint.subdepartment" text="Sub Department"/>*</label>
 				<select name="subDepartment" id="subDepartment" class="sSelect">
 				<c:forEach items="${subDepartments}" var="i">
 					<c:choose>
@@ -570,7 +574,7 @@
 				<form:errors path="subDepartment" cssClass="validationError" style="margin-left:27%"/>	
 			</p>
 			
-			<p style="display: none;">
+			<p id="supportingMemberPara" style="display: none;">
 				<label class="centerlabel"><spring:message code="proprietypoint.supportingMembers" text="Supporting Members"/></label>
 				<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
 				<%-- <label style="display: inline; border: 1px double blue; padding: 5px; background-color: #DCE4EF; font-weight: bold;" class="centerlabel" id="supportingMemberMessage"><spring:message code="proprietypoint.numberOfsupportingMembers" text="Number of Supporting Members"></spring:message>&nbsp;${numberOfSupportingMembersComparatorHTML}&nbsp;${numberOfSupportingMembers}</label> --%>										
@@ -640,7 +644,7 @@
 				<p class="tright">
 					<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 						<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-						<%-- <input id="sendforapproval" type="button" value="<spring:message code='proprietypoint.sendforapproval' text='Send For Approval'/>" class="butDef"> --%>
+						<input id="sendforapproval" type="button" value="<spring:message code='proprietypoint.sendforapproval' text='Send For Approval'/>" class="butDef">
 					</security:authorize>
 					<input id="submitdevice" type="button" value="<spring:message code='proprietypoint.submitdevice' text='Submit Propriety Point'/>" class="butDef">
 					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">

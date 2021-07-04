@@ -2,10 +2,15 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -42,6 +47,17 @@ public class ProprietyPointDraft extends BaseDomain implements Serializable {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="subdepartment_id")
     private SubDepartment subDepartment;
+	
+	/** The parent. */
+	@ManyToOne(fetch=FetchType.LAZY)
+	private ProprietyPoint parent;
+	
+	/** The clubbed entities. */
+	@ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.REMOVE)
+	@JoinTable(name="proprietypointdrafts_clubbingentities",
+	joinColumns={@JoinColumn(name="proprietypointdraft_id", referencedColumnName="id")}, 
+	inverseJoinColumns={@JoinColumn(name="clubbed_entity_id", referencedColumnName="id")})
+	private List<ClubbedEntity> clubbedEntities;
     
     /** The reply. */
     @Column(length=30000)
@@ -151,6 +167,22 @@ public class ProprietyPointDraft extends BaseDomain implements Serializable {
 
 	public void setSubDepartment(SubDepartment subDepartment) {
 		this.subDepartment = subDepartment;
+	}
+
+	public ProprietyPoint getParent() {
+		return parent;
+	}
+
+	public void setParent(ProprietyPoint parent) {
+		this.parent = parent;
+	}
+
+	public List<ClubbedEntity> getClubbedEntities() {
+		return clubbedEntities;
+	}
+
+	public void setClubbedEntities(List<ClubbedEntity> clubbedEntities) {
+		this.clubbedEntities = clubbedEntities;
 	}
 
 	public String getReply() {

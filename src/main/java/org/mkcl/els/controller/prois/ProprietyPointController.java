@@ -26,6 +26,7 @@ import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.ProprietyPoint;
+import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.ProprietyPointDraft;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.Constituency;
@@ -809,6 +810,29 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 				Status memberStatus = domain.findMemberStatus();
 				if(memberStatus!=null){				
 					model.addAttribute("formattedMemberStatus", memberStatus.getName());
+				}
+			}
+			/**** Referenced Propriety Points Starts ****/
+			CustomParameter clubbedReferencedEntitiesVisibleUserGroups = CustomParameter.
+					findByName(CustomParameter.class, "PROIS_ALLOWED_USERGROUP_TO_DO_VIEW_CLUBBING_REFERENCING", "");   
+			if(clubbedReferencedEntitiesVisibleUserGroups != null){
+				List<UserGroupType> userGroupTypes = 
+						this.populateListOfObjectExtendingBaseDomainByDelimitedTypes(UserGroupType.class, clubbedReferencedEntitiesVisibleUserGroups.getValue(), ",", locale);
+				Boolean isUserGroupAllowed = this.isObjectExtendingBaseDomainAvailableInList(userGroupTypes, userGroupType);
+				if(isUserGroupAllowed){
+					//populate parent
+					if(domain.getParent()!=null){
+						model.addAttribute("formattedParentNumber",FormaterUtil.formatNumberNoGrouping(domain.getParent().getNumber(), locale));
+						model.addAttribute("parent",domain.getParent().getId());
+					}
+					//populate referenced entity
+//					if(domain.getReferencedProprietyPoint()!=null){
+//						Reference referencedEntityReference = ProprietyPointController.populateReferencedEntityAsReference(domain, locale);
+//						model.addAttribute("referencedProprietyPoint",referencedEntityReference);
+//					}
+					// Populate clubbed entities
+					List<Reference> clubEntityReferences = ProprietyPointController.populateClubbedEntityReferences(domain, locale);
+					model.addAttribute("clubbedProprietyPoints",clubEntityReferences);
 				}
 			}
 			/**** Status,Internal Status and recommendation Status ****/
@@ -1830,6 +1854,29 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 			}
 			//Populate createdby
 			model.addAttribute("createdBy",domain.getCreatedBy());
+			/**** Referenced Propriety Points Starts ****/
+			CustomParameter clubbedReferencedEntitiesVisibleUserGroups = CustomParameter.
+					findByName(CustomParameter.class, "PROIS_ALLOWED_USERGROUP_TO_DO_VIEW_CLUBBING_REFERENCING", "");   
+			if(clubbedReferencedEntitiesVisibleUserGroups != null){
+				List<UserGroupType> userGroupTypes = 
+						this.populateListOfObjectExtendingBaseDomainByDelimitedTypes(UserGroupType.class, clubbedReferencedEntitiesVisibleUserGroups.getValue(), ",", domain.getLocale());
+				Boolean isUserGroupAllowed = this.isObjectExtendingBaseDomainAvailableInList(userGroupTypes, userGroupType);
+				if(isUserGroupAllowed){
+					//populate parent
+					if(domain.getParent()!=null){
+						model.addAttribute("formattedParentNumber",FormaterUtil.formatNumberNoGrouping(domain.getParent().getNumber(), domain.getLocale()));
+						model.addAttribute("parent",domain.getParent().getId());
+					}
+					//populate referenced entity
+//					if(domain.getReferencedProprietyPoint()!=null){
+//						Reference referencedEntityReference = ProprietyPointController.populateReferencedEntityAsReference(domain, locale);
+//						model.addAttribute("referencedMotion",referencedEntityReference);
+//					}
+					// Populate clubbed entities
+					List<Reference> clubEntityReferences = ProprietyPointController.populateClubbedEntityReferences(domain, domain.getLocale());
+					model.addAttribute("clubbedProprietyPoints",clubEntityReferences);
+				}
+			}
 			/**** Status,Internal Status and recommendation Status ****/
 			Status status=domain.getStatus();
 			Status internalStatus=domain.getInternalStatus();
@@ -2384,6 +2431,21 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 				domain.setSupportingMembers(supportingMembers);
 			}
 		}
+	}
+	
+	public static List<Reference> populateClubbedEntityReferences(ProprietyPoint domain, String locale) {
+		List<Reference> references = new ArrayList<Reference>();
+		List<ClubbedEntity> clubbedEntities=ProprietyPoint.findClubbedEntitiesByPosition(domain);
+		if(clubbedEntities!=null){
+			for(ClubbedEntity ce:clubbedEntities){
+				Reference reference=new Reference();
+				reference.setId(String.valueOf(ce.getId()));
+				reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(ce.getProprietyPoint().getNumber()));
+				reference.setNumber(String.valueOf(ce.getProprietyPoint().getId()));
+				references.add(reference);
+			}
+		}
+		return references;
 	}	
 
 }

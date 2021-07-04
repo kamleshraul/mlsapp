@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="propriety_points")
-@JsonIgnoreProperties({"houseType", "session", "deviceType", "supportingMembers", "ballotStatus", "drafts"})
+@JsonIgnoreProperties({"houseType", "session", "deviceType", "supportingMembers", "ballotStatus", "parent", "clubbedEntities", "drafts"})
 public class ProprietyPoint extends Device implements Serializable {
 
 	/** The Constant serialVersionUID. */
@@ -132,6 +132,17 @@ public class ProprietyPoint extends Device implements Serializable {
     /** The rejection reason. */
     @Column(length=30000)
     private String rejectionReason;
+	
+	/** The parent. */
+	@ManyToOne(fetch=FetchType.LAZY)
+	private ProprietyPoint parent;
+	
+	/** The clubbed entities. */
+	@ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.REMOVE)
+	@JoinTable(name="proprietypoints_clubbingentities",
+	joinColumns={@JoinColumn(name="proprietypoint_id", referencedColumnName="id")}, 
+	inverseJoinColumns={@JoinColumn(name="clubbed_entity_id", referencedColumnName="id")})
+	private List<ClubbedEntity> clubbedEntities;
     
     /** 
      * The status. 
@@ -354,6 +365,10 @@ public class ProprietyPoint extends Device implements Serializable {
 					}
                 }
 			} else {
+				ProprietyPoint oldProprietyPoint = ProprietyPoint.findById(ProprietyPoint.class, this.getId());
+            	if(this.getClubbedEntities() == null){
+            		this.setClubbedEntities(oldProprietyPoint.getClubbedEntities());
+            	}
 				this.addProprietyPointDraft();
 				proprietyPoint = (ProprietyPoint) super.merge();
 			}
@@ -365,6 +380,10 @@ public class ProprietyPoint extends Device implements Serializable {
 					|| this.getInternalStatus().getType().equals(ApplicationConstants.PROPRIETYPOINT_COMPLETE)) {
 				return (ProprietyPoint) super.merge();
 			}else {
+				ProprietyPoint oldProprietyPoint = ProprietyPoint.findById(ProprietyPoint.class, this.getId());
+            	if(this.getClubbedEntities() == null){
+            		this.setClubbedEntities(oldProprietyPoint.getClubbedEntities());
+            	}
 				this.addProprietyPointDraft();
 				return (ProprietyPoint) super.merge();
 			}
@@ -379,6 +398,9 @@ public class ProprietyPoint extends Device implements Serializable {
     	draft.setProprietyPointId(this.getId());
     	draft.setLocale(this.getLocale());
         draft.setRemarks(this.getRemarks());
+        
+        draft.setParent(this.getParent());
+        draft.setClubbedEntities(this.getClubbedEntities());
         
         draft.setEditedAs(this.getEditedAs());
         draft.setEditedBy(this.getEditedBy());
@@ -491,6 +513,14 @@ public class ProprietyPoint extends Device implements Serializable {
     public ProprietyPointDraft findPreviousDraft() {
 		return getProprietyPointRepository().findPreviousDraft(this.getId());
 	}
+	
+	public static List<ClubbedEntity> findClubbedEntitiesByPosition(final ProprietyPoint proprietyPoint) {
+    	return getProprietyPointRepository().findClubbedEntitiesByPosition(proprietyPoint);
+    }
+	
+    public List<ClubbedEntity> findClubbedEntitiesByDeviceNumber(final String sortOrder) {
+    	return getProprietyPointRepository().findClubbedEntitiesByDeviceNumber(this, sortOrder);
+    }
     
     public static List<RevisionHistoryVO> getRevisions(final Long proprietyPointId, final String locale) {
         return getProprietyPointRepository().getRevisions(proprietyPointId, locale);
@@ -738,6 +768,38 @@ public class ProprietyPoint extends Device implements Serializable {
     	String submissionEndTime = submissionEndDatePart + " " + submissionEndTimePart;
     	return FormaterUtil.formatStringToDate(submissionEndTime, ApplicationConstants.SERVER_DATETIMEFORMAT);
     }
+   
+    /**** clubbing related code ****/
+    public static void updateDomainFieldsOnClubbingFinalisation(ProprietyPoint parent, ProprietyPoint child) {
+    	/** copy latest subject of parent to revised subject of child **/
+		if(parent.getRevisedSubject()!=null && !parent.getRevisedSubject().isEmpty()) {
+			child.setRevisedSubject(parent.getRevisedSubject());
+		} else {
+			child.setRevisedSubject(parent.getSubject());
+		}
+		/** copy latest notice content of parent to revised notice content of child **/
+		if(parent.getRevisedPointsOfPropriety()!=null && !parent.getRevisedPointsOfPropriety().isEmpty()) {
+			child.setRevisedPointsOfPropriety(parent.getRevisedPointsOfPropriety());
+		} else {
+			child.setRevisedPointsOfPropriety(parent.getPointsOfPropriety());
+		}
+		/** copy latest reply of parent to revised answer of child **/
+		child.setReply(parent.getReply());
+		/** copy latest rejection reason of parent to revised rejection reason of child **/
+		child.setRejectionReason(parent.getRejectionReason());
+		/** update ministries in sync **/
+		if(parent.getMinistry()!=null && child.getMinistry()==null) {
+			child.setMinistry(parent.getMinistry());
+		} else if(child.getMinistry()!=null && parent.getMinistry()==null) {
+			parent.setMinistry(child.getMinistry());
+		}
+		/** update sub departments in sync **/
+		if(parent.getSubDepartment()!=null && child.getSubDepartment()==null) {
+			child.setSubDepartment(parent.getSubDepartment());
+		} else if(child.getSubDepartment()!=null && parent.getSubDepartment()==null) {
+			parent.setSubDepartment(child.getSubDepartment());
+		}
+    }
 
 	/********************************************* Getters & Setters *******************************************/
 	public HouseType getHouseType() {
@@ -906,6 +968,22 @@ public class ProprietyPoint extends Device implements Serializable {
 
 	public void setRejectionReason(String rejectionReason) {
 		this.rejectionReason = rejectionReason;
+	}
+
+	public ProprietyPoint getParent() {
+		return parent;
+	}
+
+	public void setParent(ProprietyPoint parent) {
+		this.parent = parent;
+	}
+
+	public List<ClubbedEntity> getClubbedEntities() {
+		return clubbedEntities;
+	}
+
+	public void setClubbedEntities(List<ClubbedEntity> clubbedEntities) {
+		this.clubbedEntities = clubbedEntities;
 	}
 
 	public Status getStatus() {
