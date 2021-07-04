@@ -99,13 +99,13 @@
 			            		<fo:block font-size="8px">&#160;</fo:block>
 	            				<fo:block text-align="justify">
 	            					&#160;&#160;&#160;&#160;आज दिनांक <xsl:value-of select="element_1[1]/element_1_11"/> रोजी 
-	            					<xsl:value-of select="element_1[1]/element_1_8"/> , <xsl:value-of select="element_1[1]/element_1_4"/> यांनी सकाळी 
+	            					<xsl:value-of select="element_1[1]/element_1_8"/> , <xsl:value-of select="element_1[1]/element_1_4"/>, वि.प.स. यांनी सकाळी 
 	            					<xsl:value-of select="element_1[1]/element_1_10"/> <xsl:value-of select="element_1[1]/element_1_5"/>&#160;
-	            					"<fo:inline text-decoration="underline"> <xsl:value-of select="element_1[1]/element_1_3"/> </fo:inline>"  या विषयाबाबत म.वि.प. नियम २८९ अन्वये सूचना दिली आहे.
+	            					"<fo:inline text-decoration="underline" font-weight="bold"> <xsl:value-of select="element_1[1]/element_1_3"/> </fo:inline>"  या विषयाबाबत म.वि.प. नियम २८९ अन्वये सूचना दिली आहे.
 	            				</fo:block>
 	            				<fo:block font-size="14px">&#160;</fo:block>
-			            		<fo:block font-size="22px" text-align="center" font-weight="bold">
-									(मा. सभापती यांनी अनुमती दिल्यास संबंधित सदस्यांनी म्हणणे मांडल्यानंतर)	            			
+			            		<fo:block font-size="22px" text-align="center" font-weight="bold"  text-decoration="underline">
+									(मा. सदस्यांनी सूचना  मांडण्यास आग्रह केल्यास)	            			
 			            		</fo:block>
 			            		<fo:block font-size="14px">&#160;</fo:block>
 			            		<fo:block>
@@ -116,7 +116,7 @@
 			            		</fo:block>    
 			            		<fo:block font-size="8px">&#160;</fo:block>
 			            		<fo:block  text-align="justify">
-			            			&#160;&#160;&#160;महाराष्ट्र विधानपरिषद नियमांतील एखादा नियम स्थगित करणे या संबंधाचा नियम २८९ हा आहे. कोणत्याही सदस्यास मा. सभापतींच्या अनुमतीने कोणताही नियम स्थगित
+			            			&#160;&#160;&#160;महाराष्ट्र विधानपरिषद नियमांतील एखादा नियम स्थगित करणे या संबंधाचा नियम २८९ हा आहे. कोणत्याही सदस्यास  सभापतींच्या अनुमतीने कोणताही नियम स्थगित
 			            			करण्यासंदर्भात सूचना देता येईल.
 			            		</fo:block>
 			            		<fo:block font-size="8px">&#160;</fo:block>  
@@ -126,7 +126,10 @@
 			            		<fo:block font-size="8px">&#160;</fo:block>
 			            		<fo:block  text-align="justify">
 			            			&#160;&#160;&#160;<xsl:value-of select="element_1[1]/element_1_9"/>
-			            		</fo:block>				
+			            		</fo:block>
+			            		<fo:block font-size="22px" text-align="center" font-weight="bold"  text-decoration="underline">
+									(नंतर मा.सदस्य सूचनेवर दोन मिनिटे बोलतील)	            			
+			            		</fo:block>			
 	            			</xsl:when>
 	            			<xsl:otherwise>
 	            				<fo:block text-align="center" font-size="14px" font-weight="bold">
