@@ -127,7 +127,8 @@
 		$("#selectionDiv1").hide();
 		
 		var device = $("#deviceTypeMaster option[value='"
-		                                         +$("#selectedDiscussionMotionType").val()+"']").text().split("_")[0];
+		                                         +$("#selectedDiscussionMotionType").val()+"']").text();
+		alert(device);
 		showTabByIdAndUrl('details_tab', 
 				"discussionmotion/report/currentstatusreport?device="+ device +"&reportType="+val+"&dmId="+dmId);
 	}

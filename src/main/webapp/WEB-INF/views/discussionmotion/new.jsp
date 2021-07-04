@@ -5,11 +5,19 @@
 	<spring:message code="motion" text="Motion Information System"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	
+
+	   <script type="text/javascript" src="./resources/js/jquery.multiselect.js"></script>
+		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.multiselect.css" />
 	<style type="text/css" media="print">
 		textarea[class=wysiwyg]{
 			display:block;
 		}
+		
+		
+	</style>
+	
+	<style type="text/css">
+			button.ui-multiselect.ui-widget.ui-state-default.ui-corner-all span{ font-size: 20px;}
 	</style>
 	
 	<script type="text/javascript">
@@ -56,7 +64,33 @@
 		/* $("select[multiple='multiple']").css({"width":"188px !important", "max-width":"188px !important"});	
 		$("#ministries").multiSelect();
 		$("#subDepartments").multiSelect(); */
-				
+		
+		$("#multipleSelectID").multiselect({
+			columns: 4,
+		   placeholder: 'Select Members',
+		    noneSelectedText: '<spring:message code="discussionmotion.selectSupportingMembers" text="Supporting Members"/>',
+		    search: true,
+		    selectAll: true,
+		    minWidth:500
+		   
+		});
+		
+		$( ".autosuggestmulticheck" ).change(function() {
+			this.id = $(this).val();	
+			this.value=$( "#multipleSelectID option:selected" ).text();
+			
+			//what happens when we are selecting a value from drop down
+			controlName='selectedSupportingMembers'
+		
+				text="<select name='"+controlName+"'  multiple='multiple'>";
+			textoption="<option value='"+this.id+"' selected='selected' class='"+this.value+"'></option>";				
+			text=text+textoption+"</select>";
+			$("select[name='"+controlName+"']").after(text);
+		});
+
+		
+		//$('#multipleSelectID').multiselect('settings', { columns: 2 });
+
 		$('#ministries').change(function(){
 			
 			if($(this).val()!=''){
@@ -84,6 +118,7 @@
 			//current value of autocomplete.if a value is found which is there in autocomplete but not in select box
 			//then that value will be removed from the select box.
 			var value=$(this).val();
+			alert(value);
 			$("select[name='"+controlName+"'] option:selected").each(function(){
 				var optionClass=$(this).attr("class");
 				if(value.indexOf(optionClass)==-1){
@@ -119,11 +154,13 @@
 			select: function( event, ui ) {
 				//what happens when we are selecting a value from drop down
 				var terms = $(this).val().split(",");
+				alert(terms);
 				//if select box is already present i.e atleast one option is already added
 				if($("select[name='"+controlName+"']").length>0){
 					if($("select[name='"+controlName+"'] option[value='"+ui.item.id+"']").length>0){
 					//if option being selected is already present then do nothing
-					this.value = $(this).val();					
+					this.value = $(this).val();	
+					alert(this.value);
 					$("select[name='"+controlName+"']").hide();						
 					}else{
 					//if option is not present then add it in select box and autocompletebox
@@ -147,6 +184,7 @@
 					terms.push( ui.item.value );
 					terms.push( "" );
 					this.value = terms.join( "," );
+					alert(this.value);
 					}	
 					$("select[name='"+controlName+"']").hide();									
 				}		
@@ -267,7 +305,16 @@
 <form:form action="discussionmotion" method="POST" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<div id="reportDiv">
-	<h2><spring:message code="discussionmotion.new.heading" text="Enter Motion Details"/>		
+	<h2>
+	<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_shortduration'}">
+	<spring:message code="discussionmotion.new.heading" text="Enter Motion Details"/>	
+	</c:if>	
+	<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_lastweek'}">
+	<spring:message code="dashboard.discussionmotionlastweek" text="Enter Motion Details"/>	
+	</c:if>	
+	<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_publicimportance'}">
+	<spring:message code="dashboard.discussionmotionpublicimportance" text="Enter Motion Details"/>	
+	</c:if>	
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>	
 	
@@ -330,25 +377,24 @@
 		<input name="primaryMember" id="primaryMember" type="hidden" value="${primaryMember}">		
 		<form:errors path="primaryMember" cssClass="validationError"/>		
 	</p>	
-	</security:authorize>			
-	
+	</security:authorize>		
 	<p>
-		<label class="centerlabel"><spring:message code="discussionmotion.supportingMembers" text="Supporting Members"/></label>
-		<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
-			<c:if test="${(selectedDiscussionMotionType=='motions_discussionmotion_shortduration')
-			 and (!(empty numberOfSupportingMembersComparator) and !(empty numberOfSupportingMembers))}">
-			<label style="display: inline; border: 1px double blue; padding: 5px; background-color: #DCE4EF; font-weight: bold;" class="centerlabel" id="supportingMemberMessage"><spring:message code="question.numberOfsupportingMembers" text="Number of Supporting Members"></spring:message>&nbsp;${numberOfSupportingMembersComparatorHTML}&nbsp;${numberOfSupportingMembers}</label>										
-		</c:if>
-		<c:if test="${!(empty supportingMembers)}">		
-		<select  name="selectedSupportingMembers" multiple="multiple">
-		<c:forEach items="${supportingMembers}" var="i">
-		<option value="${i.id}" class="${i.getFullname()}"></option>
+
+		<div class="small" style="margin-left:160px;">
+		<c:if test="${!(empty membersbyPartyType)}">		
+		<select  id="multipleSelectID"  name="selectedSupportingMembers" multiple>
+		<c:forEach items="${membersbyPartyType}" var="i">
+		<option value="${i.id}">${i.getFullname()}</option>
 		</c:forEach>		
+		
+		
 		</select>
 		</c:if>
-		<form:errors path="supportingMembers" cssClass="validationError"/>	
+		</div>
 	</p>	
 	
+	
+
 	<p>
 		<label class="centerlabel"><spring:message code="discussionmotion.subject" text="Subject"/>*</label>
 		<form:textarea path="subject" rows="2" cols="50"></form:textarea>
@@ -366,7 +412,7 @@
 		<form:textarea path="briefExplanation" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 		<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
-	</c:if>
+	
 	
 	
 		<table>
@@ -434,6 +480,7 @@
 				</c:otherwise>
 			</c:choose>	
 		</table>
+		</c:if>
 </div>	
 	 <div class="fields">
 		<h2></h2>
@@ -444,7 +491,9 @@
 			</security:authorize>
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+				<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_shortduration'}">
 			<input id="sendforapproval" type="button" value="<spring:message code='discussionmotion.sendforapproval' text='Send For Approval'/>" class="butDef">
+			</c:if>
 			<input id="submitMotion" type="button" value="<spring:message code='discussionmotion.submitmotion' text='Submit Motion'/>" class="butDef">
 			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 			</security:authorize>

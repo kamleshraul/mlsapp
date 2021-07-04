@@ -89,7 +89,22 @@
 		
 		function addRemarkReport(){
 			if(ids.length > 0 && counter < ids.length){
-				 $.get('discussionmotion/report/'+ ids[counter] + '/currentstatusreportvm?device='+$("#device").val(),function(data1){
+				var reportQuery = $("#device").val().toUpperCase()+ "_CURRENT_STATUS_REPORT";
+				var houseType = $("#selectedHouseType").val();
+				if(houseType=='lowerhouse'){
+					reportQuery+="_LOWERHOUSE";
+				}else if(houseType=='upperhouse'){
+					reportQuery+="_UPPERHOUSE";
+				} else { //case when in workflow page.. need to find type from name of housetype
+					houseType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
+					if(houseType=='lowerhouse'){
+						reportQuery+="_LOWERHOUSE";
+					}else{
+						reportQuery+="_UPPERHOUSE";
+					}
+				}
+				alert(reportQuery);
+				 $.get('discussionmotion/report/'+ ids[counter] + '/currentstatusreportvm?device='+$("#device").val()+'&reportOut='+reportQuery,function(data1){
 						 								
 							if($('#reportWindow1').text().trim()=='v'){
 								$('#reportWindow1').empty();

@@ -54,6 +54,7 @@ import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Party;
+import org.mkcl.els.domain.PartyType;
 import org.mkcl.els.domain.PositionHeld;
 import org.mkcl.els.domain.Profession;
 import org.mkcl.els.domain.Qualification;
@@ -2961,6 +2962,16 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 			return null;
 		}
 	}
+	
+	public PartyType findPartyType(final Long id,Long house,String locale) {
+		try {
+			String query="SELECT pt FROM MemberPartyAssociation mp JOIN  mp.party p JOIN p.partyType pt WHERE mp.member.id="+id+" AND mp.house.id="+house+" ";
+			return (PartyType) this.em().createQuery(query).getSingleResult();
+		} catch (Exception e) {
+			logger.error("Entity Not Found",e);
+			return null;
+		}
+	}
 
 	@SuppressWarnings("unchecked")
 	public List<Member> findByMemberRole(Long house, Long memberrole, String locale) {
@@ -2983,6 +2994,25 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		query.setParameter("currentDate", new Date());
 		query.setParameter("houseId", house.getId());
 		query.setParameter("partyId", party.getId());
+		query.setParameter("locale",locale);
+		List<Member> members=query.getResultList();
+		return members;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Member> findActiveMembersByPartyType(PartyType partytype,House house,String locale) {
+		String strQuery="SELECT m FROM Member m JOIN m.memberPartyAssociations mpa" +
+				" JOIN mpa.party p JOIN p.partyType pt WHERE mpa.fromDate<=:currentDate AND mpa.house.id=:houseId" +
+				" AND pt.id=:partytypeId AND (mpa.toDate>=:currentDate OR mpa.toDate IS NULL) AND p.locale=:locale"+
+				" AND m.id NOT IN (Select mb.id" +
+				" FROM Member mb JOIN mb.memberMinisters mm" +
+				" WHERE mm.ministryFromDate <=:currentDate" +
+				" AND (mm.ministryToDate >=:currentDate OR mm.ministryToDate IS NULL)" +
+				" AND mm.locale=:locale)";
+		javax.persistence.Query query=this.em().createQuery(strQuery);
+		query.setParameter("currentDate", new Date());
+		query.setParameter("houseId", house.getId());
+		query.setParameter("partytypeId", partytype.getId());
 		query.setParameter("locale",locale);
 		List<Member> members=query.getResultList();
 		return members;

@@ -709,6 +709,11 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public Party findParty() {
 		return getMemberRepository().findParty(this.getId());
 	}
+	public PartyType findPartyType(final Long memberId,final Long house,
+			final String locale) {
+		return getMemberRepository().findPartyType(memberId,house,
+				locale);
+	}
 	
 	public static List<Member> findByMemberRole(final Long house,final Long memberrole,
 			final String locale) {
@@ -720,6 +725,9 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return getMemberRepository().findActiveMembersByParty(party,house,locale);
 	}
 	
+	public static List<Member> findActiveMembersByPartyType(PartyType partytype,House house, String locale) {
+		return getMemberRepository().findActiveMembersByPartyType(partytype,house,locale);
+	}
 	 /**
 //   * Find all the active members in the house for the given date
 //   * whose name begins with @param nameBeginningWith.

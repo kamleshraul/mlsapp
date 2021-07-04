@@ -57,7 +57,7 @@
 			//------stats reports as html-----------------------starts----------------
 			$("#generateCurrentStatusReport").click(function(){
 				var selectedDiscussionMotionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
-				
+				alert(selectedDiscussionMotionId);
 				if(selectedDiscussionMotionId.length>=1){
 					showCurrentStatusReport('multiple',selectedDiscussionMotionId);
 				}else{

@@ -33,15 +33,13 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.DiscussionMotion;
+import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
-import org.mkcl.els.domain.Motion;
-import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.PartyType;
 import org.mkcl.els.domain.ReferenceUnit;
-import org.mkcl.els.domain.ReferencedEntity;
-import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -478,6 +476,18 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 						}else{
 							model.addAttribute("memberNames",memberNames);
 						}
+						/**** Opposition or Ruiling Members ****/
+						
+					
+						House house=House.find(houseType, new Date(), locale.toString());
+						PartyType partytype=Member.getMemberRepository().findPartyType(member.getId(), house.getId(), locale);
+						List<Member> membersbyPartyType=Member.getMemberRepository().findActiveMembersByPartyType(partytype, house, locale);
+						//List<Member> supportingMembers=new ArrayList<Member>();
+						membersbyPartyType.remove(member);
+						if(membersbyPartyType!=null){
+							
+							model.addAttribute("membersbyPartyType",membersbyPartyType);
+						}
 						/**** Constituency ****/
 						Long houseId=selectedSession.getHouse().getId();
 						MasterVO constituency=null;
@@ -765,6 +775,18 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 					numberOfSupportingMembersComparator);
 		}
 
+		/**** Opposition or Ruiling Members ****/
+		
+		
+		House house=House.find(houseType, new Date(), locale.toString());
+		PartyType partytype=Member.getMemberRepository().findPartyType(member.getId(), house.getId(), locale);
+		List<Member> membersbyPartyType=Member.getMemberRepository().findActiveMembersByPartyType(partytype, house, locale);
+		//List<Member> supportingMembers=new ArrayList<Member>();
+		membersbyPartyType.remove(member);
+		if(membersbyPartyType!=null){
+			
+			model.addAttribute("membersbyPartyType",membersbyPartyType);
+		}
 		
 		/**** Ministries And Sub Departments ****/
 		Date rotationOrderPubDate=null;
@@ -1022,6 +1044,7 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 	
 	private void populateSupportingMembers(final DiscussionMotion domain,final HttpServletRequest request){
 		/**** Supporting Members selected by Member in new/edit ****/
+		DeviceType deviceType=domain.getType();
 		String[] selectedSupportingMembers=request.getParameterValues("selectedSupportingMembers");
 		try{
 			if(selectedSupportingMembers == null){
@@ -1060,6 +1083,9 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 							break;
 						}
 					}
+					
+				//	DeviceType deviceType=DeviceType.findById(DeviceType.class,deviceType.getId());
+					
 					/**** New Supporting Member ****/
 					if(supportingMember==null){
 						supportingMember=new SupportingMember();
@@ -1070,7 +1096,13 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 							supportingMember.setApprovalType("OFFLINE");
 							supportingMember.setApprovedSubject(domain.getSubject());
 							supportingMember.setApprovedText(domain.getNoticeContent());						
-						}else{
+						}else if(deviceType.getType().toUpperCase().equals("MOTIONS_DISCUSSIONMOTION_PUBLICIMPORTANCE") || deviceType.getType().toUpperCase().equals("MOTIONS_DISCUSSIONMOTION_LASTWEEK")){
+							supportingMember.setDecisionStatus(approvedStatus);
+							supportingMember.setApprovalType("OFFLINE");
+							supportingMember.setApprovedSubject(domain.getSubject());
+							supportingMember.setApprovedText(domain.getNoticeContent());	
+						}
+						else{
 							supportingMember.setDecisionStatus(notsendStatus);
 							supportingMember.setApprovalType("ONLINE");
 						}
@@ -1191,7 +1223,24 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 						if(domain.getNoticeContent().isEmpty()){
 							result.rejectValue("noticeContent","NoticeContentEmpty");
 						}
-						
+						if (result.getFieldErrorCount("supportingMembers") == 0) {
+							// check if request is already
+							// sent for approval
+							int count = 0;
+							if (domain.getSupportingMembers() != null) {
+								if (domain.getSupportingMembers().size() > 0) {
+									for (SupportingMember i : domain.getSupportingMembers()) {
+										if (!i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+											count++;
+										}
+									}
+									if (count != 0) {
+										result.rejectValue("supportingMembers","supportingMembersRequestNotSent");
+									}
+								}
+							}
+						}
+
 						//submission date limit validations (configurable through custom parameters)
 						if(domain.getSession()!=null && domain.getType()!=null) {
 							//submission start date limit validation
@@ -1356,7 +1405,23 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 					if(domain.getNoticeContent().isEmpty()){
 						result.rejectValue("noticeContent","NoticeContentEmpty");
 					}
-					
+					if (result.getFieldErrorCount("supportingMembers") == 0) {
+						// check if request is already
+						// sent for approval
+						int count = 0;
+						if (domain.getSupportingMembers() != null) {
+							if (domain.getSupportingMembers().size() > 0) {
+								for (SupportingMember i : domain.getSupportingMembers()) {
+									if (!i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+										count++;
+									}
+								}
+								if (count != 0) {
+									result.rejectValue("supportingMembers","supportingMembersRequestNotSent");
+								}
+							}
+						}
+					}
 					//submission date limit validations (configurable through custom parameters)
 					if(domain.getSession()!=null && domain.getType()!=null) {
 						//submission start date limit validation

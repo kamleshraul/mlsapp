@@ -371,7 +371,7 @@ $('#ministries').change(function(){
 		<form:textarea path="briefExplanation" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 		<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
-	</c:if>
+	
 	
 
 	<p>
@@ -448,6 +448,7 @@ $('#ministries').change(function(){
 		</c:choose>	
 	</table>
 	</p>
+	</c:if>
 		<p id="internalStatusDiv">
 	<label class="small"><spring:message code="discussionmotion.currentStatus" text="Current Status"/></label>
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly" class="sText">
@@ -464,7 +465,9 @@ $('#ministries').change(function(){
 			</security:authorize>
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+				<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_shortduration'}">
 			<input id="sendforapproval" type="button" value="<spring:message code='discussionmotion.sendforapproval' text='Send For Approval'/>" class="butDef">
+			</c:if>
 			<input id="submitMotion" type="button" value="<spring:message code='discussionmotion.submitmotion' text='Submit Motion'/>" class="butDef">
 			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 			</security:authorize>			
@@ -477,7 +480,9 @@ $('#ministries').change(function(){
 				</security:authorize>			
 				<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
 					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" disabled="disabled">
+						<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_shortduration'}">
 					<input id="sendforapproval" type="button" value="<spring:message code='discussionmotion.sendforapproval' text='Send For Approval'/>" class="butDef" disabled="disabled">
+					</c:if>
 					<input id="submitmotion" type="button" value="<spring:message code='discussionmotion.submitmotion' text='Submit Motion'/>" class="butDef" disabled="disabled">
 					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef" disabled="disabled">
 				</security:authorize>
