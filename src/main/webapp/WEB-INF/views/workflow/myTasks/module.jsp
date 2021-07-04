@@ -517,6 +517,7 @@
 				else{
 					$("#adjourningDateDiv").hide();
 				}
+				//var houseType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
 				if(device.indexOf('motions_')==0  
 						|| device.indexOf('resolutions_')==0
 						|| device.indexOf('bills_')==0){
@@ -1250,6 +1251,12 @@
 			$('#selectedAdjourningDate').prepend(option);
 		}
 		
+		/*  function prependOptionToSelectedSpecialMentionNoticeDate() {
+				var optionValue = $('#pleaseSelectOption').val();
+				var option = "<option value=''>" + optionValue + "</option>";
+				$('#selectedSpecialMentionNoticeDate').prepend(option);
+		 } */
+		 
 		/****Provide introduction date ****/
 		function provideDate(){
 			showTabByIdAndUrl('details_tab','bill/providedate?houseType=' + $("#selectedHouseType").val()+"&sessionType="+$("#selectedSessionType").val()+"&sessionYear="+$("#selectedSessionYear").val());
@@ -1534,7 +1541,7 @@
 				}else if(deviceType.indexOf('motions_adjournment')==0){
 					showTabByIdAndUrl('details_tab', "adjournmentmotion/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
 				}else if(deviceType.indexOf('motions_discussionmotion_')==0){
-					
+					showTabByIdAndUrl('details_tab', "discussionmotion/report/currentstatusreport?device="+ device +"&reportType="+val+"&wfdId="+wfdId);
 				}else if(deviceType.indexOf('motions_rules_suspension')==0){
 					showTabByIdAndUrl('details_tab', "rulessuspensionmotion/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
 				}else{
