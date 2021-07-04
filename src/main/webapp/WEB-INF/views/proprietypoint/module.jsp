@@ -513,6 +513,71 @@
 					+'sessionId=' + $("#loadedSession").val()
 					+'&reportQueryName=PROIS_TOBEREJECTED_REPORT');
 		}
+		/**** Submitted Devices Report Generation ****/
+		function generateSubmittedDevicesReport() {
+			var selectedProprietyPointDate = $('#selectedProprietyPointDate').val();
+			if(selectedProprietyPointDate==undefined || selectedProprietyPointDate=="") {
+				$.prompt("Please select propriety point date of submitted motions");
+				return false;
+			} else {
+				$("#prois_submitted_report").attr('href',
+						'proprietypoint/report/submitteddevices?'
+						+'proprietyPointDate=' + selectedProprietyPointDate
+						+'&sessionId=' + $("#loadedSession").val()
+						+'&reportQueryName=PROIS_SUBMITTED_DEVICES_REPORT');
+			}			
+		}
+		/**** Admitted Devices Report Generation ****/
+		function generateAdmittedDevicesReport() {
+			var selectedProprietyPointDate = $('#selectedProprietyPointDate').val();
+			if(selectedProprietyPointDate==undefined || selectedProprietyPointDate=="") {
+				$.prompt("Please select propriety point date of admitted motions");
+				return false;
+			} else {
+				$("#prois_admitted_report").attr('href',
+						'proprietypoint/report/admitteddevices?'
+						+'proprietyPointDate=' + selectedProprietyPointDate
+						+'&sessionId=' + $("#loadedSession").val()
+						+'&reportQueryName=PROIS_ADMITTED_DEVICES_REPORT');
+			}			
+		}
+		/**** Rejected Devices Report Generation ****/
+		function generateRejectedDevicesReport() {
+			var selectedProprietyPointDate = $('#selectedProprietyPointDate').val();
+			if(selectedProprietyPointDate==undefined || selectedProprietyPointDate=="") {
+				$.prompt("Please select propriety point date of rejected motions");
+				return false;
+			} else {
+				$("#prois_rejected_report").attr('href',
+						'proprietypoint/report/rejecteddevices?'
+						+'proprietyPointDate=' + selectedProprietyPointDate
+						+'&sessionId=' + $("#loadedSession").val()
+						+'&reportQueryName=PROIS_REJECTED_DEVICES_REPORT');
+			}			
+		}
+		/**** Register of Admitted Devices Report Generation ****/
+		function generateRegisterReport() {
+			var selectedProprietyPointDate = $('#selectedProprietyPointDate').val();
+			$("#prois_register_report").attr('href',
+					'proprietypoint/report/register?'
+					+'proprietyPointDate=' + selectedProprietyPointDate
+					+'&sessionId=' + $("#loadedSession").val()
+					+'&reportQueryName=PROIS_REGISTER_REPORT');
+		}
+		/**** Admitted Devices for Reporting Branch Report Generation ****/
+		function generateAdmittedDevicesReportForReporting() {
+			var selectedProprietyPointDate = $('#selectedProprietyPointDate').val();
+			if(selectedProprietyPointDate==undefined || selectedProprietyPointDate=="") {
+				$.prompt("Please select propriety point date of admitted motions");
+				return false;
+			} else {
+				$("#prois_admitted_reportingbranch").attr('href',
+						'proprietypoint/report/admitteddevices_reportingbranch?'
+						+'proprietyPointDate=' + selectedProprietyPointDate
+						+'&sessionId=' + $("#loadedSession").val()
+						+'&reportQueryName=PROIS_ADMITTED_DEVICES_REPORT_REPORTING_BRANCH');
+			}			
+		}
 		/**** Memberwise Devices Report Generation ****/
 		function memberWiseReport(memberId){
 			var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()

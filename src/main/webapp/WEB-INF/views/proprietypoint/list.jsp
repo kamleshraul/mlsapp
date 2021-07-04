@@ -7,12 +7,14 @@
 		$(document).ready(function(){
 			$(".toolTip").hide();
 			$("#selectionDiv1").show();
+			
 			var selectedProprietyPointDate = "";
 			if($('#selectedHouseType').val()=='upperhouse') {
 				if($("#isProprietyPointDateSelected").is(":checked")) {
 					selectedProprietyPointDate = convertToDbFormat($('#selectedProprietyPointDate').val());
 				}
 			}
+			
 			/**** grid params which is sent to load grid data being sent ****/				
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
 					+"&sessionYear="+$("#selectedSessionYear").val()
@@ -28,6 +30,16 @@
 			);
 			/*******For Enabling the new Propriety Point link in the edit page********/
 			$('#gridURLParams_ForNew').val($('#gridURLParams').val());
+			
+			/**** report links display as per housetype ****/
+			if($('#selectedHouseType').val()=='lowerhouse') {
+				$('.lowerhouse_report').show();
+				$('.upperhouse_report').hide();
+			} else if($('#selectedHouseType').val()=='upperhouse') {
+				$('.lowerhouse_report').hide();
+				$('.upperhouse_report').show();
+			}
+			
 			/**** new proprietypoint ****/
 			$('#new_record').click(function(){				
 				$("#selectionDiv1").hide();	
@@ -72,6 +84,34 @@
 			$("#prois_toberejected_report").click(function() {
 				$(this).attr('href','#');
 				generateToBeRejectedReport();
+			});
+			/**** Submitted Devices Report Generation ****/
+			$("#prois_submitted_report").click(function() {
+				$(this).attr('href','#');
+				generateSubmittedDevicesReport();
+			});
+			/**** Admitted Devices Report Generation ****/
+			$("#prois_admitted_report").click(function() {
+				$(this).attr('href','#');
+				generateAdmittedDevicesReport();
+			});
+			/**** Rejected Devices Report Generation ****/
+			$("#prois_rejected_report").click(function() {
+				$(this).attr('href','#');
+				generateRejectedDevicesReport();
+			});
+
+			/**** Register of Admitted Devices Report Generation ****/
+			$("#prois_register_report").click(function() {
+				$(this).attr('href','#');
+				$.prompt("Work in progress for register report..");
+				//generateRegisterReport();
+			});
+			/**** Admitted Devices for Reporting Branch Report Generation ****/
+			$("#prois_admitted_reportingbranch").click(function() {
+				$(this).attr('href','#');
+				$.prompt("Work in progress for reporting branch report..");
+				//generateAdmittedDevicesReportForReporting();
 			});
 		});
 		/**** double clicking record in grid handler ****/
@@ -121,15 +161,30 @@
 				</a> |
 			</security:authorize>	
 			<security:authorize access="hasAnyRole('PROIS_CLERK', 'PROIS_ASSISTANT', 'PROIS_SECTION_OFFICER')">
-			<a href="#" id="prois_current_status_report" class="butSim">
-				<spring:message code="prois.current_status_report" text="Current Status Report"/>
-			</a> |
-			<a href="#" id="prois_tobeadmitted_report" class="butSim">
-				<spring:message code="prois.tobeadmitted_report" text="Bulk Admission Approval Report"/>
-			</a> |
-			<a href="#" id="prois_toberejected_report" class="butSim">
-				<spring:message code="prois.toberejected_report" text="Admitted Notices Report for Reporters"/>
-			</a> |
+				<a href="#" id="prois_current_status_report" class="butSim">
+					<spring:message code="prois.current_status_report" text="Current Status Report"/>
+				</a> |
+				<a href="#" id="prois_tobeadmitted_report" class="butSim lowerhouse_report">
+					<spring:message code="prois.tobeadmitted_report" text="Bulk Admission Approval Report"/>
+				</a> |
+				<a href="#" id="prois_toberejected_report" class="butSim lowerhouse_report">
+					<spring:message code="prois.toberejected_report" text="Admitted Notices Report for Reporters"/>
+				</a> |
+				<a href="#" id="prois_submitted_report" class="butSim upperhouse_report">
+					<spring:message code="prois.submitted_report" text="Submitted Notices Report"/>
+				</a> |
+				<a href="#" id="prois_admitted_report" class="butSim upperhouse_report">
+					<spring:message code="prois.admitted_report" text="Admitted Notices Report"/>
+				</a> |
+				<a href="#" id="prois_rejected_report" class="butSim upperhouse_report">
+					<spring:message code="prois.rejected_report" text="Rejected Notices Report"/>
+				</a> |
+				<a href="#" id="prois_register_report" class="butSim upperhouse_report">
+					<spring:message code="prois.register_report" text="Register Report"/>
+				</a> |
+				<a href="#" id="prois_admitted_reportingbranch" class="butSim upperhouse_report">
+					<spring:message code="prois.admitted_report" text="Admitted Notices Report For Reporters"/>
+				</a> |
 			</security:authorize>
 			<p>&nbsp;</p>
 		</div>

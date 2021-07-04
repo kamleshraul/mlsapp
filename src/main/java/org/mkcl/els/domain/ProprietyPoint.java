@@ -175,6 +175,10 @@ public class ProprietyPoint extends Device implements Serializable {
     /** The remarks. */
     @Column(length=30000)
     private String remarks;
+	
+	/** ** Decision Remarks ***. */
+	@Column(length=30000)
+	private String remarksAboutDecision;
     
     /** The edited on. */
 	@Temporal(TemporalType.TIMESTAMP)
@@ -561,6 +565,52 @@ public class ProprietyPoint extends Device implements Serializable {
 						}																		
 					}									
 				}				
+			}
+		}		
+		/** clubbed questions members **/
+		List<ClubbedEntity> clubbedEntities = ProprietyPoint.findClubbedEntitiesByPosition(this);
+		if (clubbedEntities != null) {
+			for (ClubbedEntity ce : clubbedEntities) {
+				/**
+				 * show only those clubbed questions which are not in state of
+				 * (processed to be putup for nameclubbing, putup for
+				 * nameclubbing, pending for nameclubbing approval)
+				 **/
+				if (ce.getProprietyPoint().getInternalStatus().getType().equals(ApplicationConstants.PROPRIETYPOINT_SYSTEM_CLUBBED)
+						|| ce.getProprietyPoint().getInternalStatus().getType().equals(ApplicationConstants.PROPRIETYPOINT_FINAL_ADMISSION)) {
+					member = ce.getProprietyPoint().getPrimaryMember();
+					if(member!=null) {
+						memberName = member.findNameInGivenFormat(nameFormat);
+						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+								if(allMemberNamesBuffer.length()>0) {
+									allMemberNamesBuffer.append(", " + memberName);
+								} else {
+									allMemberNamesBuffer.append(memberName);
+								}
+							}							
+						}												
+					}
+					List<SupportingMember> clubbedSupportingMembers = ce.getProprietyPoint().getSupportingMembers();
+					if (clubbedSupportingMembers != null) {
+						for (SupportingMember csm : clubbedSupportingMembers) {
+							member = csm.getMember();
+							Status approvalStatus = csm.getDecisionStatus();
+							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+								memberName = member.findNameInGivenFormat(nameFormat);
+								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+										if(allMemberNamesBuffer.length()>0) {
+											allMemberNamesBuffer.append(", " + memberName);
+										} else {
+											allMemberNamesBuffer.append(memberName);
+										}
+									}									
+								}								
+							}
+						}
+					}
+				}
 			}
 		}		
 		return allMemberNamesBuffer.toString();
@@ -1024,6 +1074,14 @@ public class ProprietyPoint extends Device implements Serializable {
 
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
+	}
+
+	public String getRemarksAboutDecision() {
+		return remarksAboutDecision;
+	}
+
+	public void setRemarksAboutDecision(String remarksAboutDecision) {
+		this.remarksAboutDecision = remarksAboutDecision;
 	}
 
 	public Date getEditedOn() {
