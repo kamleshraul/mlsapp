@@ -1021,9 +1021,15 @@
 	<c:when test="${workflowstatus=='COMPLETED'}">
 	<spring:message code="generic.taskcompleted" text="Task Already Completed Successfully"/>
 	<br>
+	<c:if test="${originalType=='5'}">
+		<spring:message code="question.unstarredOriginalDeviceType" text="Original Unstarred"/>
+	</c:if>
 	${formattedQuestionType}: ${formattedNumber}		
 	</c:when>
 	<c:otherwise>
+	<c:if test="${originalType=='5'}">
+		<spring:message code="question.unstarredOriginalDeviceType" text="Original Unstarred"/>
+	</c:if>
 	${formattedQuestionType}: ${formattedNumber}		
 	</c:otherwise>
 	</c:choose>
