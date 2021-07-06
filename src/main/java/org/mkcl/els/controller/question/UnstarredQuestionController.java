@@ -558,6 +558,12 @@ class UnstarredQuestionController {
 				}
 			}
 		}
+		
+		if(domain!=null && domain.getPrimaryMember()!=null 
+				&& domain.getPrimaryMember().isSuspendedMember()) {
+			result.rejectValue("version","suspension.user");
+		}
+		
 		String operation=request.getParameter("operation");
 		if(operation!=null && ! operation.isEmpty()){
 			if(operation.equals("approval") && 
@@ -1522,6 +1528,13 @@ class UnstarredQuestionController {
 		if(domain.getQuestionText().isEmpty()){
 			result.rejectValue("questionText", "QuestionTextEmpty");
 		}
+		
+		
+		if(domain!=null && domain.getPrimaryMember()!=null 
+				&& domain.getPrimaryMember().isSuspendedMember()) {
+			result.rejectValue("version","suspension.user");
+		}
+		
 		String operation = request.getParameter("operation");
 		if(operation != null && !operation.isEmpty()){
 			//Operation is supporting member approval
