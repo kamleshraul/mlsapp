@@ -4348,5 +4348,19 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		return Query.findReport("MEMBER_LIST_DATEWISE", requestMap);
 		
 	}
+
+	public boolean isMemberSuspendedOnDate(Long memberId, Date onDate) {
+		String strQuery="SELECT M FROM Member m , MemberSuspension ms WHERE "
+				+ " m.id=:memberId AND m.id=ms.member.id "
+				+ " AND ms.startDateOfSuspension <= :suspensionStartDate "
+				+ " AND ( ms.actualEndDateOfSuspension >= :suspensionEndDate OR ms.actualEndDateOfSuspension IS NULL ) ";
+		javax.persistence.Query namedQuery = this.em().createQuery(strQuery);
+		namedQuery.setParameter("memberId",memberId);
+		namedQuery.setParameter("suspensionStartDate",onDate,TemporalType.DATE);
+		namedQuery.setParameter("suspensionEndDate",onDate,TemporalType.DATE);
+		
+		List<Member> resultList = namedQuery.getResultList();
+	    return resultList!=null && resultList.size()>0?true:false;
+	}
 	
 }
