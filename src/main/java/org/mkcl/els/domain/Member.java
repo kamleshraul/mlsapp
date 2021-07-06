@@ -2303,5 +2303,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 		List<String> members=getMemberRepository().findMembersByHouseDates(houseType,fromDate,toDate,locale);
 		return members;
 	}
+	public boolean isSuspendedMember() {
+		return getMemberRepository().isMemberSuspendedOnDate(this.getId(),new Date());	
+	}
 	
 }
