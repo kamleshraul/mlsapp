@@ -1741,11 +1741,17 @@ public class CutMotionController extends GenericController<CutMotion>{
 
 	@Override
 	protected void populateUpdateIfNoErrors(final ModelMap model, CutMotion domain,
-			final HttpServletRequest request) {
+			final HttpServletRequest request) throws ELSException {
 		
 		/**** Checking if its submission request or normal update ****/
+		String locale = domain.getLocale();
 		String operation=request.getParameter("operation");		
+		String role = request.getParameter("role");
 		String usergroupType=request.getParameter("usergroupType");
+		UserGroupType userGroupType = this.populateObjectExtendingBaseDomainByStringFieldName(request, "usergroupType", UserGroupType.class, "type", locale);
+		if(userGroupType==null) {
+			throw new ELSException("CutMotionController.populateUpdateIfNoErrors/3", "request parameter 'usergroupType' not set");
+		}
 		/**** Question status will be complete if all mandatory fields have been filled ****/
 		if(domain.getHouseType()!=null&&domain.getDeviceType()!=null&&domain.getSession()!=null
 				&& domain.getPrimaryMember()!=null && domain.getMinistry()!=null &&
@@ -1864,7 +1870,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 		domain.setEditedBy(this.getCurrentUser().getActualUsername());
 		String strUserGroupType=request.getParameter("usergroupType");
 		if(strUserGroupType!=null){
-			UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, domain.getLocale());
+			//UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, domain.getLocale());
 			domain.setEditedAs(userGroupType.getName());
 		}
 		/**** updating submission date and creation date ****/
@@ -1899,42 +1905,33 @@ public class CutMotionController extends GenericController<CutMotion>{
 		}	
 		/**** In case of assistant if internal status=submit,ministry,department,group is set 
 		 * then change its internal and recommendstion status to assistant processed ****/
-		if(strUserGroupType!=null){
-			if(strUserGroupType.equals("assistant")){				
+		CustomParameter assistantProcessedAllowed = CustomParameter.
+				findByName(CustomParameter.class,"CMOIS_ASSISTANT_PROCESSED_ALLOWED_FOR","");
+		if(assistantProcessedAllowed != null){
+			List<UserGroupType> userGroupTypes = 
+					this.populateListOfObjectExtendingBaseDomainByDelimitedFieldName(UserGroupType.class, "type", assistantProcessedAllowed.getValue(), ",", locale);
+			Boolean isUserGroupAllowed = this.isObjectExtendingBaseDomainAvailableInList(userGroupTypes, userGroupType);
+			if(isUserGroupAllowed){
 				String internalStatus = domain.getInternalStatus().getType();
-				if(internalStatus.equals(ApplicationConstants.CUTMOTION_SUBMIT)&&domain.getMinistry()!=null&&domain.getSubDepartment()!=null) {
+				if(internalStatus.equals(ApplicationConstants.CUTMOTION_SUBMIT) 
+						&& domain.getMinistry()!=null 
+						&& domain.getSubDepartment()!=null) {
 					Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
 					domain.setInternalStatus(ASSISTANT_PROCESSED);
 					domain.setRecommendationStatus(ASSISTANT_PROCESSED);
-				}	
-				/**** File parameters are set when internal status is something other than 
-				 * submit,complete and incomplete and file is null .Then only the motion gets attached to a file.*/
-//				String currentStatus=domain.getInternalStatus().getType();
-//				if(operation==null){
-//					if(!(currentStatus.equals(ApplicationConstants.CUTMOTION_SUBMIT)
-//							||currentStatus.equals(ApplicationConstants.CUTMOTION_COMPLETE)
-//							||currentStatus.equals(ApplicationConstants.CUTMOTION_INCOMPLETE))							
-//							&&domain.getFile()==null){
-//						/**** Add motion to file ****/
-//						Reference reference=CutMotion.findCurrentFile(domain);
-//						domain.setFile(Integer.parseInt(reference.getId()));
-//						domain.setFileIndex(Integer.parseInt(reference.getName()));
-//						domain.setFileSent(false);
-//					}
-//				}else if(operation.isEmpty()){
-//					if(!(currentStatus.equals(ApplicationConstants.CUTMOTION_SUBMIT)
-//							||currentStatus.equals(ApplicationConstants.CUTMOTION_COMPLETE)
-//							||currentStatus.equals(ApplicationConstants.CUTMOTION_INCOMPLETE))
-//							&&domain.getFile()==null){
-//						/**** Add motion to file ****/
-//						Reference reference=CutMotion.findCurrentFile(domain);
-//						domain.setFile(Integer.parseInt(reference.getId()));
-//						domain.setFileIndex(Integer.parseInt(reference.getName()));
-//						domain.setFileSent(false);
-//					}
-//				}
+				}
 			}
-		}		
+		}
+//		if(strUserGroupType!=null){
+//			if(strUserGroupType.equals("assistant")){				
+//				String internalStatus = domain.getInternalStatus().getType();
+//				if(internalStatus.equals(ApplicationConstants.CUTMOTION_SUBMIT)&&domain.getMinistry()!=null&&domain.getSubDepartment()!=null) {
+//					Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
+//					domain.setInternalStatus(ASSISTANT_PROCESSED);
+//					domain.setRecommendationStatus(ASSISTANT_PROCESSED);
+//				}
+//			}
+//		}		
 	}
 
 	@Override

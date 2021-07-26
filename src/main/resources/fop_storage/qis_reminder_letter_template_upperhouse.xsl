@@ -91,13 +91,13 @@
 			            							क्रमांक : _______&#160;/
 													<xsl:choose>
 														<xsl:when test="element_1[1]/element_1_4='lowerhouse'">ब-१</xsl:when>
-														<xsl:when test="element_1[1]/element_1_4='upperhouse'">ई-१</xsl:when>
+														<xsl:when test="element_1[1]/element_1_4='upperhouse'">ई-१ कक्ष</xsl:when>
 													</xsl:choose>
 												</fo:block>						
 												<fo:block>महाराष्ट्र विधानमंडळ सचिवालय,</fo:block>
 												<fo:block>विधान भवन,</fo:block>
 												<fo:block>मुंबई/नागपूर</fo:block>
-												<fo:block>दिनांक :&#160;</fo:block>
+												<fo:block>दिनांक : <xsl:value-of select="element_1[1]/element_1_14"/></fo:block>
 											</fo:block-container>
 		            					</fo:table-cell>
 		            				</fo:table-row>
@@ -149,70 +149,72 @@
 							<fo:block font-size="6px">&#160;</fo:block>	
 							
 							<fo:block>
-								<fo:table border="solid 0.2mm black" table-layout="fixed">
+								<fo:table border="solid 0.2mm black" table-layout="fixed" width="100%">
 									<fo:table-column column-number="1" column-width="1.2cm" />
 									<fo:table-column column-number="2" column-width="3.2cm" />
-									<fo:table-column column-number="3" column-width="6.5cm" />
-									<fo:table-column column-number="4" column-width="4.4cm" />
-			                        <fo:table-column column-number="5" column-width="3.0cm" />
-			                        <!-- <fo:table-column column-number="6" column-width="2.4cm" /> -->
+									<fo:table-column column-number="3" column-width="6.0cm" />
+									<fo:table-column column-number="4" column-width="2.6cm" />
+			                        <fo:table-column column-number="5" column-width="2.6cm" />
+			                        <fo:table-column column-number="6" column-width="2.6cm" />
 			                        <fo:table-header>
 			                        	<fo:table-row>
 			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
 			                        			<fo:block font-weight="bold">अ.क्र.</fo:block>
 			                        		</fo:table-cell>
 			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
-			                        			<fo:block-container font-weight="bold">
-			                        				<fo:block>प्रश्न क्रमांक,</fo:block>
-			                        				<fo:block>अधिवेशन</fo:block>
-			                        			</fo:block-container>
+			                        			<fo:block font-weight="bold">
+			                        				<xsl:choose>
+														<xsl:when test="element_1[1]/element_1_2='questions_starred'">तारांकित प्रश्न क्र.</xsl:when>
+														<xsl:when test="element_1[1]/element_1_2='questions_unstarred'">प्रश्न क्रमांक,</xsl:when>
+													</xsl:choose>
+			                        			</fo:block>
+			                        			<fo:block font-weight="bold">अधिवेशन</fo:block>
 			                        		</fo:table-cell>
 			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
 			                        			<fo:block font-weight="bold">विषय</fo:block>
 			                        		</fo:table-cell>
 			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
-			                        			<fo:block-container font-weight="bold">
-			                        				<fo:block>या सचिवालयाचे</fo:block>
-			                        				<fo:block>पत्र क्रमांक</fo:block>
-			                        			</fo:block-container>
-			                        		</fo:table-cell>							                        		
-			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
-			                        			<fo:block-container font-weight="bold">
-			                        				<fo:block>या सचिवालयास</fo:block>
-			                        				<fo:block>उत्तर पाठविण्याचा दिनांक</fo:block>
-			                        			</fo:block-container>							                        			
+			                        			<fo:block font-weight="bold">विभागास प्रश्न</fo:block>
+			                        			<fo:block font-weight="bold">पाठविल्याचा दिनांक</fo:block>
 			                        		</fo:table-cell>
-			                        		<!-- <fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center" margin-right="0.3cm">
-			                        			<fo:block-container font-weight="bold">
-			                        				<fo:block>स्मरणपत्र</fo:block>
-			                        				<fo:block>क्रमांक</fo:block>
-			                        			</fo:block-container>
-			                        		</fo:table-cell> -->
+			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
+			                        			<fo:block font-weight="bold">या सचिवालयास</fo:block>
+			                        			<fo:block font-weight="bold">उत्तर पाठविण्याचा दिनांक</fo:block>
+			                        		</fo:table-cell>
+			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
+			                        			<fo:block font-weight="bold">पाठविलेल्या</fo:block>
+			                        			<fo:block font-weight="bold">स्मरणपत्राचा दिनांक</fo:block>
+			                        		</fo:table-cell>
 			                        	</fo:table-row>
 			                        </fo:table-header>
 			                        <fo:table-body>
 			                        	<xsl:for-each select="element_1">
 			                        		<xsl:variable name="rowCount" select="position()"/>
 			                        		<fo:table-row>
-				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.3cm">
+				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.2cm">
 				                        			<fo:block><xsl:value-of select="../element_3[$rowCount]"/>.</fo:block>
 				                        		</fo:table-cell>
-				                        		<fo:table-cell border="solid 0.2mm black" display-align="before">
+				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.1cm">
 				                        			<fo:block text-align="center" font-weight="bold"><xsl:value-of select="element_1_1"/></fo:block>
 				                        			<fo:block text-align="center"><xsl:value-of select="element_1_10"/></fo:block>
 				                        		</fo:table-cell>
-				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.2cm" margin-right="0.2cm">
+				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.2cm">
 				                        			<fo:block><xsl:value-of select="element_1_9"/></fo:block>
 				                        		</fo:table-cell>
-				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.2cm">
-				                        			<fo:block>&#160;</fo:block>
+				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.4cm">
+				                        			<fo:block><xsl:value-of select="element_1_7"/></fo:block>
+				                        			<xsl:if test="../element_5='NO'">
+				                        				<fo:block font-size="4px">&#160;</fo:block>
+				                        				<fo:block><xsl:value-of select="element_1_13"/></fo:block>
+				                        			</xsl:if>
 				                        		</fo:table-cell>
-				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.6cm">
-				                        			<fo:block><xsl:value-of select="../element_2[$rowCount]"/></fo:block>
+				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.4cm">
+				                        			<fo:block><xsl:value-of select="../element_2[$rowCount]"/></fo:block>				                        							                        			
 				                        		</fo:table-cell>
-				                        		<!-- <fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.2cm">
-				                        			<fo:block>&#160;</fo:block>
-				                        		</fo:table-cell> -->
+				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.4cm">
+				                        			<fo:block><xsl:apply-templates select="element_1_12"/></fo:block>
+				                        			<!-- <fo:block><xsl:value-of select="element_1_12"/></fo:block> -->
+				                        		</fo:table-cell>
 			                        	</fo:table-row>
 			                        	</xsl:for-each>			                        	
 			                        </fo:table-body>
