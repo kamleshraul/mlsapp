@@ -345,6 +345,19 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
 					}
 				}
 			}
+			
+			//suspended members should not allowed for supporting memebers
+			// filtering suspended members
+			if(memberVOS!=null && memberVOS.size()>0) { 
+				List<Long> suspendedMembersIds = Member.getMemberRepository().supspendedMembersIdsList(new Date());
+				if(suspendedMembersIds !=null && suspendedMembersIds.size()>0) {
+					for(MasterVO m: memberVOS) {
+						if(suspendedMembersIds.contains(m.getId()))
+							memberVOS.remove(m);						
+					}
+				}				
+			}
+			
 			return memberVOS;
 		} catch (Exception e) {
 			e.printStackTrace();
