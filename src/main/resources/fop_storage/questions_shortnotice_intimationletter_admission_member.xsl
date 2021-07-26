@@ -100,7 +100,7 @@
 						<!-- <fo:block font-size="8px">&#160;</fo:block> -->					
 						<fo:block text-align="left">
 							<fo:block font-weight="bold">प्रेषक : </fo:block>
-							<fo:block margin-left="0.90cm">सचिव</fo:block>
+							<fo:block margin-left="0.90cm">प्रधान सचिव</fo:block>
 							<fo:block margin-left="0.90cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 							<fo:block font-weight="bold">प्रति : </fo:block>	
 							<fo:block margin-left="0.80cm"><xsl:value-of select="primaryMemberName"/>&#160;

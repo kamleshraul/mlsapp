@@ -94,7 +94,7 @@
 						
 						<fo:block font-weight="bold">प्रेषक</fo:block>
 						<fo:block margin-left="1cm" >	
-						<fo:block>सचिव</fo:block>
+						<fo:block>प्रधान सचिव</fo:block>
 						<fo:block >
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">

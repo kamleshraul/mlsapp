@@ -178,7 +178,7 @@
 							<fo:block margin-right="2.5cm">आपला</fo:block>
 							<fo:block font-size="10.5px">&#160;</fo:block>		
 							<fo:block font-size="10.5px">&#160;</fo:block>					
-							<fo:block margin-right="2cm">सचिव</fo:block>							
+							<fo:block margin-right="2cm">प्रधान सचिव</fo:block>							
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">
 									<fo:block margin-right="1.5cm">महाराष्ट्र <xsl:value-of select="houseTypeName"/></fo:block>

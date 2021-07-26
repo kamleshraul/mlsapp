@@ -82,7 +82,7 @@
 						
 						<fo:block font-weight="bold">प्रेषक :</fo:block>
 						<fo:block margin-left="1cm" >	
-						<fo:block>सचिव,</fo:block>
+						<fo:block>प्रधान सचिव,</fo:block>
 						<fo:block >
 							<xsl:value-of select="element_1/element_1_2"/>
 						</fo:block>
@@ -134,7 +134,7 @@
 							<fo:block text-align="center" font-weight="bold" font-size="14px">संमती पत्र</fo:block>
 							<fo:block font-weight="bold">प्रेषक :</fo:block>
 							<fo:block margin-left="1cm" >	
-								<fo:block>सचिव,</fo:block>
+								<fo:block>प्रधान सचिव,</fo:block>
 								<fo:block >
 									<xsl:value-of select="element_1/element_1_2"/>
 								</fo:block>	

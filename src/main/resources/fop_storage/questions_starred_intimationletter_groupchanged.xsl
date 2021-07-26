@@ -115,7 +115,7 @@
 						
 						<fo:block text-align="left">
 							<fo:block font-weight="bold">प्रेषक :</fo:block>						
-							<fo:block margin-left="1cm">सचिव,</fo:block>
+							<fo:block margin-left="1cm">प्रधान सचिव,</fo:block>
 							<fo:block margin-left="1cm">महाराष्ट्र विधानमंडळ सचिवालय.</fo:block>
 						</fo:block>	
 						

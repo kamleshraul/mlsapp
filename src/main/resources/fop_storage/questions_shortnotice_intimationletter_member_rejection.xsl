@@ -104,7 +104,7 @@
 						
 						<fo:block text-align="left">
 							<fo:block>प्रेषक:</fo:block>						
-							<fo:block margin-left="1cm">सचिव,</fo:block>
+							<fo:block margin-left="1cm">प्रधान सचिव,</fo:block>
 							<fo:block margin-left="1cm">महाराष्ट्र <xsl:value-of select="houseTypeName"/></fo:block>
 						</fo:block>
 						

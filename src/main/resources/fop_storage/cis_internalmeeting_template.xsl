@@ -79,7 +79,7 @@
 			       <!-- content as per report -->
 			      <fo:block font-family="mangal" font-size="13px" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">	
 		     		  	<fo:block font-weight="bold" text-align="left">प्रेषक :</fo:block>
-		     		  	<fo:block font-weight="bold" text-align="left">&#160;&#160;&#160;&#160;&#160;सचिव,</fo:block>
+		     		  	<fo:block font-weight="bold" text-align="left">&#160;&#160;&#160;&#160;&#160;प्रधान सचिव,</fo:block>
 		     		  	<fo:block text-align="left">&#160;&#160;&#160;&#160;&#160;महाराष्ट्र विधानमंडळ सचिवालय</fo:block>	
 				       		<fo:block font-weight="bold" text-align="left">प्रति :</fo:block>
 		     		  	<fo:block font-weight="bold" text-align="left">&#160;&#160;&#160;&#160;&#160;<xsl:value-of select="./element_1/element_1_2"/>चे सन्माननीय सदस्य,</fo:block>
