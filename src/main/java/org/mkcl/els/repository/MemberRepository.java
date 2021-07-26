@@ -4363,4 +4363,16 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 	    return resultList!=null && resultList.size()>0?true:false;
 	}
 	
+	public List<Long> supspendedMembersIdsList(Date onDate){
+		String strQuery="SELECT ms.member.id FROM MemberSuspension ms WHERE "
+				+ " ms.startDateOfSuspension <= :suspensionStartDate "
+				+ " AND ( ms.actualEndDateOfSuspension >= :suspensionEndDate OR ms.actualEndDateOfSuspension IS NULL ) ";
+		javax.persistence.Query namedQuery = this.em().createQuery(strQuery);
+		
+		namedQuery.setParameter("suspensionStartDate",onDate,TemporalType.DATE);
+		namedQuery.setParameter("suspensionEndDate",onDate,TemporalType.DATE);
+		
+		List<Long> resultList = namedQuery.getResultList();
+		return resultList;
+	}
 }
