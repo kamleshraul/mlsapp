@@ -67,6 +67,12 @@
 				generateDepartmentwiseSubmittedCountsReport();
 			});
 			
+			/**** Departmentwise Admitted Counts ****/
+			$("#departmentwise_admitted_counts_report").click(function() {
+				$("#selectionDiv1").hide();
+				generateDepartmentwiseAdmittedCountsReport();
+			});
+			
 			$("#generateCurrentStatusReport").click(function(){
 				var selectedMotionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
 				
@@ -178,14 +184,17 @@
 				</a> |
 			</security:authorize>
 			<security:authorize access="!hasAnyRole('CMOIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<a href="#" id="generateCurrentStatusReport" class="butSim">
+					<spring:message code="cutmotion.generateCurrentStatusReport" text="Current Status Report"/>
+				</a> |
 				<a href="#" id="departmentwise_submitted_counts_report" class="butSim">
 					<spring:message code="cutmotion.departmentwise_submitted_counts_report" text="Departmentwise Submitted Counts"/>
 				</a> |
-				<a href="#" id="generateCurrentStatusReport" class="butSim">
-					<spring:message code="cutmotion.generateCurrentStatusReport" text="Generate Current Status Report"/>
+				<a href="#" id="departmentwise_admitted_counts_report" class="butSim">
+					<spring:message code="cutmotion.departmentwise_admitted_counts_report" text="Departmentwise Admitted Counts"/>
 				</a> |
 				<a href="#" id="generateYaadiReport" class="butSim">
-					<spring:message code="cutmotion.generateYaadiReport" text="Generate Yaadi Report"/>
+					<spring:message code="cutmotion.generateYaadiReport" text="Yaadi Report"/>
 				</a> |
 				 <a href="#" id="generateReminderLetter" class="butSim">
 					<spring:message code="generic.mytask.device.ReminderLetter" text="Reminder Letter"/>

@@ -188,6 +188,23 @@
 		});
 	}
 	
+	function generateDepartmentwiseAdmittedCountsReport() {
+		var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+		+ "/" + $("#selectedSessionYear").val()
+		+ "/" + $("#selectedSessionType").val();
+		
+		$.get(url,function(data){
+			if(data){				
+				showTabByIdAndUrl("details_tab","cutmotion/report/genreport?"
+						+"sessionId="+data.id
+						+"&deviceTypeId="+$("#selectedCutMotionType").val()
+						+"&locale="+$("#moduleLocale").val()
+						+"&report=CMOIS_DEPARTMENTWISE_ADMITTED_COUNTS"
+						+"&reportout=departmentwise_admitted_counts_report");
+			}
+		});
+	}
+	
 	/**** new question ****/
 	function newCutMotion() {
 		$("#cancelFn").val("newCutMotion");
