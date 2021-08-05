@@ -97,9 +97,15 @@
 		$("#bulkputupassistant_tab").click(function() {
 			$("#selectionDiv1").hide();
 			bulkPutupAssistant();
+		});	
+		
+		/**** Search Tab ****/
+		$('#search_tab').click(function() {
+			$("#selectionDiv1").hide();
+			searchInt();
 		});
 	
-		/**** show question list method is called by default.****/
+		/**** show cutmotions list method is called by default.****/
 		showCutMotionList();
 		
 		/**** Load subdepartment filter ****/
@@ -231,7 +237,8 @@
 		$('#key').val(rowid);
 		showTabByIdAndUrl('details_tab', ',cutmotion/' + rowid + '/edit?' + $("#gridURLParams").val());
 	}
-	/**** delete question ****/
+	
+	/**** delete cutmotion ****/
 	function deleteCutMotion() {
 		var row = $("#key").val();
 		if (row == null || row == '') {
@@ -256,9 +263,21 @@
 			});
 		}
 	}
+	
+	/**** Search Facility ****/
+	function searchInt(id){
+		//$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		var params="searchfacility=yes&usergroup="+$("#currentusergroup").val()
+			        +"&usergroupType="+$("#currentusergroupType").val()+
+			        "&houseType="+$("#selectedHouseType").val()+
+			        "&sessionType="+$("#selectedSessionType").val()+
+			        "&sessionYear="+$("#selectedSessionYear").val()+
+			        "&deviceType="+$("#selectedCutMotionType").val();
+		showTabByIdAndUrl('search_tab','clubentity/init?'+params);
+	}
+	
 	/**** reload grid ****/
-	function reloadCutMotionGrid() {
-				
+	function reloadCutMotionGrid() {				
 		$("#gridURLParams").val(
 				"houseType=" + $("#selectedHouseType").val() + "&sessionYear="
 						+ $("#selectedSessionYear").val() + "&sessionType="
@@ -472,9 +491,14 @@
 				<li>
 					<a id="bulkputupassistant_tab" href="#" class="tab"> <spring:message code="generic.bulkputup" text="Bulk Putup" /></a>
 				</li>
-			</security:authorize>						
-			
+			</security:authorize>		
+			<security:authorize access="!hasAnyRole('CMOIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<li>
+					<a id="search_tab" href="#" class="tab"><spring:message code="question.searchT" text="Search"></spring:message></a>
+				</li>
+			</security:authorize>
 		</ul>
+		
 		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv1">
 
 			<a href="#" id="select_houseType" class="butSim"> <spring:message code="generic.houseType" text="House Type" /></a> 

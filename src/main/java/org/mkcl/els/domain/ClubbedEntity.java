@@ -24,6 +24,7 @@ import javax.persistence.TemporalType;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.vo.BillSearchVO;
+import org.mkcl.els.common.vo.DeviceSearchVO;
 import org.mkcl.els.common.vo.MotionSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.repository.ClubbedEntityRepository;
@@ -131,33 +132,22 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
         return clubbedEntityRepository;
     }  
     
+    /**** Search devices for search-facility ****/
+    public static List<DeviceSearchVO> fullTextSearchForSearching(final String whichDevice,
+    		final String param,
+			final int start,
+			final int noOfRecords,
+			final String locale,
+			final Map<String, 
+			String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchForSearchFacility(whichDevice, param, start, noOfRecords, locale,requestMap);
+	}    
     
     /**** Search questions for clubbing 
      * @throws ELSException ****/
     public static List<QuestionSearchVO> fullTextSearchClubbing(final String param,
 			final Question question,final int start,final int noOfRecords,final String locale,final Map<String, String[]> requestMap) throws ELSException {
 		return getClubbedEntityRepository().fullTextSearchClubbing(param, question, start, noOfRecords, locale,requestMap);
-	}
-    
-    /**** Search questions for seacrhfacility ****/
-    public static List<QuestionSearchVO> fullTextSearchForSearching(final String param,
-    		final DeviceType deviceType,
-    		final Session session,
-			final int start,
-			final int noOfRecords,
-			final String locale,
-			final Map<String, 
-			String[]> requestMap) {
-		return getClubbedEntityRepository().fullTextSearchForSearchFacility(param, deviceType, session, start, noOfRecords, locale,requestMap);
-	}
-    
-    public static List<QuestionSearchVO> fullTextSearchForSearching(final String param,
-			final int start,
-			final int noOfRecords,
-			final String locale,
-			final Map<String, 
-			String[]> requestMap) {
-		return getClubbedEntityRepository().fullTextSearchForSearchFacility(param, start, noOfRecords, locale,requestMap);
 	}
     
     /**** Club question ****/

@@ -202,6 +202,8 @@
 			clarificationReceived = $("#internalStatusMaster option[value='question_unstarred_processed_clarificationReceived']").text();
 			clarificationFromMemberAndDepartment = 
 				$("#internalStatusMaster option[value='question_unstarred_recommend_clarificationNeededFromMemberAndDepartment']").text();		
+			clarificationNotReceived = $("#internalStatusMaster option[value='question_unstarred_processed_clarificationNotReceived']").text();
+			clarificationNotReceivedByMember = $("#internalStatusMaster option[value='question_unstarred_processed_clarificationNotReceivedFromMember']").text();
 			clubbingApproved = $("#internalStatusMaster option[value='question_unstarred_final_clubbing']").text();
 			clubbingRejected = $("#internalStatusMaster option[value='question_unstarred_final_reject_clubbing']").text();
 			clubbingRecommendApprove = $("#internalStatusMaster option[value='question_unstarred_recommend_clubbing']").text();
@@ -1233,7 +1235,10 @@
 				|| $("#internalStatusType").val()=='question_unstarred_final_admission'
 				|| $("#internalStatusType").val()=='question_final_clarificationNeededFromDepartment'
 				|| $("#internalStatusType").val()=='question_final_clarificationNeededFromMember'
-				|| $("#internalStatusType").val()=='question_final_clarificationNeededFromMemberAndDepartment'
+				|| $("#internalStatusType").val()=='question_final_clarificationNeededFromMemberAndDepartment'					
+				|| $("#internalStatusType").val()=='question_unstarred_final_clarificationNeededFromDepartment'
+				|| $("#internalStatusType").val()=='question_unstarred_final_clarificationNeededFromMember'
+				|| $("#internalStatusType").val()=='question_unstarred_final_clarificationNeededFromMemberAndDepartment'
 				|| $("#internalStatusType").val()=='question_halfHourFromQuestion_final_admission'))){
 			var statusType = $("#internalStatusType").val().split("_");
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
@@ -1714,7 +1719,10 @@
 					|| internalStatusType=='question_unstarred_final_admission'
 					|| internalStatusType=='question_final_clarificationNeededFromDepartment'
 					|| internalStatusType=='question_final_clarificationNeededFromMember'
-					|| internalStatusType=='question_final_clarificationNeededFromMemberAndDepartment'
+					|| internalStatusType=='question_final_clarificationNeededFromMemberAndDepartment'					
+					|| internalStatusType=='question_unstarred_final_clarificationNeededFromDepartment'
+					|| internalStatusType=='question_unstarred_final_clarificationNeededFromMember'
+					|| internalStatusType=='question_unstarred_final_clarificationNeededFromMemberAndDepartment'
 					|| internalStatusType=='question_halfHourFromQuestion_final_admission'))}">
 				<tr>
 					<td>
@@ -1902,7 +1910,10 @@
 					|| internalStatusType=='question_unstarred_final_admission'
 					|| internalStatusType=='question_final_clarificationNeededFromDepartment'
 					|| internalStatusType=='question_final_clarificationNeededFromMember'
-					|| internalStatusType=='question_final_clarificationNeededFromMemberAndDepartment'
+					|| internalStatusType=='question_final_clarificationNeededFromMemberAndDepartment'					
+					|| internalStatusType=='question_unstarred_final_clarificationNeededFromDepartment'
+					|| internalStatusType=='question_unstarred_final_clarificationNeededFromMember'
+					|| internalStatusType=='question_unstarred_final_clarificationNeededFromMemberAndDepartment'
 					|| internalStatusType=='question_halfHourFromQuestion_final_admission'))}">	
 	<p>
 	<select id="internalStatusMaster" style="display:none;">
@@ -2002,7 +2013,10 @@
 					|| internalStatusType=='question_unstarred_final_admission'
 					|| internalStatusType=='question_final_clarificationNeededFromDepartment'
 					|| internalStatusType=='question_final_clarificationNeededFromMember'
-					|| internalStatusType=='question_final_clarificationNeededFromMemberAndDepartment'
+					|| internalStatusType=='question_final_clarificationNeededFromMemberAndDepartment'					
+					|| internalStatusType=='question_unstarred_final_clarificationNeededFromDepartment'
+					|| internalStatusType=='question_unstarred_final_clarificationNeededFromMember'
+					|| internalStatusType=='question_unstarred_final_clarificationNeededFromMemberAndDepartment'
 					|| internalStatusType=='question_halfHourFromQuestion_final_admission')}">
 		<div class="fields">
 			<h2></h2>

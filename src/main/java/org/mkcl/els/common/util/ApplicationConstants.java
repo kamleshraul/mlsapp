@@ -3003,4 +3003,6 @@ public class ApplicationConstants {
 	
 	public static final String REMINDER_LETTER_TIMEOUT_STATUS = "timeout";
 	
+	public static final String CUTMOTION_SEARCH_USE_CURRENT_SESSION = "CUTMOTION_SEARCH_USE_CURRENT_SESSION";
+	
 }

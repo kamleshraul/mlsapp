@@ -12,6 +12,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BillSearchVO;
+import org.mkcl.els.common.vo.DeviceSearchVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MotionSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
@@ -85,26 +86,6 @@ public class ClubbedEntityController extends BaseController{
 				logger.error("error", e);
 			}
 			
-			try{
-				model.addAttribute("deviceTypes", DeviceType.findDeviceTypesStartingWith("questions_", locale.toString()));
-			}catch (ELSException e) {
-				model.addAttribute("ClubbedEntityController","Request can not be completed at the moment.");
-			}
-			
-			
-			List<Group> allgroups = null;
-			try{
-				allgroups = Group.findByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-			}catch (ELSException e) {
-				model.addAttribute("ClubbedEntityController","Request can not be completed at the moment.");
-			}
-			
-			List<MasterVO> masterVOs = new ArrayList<MasterVO>();
-			for(Group i:allgroups){
-				MasterVO masterVO = new MasterVO(i.getId(),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i.getNumber()));
-				masterVOs.add(masterVO);
-			}
-			model.addAttribute("groups",masterVOs);
 			int year = sessionYear;
 			CustomParameter houseFormationYear=CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
 			List<Reference> years = new ArrayList<Reference>();
@@ -118,26 +99,11 @@ public class ClubbedEntityController extends BaseController{
 				model.addAttribute("flag", "houseformationyearnotset");
 				return "clubbing/error";
 			}
-			
-			DeviceType deviceType = null;
-			try{
-				String strDevice = request.getParameter("questionType");
-				if(strDevice != null && !strDevice.isEmpty()){
-					deviceType = DeviceType.findById(DeviceType.class, new Long(strDevice));
-				}
-			}catch(Exception e){
-				logger.error("error", e);
-			}
-			
-			if(deviceType != null){
-				model.addAttribute("deviceType", deviceType.getId());
-			}
 			model.addAttribute("years", years);
 			model.addAttribute("sessionYear", year);
 			List<SessionType> sessionTypes = SessionType.findAll(SessionType.class, "sessionType", ApplicationConstants.ASC, locale.toString());
 			model.addAttribute("sessionTypes", sessionTypes);
 			model.addAttribute("sessionType", session.getType().getId());
-			model.addAttribute("whichDevice", "questions_");
 			
 			CustomParameter csptSearchByFacility = CustomParameter.findByName(CustomParameter.class, "SEARCHFACILITY_SEARCH_BY", "");
 			if(csptSearchByFacility != null && csptSearchByFacility.getValue() != null && ! csptSearchByFacility.getValue().isEmpty()){
@@ -150,8 +116,64 @@ public class ClubbedEntityController extends BaseController{
 					searchByData.add(newVO);
 				}
 				model.addAttribute("searchBy", searchByData);
+			}
+			
+			DeviceType deviceType = null;
+			try{
+				String strDevice = request.getParameter("deviceType");
+				if(strDevice != null && !strDevice.isEmpty()){
+					deviceType = DeviceType.findById(DeviceType.class, new Long(strDevice));
+				} else {
+					strDevice = request.getParameter("questionType");
+					if(strDevice != null && !strDevice.isEmpty()){
+						deviceType = DeviceType.findById(DeviceType.class, new Long(strDevice));
+					}
+				}
+			}catch(Exception e){
+				logger.error("error", e);
+			}
+			
+			if(deviceType != null){
+				model.addAttribute("deviceType", deviceType.getId());
+			} else {
+				logger.error("error", "request parameter of deviceType/questionType is missing in ClubbedEntityController/getClubbing");
+				model.addAttribute("flag", "devicetypenotset");
+				return "clubbing/error";
 			}			
-			retVal = "question/searchfacility/init";
+			if(deviceType.getType().startsWith(ApplicationConstants.DEVICE_QUESTIONS)) {
+				try{
+					model.addAttribute("deviceTypes", DeviceType.findDeviceTypesStartingWith("questions_", locale.toString()));
+				}catch (ELSException e) {
+					model.addAttribute("ClubbedEntityController","Request can not be completed at the moment.");
+				}				
+				
+				List<Group> allgroups = null;
+				try{
+					allgroups = Group.findByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+				}catch (ELSException e) {
+					model.addAttribute("ClubbedEntityController","Request can not be completed at the moment.");
+				}
+				
+				List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+				for(Group i:allgroups){
+					MasterVO masterVO = new MasterVO(i.getId(),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i.getNumber()));
+					masterVOs.add(masterVO);
+				}
+				model.addAttribute("groups",masterVOs);
+				
+				model.addAttribute("whichDevice", "questions_");
+				
+			} else if(deviceType.getType().startsWith(ApplicationConstants.DEVICE_CUTMOTIONS)) {
+				try{
+					model.addAttribute("deviceTypes", DeviceType.findDeviceTypesStartingWith("motions_cutmotion_", locale.toString()));
+				}catch (ELSException e) {
+					model.addAttribute("ClubbedEntityController","Request can not be completed at the moment.");
+				}
+				
+				model.addAttribute("whichDevice", "motions_cutmotion_");
+			}			
+
+			retVal = "searchfacility/init";
 			
 		}else{
 			String strquestionId=request.getParameter("id");
@@ -1410,11 +1432,12 @@ public class ClubbedEntityController extends BaseController{
 	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/searchfacility",method=RequestMethod.POST)
-	public @ResponseBody List<QuestionSearchVO> searchQuestionForSearchFacility(final HttpServletRequest request,
+	public @ResponseBody List<DeviceSearchVO> searchDeviceForSearchFacility(final HttpServletRequest request,
 			final Locale locale){
-		List<QuestionSearchVO> questionSearchVOs = new ArrayList<QuestionSearchVO>();
+		List<DeviceSearchVO> deviceSearchVOs = new ArrayList<DeviceSearchVO>();
 		try{
 			String param = request.getParameter("param").trim();
+			String whichDevice = request.getParameter("whichDevice");
 			String strDeviceType = request.getParameter("deviceType");
 			String strSession = request.getParameter("session");
 			String start = request.getParameter("start");
@@ -1460,13 +1483,13 @@ public class ClubbedEntityController extends BaseController{
 			Map<String,String[]> requestMap = request.getParameterMap();
 			if(start != null && noOfRecords != null){
 				if((!start.isEmpty()) && (!noOfRecords.isEmpty())){
-					questionSearchVOs = ClubbedEntity.fullTextSearchForSearching(param, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
+					deviceSearchVOs = ClubbedEntity.fullTextSearchForSearching(whichDevice, param, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
 				}
 			}
 		}catch(Exception e){
 			logger.error("error", e);
 		}
-		return questionSearchVOs;
+		return deviceSearchVOs;
 	}
 	
 	@SuppressWarnings("unchecked")
