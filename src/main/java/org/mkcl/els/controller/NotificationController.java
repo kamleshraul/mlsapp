@@ -248,6 +248,31 @@ public class NotificationController extends GenericController<Notification> {
 		}
 	}
 	
+	public static void sendDeviceSubmissionNotification(
+					final Member primaryMember,
+					final String deviceNumber,
+					final String deviceSubject, 
+					final DeviceType deviceType, 
+					final HouseType houseType,
+					final String deviceSubDepartment,
+					final String usergroupTypes,
+					final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("primaryMemberId", new String[]{primaryMember.getId().toString()});
+		templateParameters.put("deviceSubject", new String[]{deviceSubject});
+		templateParameters.put("deviceNumber", new String[]{deviceNumber});
+		templateParameters.put("deviceTypeType", new String[]{deviceType.getType()});
+		templateParameters.put("deviceTypeName", new String[]{deviceType.getName()});
+		templateParameters.put("deviceTypeNameLike", new String[]{"%"+deviceType.getName()+"%"});
+		templateParameters.put("houseTypeType", new String[]{houseType.getType()});
+		templateParameters.put("houseTypeName", new String[]{houseType.getName()});
+		templateParameters.put("houseTypeNameLike", new String[]{"%"+houseType.getName()+"%"});
+		templateParameters.put("deviceSubDepartmentLike", new String[]{"%"+deviceSubDepartment+"%"});
+		templateParameters.put("usergroupTypes", new String[]{usergroupTypes});		
+		getNotificationService().sendNotificationWithTitleUsingTemplate("DEVICE_SUBMISSION_INTIMATION_TO_BRANCH", templateParameters, locale);
+	}
+	
 	public static void sendSupportingMemberApprovalNotification(final String deviceSubject, final DeviceType deviceType, final Member primaryMember, final String supportingMembersUserNames, final String locale) {
 		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
 		templateParameters.put("locale", new String[]{locale});
