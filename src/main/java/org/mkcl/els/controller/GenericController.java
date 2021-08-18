@@ -251,7 +251,14 @@ public class GenericController<T extends BaseDomain> extends BaseController {
         String messagePattern=urlPattern.replaceAll("\\/",".");
         model.addAttribute("messagePattern", messagePattern);
         model.addAttribute("urlPattern", urlPattern);
-        T domain = (T) BaseDomain.findById(domainClass, id);        
+        T domain = (T) BaseDomain.findById(domainClass, id);
+        if(domain!=null && domain.getId()>0) {
+        	T nextDomain=BaseDomain.findByIdNext(domainClass, id, "id", domain.getLocale());
+        	T prevDomain=BaseDomain.findByIdPrev(domainClass, id, "id", domain.getLocale());
+        	
+        	model.addAttribute("nextDomain",nextDomain);
+        	model.addAttribute("prevDomain",prevDomain);
+        }
         try{
 	        /******* Hook **********/
 	        populateEdit(model, domain, request);	        
