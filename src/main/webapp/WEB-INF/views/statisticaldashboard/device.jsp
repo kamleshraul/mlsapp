@@ -666,20 +666,20 @@
     						datasets: [{
     							data: barData,
     							//backgroundColor: pieBackgroundColor,
-    							label: 'Question Count'
+    							label: '<spring:message code="qis.report.stat.typist.col4" text="Question Count"></spring:message>'
     						}],
     						labels:barLabels,
        					},
     					options: {
+    						
     						responsive: true,
+    						chartArea: {
+    					        backgroundColor: 'rgba(0, 0, 0, 0.1)'
+    					    },
     					    scales: {
-    					        yAxes: [{
-    					            ticks: {
-    					                max: 2500,
-    					                min: 0,
-    					                stepSize: 250
-    					            }
-    					        }]
+    					    	 y: {
+    					    	        beginAtZero: true
+    					    	      }
     					    },
     						legend: {
     				            display: true,

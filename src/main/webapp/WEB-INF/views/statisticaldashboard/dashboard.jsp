@@ -62,8 +62,8 @@
       <div class="content">
         <div class="container-fluid">
 	        <div class="row" style="background: rgba(255,255,255,0.8)">
-       	   		<embed src="./assets/img/mhv.svg?v=30812" type="" />
-	        	
+       	   		<!-- <embed src="./assets/img/mhv.svg?v=30812" type="" height="300px" width="300px"/> -->
+	        	 <img src="./assets/img/mhv-mr.svg" height="100%" width="100%" />
 	        	<div id="districtwiseMemberList" class="row" style="background: rgba(255,255,255,0.8); ">
 	        	</div>
 	        </div>

@@ -150,7 +150,7 @@
 			        success: function(data) {
 			        	$('#logintime_server').val(data);
 			        	server_time = moment($('#logintime_server').val());
-						server_time.locale('mr');
+			 			server_time.locale(locale.substring(0, 2));
 						$('#server_time_display').html(server_time.format('DD/MM/YYYY hh:mm:ss a'));
 			        }
 				});

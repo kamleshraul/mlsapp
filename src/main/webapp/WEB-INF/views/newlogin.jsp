@@ -6,7 +6,7 @@
 	<link rel="icon" type="image/png" href="./resources/images/mlsicon.png" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Vidhanmandal | Login</title>
+  <title><spring:message code="login.vidhanmandal1" text="Vidhan Mandal"></spring:message> | <spring:message code='user_lbl_login' text='Login'/></title>
   <link rel="stylesheet" href="./resources/plugins/materialdesignicons/css/materialdesignicons.min.css" />
   <link rel="stylesheet" href="./resources/css/bootstrap.min.css" />
   <link rel="stylesheet" href="./resources/css/custom.css" />
