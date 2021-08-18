@@ -7,6 +7,29 @@
 	$('document').ready(function() {
 		initControls();
 		$('#key').val('');
+		
+		var prevId=$('#hddPrevDomainId')!==null && $('#hddPrevDomainId')!==undefined ? $('#hddPrevDomainId').val():0; 
+		var nextId=$('#hddNextDomainId')!==null && $('#hddNextDomainId')!==undefined ? $('#hddNextDomainId').val():0;
+		
+		function editNextPrev(idToEdit){
+			var form=$("form").first().get(0);			
+			showTabByIdAndUrl('process_tab', form.action+"/"+idToEdit+"/edit");
+		}
+		
+		if(nextId>0){
+			$('#nextBtn').click(function(e){
+				e.preventDefault();
+				editNextPrev(nextId);
+				$(".tabContent").show();
+			});
+		}
+		
+		if(prevId>0){
+			$('#prevBtn').click(function(){
+				editNextPrev(prevId);
+				$(".tabContent").show();
+			});
+		}
 	});
 </script>
 </head>
@@ -57,7 +80,16 @@
 						value="<spring:message code='generic.submit' text='Submit'/>"
 						class="butDef">
 					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
-						
+					<c:if test="${nextDomain != '' && nextDomain.id>0 }">
+						<input id="nextBtn" type="button" value="<spring:message code='generic.next.btn' text='Next'/>" class="butDef"/>
+						<input type="hidden" id="hddNextDomainId" value="${nextDomain.id}" />
+					</c:if>
+					<c:if test="${prevDomain != '' && prevDomain.id>0 }">
+						<input id="prevBtn" type="button" value="<spring:message code='generic.previous.btn' text='Previous'/>" 
+								class="butDef"
+								style="float:left"	/>
+						<input type="hidden" id="hddPrevDomainId" value="${prevDomain.id}" />
+					</c:if>
 				</p>
 			</div>
 			<form:hidden path="locale" />
