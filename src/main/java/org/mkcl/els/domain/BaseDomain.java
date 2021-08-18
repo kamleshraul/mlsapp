@@ -406,6 +406,23 @@ public class BaseDomain {
 				fields, term, locale);
 		
 	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Transactional(readOnly = true)
+    public static <T extends BaseDomain> T findByIdNext(final Class persistenceClass, 
+    		final Long id,final String searchBy,final String locale) {
+		List<T> result = getBaseRepository().findByPagination(persistenceClass, searchBy, id, searchBy, "asc", locale, 1,"next");
+        return  result!=null && result.size()>0?(T)(result.get(0)):null;
+    }
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Transactional(readOnly = true)
+    public static <T extends BaseDomain> T findByIdPrev(final Class persistenceClass, 
+    		final Long id,final String searchBy,final String locale) {
+		List<T> result = getBaseRepository().findByPagination(persistenceClass, searchBy, id, searchBy, "asc", locale, 1,"prev");
+        return  result!=null && result.size()>0?(T)(result.get(0)):null;
+    }
+	
     // ==================== Getters & Setters ====================
     /**
      * Gets the id.
