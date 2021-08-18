@@ -19,6 +19,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.FlushModeType;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
@@ -463,6 +467,47 @@ public class BaseRepository<T, ID extends Serializable> extends
         }
     	
     	List<U> result = jpQuery.getResultList();
+    	return result;
+    }
+    
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public <U extends T>  List<U> findByPagination(final Class persistenceClass,String searchBy,Long value, 
+            final String sortBy, String sortOrder, final String locale,final Integer limit,String nextOrPrev) {
+    	
+    	CriteriaBuilder cb = this.em().getCriteriaBuilder();
+    	CriteriaQuery criteriaQuery = cb.createQuery(persistenceClass);
+    	Root root = criteriaQuery.from(persistenceClass);    	
+    	
+    	// default sort order if 
+    	if(sortOrder!=null || sortOrder.trim().length()<=0)
+    		sortOrder="asc";
+    	
+    	if("next".equalsIgnoreCase(nextOrPrev))
+    		sortOrder="desc";
+    	
+    	List<Predicate> wherePredicates=new ArrayList<Predicate>();
+    	
+    	wherePredicates.add(cb.and(cb.equal(root.get("locale"),locale)));
+    	
+    	
+    	if("prev".equalsIgnoreCase(nextOrPrev))
+    		wherePredicates.add(cb.greaterThan(root.get(searchBy), value));
+    	else
+    		wherePredicates.add(cb.lessThan(root.get(searchBy), value));
+    	
+    	criteriaQuery.where(wherePredicates.get(0),wherePredicates.get(1));
+    	
+    	if(sortOrder.equalsIgnoreCase("asc"))
+    		criteriaQuery.orderBy(cb.asc(root.get(sortBy)));
+    	
+    	if(sortOrder.equalsIgnoreCase("desc"))
+    		criteriaQuery.orderBy(cb.desc(root.get(sortBy)));
+    	
+    	List<U> result =
+    	        this.em()
+    	            .createQuery(criteriaQuery)
+    	            .setMaxResults(limit)    	            
+    	            .getResultList();
     	return result;
     }
 
