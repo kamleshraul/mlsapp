@@ -4,7 +4,7 @@
  * Copyright (c) 2013 MKCL.  All rights reserved.
  *
  * Project: e-Legislature
- * File: org.mkcl.els.common.vo.QuestionSearchVO.java
+ * File: org.mkcl.els.common.vo.DeviceSearchVO.java
  * Created On: Jan 10, 2013
  */
 package org.mkcl.els.common.vo;
@@ -12,10 +12,10 @@ package org.mkcl.els.common.vo;
 import java.util.List;
 
 /**
- * The Class QuestionSearchVO.
+ * The Class DeviceSearchVO.
  *
- * @author amitd
- * @author sandeeps
+ * @author anandku
+ * @author dhananjayb
  * @since v1.0.0
  */
 public class DeviceSearchVO {
@@ -73,7 +73,8 @@ public class DeviceSearchVO {
 	private String formattedParentNumber;
 	
 	private String formattedClubbedNumbers;
-	//===========added for portlet proceedings 
+	
+	//===========added for portlet proceedings===========//
 	private String primaryMember;
 	
 	private String formattedPrimaryMember;
@@ -95,6 +96,8 @@ public class DeviceSearchVO {
 	private String ballotStatus;
 	
 	private String onlineStatus;
+	
+	private boolean isReplySentByDepartment; //for cutmotions
 	
 	private List<MasterVO> revisions; 
 	/**
@@ -453,6 +456,14 @@ public class DeviceSearchVO {
 		this.onlineStatus = onlineStatus;
 	}
 
+	public boolean getIsReplySentByDepartment() {
+		return isReplySentByDepartment;
+	}
+
+	public void setIsReplySentByDepartment(boolean isReplySentByDepartment) {
+		this.isReplySentByDepartment = isReplySentByDepartment;
+	}
+
 	public List<MasterVO> getRevisions() {
 		return revisions;
 	}
@@ -460,8 +471,5 @@ public class DeviceSearchVO {
 	public void setRevisions(List<MasterVO> revisions) {
 		this.revisions = revisions;
 	}	
-	
-	
-	
 	
 }

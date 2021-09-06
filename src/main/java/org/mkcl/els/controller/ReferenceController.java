@@ -10360,7 +10360,7 @@ public class ReferenceController extends BaseController {
 						&& visibilityFlagForMemberAdmittedQuestionsView.getValue().equals("visible")) {
 					visibilityFlagForAdmitted = true; 
 				}
-				if(visibilityFlagForAdmitted.equals(true) && sessionEndDateFlag.equals(true)) {
+				if(visibilityFlagForAdmitted.equals(true)/* && sessionEndDateFlag.equals(true)*/) {
 					MasterVO visibilityFlagForAdmittedQuestions = new MasterVO();
 					visibilityFlagForAdmittedQuestions.setName("member_admitted_questions_view_flag");
 					visibilityFlagForAdmittedQuestions.setValue("admitted_visible");

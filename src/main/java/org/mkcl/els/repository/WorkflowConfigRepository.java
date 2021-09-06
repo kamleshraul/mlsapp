@@ -534,7 +534,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					||status.equals(ApplicationConstants.QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODEPARTMENT)
 					||status.equals(ApplicationConstants.QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODESKOFFICER)){
 				
-				Workflow processWorkflow = Workflow.findByType(ApplicationConstants.QUESTIONSUPPLEMENTARY_WORKFLOW, locale.toString());
+				Workflow processWorkflow = Workflow.findByType(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW, locale.toString());
 				workflowConfig = getLatest(question, processWorkflow, locale);
 				userGroupType = userGroup.getUserGroupType();
 				currentWorkflowActor = getWorkflowActor(workflowConfig,userGroupType,level);
@@ -560,6 +560,14 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				}else{
 					allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
 				}
+			}else if(status.equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_SENDANSWERFORCONFIRMATION)
+					||status.equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_RECOMMENDANSWERFORCONFIRMATION)){
+				
+				Workflow processWorkflow = Workflow.findByType(ApplicationConstants.ANSWER_CONFIRMATION_WORKFLOW, locale.toString());
+				workflowConfig = getLatest(question, processWorkflow, locale);
+				userGroupType = userGroup.getUserGroupType();
+				currentWorkflowActor = getWorkflowActor(workflowConfig,userGroupType,level);
+				allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
 			}else{
 				workflowConfig = getLatest(question,status,locale.toString());
 				userGroupType = userGroup.getUserGroupType();

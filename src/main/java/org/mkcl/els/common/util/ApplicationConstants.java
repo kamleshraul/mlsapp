@@ -869,7 +869,9 @@ public class ApplicationConstants {
 
 	public static final String RESOLUTION_APPROVAL_WORKFLOW = "RESOLUTION_APPROVAL_WORKFLOW";
 
-	public static final String SUPPORTING_MEMBER_WORKFLOW="Supporting_Members_Approval_Process";    
+	public static final String SUPPORTING_MEMBER_WORKFLOW="Supporting_Members_Approval_Process";
+	
+	public static final String ANSWER_CONFIRMATION_WORKFLOW="answerConfirmation_workflow";
 
 	public static final String TRANSLATION_WORKFLOW="TRANSLATION_WORKFLOW";
 
@@ -2676,7 +2678,7 @@ public class ApplicationConstants {
 	
 	public static final String STATUS_PENDING_FOR_CLUBBING_APPROVAL="_clubbing";
 	
-	public static final String QUESTIONSUPPLEMENTARY_WORKFLOW = "questionsupplementary_workflow";
+	public static final String QUESTION_SUPPLEMENTARY_WORKFLOW = "questionsupplementary_workflow";
 	
 	public static final String QUESTION_PROCESSED_SUPPLEMENTARYCLUBBING = "question_processed_supplementaryClubbing";
 	
@@ -2684,11 +2686,17 @@ public class ApplicationConstants {
 	
 	public static final String QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTOSECTIONOFFICER = "question_processed_sendSupplementaryQuestionToSectionOfficer";
 	
-	public static final String QUESTION_SUPPLEMENTARY_WORKFLOW = "questionsupplementary_workflow";
-	
 	public static final String QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODEPARTMENT = "question_processed_sendSupplementaryQuestionToDepartment";
 	
 	public static final String QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODESKOFFICER = "question_processed_sendSupplementaryQuestionToDeskOfficer";
+	
+	public static final String QUESTION_UNSTARRED_PROCESSED_SENDANSWERFORCONFIRMATION = "question_unstarred_processed_sendAnswerForConfirmation";
+	
+	public static final String QUESTION_UNSTARRED_PROCESSED_ANSWERPENDINGFORCONFIRMATION = "question_unstarred_processed_answerPendingForConfirmation";
+	
+	public static final String QUESTION_UNSTARRED_PROCESSED_RECOMMENDANSWERFORCONFIRMATION = "question_unstarred_processed_recommendAnswerForConfirmation";
+	
+	public static final String QUESTION_UNSTARRED_PROCESSED_ANSWERCONFIRMED = "question_unstarred_processed_answerConfirmed";
 	
 	public static final String DEPUTY_SECRETARY1 = "deputy_secretary1";
 	

@@ -305,7 +305,7 @@ class StarredQuestionController {
 				&& visibilityFlagForMemberAdmittedQuestionsView.getValue().equals("visible")) {
 			visibilityFlagForAdmitted = true; 
 		}
-		if(visibilityFlagForAdmitted.equals(true) && sessionEndDateFlag.equals(true)) {
+		if(visibilityFlagForAdmitted.equals(true)/* && sessionEndDateFlag.equals(true)*/) {
 			model.addAttribute("member_admitted_questions_view_flag", "admitted_visible");
 		}
 		
@@ -2984,7 +2984,7 @@ class StarredQuestionController {
 					
 					ProcessDefinition processDefinition = processService.
 							findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
-					Map<String,String> properties = new HashMap<String, String>();					
+					Map<String,String> properties = new HashMap<String, String>();
 					String nextuser = request.getParameter("actor");
 					String level = "";
 					UserGroupType usergroupType = null;
@@ -3008,9 +3008,9 @@ class StarredQuestionController {
 						if(endflag.equals("continue")){
 							Workflow workflow = null;//question.findWorkflowFromStatus();	
 							if(domain.getParent() != null && domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTOSECTIONOFFICER)){
-								 workflow = Workflow.findByType(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW, domain.getLocale());	
-							}else{
-								 workflow = question.findWorkflowFromStatus();	
+								 workflow = Workflow.findByType(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW, domain.getLocale());
+							} else {
+								 workflow = question.findWorkflowFromStatus();
 							}
 													
 							WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,usergroupType,workflow.getType(),level);

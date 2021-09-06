@@ -440,7 +440,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 							workflowDetails.setForm(workflowDetails.getUrlPattern());
 							Status requestStatus=Status.findByType(ApplicationConstants.REQUEST_TO_SUPPORTING_MEMBER, question.getLocale());
 							if(requestStatus!=null){
-							workflowDetails.setWorkflowSubType(requestStatus.getType());
+								workflowDetails.setWorkflowSubType(requestStatus.getType());
 							}
 						} else {
 							workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN);
@@ -448,9 +448,10 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 							if(workflowType.equals(ApplicationConstants.CLUBBING_POST_ADMISSION_WORKFLOW)
 									|| workflowType.equals(ApplicationConstants.CLUBBING_WITH_UNSTARRED_FROM_PREVIOUS_SESSION_WORKFLOW)
 									|| workflowType.equals(ApplicationConstants.UNCLUBBING_WORKFLOW)
-									|| workflowType.equals(ApplicationConstants.ADMIT_DUE_TO_REVERSE_CLUBBING_WORKFLOW)) {
+									|| workflowType.equals(ApplicationConstants.ADMIT_DUE_TO_REVERSE_CLUBBING_WORKFLOW)
+									|| workflowType.equals(ApplicationConstants.ANSWER_CONFIRMATION_WORKFLOW)) {
 								workflowDetails.setWorkflowSubType(question.getRecommendationStatus().getType());
-							}else if( workflowType.equals(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW)){
+							} else if( workflowType.equals(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW)){
 								workflowDetails.setWorkflowSubType(ApplicationConstants.QUESTION_PROCESSED_SUPPLEMENTARYCLUBBING);
 							} else {
 								workflowDetails.setWorkflowSubType(question.getInternalStatus().getType());

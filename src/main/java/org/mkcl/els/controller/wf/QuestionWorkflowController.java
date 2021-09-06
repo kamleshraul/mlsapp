@@ -804,7 +804,8 @@ public class QuestionWorkflowController  extends BaseController{
 						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.UNCLUBBING_WORKFLOW)
 						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.ADMIT_DUE_TO_REVERSE_CLUBBING_WORKFLOW)) {
 					populateInternalStatus(model,domain,domain.getRecommendationStatus(),domain.getLocale());
-				}else if (workflowDetails.getWorkflowType().equals(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW)){
+				}else if (workflowDetails.getWorkflowType().equals(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW)
+						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.ANSWER_CONFIRMATION_WORKFLOW)){
 					populateInternalStatus(model, domain.getRecommendationStatus().getType(),
 							workflowDetails.getAssigneeUserGroupType(), locale, domain.getType().getType());
 				}else {
@@ -2006,7 +2007,10 @@ public class QuestionWorkflowController  extends BaseController{
 					Workflow workflowFromUpdatedStatus = null;
 					if(domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODEPARTMENT)){
 						 workflowFromUpdatedStatus = Workflow.findByType(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW, locale.toString());
-					}else{
+					} else if(domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_RECOMMENDANSWERFORCONFIRMATION)
+									|| domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_ANSWERCONFIRMED)){
+						 workflowFromUpdatedStatus = Workflow.findByType(ApplicationConstants.ANSWER_CONFIRMATION_WORKFLOW, locale.toString());
+					} else{
 						 workflowFromUpdatedStatus = domain.findWorkflowFromStatus();
 					}
 					if(workflowFromUpdatedStatus!=null) {

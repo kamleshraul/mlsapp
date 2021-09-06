@@ -6779,14 +6779,17 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName,"+
 				"  cm.localized_actor_name as actor," +
 				"  cm.parent as parent," +
-				"  CASE WHEN cm.created_by LIKE '%typist%' THEN ''"+
+				"  (CASE WHEN cm.created_by LIKE '%typist%' THEN ''"+
 				" 		ELSE '*' "+
-				"  END as onlineStatus" +
+				"   END) as onlineStatus," +
+				"  (CASE WHEN cm.reply IS NOT NULL AND cm.reply<>'' AND cm.reply<>'<p></p>' AND cm.reply<>'<br><p></p>' THEN 'YES' "+
+				" 		ELSE 'NO' "+
+				"   END) as replyReceivedFlag" +
 				"  FROM cutmotions as cm "+
 				"  LEFT JOIN housetypes as ht ON(cm.housetype_id=ht.id) "+
 				"  LEFT JOIN sessions as s ON(cm.session_id=s.id) "+
 				"  LEFT JOIN sessiontypes as sety ON(s.sessiontype_id=sety.id) "+
-				"  LEFT JOIN status as st ON(cm.recommendationstatus_id=st.id) "+
+				"  LEFT JOIN status as st ON(cm.internalstatus_id=st.id) "+
 				"  LEFT JOIN devicetypes as dt ON(cm.devicetype_id=dt.id) "+
 				"  LEFT JOIN members as m ON(cm.member_id=m.id) "+
 				"  LEFT JOIN titles as t ON(m.title_id=t.id) "+
@@ -6853,7 +6856,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		}
 		/**** Final Query ****/
 		String finalQuery = "SELECT rs.id,rs.number,rs.mainTitle,rs.revisedMainTitle,rs.noticeContent, "+
-				" rs.revisedNoticeContent,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.ministry,rs.department,rs.subdepartment,rs.statustype,rs.memberName,rs.actor,rs.parent,rs.onlineStatus FROM (" + query + ") as rs LIMIT " + start + "," + noofRecords;
+				" rs.revisedNoticeContent,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.ministry,rs.department,rs.subdepartment,rs.statustype,rs.memberName,rs.actor,rs.parent,rs.onlineStatus,rs.replyReceivedFlag FROM (" + query + ") as rs LIMIT " + start + "," + noofRecords;
 
 		List results=this.em().createNativeQuery(finalQuery).getResultList();
 		List<DeviceSearchVO> cutmotionSearchVOs=new ArrayList<DeviceSearchVO>();
@@ -6966,6 +6969,11 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				}
 				if(o[17]!= null){
 					cutmotionSearchVO.setOnlineStatus(o[17].toString());
+				}
+				if(o[18]!= null && o[18].toString().equals("YES")){
+					cutmotionSearchVO.setIsReplySentByDepartment(true);
+				} else {
+					cutmotionSearchVO.setIsReplySentByDepartment(false);
 				}
 				
 				cutmotionSearchVOs.add(cutmotionSearchVO);

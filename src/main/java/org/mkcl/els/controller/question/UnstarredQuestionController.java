@@ -1256,10 +1256,18 @@ class UnstarredQuestionController {
 						domain.setLevel("1");
 					}
 				}
-			}else if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("clerk")){
+			}else if(usergroupType!=null && !(usergroupType.isEmpty()) && usergroupType.equals("clerk")){
 				if(!internalStatus.getType().equals(ApplicationConstants.QUESTION_UNSTARRED_SUBMIT)){
-//					QuestionController.
-//					populateInternalStatus(model,internalStatus.getType(),usergroupType,locale,deviceType.getType());
+					if(domain.getParent()==null 
+							&& internalStatus.getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+							&& recommendationStatus.getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_ANSWER_RECEIVED)){
+						CustomParameter specificAnswerReceivedDeviceStatusUserGroupStatuses = CustomParameter.
+								findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_ANSWER_RECEIVED_"+deviceType.getType().toUpperCase()
+										+"_"+internalStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(),"");
+						List<Status> internalStatuses = Status.
+								findStatusContainedIn(specificAnswerReceivedDeviceStatusUserGroupStatuses.getValue(), locale);
+						model.addAttribute("internalStatuses", internalStatuses);
+					}
 					//set workflow started Flag
 					if(domain.getWorkflowStarted()==null || domain.getWorkflowStarted().isEmpty()){
 						domain.setWorkflowStarted("NO");
@@ -2566,6 +2574,10 @@ class UnstarredQuestionController {
 							}
 						}
 						String endflag = domain.getEndFlag();
+						if(domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_RECOMMENDANSWERFORCONFIRMATION)){
+							endflag = ApplicationConstants.END_FLAG_PENDING;
+						}
+						
 						properties.put("pv_endflag", endflag);	
 						properties.put("pv_deviceId", String.valueOf(domain.getId()));
 						properties.put("pv_deviceTypeId", String.valueOf(domain.getType().getId()));
@@ -2575,7 +2587,12 @@ class UnstarredQuestionController {
 						if(endflag!=null){
 							if(!endflag.isEmpty()){
 								if(endflag.equals("continue")){
-									Workflow workflow = question.findWorkflowFromStatus();
+									Workflow workflow = null; //question.findWorkflowFromStatus();
+									if(domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_RECOMMENDANSWERFORCONFIRMATION)){
+										 workflow = Workflow.findByType(ApplicationConstants.ANSWER_CONFIRMATION_WORKFLOW, domain.getLocale());
+									} else {
+										 workflow = question.findWorkflowFromStatus();
+									}
 									
 									WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,usergroupType,workflow.getType(),level);
 									question.setWorkflowDetailsId(workflowDetails.getId());
@@ -2585,6 +2602,7 @@ class UnstarredQuestionController {
 						question.setWorkflowStarted("YES");
 						question.setWorkflowStartedOn(new Date());
 						question.setTaskReceivedOn(new Date());
+						question.setEndFlag(endflag);
 						question.simpleMerge();
 				}
 			}
