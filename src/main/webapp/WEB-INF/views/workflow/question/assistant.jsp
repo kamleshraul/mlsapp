@@ -136,6 +136,7 @@
 		var finalRejection = '';
 		var resendToSectionOfficer = '';
 		var sendDiscussionDateToSectionOfficer = '';
+		var answerConfirmed = $("#internalStatusMaster option[value='question_unstarred_processed_answerConfirmed']").text();
 		var deviceTypeType = $('#selectedQuestionType').val();
 		if(deviceTypeType == 'questions_starred') {
 			putUpForDateApproval = $("#internalStatusMaster option[value='question_processed_putUpForDateApproval']").text();
@@ -247,6 +248,15 @@
 			$("#actorDiv").hide();
 			return false;
 		} 
+		else if(value=answerConfirmed) {
+			$("#endFlag").val("end");
+			$("#recommendationStatus").val(value);
+			$("#level").val("1");	    
+			$("#localizedActorName").val("");
+			$("#actor").empty();
+			$("#actorDiv").hide();
+			return false;
+		}
 		else {
 			$("#endFlag").val("continue");
 			valueToSend = value;

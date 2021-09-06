@@ -767,6 +767,8 @@
 		var viewMode = "";
 		if(status_filter=='rejected' && $('#member_questions_view_status_flag').val()=='status_visible') { //in case to show statuses for lowerhouse
 			viewMode = "_with_status";
+		} else if(status_filter=='admitted' && $('#member_admitted_questions_view_flag').val()=='admitted_visible') { //in case to show statuses for lowerhouse
+			viewMode = "_with_status";
 		} else if(status_filter=='unstarred' /*&& $('#member_questions_view_status_flag').val()=='status_visible'*/) { //in case to show statuses for lowerhouse
 			viewMode = "_with_status";
 		}
@@ -780,7 +782,11 @@
 		+"&locale="+$("#moduleLocale").val()
 		+ "&report=MEMBER_QUESTIONS_VIEW"
 		+ "&reportout=member_questions_view"+viewMode;
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		showTabByIdAndUrl('details_tab','question/report/generalreport?'+parameters);
+		setTimeout(function(){
+			$.unblockUI();
+		},2000);
 	}
 	
 	function memberQuestionsDetailView() {

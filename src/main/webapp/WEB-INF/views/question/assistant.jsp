@@ -126,7 +126,8 @@
 			var admitDueToReverseClubbing = '';
 			var recommendRejection = '';
 			var finalRejection = '';
-			var questionSupplmentarySendToSectionOfficer = '';
+			var questionSupplmentarySendToSectionOfficer = $("#internalStatusMaster option[value='question_processed_sendSupplementaryQuestionToSectionOfficer']").text();
+			var recommendAnswerConfirmation = $("#internalStatusMaster option[value='question_unstarred_processed_recommendAnswerForConfirmation']").text();
 		    var deviceTypeType = $('#questionTypeType').val();
 		    
 		    if(deviceTypeType == 'questions_starred'){
@@ -137,8 +138,7 @@
 				unclubbing = $("#internalStatusMaster option[value='question_recommend_unclubbing']").text();
 				admitDueToReverseClubbing = $("#internalStatusMaster option[value='question_recommend_admitDueToReverseClubbing']").text();
 				recommendRejection = $("#internalStatusMaster option[value='question_recommend_rejection']").text();
-				finalRejection = $("#internalStatusMaster option[value='question_final_rejection']").text();
-				questionSupplmentarySendToSectionOfficer = $("#internalStatusMaster option[value='question_processed_sendSupplementaryQuestionToSectionOfficer']").text();
+				finalRejection = $("#internalStatusMaster option[value='question_final_rejection']").text();				
 			
 		    }else if(deviceTypeType == 'questions_unstarred') {
 				sendback = $("#internalStatusMaster option[value='question_unstarred_recommend_sendback']").text();			
@@ -148,7 +148,7 @@
 				unclubbing = $("#internalStatusMaster option[value='question_unstarred_recommend_unclubbing']").text();
 				admitDueToReverseClubbing = $("#internalStatusMaster option[value='question_unstarred_recommend_admitDueToReverseClubbing']").text();	
 				recommendRejection = $("#internalStatusMaster option[value='question_unstarred_recommend_rejection']").text();
-				finalRejection = $("#internalStatusMaster option[value='question_unstarred_final_rejection']").text();
+				finalRejection = $("#internalStatusMaster option[value='question_unstarred_final_rejection']").text();				
 			
 			}else if(deviceTypeType == 'questions_shortnotice') {
 				sendback = $("#internalStatusMaster option[value='question_shortnotice_recommend_sendback']").text();			
@@ -196,7 +196,8 @@
 							&& value!=clubbingWithUnstarredFromPreviousSession
 							&& value!=unclubbing
 							&& value!=admitDueToReverseClubbing
-							&& value!=questionSupplmentarySendToSectionOfficer){
+							&& value!=questionSupplmentarySendToSectionOfficer
+							&& value!=recommendAnswerConfirmation){
 						$("#internalStatus").val(value);
 					}
 					$("#recommendationStatus").val(value);			
@@ -1567,7 +1568,9 @@
 		<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 		</p>
 		
-		<c:if test="${((internalStatusType=='question_system_putup' ||internalStatusType=='question_putup_nameclubbing'
+		<c:set var="isAllowedToPutupQuestionForApproval" value="NO"/>
+		<c:choose>
+		<c:when test="${((internalStatusType=='question_system_putup' ||internalStatusType=='question_putup_nameclubbing'
 						|| internalStatusType == 'question_putup_rejection' ||internalStatusType=='question_putup_convertToUnstarredAndAdmit'
 						|| internalStatusType == 'question_putup_clubbing' || internalStatusType == 'question_putup_nameclubbing' 
 						|| recommendationStatusType == 'question_putup_clubbingPostAdmission' || recommendationStatusType == 'question_putup_clubbingWithUnstarredFromPreviousSession'
@@ -1591,7 +1594,19 @@
 						&& recommendationStatusType ne 'question_shortnotice_recommend_reject_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_shortnotice_final_reject_clubbingWithUnstarredFromPreviousSession'))
 				|| (internalStatusType=='question_final_admission' && recommendationStatusType=='question_final_admission' && parent ne '')
 		}">
-			<security:authorize access="hasAnyRole('QIS_ASSISTANT')">		
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT')">
+				<c:set var="isAllowedToPutupQuestionForApproval" value="YES"/>
+			</security:authorize>		
+		</c:when>
+		<c:when test="${(internalStatusType=='question_unstarred_final_admission' 
+						&& recommendationStatusType=='question_unstarred_processed_answerReceived'
+						&& empty parent)}">
+			<security:authorize access="hasAnyRole('QIS_CLERK')">
+				<c:set var="isAllowedToPutupQuestionForApproval" value="YES"/>
+			</security:authorize>
+		</c:when>
+		</c:choose>
+		<c:if test="${isAllowedToPutupQuestionForApproval=='YES'}">
 			<p>
 				<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
 				<select id="changeInternalStatus" class="sSelect">
@@ -1615,15 +1630,13 @@
 				</select>	
 				<form:errors path="internalStatus" cssClass="validationError"/>	
 			</p>
-			</security:authorize>
-	
+
 			<p id="actorDiv" style="display: none;">
 				<label class="small"><spring:message code="question.nextactor" text="Next Users"/></label>
 				<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }" />
 				<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
-			</p>		
-	
-		</c:if>		
+			</p>
+		</c:if>
 			
 		<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 		<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
@@ -1782,6 +1795,11 @@
 						</security:authorize>
 						<c:if test="${(internalStatusType=='question_final_admission' && recommendationStatusType=='question_final_admission' && parent ne '')}">
 							<security:authorize access="hasAnyRole('QIS_ASSISTANT')">
+								<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
+							</security:authorize>
+						</c:if>
+						<c:if test="${(internalStatusType=='question_unstarred_final_admission' && recommendationStatusType=='question_unstarred_processed_answerReceived' && empty parent)}">
+							<security:authorize access="hasAnyRole('QIS_CLERK')">
 								<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
 							</security:authorize>
 						</c:if>					

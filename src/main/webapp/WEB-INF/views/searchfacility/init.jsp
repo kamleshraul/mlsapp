@@ -668,8 +668,12 @@
 											|| $('#whichDevice').val()=='motions_cutmotion_') {
 										textTemp+="<td class='expand' style='width: 420px; max-width: 420px;'>"+data[i].formattedPrimaryMember+" : "+data[i].deviceContent
 										+"<br/>"
-										+data[i].sessionYear+","+data[i].sessionType+","+data[i].deviceType+"<br>"
-										+"<strong>"+data[i].formattedGroup+"</span>,"+data[i].ministry;
+										+data[i].sessionYear+","+data[i].sessionType+","+data[i].deviceType+"<br>";
+										if($('#whichDevice').val()=='questions_') {
+											textTemp+="<strong>"+data[i].formattedGroup+"</span>,"+data[i].ministry;
+										} else {
+											textTemp+=data[i].ministry;
+										}										
 										if(data[i].subDepartment==null||data[i].subdepartment==""){
 											textTemp+=","+data[i].status+"<br>";
 										   
@@ -698,13 +702,22 @@
 											}
 										}
 										
+										if($('#whichDevice').val()=='motions_cutmotion_') {
+											if(data[i].isReplySentByDepartment==true) {
+												textTemp+=" ,<br><b><spring:message code='cutmotion.replyReceivedStatus.replyReceived' text='Reply Received'/></b>";
+											} else {
+												if(data[i].statusType=='cutmotion_final_admission' && data[i].isReplySentByDepartment==false) {
+													//textTemp+=" ,<br>Answer Not Received";
+													textTemp+=" ,<br><b><spring:message code='cutmotion.replyReceivedStatus.replyNotReceived' text='Reply Not Received'/></b>";
+												}
+											}										
+										}
+										
 										if(data[i].actor==null||data[i].actor==''){
 											textTemp+="</td>";
 										}else{
 											textTemp+=" ,<br>"+data[i].actor+"</td>";
-										} 
-										
-										
+										}									
 									} 
 									
 									textTemp+="</tr>";

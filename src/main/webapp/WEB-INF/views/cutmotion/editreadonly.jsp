@@ -824,6 +824,13 @@
 		<label class="small"><spring:message code="generic.status" text="Current Status"/></label>
 		<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>	
+	
+	<c:if test="${fn:endsWith(internalStatusType, '_admission') and not empty domain.reply}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="cutmotion.reply" text="Reply"/></label>
+			<form:textarea id="readonly_reply" path="reply" cssClass="wysiwyg"></form:textarea>
+		</p>
+	</c:if>
 		
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
