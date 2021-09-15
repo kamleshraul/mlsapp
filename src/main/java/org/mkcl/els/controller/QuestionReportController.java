@@ -2143,7 +2143,7 @@ public class QuestionReportController extends BaseController{
 								Object[] reportData = QuestionReportHelper.prepareUnstarredYaadiData(session, totalQuestionsInYaadi, locale.toString());
 								/**** generate report ****/
 								if(!isError) {
-									reportFile = generateReportUsingFOP(reportData, "template_unstarredYaadi_report", "WORD", "unstarred_question_yaadi", locale.toString());
+									reportFile = generateReportUsingFOP(reportData, "template_unstarredYaadi_report_"+houseType.getType(), "WORD", "unstarred_question_yaadi", locale.toString());
 									if(reportFile!=null) {
 										System.out.println("Report generated successfully in word format!");
 										openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
