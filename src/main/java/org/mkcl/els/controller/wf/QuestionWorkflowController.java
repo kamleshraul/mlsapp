@@ -1726,15 +1726,24 @@ public class QuestionWorkflowController  extends BaseController{
 						if(operation != null && !operation.isEmpty()){
 	
 							if(operation.equals("workflowsubmit")){
-								if(domain.getAnswer() == null 
-										&& domain.getFactualPosition()==null 
-										&& domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
-									result.rejectValue("factualPosition", "FactualPositionEmpty");
+								if((domain.getAnswer() == null || domain.getAnswer().isEmpty())
+										&& (domain.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_FINAL_ADMISSION))
+										&& (domain.getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_PROCESSED_SENDTOSECTIONOFFICER))
+										&& (domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)
+												|| domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION))){
 	
-									if(domain.getAnswer().isEmpty() && domain.getFactualPosition().isEmpty()){
-										result.rejectValue("answer", "AnswerEmpty");
-									}
-								} 
+									result.rejectValue("answer", "AnswerEmpty");
+									
+								} else if((domain.getFactualPosition()==null || domain.getFactualPosition().isEmpty())
+										&& (domain.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_FINAL_CLARIFICATION_FROM_DEPARTMENT)
+												|| domain.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_FINAL_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT))
+										&& (domain.getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_PROCESSED_SENDTOSECTIONOFFICER))
+										&& (domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)
+												|| domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION))){
+	
+									result.rejectValue("factualPosition", "FactualPositionEmpty");
+									
+								}
 								String internalStatusType = domain.getInternalStatus().getType();
 								if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)||
 										internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)||
@@ -1761,6 +1770,13 @@ public class QuestionWorkflowController  extends BaseController{
 							if(result.getFieldErrorCount("answer")>0){
 								if(!model.containsAttribute("errorcode")){
 									model.addAttribute("errorcode","no_answer_provided_department");
+									return "workflow/myTasks/error";
+								}		
+							}
+							
+							if(result.getFieldErrorCount("factualPosition")>0){
+								if(!model.containsAttribute("errorcode")){
+									model.addAttribute("errorcode","no_factual_position_provided_department");
 									return "workflow/myTasks/error";
 								}		
 							}

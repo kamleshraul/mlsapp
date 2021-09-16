@@ -2672,6 +2672,8 @@ public class ApplicationConstants {
 	
 	public static final String STATUS_PROCESSED_SENDTODESKOFFICER = "_processed_sendToDeskOfficer";
 	
+	public static final String STATUS_PROCESSED_SENDTOSECTIONOFFICER = "_processed_sendToSectionOfficer";
+	
 	public static final String STATUS_FINAL_REJECTION="_final_rejection";
 	
 	public static final String STATUS_LAPSED="_lapsed";
