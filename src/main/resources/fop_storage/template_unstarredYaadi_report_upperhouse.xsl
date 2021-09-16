@@ -237,7 +237,7 @@
                 				<xsl:if test="element_1_12!=''">
 									<xsl:value-of select="element_1_12"/>:&#160;
 								</xsl:if>
-                				<fo:inline font-weight="normal">सन्माननीय</fo:inline>
+                				<fo:inline font-weight="normal">सन्माननीय </fo:inline>
                 				<xsl:choose>
 									<xsl:when test="element_1_11='मुख्यमंत्री' or element_1_11='उप मुख्यमंत्री'">
 										<xsl:value-of select="element_1_11"/><fo:inline font-weight="normal"> पुढील गोष्टींचा खुलासा करतील काय :-</fo:inline>
