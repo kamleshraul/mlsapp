@@ -54,6 +54,15 @@
 		<p></p>
 	</div>
 </c:when>
+<c:when test="${errorcode eq 'no_factual_position_provided_department'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="question.errorcode.no_factualposition_provided_department" text="Department must provide factual position."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
 <c:when test="${errorcode eq 'no_reply_provided_department'}">
 	<div class="toolTip tpRed clearfix">
 		<p>
