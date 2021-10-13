@@ -5,19 +5,18 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<link rel="icon" type="image/png" href="./resources/images/mlsicon.png" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title><spring:message code="login.vidhanmandal1" text="Vidhan Mandal"></spring:message> | <spring:message code='user_lbl_login' text='Login'/></title>
-  <link rel="stylesheet" href="./resources/plugins/materialdesignicons/css/materialdesignicons.min.css" />
-  <link rel="stylesheet" href="./resources/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="./resources/css/custom.css" />
-	
-	
+  	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  	<title><spring:message code="login.vidhanmandal1" text="Vidhan Mandal"></spring:message> | <spring:message code='user_lbl_login' text='Login'/></title>
 	
 	<script type="text/javascript" src="./resources/js/jquery-1.6.2.min.js"></script>
 	<script type="text/javascript" src="./resources/js/crypto-js.js"></script>
 	<script type="text/javascript" src="./resources/js/jquery/jquery-impromptu.3.2.min.js"></script>
 	<!-- <script type="text/javascript" src="./resources/js/crosstab_handling_loginpage.js"></script> -->
 	<link rel="stylesheet" rel="stylesheet" href="./resources/css/jquery-impromptu.css"  />
+	
+	<link rel="stylesheet" href="./resources/plugins/materialdesignicons/css/materialdesignicons.min.css" />
+	<link rel="stylesheet" href="./resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="./resources/css/custom.css" />
 	
 	<script type="text/javascript">
 		//console.log("secret key for login page: " + '${secret_key}');
@@ -55,7 +54,7 @@
 		    		if(isUserToBeNotified=="yes") {
 		    			$('#passwordSection').hide();
 		    			$('#saveForm').hide();
-		    			$.prompt($('#login_disabled_notification_message').val());
+		    			//$.prompt($('#login_disabled_notification_message').val());
 		    			$('#login_disabled_notification_message_para').show();
 	    			} else {
 		    			$('#saveForm').show();
@@ -84,7 +83,7 @@
 			    		if(isUserToBeNotified=="yes") {
 			    			$('#passwordSection').hide();
 			    			$('#saveForm').hide();
-			    			$.prompt($('#login_disabled_notification_message').val());
+			    			//$.prompt($('#login_disabled_notification_message').val());
 			    			$('#login_disabled_notification_message_para').show();
 			    			return false;
 		    			} else {
@@ -182,7 +181,7 @@
                   <i class="mdi mdi-email-outline"></i>
                 </div>
               </div>
-              <div class="form-group">
+              <div class="form-group" id="passwordSection">
                 <label for="exampleInputPassword1"><spring:message code="user_lbl_password" text="Password" /></label>
                 <div class="input-group">
                   <input
