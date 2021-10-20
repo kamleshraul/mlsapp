@@ -248,7 +248,7 @@
 			$("#actorDiv").hide();
 			return false;
 		} 
-		else if(value=answerConfirmed) {
+		else if(value==answerConfirmed) {
 			$("#endFlag").val("end");
 			$("#recommendationStatus").val(value);
 			$("#level").val("1");	    
