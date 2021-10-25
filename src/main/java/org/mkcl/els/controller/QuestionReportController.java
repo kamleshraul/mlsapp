@@ -5154,7 +5154,12 @@ public class QuestionReportController extends BaseController{
 		String toDateStr = request.getParameter("toDate");
 		String forTodayStr = request.getParameter("forToday");
 		String includeYaadiQuestions = request.getParameter("includeYaadiQuestions");
-		String reportQuery = request.getParameter("reportQuery");
+		String includeConfirmedAnswers = request.getParameter("includeConfirmedAnswers");
+		String role = request.getParameter("role");
+		if(role==null) {
+			role="";
+		}
+    	String reportQuery = request.getParameter("reportQuery");
 		String xsltFileName = request.getParameter("xsltFileName");
 		String outputFormat = request.getParameter("outputFormat");
 		String reportFileName = request.getParameter("reportFileName");
@@ -5167,6 +5172,7 @@ public class QuestionReportController extends BaseController{
 				&& originalDeviceTypeStr!=null && !originalDeviceTypeStr.isEmpty()				
 				&& answerReceivedStatus!=null && !answerReceivedStatus.isEmpty()
 				&& includeYaadiQuestions!=null && !includeYaadiQuestions.isEmpty()
+				&& includeConfirmedAnswers!=null && !includeConfirmedAnswers.isEmpty()
 				&& criteria!=null && !criteria.isEmpty()
 				&& reportQuery!=null && !reportQuery.isEmpty()
 				&& xsltFileName!=null && !xsltFileName.isEmpty()
@@ -5234,6 +5240,8 @@ public class QuestionReportController extends BaseController{
 			    	parameterMap.put("fromDate", new String[]{fromDateStr});
 			    	parameterMap.put("toDate", new String[]{toDateStr});
 			    	parameterMap.put("includeYaadiQuestions", new String[]{includeYaadiQuestions});
+			    	parameterMap.put("includeConfirmedAnswers", new String[]{includeConfirmedAnswers});
+			    	parameterMap.put("role", new String[]{role});
 			    	
 			    	reportHeaders = Query.findReport(reportQuery+"_HEADERS", parameterMap);
 			    	parameterMap = null;
@@ -5251,6 +5259,8 @@ public class QuestionReportController extends BaseController{
 			    	parameterMap.put("originalDeviceTypeId", new String[]{originalDeviceTypeStr});
 			    	parameterMap.put("answerReceivedStatus", new String[]{answerReceivedStatus});
 			    	parameterMap.put("includeYaadiQuestions", new String[]{includeYaadiQuestions});
+			    	parameterMap.put("includeConfirmedAnswers", new String[]{includeConfirmedAnswers});
+			    	parameterMap.put("role", new String[]{role});
 			    	parameterMap.put("serial", new String[]{"0"});
 			    	List<Object[]> resultData = Query.findReport(reportQuery, parameterMap);
 			    	

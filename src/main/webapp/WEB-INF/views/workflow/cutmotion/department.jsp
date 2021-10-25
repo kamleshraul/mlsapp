@@ -915,25 +915,25 @@
 		
 		<p class="revise1" id="revisedMainTitleDiv">
 			<label class="centerlabel"><spring:message code="cutmotion.mainTitle" text="Main Title"/></label>
-			<form:textarea path="revisedMainTitle" rows="2" cols="50"></form:textarea>
+			<form:textarea readonly="true" path="revisedMainTitle" rows="2" cols="50"></form:textarea>
 			<form:errors path="revisedMainTitle" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 		
 		<p class="revise2" id="revisedSecondaryTitleDiv">
 			<label class="centerlabel"><spring:message code="cutmotion.secondaryTitle" text="Secondary Title"/></label>
-			<form:textarea path="revisedSecondaryTitle" rows="2" cols="50"></form:textarea>
+			<form:textarea readonly="true" path="revisedSecondaryTitle" rows="2" cols="50"></form:textarea>
 			<form:errors path="revisedSecondaryTitle" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 		
 		<p class="revise3" id="revisedSubTitleDiv">
 			<label class="centerlabel"><spring:message code="cutmotion.subTitle" text="Sub Title"/></label>
-			<form:textarea path="revisedSubTitle" rows="2" cols="50"></form:textarea>
+			<form:textarea readonly="true" path="revisedSubTitle" rows="2" cols="50"></form:textarea>
 			<form:errors path="revisedSubTitle" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 		
 		<p class="revise4" id="revisedNoticeContentDiv">
 			<label class="wysiwyglabel"><spring:message code="cutmotion.noticeContent" text="Notice Content"/></label>
-			<form:textarea path="revisedNoticeContent" cssClass="wysiwyg"></form:textarea>
+			<form:textarea readonly="true" path="revisedNoticeContent" cssClass="wysiwyg"></form:textarea>
 			<form:errors path="revisedNoticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 		

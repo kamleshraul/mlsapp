@@ -715,13 +715,13 @@
 			
 			<p class="revise1" id="revisedSubjectDiv">
 				<label class="centerlabel"><spring:message code="adjournmentmotion.revisedSubject" text="Revised Subject"/></label>
-				<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
+				<form:textarea path="revisedSubject" rows="2" cols="50" readonly="true"></form:textarea>
 				<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 			</p>
 			
 			<p class="revise2" id="revisedNoticeContentDiv">
 				<label class="wysiwyglabel"><spring:message code="adjournmentmotion.revisedNoticeContent" text="Revised Notice Content"/></label>
-				<form:textarea path="revisedNoticeContent" cssClass="wysiwyg"></form:textarea>
+				<form:textarea path="revisedNoticeContent" cssClass="wysiwyg" readonly="true"></form:textarea>
 				<form:errors path="revisedNoticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 			</p>
 			

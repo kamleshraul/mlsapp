@@ -15,6 +15,16 @@
 					}
 				});
 				
+				$('#includeYaadiQuestions').click(function() {
+					if($(this).is(':checked')) {
+						$('#includeConfirmedAnswers').attr('checked', 'checked');
+						$('#includeConfirmedAnswers').attr('disabled', 'disabled');
+					} else {
+						$('#includeConfirmedAnswers').removeAttr('checked');
+						$('#includeConfirmedAnswers').removeAttr('disabled');
+					}
+				});
+				
 				/**** Report Generation (Old) ****/
 				$("#linkForReportOld").click(function(){	
 					var reportURL = "question/report/online_offline_answered_count_report?session="+$('#session').val()
@@ -70,6 +80,12 @@
 						
 					}
 					
+					var includeConfirmedAnswers = "no";
+					if($('#includeConfirmedAnswers').is(':checked')) {
+						includeConfirmedAnswers = "yes";
+						
+					}
+					
 					/* var answeredStatus = "";
 					if($('#selectedAnswerReceivedStatus').val()=='answerReceived') {
 						answeredStatus = "_answered"
@@ -89,7 +105,8 @@
 							fromDate				: $('#fromDate').val(),
 							toDate					: $('#toDate').val(),
 							forToday				: forToday,	
-							includeYaadiQuestions	: includeYaadiQuestions,
+							includeYaadiQuestions	: includeYaadiQuestions,	
+							includeConfirmedAnswers	: includeConfirmedAnswers,
 							locale					: $("#moduleLocale").val(), 
 							role					: $("#srole").val(),
 							reportQuery				: "QIS_UNSTARRED_ANSWERED_DEPARTMENTWISE_QUESTIONS"/* + "_" + $("#selectedHouseType").val().toUpperCase()*/,
@@ -125,6 +142,11 @@
 		<p>
 			<label class="small"><spring:message code="question.onlineansweredcountreport.includeYaadiQuestions" text="Include Yaadi Questions?"/></label>
 			<input id="includeYaadiQuestions" class="sCheck" type="checkbox" name="includeYaadiQuestions"/>
+		</p>
+		
+		<p>
+			<label class="small"><spring:message code="question.onlineansweredcountreport.includeConfirmedAnswers" text="Include Answers In Confirmation Questions??"/></label>
+			<input id="includeConfirmedAnswers" class="sCheck" type="checkbox" name="includeConfirmedAnswers"/>
 		</p>
 		
 		<p>
