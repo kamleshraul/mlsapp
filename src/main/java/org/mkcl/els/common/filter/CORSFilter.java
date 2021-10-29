@@ -4,15 +4,21 @@ import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import org.mkcl.els.domain.CustomParameter;
 //import org.mkcl.els.common.interceptor.CorsInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.servlet.support.RequestContextUtils;
 
 /**
  * Servlet Filter implementation class CORSFilter
@@ -46,8 +52,29 @@ public class CORSFilter implements Filter {
 	 * @see Filter#doFilter(ServletRequest, ServletResponse, FilterChain)
 	 */
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-		HttpServletResponse httpResponse=(HttpServletResponse) response;
-		 HttpServletRequest httpRequest = (HttpServletRequest) request;
+		HttpServletResponse httpResponse = (HttpServletResponse) response;
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
+		HttpSession session = httpRequest.getSession();
+		ServletContext sc = session.getServletContext();
+		WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(sc);
+
+		String validOrigins = "*";
+		
+		if(webApplicationContext!=null) {
+			ServletContext servletContext = webApplicationContext.getServletContext();
+			validOrigins = servletContext.getAttribute("validOrigins")!=null?
+					servletContext.getAttribute("validOrigins").toString():"*";
+			
+			if(validOrigins==null || validOrigins.trim().length()<=0) {
+				CustomParameter customObj = CustomParameter.findByName(CustomParameter.class,"VALID_ORIGIN", "");
+				if(customObj!=null && customObj.getId()>0) {
+					validOrigins=customObj.getValue()!=null && customObj.getValue().trim().length()>0
+									?customObj.getValue().trim():"*";
+					
+					servletContext.setAttribute("validOrigins", validOrigins);
+				}
+			}
+		}
 		
 		//httpResponse.setHeader(ORIGIN_NAME, "http://localhost:8080");
 		httpResponse.setHeader("Content-Type", "text/html");
@@ -55,10 +82,11 @@ public class CORSFilter implements Filter {
 		httpResponse.setHeader("X-Requested-With",null);
 		httpResponse.setHeader(METHODS_NAME, "POST,GET,PUT,UPDATE,OPTIONS");
 		httpResponse.setHeader(HEADERS_NAME, "Content-Type, Access-Control-Allow-Headers, Authorization,observe,X-Requested-With,X-Auth-Token");
-		/*
-		 * if (httpRequest.getMethod().equals("OPTIONS")) {
-		 * httpResponse.setStatus(HttpServletResponse.SC_ACCEPTED); return; }
-		 */
+		httpResponse.setHeader(ORIGIN_NAME, validOrigins);
+		
+		  if (httpRequest.getMethod().equals("OPTIONS")) {
+		  httpResponse.setStatus(HttpServletResponse.SC_ACCEPTED); return; }
+		 
 		
 		chain.doFilter(request, httpResponse);
 	}
