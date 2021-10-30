@@ -32,6 +32,7 @@ import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.YaadiDetails;
+import org.mozilla.javascript.ObjArray;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -706,7 +707,8 @@ public class YaadiDetailsController extends BaseController {
 					HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
 					if(houseType==null) {
 						houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
-					}					
+					}	
+					model.addAttribute("houseTypeType", houseType.getType());
 					SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
 					Integer sessionYear = Integer.parseInt(strSessionYear);
 					if(houseType==null || sessionType==null) {
@@ -786,10 +788,20 @@ public class YaadiDetailsController extends BaseController {
 					Integer yaadiNumber = FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strYaadiNumber).intValue();
 					Date yaadiLayingDate = FormaterUtil.formatStringToDate(strYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 					List<Question> totalQuestionsInYaadi = Question.findQuestionsInNumberedYaadi(null, session, yaadiNumber, yaadiLayingDate, locale.toString());
-					Object[] reportData = QuestionReportHelper.prepareUnstarredYaadiData(session, totalQuestionsInYaadi, locale.toString());
+					String suchiParameter = request.getParameter("suchiParameter");
+					Object[] reportData = null;
+					if(suchiParameter!=null && suchiParameter.equalsIgnoreCase("session")) {
+						reportData = QuestionReportHelper.prepareSessionwiseUnstarredYaadiDataForSuchi(session, totalQuestionsInYaadi, locale.toString());
+					} else {
+						reportData = QuestionReportHelper.prepareUnstarredYaadiData(session, totalQuestionsInYaadi, locale.toString());
+					}					
 					/**** generate report ****/
 					if(!isError) {
-						reportFile = generateReportUsingFOP(reportData, "template_unstarredSuchi_report", "WORD", "unstarred_question_suchi", locale.toString());
+						if(suchiParameter!=null && suchiParameter.equalsIgnoreCase("session")) {
+							reportFile = generateReportUsingFOP(reportData, "template_unstarredSuchi_sessionwise_report", "WORD", "unstarred_question_sessionwise_suchi", locale.toString());
+						} else {
+							reportFile = generateReportUsingFOP(reportData, "template_unstarredSuchi_report", "WORD", "unstarred_question_suchi", locale.toString());
+						}						
 						if(reportFile!=null) {
 							System.out.println("Unstarred Suchi Report generated successfully in word format!");
 							openOrSaveReportFileFromBrowser(response, reportFile, "WORD");

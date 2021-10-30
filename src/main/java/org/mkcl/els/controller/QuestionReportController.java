@@ -6061,6 +6061,58 @@ class QuestionReportHelper{
 		return unstarredYaadiData;
 	}
 	
+	public static Object[] prepareSessionwiseUnstarredYaadiDataForSuchi(final Session session, final List<Question> totalQuestionsInYaadi, String locale) throws ELSException {
+		Object[] unstarredYaadiData = null;
+		/**** Session Related Data ****/
+		HouseType houseType = session.getHouse().getType();
+		String houseTypeName = houseType.getName();
+		String sessionNumber = session.getNumber().toString();
+		String sessionTypeName = session.getType().getSessionType();
+		String sessionYear = FormaterUtil.formatNumberNoGrouping(session.getYear(), locale.toString());
+		String sessionPlace = session.getPlace().getPlace();
+		/**** Questions Data ****/
+		String yaadiNumber = null;
+		String yaadiLayingDate = null;
+		List<Object[]> yaadiQuestions = new ArrayList<Object[]>();
+		int count=0;
+		for(Question q: totalQuestionsInYaadi) {
+			Object[] yaadiQuestion = new Object[15];
+			count++;
+			yaadiQuestion[0] = FormaterUtil.formatNumberNoGrouping(count, locale);
+			yaadiQuestion[1] = q.getId();
+			yaadiQuestion[2] = q.getNumber();
+			yaadiQuestion[3] = FormaterUtil.formatNumberNoGrouping(q.getNumber(), locale);
+			Session questionSession = q.getSession();
+			yaadiQuestion[4] = questionSession.getNumber().toString();
+			yaadiQuestion[5] = FormaterUtil.formatNumberNoGrouping(questionSession.getYear(), locale.toString());
+			yaadiQuestion[6] = questionSession.getType().getSessionType();
+			if(yaadiNumber==null) {
+				if(q.getYaadiNumber()!=null) {
+					yaadiNumber = FormaterUtil.formatNumberNoGrouping(q.getYaadiNumber(), locale);
+				} else {
+					yaadiNumber = "";
+				}
+			}
+			if(yaadiLayingDate==null) {
+				if(q.getYaadiLayingDate()!=null) {
+					yaadiLayingDate = FormaterUtil.formatDateToString(q.getYaadiLayingDate(), ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale);
+				} else {
+					yaadiLayingDate = "";
+				}
+			}
+			//-----------------------------------------------
+			yaadiQuestions.add(yaadiQuestion);
+		}
+		String totalNumberOfYaadiQuestions = FormaterUtil.formatNumberNoGrouping(yaadiQuestions.size(), locale.toString());
+		Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
+		List<User> users = User.findByRole(false, role.getName(), locale.toString());
+		//as principal secretary for unstarred question is only one, so user is obviously first element of the list.
+		String userName = users.get(0).findFirstLastName();
+		
+		unstarredYaadiData = new Object[]{yaadiQuestions, totalNumberOfYaadiQuestions, houseTypeName, sessionNumber, sessionTypeName, sessionYear, sessionPlace, userName, yaadiNumber, yaadiLayingDate};
+		return unstarredYaadiData;
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void convertReportDataIntoMapGenericApproach(final List reportData, final ModelMap model) {
 		if(reportData!=null && !reportData.isEmpty()) {

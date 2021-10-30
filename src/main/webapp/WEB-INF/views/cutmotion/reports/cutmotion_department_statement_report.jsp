@@ -145,7 +145,7 @@
 													<c:set var="actor" value="${fn:split(r[10], '#')}" />
 													<c:choose>
 														<c:when test="${actor[1]=='department' or actor[1]=='department_deskofficer'}">
-															${actor[4]}
+															${actor[4]} <br/> (${actor[0]})
 														</c:when>
 														<c:otherwise>
 															-
@@ -176,7 +176,7 @@
 															<c:set var="actor" value="${fn:split(r[10], '#')}" />
 															<c:choose>
 																<c:when test="${actor[1]=='department' or actor[1]=='department_deskofficer'}">
-																	${actor[4]}
+																	${actor[4]} <br/> (${actor[0]})
 																</c:when>
 																<c:otherwise>
 																	-
