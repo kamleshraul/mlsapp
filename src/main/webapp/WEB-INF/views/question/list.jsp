@@ -97,8 +97,15 @@
 			
 			/****Provide questions choices for first batch choices post member ballot ****/
 			$("#memberballotchoice").click(function() {
-				$("#selectionDiv1").hide();
-				fillMemberBallotChoices();
+				if($('#questionChoiceSubmissionWindowClosedMsg').val()!=undefined
+						&& $('#questionChoiceSubmissionWindowClosedMsg').val()!='') {
+					
+					$.prompt($('#questionChoiceSubmissionWindowClosedMsg').val());
+					
+				} else {
+					$("#selectionDiv1").hide();
+					fillMemberBallotChoices();
+				}
 			});
 			
 			/****Member's Questions View ****/
