@@ -165,13 +165,13 @@ public class ReportServiceImpl implements IReportService {
 			
 			//set files here
 			this.fopConfigFile = new File(BASE_DIRECTORY, fopConfigFileName + EXTENSION_XML);
-			this.xmlFile = new File(BASE_DIRECTORY, "xmlFile_"+currentTime + EXTENSION_XML);
+			this.xmlFile = new File(BASE_DIRECTORY, "xmlFile_" + reportFileName + "_" +currentTime + EXTENSION_XML);
 			this.imageFiles = new ArrayList<File>();
 			this.xsltFile = new File(BASE_DIRECTORY, xsltFileName + EXTENSION_XSLT);
 			if(!this.xsltFile.exists()) {
 				throw new FileNotFoundException(ApplicationConstants.XSLT_FILE_NOT_FOUND);
 			}
-			this.foFile = new File(BASE_DIRECTORY, "foFile_"+currentTime + EXTENSION_FO); 
+			this.foFile = new File(BASE_DIRECTORY, "foFile_" + reportFileName + "_" + currentTime + EXTENSION_FO); 
 			this.foXsltFile = new File(BASE_DIRECTORY, "fo2html" + EXTENSION_XSLT);
 			
 			//set report file name conditionally			
