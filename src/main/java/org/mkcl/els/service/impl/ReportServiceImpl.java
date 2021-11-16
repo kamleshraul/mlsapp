@@ -159,7 +159,8 @@ public class ReportServiceImpl implements IReportService {
 								 Integer.toString(calendar.get(Calendar.YEAR)) + "_" +
 								 Integer.toString(calendar.get(Calendar.HOUR_OF_DAY)) + "_" + 
 								 Integer.toString(calendar.get(Calendar.MINUTE)) + "_" + 
-								 Integer.toString(calendar.get(Calendar.SECOND));
+								 Integer.toString(calendar.get(Calendar.SECOND)) + "_" + 
+								 Integer.toString(calendar.get(Calendar.MILLISECOND));
 			
 			this.reportFormat = reportFormat;
 			
