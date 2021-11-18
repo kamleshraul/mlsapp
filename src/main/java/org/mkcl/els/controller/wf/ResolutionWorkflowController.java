@@ -371,7 +371,14 @@ public class ResolutionWorkflowController extends BaseController{
 		model.addAttribute("usergroup",workflowDetails.getAssigneeUserGroupId());
 		model.addAttribute("usergroupType",workflowDetails.getAssigneeUserGroupType());
 		model.addAttribute("userGroupName", workflowDetails.getAssigneeUserGroupName());
-		model.addAttribute("userName", this.getCurrentUser().getActualUsername());
+		StringBuffer userName = new StringBuffer();
+		userName.append(this.getCurrentUser().getTitle());
+		userName.append(" ");
+		userName.append(this.getCurrentUser().getFirstName());
+		userName.append(" ");
+		userName.append(this.getCurrentUser().getLastName());
+		model.addAttribute("userName", userName.toString());
+		model.addAttribute("login_username", this.getCurrentUser().getActualUsername());
 
 		/**** To have the task creation date and lastReceivingDate if userGroup is department in case of starred questions ***/
 		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
