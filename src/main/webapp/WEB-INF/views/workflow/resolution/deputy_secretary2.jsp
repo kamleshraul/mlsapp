@@ -725,7 +725,14 @@
 				<tr>
 					<td style="text-align: left">
 						${userName}<br>
-						(${userGroupName})
+						<c:choose>
+							<c:when test="${usergroupType=='deputy_secretary1' || usergroupType=='deputy_secretary2'}">
+								(<spring:message code="generic.deputy_secretary.display_name" text="Deputy Secretary"></spring:message>)
+							</c:when>
+							<c:otherwise>
+								(${userGroupName})
+							</c:otherwise>
+						</c:choose>
 					</td>
 					<td style="text-align: center">
 						<select id="changeInternalStatus" class="sSelect">
