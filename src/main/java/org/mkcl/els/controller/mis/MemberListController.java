@@ -161,7 +161,8 @@ public class MemberListController extends GenericController<Member> {
 						credential.setPasswordChangeCount(1);
 						credential.setPasswordChangeDateTime(new Date());
 						credential.merge();
-						reportData.get(0)[12] = credential.getPassword();
+						//reportData.get(0)[12] = credential.getPassword();
+						reportData.get(0)[12] = strPassword;
 					}
 				}
 			}
