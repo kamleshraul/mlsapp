@@ -143,12 +143,12 @@
             <form class="form-holder" id="form" action="<c:url value='/j_spring_security_check'/>" method="post" autocomplete="off">
            
               <c:if test="${not empty param['error']}">
-			<div class="help-block">${sessionScope["SPRING_SECURITY_LAST_EXCEPTION"].message}</div>
+			<div class="help-block" style="color: #FF0000;">${sessionScope["SPRING_SECURITY_LAST_EXCEPTION"].message}</div>
 			<c:remove var = "SPRING_SECURITY_LAST_EXCEPTION" scope = "session" />
 		</c:if>
 		
 		<if test="${not empty sessionScope.captchaError}">
-			<div class="help-block">${sessionScope.captchaError}</div>
+			<div class="help-block" style="color: #FF0000;">${sessionScope.captchaError}</div>
 		</if> 
 		
 		<c:if test="${empty param['error']}"> 
