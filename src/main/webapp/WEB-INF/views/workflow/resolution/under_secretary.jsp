@@ -124,11 +124,12 @@
 				}else if($('#houseTypeType').val()=='upperhouse'){
 					$("#actorUpperHouse").html(text);
 				}
-				if($("#isRepeatWorkFlow").val()=='no'){
+				/* if($("#isRepeatWorkFlow").val()=='no'){
 					$("#actorDiv").show();
 				}else{
 					$("#actorDiv").hide();
-				}
+				} */
+				$("#actorDiv").show();
 				/**** in case of sendback and discuss only recommendation status is changed ****/
 				if(value != sendback && value != discuss){
 					$("#internalStatus").val(value);
@@ -139,10 +140,14 @@
 				 var temp=actor1.split("#");
 				 if($('#houseTypeType').val()=='lowerhouse'){
 					 $("#levelLowerHouse").val(temp[2]);		    
-					 $("#localizedActorNameLowerHouse").val(temp[3]+"("+temp[4]+")");
+					 $("#localizedActorNameLowerHouse").val(temp[3]+"("+temp[4]+")");	
+					 $("#actorName").val(temp[4]);
+					 $("#actorName").css('display','inline');
 				}else if($('#houseTypeType').val()=='upperhouse'){
 					 $("#levelUpperHouse").val(temp[2]);		    
-					 $("#localizedActorNameUpperHouse").val(temp[3]+"("+temp[4]+")");
+					 $("#localizedActorNameUpperHouse").val(temp[3]+"("+temp[4]+")");	
+					 $("#actorName").val(temp[4]);
+					 $("#actorName").css('display','inline');
 				}	
 			}else{
 				if($('#houseTypeType').val()=='lowerhouse'){
@@ -212,7 +217,9 @@
 		    var temp=actor.split("#");
 		    console.log(temp);
 		    $("#levelLowerHouse").val(temp[2]);		    
-		    $("#localizedActorNameLowerHouse").val(temp[3]+"("+temp[4]+")");
+		    $("#localizedActorNameLowerHouse").val(temp[3]+"("+temp[4]+")");	
+			$("#actorName").val(temp[4]);
+			$("#actorName").css('display','inline');
 	    });
 	 
 	 $("#actorUpperHouse").change(function(){
@@ -220,7 +227,9 @@
 		    var temp=actor.split("#");
 		    console.log(temp);
 		    $("#levelUpperHouse").val(temp[2]);		    
-		    $("#localizedActorNameUpperHouse").val(temp[3]+"("+temp[4]+")");
+		    $("#localizedActorNameUpperHouse").val(temp[3]+"("+temp[4]+")");	
+			$("#actorName").val(temp[4]);
+			$("#actorName").css('display','inline');
 	    });
 				
 		/**** Ministry Changes ****/
@@ -644,13 +653,13 @@
 	<table class="uiTable" style="margin-left:165px;width:600px;">
 		<thead>
 		<tr>
-		<th style="text-align: center">
+		<th style="text-align: center;width: 20%">
 		<spring:message code="rois.latestrevisions.user" text="Usergroup"></spring:message>
 		</th>
-		<th style="text-align: center">
+		<th style="text-align: center;width: 30%">
 		<spring:message code="rois.latestrevisions.decision" text="Decision"></spring:message>
 		</th>
-		<th style="text-align: center">
+		<th style="text-align: center;width: 50%">
 		<spring:message code="rois.latestrevisions.remarks" text="Remarks"></spring:message>
 		</th>
 		</tr>
@@ -658,13 +667,13 @@
 		<tbody>	
 			<c:forEach items="${latestRevisions}" var="i">
 				<tr>
-					<td style="text-align: left">
+					<td style="text-align: left;width: 20%">
 					${i[0]}<br>(${i[2]})
 					</td>
-					<td style="text-align: center">
+					<td style="text-align: center;width: 30%">
 					${i[6]}
 					</td>
-					<td style="text-align: center">
+					<td style="text-align: center;width: 50%">
 					${i[7]}
 					</td>
 				</tr>
@@ -711,7 +720,7 @@
 		</c:forEach>
 		</select>	
 	
-		<p id="actorDiv" style="display:none;">
+		<p id="actorDiv">
 		<label class="small"><spring:message code="resolution.nextactor" text="Next Users"/></label>
 		<c:if test="${houseTypeForStatus=='lowerhouse'}">
 			<form:select path="actorLowerHouse" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
@@ -721,6 +730,7 @@
 			<form:select path="actorUpperHouse" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
 			<form:hidden path="actorLowerHouse"/>				
 		</c:if>
+		<input type="text" id="actorName" name="actorName" class="sText" readonly="readonly"/>
 		</p>		
 	</c:if>		
 	

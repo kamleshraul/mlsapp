@@ -398,9 +398,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				actorAtGivenLevel.setId(user.getCredential().getUsername()
 						+"#"+userGroupTypeTemp.getType()
 						+"#"+workflowActor.getLevel()
-						+"#"+userGroupTypeTemp.getName()
+						+"#"+userGroupTypeTemp.getDisplayName()
 						+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-				actorAtGivenLevel.setName(userGroupTypeTemp.getName());	
+				actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());	
 				return actorAtGivenLevel;
 			} catch (ELSException e) {
 				e.printStackTrace();
@@ -480,9 +480,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					actorAtGivenLevel.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+workflowActor.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					actorAtGivenLevel.setName(userGroupTypeTemp.getName());		
+					actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());		
 					return actorAtGivenLevel;
 				}				
 			}
@@ -640,10 +640,10 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						reference.setId(user.getCredential().getUsername()
 								+ "#" + userGroupTypeTemp.getType()
 								+ "#" + i.getLevel()
-								+ "#" + userGroupTypeTemp.getName()
+								+ "#" + userGroupTypeTemp.getDisplayName()
 								+ "#" + user.getTitle() + " " 
 								+ user.getFirstName() + " " + user.getMiddleName() + " " + user.getLastName());
-						reference.setName(userGroupTypeTemp.getName());
+						reference.setName(userGroupTypeTemp.getDisplayName());
 						references.add(reference);
 						break;
 					} catch (ELSException e) {
@@ -728,12 +728,12 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 							reference.setId(j.getCredential().getUsername()
 									+"#"+j.getUserGroupType().getType()
 									+"#"+i.getLevel()
-									+"#"+userGroupTypeTemp.getName()
+									+"#"+userGroupTypeTemp.getDisplayName()
 									+"#"+user.getTitle()+" "
 									+user.getFirstName()+" "
 									+user.getMiddleName()+" "
 									+user.getLastName());
-							reference.setName(userGroupTypeTemp.getName());
+							reference.setName(userGroupTypeTemp.getDisplayName());
 							reference.setState(params.get(ApplicationConstants.ACTORSTATE_KEY+"_"+locale));
 							reference.setRemark(params.get(ApplicationConstants.ACTORREMARK_KEY+"_"+locale));
 							if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
@@ -996,9 +996,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				actorAtGivenLevel.setId(user.getCredential().getUsername()
 						+"#"+userGroupTypeTemp.getType()
 						+"#"+workflowActor.getLevel()
-						+"#"+userGroupTypeTemp.getName()
+						+"#"+userGroupTypeTemp.getDisplayName()
 						+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-				actorAtGivenLevel.setName(userGroupTypeTemp.getName());	
+				actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());	
 				return actorAtGivenLevel;
 			} catch (ELSException e) {
 				e.printStackTrace();
@@ -1078,9 +1078,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					actorAtGivenLevel.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+workflowActor.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					actorAtGivenLevel.setName(userGroupTypeTemp.getName());		
+					actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());		
 					return actorAtGivenLevel;
 				}				
 			}
@@ -1257,9 +1257,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					reference.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+i.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					reference.setName(userGroupTypeTemp.getName());
+					reference.setName(userGroupTypeTemp.getDisplayName());
 					reference.setState(params.get(ApplicationConstants.ACTORSTATE_KEY+"_"+locale));
 					reference.setRemark(params.get(ApplicationConstants.ACTORREMARK_KEY+"_"+locale));
 					if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
@@ -1507,9 +1507,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					reference.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+i.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					reference.setName(userGroupTypeTemp.getName());
+					reference.setName(userGroupTypeTemp.getDisplayName());
 					references.add(reference);
 					break;
 				}				
@@ -1624,9 +1624,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					reference.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+i.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					reference.setName(userGroupTypeTemp.getName());
+					reference.setName(userGroupTypeTemp.getDisplayName());
 					references.add(reference);
 					break;
 				}				
@@ -1713,9 +1713,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					reference.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+i.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					reference.setName(userGroupTypeTemp.getName());
+					reference.setName(userGroupTypeTemp.getDisplayName());
 					references.add(reference);
 					break;
 				}				
@@ -1851,9 +1851,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				actorAtGivenLevel.setId(user.getCredential().getUsername()
 						+"#"+userGroupTypeTemp.getType()
 						+"#"+workflowActor.getLevel()
-						+"#"+userGroupTypeTemp.getName()
+						+"#"+userGroupTypeTemp.getDisplayName()
 						+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-				actorAtGivenLevel.setName(userGroupTypeTemp.getName());	
+				actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());	
 				return actorAtGivenLevel;
 			} catch (ELSException e) {
 				e.printStackTrace();
@@ -1933,9 +1933,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					actorAtGivenLevel.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+workflowActor.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					actorAtGivenLevel.setName(userGroupTypeTemp.getName());		
+					actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());		
 					return actorAtGivenLevel;
 				}				
 			}
@@ -2145,11 +2145,11 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 							j.getCredential(), locale);
 					reference.setId(j.getCredential().getUsername() + "#"
 							+ j.getUserGroupType().getType() + "#"
-							+ i.getLevel() + "#" + userGroupTypeTemp.getName()
+							+ i.getLevel() + "#" + userGroupTypeTemp.getDisplayName()
 							+ "#" + user.getTitle() + " " + user.getFirstName()
 							+ " " + user.getMiddleName() + " "
 							+ user.getLastName());
-					reference.setName(userGroupTypeTemp.getName());
+					reference.setName(userGroupTypeTemp.getDisplayName());
 					if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 						if(!reference.getId().equals(motion.getActor())){
 							references.add(reference);
@@ -2259,9 +2259,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				actorAtGivenLevel.setId(user.getCredential().getUsername()
 						+"#"+userGroupTypeTemp.getType()
 						+"#"+workflowActor.getLevel()
-						+"#"+userGroupTypeTemp.getName()
+						+"#"+userGroupTypeTemp.getDisplayName()
 						+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-				actorAtGivenLevel.setName(userGroupTypeTemp.getName());	
+				actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());	
 				return actorAtGivenLevel;
 			} catch (ELSException e) {
 				// TODO Auto-generated catch block
@@ -2345,9 +2345,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					actorAtGivenLevel.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+workflowActor.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					actorAtGivenLevel.setName(userGroupTypeTemp.getName());		
+					actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());		
 					return actorAtGivenLevel;
 				}				
 			}
@@ -2404,9 +2404,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				actorAtGivenLevel.setId(user.getCredential().getUsername()
 						+"#"+userGroupTypeTemp.getType()
 						+"#"+workflowActor.getLevel()
-						+"#"+userGroupTypeTemp.getName()
+						+"#"+userGroupTypeTemp.getDisplayName()
 						+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-				actorAtGivenLevel.setName(userGroupTypeTemp.getName());	
+				actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());	
 				return actorAtGivenLevel;
 			} catch (ELSException e) {
 				// TODO Auto-generated catch block
@@ -2490,9 +2490,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					actorAtGivenLevel.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+workflowActor.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					actorAtGivenLevel.setName(userGroupTypeTemp.getName());		
+					actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());		
 					return actorAtGivenLevel;
 				}				
 			}
@@ -2594,9 +2594,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						reference.setId(user.getCredential().getUsername()
 								+"#"+userGroupTypeTemp.getType()
 								+"#"+i.getLevel()
-								+"#"+userGroupTypeTemp.getName()
+								+"#"+userGroupTypeTemp.getDisplayName()
 								+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-						reference.setName(userGroupTypeTemp.getName());
+						reference.setName(userGroupTypeTemp.getDisplayName());
 						references.add(reference);
 						break;
 					} catch (ELSException e) {
@@ -2674,9 +2674,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 							reference.setId(j.getCredential().getUsername()
 									+"#"+j.getUserGroupType().getType()
 									+"#"+i.getLevel()
-									+"#"+userGroupTypeTemp.getName()
+									+"#"+userGroupTypeTemp.getDisplayName()
 									+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-							reference.setName(userGroupTypeTemp.getName());
+							reference.setName(userGroupTypeTemp.getDisplayName());
 							reference.setState(params.get(ApplicationConstants.ACTORSTATE_KEY+"_"+locale));
 							reference.setRemark(params.get(ApplicationConstants.ACTORREMARK_KEY+"_"+locale));
 							if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
@@ -2808,9 +2808,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				actorAtGivenLevel.setId(user.getCredential().getUsername()
 						+"#"+userGroupTypeTemp.getType()
 						+"#"+workflowActor.getLevel()
-						+"#"+userGroupTypeTemp.getName()
+						+"#"+userGroupTypeTemp.getDisplayName()
 						+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-				actorAtGivenLevel.setName(userGroupTypeTemp.getName());	
+				actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());	
 				return actorAtGivenLevel;
 			} catch (ELSException e) {
 				// TODO Auto-generated catch block
@@ -2886,9 +2886,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					actorAtGivenLevel.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+workflowActor.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					actorAtGivenLevel.setName(userGroupTypeTemp.getName());		
+					actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());		
 					return actorAtGivenLevel;
 				}				
 			}
@@ -3088,11 +3088,11 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					User user = User.findByFieldName(User.class, "credential", j.getCredential(), locale);
 					reference.setId(j.getCredential().getUsername() + "#"
 							+ j.getUserGroupType().getType() + "#"
-							+ i.getLevel() + "#" + userGroupTypeTemp.getName()
+							+ i.getLevel() + "#" + userGroupTypeTemp.getDisplayName()
 							+ "#" + user.getTitle() + " " + user.getFirstName()
 							+ " " + user.getMiddleName() + " "
 							+ user.getLastName());
-					reference.setName(userGroupTypeTemp.getName());
+					reference.setName(userGroupTypeTemp.getDisplayName());
 					reference.setState(params.get(ApplicationConstants.ACTORSTATE_KEY+"_"+locale));
 					reference.setRemark(params.get(ApplicationConstants.ACTORREMARK_KEY+"_"+locale));
 					if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
@@ -3250,9 +3250,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				actorAtGivenLevel.setId(user.getCredential().getUsername()
 						+"#"+userGroupTypeTemp.getType()
 						+"#"+workflowActor.getLevel()
-						+"#"+userGroupTypeTemp.getName()
+						+"#"+userGroupTypeTemp.getDisplayName()
 						+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-				actorAtGivenLevel.setName(userGroupTypeTemp.getName());	
+				actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());	
 				return actorAtGivenLevel;
 			} catch (ELSException e) {
 				// TODO Auto-generated catch block
@@ -3301,9 +3301,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					actorAtGivenLevel.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+workflowActor.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					actorAtGivenLevel.setName(userGroupTypeTemp.getName());		
+					actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());		
 					return actorAtGivenLevel;
 				}				
 			}
@@ -3384,11 +3384,11 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					User user = User.findByFieldName(User.class, "credential", j.getCredential(), locale);
 					reference.setId(j.getCredential().getUsername() + "#"
 							+ j.getUserGroupType().getType() + "#"
-							+ i.getLevel() + "#" + userGroupTypeTemp.getName()
+							+ i.getLevel() + "#" + userGroupTypeTemp.getDisplayName()
 							+ "#" + user.getTitle() + " " + user.getFirstName()
 							+ " " + user.getMiddleName() + " "
 							+ user.getLastName());
-					reference.setName(userGroupTypeTemp.getName());
+					reference.setName(userGroupTypeTemp.getDisplayName());
 					references.add(reference);
 					break;
 				}
@@ -3573,11 +3573,11 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					User user = User.findByFieldName(User.class, "credential", j.getCredential(), locale);
 					reference.setId(j.getCredential().getUsername() + "#"
 							+ j.getUserGroupType().getType() + "#"
-							+ i.getLevel() + "#" + userGroupTypeTemp.getName()
+							+ i.getLevel() + "#" + userGroupTypeTemp.getDisplayName()
 							+ "#" + user.getTitle() + " " + user.getFirstName()
 							+ " " + user.getMiddleName() + " "
 							+ user.getLastName());
-					reference.setName(userGroupTypeTemp.getName());
+					reference.setName(userGroupTypeTemp.getDisplayName());
 					references.add(reference);
 					break;
 				}
@@ -3685,11 +3685,11 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					User user = User.findByFieldName(User.class, "credential", j.getCredential(), locale);
 					reference.setId(j.getCredential().getUsername() + "#"
 							+ j.getUserGroupType().getType() + "#"
-							+ i.getLevel() + "#" + userGroupTypeTemp.getName()
+							+ i.getLevel() + "#" + userGroupTypeTemp.getDisplayName()
 							+ "#" + user.getTitle() + " " + user.getFirstName()
 							+ " " + user.getMiddleName() + " "
 							+ user.getLastName());
-					reference.setName(userGroupTypeTemp.getName());
+					reference.setName(userGroupTypeTemp.getDisplayName());
 					references.add(reference);
 					break;
 				}
@@ -3771,9 +3771,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				actorAtGivenLevel.setId(user.getCredential().getUsername()
 						+"#"+userGroupTypeTemp.getType()
 						+"#"+workflowActor.getLevel()
-						+"#"+userGroupTypeTemp.getName()
+						+"#"+userGroupTypeTemp.getDisplayName()
 						+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-				actorAtGivenLevel.setName(userGroupTypeTemp.getName());	
+				actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());	
 				return actorAtGivenLevel;
 			} catch (ELSException e) {
 				// TODO Auto-generated catch block
@@ -3857,9 +3857,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					actorAtGivenLevel.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+workflowActor.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					actorAtGivenLevel.setName(userGroupTypeTemp.getName());		
+					actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());		
 					return actorAtGivenLevel;
 				}				
 			}
@@ -4000,9 +4000,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					reference.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+i.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					reference.setName(userGroupTypeTemp.getName());
+					reference.setName(userGroupTypeTemp.getDisplayName());
 					reference.setState(params.get(ApplicationConstants.ACTORSTATE_KEY+"_"+locale));
 					reference.setRemark(params.get(ApplicationConstants.ACTORREMARK_KEY+"_"+locale));
 					if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
@@ -4109,9 +4109,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				actorAtGivenLevel.setId(user.getCredential().getUsername()
 						+"#"+userGroupTypeTemp.getType()
 						+"#"+workflowActor.getLevel()
-						+"#"+userGroupTypeTemp.getName()
+						+"#"+userGroupTypeTemp.getDisplayName()
 						+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-				actorAtGivenLevel.setName(userGroupTypeTemp.getName());	
+				actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());	
 				return actorAtGivenLevel;
 			} catch (ELSException e) {
 				e.printStackTrace();
@@ -4193,9 +4193,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					actorAtGivenLevel.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+workflowActor.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					actorAtGivenLevel.setName(userGroupTypeTemp.getName());		
+					actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());		
 					return actorAtGivenLevel;
 				}				
 			}
@@ -4336,9 +4336,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					reference.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+i.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					reference.setName(userGroupTypeTemp.getName());
+					reference.setName(userGroupTypeTemp.getDisplayName());
 					reference.setState(params.get(ApplicationConstants.ACTORSTATE_KEY+"_"+locale));
 					reference.setRemark(params.get(ApplicationConstants.ACTORREMARK_KEY+"_"+locale));
 					if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
@@ -4445,9 +4445,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				actorAtGivenLevel.setId(user.getCredential().getUsername()
 						+"#"+userGroupTypeTemp.getType()
 						+"#"+workflowActor.getLevel()
-						+"#"+userGroupTypeTemp.getName()
+						+"#"+userGroupTypeTemp.getDisplayName()
 						+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-				actorAtGivenLevel.setName(userGroupTypeTemp.getName());	
+				actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());	
 				return actorAtGivenLevel;
 			} catch (ELSException e) {
 				e.printStackTrace();
@@ -4529,9 +4529,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					actorAtGivenLevel.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+workflowActor.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					actorAtGivenLevel.setName(userGroupTypeTemp.getName());		
+					actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());		
 					return actorAtGivenLevel;
 				}				
 			}
@@ -4610,9 +4610,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					reference.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+i.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					reference.setName(userGroupTypeTemp.getName());
+					reference.setName(userGroupTypeTemp.getDisplayName());
 					references.add(reference);
 					break;
 				}				
@@ -4711,9 +4711,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				actorAtGivenLevel.setId(user.getCredential().getUsername()
 						+"#"+userGroupTypeTemp.getType()
 						+"#"+workflowActor.getLevel()
-						+"#"+userGroupTypeTemp.getName()
+						+"#"+userGroupTypeTemp.getDisplayName()
 						+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-				actorAtGivenLevel.setName(userGroupTypeTemp.getName());	
+				actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());	
 				return actorAtGivenLevel;
 			} catch (ELSException e) {
 				e.printStackTrace();
@@ -4793,9 +4793,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					actorAtGivenLevel.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+workflowActor.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					actorAtGivenLevel.setName(userGroupTypeTemp.getName());		
+					actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());		
 					return actorAtGivenLevel;
 				}				
 			}
@@ -4874,9 +4874,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				actorAtGivenLevel.setId(user.getCredential().getUsername()
 						+"#"+userGroupTypeTemp.getType()
 						+"#"+workflowActor.getLevel()
-						+"#"+userGroupTypeTemp.getName()
+						+"#"+userGroupTypeTemp.getDisplayName()
 						+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-				actorAtGivenLevel.setName(userGroupTypeTemp.getName());	
+				actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());	
 				return actorAtGivenLevel;
 			} catch (ELSException e) {
 				e.printStackTrace();
@@ -4924,9 +4924,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					actorAtGivenLevel.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+workflowActor.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					actorAtGivenLevel.setName(userGroupTypeTemp.getName());		
+					actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());		
 					return actorAtGivenLevel;
 				}				
 			}
@@ -5091,9 +5091,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					reference.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+i.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					reference.setName(userGroupTypeTemp.getName());
+					reference.setName(userGroupTypeTemp.getDisplayName());
 					references.add(reference);
 					break;
 				}				
@@ -5127,9 +5127,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				actorAtGivenLevel.setId(user.getCredential().getUsername()
 						+"#"+userGroupTypeTemp.getType()
 						+"#"+workflowActor.getLevel()
-						+"#"+userGroupTypeTemp.getName()
+						+"#"+userGroupTypeTemp.getDisplayName()
 						+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-				actorAtGivenLevel.setName(userGroupTypeTemp.getName());	
+				actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());	
 				return actorAtGivenLevel;
 			} catch (ELSException e) {
 				e.printStackTrace();
@@ -5205,9 +5205,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					actorAtGivenLevel.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+workflowActor.getLevel()
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
-					actorAtGivenLevel.setName(userGroupTypeTemp.getName());		
+					actorAtGivenLevel.setName(userGroupTypeTemp.getDisplayName());		
 					return actorAtGivenLevel;
 				}				
 			}
