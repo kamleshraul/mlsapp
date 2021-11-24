@@ -146,7 +146,8 @@
 		    valueToSend=$("#internalStatus").val();
 		    $("#endFlag").val("continue");
 	    }else if(value==sendBack || value==discuss){			
-		    valueToSend=$("#internalStatus").val();
+		   // valueToSend=$("#internalStatus").val();
+		     valueToSend=value;
 		    $("#endFlag").val("continue");
 	    } else {
 		    valueToSend=value;
