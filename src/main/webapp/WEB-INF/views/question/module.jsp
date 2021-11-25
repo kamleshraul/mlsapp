@@ -471,6 +471,12 @@
 			bulleteinReport();
 		});
 		
+		/**** Questions Groupwise Counts Report for BAC ****/
+		$("#groupwise_counts_report_for_bac").click(function(){				
+			$(this).attr('href','#');
+			groupwiseCountsReportForBAC();
+		});
+		
 		/**** Departmentwise Questions Report ****/
 		$("#departmentwise_report").click(function(){				
 			$("#selectionDiv1").hide();
@@ -481,6 +487,11 @@
 		$("#ahwal_report").click(function(){				
 			$("#selectionDiv1").hide();
 			sankshiptAhwalReport();
+		});
+		
+		$("#showVivranReport").click(function(){
+			$("#selectionDiv1").hide();
+			showVivranReport();
 		});
 		
 		/**** Generate Member's Admitted Questions Report ****/
@@ -1457,6 +1468,14 @@
 				'question/report/ahwalShortNoticeStatsReport?'+ parameters);
 	}
 	
+	function groupwiseCountsReportForBAC(){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()
+		 + "&group=" + $("#selectedGroup").val();		 
+		$('#groupwise_counts_report_for_bac').attr('href', 'question/report/bac_groupwise_counts_report?'+ parameters);
+	}
+	
 	function starredDepartmentwiseStatsReport(){
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 		 + "&sessionYear=" + $("#selectedSessionYear").val()
@@ -2359,11 +2378,17 @@
 						<a href="#" id="bulletein_report" class="butSim link">
 							<spring:message code="question.bulletein_report" text="Bulletein Report"/>
 						</a> |
-						<a href="#" id="departmentwise_report" class="butSim link">
-							<spring:message code="question.departmentwise_report" text="Department's Questions Report"/>
+						<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER3')">
+						<a href="#" id="groupwise_counts_report_for_bac" class="butSim link">
+							<spring:message code="question.bulletein_report" text="Groupwise BAC Report"/>
 						</a> |
+						</security:authorize>						
 						<a href="#" id="ahwal_report" class="butSim link">
 							<spring:message code="question.ahwal_report" text="Sankshipt Ahwal Report"/>
+						</a> |
+						<hr>
+						<a href="#" id="departmentwise_report" class="butSim link">
+							<spring:message code="question.departmentwise_report" text="Department's Questions Report"/>
 						</a> |
 						<%-- <a href="#" id="statistical_counts_report" class="butSim link">
 							<spring:message code="question.statistical_counts_report" text="Statistical Counts Report"/>
@@ -2374,6 +2399,11 @@
 						<a href="#" id="generateMemberDraftReport" class="butSim">
 							<spring:message code="question.generateMemberDraftReport" text="Generate Member Draft Report"/>
 						</a> |
+						<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
+							<a href="#" id="showVivranReport" class="butSim">
+								<spring:message code="question.vivranReport" text="Vivran Report"/>
+							</a> |
+						</security:authorize>
 					</security:authorize>
 					<security:authorize access="hasAnyRole('QIS_UNDER_SECRETARY', 'QIS_DEPUTY_SECRETARY', 'QIS_JOINT_SECRETARY', 'QIS_PRINCIPAL_SECRETARY')">
 						<a href="#" id="memberwise_questions_report" class="butSim link">

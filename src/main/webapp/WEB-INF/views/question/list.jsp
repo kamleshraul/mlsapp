@@ -230,11 +230,6 @@
 				deptSessionreport();
 			});
 			
-			$("#showVivranReport").click(function(){
-				$("#selectionDiv1").hide();
-				showVivranReport();
-			});
-			
 			/* $("#starredAdmitUnstarred").click(function(){
 				var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
 				if(selectedQuestionId.length>=1){
@@ -391,11 +386,6 @@
 			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_CLERK')">
 				<a href="#" id="showDeptSessionReport" class="butSim">
 						<spring:message code="question.deptSessionReport" text="Department-Session-wise Report"/>
-				</a> |
-			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
-				<a href="#" id="showVivranReport" class="butSim">
-					<spring:message code="question.vivranReport" text="Vivran Report"/>
 				</a> |
 			</security:authorize>	
 			<hr>

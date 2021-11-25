@@ -4096,6 +4096,116 @@ public class QuestionReportController extends BaseController{
 		}
 	}
 	
+	@RequestMapping(value="/bac_groupwise_counts_report" ,method=RequestMethod.GET)
+	public @ResponseBody void generateGroupwiseCountsReportForBAC(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strGroup = request.getParameter("group");
+		
+		if(strHouseType!=null && strSessionType!=null && strSessionYear!=null){
+			if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()){	
+				try {
+					HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+					if(houseType==null) {
+						houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
+					}					
+					SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+					Integer sessionYear = Integer.parseInt(strSessionYear);
+					if(houseType==null || sessionType==null) {
+						logger.error("**** HouseType or SessionType Not Found ****");
+						model.addAttribute("type", "HOUSETYPE_NOTFOUND_OR_SESSIONTYPE_NOTFOUND");					
+					} else {
+						Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+						if(session==null) {								
+							logger.error("**** Session Not Found ****");
+							model.addAttribute("type", "SESSION_NOTFOUND");					
+						} else {
+							Session previousSession = Session.findPreviousSession(session);
+							/**** find report data ****/
+							Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+							queryParameters.put("houseTypeId", new String[]{houseType.getId().toString()});
+							queryParameters.put("sessionId", new String[]{session.getId().toString()});
+							if(previousSession!=null) {
+								queryParameters.put("previousSessionId", new String[]{previousSession.getId().toString()});						
+							} else {
+								queryParameters.put("previousSessionId", new String[]{"-1"});
+							}
+							queryParameters.put("locale", new String[]{locale.toString()});
+							String queryName = "QIS_COUNTS_REPORT_FOR_BAC";
+							String reportName = "qis_counts_report_for_bac";
+							Group group = new Group();
+							if(strGroup!=null && !strGroup.isEmpty()) {
+								group = Group.findById(Group.class, Long.parseLong(strGroup));
+							}
+							if(group==null) {								
+								logger.error("**** Group Not Found ****");
+								model.addAttribute("type", "GROUP_NOTFOUND");					
+							} else {
+								if(group.getId()!=null) {
+									queryParameters.put("groupId", new String[]{group.getId().toString()});
+									queryName = "QIS_GROUPWISE_COUNTS_REPORT_FOR_BAC";
+									reportName += "_group" + group.getNumber();
+								}								
+								List reportData = Query.findReport(queryName, queryParameters);
+								if(reportData!=null && !reportData.isEmpty()) {
+									/**** generate report ****/
+									if(!isError) {										
+										if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+											reportFile = generateReportUsingFOP(new Object[]{reportData}, "qis_counts_report_for_bac_lowerhouse", "WORD", reportName, locale.toString());											
+										} else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+											reportFile = generateReportUsingFOP(new Object[]{reportData}, "qis_counts_report_for_bac_upperhouse", "WORD", reportName, locale.toString());
+										}							
+										if(reportFile!=null) {
+											System.out.println("Report generated successfully in WORD format!");
+											openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+										}
+									}
+								} else {
+									//error
+								}
+							}							
+						}						
+					}					
+				} catch(Exception e) {
+					e.printStackTrace();
+					isError = true;					
+					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.exception_occured", locale.toString());
+				}
+			}else{
+				isError = true;
+				logger.error("**** Check request parameters houseType, sessionType, sessionYear for empty values ****");
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.groupwiseCountsReportForBAC.reqparam.empty", locale.toString());				
+			}
+		} else {			
+			isError = true;
+			logger.error("**** Check request parameters houseType, sessionType, sessionYear for null values ****");
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.groupwiseCountsReportForBAC.reqparam.null", locale.toString());
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {						
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	@RequestMapping(value="/departmentwiseStatsReport" ,method=RequestMethod.GET)
 	public @ResponseBody void generateDepartmentwiseStatsReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
 		
