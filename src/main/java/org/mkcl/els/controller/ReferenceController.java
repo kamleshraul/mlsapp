@@ -2920,7 +2920,10 @@ public class ReferenceController extends BaseController {
 		
 		List<Reference> references = new ArrayList<Reference>();
 		CommitteeName committeeName = CommitteeName.findById(CommitteeName.class, committeeNameId);
-		Committee committee = Committee.findByFieldName(Committee.class,"committeeName",committeeName,locale.toString());
+		//Committee committee = Committee.findByFieldName(Committee.class,"committeeName",committeeName,locale.toString());
+		
+		Committee committee = Committee.findActiveCommittee(committeeName, new Date(), locale.toString());
+			
 			List<CommitteeTour> committeetours = 
 				CommitteeTour.findCommitteeTours(committee, locale.toString());
 		
