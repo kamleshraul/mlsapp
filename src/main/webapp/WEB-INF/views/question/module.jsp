@@ -1472,7 +1472,8 @@
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 		 + "&sessionYear=" + $("#selectedSessionYear").val()
 		 + "&sessionType=" + $("#selectedSessionType").val()
-		 + "&group=" + $("#selectedGroup").val();		 
+		 + "&group=" + $("#selectedGroup").val()
+		 + "&is_BAC_PostBallot=no"; //modify this value as yes if BAC is post ballot
 		$('#groupwise_counts_report_for_bac').attr('href', 'question/report/bac_groupwise_counts_report?'+ parameters);
 	}
 	
@@ -2378,7 +2379,7 @@
 						<a href="#" id="bulletein_report" class="butSim link">
 							<spring:message code="question.bulletein_report" text="Bulletein Report"/>
 						</a> |
-						<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER3')">
+						<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 						<a href="#" id="groupwise_counts_report_for_bac" class="butSim link">
 							<spring:message code="question.bulletein_report" text="Groupwise BAC Report"/>
 						</a> |

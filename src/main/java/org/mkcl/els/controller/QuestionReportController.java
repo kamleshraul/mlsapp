@@ -4135,6 +4135,8 @@ public class QuestionReportController extends BaseController{
 							} else {
 								queryParameters.put("previousSessionId", new String[]{"-1"});
 							}
+							String is_BAC_PostBallot = request.getParameter("is_BAC_PostBallot");
+							queryParameters.put("is_BAC_PostBallot", new String[]{is_BAC_PostBallot});
 							queryParameters.put("locale", new String[]{locale.toString()});
 							String queryName = "QIS_COUNTS_REPORT_FOR_BAC";
 							String reportName = "qis_counts_report_for_bac";
