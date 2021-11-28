@@ -8488,11 +8488,11 @@ public class Question extends Device implements Serializable {
 				}
 			}
 		}	
-		if(isOptimisticLockExceptionPossible) {
-			Long child_currentVersion = child.getVersion();
-			child_currentVersion++;
-			child.setVersion(child_currentVersion);
-		}		
+//		if(isOptimisticLockExceptionPossible) {
+//			Long child_currentVersion = child.getVersion();
+//			child_currentVersion++;
+//			child.setVersion(child_currentVersion);
+//		}		
 		child.merge();
 		return true;
 	}
