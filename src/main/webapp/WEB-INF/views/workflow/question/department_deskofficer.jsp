@@ -1,5 +1,5 @@
 <%@ include file="/common/taglibs.jsp" %>
-<%@ page import="java.util.Date;" %>
+<%-- <%@ page import="java.util.Date;" %> --%>
 <html>
 <head>
 	<title>
@@ -866,6 +866,24 @@
 				sendToSectionOfficer = 
 			    	$("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_sendToSectionOfficer']").text();		
 			}
+			
+			if($('#isTransferable')!=null && $('#isTransferable').is(':checked') 
+					&& (deviceTypeType == 'questions_starred' || deviceTypeType == 'questions_unstarred')){
+				var subdepartmentIdVal=0;
+				var ministryIdVal=0;
+				if($('#subDepartment')!==null && $('#subDepartment')!==undefined && $('#subDepartment').length>0)
+					subdepartmentIdVal=$('#subDepartment').get(0)
+				
+				if($('#ministry')!==null && $('#ministry')!==undefined && $('#ministry').length>0)
+					ministryIdVal=$('#ministry').get(0)
+					
+				if(subdepartmentIdVal.value >0 && ministryIdVal.value >0){}
+				else {
+					$.prompt($('#departmentTransferRestrictionMsg').val());
+					return false;
+				}
+			}
+			
 			var changedInternalStatus = $("#changeInternalStatus").val();			
 			if(changedInternalStatus == sendToSectionOfficer) {
 				if(($('#answer').val()=="" && $('#factualPosition').val()=="" 
@@ -939,7 +957,11 @@
 		}); */
 		
 		$('#isTransferable').change(function() {
+			var changeStatusDrp=$('#changeInternalStatus')!=null && $('#changeInternalStatus').length>0? $('#changeInternalStatus')[0]:{};
+			var changeActorDrp=$('select#actor')!=null && $('select#actor').length>0 ?$('select#actor')[0]:{};
 	        if ($(this).is(':checked')) {
+	        	changeStatusDrp.disabled=true;
+	        	changeActorDrp.disabled=true;
 	        	$.ajax({
 					method: "GET",
 					url: "ref/isDepartmentChangeRestricted",
@@ -978,6 +1000,8 @@
 				    }
 				});
 	        }else{
+	        	changeStatusDrp.disabled=false;
+	        	changeActorDrp.disabled=false;
 	        	$("#ministry option[selected!='selected']").hide();
 	    		$("#subDepartment option[selected!='selected']").hide(); 
 	    		$("#transferP").css("display","none");
@@ -1017,7 +1041,7 @@
 <div class="fields clearfix watermark">
 
 <div id="assistantDiv">
-<c:set var="currTimeMillis" value="<%=(new Date()).getTime()%>" />
+<%-- <c:set var="currTimeMillis" value="<%=(new Date()).getTime()%>" /> --%>
 <form:form action="workflow/question" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	 <c:if test="${(answeringAttempts < maxAnsweringAttempts) and (workflowstatus=='COMPLETED')}">
@@ -1730,6 +1754,7 @@
 <input type="hidden" id="selectedQuestionType" value="${selectedQuestionType}" />
 <input type="hidden" id="srole" value="${role}" />
 <input id="departmentChangeRestrictedMessage" value="<spring:message code='question.departmentChangeRestrictedMessage' text='Department change not allowed at the moment!'/>" type="hidden">
+<input id="departmentTransferRestrictionMsg" value="<spring:message code='question.departmentChangeSelectionRequired' text='For department change select ministry and subdepartment'/>" type="hidden"/>
 
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
