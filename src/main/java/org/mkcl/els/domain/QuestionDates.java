@@ -84,6 +84,10 @@ public class QuestionDates extends BaseDomain implements Serializable {
     /** The time of ballot for questions with the answering date. */
     @Temporal(TemporalType.TIMESTAMP)
     private Date ballotTime;
+    
+    /** In exceptional cases to be shown as postponed date.. otherwise same as answering date **/
+    @Temporal(TemporalType.DATE)
+    private Date displayAnsweringDate;
 
     /**** Constructors ****/
 
@@ -249,6 +253,14 @@ public class QuestionDates extends BaseDomain implements Serializable {
 
 	public void setBallotTime(Date ballotTime) {
 		this.ballotTime = ballotTime;
+	}
+
+	public Date getDisplayAnsweringDate() {
+		return displayAnsweringDate;
+	}
+
+	public void setDisplayAnsweringDate(Date displayAnsweringDate) {
+		this.displayAnsweringDate = displayAnsweringDate;
 	}
 
 	/**** Added By Sandeep Singh (Jan 30 2013) ****/

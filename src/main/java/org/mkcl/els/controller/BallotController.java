@@ -416,10 +416,15 @@ public class BallotController extends BaseController{
 			/** Create answeringDate */
 			String strAnsweringDate = request.getParameter("answeringDate");
 			Date answeringDate = null;
+			Date displayAnsweringDate = null;
 			QuestionDates questionDates = null;
 			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 				questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
+				displayAnsweringDate = questionDates.getDisplayAnsweringDate();
+				if(displayAnsweringDate==null) {
+					displayAnsweringDate = answeringDate;
+				}
 			}
 			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
 					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
@@ -547,10 +552,15 @@ public class BallotController extends BaseController{
 			/** Create answeringDate */
 			String strAnsweringDate = request.getParameter("answeringDate");
 			Date answeringDate = null;
+			Date displayAnsweringDate = null;
 			QuestionDates questionDates = null;
 			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 				questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
+				displayAnsweringDate = questionDates.getDisplayAnsweringDate();
+				if(displayAnsweringDate==null) {
+					displayAnsweringDate = answeringDate;
+				}
 			}
 			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
 					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
@@ -566,6 +576,8 @@ public class BallotController extends BaseController{
 			CustomParameter parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT_HYPHEN", "");
 			String localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, parameter.getValue(), locale.toString());
 			model.addAttribute("answeringDate", localizedAnsweringDate);
+			String localizedDisplayAnsweringDate = FormaterUtil.formatDateToString(displayAnsweringDate, parameter.getValue(), locale.toString());
+			model.addAttribute("displayAnsweringDate", localizedDisplayAnsweringDate);
 
 			/** DeviceType & HouseType specific Ballot views */
 			if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
@@ -930,7 +942,7 @@ public class BallotController extends BaseController{
 				CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_BALLOT_NOTIFICATION_DISABLED", "");
 				if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
 						|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
-					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+					NotificationController.sendBallotCreationNotification(deviceType, houseType, displayAnsweringDate, groupNumber, ballotUserName, locale.toString());
 				}
 				retVal = "ballot/ballot";
 			}
@@ -4273,11 +4285,16 @@ public class BallotController extends BaseController{
 			/** Create answeringDate */
 			String strAnsweringDate = request.getParameter("answeringDate");
 			Date answeringDate = null;
+			Date displayAnsweringDate = null;
 			CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 			
 			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 				QuestionDates questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
+				displayAnsweringDate = questionDates.getDisplayAnsweringDate();
+				if(displayAnsweringDate==null) {
+					displayAnsweringDate = answeringDate;
+				}
 			}
 			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
 					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
@@ -4290,6 +4307,9 @@ public class BallotController extends BaseController{
 			model.addAttribute("strAnsweringDate", strAnsweringDate);
 			if(answeringDate!=null) {
 				model.addAttribute("answeringDate", FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
+			}
+			if(displayAnsweringDate!=null) {
+				model.addAttribute("displayAnsweringDate", FormaterUtil.formatDateToString(displayAnsweringDate, ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
 			}
 
 			/**** Validate whether pre-ballot can be created for bill ****/
@@ -4357,14 +4377,18 @@ public class BallotController extends BaseController{
 				
 				/** Add localized answeringDate to model */
 				String localizedAnsweringDate = null;
+				String localizedDisplayAnsweringDate = null;
 				CustomParameter answeringDateFormatParameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT_HYPHEN", "");
 				if(answeringDateFormatParameter!=null && answeringDateFormatParameter.getValue()!=null && !answeringDateFormatParameter.getValue().isEmpty()) {
 					localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, answeringDateFormatParameter.getValue(), locale.toString());
+					localizedDisplayAnsweringDate = FormaterUtil.formatDateToString(displayAnsweringDate, answeringDateFormatParameter.getValue(), locale.toString());
 				}
 				else {
 					localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, "dd-MM-yyyy", locale.toString());
+					localizedDisplayAnsweringDate = FormaterUtil.formatDateToString(displayAnsweringDate, "dd-MM-yyyy", locale.toString());
 				}
 				model.addAttribute("answeringDate", localizedAnsweringDate);
+				model.addAttribute("displayAnsweringDate", localizedDisplayAnsweringDate);
 				
 				CustomParameter serverDateTimeFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
 				if(serverDateTimeFormat != null){
@@ -5526,11 +5550,16 @@ public class BallotController extends BaseController{
 			/** Create answeringDate */
 			String strAnsweringDate = request.getParameter("answeringDate");
 			Date answeringDate = null;
+			Date displayAnsweringDate = null;
 			CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 			
 			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 				QuestionDates questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
+				displayAnsweringDate = questionDates.getDisplayAnsweringDate();
+				if(displayAnsweringDate==null) {
+					displayAnsweringDate = answeringDate;
+				}
 			}
 			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
 					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
@@ -5543,6 +5572,9 @@ public class BallotController extends BaseController{
 			model.addAttribute("strAnsweringDate", strAnsweringDate);
 			if(answeringDate!=null) {
 				model.addAttribute("answeringDate", FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
+			}
+			if(displayAnsweringDate!=null) {
+				model.addAttribute("displayAnsweringDate", FormaterUtil.formatDateToString(displayAnsweringDate, ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
 			}
 
 			/**** Validate whether pre-ballot can be created for bill ****/
@@ -5613,14 +5645,18 @@ public class BallotController extends BaseController{
 				
 				/** Add localized answeringDate to model */
 				String localizedAnsweringDate = null;
+				String localizedDisplayAnsweringDate = null;
 				CustomParameter answeringDateFormatParameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT_HYPHEN", "");
 				if(answeringDateFormatParameter!=null && answeringDateFormatParameter.getValue()!=null && !answeringDateFormatParameter.getValue().isEmpty()) {
 					localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, answeringDateFormatParameter.getValue(), locale.toString());
+					localizedDisplayAnsweringDate = FormaterUtil.formatDateToString(displayAnsweringDate, answeringDateFormatParameter.getValue(), locale.toString());
 				}
 				else {
 					localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, "dd-MM-yyyy", locale.toString());
+					localizedDisplayAnsweringDate = FormaterUtil.formatDateToString(displayAnsweringDate, "dd-MM-yyyy", locale.toString());
 				}
 				model.addAttribute("answeringDate", localizedAnsweringDate);
+				model.addAttribute("displayAnsweringDate", localizedDisplayAnsweringDate);
 				
 				CustomParameter serverDateTimeFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
 				if(serverDateTimeFormat != null){
@@ -5833,6 +5869,7 @@ public class BallotController extends BaseController{
 			/** Create answeringDate */
 			String strAnsweringDate = request.getParameter("answeringDate");
 			Date answeringDate = null;
+			Date displayAnsweringDate = null;
 			CustomParameter dbDateFormat = CustomParameter.
 					findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 			
@@ -5840,6 +5877,10 @@ public class BallotController extends BaseController{
 				QuestionDates questionDates = QuestionDates.
 						findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
+				displayAnsweringDate = questionDates.getDisplayAnsweringDate();
+				if(displayAnsweringDate==null) {
+					displayAnsweringDate = answeringDate;
+				}
 			}
 			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
 					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
@@ -5854,7 +5895,9 @@ public class BallotController extends BaseController{
 				model.addAttribute("answeringDate", FormaterUtil.
 						formatDateToString(answeringDate, ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
 			}
-		
+			if(displayAnsweringDate!=null) {
+				model.addAttribute("displayAnsweringDate", FormaterUtil.formatDateToString(displayAnsweringDate, ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
+			}
 			
 			/** Route PreBallot creation to appropriate handler method - based on processing mode*/
 			PROCESSING_MODE processingMode = Question.getProcessingMode(session);
@@ -5881,18 +5924,20 @@ public class BallotController extends BaseController{
 				
 				/** Add localized answeringDate to model */
 				String localizedAnsweringDate = null;
+				String localizedDisplayAnsweringDate = null;
 				CustomParameter answeringDateFormatParameter = CustomParameter.
 						findByName(CustomParameter.class, "SERVER_DATEFORMAT_HYPHEN", "");
 				if(answeringDateFormatParameter!=null && answeringDateFormatParameter.getValue()!=null 
 						&& !answeringDateFormatParameter.getValue().isEmpty()) {
-					localizedAnsweringDate = FormaterUtil.
-							formatDateToString(answeringDate, answeringDateFormatParameter.getValue(), locale.toString());
+					localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, answeringDateFormatParameter.getValue(), locale.toString());
+					localizedDisplayAnsweringDate = FormaterUtil.formatDateToString(displayAnsweringDate, answeringDateFormatParameter.getValue(), locale.toString());
 				}
 				else {
-					localizedAnsweringDate = FormaterUtil.
-							formatDateToString(answeringDate, "dd-MM-yyyy", locale.toString());
+					localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, "dd-MM-yyyy", locale.toString());
+					localizedDisplayAnsweringDate = FormaterUtil.formatDateToString(displayAnsweringDate, "dd-MM-yyyy", locale.toString());
 				}
 				model.addAttribute("answeringDate", localizedAnsweringDate);
+				model.addAttribute("displayAnsweringDate", localizedDisplayAnsweringDate);
 				
 				CustomParameter serverDateTimeFormat = CustomParameter.
 						findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
