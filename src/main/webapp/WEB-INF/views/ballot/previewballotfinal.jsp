@@ -51,7 +51,7 @@
 	</c:when>
 	<c:otherwise>
 		<div id="reportDiv">
-			<label class="small"><spring:message code="question.ballot.answeringDate" text="Answering Date"/>: ${answeringDate}</label>
+			<label class="small"><spring:message code="question.ballot.answeringDate" text="Answering Date"/>: ${displayAnsweringDate}</label>
 			<table class="uiTable">
 				<thead>
 					<tr>

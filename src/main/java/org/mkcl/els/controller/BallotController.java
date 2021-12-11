@@ -3503,10 +3503,15 @@ public class BallotController extends BaseController{
 					if(firstBatchSubmissionDate!=null){
 						if(!firstBatchSubmissionDate.isEmpty()){
 							QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
+							Date answeringDate= questionDates.getAnsweringDate();
+							Date displayAnsweringDate = questionDates.getDisplayAnsweringDate();
+							if(displayAnsweringDate==null) {
+								displayAnsweringDate = answeringDate;
+							}
 							String ansDate=null;
 							CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_DATEFORMAT", "");
 							if(customParameter!=null){
-								ansDate=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US").format(questionDates.getAnsweringDate());;
+								ansDate=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US").format(answeringDate);
 							}else{
 								model.addAttribute("type","DB_DATEFORMAT_NOTSET");
 								return errorpage;	
@@ -3521,17 +3526,18 @@ public class BallotController extends BaseController{
 								model.addAttribute("type","TOTAL_ROUNDS_IN_BALLOT_UH_NOTSET");
 								return errorpage;	
 							}
-							status=MemberBallot.createFinalBallotUH(session, deviceType,group,ansDate,questionDates.getAnsweringDate(), locale.toString(),firstBatchSubmissionDate,Integer.parseInt(totalRounds));
+							status=MemberBallot.createFinalBallotUH(session, deviceType,group,ansDate,answeringDate, locale.toString(),firstBatchSubmissionDate,Integer.parseInt(totalRounds));
 							if(status){
 								ballots=MemberBallot.viewFinalBallot(session, deviceType,ansDate, locale.toString());
 								model.addAttribute("ballots",ballots);
-								model.addAttribute("answeringDate",FormaterUtil.getDateFormatter(locale.toString()).format(questionDates.getAnsweringDate()));
+								model.addAttribute("answeringDate",FormaterUtil.getDateFormatter(locale.toString()).format(answeringDate));
+								model.addAttribute("displayAnsweringDate",FormaterUtil.getDateFormatter(locale.toString()).format(displayAnsweringDate));
 								//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
 								String ballotUserName = this.getCurrentUser().getActualUsername();
 								CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+session.getHouse().getType().getType().toUpperCase()+"_BALLOT_NOTIFICATION_DISABLED", "");
 								if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
 										|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
-									NotificationController.sendBallotCreationNotification(deviceType, session.getHouse().getType(), questionDates.getAnsweringDate(), group.getNumber().toString(), ballotUserName, locale.toString());
+									NotificationController.sendBallotCreationNotification(deviceType, session.getHouse().getType(), displayAnsweringDate, group.getNumber().toString(), ballotUserName, locale.toString());
 								}
 							}else{
 								model.addAttribute("type","FINALBALLOT_FAILED");
@@ -3591,10 +3597,15 @@ public class BallotController extends BaseController{
 					if(firstBatchSubmissionDate!=null){
 						if(!firstBatchSubmissionDate.isEmpty()){
 							QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
+							Date answeringDate= questionDates.getAnsweringDate();
+							Date displayAnsweringDate = questionDates.getDisplayAnsweringDate();
+							if(displayAnsweringDate==null) {
+								displayAnsweringDate = answeringDate;
+							}
 							String ansDate=null;
 							CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_DATEFORMAT", "");
 							if(customParameter!=null){
-								ansDate=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US").format(questionDates.getAnsweringDate());;
+								ansDate=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US").format(answeringDate);
 							}else{
 								model.addAttribute("type","DB_DATEFORMAT_NOTSET");
 								return errorpage;	
@@ -3614,13 +3625,15 @@ public class BallotController extends BaseController{
 							if(ballot!=null){
 								ballots=MemberBallot.viewFinalBallot(session, deviceType,ansDate, locale.toString());
 								model.addAttribute("ballots",ballots);
-								model.addAttribute("answeringDate",FormaterUtil.getDateFormatter(locale.toString()).format(questionDates.getAnsweringDate()));
+								model.addAttribute("answeringDate",FormaterUtil.getDateFormatter(locale.toString()).format(answeringDate));
+								model.addAttribute("displayAnsweringDate",FormaterUtil.getDateFormatter(locale.toString()).format(displayAnsweringDate));
+								
 								//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
 								String ballotUserName = this.getCurrentUser().getActualUsername();
 								CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+session.getHouse().getType().getType().toUpperCase()+"_BALLOT_NOTIFICATION_DISABLED", "");
 								if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
 										|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
-									NotificationController.sendBallotCreationNotification(deviceType, session.getHouse().getType(), questionDates.getAnsweringDate(), group.getNumber().toString(), ballotUserName, locale.toString());
+									NotificationController.sendBallotCreationNotification(deviceType, session.getHouse().getType(), displayAnsweringDate, group.getNumber().toString(), ballotUserName, locale.toString());
 								}
 								
 							}else{
@@ -3654,7 +3667,7 @@ public class BallotController extends BaseController{
 	}
 	
 	
-	/****** Member Ballot(Council) Member Ballot Final Ballot Page ****/
+	/****** Member Ballot(Council) Member Ballot Preview Final Ballot Page ****/
 	@Transactional
 	@RequestMapping(value="/memberballot/previewfinal",method=RequestMethod.GET)
 	public String previewFinalMemberBallot(final HttpServletRequest request,
@@ -3684,10 +3697,15 @@ public class BallotController extends BaseController{
 					if(firstBatchSubmissionDate!=null){
 						if(!firstBatchSubmissionDate.isEmpty()){
 							QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
+							Date answeringDate= questionDates.getAnsweringDate();
+							Date displayAnsweringDate = questionDates.getDisplayAnsweringDate();
+							if(displayAnsweringDate==null) {
+								displayAnsweringDate = answeringDate;
+							}
 							String ansDate=null;
 							CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_DATEFORMAT", "");
 							if(customParameter!=null){
-								ansDate=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US").format(questionDates.getAnsweringDate());;
+								ansDate=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US").format(answeringDate);
 							}else{
 								model.addAttribute("type","DB_DATEFORMAT_NOTSET");
 								return errorpage;	
@@ -3705,8 +3723,8 @@ public class BallotController extends BaseController{
 
 							ballots = MemberBallot.previewFinalBallotUH(session, deviceType, group, ansDate, questionDates.getAnsweringDate(), locale.toString(), firstBatchSubmissionDate, Integer.parseInt(totalRounds));
 							model.addAttribute("ballots",ballots);
-							model.addAttribute("answeringDate",FormaterUtil.getDateFormatter(locale.toString()).format(questionDates.getAnsweringDate()));
-							
+							model.addAttribute("answeringDate",FormaterUtil.getDateFormatter(locale.toString()).format(answeringDate));
+							model.addAttribute("displayAnsweringDate",FormaterUtil.getDateFormatter(locale.toString()).format(displayAnsweringDate));
 
 						}else{
 							model.addAttribute("type","FIRSTBATCH_SUBMISSIONDATE_NOTSET");
