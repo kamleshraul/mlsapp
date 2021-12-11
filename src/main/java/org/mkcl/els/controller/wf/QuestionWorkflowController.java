@@ -579,10 +579,6 @@ public class QuestionWorkflowController  extends BaseController{
 					model.addAttribute("formattedAnsweringDate",FormaterUtil.getDateFormatter(locale).
 							format(domain.getAnsweringDate().getAnsweringDate()));
 					model.addAttribute("answeringDateSelected", domain.getAnsweringDate().getId());
-					if(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-						model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.getDateFormatter(locale).
-								format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
-					}						
 				}
 				//populate original answering date
 				QuestionDates originalAnsweringDate = domain.getOriginalAnsweringDate();
@@ -596,10 +592,6 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("chartAnsweringDate", domain.getChartAnsweringDate().getId());
 				model.addAttribute("formattedChartAnsweringDate",FormaterUtil.getDateFormatter(locale).
 						format(domain.getChartAnsweringDate().getAnsweringDate()));
-				if(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-					model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.getDateFormatter(locale).
-							format(domain.getChartAnsweringDate().getLastReceivingDateFromDepartment()));
-				}					
 			}
 			if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
 				/** Set Last Date of Answer Receiving from Department **/
@@ -632,6 +624,25 @@ public class QuestionWorkflowController  extends BaseController{
 			
 			}			
 		}	
+		/**** Set Last Answer Receiving Date for Starred Questions ****/
+		QuestionDates actualAnsweringDateForStarredQuestion = null;
+		if(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+			actualAnsweringDateForStarredQuestion = Question.findQuestionDatesForStarredQuestion(domain);
+			if(actualAnsweringDateForStarredQuestion==null) {
+				if(domain.getAnsweringDate() != null){
+					actualAnsweringDateForStarredQuestion = domain.getAnsweringDate();
+				}
+				if(domain.getChartAnsweringDate() != null){
+					actualAnsweringDateForStarredQuestion = domain.getChartAnsweringDate();
+				}
+			}
+			if(actualAnsweringDateForStarredQuestion.getLastReceivingDateFromDepartment() != null){
+				String formattedLastRecievingDateFromDepartment = FormaterUtil.getDateFormatter(locale).
+						format(actualAnsweringDateForStarredQuestion.getLastReceivingDateFromDepartment());
+				model.addAttribute("lastReceivingDateFromDepartment", formattedLastRecievingDateFromDepartment);
+				model.addAttribute("formattedLastAnswerReceivingDate", formattedLastRecievingDateFromDepartment);
+			}
+		}
 		/**** Submission Date and Creation date****/
 		CustomParameter dateTimeFormat = 
 				CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
@@ -668,26 +679,12 @@ public class QuestionWorkflowController  extends BaseController{
 		model.addAttribute("usergroupType", workflowDetails.getAssigneeUserGroupType());
 		model.addAttribute("userGroupName", workflowDetails.getAssigneeUserGroupName());
 		
-		/**** To have the task creation date and lastReceivingDate if userGroup is department in case of starred questions ***/
+		/**** To have the task creation date and validation on lastReceivingDate if userGroup is department in case of starred questions ***/
 		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
 				|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 			boolean canAdd = false;
-
-			try{	
-				if(domain.getAnsweringDate() != null){
-					if(domain.getAnsweringDate().getLastReceivingDateFromDepartment() != null){
-						String formattedLastRecievingDateFromDepartment = FormaterUtil.getDateFormatter(locale).
-								format(domain.getAnsweringDate().getLastReceivingDateFromDepartment());
-						model.addAttribute("lastReceivingDateFromDepartment", formattedLastRecievingDateFromDepartment);
-					}
-				}
-				if(domain.getChartAnsweringDate() != null){
-					if(domain.getChartAnsweringDate().getLastReceivingDateFromDepartment() != null){
-						String formattedLastRecievingDateFromDepartment = FormaterUtil.getDateFormatter(locale).
-								format(domain.getChartAnsweringDate().getLastReceivingDateFromDepartment());
-						model.addAttribute("lastReceivingDateFromDepartment", formattedLastRecievingDateFromDepartment);
-					}
-				}
+			
+			try{					
 				/** validation for restricting late answer filling **/				
 				if(domain.getStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
 					//check validation flag
@@ -698,15 +695,21 @@ public class QuestionWorkflowController  extends BaseController{
 								&& !validationFlagForLastReceivingDateFromDepartment.isEmpty()) {
 							if(Boolean.valueOf(validationFlagForLastReceivingDateFromDepartment)) {
 								//perform validation
-								if(domain.getAnsweringDate()!=null 
-										&& domain.getAnsweringDate().getAnsweringDate().after(domain.getChartAnsweringDate().getAnsweringDate())) {									
-									if(DateUtil.compareDatePartOnly(domain.getAnsweringDate().getLastReceivingDateFromDepartment(), new Date())<0) {
+								if(actualAnsweringDateForStarredQuestion!=null) {
+									if(DateUtil.compareDatePartOnly(actualAnsweringDateForStarredQuestion.getLastReceivingDateFromDepartment(), new Date())<0) {
 										model.addAttribute("lateAnswerFillingFlag", "set");
 									}
 								} else {
-									if(DateUtil.compareDatePartOnly(domain.getChartAnsweringDate().getLastReceivingDateFromDepartment(), new Date())<0) {
-										model.addAttribute("lateAnswerFillingFlag", "set");
-									}
+									if(domain.getAnsweringDate()!=null 
+											&& domain.getAnsweringDate().getAnsweringDate().after(domain.getChartAnsweringDate().getAnsweringDate())) {									
+										if(DateUtil.compareDatePartOnly(domain.getAnsweringDate().getLastReceivingDateFromDepartment(), new Date())<0) {
+											model.addAttribute("lateAnswerFillingFlag", "set");
+										}
+									} else {
+										if(DateUtil.compareDatePartOnly(domain.getChartAnsweringDate().getLastReceivingDateFromDepartment(), new Date())<0) {
+											model.addAttribute("lateAnswerFillingFlag", "set");
+										}
+									}									
 								}
 							}
 						}
