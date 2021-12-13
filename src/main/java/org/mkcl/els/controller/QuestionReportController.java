@@ -1718,10 +1718,15 @@ public class QuestionReportController extends BaseController{
 				}				
 				DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
 				Date answeringDate = null;
+				Date displayAnsweringDate = null;
 				if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 					QuestionDates questionDates = 
 							QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 					answeringDate = questionDates.getAnsweringDate();
+					displayAnsweringDate = questionDates.getDisplayAnsweringDate();
+					if(displayAnsweringDate==null) {
+						displayAnsweringDate = answeringDate;
+					}
 				}
 				else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
 						deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
@@ -1805,6 +1810,18 @@ public class QuestionReportController extends BaseController{
 
 				String answeringDateInIndianCalendar = FormaterUtil.getIndianDate(answeringDate, locale);
 				data.setAnsweringDateInIndianCalendar(answeringDateInIndianCalendar);
+				
+				//Added the following code to solve the marathi month and day issue	for display answering date
+				String[] strDisplayAnsweringDates=dbFormat.format(displayAnsweringDate).split(",");
+				String displayAnsweringDay=FormaterUtil.getDayInLocaleLanguage(strDisplayAnsweringDates[0],locale.toString());
+				data.setDisplayAnsweringDay(displayAnsweringDay);
+				String[] strDisplayAnsweringMonth=strDisplayAnsweringDates[1].split(" ");
+				String displayAnsweringMonth=FormaterUtil.getMonthInLocaleLanguage(strDisplayAnsweringMonth[1], locale.toString());
+				String formattedDisplayAnsweringDate = FormaterUtil.formatDateToString(displayAnsweringDate, ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
+				data.setDisplayAnsweringDate(formattedDisplayAnsweringDate);
+
+				String displayAnsweringDateInIndianCalendar = FormaterUtil.getIndianDate(displayAnsweringDate, locale);
+				data.setDisplayAnsweringDateInIndianCalendar(displayAnsweringDateInIndianCalendar);
 
 				data.setDeviceVOs(ballotedDeviceVOs);
 				data.setTotalNumberOfDevices(FormaterUtil.formatNumberNoGrouping(ballotedDeviceVOs.size(), locale.toString()));
@@ -2231,6 +2248,10 @@ public class QuestionReportController extends BaseController{
 					QuestionDates questionDates = 
 							QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 					Date answeringDate = questionDates.getAnsweringDate();
+					Date displayAnsweringDate = questionDates.getDisplayAnsweringDate();
+					if(displayAnsweringDate==null) {
+						displayAnsweringDate = answeringDate;
+					}
 					
 					String answeringDateSelection = "";					
 					if(DateUtil.compareDatePartOnly(answeringDate, new Date())==0) {
@@ -2289,8 +2310,21 @@ public class QuestionReportController extends BaseController{
 						String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 						String formattedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
 						model.addAttribute("answeringDate", formattedAnsweringDate);
+						
 						String answeringDateInIndianCalendar = FormaterUtil.getIndianDate(answeringDate, locale);
 						model.addAttribute("answeringDateInIndianCalendar", answeringDateInIndianCalendar);
+						
+						//Added the following code to solve the marathi month and day issue	for display answering date
+						String[] strDisplayAnsweringDates=dbFormat.format(displayAnsweringDate).split(",");
+						String displayAnsweringDay=FormaterUtil.getDayInLocaleLanguage(strDisplayAnsweringDates[0],locale.toString());
+						model.addAttribute("displayAnsweringDay", displayAnsweringDay);
+						String[] strDisplayAnsweringMonth=strDisplayAnsweringDates[1].split(" ");
+						String displayAnsweringMonth=FormaterUtil.getMonthInLocaleLanguage(strDisplayAnsweringMonth[1], locale.toString());
+						String formattedDisplayAnsweringDate = FormaterUtil.formatDateToString(displayAnsweringDate, ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
+						model.addAttribute("displayAnsweringDate", formattedDisplayAnsweringDate);
+
+						String displayAnsweringDateInIndianCalendar = FormaterUtil.getIndianDate(displayAnsweringDate, locale);
+						model.addAttribute("displayAnsweringDateInIndianCalendar", displayAnsweringDateInIndianCalendar);
 						
 						int totalNumberOfDevices = 0;
 						for(RoundVO r: roundVOs) {
@@ -2373,10 +2407,15 @@ public class QuestionReportController extends BaseController{
 					DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
 					String processingMode = session.getParameter(deviceType.getType()+"_"+ApplicationConstants.PROCESSINGMODE);
 					Date answeringDate = null;
+					Date displayAnsweringDate = null;
 					if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 						QuestionDates questionDates = 
 								QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 						answeringDate = questionDates.getAnsweringDate();
+						displayAnsweringDate = questionDates.getDisplayAnsweringDate();
+						if(displayAnsweringDate==null) {
+							displayAnsweringDate = answeringDate;
+						}
 					}
 					else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
 							deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
@@ -2457,8 +2496,22 @@ public class QuestionReportController extends BaseController{
 					String answeringMonth=FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1], locale.toString());
 					String formattedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
 					data.setAnsweringDate(formattedAnsweringDate);
+					
 					String answeringDateInIndianCalendar = FormaterUtil.getIndianDate(answeringDate, locale);
 					data.setAnsweringDateInIndianCalendar(answeringDateInIndianCalendar);
+					
+					//Added the following code to solve the marathi month and day issue	for display answering date
+					String[] strDisplayAnsweringDates=dbFormat.format(displayAnsweringDate).split(",");
+					String displayAnsweringDay=FormaterUtil.getDayInLocaleLanguage(strDisplayAnsweringDates[0],locale.toString());
+					data.setDisplayAnsweringDay(displayAnsweringDay);
+					String[] strDisplayAnsweringMonth=strDisplayAnsweringDates[1].split(" ");
+					String displayAnsweringMonth=FormaterUtil.getMonthInLocaleLanguage(strDisplayAnsweringMonth[1], locale.toString());
+					String formattedDisplayAnsweringDate = FormaterUtil.formatDateToString(displayAnsweringDate, ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
+					data.setDisplayAnsweringDate(formattedDisplayAnsweringDate);
+
+					String displayAnsweringDateInIndianCalendar = FormaterUtil.getIndianDate(displayAnsweringDate, locale);
+					data.setDisplayAnsweringDateInIndianCalendar(displayAnsweringDateInIndianCalendar);
+					
 					int totalNumberOfDevices = 0;
 					for(RoundVO r: roundVOs) {
 						totalNumberOfDevices += r.getDeviceVOs().size();

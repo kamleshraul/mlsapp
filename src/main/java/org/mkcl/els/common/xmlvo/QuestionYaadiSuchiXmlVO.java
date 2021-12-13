@@ -32,9 +32,15 @@ public class QuestionYaadiSuchiXmlVO extends XmlVO {
 	
 	private String answeringDay;
 	
+	private String displayAnsweringDay;
+	
 	private String answeringDate;
 	
+	private String displayAnsweringDate;
+	
 	private String answeringDateInIndianCalendar;
+	
+	private String displayAnsweringDateInIndianCalendar;
 	
 	/**** used for only yaadi ****/
 	private List<DeviceVO> deviceVOs;
@@ -134,6 +140,15 @@ public class QuestionYaadiSuchiXmlVO extends XmlVO {
 		this.answeringDay = answeringDay;
 	}
 
+	@XmlElement(name = "displayAnsweringDay")
+	public String getDisplayAnsweringDay() {
+		return displayAnsweringDay;
+	}
+
+	public void setDisplayAnsweringDay(String displayAnsweringDay) {
+		this.displayAnsweringDay = displayAnsweringDay;
+	}
+
 	@XmlElement(name = "answeringDate")
 	public String getAnsweringDate() {
 		return answeringDate;
@@ -141,6 +156,15 @@ public class QuestionYaadiSuchiXmlVO extends XmlVO {
 
 	public void setAnsweringDate(String answeringDate) {
 		this.answeringDate = answeringDate;
+	}
+
+	@XmlElement(name = "displayAnsweringDate")
+	public String getDisplayAnsweringDate() {
+		return displayAnsweringDate;
+	}
+
+	public void setDisplayAnsweringDate(String displayAnsweringDate) {
+		this.displayAnsweringDate = displayAnsweringDate;
 	}
 	
 	@XmlElement(name = "answeringDateInIndianCalendar")
@@ -150,6 +174,15 @@ public class QuestionYaadiSuchiXmlVO extends XmlVO {
 
 	public void setAnsweringDateInIndianCalendar(String answeringDateInIndianCalendar) {
 		this.answeringDateInIndianCalendar = answeringDateInIndianCalendar;
+	}
+	
+	@XmlElement(name = "displayAnsweringDateInIndianCalendar")
+	public String getDisplayAnsweringDateInIndianCalendar() {
+		return displayAnsweringDateInIndianCalendar;
+	}
+
+	public void setDisplayAnsweringDateInIndianCalendar(String displayAnsweringDateInIndianCalendar) {
+		this.displayAnsweringDateInIndianCalendar = displayAnsweringDateInIndianCalendar;
 	}
 
 	@XmlElementWrapper(name = "deviceVOs")
