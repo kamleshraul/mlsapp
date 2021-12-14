@@ -662,7 +662,7 @@
 							--------------------------
 						</fo:block>		
 						<fo:block text-align="center" font-weight="bold" font-size="12pt">
-	                		<xsl:value-of select="answeringDate"/> / <xsl:value-of select="answeringDateInIndianCalendar"/> ( शके ) रोजीच्या
+	                		<xsl:value-of select="displayAnsweringDate"/> / <xsl:value-of select="displayAnsweringDateInIndianCalendar"/> ( शके ) रोजीच्या
 	                	</fo:block>	                	             	
 	                	<fo:block text-align="center" font-size="12pt" font-weight="bold">
 	                		तारांकित प्रश्नोत्तरांच्या यादीत समाविष्ट करण्यात आलेल्या प्रश्नांची सूची

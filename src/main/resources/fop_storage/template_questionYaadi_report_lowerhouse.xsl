@@ -666,7 +666,7 @@
 	                	</fo:block>
 	                	<fo:block font-size="10pt">&#160;</fo:block>	                	           	
 	                	<fo:block text-align="center" font-weight="bold">
-	                		<xsl:value-of select="answeringDate"/> / <xsl:value-of select="answeringDateInIndianCalendar"/> ( शके )
+	                		<xsl:value-of select="displayAnsweringDate"/> / <xsl:value-of select="displayAnsweringDateInIndianCalendar"/> ( शके )
 	                	</fo:block>
 	                	<fo:block font-size="10pt">&#160;</fo:block>
 	                	<fo:block text-align="center" font-weight="bold">
