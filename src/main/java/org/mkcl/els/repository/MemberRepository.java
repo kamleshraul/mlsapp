@@ -3002,8 +3002,11 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 	@SuppressWarnings("unchecked")
 	public List<Member> findActiveMembersByPartyType(PartyType partytype,House house,String locale) {
 		String strQuery="SELECT m FROM Member m JOIN m.memberPartyAssociations mpa" +
+				" JOIN m.houseMemberRoleAssociations hmra"+
 				" JOIN mpa.party p JOIN p.partyType pt WHERE mpa.fromDate<=:currentDate AND mpa.house.id=:houseId" +
 				" AND pt.id=:partytypeId AND (mpa.toDate>=:currentDate OR mpa.toDate IS NULL) AND p.locale=:locale"+
+				" AND hmra.fromDate <=:currentDate AND"+
+				" (hmra.toDate >=:currentDate OR hmra.toDate IS NULL )"+
 				" AND m.id NOT IN (Select mb.id" +
 				" FROM Member mb JOIN mb.memberMinisters mm" +
 				" WHERE mm.ministryFromDate <=:currentDate" +
