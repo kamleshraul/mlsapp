@@ -28,10 +28,10 @@
 			/**** show/hide unstarred yaadi link as per selected devicetype ****/
 			var currentDeviceType = 
 				$("#deviceTypeMaster option[value='"+ $("#selectedQuestionType").val() + "']").text();
-			if(currentDeviceType == 'questions_unstarred') {
-				$('#unstarred_admitted_departmentwise_report_span').show();
+			if(currentDeviceType == 'questions_starred' || currentDeviceType == 'questions_unstarred') {
+				$('#admitted_departmentwise_report_span').show();
 			} else {
-				$("#unstarred_admitted_departmentwise_report_span").hide();
+				$("#admitted_departmentwise_report_span").hide();
 			}	
 			if($('#member_admitted_questions_view_flag').val()=="admitted_visible") {
 				$('#member_admitted_questions_view_span').show();
@@ -201,11 +201,14 @@
 			});
 			
 			/**** Unstarred Admitted Questions Departmentwise Report ****/
-			$("#unstarred_admitted_departmentwise_report").click(function(){
-				if($('#selectedAnswerReceivedStatus').val()=='answerReceived') {
+			$("#admitted_departmentwise_report").click(function(){
+				var currentDeviceType = 
+					$("#deviceTypeMaster option[value='"+ $("#selectedQuestionType").val() + "']").text();
+				if(currentDeviceType == 'questions_unstarred'
+						&& $('#selectedAnswerReceivedStatus').val()=='answerReceived') {
 					departmentwiseUnstarredAnsweredQuestionsReport();
 				} else {
-					departmentwiseUnstarredAdmittedQuestionsReport();
+					departmentwiseAdmittedQuestionsReport();
 				}				
 			});
 			
@@ -416,9 +419,9 @@
 					<spring:message code="question.unstarred_suchi_report" text="Unstarred Suchi Report"/>
 				</a> |
 				</span>
-				<span id="unstarred_admitted_departmentwise_report_span">
-				<a href="#" id="unstarred_admitted_departmentwise_report" class="butSim link">
-					<spring:message code="question.unstarred_admitted_departmentwise_report" text="Unstarred Admitted Departmentwise Report"/>
+				<span id="admitted_departmentwise_report_span">
+				<a href="#" id="admitted_departmentwise_report" class="butSim link">
+					<spring:message code="question.admitted_departmentwise_report" text="Admitted Departmentwise Report"/>
 				</a> |
 				</span>				
 			</security:authorize>			

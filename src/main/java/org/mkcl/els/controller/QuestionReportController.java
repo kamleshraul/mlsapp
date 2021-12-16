@@ -5162,8 +5162,8 @@ public class QuestionReportController extends BaseController{
 	}
 	
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value="/departmentwise_unstarred_admitted_questions", method=RequestMethod.GET)
-	public @ResponseBody void generateDepartmentwiseUnstarredAdmittedQuestionsReport(HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+	@RequestMapping(value="/departmentwise_admitted_questions", method=RequestMethod.GET)
+	public @ResponseBody void generateDepartmentwiseAdmittedQuestionsReport(HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
 		File reportFile = null;
 		Boolean isError = false;
 		MessageResource errorMessage = null;
@@ -5174,6 +5174,7 @@ public class QuestionReportController extends BaseController{
 		String groupStr = request.getParameter("group");
 		String subDepartmentStr = request.getParameter("subDepartment");
 		String originalDeviceTypeStr = request.getParameter("originalDeviceType");
+		String deviceTypeStr = request.getParameter("deviceType");
 		String answerReceivedStatus = request.getParameter("answerReceivedStatus");
 		String reportQuery = request.getParameter("reportQuery");
 		String xsltFileName = request.getParameter("xsltFileName");
@@ -5185,7 +5186,8 @@ public class QuestionReportController extends BaseController{
 				&& sessionTypeStr!=null && !sessionTypeStr.isEmpty()
 				&& groupStr!=null && !groupStr.isEmpty()
 				&& subDepartmentStr!=null && !subDepartmentStr.isEmpty()
-				&& originalDeviceTypeStr!=null && !originalDeviceTypeStr.isEmpty()				
+				&& originalDeviceTypeStr!=null && !originalDeviceTypeStr.isEmpty()			
+				&& deviceTypeStr!=null && !deviceTypeStr.isEmpty()
 				&& answerReceivedStatus!=null && !answerReceivedStatus.isEmpty()
 				&& reportQuery!=null && !reportQuery.isEmpty()
 				&& xsltFileName!=null && !xsltFileName.isEmpty()
@@ -5220,6 +5222,7 @@ public class QuestionReportController extends BaseController{
 		    	parameterMap.put("sessionId", new String[]{session.getId().toString()});
 		    	parameterMap.put("groupId", new String[]{group.getId().toString()});
 		    	parameterMap.put("originalDeviceTypeId", new String[]{originalDeviceTypeStr});
+		    	parameterMap.put("deviceTypeId", new String[]{deviceTypeStr});
 		    	parameterMap.put("answerReceivedStatus", new String[]{answerReceivedStatus});
 		    	reportHeaders = Query.findReport(reportQuery+"_HEADERS", parameterMap);
 		    	parameterMap = null;
@@ -5233,6 +5236,7 @@ public class QuestionReportController extends BaseController{
 		    	parameterMap.put("groupId", new String[]{group.getId().toString()});
 		    	parameterMap.put("subDepartmentId", new String[]{subDepartmentStr});
 		    	parameterMap.put("originalDeviceTypeId", new String[]{originalDeviceTypeStr});
+		    	parameterMap.put("deviceTypeId", new String[]{deviceTypeStr});
 		    	parameterMap.put("answerReceivedStatus", new String[]{answerReceivedStatus});
 		    	parameterMap.put("serial", new String[]{"0"});
 		    	List<Object[]> resultData = Query.findReport(reportQuery, parameterMap);

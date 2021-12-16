@@ -70,6 +70,9 @@
 					|| $("#currentusergroupType").val()=='joint_secretary2'
 					|| $("#currentusergroupType").val()=='principal_secretary') {
 				$("#yaadi_details_tab").show();
+			} else if($("#selectedHouseType").val() == 'upperhouse'
+				&& $("#currentusergroupType").val()=='under_secretary'){
+				$("#yaadi_details_tab").show();
 			} else {
 				$("#yaadi_details_tab").hide();
 			}
@@ -223,6 +226,9 @@
 						|| $("#currentusergroupType").val()=='joint_secretary2'
 						|| $("#currentusergroupType").val()=='principal_secretary') {
 					$("#yaadi_details_tab").show();
+				} else if($("#selectedHouseType").val() == 'upperhouse'
+						&& $("#currentusergroupType").val()=='under_secretary'){
+					$("#yaadi_details_tab").show();
 				} else {
 					$("#yaadi_details_tab").hide();
 				}
@@ -237,10 +243,10 @@
 				}
 			}
 			
-			if(text == 'questions_unstarred') {
-				$("#unstarred_admitted_departmentwise_report_span").show();
+			if(text == 'questions_starred' || text == 'questions_unstarred') {
+				$("#admitted_departmentwise_report_span").show();
 			} else {
-				$("#unstarred_admitted_departmentwise_report_span").hide();
+				$("#admitted_departmentwise_report_span").hide();
 			}
 			
 			/**** show/hide member_starred_suchi_view span as per selected devicetype ****/
@@ -1534,7 +1540,8 @@
 		showTabByIdAndUrl('details_tab', resourceURL);
 	}
 	
-	function departmentwiseUnstarredAdmittedQuestionsReport(){
+	function departmentwiseAdmittedQuestionsReport(){
+		var devicetype = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
 		var parameters = {
 				houseType				: $("#selectedHouseType").val(),
 				sessionYear				: $('#selectedSessionYear').val(), 
@@ -1542,15 +1549,16 @@
 				group					: $("#selectedGroup").val(),
 				subDepartment			: $("#selectedSubDepartment").val(),
 				originalDeviceType		: $("#selectedOriginalDeviceType").val(),
+				deviceType				: $("#selectedQuestionType").val(),
 				answerReceivedStatus	: $('#selectedAnswerReceivedStatus').val(), 
 				locale					: $("#moduleLocale").val(), 
 				role					: $("#srole").val(),
-				reportQuery				: "QIS_UNSTARRED_ADMITTED_DEPARTMENTWISE_QUESTIONS"/* + "_" + $("#selectedHouseType").val().toUpperCase()*/,
-				xsltFileName			: 'template_departmentwise_unstarred_admitted_questions'/* + '_' + $("#selectedHouseType").val()*/,
+				reportQuery				: "QIS_ADMITTED_DEPARTMENTWISE_QUESTIONS"/* + "_" + $("#selectedHouseType").val().toUpperCase()*/,
+				xsltFileName			: 'template_departmentwise_admitted_questions'/* + '_' + $("#selectedHouseType").val()*/,
 				outputFormat			: 'WORD',
-				reportFileName			: "departmentwise_unstarred_admitted_questions"/* + "_" + $("#selectedHouseType").val()*/
+				reportFileName			: devicetype + "_departmentwise_admitted_questions"/* + "_" + $("#selectedHouseType").val()*/
 		}
-		form_submit('question/report/departmentwise_unstarred_admitted_questions', parameters, 'GET');
+		form_submit('question/report/departmentwise_admitted_questions', parameters, 'GET');
 	}
 	
 	function departmentwiseUnstarredAnsweredQuestionsReport() {
