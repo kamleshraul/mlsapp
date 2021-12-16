@@ -38,10 +38,12 @@
 <div id="reportDiv">
 	<div style="text-align: center; width: 100%;">
 		<span style="font-size: 20px; color: black; font-weight: bold; margin-bottom: 10px;"><spring:message code="roster.header" text="Roster" /></span>
-		<br />
+		<br /><br />
 		<span style="font-size: 14px; color: black; font-weight: bold;"><spring:message code="generic.date" text="Date" />: ${rosterDate}</span>
+		<br /><br />
+		<span style="font-size: 14px; color: black; font-weight: bold;"><spring:message code="committeeName" text="Committee Name" />: ${committeName}</span>
 	</div>
-	<div style="min-width: 800px; overflow: scroll; margin: 50px 0px 0px 10px;" id="repDiv">
+	<div style="min-width: 800px; overflow: scroll; margin: 10px 0px 0px 10px;" id="repDiv">
 		<table border="1" style="width: 100%;">
 			<thead>
 				<c:set var="repHeadName" value="" />
