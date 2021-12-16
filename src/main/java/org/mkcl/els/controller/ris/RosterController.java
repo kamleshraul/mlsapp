@@ -940,6 +940,7 @@ public class RosterController extends GenericController<Roster>{
 			
 			List report = org.mkcl.els.domain.Query.findReport("RIS_ROSTER_REPORT_ROSTER", parametersMap);
 			model.addAttribute("report", report);
+			model.addAttribute("committeName", roster.getCommitteeMeeting().getCommittee().getCommitteeName().getDisplayName());
 			
 			model.addAttribute("rosterDate", FormaterUtil.formatDateToString(roster.getStartTime(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 			
