@@ -624,7 +624,7 @@ public class QuestionWorkflowController  extends BaseController{
 			
 			}			
 		}	
-		/**** Set Last Answer Receiving Date for Starred Questions ****/
+		/**** Set Last Answer Receiving Date & Last Date of Changing Department for Starred Questions ****/
 		QuestionDates actualAnsweringDateForStarredQuestion = null;
 		if(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 			actualAnsweringDateForStarredQuestion = Question.findQuestionDatesForStarredQuestion(domain);
@@ -641,6 +641,14 @@ public class QuestionWorkflowController  extends BaseController{
 						format(actualAnsweringDateForStarredQuestion.getLastReceivingDateFromDepartment());
 				model.addAttribute("lastReceivingDateFromDepartment", formattedLastRecievingDateFromDepartment);
 				model.addAttribute("formattedLastAnswerReceivingDate", formattedLastRecievingDateFromDepartment);
+				
+				if(actualAnsweringDateForStarredQuestion.getLastDateForChangingDepartment()!=null){
+					model.addAttribute("formattedLastDateForChangingDepartment", 
+							FormaterUtil.getDateFormatter(locale).format(actualAnsweringDateForStarredQuestion.
+									getLastDateForChangingDepartment()));
+					model.addAttribute("lastDateForChangingDepartment", actualAnsweringDateForStarredQuestion.
+							getLastDateForChangingDepartment());
+				}				
 			}
 		}
 		/**** Submission Date and Creation date****/
@@ -1235,15 +1243,6 @@ public class QuestionWorkflowController  extends BaseController{
 			model.addAttribute("formattedAnswerReceivedDate", 
 					FormaterUtil.formatDateToString(domain.getAnswerReceivedDate(),
 							ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
-		}
-		if(domain.getChartAnsweringDate()!=null){
-			if(domain.getChartAnsweringDate().getLastDateForChangingDepartment()!=null){
-				model.addAttribute("formattedLastDateForChangingDepartment", 
-						FormaterUtil.getDateFormatter(locale).format(domain.getChartAnsweringDate().
-								getLastDateForChangingDepartment()));
-				model.addAttribute("lastDateForChangingDepartment", domain.getChartAnsweringDate().
-						getLastDateForChangingDepartment());
-			}
 		}
 		
 		/**** Yaadi related things ****/
