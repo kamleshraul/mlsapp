@@ -3000,25 +3000,75 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<Member> findActiveMembersByPartyType(PartyType partytype,House house,String locale) {
-		String strQuery="SELECT m FROM Member m JOIN m.memberPartyAssociations mpa" +
-				" JOIN m.houseMemberRoleAssociations hmra"+
-				" JOIN mpa.party p JOIN p.partyType pt WHERE mpa.fromDate<=:currentDate AND mpa.house.id=:houseId" +
-				" AND pt.id=:partytypeId AND (mpa.toDate>=:currentDate OR mpa.toDate IS NULL) AND p.locale=:locale"+
-				" AND hmra.fromDate <=:currentDate AND"+
-				" (hmra.toDate >=:currentDate OR hmra.toDate IS NULL )"+
-				" AND m.id NOT IN (Select mb.id" +
-				" FROM Member mb JOIN mb.memberMinisters mm" +
-				" WHERE mm.ministryFromDate <=:currentDate" +
-				" AND (mm.ministryToDate >=:currentDate OR mm.ministryToDate IS NULL)" +
-				" AND mm.locale=:locale)";
-		javax.persistence.Query query=this.em().createQuery(strQuery);
-		query.setParameter("currentDate", new Date());
-		query.setParameter("houseId", house.getId());
-		query.setParameter("partytypeId", partytype.getId());
-		query.setParameter("locale",locale);
-		List<Member> members=query.getResultList();
-		return members;
+	public List<MasterVO> findActiveMembersByPartyType(final House house,
+			final Session session, final String locale,final PartyType partytype, final Long primaryMemberId) {
+	
+		List<MasterVO> memberVOS=new ArrayList<MasterVO>();
+		try {
+			Date sessionStartDate=session.getStartDate();
+			Date sessionEndDate=session.getEndDate();
+			String query=null;
+			if(sessionStartDate!=null && sessionEndDate!=null){
+				SimpleDateFormat format=new SimpleDateFormat(ApplicationConstants.DB_DATEFORMAT);
+				String strSessionStartDate=format.format(sessionStartDate);
+				String strSessionEndDate=format.format(sessionEndDate);
+				if(primaryMemberId!=null){
+					query="(SELECT DISTINCT m.id,t.name,m.first_name,m.middle_name,m.last_name FROM members_houses_roles as mhr JOIN members as m JOIN memberroles as mr JOIN members_parties as mpa JOIN parties as p JOIN party_types as pt"+
+					" JOIN titles as t WHERE t.id=m.title_id and mr.id=mhr.role and mhr.member=m.id and mpa.member=m.id and p.id=mpa.party and pt.id=p.party_type_id and m.id<>'"+ primaryMemberId+"' and m.locale='"+locale+"' "+
+					" and mpa.house_id="+house.getId()+" AND pt.id='"+partytype.getId()+"' AND p.locale='"+locale+"' "+		
+					" and (mhr.to_date>='"+strSessionStartDate+"' or mhr.to_date>='"+strSessionEndDate+"') and mr.priority=0 and mhr.house_id="+house.getId()+" ) ORDER BY m.first_name asc";
+				}else{
+					query="(SELECT DISTINCT m.id,t.name,m.first_name,m.middle_name,m.last_name FROM members_houses_roles as mhr JOIN members as m JOIN memberroles as mr "+
+					" JOIN titles as t WHERE t.id=m.title_id and mr.id=mhr.role and mhr.member=m.id and  mpa.member=m.id and p.id=mpa.party and pt.id=p.party_type_id and m.locale='"+locale+"' "+
+					" and mpa.house_id="+house.getId()+" AND pt.id='"+partytype.getId()+"' AND p.locale='"+locale+"' "+								
+					" and (mhr.to_date>='"+strSessionStartDate+"' or mhr.to_date>='"+strSessionEndDate+"') and mr.priority=0 and mhr.house_id="+house.getId()+" ) ORDER BY m.first_name asc";
+				}				
+				List members=this.em().createNativeQuery(query).getResultList();
+				List<Member> activeMinistersList = Member.findActiveMinisters(new Date(), locale);
+				String[] memberAsPresidingOfficerRoles = new String[] {"SPEAKER", "DEPUTY_SPEAKER", "CHAIRMAN", "DEPUTY_CHAIRMAN"};
+				for(Object i:members){
+					Object[] o=(Object[]) i;
+					Member member = Member.findById(Member.class, Long.parseLong(o[0].toString()));
+					boolean isMemberActiveMinister = false;
+					if(activeMinistersList!=null && member!=null) {
+						for(Member m: activeMinistersList) {
+							if(member.getId().equals(m.getId())) {
+								isMemberActiveMinister = true;
+								break;
+							}
+						}
+					}
+					//if(member.isActiveOnlyAsMember(new Date(), locale)) {
+					if(!isMemberActiveMinister && !member.isActiveMemberInAnyOfGivenRolesOn(memberAsPresidingOfficerRoles, new Date(), locale)) {
+						MasterVO masterVO=new MasterVO();
+						masterVO.setId(Long.parseLong(o[0].toString()));
+						if(o[3]!=null){
+							masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString()+" "+o[4].toString());
+						}else{
+							masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString());
+						}
+						memberVOS.add(masterVO);
+					}
+				}
+			}
+			
+			//suspended members should not allowed for supporting memebers
+			// filtering suspended members
+			if(memberVOS!=null && memberVOS.size()>0) { 
+				List<Long> suspendedMembersIds = Member.getMemberRepository().supspendedMembersIdsList(new Date());
+				if(suspendedMembersIds !=null && suspendedMembersIds.size()>0) {
+					for(MasterVO m: memberVOS) {
+						if(suspendedMembersIds.contains(m.getId()))
+							memberVOS.remove(m);						
+					}
+				}				
+			}
+			
+			return memberVOS;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return memberVOS;
+		}
 	}
 	
 	

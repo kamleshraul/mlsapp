@@ -478,12 +478,12 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 						}
 						/**** Opposition or Ruiling Members ****/
 						
-					
+						//Session selectedSession = Session.findById(Session.class, session);
 						House house=House.find(houseType, new Date(), locale.toString());
 						PartyType partytype=Member.getMemberRepository().findPartyType(member.getId(), house.getId(), locale);
-						List<Member> membersbyPartyType=Member.getMemberRepository().findActiveMembersByPartyType(partytype, house, locale);
+						List<MasterVO> membersbyPartyType=Member.getMemberRepository().findActiveMembersByPartyType(house, selectedSession, locale.toString(), partytype,member.getId());
 						//List<Member> supportingMembers=new ArrayList<Member>();
-						membersbyPartyType.remove(member);
+						//membersbyPartyType.remove(member);
 						if(membersbyPartyType!=null){
 							
 							model.addAttribute("membersbyPartyType",membersbyPartyType);
@@ -780,9 +780,9 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 		
 		House house=House.find(houseType, new Date(), locale.toString());
 		PartyType partytype=Member.getMemberRepository().findPartyType(member.getId(), house.getId(), locale);
-		List<Member> membersbyPartyType=Member.getMemberRepository().findActiveMembersByPartyType(partytype, house, locale);
+		List<MasterVO> membersbyPartyType=Member.getMemberRepository().findActiveMembersByPartyType(house, selectedSession, locale.toString(), partytype,member.getId());
 		//List<Member> supportingMembers=new ArrayList<Member>();
-		membersbyPartyType.remove(member);
+		//membersbyPartyType.remove(member);
 		if(membersbyPartyType!=null){
 			
 			model.addAttribute("membersbyPartyType",membersbyPartyType);

@@ -384,7 +384,7 @@
 		<c:if test="${!(empty membersbyPartyType)}">		
 		<select  id="multipleSelectID"  name="selectedSupportingMembers" multiple>
 		<c:forEach items="${membersbyPartyType}" var="i">
-		<option value="${i.id}">${i.getFullname()}</option>
+		<option value="${i.id}">${i.getName()}</option>
 		</c:forEach>		
 		
 		
