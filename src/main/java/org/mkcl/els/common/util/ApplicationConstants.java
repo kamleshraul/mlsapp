@@ -1109,6 +1109,9 @@ public class ApplicationConstants {
 
 	/** Prefix of acts **/
 	public static final String DEVICE_ACTS="act";
+	
+	/**** Prefix of appropriation bill motions ****/
+	public static final String DEVICE_APPROPRIATIONBILLMOTIONS="motions_appropriationbillmotion_";
 
 	public static final String RESOLUTION_LOWERHOUSEGRID="resolution_lowerhouse";
 
@@ -2986,6 +2989,112 @@ public class ApplicationConstants {
 	/**** Other constants ****/
 	public static final String SPECIALMENTIONNOTICEN_GET_REVISION = "SPECIALMENTIONNOTICE_GET_REVISION";
 	/**************** Special Mention Notice Completed ********************/
+	
+	/**************** AppropriationBill Motion ********************/
+	public static final String MOTIONS_APPROPRIATIONBILLMOTION_BUDGETARY = "motions_appropriationbillmotion_budgetary";
+	
+	public static final String MOTIONS_APPROPRIATIONBILLMOTION_SUPPLEMENTARY = "motions_appropriationbillmotion_supplementary";
+	
+	/**** member status  ****/	
+	public static final String APPROPRIATIONBILLMOTION_INCOMPLETE="appropriationbillmotion_incomplete";
+
+	public static final String APPROPRIATIONBILLMOTION_COMPLETE="appropriationbillmotion_complete";
+
+	public static final String APPROPRIATIONBILLMOTION_SUBMIT="appropriationbillmotion_submit";
+
+	public static final String APPROPRIATIONBILLMOTION_SYSTEM_ASSISTANT_PROCESSED="appropriationbillmotion_system_assistantprocessed";
+	
+	public static final String APPROPRIATIONBILLMOTION_SYSTEM_CLUBBED="appropriationbillmotion_system_clubbed";
+
+	/**** System status  ****/	
+	public static final String APPROPRIATIONBILLMOTION_SYSTEM_CLUBBED_WITH_PENDING="appropriationbillmotion_system_clubbedwithpending";
+	
+	/**** Recommendation status ****/	
+	public static final String APPROPRIATIONBILLMOTION_RECOMMEND_ADMISSION="appropriationbillmotion_recommend_admission";
+
+	public static final String APPROPRIATIONBILLMOTION_RECOMMEND_REJECTION="appropriationbillmotion_recommend_rejection";
+
+	public static final String APPROPRIATIONBILLMOTION_RECOMMEND_NAMECLUBBING="appropriationbillmotion_recommend_nameclubbing";
+
+	public static final String APPROPRIATIONBILLMOTION_RECOMMEND_REJECT_NAMECLUBBING="appropriationbillmotion_recommend_reject_nameclubbing";
+
+	public static final String APPROPRIATIONBILLMOTION_RECOMMEND_SENDBACK="appropriationbillmotion_recommend_sendback";	
+
+	public static final String APPROPRIATIONBILLMOTION_RECOMMEND_DISCUSS="appropriationbillmotion_recommend_discuss";
+
+	/**** Final status ****/ 
+	public static final String APPROPRIATIONBILLMOTION_FINAL_ADMISSION="appropriationbillmotion_final_admission";    
+
+	public static final String APPROPRIATIONBILLMOTION_FINAL_REJECTION="appropriationbillmotion_final_rejection";
+	
+	public static final String APPROPRIATIONBILLMOTION_FINAL_NAMECLUBBING = "appropriationbillmotion_final_nameclubbing";
+
+	public static final String APPROPRIATIONBILLMOTION_FINAL_REJECT_NAMECLUBBING = "appropriationbillmotion_final_reject_nameclubbing";
+	
+	/**** Processed status ****/
+	public static final String APPROPRIATIONBILLMOTION_PROCESSED_SENDTOSECTIONOFFICER = "appropriationbillmotion_processed_sendToSectionOfficer";
+	
+	public static final String APPROPRIATIONBILLMOTION_PROCESSED_SENDTODEPARTMENT = "appropriationbillmotion_processed_sendToDepartment";
+	
+	public static final String APPROPRIATIONBILLMOTION_PROCESSED_SENDTODESKOFFICER = "appropriationbillmotion_processed_sendToDeskOfficer";
+	
+	public static final String APPROPRIATIONBILLMOTION_PROCESSED_REJECTIONWITHREASON = "appropriationbillmotion_processed_rejectionWithReason";
+	
+	public static final String APPROPRIATIONBILLMOTION_PROCESSED_REPLY_RECEIVED = "appropriationbillmotion_processed_replyReceived";
+	
+	/**** Put Up ****/
+	public static final String APPROPRIATIONBILLMOTION_PUTUP_NAMECLUBBING="appropriationbillmotion_putup_nameclubbing";
+	
+	public static final String APPROPRIATIONBILLMOTION_PUTUP_REJECTION="appropriationbillmotion_putup_rejection";
+	
+	public static final String APPROPRIATIONBILLMOTION_PROCESSED_SEND_TO_DEPARTMENT = "cutmotion_processed_sendToDepartment";
+	
+	public static final String APPROPRIATIONBILLMOTION_PROCESSED_SEND_TO_SECTIONOFFICER = "cutmotion_processed_sendToSectionOfficer";
+	
+	/**** Clubbing related statuses ****/
+	public static final String APPROPRIATIONBILLMOTION_PUTUP_CLUBBING="appropriationbillmotion_putup_clubbing";
+	
+	public static final String APPROPRIATIONBILLMOTION_RECOMMEND_CLUBBING="appropriationbillmotion_recommend_clubbing";
+	
+	public static final String APPROPRIATIONBILLMOTION_RECOMMEND_REJECT_CLUBBING="appropriationbillmotion_recommend_reject_clubbing";
+	
+	public static final String APPROPRIATIONBILLMOTION_FINAL_CLUBBING = "appropriationbillmotion_final_clubbing";
+
+	public static final String APPROPRIATIONBILLMOTION_FINAL_REJECT_CLUBBING = "appropriationbillmotion_final_reject_clubbing";
+	
+	public static final String APPROPRIATIONBILLMOTION_PUTUP_CLUBBING_POST_ADMISSION="appropriationbillmotion_putup_clubbingPostAdmission";
+
+	public static final String APPROPRIATIONBILLMOTION_RECOMMEND_CLUBBING_POST_ADMISSION="appropriationbillmotion_recommend_clubbingPostAdmission";
+
+	public static final String APPROPRIATIONBILLMOTION_RECOMMEND_REJECT_CLUBBING_POST_ADMISSION="appropriationbillmotion_recommend_reject_clubbingPostAdmission";
+	
+	public static final String APPROPRIATIONBILLMOTION_FINAL_CLUBBING_POST_ADMISSION = "appropriationbillmotion_final_clubbingPostAdmission";
+
+	public static final String APPROPRIATIONBILLMOTION_FINAL_REJECT_CLUBBING_POST_ADMISSION = "appropriationbillmotion_final_reject_clubbingPostAdmission";
+
+	public static final String APPROPRIATIONBILLMOTION_PUTUP_ADMIT_DUE_TO_REVERSE_CLUBBING = "appropriationbillmotion_putup_admitDueToReverseClubbing";
+	
+	public static final String APPROPRIATIONBILLMOTION_RECOMMEND_ADMIT_DUE_TO_REVERSE_CLUBBING = "appropriationbillmotion_recommend_admitDueToReverseClubbing";
+	
+	public static final String APPROPRIATIONBILLMOTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING = "appropriationbillmotion_final_admitDueToReverseClubbing";
+	
+	public static final String APPROPRIATIONBILLMOTION_PUTUP_UNCLUBBING="appropriationbillmotion_putup_unclubbing";
+	
+	public static final String APPROPRIATIONBILLMOTION_RECOMMEND_UNCLUBBING="appropriationbillmotion_recommend_unclubbing";
+	
+	public static final String APPROPRIATIONBILLMOTION_RECOMMEND_REJECT_UNCLUBBING = "appropriationbillmotion_recommend_reject_unclubbing";
+	
+	public static final String APPROPRIATIONBILLMOTION_FINAL_UNCLUBBING="appropriationbillmotion_final_unclubbing";
+	
+	public static final String APPROPRIATIONBILLMOTION_FINAL_REJECT_UNCLUBBING = "appropriationbillmotion_final_reject_unclubbing";
+
+	/**** Other constants ****/
+	public static final String APPROPRIATIONBILLMOTION_GET_REVISION = "APPROPRIATIONBILLMOTION_GET_REVISION";
+	
+	public static final String APPROVAL_WORKFLOW_URLPATTERN_APPROPRIATIONBILLMOTION = "workflow/appropriationbillmotion";
+	
+	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_APPROPRIATIONBILLMOTION = "workflow/appropriationbillmotion/supportingmember";
+	/**************** AppropriationBill Motion Completed ********************/
 	
 	/** The Constant DEFAULT_MEMBER_TENURE_YEARS_UPPERHOUSE. */
 	public static final String DEFAULT_MEMBER_TENURE_YEARS_UPPERHOUSE="6";

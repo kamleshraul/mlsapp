@@ -13,6 +13,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.ApplicationLocale;
+import org.mkcl.els.domain.AppropriationBillMotion;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.CutMotionDate;
@@ -1063,6 +1064,81 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 							+ user.getMiddleName() + " " +user.getLastName());
 					reference.setName(userGroupType.getName());
 				}
+			}
+			return reference;
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("UserGroupRepository_Reference_findMotionActor", "No Actor Found");
+			throw elsException;
+		}
+	}
+	
+	public Reference findAppropriationBillMotionActor(final AppropriationBillMotion motion,final String userGroupType,final String level,final String locale) throws ELSException {
+		try{
+			Reference reference=new Reference();
+			UserGroupType userGroupTypeTemp=UserGroupType.findByFieldName(UserGroupType.class,"type",userGroupType, locale);
+			List<UserGroup> userGroups=UserGroup.findAllByFieldName(UserGroup.class,"userGroupType",
+					userGroupTypeTemp, "activeFrom",ApplicationConstants.DESC, locale);
+			for(UserGroup j:userGroups){
+				int noOfComparisons=0;
+				int noOfSuccess=0;
+				Map<String,String> params=j.getParameters();
+				if(motion.getHouseType()!=null){
+					HouseType bothHouse=HouseType.findByFieldName(HouseType.class, "type","bothhouse", locale);
+					if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
+						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(motion.getHouseType().getName())){
+							noOfComparisons++;
+							noOfSuccess++;
+						}else{
+							noOfComparisons++;
+						}
+					}
+				}
+				if(motion.getDeviceType()!=null){
+					if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(motion.getDeviceType().getName())){
+						noOfComparisons++;
+						noOfSuccess++;
+					}else{
+						noOfComparisons++;
+					}
+				}
+				if(motion.getMinistry()!=null){
+					if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale)!=null && params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).contains(motion.getMinistry().getName())){
+						noOfComparisons++;
+						noOfSuccess++;
+					}else{
+						noOfComparisons++;
+					}
+				}			
+				if(motion.getSubDepartment()!=null){
+					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).contains(motion.getSubDepartment().getName())){
+						noOfComparisons++;
+						noOfSuccess++;
+					}else{
+						noOfComparisons++;
+					}
+				}	
+				Date fromDate=j.getActiveFrom();
+				Date toDate=j.getActiveTo();
+				Date currentDate=new Date();
+				noOfComparisons++;
+				if(((fromDate==null||currentDate.after(fromDate)||currentDate.equals(fromDate))
+						&&(toDate==null||currentDate.before(toDate)||currentDate.equals(toDate)))
+						){
+					noOfSuccess++;
+				}
+				/**** Include Leave Module ****/
+				if(noOfComparisons==noOfSuccess){
+					User user=User.findByFieldName(User.class,"credential",j.getCredential(), locale);
+					reference.setId(j.getCredential().getUsername()
+							+"#"+j.getUserGroupType().getType()
+							+"#"+level
+							+"#"+userGroupTypeTemp.getName()
+							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
+					reference.setName(userGroupTypeTemp.getName());
+				}				
 			}
 			return reference;
 		}catch(Exception e){

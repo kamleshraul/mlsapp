@@ -1075,6 +1075,66 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 			final String locale) throws ELSException {
 		return getRepository().startProcessAtGivenLevel(proprietyPoint, processDefinitionKey, processWorkflow, userGroupType, level, locale);
 	}
+	/******************************Propriety Point**************************/
+	
+	/**********************************AppropriationBillMotion***********************/
+	public static WorkflowDetails findCurrentWorkflowDetail(final AppropriationBillMotion motion) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(motion);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final AppropriationBillMotion motion, final String workflowType) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(motion, workflowType);
+	}
+	
+	public static WorkflowDetails startProcessAtGivenLevel(final AppropriationBillMotion motion, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final UserGroupType userGroupType, 
+			final int level, 
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(motion, processDefinitionKey, processWorkflow, userGroupType, level, locale);
+	}
+	
+	public static WorkflowDetails startProcess(final AppropriationBillMotion motion, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final String locale) throws ELSException {
+		return getRepository().startProcess(motion, processDefinitionKey, processWorkflow, locale);
+	}
+	
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.APPROPRIATIONBILLMOTION_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	public static List<WorkflowDetails> create(final AppropriationBillMotion domain,
+			final List<Task> tasks,
+			final String supportingMemberWorkflow, 
+			final String assigneeLevel) throws ELSException {		
+		return getRepository().create(domain, tasks, supportingMemberWorkflow, assigneeLevel);
+	}
+
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.CUTMOTION_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	public static WorkflowDetails create(final AppropriationBillMotion motion,
+			final Task task,
+			final UserGroupType usergroupType,
+			final String workflowType,
+			final String level) throws ELSException {
+		return getRepository().create(motion, task, usergroupType, workflowType, level);
+	}
+	
+	
+	public static WorkflowDetails create(final AppropriationBillMotion motion,
+			final Task task,
+			final String workflowType,
+			final String level) throws ELSException {
+		return getRepository().create(motion, task, workflowType, level);
+	}
+	/******************************AppropriationBillMotion**************************/
 	
 	// TODO: Incomplete
 	// kept to hide errors only method needs to be replaced with actual code

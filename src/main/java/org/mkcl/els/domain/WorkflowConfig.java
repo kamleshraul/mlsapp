@@ -578,6 +578,31 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 		return getWorkflowConfigRepository().getLatest(rulesSuspensionMotion, internalStatus, locale);
 	}
 	/****************************** RulesSuspension Motion *********************/
+	
+	/***************************Appropriation Bill Motion*********************************/
+	public static Reference findActorVOAtGivenLevel(final AppropriationBillMotion motion, final Status status, final String usergroupType, final int level, final String locale) throws ELSException {
+		return getWorkflowConfigRepository().findActorVOAtGivenLevel(motion, status, usergroupType, level, locale);
+	}
+	public static Reference findActorVOAtFirstLevel(final AppropriationBillMotion motion, final Workflow processWorkflow, final String locale) {
+		return getWorkflowConfigRepository().findActorVOAtFirstLevel(motion, processWorkflow, locale);
+	}
+	
+	public static Reference findActorVOAtGivenLevel(final AppropriationBillMotion motion, final Workflow processWorkflow, final UserGroupType userGroupType, final int level, final String locale) {
+		return getWorkflowConfigRepository().findActorVOAtGivenLevel(motion, processWorkflow, userGroupType, level, locale);
+	}
+	
+	public static List<Reference> findAppropriationBillMotionActorsVO(final AppropriationBillMotion motion,
+			final Status internalStatus,
+			final UserGroup userGroup,
+			final int level,
+			final String locale) {
+		return getWorkflowConfigRepository().findAppropriationBillMotionActorsVO(motion, internalStatus, userGroup, level, locale);
+	}
+	
+	public static WorkflowConfig getLatest(AppropriationBillMotion cutmotion, String internalStatus, String locale) {
+		return getWorkflowConfigRepository().getLatest(cutmotion, internalStatus, locale);
+	}	
+	/***************************Appropriation Bill Motion********************************/
 
 
 }
