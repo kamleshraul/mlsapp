@@ -363,6 +363,15 @@
 		<pattern>/specialmentionnotice/bulksubmission/assistant/update</pattern>
 		<pattern>/workflow/specialmentionnotice</pattern>
 		
+		<pattern>/appropriationbillmotion/new</pattern>
+		<pattern>/appropriationbillmotion/*/edit</pattern>
+		<pattern>/appropriationbillmotion/*/delete</pattern>
+		<pattern>/appropriationbillmotion</pattern>	
+		<pattern>/appropriationbillmotion/bulksubmission/assistant/int</pattern>	
+		<pattern>/appropriationbillmotion/bulksubmission/assistant/view</pattern>		
+		<pattern>/appropriationbillmotion/bulksubmission/assistant/update</pattern>
+		<pattern>/workflow/appropriationbillmotion</pattern>
+		
 		<pattern>/bill/new</pattern>
 		<pattern>/bill/*/edit</pattern>
 		<pattern>/bill/*/delete</pattern>

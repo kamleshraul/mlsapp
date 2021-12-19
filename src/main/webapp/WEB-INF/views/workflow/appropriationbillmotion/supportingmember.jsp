@@ -9,7 +9,7 @@
 	$(document).ready(function(){
 		  //view supporting members status
 	    $("#viewStatus").click(function(){
-		    $.get('cutmotion/status/'+$("#motion").val(),function(data){
+		    $.get('appropriationbillmotion/status/'+$("#motion").val(),function(data){
 			    $.fancybox.open(data);
 		    }).fail(function(){
 				$.unblockUI();
@@ -32,7 +32,7 @@
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
 <div class="fields clearfix watermark">
-<form:form action="workflow/cutmotion/supportingmember" method="PUT" modelAttribute="domain">
+<form:form action="workflow/appropriationbillmotion/supportingmember" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2>
 	<c:choose>

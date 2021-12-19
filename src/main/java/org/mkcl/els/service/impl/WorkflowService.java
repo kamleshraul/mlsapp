@@ -6,6 +6,7 @@ import java.util.List;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.AdjournmentMotion;
+import org.mkcl.els.domain.AppropriationBillMotion;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.BillAmendmentMotion;
 import org.mkcl.els.domain.CutMotion;
@@ -59,6 +60,9 @@ public class WorkflowService implements IWorkflowService{
  		        supportingMembers = motion.getSupportingMembers();
         	}else if(strDeviceType.startsWith(ApplicationConstants.RULESSUSPENSION_MOTION)){
         		RulesSuspensionMotion motion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class,Long.parseLong(strDeviceId));
+ 		        supportingMembers = motion.getSupportingMembers();
+        	}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_APPROPRIATIONBILLMOTIONS)){
+        		AppropriationBillMotion motion = AppropriationBillMotion.findById(AppropriationBillMotion.class,Long.parseLong(strDeviceId));
  		        supportingMembers = motion.getSupportingMembers();
         	}else{
 		        Motion motion=Motion.findById(Motion.class,Long.parseLong(strDeviceId));
