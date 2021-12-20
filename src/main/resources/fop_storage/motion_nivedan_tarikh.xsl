@@ -267,7 +267,7 @@
 																			आपला/आपली
 																		</xsl:when>
 																		<xsl:otherwise>
-																			आपली
+																			आपला
 																		</xsl:otherwise>
 																		</xsl:choose>
 																		</fo:block>
