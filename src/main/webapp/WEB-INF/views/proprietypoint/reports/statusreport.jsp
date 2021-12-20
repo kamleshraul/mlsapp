@@ -120,6 +120,7 @@
 	        	border: 1px solid;
 	        	width: 800px;
 	        	padding: 10px;
+	        	margin: auto;
 	        }	        
         }
         @media print{
@@ -127,6 +128,8 @@
 	        	width: 750px;
 	        	padding: 5px;
 	        	margin-top: 0px !important;
+	        	margin: auto;
+	        	margin-left: 50px;
 	        }
 	        
 	        .page-break-before-forced{
