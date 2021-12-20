@@ -725,8 +725,9 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return getMemberRepository().findActiveMembersByParty(party,house,locale);
 	}
 	
-	public static List<Member> findActiveMembersByPartyType(PartyType partytype,House house, String locale) {
-		return getMemberRepository().findActiveMembersByPartyType(partytype,house,locale);
+	public static List<MasterVO> findActiveMembersByPartyType(final House house,
+			final Session session, final String locale,final PartyType partytype, final Long primaryMemberId) {
+		return getMemberRepository().findActiveMembersByPartyType(house,session,locale,partytype,primaryMemberId);
 	}
 	 /**
 //   * Find all the active members in the house for the given date
