@@ -61,7 +61,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 	"group","department", "drafts", "parent", "clubbedEntities", "referencedEntities",
 	"referencedHDS","fileSent","fileIndex",
 	"file","workflowDetailsId","bulkSubmitted","taskReceivedOn","workflowStartedOn","level",
-	"endFlag","localizedActorName","actor","workflowStarted","answeringAttemptsByDepartment"
+	"endFlag","actor","workflowStarted","answeringAttemptsByDepartment"
 	,"markAsAnswered","prospectiveClubbings","lastDateOfAnswerReceiving","revisedBriefExplanation",
 	"briefExplanation","discussionDate","dateOfAnsweringByMinister","toBeAnsweredByMinister"
 	,"revisedReason","reason","numberOfDaysForFactualPositionReceiving",
