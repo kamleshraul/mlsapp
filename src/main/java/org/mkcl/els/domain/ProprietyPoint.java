@@ -59,6 +59,9 @@ public class ProprietyPoint extends Device implements Serializable {
 	
 	/** The number. */
     private Integer number;
+	
+	/** The number in sequence of admitted count for the session. */
+	private Integer admissionNumber;
     
     /** The submission date. */
     @Temporal(TemporalType.TIMESTAMP)
@@ -882,6 +885,14 @@ public class ProprietyPoint extends Device implements Serializable {
 
 	public void setNumber(Integer number) {
 		this.number = number;
+	}
+
+	public Integer getAdmissionNumber() {
+		return admissionNumber;
+	}
+
+	public void setAdmissionNumber(Integer admissionNumber) {
+		this.admissionNumber = admissionNumber;
 	}
 
 	public Date getSubmissionDate() {
