@@ -1223,11 +1223,11 @@
 					</security:authorize>					
 				</c:if>
 				
-				<%-- <c:if test="${fn:contains(internalStatusType, 'standalonemotion_final')}">
+				<c:if test="${fn:contains(internalStatusType, 'standalonemotion_final')}">
 					<security:authorize access="hasAnyRole('SMOIS_CLERK','SMOIS_ASSISTANT')">
 						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					</security:authorize>					
-				</c:if> --%>
+				</c:if>
 			<%-- <c:choose>
 				<c:when test="${bulkedit!='yes'}">
 					<c:if test="${internalStatusType=='standalonemotion_submit'

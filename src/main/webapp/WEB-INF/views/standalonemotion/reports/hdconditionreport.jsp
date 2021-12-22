@@ -64,7 +64,14 @@
 				<tr>
 					<td>${formater.formatNumberNoGrouping(counter.count, locale)}</td>
 					<c:forEach begin="2" end="${columns}" var="rr">
-						<td>${r[rr]}</td>
+						<c:choose>
+							<c:when test="${rr==7}">
+								<td style="min-width: 100px !important;">${r[rr]}</td>
+							</c:when>
+							<c:otherwise>
+								<td>${r[rr]}</td>
+							</c:otherwise>
+						</c:choose>						
 					</c:forEach>
 				</tr>
 			</c:forEach>

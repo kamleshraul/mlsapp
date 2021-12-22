@@ -340,8 +340,11 @@
 				</div>
 			</security:authorize>	
 			<security:authorize access="hasAnyRole('SMOIS_SECTION_OFFICER')">
-				<a href="#" id="showDeptSessionReport" class="butSim">
+				<%-- <a href="#" id="showDeptSessionReport" class="butSim">
 						<spring:message code="question.deptSessionReport" text="Department-Session-wise Report"/>
+				</a> | --%>
+				<a href="#" id="showHDGeneralReport" class="butSim">
+					<spring:message code="question.hdGeneralReport" text="HD General Report"/>
 				</a> |
 				<a href="#" id="showVivranReport" class="butSim">
 						<spring:message code="question.vivranReport" text="Vivran Report"/>
