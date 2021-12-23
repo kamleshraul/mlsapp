@@ -784,7 +784,11 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 			/**** Number ****/
 			if(domain.getNumber()!=null){
 				model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
-			}				
+			}	
+			/**** Admission Number ****/
+			if(domain.getAdmissionNumber()!=null){
+				model.addAttribute("formattedAdmissionNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getAdmissionNumber()));
+			}			
 			/** populate session dates as possible propriety point dates for upperhouse **/
 			if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 				if(selectedSession!=null && selectedSession.getId()!=null) {

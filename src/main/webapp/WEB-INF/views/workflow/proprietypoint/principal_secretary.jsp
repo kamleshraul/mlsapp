@@ -648,6 +648,7 @@
 				<label class="small"><spring:message code="proprietypoint.number" text="Device Number"/>*</label>
 				<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
 				<input id="number" name="number" value="${domain.number}" type="hidden">
+				<input id="admissionNumber" name="admissionNumber" value="${domain.admissionNumber}" type="hidden">
 				<form:errors path="number" cssClass="validationError"/>
 				
 				<c:if test="${houseTypeType=='lowerhouse' and !(empty submissionDate)}">

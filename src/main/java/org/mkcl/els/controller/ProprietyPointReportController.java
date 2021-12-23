@@ -354,6 +354,61 @@ public class ProprietyPointReportController extends BaseController{
 			}
 		}		
 	}
+	
+	@RequestMapping(value="/register" ,method=RequestMethod.GET)
+	public @ResponseBody void generateRegisterReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		Map<String, String[]> requestMap = new HashMap<String, String[]>();
+		String proprietyPointDateStr = request.getParameter("proprietyPointDate");
+		String sessionId = request.getParameter("sessionId");
+		String reportQueryName = request.getParameter("reportQueryName");
+		if(sessionId==null || sessionId.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
+			logger.error("**** One of the request parameters is not set ****");
+			isError = true;
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "prois.register_report.parameterNotSet", locale.toString());						
+		} else {
+			Date proprietyPointDate = null;
+			if(proprietyPointDateStr!=null && !proprietyPointDateStr.isEmpty()) {
+				proprietyPointDate = FormaterUtil.formatStringToDate(proprietyPointDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+				requestMap.put("proprietyPointDate", new String[] {FormaterUtil.formatDateToString(proprietyPointDate, ApplicationConstants.DB_DATEFORMAT)});
+			}		
+			requestMap.put("sessionId", new String[] {sessionId});
+			requestMap.put("locale", new String[]{locale.toString()});
+			@SuppressWarnings("rawtypes")
+			List registerMotions = Query.findReport(reportQueryName, requestMap, true);
+			try {
+				reportFile = generateReportUsingFOP(new Object[] {registerMotions}, "prois_register_template", "WORD", "prois_register", locale.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("**** Some error occurred ****");
+				isError = true;
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "prois.register_report.someErrorOccurred", locale.toString());
+			}
+			System.out.println("PROIS Register Report generated successfully in WORD format!");
+
+			openOrSaveReportFileFromBrowser(response, reportFile, "WORD");			
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {				
+				e.printStackTrace();
+			}
+		}		
+	}
 }
 
 class ProprietyPointReportHelper{

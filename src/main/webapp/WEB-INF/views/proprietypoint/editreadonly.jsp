@@ -104,15 +104,42 @@
 					
 					<p>
 						<label class="small"><spring:message code="proprietypoint.number" text="Device Number"/>*</label>
-						<input id="readonly_formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
-						<input id="readonly_number" value="${domain.number}" type="hidden">
+						<input id="readonly_formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
+						<input id="readonly_number" name="number" value="${domain.number}" type="hidden">
+						<form:errors path="number" cssClass="validationError"/>
 						
-						<c:if test="${!(empty submissionDate)}">
+						<c:if test="${houseTypeType=='lowerhouse' and !(empty submissionDate)}">
 							<label class="small"><spring:message code="proprietypoint.submissionDate" text="Submitted On"/></label>
-							<input id="readonly_formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
-							<input id="readonly_setSubmissionDate" type="hidden"  value="${submissionDate}">	
+							<input id="readonly_formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
+							<input id="readonly_setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
 						</c:if>
-					</p>		
+						
+						<c:if test="${houseTypeType=='upperhouse'}">
+							<label class="small"><spring:message code="proprietypoint.selectproprietypointdate" text="Propriety Point Date"/></label>
+							<input id="readonly_formattedProprietyPointDate" name="formattedProprietyPointDate" value="${formattedProprietyPointDate}" class="sText" readonly="readonly">
+							<input id="readonly_proprietyPointDate" name="proprietyPointDate" type="hidden"  value="${selectedProprietyPointDate}">
+						</c:if>
+					</p>
+					
+					<c:if test="${houseTypeType=='upperhouse' and !(empty submissionDate)}">
+					<p>
+						<label class="small"><spring:message code="proprietypoint.submissionDate" text="Submitted On"/></label>
+						<input id="readonly_formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
+						<input id="readonly_setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
+						
+						<c:choose>
+						<c:when test="${internalStatusType=='proprietypoint_final_admission'}">
+							<label class="small"><spring:message code="proprietypoint.admissionNumber" text="Admission Number"/></label>
+							<input id="readonly_formattedAdmissionNumber" name="formattedAdmissionNumber" value="${formattedAdmissionNumber}" class="sText" readonly="readonly">		
+							<input id="readonly_admissionNumber" name="admissionNumber" value="${domain.admissionNumber}" type="hidden">
+							<form:errors path="admissionNumber" cssClass="validationError"/>	
+						</c:when>
+						<c:otherwise>
+							<input id="readonly_admissionNumber" name="admissionNumber" value="${domain.admissionNumber}" type="hidden">
+						</c:otherwise>
+						</c:choose>
+					</p>
+					</c:if>	
 					
 					<p>
 						<label class="small"><spring:message code="proprietypoint.ministry" text="Ministry"/></label>

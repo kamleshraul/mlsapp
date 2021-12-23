@@ -9175,6 +9175,8 @@ public class ReferenceController extends BaseController {
 			}else if(strDevice.equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY)
 					|| strDevice.equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)){
 				CutMotion.updateCurNumber(num, houseType, strDevice);
+			}else if(strDevice.equals(ApplicationConstants.ADJOURNMENT_MOTION)){
+				AdjournmentMotion.updateCurNumber(num, houseType, strDevice);
 			}else if(strDevice.equals(ApplicationConstants.PROPRIETY_POINT)){
 				ProprietyPoint.updateCurNumber(num, houseType, strDevice);
 			}

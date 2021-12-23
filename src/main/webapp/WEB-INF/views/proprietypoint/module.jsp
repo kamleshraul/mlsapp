@@ -613,12 +613,12 @@
 			$.get(url,function(data){
 				if(data){
 					
-					showTabByIdAndUrl("details_tab","adjournmentmotion/report/generalreport?"
+					showTabByIdAndUrl("details_tab","proprietypoint/report/generalreport?"
 							+"sessionId="+data.id
 							+"&deviceTypeId="+$("#selectedMotionType").val()
 							+"&subd="+dept 
 							+"&locale="+$("#moduleLocale").val()
-							+"&report=PROIS_DEPARTMENT_WISE_REPORT&reportout=adjournmentMotionDepartmentReport");
+							+"&report=PROIS_DEPARTMENT_WISE_REPORT&reportout=proprietyPointDepartmentReport");
 				}
 			});
 		}

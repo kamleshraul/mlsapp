@@ -2315,5 +2315,41 @@ public class AdjournmentMotion extends Device implements Serializable {
 	public static synchronized Date getCurrentAdjourningDateUpperHouse(){
 		return AdjournmentMotion.CUR_ADJOURNING_DATE_UPPER_HOUSE;
 	}
+	
+	public static org.mkcl.els.common.vo.Reference getCurNumber(final Session session, final DeviceType deviceType){
+    	
+    	org.mkcl.els.common.vo.Reference ref = new org.mkcl.els.common.vo.Reference();
+    	String strHouseType = session.getHouse().getType().getType();
+    	
+    	if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
+    		
+			ref.setName(ApplicationConstants.ADJOURNMENT_MOTION);
+			ref.setNumber(AdjournmentMotion.getCurrentNumberLowerHouse().toString());
+    		ref.setId(ApplicationConstants.LOWER_HOUSE);
+    		
+    	}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
+    		
+    		ref.setName(ApplicationConstants.ADJOURNMENT_MOTION);
+			ref.setNumber(AdjournmentMotion.getCurrentNumberUpperHouse().toString());
+    		ref.setId(ApplicationConstants.UPPER_HOUSE);
+    	}
+    	
+    	return ref;
+    }
+    
+    public static void updateCurNumber(final Integer num, final String houseType, final String device){
+    	
+    	if(device.equals(ApplicationConstants.ADJOURNMENT_MOTION)){
+    		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+    			AdjournmentMotion.updateCurrentNumberLowerHouse(num);
+    		}
+    		
+    		if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+    			AdjournmentMotion.updateCurrentNumberUpperHouse(num);
+    		}
+	    	
+	    	
+    	}
+    }
 
 }

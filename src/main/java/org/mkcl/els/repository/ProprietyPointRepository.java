@@ -17,6 +17,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.domain.ProprietyPoint;
+import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
@@ -94,6 +95,27 @@ public class ProprietyPointRepository extends BaseRepository<ProprietyPoint, Ser
 			e.printStackTrace();
 			return 0;
 		}
+	}
+	
+	public Integer assignAdmissionNumber(final Session session, final String locale) {
+		String strQuery = "SELECT m FROM ProprietyPoint m" +
+				" JOIN m.status sta" +
+				" WHERE m.session.id=:sessionId" +
+				" AND sta.type=:admissionStatusType" +
+				" AND m.admissionNumber IS NOT NULL" +
+				" AND m.locale=:locale " +
+				" ORDER BY m.admissionNumber DESC";
+		TypedQuery<ProprietyPoint> query = this.em().createQuery(strQuery, ProprietyPoint.class);
+		query.setParameter("sessionId", session.getId());
+		query.setParameter("admissionStatusType", ApplicationConstants.ADJOURNMENTMOTION_FINAL_ADMISSION);
+		query.setParameter("locale", locale);
+		query.setMaxResults(1);
+		List<ProprietyPoint> proprietyPoints = query.getResultList();
+		if(proprietyPoints==null || proprietyPoints.isEmpty()) {
+			return 1;
+		} else {
+			return proprietyPoints.get(0).getAdmissionNumber()==null? 1 : proprietyPoints.get(0).getAdmissionNumber()+1;
+		}		
 	}
 	
 	public List<ProprietyPoint> findAllReadyForSubmissionByMember(final Session session,

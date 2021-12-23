@@ -159,7 +159,7 @@
 		    	valueToSend = $("#internalStatus").val();	    	
 		    }
 		    
-		    var params="device=" + $("#id").val() + "&status=" + valueToSend +
+		    var params="proprietypoint=" + $("#id").val() + "&status=" + valueToSend +
 			"&usergroup=" + $("#usergroup").val() + "&level=" + $("#originalLevel").val();
 			var resourceURL = 'ref/proprietypoint/actors?' + params;
 		    
@@ -638,7 +638,7 @@
 			</p>
 			
 			<p style="display:none;">
-				<label class="small"><spring:message code="proprietypoint.type" text="Type"/>*</label>
+				<label class="small"><spring:message code="proprietypoint.deviceType" text="Device Type"/>*</label>
 				<input id="formattedDeviceType" name="formattedDeviceType" value="${formattedDeviceType}" class="sText" readonly="readonly">
 				<input id="deviceType" name="deviceType" value="${deviceType}" type="hidden">
 				<form:errors path="deviceType" cssClass="validationError"/>		
@@ -648,6 +648,7 @@
 				<label class="small"><spring:message code="proprietypoint.number" text="Device Number"/>*</label>
 				<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
 				<input id="number" name="number" value="${domain.number}" type="hidden">
+				<input id="admissionNumber" name="admissionNumber" value="${domain.admissionNumber}" type="hidden">
 				<form:errors path="number" cssClass="validationError"/>
 				
 				<c:if test="${houseTypeType=='lowerhouse' and !(empty submissionDate)}">
@@ -734,7 +735,7 @@
 			</p>
 			
 			
-			<p>
+			<p style="display:none;">
 				<label class="small"><spring:message code="proprietypoint.parentdevice" text="Clubbed To"></spring:message></label>
 				<c:choose>
 					<c:when test="${!(empty parent)}">	
@@ -747,7 +748,7 @@
 				<input type="hidden" id="parent" name="parent" value="${parent}">
 			</p>
 			
-			<p>
+			<p style="display:none;">
 				<label class="small"><spring:message code="proprietypoint.clubbeddevices" text="Clubbed Devices"></spring:message></label>
 				<c:choose>
 					<c:when test="${!(empty clubbedDevices) }">
@@ -767,7 +768,7 @@
 				</select>
 			</p>
 			
-			<p>
+			<p style="display:none;">
 				<label class="small"><spring:message code="proprietypoint.referenceddevice" text="Referenced Device"></spring:message></label>
 				<c:choose>
 					<c:when test="${!(empty referencedDevice) }">
@@ -886,7 +887,6 @@
 			<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 			<input type="hidden" name="status" id="status" value="${status }">
 			<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
-			<input type="hidden" name="dataEnteredBy" id="dataEnteredBy" value="${domain.dataEnteredBy}">
 			<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
 			<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 			<input type="hidden" name="workflowStartedOnDate" id="workflowStartedOnDate" value="${workflowStartedOnDate }">
@@ -896,7 +896,6 @@
 			<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 			<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
 			<input type="hidden" id="houseTypeType" value="${houseTypeType}" />
-			<input id="deviceType" name= "deviceType" type="hidden" value="${deviceType}" />
 			<input id="oldInternalStatus" value="${internalStatus}" type="hidden">
 			<input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
 			<input id="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
