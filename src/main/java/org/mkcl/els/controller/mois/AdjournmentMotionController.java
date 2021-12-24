@@ -29,6 +29,7 @@ import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.AdjournmentMotionDraft;
+import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.BillAmendmentMotion;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -2208,6 +2209,24 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 					model.addAttribute("error", e.getMessage());
 				}
 			}
+		}
+	}
+	
+	@Transactional
+	@Override
+	protected Boolean preDelete(final ModelMap model, final BaseDomain domain,
+			final HttpServletRequest request,final Long id) {		
+		AdjournmentMotion adjournmentMotion = AdjournmentMotion.findById(AdjournmentMotion.class, id);
+		if(adjournmentMotion!=null){
+			Status status=adjournmentMotion.getStatus();
+			if(status.getType().equals(ApplicationConstants.ADJOURNMENTMOTION_INCOMPLETE)
+					||status.getType().equals(ApplicationConstants.ADJOURNMENTMOTION_COMPLETE)){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
 		}
 	}
 	

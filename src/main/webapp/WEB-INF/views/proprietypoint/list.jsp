@@ -104,8 +104,8 @@
 			/**** Register of Admitted Devices Report Generation ****/
 			$("#prois_register_report").click(function() {
 				$(this).attr('href','#');
-				$.prompt("Work in progress for register report..");
-				//generateRegisterReport();
+				//$.prompt("Work in progress for register report..");
+				generateRegisterReport();
 			});
 			/**** Admitted Devices for Reporting Branch Report Generation ****/
 			$("#prois_admitted_reportingbranch").click(function() {

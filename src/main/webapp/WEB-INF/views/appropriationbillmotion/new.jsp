@@ -304,13 +304,6 @@
 						</span>
 						<input type="hidden" name="dataEntryType" id="dataEntryType" value="offline">
 					</p>
-					
-					<p style="display: none;">
-						<label class="small"><spring:message code="appropriationbillmotion.internalnumber" text="Motion Number"/>*</label>
-						<form:input path="internalNumber" cssClass="sText"/>
-						<form:errors path="internalNumber" cssClass="validationError"/>
-						<input type="hidden" name="dataEntryType" id="dataEntryType" value="offline">
-					</p>
 				</security:authorize>
 					
 				<p style="display:none;">

@@ -146,7 +146,7 @@
 	<div>
 	<div class="commandbar">
 		<div class="commandbarContent">	
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','CMOIS_CLERK','CMOIS_TYPIST')">			
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','ABMOIS_TYPIST')">			
 				<a href="#" id="new_record" class="butSim">
 					<spring:message code="generic.new" text="New"/>
 				</a> |
@@ -154,50 +154,31 @@
 			<a href="#" id="edit_record" class="butSim">
 				<spring:message code="generic.edit" text="Edit"/>
 			</a> |
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','CMOIS_CLERK')">			
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','ABMOIS_TYPIST')">
 				<a href="#" id="delete_record" class="butSim">
 					<spring:message code="generic.delete" text="Delete"/>
-				</a> |
-			</security:authorize>			
-			<security:authorize access="hasAnyRole('CMOIS_ASSISTANT')">			
-				<a href="#" id="assign_number" class="butSim">
-					<spring:message code="generic.assign_number" text="Assign Number"/>
 				</a> |
 			</security:authorize>
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
 			</a> |
-			<%-- <a href="#" id="refreshList" class="butSim">
-				<spring:message code="generic.refresh" text="Refresh"/>
-			</a> |	 --%>
 			<hr>
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE')">
-				<a href="#" id="member_appropriationbillmotions_view" class="butSim">
+				<a href="#" id="member_appropriationbillmotions_view" class="butSim" style="display: none;">
 					<spring:message code="appropriationbillmotion.member_appropriationbillmotions_view" text="Member's Appropriation Bill Motions View"/>
 				</a> |
 			</security:authorize>
-			<security:authorize access="!hasAnyRole('CMOIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+			<security:authorize access="!hasAnyRole('ABMOIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="appropriationbillmotion.generateCurrentStatusReport" text="Current Status Report"/>
 				</a> |
-				<a href="#" id="departmentwise_submitted_counts_report" class="butSim">
+				<a href="#" id="departmentwise_submitted_counts_report" class="butSim" style="display: none;">
 					<spring:message code="appropriationbillmotion.departmentwise_submitted_counts_report" text="Departmentwise Submitted Counts"/>
 				</a> |
-				<a href="#" id="departmentwise_admitted_counts_report" class="butSim">
+				<a href="#" id="departmentwise_admitted_counts_report" class="butSim" style="display: none;">
 					<spring:message code="appropriationbillmotion.departmentwise_admitted_counts_report" text="Departmentwise Admitted Counts"/>
 				</a> |
-				<a href="#" id="generateYaadiReport" class="butSim">
-					<spring:message code="appropriationbillmotion.generateYaadiReport" text="Yaadi Report"/>
-				</a> |
-				 <a href="#" id="generateReminderLetter" class="butSim">
-					<spring:message code="generic.mytask.device.ReminderLetter" text="Reminder Letter"/>
-				 </a> |
-			</security:authorize>	
-			<%-- <security:authorize access="hasAnyRole('CMOIS_ASSISTANT','CMOIS_SECTION_OFFICER')">				
-				<a href="#" id="generateYaadiReport" class="butSim">
-					<spring:message code="appropriationbillmotion.generateYaadiReport" text="Generate Yaadi Report"/>
-				</a> |
-			</security:authorize> --%>
+			</security:authorize>
 			<p>&nbsp;</p>
 		</div>
 	</div>
