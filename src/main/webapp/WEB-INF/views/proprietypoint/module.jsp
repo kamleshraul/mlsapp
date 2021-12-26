@@ -578,7 +578,7 @@
 				return false;
 			} else {
 				$("#prois_admitted_reportingbranch").attr('href',
-						'proprietypoint/report/admitteddevices_reportingbranch?'
+						'proprietypoint/report/admitteddevices?'
 						+'proprietyPointDate=' + selectedProprietyPointDate
 						+'&sessionId=' + $("#loadedSession").val()
 						+'&reportQueryName=PROIS_ADMITTED_DEVICES_REPORT_REPORTING_BRANCH');

@@ -47,7 +47,6 @@
 				$formatData.get(7)
 			</td>
 		</tr>
-		#**
 		<tr style="font-weight: bold;">
 			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
 				विभाग  
@@ -60,7 +59,6 @@
 				#end				
 			</td>	
 		</tr>
-		*#
 		<tr style="font-weight: bold;">
 			#if($formatData.get(32)=='yes')
 				<td style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;" >					

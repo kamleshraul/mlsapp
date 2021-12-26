@@ -110,8 +110,8 @@
 			/**** Admitted Devices for Reporting Branch Report Generation ****/
 			$("#prois_admitted_reportingbranch").click(function() {
 				$(this).attr('href','#');
-				$.prompt("Work in progress for reporting branch report..");
-				//generateAdmittedDevicesReportForReporting();
+				//$.prompt("Work in progress for reporting branch report..");
+				generateAdmittedDevicesReportForReporting();
 			});
 		});
 		/**** double clicking record in grid handler ****/
