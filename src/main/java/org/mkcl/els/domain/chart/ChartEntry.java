@@ -10,9 +10,11 @@
 package org.mkcl.els.domain.chart;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -20,11 +22,14 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.Member;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class ChartEntry.
@@ -53,6 +58,18 @@ public class ChartEntry extends BaseDomain implements Serializable {
 			joinColumns={ @JoinColumn(name="chart_entry_id", referencedColumnName="id") },
 			inverseJoinColumns={ @JoinColumn(name="device_id", referencedColumnName="id") })
 	private List<Device> devices;
+    
+    /** The created by. */
+	@Column(length = 100)
+    private String createdBy;
+    
+    /** The edited by. */
+	@Column(length = 100)
+    private String editedBy;
+    
+    /** The edited on. */
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date editedOn;
 
 
 	//=============== CONSTRUCTORS ===============
@@ -76,6 +93,27 @@ public class ChartEntry extends BaseDomain implements Serializable {
 		super(locale);
 		this.member = member;
 		this.devices = devices;
+	}
+	
+	//=============== DOMAIN METHODS ===============
+	@Override
+	@Transactional
+	public ChartEntry persist() {
+		String username = this.getCurrentUser().getActualUsername();
+		this.setCreatedBy(username);
+		this.setEditedOn(new Date());
+		ChartEntry ce = (ChartEntry) super.persist();
+		return ce;
+	}
+	
+	@Override
+	@Transactional
+	public BaseDomain merge() {
+		String username = this.getCurrentUser().getActualUsername();
+		this.setEditedBy(username);
+		this.setEditedOn(new Date());
+		ChartEntry ce = (ChartEntry) super.merge();
+		return ce;
 	}
 
 
@@ -114,6 +152,30 @@ public class ChartEntry extends BaseDomain implements Serializable {
 	 */
 	public void setDevices(List<Device> devices) {
 		this.devices = devices;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public String getEditedBy() {
+		return editedBy;
+	}
+
+	public void setEditedBy(String editedBy) {
+		this.editedBy = editedBy;
+	}
+
+	public Date getEditedOn() {
+		return editedOn;
+	}
+
+	public void setEditedOn(Date editedOn) {
+		this.editedOn = editedOn;
 	}
 
 }
