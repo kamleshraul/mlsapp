@@ -11144,4 +11144,70 @@ public class ReferenceController extends BaseController {
 		return validationResponse;
 	}
 	
+	@RequestMapping(value="findLatestSessionYear/{selectedHouseType}", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> findLatestSessionYear(
+			@PathVariable("selectedHouseType") final String selectedHouseType,
+			final HttpServletRequest request,
+			final Locale locale) {
+		
+		Session lastSessionCreated;
+		List<MasterVO> years = new ArrayList<MasterVO>();
+		try {
+			HouseType houseType = HouseType.findByType(selectedHouseType, locale.toString());
+			lastSessionCreated = Session.findLatestSession(houseType);
+			
+			if(lastSessionCreated.getId()!=null){
+				
+				
+				
+				/**** Years ****/
+			
+				
+				//set upper limit for years available
+				Integer latestYear = lastSessionCreated.getYear();
+				if(latestYear == null) {
+					latestYear = new GregorianCalendar().get(Calendar.YEAR); //set as current year in case latest session has no year set.
+				}				
+				
+				//starting year must be set as custom parameter 'HOUSE_FORMATION_YEAR'
+				CustomParameter houseFormationYearParameter = CustomParameter.
+						findByFieldName(CustomParameter.class, "name", "HOUSE_FORMATION_YEAR", "");
+				
+				if(houseFormationYearParameter != null) {
+					if(!houseFormationYearParameter.getValue().isEmpty()) {
+						Integer houseFormationYear;
+						try {
+							houseFormationYear = Integer.parseInt(houseFormationYearParameter.getValue());
+							for(Integer i = latestYear; i >= houseFormationYear; i--) {
+								MasterVO year = new MasterVO();
+								year.setName(FormaterUtil.formatNumberNoGrouping(i, locale.toString()));
+								year.setValue(i.toString());							
+								years.add(year);
+							}
+							
+					
+						
+						}
+						catch(NumberFormatException ne) {
+												
+						}				
+					}
+				}	
+						
+			}
+			
+		} catch (ELSException e) {
+			
+		} catch (Exception e) {
+			String message = e.getMessage();
+			
+			if(message == null){
+				message = "There is some problem, rquest may not complete successfully.";
+			}
+			
+			e.printStackTrace();
+		}						
+		return years;
+	}
+	
 }

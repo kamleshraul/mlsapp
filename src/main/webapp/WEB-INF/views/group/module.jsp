@@ -21,6 +21,32 @@
 			/**** house type changes then reload grid****/			
 			$("#selectedHouseType").change(function(){
 				var value=$(this).val();
+				var selectedHouseType=value;
+				var resourceURL = "ref/findLatestSessionYear/" + selectedHouseType;
+				$.get(resourceURL, function(data){
+					var dataLength = data.length;
+					if(dataLength > 0) {
+						var text = "";
+						for(var i = 0; i < dataLength; i++) {
+							if(i==0)
+								{
+								text += "<option value='" + data[i].value + "' selected=selected>" + data[i].name + "</option>";
+								}
+							else
+								{
+								text += "<option value='" + data[i].value + "'>" + data[i].name + "</option>";
+								}
+							
+							
+						}
+						$('#selectedYear').empty();
+						$('#selectedYear').html(text);
+					}
+					else {
+						$('#selectedYear').empty();
+					}
+				});
+			
 				if(value!=""){					
 					reloadGroupGrid();									
 				}	
