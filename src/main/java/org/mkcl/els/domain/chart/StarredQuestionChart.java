@@ -303,7 +303,7 @@ class StarredQuestionChart {
 			}
 			
 			chartEntry.setDevices(newDevices);
-			chartEntry.persist();
+			chartEntry.merge();
 			
 			// Reset chart specific attributes in @param question.
 			question.setChartAnsweringDate(null);
@@ -376,7 +376,7 @@ class StarredQuestionChart {
 			}
 			
 			chartEntry.setDevices(newDevices);
-			chartEntry.persist();
+			chartEntry.merge();
 			
 			// Reset chart specific attributes in @param question.
 			question.simpleMerge();

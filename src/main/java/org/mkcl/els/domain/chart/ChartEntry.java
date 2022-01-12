@@ -93,6 +93,9 @@ public class ChartEntry extends BaseDomain implements Serializable {
 		super(locale);
 		this.member = member;
 		this.devices = devices;
+		String username = this.getCurrentUser().getActualUsername();
+		this.setCreatedBy(username);
+		this.setEditedOn(new Date());
 	}
 	
 	//=============== DOMAIN METHODS ===============
@@ -100,8 +103,10 @@ public class ChartEntry extends BaseDomain implements Serializable {
 	@Transactional
 	public ChartEntry persist() {
 		String username = this.getCurrentUser().getActualUsername();
-		this.setCreatedBy(username);
-		this.setEditedOn(new Date());
+		if(this.getCreatedBy()==null) {
+			this.setCreatedBy(username);
+			this.setEditedOn(new Date());
+		}
 		ChartEntry ce = (ChartEntry) super.persist();
 		return ce;
 	}
@@ -134,6 +139,12 @@ public class ChartEntry extends BaseDomain implements Serializable {
 	 */
 	public void setMember(final Member member) {
 		this.member = member;
+		
+		if(this.createdBy==null) {
+			String username = this.getCurrentUser().getActualUsername();
+			this.setCreatedBy(username);
+			this.setEditedOn(new Date());
+		}
 	}
 
 	/**
