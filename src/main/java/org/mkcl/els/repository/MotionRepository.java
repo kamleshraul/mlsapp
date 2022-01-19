@@ -1026,7 +1026,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 					" AND wd.workflow_sub_type = 'request_to_supporting_member' " +
 					" AND wd.status='PENDING'");
 			Query query = this.em().createNativeQuery(strQuery.toString());
-			query.setParameter("deviceId", deviceId);	
+			query.setParameter("deviceId", "'"+ deviceId +"'");	
 			String submissionDateStr = FormaterUtil.formatDateToString(submissionDate, ApplicationConstants.DB_DATETIME__24HOURS_FORMAT);
 			Date completionTime = FormaterUtil.formatStringToDate(submissionDateStr, ApplicationConstants.DB_DATETIME__24HOURS_FORMAT);
 			query.setParameter("completionTime", completionTime);

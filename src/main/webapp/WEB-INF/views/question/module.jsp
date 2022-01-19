@@ -970,6 +970,7 @@
 				+ "&sessionYear=" + $("#selectedSessionYear").val() 
 				+ "&sessionType=" + $("#selectedSessionType").val() 
 				+ "&questionType=" + $("#selectedQuestionType").val()
+				+ "&deviceType=" + $("#selectedQuestionType").val()
 				+ "&originalDeviceType=" + $("#selectedOriginalDeviceType").val()
 				+ "&ugparam=" + $("#ugparam").val() 
 				+ "&status=" + $("#selectedStatus").val() 
@@ -1070,11 +1071,13 @@
 	/**** Bulk putup(Member)****/
 	function bulkPutup() {
 		var parameters = $("#gridURLParams").val();
+	
 		if (parameters == undefined) {
 			parameters = "houseType=" + $("#selectedHouseType").val()
 					+ "&sessionYear=" + $("#selectedSessionYear").val()
 					+ "&sessionType=" + $("#selectedSessionType").val()
 					+ "&questionType=" + $("#selectedQuestionType").val()
+					+ "&deviceType=" + $("#selectedQuestionType").val()
 					+ "&ugparam=" + $("#ugparam").val() 
 					+ "&status=" + $("#selectedStatus").val() 
 					+ "&role=" + $("#srole").val()
@@ -1084,6 +1087,7 @@
 		}
 		var resourceURL = 'question/bulksubmission?' + parameters
 				+ "&itemscount=" + $("#selectedItemsCount").val();
+	
 		showTabByIdAndUrl('bulkputup_tab', resourceURL);
 	}
 	/**** Bulk putup(Assistant)****/
@@ -1092,6 +1096,7 @@
 					+ "&sessionYear=" + $("#selectedSessionYear").val()
 					+ "&sessionType=" + $("#selectedSessionType").val()
 					+ "&questionType=" + $("#selectedQuestionType").val()
+					+ "&deviceType=" + $("#selectedQuestionType").val()
 					+ "&ugparam=" + $("#ugparam").val() 
 					+ "&status=" + $("#selectedStatus").val() 
 					+ "&role=" + $("#srole").val()

@@ -14,6 +14,7 @@
 					+"&sessionYear="+$("#selectedSessionYear").val()
 					+"&sessionType="+$("#selectedSessionType").val()
 					+"&questionType="+$("#selectedQuestionType").val()
+					+"&deviceType=" + $("#selectedQuestionType").val()
 					+"&originalDeviceType=" + $("#selectedOriginalDeviceType").val()
 					+"&ugparam="+$("#ugparam").val()
 					+"&status="+$("#selectedStatus").val()

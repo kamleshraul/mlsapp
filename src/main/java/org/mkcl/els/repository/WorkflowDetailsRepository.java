@@ -6611,7 +6611,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				+ " AND recommendation_status=(SELECT name FROM status WHERE id=:statusId)"
 				+ " AND id<=:workflowDetailsId";
 		Query query = this.em().createNativeQuery(strQuery);
-		query.setParameter("questionId", question.getId());
+		query.setParameter("questionId", "'"+ question.getId() +"'");
 		query.setParameter("statusId", resendRevisedQuestionTextStatus.getId());
 		query.setParameter("workflowDetailsId", wfDetails.getId());
 		try{
@@ -6835,7 +6835,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 					+ " AND recommendation_status IN(SELECT name FROM status WHERE id IN(:statusIds))"
 					+ " AND id<=:workflowDetailsId";
 			Query query = this.em().createNativeQuery(strQuery);
-			query.setParameter("motionId", motion.getId());
+			query.setParameter("motionId", "'"+ motion.getId() +"'");
 			query.setParameter("statusIds", resendStatus);
 			query.setParameter("workflowDetailsId", workflowDetails.getId());
 			try{
@@ -7279,7 +7279,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 			strQuery+= " ORDER BY completion_time DESC";
 			
 			Query query = this.em().createNativeQuery(strQuery, WorkflowDetails.class);
-			query.setParameter("deviceId", motion.getId().toString());
+			query.setParameter("deviceId", "'"+ motion.getId() +"'");
 			query.setParameter("usergrouptype", strUserGroupType);
 			query.setParameter("internalStatus", motion.getInternalStatus().getName());
 			query.setParameter("locale", locale);
