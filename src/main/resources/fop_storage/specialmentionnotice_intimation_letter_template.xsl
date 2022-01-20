@@ -239,9 +239,9 @@
 											</fo:block>	
 												<fo:block>
 													<fo:block text-align="right">
-														<fo:block margin-right="3.1cm" font-weight="bold">आपली,</fo:block>
+														<fo:block margin-right="3.1cm" font-weight="bold">आपला,</fo:block>
 														<fo:block>&#160;</fo:block>
-														<fo:block margin-right="2.5cm" font-size="10.5px" font-weight="bold">(पुष्पा र. दळवी)</fo:block>							
+														<fo:block margin-right="2.5cm" font-size="10.5px" font-weight="bold">(मंदार शेमणकर)</fo:block>							
 														<fo:block margin-right="2.5cm">कक्ष अधिकारी,</fo:block>							
 														<fo:block margin-right="1.5cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 													</fo:block>
