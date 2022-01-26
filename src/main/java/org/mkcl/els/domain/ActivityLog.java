@@ -2,6 +2,8 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +15,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.servlet.http.HttpServletRequest;
 
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.springframework.beans.factory.annotation.Configurable;
 
 @Configurable
@@ -29,6 +32,9 @@ public class ActivityLog extends BaseDomain implements Serializable{
 	private String eventClass;
 	
 	private String linkClicked;
+	
+	@Column(length=30000)
+	private String requestParameters;
 	
 	private String classId;
 	
@@ -58,7 +64,9 @@ public class ActivityLog extends BaseDomain implements Serializable{
 		ActivityLog actLog = new ActivityLog();
 
 		String userName = request.getRemoteUser();
-		String url = request.getRequestURL().toString();		
+		String url = request.getRequestURL().toString();	
+		@SuppressWarnings("unchecked")
+		Map<String, String[]> requestParametersMap = request.getParameterMap();
 		String userAddress = request.getRemoteAddr();
 		
 		Credential credential = Credential.findByFieldName(Credential.class, "username", userName, null);
@@ -66,6 +74,50 @@ public class ActivityLog extends BaseDomain implements Serializable{
 		actLog.setCredetial(credential);
 		actLog.setTimeOfAction(new Date());
 		actLog.setLinkClicked(url);
+		
+		CustomParameter linksRequiringRequestParametersInActivityLog = CustomParameter.findByName(CustomParameter.class, "LINKS_REQUIRING_REQUEST_PARAMETERS_IN_ACTIVITYLOG", "");
+		if(linksRequiringRequestParametersInActivityLog!=null && linksRequiringRequestParametersInActivityLog.getValue()!=null) {
+			boolean isLinkRequiringRequestParameters = false;
+			for(String linkKeyword: linksRequiringRequestParametersInActivityLog.getValue().split("~")) {
+				if(url.contains(linkKeyword)) {
+					isLinkRequiringRequestParameters = true;
+					break;
+				}
+			}
+			if(isLinkRequiringRequestParameters) {
+				StringBuffer requestParameters = new StringBuffer("");
+				Iterator<String> i = requestParametersMap.keySet().iterator();
+				while ( i.hasNext() ){
+
+					 String key = (String) i.next();
+
+					 String value = ((String[]) requestParametersMap.get( key ))[ 0 ];
+
+					 requestParameters.append("Key: ["+key+"] - Val: ["+value+"]");
+					 requestParameters.append(System.getProperty("line.separator"));
+					 
+				}		
+				actLog.setRequestParameters(requestParameters.toString());
+			}
+			else if(request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_POST)
+					|| request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_PUT)
+					|| request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_DELETE)) {
+				StringBuffer requestParameters = new StringBuffer("");
+				Iterator<String> i = requestParametersMap.keySet().iterator();
+				while ( i.hasNext() ){
+
+					 String key = (String) i.next();
+
+					 String value = ((String[]) requestParametersMap.get( key ))[ 0 ];
+
+					 requestParameters.append("Key: ["+key+"] - Val: ["+value+"]");
+					 requestParameters.append(System.getProperty("line.separator"));
+					 
+				}		
+				actLog.setRequestParameters(requestParameters.toString());
+			}
+		}
+		
 		actLog.setLocale(locale);
 		actLog.setUserAddress(userAddress);
 		
@@ -95,6 +147,14 @@ public class ActivityLog extends BaseDomain implements Serializable{
 
 	public void setLinkClicked(String linkClicked) {
 		this.linkClicked = linkClicked;
+	}
+
+	public String getRequestParameters() {
+		return requestParameters;
+	}
+
+	public void setRequestParameters(String requestParameters) {
+		this.requestParameters = requestParameters;
 	}
 
 	public String getClassId(){

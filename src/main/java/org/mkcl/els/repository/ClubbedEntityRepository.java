@@ -6538,7 +6538,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				"  LEFT JOIN departments as d ON(q.department_id=d.id) "+
 				"  LEFT JOIN subdepartments as sd ON(q.subdepartment_id=sd.id) "+
 				"  WHERE q.locale='"+locale+"'"+
-				"  AND st.type NOT IN('question_incomplete','question_complete')";
+				"  AND st.type NOT LIKE 'question%complete'";
 		
 		StringBuffer strDefaultFilter = new StringBuffer();
 

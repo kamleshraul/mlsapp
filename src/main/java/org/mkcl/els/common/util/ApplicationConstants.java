@@ -3124,4 +3124,10 @@ public class ApplicationConstants {
 	
 	public static final String CUTMOTION_SEARCH_USE_CURRENT_SESSION = "CUTMOTION_SEARCH_USE_CURRENT_SESSION";
 	
+	public static final String REQUEST_METHOD_POST = "POST";
+	
+	public static final String REQUEST_METHOD_PUT = "PUT";
+	
+	public static final String REQUEST_METHOD_DELETE = "DELETE";
+	
 }

@@ -42,6 +42,22 @@ public class RequestProcessingTimeInterceptor extends HandlerInterceptorAdapter 
 				&& !csptURLSToLog.getValue().isEmpty()){
 			if(isURLToBeLogged(url, csptURLSToLog.getValue().split(","))){
 				ActivityLog.logActivity(request, ApplicationLocale.findDefaultLocale());
+			} 
+			else if(request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_POST)
+					|| request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_PUT)
+					|| request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_DELETE)) {
+				
+				CustomParameter csptURLSToSkipLog = CustomParameter.findByName(CustomParameter.class, "URLS_TO_SKIP_LOG", "");
+				if(csptURLSToSkipLog == null){
+					ActivityLog.logActivity(request, ApplicationLocale.findDefaultLocale());
+				} 
+				else if(csptURLSToSkipLog != null && csptURLSToSkipLog.getValue() != null 
+						&& !csptURLSToSkipLog.getValue().isEmpty()){
+					if(!isURLToBeSkippedFromLog(url, csptURLSToSkipLog.getValue().split(","))){
+						ActivityLog.logActivity(request, ApplicationLocale.findDefaultLocale());
+					} 
+				}
+				
 			}
 		}
 		return true;
@@ -71,6 +87,18 @@ public class RequestProcessingTimeInterceptor extends HandlerInterceptorAdapter 
 
 	
 	private boolean isURLToBeLogged(final String url, final String[] logURLs){
+		boolean retVal = false;
+		for(String st : logURLs){
+			if(url.contains(st)){
+				retVal = true;
+				break;
+			}
+		}
+		return retVal;
+	}
+
+	
+	private boolean isURLToBeSkippedFromLog(final String url, final String[] logURLs){
 		boolean retVal = false;
 		for(String st : logURLs){
 			if(url.contains(st)){

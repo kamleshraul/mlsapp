@@ -3161,9 +3161,12 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				query.setParameter("locale", locale);
 				if(removedDevicesNotEligibleForNumberedYaadi!=null && !removedDevicesNotEligibleForNumberedYaadi.isEmpty()) {
 					query.setParameter("removedDevicesNotEligibleForNumberedYaadi", removedDevicesNotEligibleForNumberedYaadi);
-				}				
-				questions = query.setMaxResults(numberOfQuestionsInYaadi-numberOfQuestionsSetInYaadi)
-									.getResultList();
+				}			
+				int maxResults = 0;
+				if(numberOfQuestionsSetInYaadi < numberOfQuestionsInYaadi) {
+					maxResults = numberOfQuestionsInYaadi-numberOfQuestionsSetInYaadi;
+				}
+				questions = query.setMaxResults(maxResults).getResultList();
 				if(questions==null) {
 					questions = new ArrayList<Question>();
 				}

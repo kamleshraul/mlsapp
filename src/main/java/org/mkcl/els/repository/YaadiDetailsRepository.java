@@ -308,7 +308,7 @@ public class YaadiDetailsRepository extends BaseRepository<YaadiDetails, Long> {
 					String numberOfQuestionsInYaadiParameter = yaadiDetails.getSession().getParameter(yaadiDetails.getDeviceType().getType() + "_" + "numberOfQuestionsInYaadi");
 					if(numberOfQuestionsInYaadiParameter!=null) {
 						Integer numberOfQuestionsInYaadi = Integer.parseInt(numberOfQuestionsInYaadiParameter);
-						if(questionsFilledInYaadiCount.intValue()==numberOfQuestionsInYaadi.intValue()) {
+						if(questionsFilledInYaadiCount.intValue()>=numberOfQuestionsInYaadi.intValue()) {
 							isNumberedYaadiFilled = true;
 						}
 					} else {
