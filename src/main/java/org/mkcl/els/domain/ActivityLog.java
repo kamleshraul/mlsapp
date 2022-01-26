@@ -99,9 +99,12 @@ public class ActivityLog extends BaseDomain implements Serializable{
 				}		
 				actLog.setRequestParameters(requestParameters.toString());
 			}
-			else if(request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_POST)
-					|| request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_PUT)
-					|| request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_DELETE)) {
+			else if(
+					//	request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_POST)
+					// 	|| 
+					//	request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_PUT)
+					// 	|| 
+						request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_DELETE)) {
 				StringBuffer requestParameters = new StringBuffer("");
 				Iterator<String> i = requestParametersMap.keySet().iterator();
 				while ( i.hasNext() ){

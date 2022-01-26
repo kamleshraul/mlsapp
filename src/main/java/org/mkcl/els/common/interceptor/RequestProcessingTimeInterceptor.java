@@ -43,9 +43,12 @@ public class RequestProcessingTimeInterceptor extends HandlerInterceptorAdapter 
 			if(isURLToBeLogged(url, csptURLSToLog.getValue().split(","))){
 				ActivityLog.logActivity(request, ApplicationLocale.findDefaultLocale());
 			} 
-			else if(request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_POST)
-					|| request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_PUT)
-					|| request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_DELETE)) {
+			else if(
+					//	request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_POST)
+					// 	|| 
+					//	request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_PUT)
+					// 	|| 
+						request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_DELETE)) {
 				
 				CustomParameter csptURLSToSkipLog = CustomParameter.findByName(CustomParameter.class, "URLS_TO_SKIP_LOG", "");
 				if(csptURLSToSkipLog == null){
