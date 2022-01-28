@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.exception.ELSException;
@@ -49,7 +51,6 @@ import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.Query;
-import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.ReferenceUnit;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
@@ -65,6 +66,9 @@ import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -437,7 +441,8 @@ public class MotionController extends GenericController<Motion>{
 		}else{
 			logger.error("**** Check request parameter 'motionType' for null value ****");
 			model.addAttribute("errorcode","motionType_isnull");
-		}		
+		}
+				
 		/**** role ****/
 		String role=request.getParameter("role");
 		if(role!=null){
@@ -447,6 +452,12 @@ public class MotionController extends GenericController<Motion>{
 			model.addAttribute("role",role);
 			request.getSession().removeAttribute("role");
 		}
+		
+		/** For Upper house members motion_calling_attention max text length need to be checked*/
+		
+		populateMaxLengthParameters(houseType,role,motionType,model);
+		
+		
 		/**** usergroup and usergroupType ****/
 		String usergroupType=request.getParameter("usergroupType");
 		if(usergroupType!=null){
@@ -714,6 +725,8 @@ public class MotionController extends GenericController<Motion>{
 			model.addAttribute("role",role);
 			request.getSession().removeAttribute("role");
 		}
+		
+		populateMaxLengthParameters(houseType,role,motionType,model);
 		/**** usergroup and usergroupType ****/
 		String usergroupType=request.getParameter("usergroupType");
 		if(usergroupType!=null){
@@ -1648,6 +1661,8 @@ public class MotionController extends GenericController<Motion>{
 		model.addAttribute("submissionPriorityMaximum", currentReadyToSubmitCount+1);
 		model.addAttribute("formater", new FormaterUtil());
 		model.addAttribute("locale", domain.getLocale());
+		String role=(String) request.getSession().getAttribute("role");
+		populateMaxLengthParameters(domain.getHouseType(),role,domain.getType(),model);
 		super.populateCreateIfErrors(model, domain, request);
 	}
 
@@ -4238,6 +4253,44 @@ public class MotionController extends GenericController<Motion>{
 		
 		DeviceType deviceType = DeviceType.findById(DeviceType.class,Long.parseLong(deviceTypeId));
 		return deviceType;
+	}
+	
+	public void populateMaxLengthParameters(HouseType houseType,String role,DeviceType motionType,ModelMap model) {
+		StringBuffer userRoleMultipleBuff=new StringBuffer();
+		String userRoleStr ="";
+		if(role==null || role.trim().length()<=0) {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			if(authentication!=null && authentication.getAuthorities()!=null) {
+				Collection<? extends GrantedAuthority> userRoles = authentication.getAuthorities();
+				for(GrantedAuthority ur:userRoles) {
+					if(ur!=null && ur.getAuthority()!=null && ur.getAuthority().trim().length()>0) {
+						userRoleMultipleBuff=userRoleMultipleBuff.append(ur.getAuthority().trim()).append(",");
+					}
+				}
+				
+				userRoleStr=userRoleMultipleBuff.substring(0,
+				userRoleMultipleBuff.lastIndexOf(","));
+			}
+		}
+		
+		if(houseType!=null && ApplicationConstants.UPPER_HOUSE.equalsIgnoreCase(houseType.getType())
+				&& ((role!=null && role.trim().length()>0 && ApplicationConstants.MEMBER_UPPERHOUSE.equalsIgnoreCase(role))
+						|| userRoleStr.contains(ApplicationConstants.MEMBER_UPPERHOUSE))
+				&& ApplicationConstants.MOTION_CALLING_ATTENTION.equalsIgnoreCase(motionType.getType())) {
+			CustomParameter maxAllowedTextSizeObj = CustomParameter.findByName(CustomParameter.class, "MOTIONS_CALLING_ATTENTION_MAX_TEXT_LENGTH", "");
+			CustomParameter externalLinkObj = CustomParameter.findByName(CustomParameter.class, "MOTIONS_PATRAK_EXTERNAL_LINK", "");
+			if(maxAllowedTextSizeObj!=null && maxAllowedTextSizeObj.getValue()!=null 
+					&& maxAllowedTextSizeObj.getValue().trim().length()>0) {
+				model.addAttribute("maxAllowedTextSize",Integer.valueOf(maxAllowedTextSizeObj.getValue().trim()));
+				if(externalLinkObj!=null && externalLinkObj.getValue()!=null) {
+					model.addAttribute("patrakExternalLink", externalLinkObj.getValue().trim());
+				}
+			}else {
+				model.addAttribute("maxAllowedTextSize",-1);
+			}
+		}else {
+			model.addAttribute("maxAllowedTextSize",-1);
+		}
 	}
 
 }
