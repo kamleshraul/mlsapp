@@ -194,6 +194,7 @@
 		
 		//save supporting members
 		$("#saveMembers").click(function(e){
+			
 			//no need to send for approval in case of empty supporting members.
 			if($("#selectedSupportingMembers").val()==""){
 				$.prompt($('#memberSupportingMembersSAVEEmptyMsg').val(),{
@@ -262,6 +263,10 @@
 		
 		/**** send for approval ****/
 		$("#sendforapproval").click(function(e){
+			if(!checkBeforeSubmit()){
+				e.preventDefault();
+				return true;
+			}
 			//no need to send for approval in case of empty supporting members.
 			if($("#selectedSupportingMembers").val()==""){
 				$.prompt($('#supportingMembersEmptyMsg').val(),{
@@ -308,6 +313,10 @@
 	    }); 
 		/**** send for submission ****/
 		$("#submitMotion").click(function(e){
+			if(!checkBeforeSubmit()){
+				e.preventDefault();
+				return true;
+			}
 			//removing <p><br></p>  from wysiwyg editor
 			$(".wysiwyg").each(function(){
 				var wysiwygVal=$(this).val().trim();
@@ -350,6 +359,84 @@
 			newMotion();
 		});
 		
+		function removeTags(str) {
+		    if ((str===null) || (str===''))
+		        return false;
+		    else
+		        str = str.toString();
+		          
+		    return str.replace( /(<([^>]+)>)/ig, '');		   
+		}
+		
+		var inputBoxText=document.getElementById('wysiwygBox');
+		var wordCountLbl=document.getElementById('wordCountLbl');
+		var lblMaxText=document.getElementById('lblMaxText');
+		
+		if(getMaxAllowedTextSize() > 0){
+			$(inputBoxText).change(function(event){
+				var str=event.target.value;
+				checkMaxAllowedTextSize(str);
+			});
+			
+			$('#submit').click(function(event){
+				if(!checkBeforeSubmit()){
+					event.preventDefault();
+					return false;
+				}
+			});
+			
+		}else{
+			var para=document.getElementById('maxTextLengthPara');
+			if(para!==null && para!==undefined){
+				para.style.visibility='hidden';
+			}
+		}
+		
+		function checkMaxAllowedTextSize(str){
+			if(str!==null && str.length!==undefined){
+				 str=removeTags(str);
+				 if(str!==null && str.length!==undefined && str.length>0){
+				 var matches = str.match(/\S+/g);
+				 //console.log("word count",matches.length,str);
+				 wordCountLbl.innerHTML=matches.length;
+					 if(getMaxAllowedTextSize()>0 && matches.length > getMaxAllowedTextSize() ){
+						wordCountLbl.style.backgroundColor='orange';
+						return false;
+					 }
+					 else{
+						wordCountLbl.style.backgroundColor='';
+						return true;
+					 }
+				 }
+			}
+			return true;
+		}
+		
+		function getMaxAllowedTextSize(){
+			var maxTextSizeHdd=document.getElementById('hddMaxAllowedTextSize');
+			if(maxTextSizeHdd!==null && maxTextSizeHdd!==undefined 
+					&& maxTextSizeHdd.value!==null && maxTextSizeHdd.value!==undefined
+					&& maxTextSizeHdd.value!==''){
+				return maxTextSizeHdd.value;
+			}else{ return -1;}
+		}
+		
+		function checkBeforeSubmit() {
+			
+			var maxTextSize=getMaxAllowedTextSize();
+			if(maxTextSize>0){
+				var str=inputBoxText.value;
+				if(!checkMaxAllowedTextSize(str)){
+					$.prompt(lblMaxText.innerHTML);
+					return false;
+				}
+			}
+			
+			return true;
+		}
+		
+		
+	
 	});
 	</script>
 </head>
@@ -462,8 +549,18 @@
 	</p>	
 	
 	<p>
+		
+		<p style="padding-left:17%" id="maxTextLengthPara">
+			<label id="lblMaxText"> <spring:message code="motion.max.word.label" arguments="${maxAllowedTextSize}" text="Text Must be max 175 word"/> </label>
+			&nbsp;&nbsp;&nbsp;
+			<a href="${patrakExternalLink}" target="_blank" style="color:blue"> (<spring:message code="pratak.bhag.external.link" text="patrak"/>) </a> 
+			&nbsp;&nbsp;&nbsp;
+			<spring:message code="max.words.in.text" text="max words"/>
+			<label id="wordCountLbl"> 0 </label>
+			<input type="hidden" name="maxAllowedTextSize" id="hddMaxAllowedTextSize" value="${maxAllowedTextSize}"/>
+		</p>
 		<label class="wysiwyglabel"><spring:message code="motion.details" text="Details"/>*</label>
-		<form:textarea path="details" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
+		<form:textarea id="wysiwygBox" path="details" cssClass="wysiwyg invalidFormattingAllowed" onkeypress="alert('hello')"></form:textarea>
 		<form:errors path="details" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
 	
