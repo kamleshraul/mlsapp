@@ -604,8 +604,43 @@
 				}		
 				return false;
 			}
+			
+			
 		});
 		
+		function removeTags(str) {
+		    if ((str===null) || (str===''))
+		        return false;
+		    else
+		        str = str.toString();
+		          
+		    return str.replace( /(<([^>]+)>)/ig, '');		   
+		}
+		
+		function checkMaxAllowedTextSize(str){
+			if(str!==null && str.length!==undefined){
+				 str=removeTags(str);
+				 if(str!==null && str.length!==undefined && str.length>0){
+				 var matches = str.match(/\S+/g);
+				 var wordCountLbl=document.getElementById('wordCountLbl');
+				 wordCountLbl.innerHTML= matches.length;
+					 if(matches.length!==undefined && matches.length !==null ){
+						wordCountLbl.style.backgroundColor='lavender';
+					 }
+				 }
+			}
+			return true;
+		}
+			
+		$('#hddRevisedDetailsTxt').change(function(event){
+			var str=event.target.value;
+			checkMaxAllowedTextSize(str);
+		});
+		
+		if($('#hddRevisedDetailsTxt')!==null && $('#hddRevisedDetailsTxt')!==undefined 
+				&& $('#hddRevisedDetailsTxt').val()!==null){
+			checkMaxAllowedTextSize($('#hddRevisedDetailsTxt').val());
+		}
 		
 	});
 	</script>
@@ -879,8 +914,16 @@
 	</p>
 	
 	<p style="display:none;" class="revise2" id="revisedDetailsDiv">
+		<c:if test="${usergroupType == 'assistant' || usergroupType == 'clerk'}">
+			<p style="padding-left:17%" id="maxTextLengthPara">
+				<span class="wordCountBlk" style="display: inline;font-weight: 600;font-size: 1.13em">
+					<spring:message code="max.words.in.text" text="max words"/>
+					<label id="wordCountLbl" style="padding:0.6em 1.5em;font-weight: 800;font-size: 1.13em;display:inline-block"> 0 </label>
+				</span>
+			</p>
+		</c:if>
 		<label class="wysiwyglabel"><spring:message code="motion.revisedDetails" text="Revised Details"/></label>
-		<form:textarea path="revisedDetails" cssClass="wysiwyg"></form:textarea>
+		<form:textarea path="revisedDetails" cssClass="wysiwyg" id="hddRevisedDetailsTxt"></form:textarea>
 		<form:errors path="revisedDetails" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	

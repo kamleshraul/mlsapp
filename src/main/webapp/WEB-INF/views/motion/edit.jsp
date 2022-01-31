@@ -365,6 +365,11 @@
 			return true;
 		}
 		
+		if(inputBoxText!==null && $(inputBoxText)!==null && $(inputBoxText)!==undefined 
+				&& $(inputBoxText).val()!==null){
+			checkMaxAllowedTextSize($(inputBoxText).val());
+		}
+		
 	});	
 	</script>
 </head>
@@ -473,8 +478,10 @@
 			&nbsp;&nbsp;&nbsp;
 			<a href="${patrakExternalLink}" target="_blank" style="color:blue"> (<spring:message code="pratak.bhag.external.link" text="patrak"/>) </a> 
 			&nbsp;&nbsp;&nbsp;
-			<spring:message code="max.words.in.text" text="max words"/>
-			<label id="wordCountLbl"> 0 </label>
+			<span class="wordCountBlk" style="display: inline;font-weight: 600;font-size: 1.13em">
+				<spring:message code="max.words.in.text" text="max words"/>
+				<label id="wordCountLbl" style="padding:0.6em 1.5em;font-weight: 800;font-size: 1.13em;display:inline-block"> 0 </label>
+			</span>
 			<input type="hidden" name="maxAllowedTextSize" id="hddMaxAllowedTextSize" value="${maxAllowedTextSize}"/>
 		</p>
 		<label class="wysiwyglabel"><spring:message code="motion.details" text="Details"/>*</label>
