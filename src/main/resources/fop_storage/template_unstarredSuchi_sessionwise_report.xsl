@@ -144,8 +144,9 @@
                 			</xsl:choose> 
                 			<fo:inline font-weight="bold"><xsl:value-of select="element_10"/></fo:inline> रोजी सभागृहाच्या पटलावर ठेवण्यात आली.		                		
 	                	</fo:block>
-	                	<fo:block font-size="2px">&#160;</fo:block>
-					    
+	                	
+	                	<fo:block font-size="12px">&#160;</fo:block>
+	                	
 					    <fo:block>
 					    	<fo:table table-layout="fixed">
 					    		<fo:table-column column-number="1" column-width="9cm" />
@@ -158,7 +159,7 @@
 						                        <fo:table-column column-number="2" column-width="2cm" />
 						                        <fo:table-column column-number="3" column-width="6cm" />
 						                        <fo:table-header>
-						                        	<fo:table-row height="8mm">
+						                        	<fo:table-row height="10mm">
 						                        		<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" font-weight="bold">
 							                        	   	<fo:block text-align="center" font-size="10.5pt" font-weight="bold">
 					                                                                    अ.क्र.
@@ -178,9 +179,9 @@
 						                        </fo:table-header>
 						                        <fo:table-body>	                        	                    	
 					                            	<!-- <xsl:for-each select="./element_1" > -->
-					                            	<xsl:variable name="countBefore26" select="'25'"/>
-					                            	<xsl:for-each select="./element_1[position()&lt;=$countBefore26]">
-						                            	<fo:table-row height="8mm">	                                	
+					                            	<xsl:variable name="countBefore11" select="'10'"/>
+					                            	<xsl:for-each select="./element_1[position()&lt;=$countBefore11]">
+						                            	<fo:table-row height="16mm">	                                	
 						                                    <fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
 						                                        <fo:block  text-align="center">
 						                                        	<xsl:value-of select="element_1_1"/>
@@ -233,7 +234,7 @@
 						                        <fo:table-column column-number="2" column-width="2cm" />
 						                        <fo:table-column column-number="3" column-width="6cm" />
 						                        <fo:table-header>
-						                        	<fo:table-row height="8mm">
+						                        	<fo:table-row height="10mm">
 						                        		<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" font-weight="bold">
 							                        	   	<fo:block text-align="center" font-size="10.5pt" font-weight="bold">
 					                                                                    अ.क्र.
@@ -253,9 +254,9 @@
 						                        </fo:table-header>
 						                        <fo:table-body>	                        	                    	
 					                            	<!-- <xsl:for-each select="./element_1" > -->
-					                            	<xsl:variable name="countAfter25" select="'26'"/>
-					                            	<xsl:for-each select="./element_1[position()&gt;=$countAfter25]">
-						                            	<fo:table-row height="8mm">	                                	
+					                            	<xsl:variable name="countAfter10" select="'11'"/>
+					                            	<xsl:for-each select="./element_1[position()&gt;=$countAfter10]">
+						                            	<fo:table-row height="16mm">	                                	
 						                                    <fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
 						                                        <fo:block  text-align="center">
 						                                        	<xsl:value-of select="element_1_1"/>

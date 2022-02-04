@@ -187,9 +187,22 @@
 	</tbody>
 	<tfoot>
 		<tr>
-			<td colspan="3">
-			<p class="footerRole" style="text-align: center;font-weight: normal;font-size: 16px; float: right; padding-right: 15px;"><br />${role }<br>
-			<spring:message code="memberballot.footer.council" text="Maharashtra Legislature"></spring:message></p>
+			<td colspan="2">
+				<p class="footerAuthoritiesForSignature" style="text-align: left;padding-left: 15px;font-weight: normal;font-size: 14px; float: left; padding-right: 15px;">
+					<br/><br/><br/><br/><br/>
+					<spring:message code="memberballot.footer.section_officer_label" text="Section Officer"></spring:message>
+					<br/><br/><br/>
+					<spring:message code="memberballot.footer.under_secretary_committee_label" text="Under Secretary Committee"></spring:message>
+					<br/><br/><br/>
+					<spring:message code="memberballot.footer.under_secretary_label" text="Under Secretary"></spring:message>
+					<br/><br/><br/>
+					<spring:message code="memberballot.footer.deputy_secretary_label" text="Deputy Secretary"></spring:message>
+				</p>
+			</td>
+			
+			<td valign="top">
+				<p class="footerRole" style="text-align: center;font-weight: normal;font-size: 16px; float: right; padding-right: 15px;"><br />${role }<br>
+				<spring:message code="memberballot.footer.council" text="Maharashtra Legislature"></spring:message></p>
 			</td>
 		</tr>
 	</tfoot>	
