@@ -1234,22 +1234,14 @@
 		<c:choose>
 			<c:when test="${selectedQuestionType=='questions_starred'}">
 				<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
-				<c:if test="${houseTypeType =='upperhouse'}"><c:set var="hideDRDAnsweringDate" value="true"/></c:if>
-				
 				<select name="answeringDate" id="answeringDate" class="sSelect">
-				
 					<c:forEach items="${answeringDates }" var="i">
 						<c:choose>
 							<c:when test="${i.id==answeringDate }">
 								<option value="${i.id }" selected="selected">${i.name}</option>
 							</c:when>
 							<c:otherwise>
-								<c:if test="${hideDRDAnsweringDate}">
-								<option value="${i.id }" disabled>${i.name}</option>
-								</c:if>
-								<c:if test="${hideDRDAnsweringDate=='' || !hideDRDAnsweringDate}">
-									<option value="${i.id }">${i.name}</option>
-								</c:if>
+								<option value="${i.id }" >${i.name}</option>
 							</c:otherwise>
 						</c:choose>
 					</c:forEach>
