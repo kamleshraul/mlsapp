@@ -1711,6 +1711,7 @@ class StarredQuestionController {
 		} else {
 			processingMode = domain.getHouseType().getType();
 		}
+		model.addAttribute("processingMode", processingMode);
 		CustomParameter csptDepartmentChangeRestricted = CustomParameter.findByName(CustomParameter.class, domain.getOriginalType().getType().toUpperCase()+"_"+processingMode.toUpperCase()+"_"+userGroupType.getType().toUpperCase()+"_DEPARTMENT_CHANGE_RESTRICTED", locale);
 		if(csptDepartmentChangeRestricted!=null && csptDepartmentChangeRestricted.getValue()!=null && csptDepartmentChangeRestricted.getValue().equals("YES")) {
 			
@@ -1723,6 +1724,16 @@ class StarredQuestionController {
 			}			
 		} else {
 			model.addAttribute("departmentChangeRestricted", "NO");
+		}
+		
+		/**** Populate Batch for Council Mode ****/
+		if(processingMode!=null && processingMode.equals(ApplicationConstants.UPPER_HOUSE)) {
+			Integer batchNumber = Question.findBatch(domain);
+			if(batchNumber!=null && batchNumber.equals(1)) {
+				model.addAttribute("isFirstBatchQuestion", "YES");
+			} else {
+				model.addAttribute("isFirstBatchQuestion", "NO");
+			}
 		}
 	}
 
@@ -3025,7 +3036,8 @@ class StarredQuestionController {
 		}else{
 			if(!isGroupChanged && !isSubDepartmentChanged && !isMinistryChanged){
 				// If branch users add the answer from their end instead of from department, then the workflow will end of the department side
-				if(domain.getAnswer() != null && !domain.getAnswer().isEmpty()){
+				if(domain.getAnswer() != null && !domain.getAnswer().isEmpty()
+						&& domain.getAnswer().length()>20){
 					WorkflowDetails wd = WorkflowDetails.findCurrentWorkflowDetail(domain);
 					if(wd != null){
 						if(wd.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)

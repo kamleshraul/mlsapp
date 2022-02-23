@@ -13459,6 +13459,17 @@ public class Question extends Device implements Serializable {
     	
     }
     
+    public static Integer findBatch(final Question question){
+    	
+    	Date submissionDate = question.getSubmissionDate();
+    	
+    	if(submissionDate==null) {
+    		submissionDate = new Date();
+    	}
+    	
+    	return findBatch(question, submissionDate);
+    }
+    
     public static Integer findBatch(final Question question, final Date date){
     	
     	Integer batch = 0;
