@@ -526,22 +526,20 @@ public class MotionReportController extends BaseController{
 			String strMotion = request.getParameter("motionId");
 			String strWorkflowDetailsId = request.getParameter("workflowDetailId");
 			if((strMotion != null && !strMotion.isEmpty())
-					|| strWorkflowDetailsId != null && !strWorkflowDetailsId.isEmpty() ){
+					|| (strWorkflowDetailsId != null && !strWorkflowDetailsId.isEmpty()) ){
 				Motion m = null;
 				WorkflowDetails wfDetails = null;
 				if(strMotion != null && !strMotion.isEmpty()){
 					m = Motion.findById(Motion.class, new Long(strMotion));
 				}else if(strWorkflowDetailsId != null && !strWorkflowDetailsId.isEmpty()){
 					wfDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowDetailsId));
-				}
-					
-				
-				if(m != null || wfDetails != null){
 					if(wfDetails!=null){
 						m = Motion.findById(Motion.class, Long.parseLong(wfDetails.getDeviceId()));
 					}
+				}					
+				
+				if(m != null){
 					HouseType ht = m.getHouseType();
-					
 					if(ht.getType().equals(ApplicationConstants.LOWER_HOUSE)){
 						getAdmissionReport(model, request, response, locale);
 					}else if(ht.getType().equals(ApplicationConstants.UPPER_HOUSE)){
@@ -638,7 +636,7 @@ public class MotionReportController extends BaseController{
 		
 		//String retVal = "motion/report";
 		try{
-			String strId = request.getParameter("motionId");;
+			String strId = request.getParameter("motionId");
 			String strWorkflowId = request.getParameter("workflowDetailId");
 			WorkflowDetails workflowDetails = null;
 			String referenceNumber = null;
