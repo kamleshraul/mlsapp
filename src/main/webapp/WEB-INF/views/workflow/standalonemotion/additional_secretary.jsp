@@ -434,7 +434,7 @@
 		/* } */
 		/**** Revisions ****/
 	    $("#viewRevision").click(function(){
-		    $.get('question/revisions/'+$("#id").val(),function(data){
+		    $.get('standalonemotion/revisions/'+$("#id").val(),function(data){
 			    $.fancybox.open(data,{autoSize: false, width: 800, height:700});
 		    });
 		    return false;
