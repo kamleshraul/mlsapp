@@ -968,8 +968,10 @@ public class MotionWorkflowController extends BaseController{
 				}
 				workflowDetails.setStatus("COMPLETED");
 				workflowDetails.setCompletionTime(new Date());
-				workflowDetails.setInternalStatus(domain.getInternalStatus().getName());
-				workflowDetails.setRecommendationStatus(domain.getRecommendationStatus().getName());
+				//workflowDetails.setInternalStatus(domain.getInternalStatus().getName());
+				//workflowDetails.setRecommendationStatus(domain.getRecommendationStatus().getName());
+				workflowDetails.setDecisionInternalStatus(domain.getInternalStatus().getName());
+				workflowDetails.setDecisionRecommendStatus(domain.getRecommendationStatus().getName());
 				workflowDetails.merge();
 				domain.merge();
 				/**** display message ****/

@@ -1628,8 +1628,8 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 		String houseType = session.getHouse().getType().getType();
 		Status ADMITTED = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_ADMISSION, locale);
 		Status REPEATADMITTED = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_REPEATADMISSION, locale);
-		Date startTime = FormaterUtil.formatStringToDate(session.getParameter("resolutions_nonofficial_submissionStartDate"),ApplicationConstants.DB_DATEFORMAT);
-		Date endTime = FormaterUtil.formatStringToDate(session.getParameter("resolutions_nonofficial_submissionEndDate"),ApplicationConstants.DB_DATEFORMAT);
+		Date startTime = FormaterUtil.formatStringToDate(session.getParameter("resolutions_nonofficial_submissionStartDate"),ApplicationConstants.DB_DATETIME__24HOURS_FORMAT);
+		Date endTime = FormaterUtil.formatStringToDate(session.getParameter("resolutions_nonofficial_submissionEndDate"),ApplicationConstants.DB_DATETIME__24HOURS_FORMAT);
 		Status[] statuses = {ADMITTED,REPEATADMITTED};
 		List<Member> members = Resolution.
 				findActiveMembersWithResolutions(session, new Date(), deviceType, statuses, startTime, endTime, "number", "ASC", locale);

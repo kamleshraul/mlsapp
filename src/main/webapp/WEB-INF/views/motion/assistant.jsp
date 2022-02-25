@@ -434,7 +434,7 @@
 	    },
 	        function(action, el, pos) {
 			var id=$(el).attr("id");
-			alert(id+"\n"+$(el).attr('class').split(' ').length);
+			//alert(id+"\n"+$(el).attr('class').split(' ').length);
 			var cls = $(el).attr('class').split(' ')[1].substring("cbdevice".length);
 			//var targetDevice = $("#allDevices option[value="+cls+"]").text().trim();
 			
@@ -934,6 +934,7 @@
 	<c:if test="${usergroupType == 'assistant' || usergroupType == 'clerk'}">
 	
 	</c:if>
+	<c:if test="${empty parent}">
 	<c:if test="${internalStatusType == 'motion_system_assistantprocessed' 
 					|| internalStatusType == 'motion_system_putup'
 					|| (internalStatusType == 'motion_final_admission' && (usergroupType == 'assistant' || usergroupType == 'clerk'))}">
@@ -967,6 +968,7 @@
 			<input type="text" class="sText" readonly="readonly" value="" id="actorName"/>
 		</p>
 	</c:if>	
+	</c:if>
 	
 	<p>
 		<select id="internalStatusMaster" style="display:none;">
