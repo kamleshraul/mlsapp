@@ -84,6 +84,8 @@
 				</table>
 			</div>
 			<br />
+				<spring:message code="generic.date" text="Answering Date"/> ${answeringDate}<spring:message code="resolution.ballot.starred.lowerhouse.footer1" text="Footer"/>
+								${formattedCurrentDate}<spring:message code="resolution.ballot.starred.lowerhouse.footer2" text="Footer"/>
 			<hr />
 			<div id="submitDiv" style="width: 800px; display: none;">
 				<%-- <c:if test="${workflowstatus!='COMPLETED' }">	
