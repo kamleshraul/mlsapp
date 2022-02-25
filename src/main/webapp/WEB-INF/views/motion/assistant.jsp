@@ -632,14 +632,14 @@
 			return true;
 		}
 			
-		$('#hddRevisedDetailsTxt').change(function(event){
+		$('.hddRevisedDetailsTxt').change(function(event){
 			var str=event.target.value;
 			checkMaxAllowedTextSize(str);
 		});
 		
-		if($('#hddRevisedDetailsTxt')!==null && $('#hddRevisedDetailsTxt')!==undefined 
-				&& $('#hddRevisedDetailsTxt').val()!==null){
-			checkMaxAllowedTextSize($('#hddRevisedDetailsTxt').val());
+		if($('.hddRevisedDetailsTxt')!==null && $('.hddRevisedDetailsTxt')!==undefined 
+				&& $('.hddRevisedDetailsTxt')[0].value!==null){
+			checkMaxAllowedTextSize($('.hddRevisedDetailsTxt')[0].value);
 		}
 		
 	});
@@ -923,7 +923,7 @@
 			</p>
 		</c:if>
 		<label class="wysiwyglabel"><spring:message code="motion.revisedDetails" text="Revised Details"/></label>
-		<form:textarea path="revisedDetails" cssClass="wysiwyg" id="hddRevisedDetailsTxt"></form:textarea>
+		<form:textarea path="revisedDetails" cssClass="wysiwyg hddRevisedDetailsTxt"></form:textarea>
 		<form:errors path="revisedDetails" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
