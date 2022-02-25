@@ -676,6 +676,13 @@ public class BallotController extends BaseController{
 						}
 						model.addAttribute("ids",voIds.toString());
 						model.addAttribute("ballotVOs", ballotVOs);*/
+						CustomParameter serverDateTimeFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+						if(serverDateTimeFormat != null){
+							Date ballotDate = new Date();
+										
+							model.addAttribute("formattedCurrentDate", FormaterUtil.formatDateToString(ballotDate, serverDateTimeFormat.getValue(), locale.toString()));
+						}
+						
 						Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 						parametersMap.put("locale", new String[]{locale.toString()});
 						parametersMap.put("sessionId", new String[]{session.getId().toString()});
@@ -816,7 +823,13 @@ public class BallotController extends BaseController{
 					}
 					retVal = "ballot/halfhour_ballot";
 
-				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){					
+				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){		
+					CustomParameter serverDateTimeFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+					if(serverDateTimeFormat != null){
+						Date ballotDate = new Date();
+									
+						model.addAttribute("formattedCurrentDate", FormaterUtil.formatDateToString(ballotDate, serverDateTimeFormat.getValue(), locale.toString()));
+					}
 					List<BallotMemberVO> ballotVOs = Ballot.findBallotedMemberVO(session, deviceType, answeringDate, locale.toString());
 					model.addAttribute("ballotVOs", ballotVOs);
 					//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
