@@ -774,6 +774,50 @@
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
+	<c:set var="labels" value="${fn:split(revisions[0][7],';')}" />	
+	<p>
+		<table class="uiTable" style="border: 2px solid black; margin-left:165px;">
+			<thead>
+				<c:forEach items="${labels}" var="h">
+					<th style="text-align: center;">${h}</th>
+				</c:forEach>
+			</thead>
+			<tbody>
+				<c:forEach items="${revisions}" var="r">
+					<c:choose>
+						<c:when test="${r[8]=='assistant'}">
+							<tr>
+								<td style="text-align: center;">${r[1]}</td>
+								<td style="text-align: center;">${r[2]}</td>
+								<td>${r[4]}</td>
+							</tr>
+						</c:when>
+						<c:otherwise>
+							<tr>
+								<td style="text-align: center;">
+									${r[6]}<br>
+									${r[1]}
+								</td>
+								<td style="text-align: center;">
+									<c:choose>
+										<c:when test="${fn:endsWith(r[9],'recommend_sendback')
+												|| fn:endsWith(r[9],'recommend_discuss')}">
+											${r[3]}
+										</c:when>
+										<c:otherwise>${r[2]}</c:otherwise>
+									</c:choose>							
+								</td>
+								<td style="max-width:400px;">
+									${r[4]}
+								</td>
+							</tr>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+			</tbody>
+		</table>
+	</p>
+	
 	<c:if test="${workflowstatus=='PENDING'}">
 		<p>
 			<label class="small"><spring:message code="motion.putupfor" text="Put up for"/></label>	
