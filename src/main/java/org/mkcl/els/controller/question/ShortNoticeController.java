@@ -24,6 +24,7 @@ import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
+import org.mkcl.els.controller.NotificationController;
 import org.mkcl.els.controller.mis.MemberOtherController;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Constituency;
@@ -814,6 +815,7 @@ class ShortNoticeController {
 					List<SupportingMember> supportingMembers = question.getSupportingMembers();
 					Status status = Status.
 							findByType(ApplicationConstants.SUPPORTING_MEMBER_PENDING, domain.getLocale());
+					StringBuffer supportingMembersUserNames = new StringBuffer("");
 					for(SupportingMember i:supportingMembers){
 						String decisionStatus = i.getDecisionStatus().getType();
 						if(decisionStatus.equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
@@ -831,13 +833,28 @@ class ShortNoticeController {
 								}
 							}							
 							i.merge();
+							/** save supporting member usernames for sending notification **/
+							supportingMembersUserNames.append(credential.getUsername());
+							supportingMembersUserNames.append(",");
 						}
+					}
+					//SEND NOTIFICATION FOR NEW SUPPORTING MEMBER APPROVAL REQUESTS
+					if(!supportingMembersUserNames.toString().isEmpty()) {
+						NotificationController.sendSupportingMemberApprovalNotification(domain.getSubject(), domain.getType(), domain.getPrimaryMember(), supportingMembersUserNames.toString(), domain.getLocale());
 					}
 
 				} catch (ELSException e) {
 					model.addAttribute("error", e.getParameter());
 					e.printStackTrace();
 				}
+			} else if(operation.equals("submit")){
+				//SEND _NOTIFICATION OF DEVICE SUBMISSION INTIMATION TO BRANCH
+				String usergroupTypes = "assistant,clerk";
+				CustomParameter csptNotificationUserGroupTypes = CustomParameter.findByName(CustomParameter.class, "", domain.getType().getType().toUpperCase()+"_NOTIFICATION_USERGROUPTYPES_DEVICE_SUBMISSION_INTIMATION_TO_BRANCH");
+				if(csptNotificationUserGroupTypes!=null && csptNotificationUserGroupTypes.getValue()!=null) {
+					usergroupTypes = csptNotificationUserGroupTypes.getValue();
+				}
+				NotificationController.sendDeviceSubmissionNotification(domain.getPrimaryMember(), domain.getNumber().toString(), domain.getSubject(), domain.getType(), domain.getHouseType(), domain.getSubDepartment().getName(), usergroupTypes, domain.getLocale());
 			}
 		}
 		
@@ -2109,6 +2126,7 @@ class ShortNoticeController {
 					List<SupportingMember> supportingMembers = question.getSupportingMembers();
 					Status status=Status.
 							findByType(ApplicationConstants.SUPPORTING_MEMBER_PENDING, domain.getLocale());
+					StringBuffer supportingMembersUserNames = new StringBuffer("");
 					for(SupportingMember i : supportingMembers){
 						String decisionStatusType = i.getDecisionStatus().getType();
 						if(decisionStatusType.equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
@@ -2127,9 +2145,24 @@ class ShortNoticeController {
 								}
 							}
 							i.merge();
+							/** save supporting member usernames for sending notification **/
+							supportingMembersUserNames.append(credential.getUsername());
+							supportingMembersUserNames.append(",");
 						}
 					}
-				}else if(operation.equals("startworkflow")){
+					//SEND NOTIFICATION FOR NEW SUPPORTING MEMBER APPROVAL REQUESTS
+					if(!supportingMembersUserNames.toString().isEmpty()) {
+						NotificationController.sendSupportingMemberApprovalNotification(domain.getSubject(), domain.getType(), domain.getPrimaryMember(), supportingMembersUserNames.toString(), domain.getLocale());
+					}
+				} else if(operation.equals("submit")){
+					//SEND _NOTIFICATION OF DEVICE SUBMISSION INTIMATION TO BRANCH
+					String usergroupTypes = "assistant,clerk";
+					CustomParameter csptNotificationUserGroupTypes = CustomParameter.findByName(CustomParameter.class, "", domain.getType().getType().toUpperCase()+"_NOTIFICATION_USERGROUPTYPES_DEVICE_SUBMISSION_INTIMATION_TO_BRANCH");
+					if(csptNotificationUserGroupTypes!=null && csptNotificationUserGroupTypes.getValue()!=null) {
+						usergroupTypes = csptNotificationUserGroupTypes.getValue();
+					}
+					NotificationController.sendDeviceSubmissionNotification(domain.getPrimaryMember(), domain.getNumber().toString(), domain.getSubject(), domain.getType(), domain.getHouseType(), domain.getSubDepartment().getName(), usergroupTypes, domain.getLocale());
+				} else if(operation.equals("startworkflow")){
 					/** copy latest question text of child question to revised question text of its parent's other clubbed questions if any **/
 					if(question.getParent()!=null) {
 						/** fetch question's latest question text **/
