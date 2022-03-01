@@ -426,7 +426,7 @@
 			<input type="hidden" id="parent" name="parent" value="${parent}">
 		</p>
 	</c:if>	
-	
+	<!-- 
 	<p>
 		<label class="small"><spring:message code="generic.clubbed" text="Clubbed Motions"></spring:message></label>
 		<c:choose>
@@ -460,7 +460,7 @@
 			</c:forEach>
 		</select>
 	</c:if>
-	
+	 -->
 	<p>
 	<label class="labeltop"><spring:message code="discussionmotion.ministries" text="Ministries"/>*</label>
 	<select name="ministries" id="ministries" multiple="multiple" size="5" style="width:200px;">

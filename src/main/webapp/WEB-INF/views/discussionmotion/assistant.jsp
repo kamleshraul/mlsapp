@@ -519,7 +519,7 @@
 		<input type="text" readonly="readonly" value="${constituency}" class="sText">
 		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="./resources/images/contactus.jpg" width="40" height="25"></a>		
 	</p>
-	
+	<!-- 
 	<p>
 		<c:if test="${bulkedit!='yes'}">	
 			<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="generic.clubbing" text="Clubbing"></spring:message></a>
@@ -527,7 +527,7 @@
 			<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="generic.refresh" text="Refresh"></spring:message></a>
 		</c:if>	
 	</p>
-		
+	-->
 	<c:if test="${!(empty parent)}">	
 		<p>
 			<label class="small"><spring:message code="cutmotion.parentmotion" text="Clubbed To"></spring:message></label>

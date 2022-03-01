@@ -378,6 +378,8 @@
 		<form:errors path="primaryMember" cssClass="validationError"/>		
 	</p>	
 	</security:authorize>		
+	
+	
 	<p>
 
 		<div class="small" style="margin-left:160px;">

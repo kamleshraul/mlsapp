@@ -265,14 +265,14 @@
 		<ul class="tabs">
 			<li><a id="list_tab" class="selected tab" href="#"> <spring:message code="generic.list" text="List"/></a></li>
 			<li><a id="details_tab" href="#" class="tab"> <spring:message code="generic.details" text="Details" /></a></li>
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','DMOIS_TYPIST')">
+			<%-- <security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','DMOIS_TYPIST')">
 				<li><a id="bulkputup_tab" href="#" class="tab"> <spring:message code="generic.bulkputup" text="Bulk Putup" /></a></li>
 			</security:authorize>
 			<security:authorize access="hasAnyRole('DMOIS_ASSISTANT')">
 				<li>
 					<a id="bulkputupassistant_tab" href="#" class="tab"> <spring:message code="generic.bulkputup" text="Bulk Putup" /></a>
 				</li>
-			</security:authorize>						
+			</security:authorize> --%>						
 			
 		</ul>
 		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv1">
