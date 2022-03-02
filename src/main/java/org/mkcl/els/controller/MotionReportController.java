@@ -560,23 +560,44 @@ public class MotionReportController extends BaseController{
 		//String retVal = "motion/report";
 		try{
 			
-			String strId = request.getParameter("motionId");
-			String strReportFormat = request.getParameter("outputFormat");	
-			
-			if(strId != null && !strId.isEmpty()){
-				Map<String, String[]> parameters = request.getParameterMap();
+			String strMotion = request.getParameter("motionId");
+			String strWorkflowDetailsId = request.getParameter("workflowDetailId");
+			if((strMotion != null && !strMotion.isEmpty())
+					|| (strWorkflowDetailsId != null && !strWorkflowDetailsId.isEmpty()) ){
+				Motion m = null;
+				WorkflowDetails wfDetails = null;
+				if(strMotion != null && !strMotion.isEmpty()){
+					m = Motion.findById(Motion.class, new Long(strMotion));
+				}else if(strWorkflowDetailsId != null && !strWorkflowDetailsId.isEmpty()){
+					wfDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowDetailsId));
+					if(wfDetails!=null){
+						m = Motion.findById(Motion.class, Long.parseLong(wfDetails.getDeviceId()));
+					}
+				}					
 				
-				List reportData = Query.findReport(request.getParameter("reportQuery"), parameters);	
-				List reportData1 = Query.findReport(request.getParameter("reportQuery")+"_CLUBBED_DETAILS", parameters);	
-				String templateName = request.getParameter("templateName");
-				File reportFile = null;				
-				
-				reportFile = generateReportUsingFOP(new Object[] {((Object[])reportData.get(0))[0], reportData,reportData1}, templateName, strReportFormat, request.getParameter("reportName"), locale.toString());
-				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
-				
-				model.addAttribute("info", "general_info");;
-				//retVal = "motion/info";
-			}			
+				if(m != null){
+					HouseType ht = m.getHouseType();
+					
+					Map<String, String[]> requestParameters = request.getParameterMap();
+					Map<String, String[]> parameters = new HashMap<String, String[]>();
+					parameters.putAll(requestParameters);
+					if(parameters.get("motionId")==null) {
+						parameters.put("motionId", new String[]{m.getId().toString()});
+					}
+					
+					List reportData = Query.findReport(request.getParameter("reportQuery"), parameters);	
+					List reportData1 = Query.findReport(request.getParameter("reportQuery")+"_CLUBBED_DETAILS", parameters);	
+					String templateName = request.getParameter("templateName")+"_"+ht.getType();
+					String strReportFormat = request.getParameter("outputFormat");
+					File reportFile = null;
+					
+					reportFile = generateReportUsingFOP(new Object[] {((Object[])reportData.get(0))[0], reportData,reportData1}, templateName, strReportFormat, request.getParameter("reportName"), locale.toString());
+					openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
+					
+					model.addAttribute("info", "general_info");;
+					//retVal = "motion/info";
+				}
+			}		
 		}catch(Exception e){
 			logger.error("error", e);
 		}

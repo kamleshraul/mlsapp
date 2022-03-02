@@ -79,7 +79,7 @@
 	            		
 	            		<xsl:choose>
 	            		
-	            			<xsl:when test="./element_2/element_2_5='upperhouse'">
+	            			<xsl:when test="./element_2/element_2_5='lowerhouse' or ./element_2/element_2_5='विधानसभा'">
 	            				<fo:block text-align="left" font-weight="bold" text-decoration="underline">
 	            				अति तात्काळ
 	            				</fo:block>
@@ -282,7 +282,7 @@
 									</fo:table>
 								</fo:block>
 	            			</xsl:when>
-	            			<xsl:when test="./elelment_2/element_2_5='lowerhouse'">
+	            			<xsl:when test="./elelment_2/element_2_5='lowerhouse1'">
 	            				<fo:block>
 	            					&#160;
 	            				</fo:block>
