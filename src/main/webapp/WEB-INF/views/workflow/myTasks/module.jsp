@@ -1263,7 +1263,8 @@
 		}
 		
 		/**** To Generate Intimation Letter ****/
-		function generateIntimationLetter() {	
+		function generateIntimationLetter() {
+			var houseType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
 			if($("#intimationLetterFilter").val()=='reminderToDepartmentForReply') { //for reminder letter (unstarred questions etc.)
 				if($("#currentusergroupType").val()=='department' 
 					||$("#currentusergroupType").val()=='department_deskofficer' ){
@@ -1307,7 +1308,9 @@
 								return false;
 							}
 						}
-					}				
+					}
+					var clarificationNeededFromDepartmentRecommendStatus = $("#selectedSubWorkflow option[value$='recommend_clarificationNeededFromDepartment']").first().text();
+					var clarificationNeededFromDepartmentFinalStatus = $("#selectedSubWorkflow option[value$='final_clarificationNeededFromDepartment']").first().text();
 					if(currentDevice.indexOf('questions_')==0){
 						$('#generateIntimationLetter').attr('href', 'question/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
 					}else if(currentDevice.indexOf('motions_standalonemotion_')==0){
@@ -1315,7 +1318,12 @@
 					}else if(currentDevice.indexOf('resolutions_')==0){
 						$('#generateIntimationLetter').attr('href', 'resolution/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
 					}else if(currentDevice.indexOf('motions_calling_attention')==0){
-						$('#generateIntimationLetter').attr('href', 'motion/report/commonadmissionreport?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val()+'&outputFormat=PDF&copyType=tentativeCopy');
+						if(internalStatus==clarificationNeededFromDepartmentRecommendStatus
+								|| internalStatus==clarificationNeededFromDepartmentFinalStatus) {
+							$('#generateIntimationLetter').attr('href', 'motion/report/fopgenreport?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val()+'&houseType=' + $("#selectedHouseType").val()+'&templateName=motion_intimation_report&reportQuery=MOTION_INTIMATION_LETTER&locale=' + $("#moduleLocale").val()+'&outputFormat=PDF&reportName=motion_intimationLetter');
+						} else {
+							$('#generateIntimationLetter').attr('href', 'motion/report/commonadmissionreport?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val()+'&outputFormat=PDF&copyType=tentativeCopy');
+						}						
 					}else if(currentDevice.indexOf('motions_adjournment')==0){
 						$('#generateIntimationLetter').attr('href', 'adjournmentmotion/report/generateIntimationLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
 					}else if(currentDevice.indexOf('notices_specialmention')==0){
