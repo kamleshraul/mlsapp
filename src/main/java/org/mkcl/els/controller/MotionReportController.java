@@ -586,7 +586,10 @@ public class MotionReportController extends BaseController{
 					}
 					
 					List reportData = Query.findReport(request.getParameter("reportQuery"), parameters);	
-					List reportData1 = Query.findReport(request.getParameter("reportQuery")+"_CLUBBED_DETAILS", parameters);	
+					List reportData1 = new ArrayList<Object[]>();
+					if(ht.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+						reportData1 = Query.findReport(request.getParameter("reportQuery")+"_CLUBBED_DETAILS", parameters);
+					}
 					String templateName = request.getParameter("templateName")+"_"+ht.getType();
 					String strReportFormat = request.getParameter("outputFormat");
 					File reportFile = null;

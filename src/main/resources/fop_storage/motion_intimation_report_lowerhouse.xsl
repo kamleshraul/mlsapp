@@ -174,13 +174,13 @@
 							<fo:block>&#160;&#160;&#160;&#160;&#160;&#160;संदर्भ : <xsl:value-of select="./element_2/element_2_11"></xsl:value-of>, वि.स.स. यांची म.वि.स. नियम १०५ अन्वये</fo:block>
 							<fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;या सचिवालयास प्राप्त झालेली लक्षवेधी सूचना क्रमांक <xsl:value-of select="./element_2/element_2_3"></xsl:value-of> (प्रत संलग्न)</fo:block>
 							
-							<xsl:choose>
-							<!-- <xsl:when test="./element_2/element_2_7!=''">
+							<!-- <xsl:choose>
+							<xsl:when test="./element_2/element_2_7!=''">
 	    						<fo:inline>
 	    							व इतर जोडलेल्या <xsl:value-of select="translate(./element_2/element_2_7,'','')"></xsl:value-of> 		
 	    						</fo:inline>
-	        				</xsl:when> -->
-	           				</xsl:choose>													
+	        				</xsl:when>
+	           				</xsl:choose> -->											
 						</fo:block>	
 						
 						<fo:block>&#160;</fo:block>		

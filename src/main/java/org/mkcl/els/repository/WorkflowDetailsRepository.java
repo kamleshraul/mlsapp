@@ -2237,7 +2237,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 	
 	public WorkflowDetails findCurrentWorkflowDetail(final Bill bill, String workflowType) {
 		try{
-			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+bill.getId()
+			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+bill.getId().toString()
 			+" AND m.workflowType='"+workflowType+"' "
 			+" ORDER BY m.assignmentTime "+ApplicationConstants.DESC;
 			WorkflowDetails workflowDetails=(WorkflowDetails) this.em().createQuery(query).setMaxResults(1).getSingleResult();
@@ -2446,7 +2446,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 	/**************Motion****************************/
 	public WorkflowDetails findCurrentWorkflowDetail(final Motion motion, String workflowType) {
 		try{
-			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+motion.getId()
+			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+motion.getId().toString()
 			+" AND m.workflowType='"+workflowType+"' "
 			+" ORDER BY m.assignmentTime "+ApplicationConstants.DESC;
 			WorkflowDetails workflowDetails=(WorkflowDetails) this.em().createQuery(query).setMaxResults(1).getSingleResult();
@@ -2481,7 +2481,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 	
 	public WorkflowDetails findCurrentWorkflowDetail(final CutMotionDate cutMotionDate, String workflowType) {
 		try{
-			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+cutMotionDate.getId()
+			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+cutMotionDate.getId().toString()
 			+" AND m.workflowType='"+workflowType+"' "
 			+" ORDER BY m.assignmentTime "+ApplicationConstants.DESC;
 			WorkflowDetails workflowDetails=(WorkflowDetails) this.em().createQuery(query).setMaxResults(1).getSingleResult();
@@ -3807,7 +3807,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 	}
 	public WorkflowDetails findCurrentWorkflowDetail(final CutMotion motion, String workflowType) {
 		try{
-			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+motion.getId()
+			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+motion.getId().toString()
 			+" AND m.workflowType='"+workflowType+"' "
 			+" ORDER BY m.assignmentTime "+ApplicationConstants.DESC;
 			WorkflowDetails workflowDetails=(WorkflowDetails) this.em().createQuery(query).setMaxResults(1).getSingleResult();
@@ -4262,7 +4262,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 	/**************EventMotion************************/
 	public WorkflowDetails findCurrentWorkflowDetail(final EventMotion motion, String workflowType) {
 		try{
-			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+motion.getId()
+			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+motion.getId().toString()
 			+" AND m.workflowType='"+workflowType+"' "
 			+" ORDER BY m.assignmentTime "+ApplicationConstants.DESC;
 			WorkflowDetails workflowDetails=(WorkflowDetails) this.em().createQuery(query).setMaxResults(1).getSingleResult();
@@ -4795,7 +4795,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 		
 	public WorkflowDetails findCurrentWorkflowDetail(final DiscussionMotion motion, String workflowType) {
 		try{
-			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+motion.getId()
+			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+motion.getId().toString()
 			+" AND m.workflowType='"+workflowType+"' "
 			+" ORDER BY m.assignmentTime "+ApplicationConstants.DESC;
 			WorkflowDetails workflowDetails=(WorkflowDetails) this.em().createQuery(query).setMaxResults(1).getSingleResult();
@@ -6029,7 +6029,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 	}
 	public WorkflowDetails findCurrentWorkflowDetail(final AppropriationBillMotion motion, String workflowType) {
 		try{
-			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+motion.getId()
+			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+motion.getId().toString()
 			+" AND m.workflowType='"+workflowType+"' "
 			+" ORDER BY m.assignmentTime "+ApplicationConstants.DESC;
 			WorkflowDetails workflowDetails=(WorkflowDetails) this.em().createQuery(query).setMaxResults(1).getSingleResult();
