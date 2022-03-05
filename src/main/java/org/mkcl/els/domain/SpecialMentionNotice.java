@@ -2308,4 +2308,48 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 			return SpecialMentionNotice.CUR_SPECIALMENTIONNOTICE_DATE_UPPER_HOUSE;
 		}
 		
+		public static org.mkcl.els.common.vo.Reference getCurNumber(final Session session, final DeviceType deviceType){
+	    	
+	    	org.mkcl.els.common.vo.Reference ref = new org.mkcl.els.common.vo.Reference();
+	    	String strHouseType = session.getHouse().getType().getType();
+	    	
+	    	if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
+	    		
+				ref.setName(ApplicationConstants.SPECIAL_MENTION_NOTICE);
+				ref.setNumber(SpecialMentionNotice.getCurrentNumberLowerHouse().toString());
+				if(SpecialMentionNotice.getCurrentSpecialMentionNoticeDateLowerHouse()!=null) {
+					String currentSpecialMentionNoticeDate = FormaterUtil.formatDateToString(SpecialMentionNotice.getCurrentSpecialMentionNoticeDateLowerHouse(), ApplicationConstants.DB_DATEFORMAT);
+					ref.setRemark(currentSpecialMentionNoticeDate);			
+				}
+	    		ref.setId(ApplicationConstants.LOWER_HOUSE);
+	    		
+	    	}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
+	    		
+	    		ref.setName(ApplicationConstants.SPECIAL_MENTION_NOTICE);
+				ref.setNumber(SpecialMentionNotice.getCurrentNumberUpperHouse().toString());
+				if(SpecialMentionNotice.getCurrentSpecialMentionNoticeDateUpperHouse()!=null) {
+					String currentSpecialMentionNoticeDate = FormaterUtil.formatDateToString(SpecialMentionNotice.getCurrentSpecialMentionNoticeDateUpperHouse(), ApplicationConstants.DB_DATEFORMAT);
+					ref.setRemark(currentSpecialMentionNoticeDate);			
+				}
+	    		ref.setId(ApplicationConstants.UPPER_HOUSE);
+	    	}
+	    	
+	    	return ref;
+	    }
+	    
+	    public static void updateCurNumber(final Integer num, final Date forDate, final String houseType, final String device){
+	    	
+	    	if(device.equals(ApplicationConstants.SPECIAL_MENTION_NOTICE)){
+	    		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+	    			SpecialMentionNotice.updateCurrentNumberLowerHouse(num);
+	    			SpecialMentionNotice.updateCurrentSpecialMentionNoticeDateLowerHouse(forDate);
+	    		}
+	    		
+	    		if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+	    			SpecialMentionNotice.updateCurrentNumberUpperHouse(num);
+	    			SpecialMentionNotice.updateCurrentSpecialMentionNoticeDateUpperHouse(forDate);
+	    		}		    	
+	    	}
+	    }
+		
 }

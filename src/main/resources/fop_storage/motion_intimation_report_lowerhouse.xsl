@@ -72,7 +72,7 @@
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            	
-	            	<fo:block font-family="Mangal" font-size="10.5px">	       
+	            	<fo:block font-family="Mangal" font-size="10.5px" line-height="20pt">
             			<!-- <fo:block text-align="center" font-weight="bold" font-size="14pt">
 	            			महाराष्ट्र विधानमंडळ सचिवालय					
 	            		</fo:block> -->
@@ -136,7 +136,8 @@
 							</fo:table>
 						</fo:block> -->
 						
-						<fo:block>&#160;</fo:block>
+						<fo:block margin-top="3cm">&#160;</fo:block>
+						
 						<fo:block font-weight="bold">
 							प्रेषक : 
 						</fo:block>
@@ -247,6 +248,22 @@
 									</fo:table-row>
 								</fo:table-body>
 							</fo:table>
+						</fo:block>
+						
+						<fo:block page-break-before="always">&#160;</fo:block>
+						
+						<fo:block>
+							<fo:block font-size="14px">लक्षवेधी सूचनेची संलग्न प्रत (वस्तुस्थितीकरिता प्रस्तावित)</fo:block>
+							<fo:block>&#160;</fo:block>
+							<fo:block font-weight="bold">लक्षवेधी सूचना क्रमांक : <xsl:value-of select="./element_2/element_2_3"></xsl:value-of> </fo:block>
+							<fo:block>&#160;</fo:block>
+							<fo:block font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;<xsl:value-of select="./element_2/element_2_6"></xsl:value-of> वि.प.स.</fo:block>
+							<fo:block>&#160;</fo:block>
+							<fo:block><xsl:value-of select="./element_2/element_2_8"></xsl:value-of> </fo:block>
+							<fo:block>&#160;</fo:block>
+							<fo:block>
+								&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45; 				
+							</fo:block>
 						</fo:block>
 					</fo:block>
 	            </fo:flow>

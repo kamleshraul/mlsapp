@@ -9160,7 +9160,7 @@ public class ReferenceController extends BaseController {
 			@PathVariable("housetype") String houseType, @PathVariable("devicetype") String strDevice,
 			HttpServletRequest request, HttpServletResponse response, Locale locale){
 		try{
-			
+			String forDate = request.getParameter("forDate");
 			if(strDevice.equals(ApplicationConstants.STARRED_QUESTION) 
 					|| strDevice.equals(ApplicationConstants.UNSTARRED_QUESTION)
 					|| strDevice.equals(ApplicationConstants.SHORT_NOTICE_QUESTION)
@@ -9179,6 +9179,19 @@ public class ReferenceController extends BaseController {
 				AdjournmentMotion.updateCurNumber(num, houseType, strDevice);
 			}else if(strDevice.equals(ApplicationConstants.PROPRIETY_POINT)){
 				ProprietyPoint.updateCurNumber(num, houseType, strDevice);
+			}else if(strDevice.equals(ApplicationConstants.SPECIAL_MENTION_NOTICE)){
+				if(forDate!=null && !forDate.isEmpty()) {
+					try {
+						Date specialMentionNoticeDate = FormaterUtil.formatStringToDate(forDate, ApplicationConstants.DB_DATEFORMAT);
+						SpecialMentionNotice.updateCurNumber(num, specialMentionNoticeDate, houseType, strDevice);					
+					} catch(Exception e) {
+						logger.error("Invalid Date Format for Special Mention Notice Date Parameter in ReferenceController.updateCurNum()");
+						return "ERROR";
+					}
+				} else {
+					logger.error("Invalid Date for Special Mention Notice Date Parameter in ReferenceController.updateCurNum()");
+					return "ERROR";
+				}
 			}
 			
 			return "SUCCESS";
