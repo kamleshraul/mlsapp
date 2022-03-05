@@ -2365,6 +2365,7 @@
 						</div>
 						<hr>
 					</security:authorize>
+					
 					<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','QIS_CLERK','HDS_CLERK','HDS_ASSISTANT')">
 						<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 							<a href="#" id="memberwise_questions_report" class="butSim link">
@@ -2381,21 +2382,27 @@
 							</a> |
 							<hr> 
 						</security:authorize>
+						
 						<security:authorize access="hasAnyRole('QIS_CLERK')">
-						<a href="#" id="online_offline_submission_count_report" class="butSim link">
-							<spring:message code="question.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
-						</a> |
+							<a href="#" id="online_offline_submission_count_report" class="butSim link">
+								<spring:message code="question.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
+							</a> |
+							<a href="#" id="extended_grid_report" class="butSim link">
+								<spring:message code="question.extended_grid_report" text="Extended Grid Report"/>
+							</a> |
 						</security:authorize>
+						
 						<a href="#" id="group_bulletein_report" class="butSim link">
 							<spring:message code="question.group_bulletein_report" text="Group Bulletein Report"/>
 						</a> |
 						<a href="#" id="bulletein_report" class="butSim link">
 							<spring:message code="question.bulletein_report" text="Bulletein Report"/>
 						</a> |
+						
 						<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
-						<a href="#" id="groupwise_counts_report_for_bac" class="butSim link">
-							<spring:message code="question.bulletein_report" text="Groupwise BAC Report"/>
-						</a> |
+							<a href="#" id="groupwise_counts_report_for_bac" class="butSim link">
+								<spring:message code="question.bulletein_report" text="Groupwise BAC Report"/>
+							</a> |
 						</security:authorize>						
 						<a href="#" id="ahwal_report" class="butSim link">
 							<spring:message code="question.ahwal_report" text="Sankshipt Ahwal Report"/>
