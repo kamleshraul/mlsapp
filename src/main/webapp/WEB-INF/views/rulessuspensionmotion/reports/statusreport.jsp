@@ -130,6 +130,7 @@
 	        	border: 1px solid;
 	        	width: 800px;
 	        	padding: 10px;
+	            margin: auto;
 	        }	        
         }
         @media print{
@@ -137,6 +138,8 @@
 	        	width: 750px;
 	        	padding: 5px;
 	        	margin-top: 0px !important;
+	        	margin: auto;
+	        	margin-left: 50px;
 	        }
 	        
 	        .page-break-after-forced{
@@ -145,7 +148,7 @@
 	        
 	        @page{
 	        	size: 210mm 297mm !important;   /* auto is the initial value */
-  				margin: 0px 0px 0px 15px !important;
+  				margin: 0px 0px 0px 15px !important; 
 	        }  
 	        
 	        hr{
