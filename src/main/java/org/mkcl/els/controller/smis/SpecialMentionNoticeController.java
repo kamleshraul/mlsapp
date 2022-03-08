@@ -24,6 +24,7 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.controller.question.QuestionController;
+import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Constituency;
@@ -49,6 +50,7 @@ import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -2064,4 +2066,21 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 		return references;
 	}
 	
+	@Transactional
+	@Override
+	protected Boolean preDelete(final ModelMap model, final BaseDomain domain,
+			final HttpServletRequest request,final Long id) {
+		
+		SpecialMentionNotice specialMentionNotice=SpecialMentionNotice.findById(SpecialMentionNotice.class, id);
+		if(specialMentionNotice!=null) {
+			Status status = specialMentionNotice.getStatus();
+			if(status!=null
+					&& (ApplicationConstants.SPECIALMENTIONNOTICE_COMPLETE.equalsIgnoreCase(status.getType())
+							|| ApplicationConstants.SPECIALMENTIONNOTICE_INCOMPLETE.equalsIgnoreCase(status.getType()))) {
+				return false;
+			}
+		}
+		
+		return false;
+	}
 }

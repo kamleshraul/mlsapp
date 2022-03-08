@@ -28,6 +28,7 @@ import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.ProprietyPointDraft;
+import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
@@ -2450,6 +2451,23 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 			}
 		}
 		return references;
-	}	
+	}
+	
+	@Transactional
+	@Override
+	protected Boolean preDelete(final ModelMap model, final BaseDomain domain,
+			final HttpServletRequest request,final Long id) {
+		
+		ProprietyPoint proprietyPoint = ProprietyPoint.findById(ProprietyPoint.class, id);
+		if(proprietyPoint!=null) {
+			Status status = proprietyPoint.getStatus();
+			if(status!=null && 
+					(ApplicationConstants.PROPRIETYPOINT_COMPLETE.equalsIgnoreCase(status.getType().trim())
+					|| (ApplicationConstants.PROPRIETYPOINT_INCOMPLETE.equalsIgnoreCase(status.getType().trim())))){
+				return true;
+			}
+		}
+		return false;
+	}
 
 }
