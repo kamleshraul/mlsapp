@@ -27,6 +27,7 @@ import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.controller.question.QuestionController;
+import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Constituency;
@@ -2587,6 +2588,24 @@ public class RulesSuspensionMotionController extends GenericController<RulesSusp
 		}
 		
 		return false;
+	}
+	
+	@Transactional
+	@Override
+	protected Boolean preDelete(final ModelMap model, final BaseDomain domain,
+			final HttpServletRequest request,final Long id) {		
+		RulesSuspensionMotion rulesSuspensionMotion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, id);
+		if(rulesSuspensionMotion!=null){
+			Status status=rulesSuspensionMotion.getStatus();
+			if(status.getType().equals(ApplicationConstants.RULESSUSPENSIONMOTION_INCOMPLETE)
+					||status.getType().equals(ApplicationConstants.RULESSUSPENSIONMOTION_COMPLETE)){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
 	}
 
 }

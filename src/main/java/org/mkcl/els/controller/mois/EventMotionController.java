@@ -26,6 +26,7 @@ import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.controller.question.QuestionController;
+import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
@@ -2445,4 +2446,21 @@ public class EventMotionController extends GenericController<EventMotion>{
 		return "eventmotion/details";
 	}		
 	
+	@Transactional
+	@Override
+	protected Boolean preDelete(final ModelMap model, final BaseDomain domain,
+			final HttpServletRequest request,final Long id) {		
+		EventMotion eventMotion = EventMotion.findById(EventMotion.class, id);
+		if(eventMotion!=null){
+			Status status=eventMotion.getStatus();
+			if(status.getType().equals(ApplicationConstants.EVENTMOTION_INCOMPLETE)
+					||status.getType().equals(ApplicationConstants.EVENTMOTION_COMPLETE)){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
 }

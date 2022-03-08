@@ -26,6 +26,7 @@ import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.controller.question.QuestionController;
+import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
@@ -2630,6 +2631,24 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 			} catch (ELSException e) {
 				model.addAttribute("error", e.getParameter());
 			}
+		}
+	}
+	
+	@Transactional
+	@Override
+	protected Boolean preDelete(final ModelMap model, final BaseDomain domain,
+			final HttpServletRequest request,final Long id) {		
+		DiscussionMotion discussionMotion = DiscussionMotion.findById(DiscussionMotion.class, id);
+		if(discussionMotion!=null){
+			Status status=discussionMotion.getStatus();
+			if(status.getType().equals(ApplicationConstants.DISCUSSIONMOTION_INCOMPLETE)
+					||status.getType().equals(ApplicationConstants.DISCUSSIONMOTION_COMPLETE)){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
 		}
 	}
 }

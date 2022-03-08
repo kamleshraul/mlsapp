@@ -2740,7 +2740,7 @@ public class AppropriationBillMotionController extends GenericController<Appropr
 	@Override
 	protected Boolean preDelete(final ModelMap model, final BaseDomain domain,
 			final HttpServletRequest request,final Long id) {
-		Motion motion=Motion.findById(Motion.class, id);
+		AppropriationBillMotion motion=AppropriationBillMotion.findById(AppropriationBillMotion.class, id);
 		if(motion!=null){
 			Status status=motion.getStatus();
 			if(status.getType().equals(ApplicationConstants.APPROPRIATIONBILLMOTION_INCOMPLETE)||status.getType().equals(ApplicationConstants.APPROPRIATIONBILLMOTION_COMPLETE)){

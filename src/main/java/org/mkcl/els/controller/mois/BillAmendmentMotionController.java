@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -26,7 +25,7 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
-import org.mkcl.els.domain.AdjournmentMotion;
+import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.BillAmendmentMotion;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -36,8 +35,6 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
-import org.mkcl.els.domain.MemberMinister;
-import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Section;
 import org.mkcl.els.domain.SectionAmendment;
@@ -2267,4 +2264,24 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 //		reference.setNumber(String.valueOf(((BillAmendmentMotion)domain.getReferencedBillAmendmentMotion().getDevice()).getId()));
 		return reference;
 	}
+	
+	
+	@Transactional
+	@Override
+	protected Boolean preDelete(final ModelMap model, final BaseDomain domain,
+			final HttpServletRequest request,final Long id) {		
+		BillAmendmentMotion billAmendmentMotion = BillAmendmentMotion.findById(BillAmendmentMotion.class, id);
+		if(billAmendmentMotion!=null){
+			Status status=billAmendmentMotion.getStatus();
+			if(status.getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_INCOMPLETE)
+					||status.getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_COMPLETE)){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+	
 }

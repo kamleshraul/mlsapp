@@ -2776,7 +2776,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 	@Override
 	protected Boolean preDelete(final ModelMap model, final BaseDomain domain,
 			final HttpServletRequest request,final Long id) {
-		Motion motion=Motion.findById(Motion.class, id);
+		CutMotion motion=CutMotion.findById(CutMotion.class, id);
 		if(motion!=null){
 			Status status=motion.getStatus();
 			if(status.getType().equals(ApplicationConstants.CUTMOTION_INCOMPLETE)||status.getType().equals(ApplicationConstants.CUTMOTION_COMPLETE)){
