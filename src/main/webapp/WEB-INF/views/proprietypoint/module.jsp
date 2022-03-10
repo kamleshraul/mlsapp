@@ -223,6 +223,11 @@
 					reloadProprietyPointGrid();
 					$("#selectedFileCount").val("-");
 				}
+			});			
+			/**** Search Tab ****/
+			$('#search_tab').click(function() {
+				$("#selectionDiv1").hide();
+				searchInt();
 			});
 			/**** Bulk Putup ****/
 			$("#bulkputup_tab").click(function(){
@@ -320,7 +325,37 @@
 					+"&subDepartment="+$("#selectedSubDepartment").val()
 			);
 			loadSession();
-		}	
+		}		
+		/**** Search Facility ****/
+		function searchInt(id){
+			//$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var params="searchfacility=yes&usergroup="+$("#currentusergroup").val() +
+				        "&usergroupType="+$("#currentusergroupType").val() +
+				        "&houseType="+$("#selectedHouseType").val() +
+				        "&sessionType="+$("#selectedSessionType").val() +
+				        "&sessionYear="+$("#selectedSessionYear").val() +
+				        "&deviceType="+$("#selectedDeviceType").val();		
+			/* $.get('clubentity/init?'+params,function(data){
+				//$.fancybox.open(data,{autoSize:false,width:750,height:700});
+				if(data){
+					$.unblockUI();
+				}
+				$("#clubbingResultDiv").html(data);
+				$("#clubbingResultDiv").show();
+				$("#referencingResultDiv").hide();
+				$("#assistantDiv").hide();
+				$("#backToQuestionDiv").show();			
+			},'html').fail(function(){
+				$.unblockUI();
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			}); */
+			showTabByIdAndUrl('search_tab','devicesearch/init?'+params);
+		}
 		function memberProprietyPointsView() {
 			var parameters = "houseType=" + $("#selectedHouseType").val()
 			+ "&sessionYear=" + $("#selectedSessionYear").val()
@@ -684,6 +719,15 @@
 				   </spring:message>
 				</a>
 			</li>
+			<security:authorize access="hasAnyRole('PROIS_CLERK','PROIS_ASSISTANT', 'PROIS_UNDER_SECRETARY',
+			'PROIS_DEPUTY_SECRETARY','PROIS_PRINCIPAL_SECRETARY','PROIS_SPEAKER', 'PROIS_JOINT_SECRETARY',
+			'PROIS_SECRETARY', 'PROIS_OFFICER_ON_SPECIAL_DUTY', 'PROIS_DEPUTY_SPEAKER', 'PROIS_CHAIRMAN',
+			'PROIS_DEPUTY_CHAIRMAN', 'PROIS_SECTION_OFFICER', 'PROIS_UNDER_SECRETARY_COMMITTEE',
+			'SUPER_ADMIN','PROIS_ADDITIONAL_SECRETARY')">
+			<li>
+				<a id="search_tab" href="#" class="tab"><spring:message code="question.searchT" text="Search"></spring:message></a>
+			</li>
+			</security:authorize>
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">			
 			<li>
 				<a id="bulkputup_tab" href="#" class="tab">

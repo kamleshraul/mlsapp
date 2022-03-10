@@ -28,6 +28,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
+import org.mkcl.els.common.vo.SearchVO;
 import org.mkcl.els.repository.ProprietyPointRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -883,7 +884,12 @@ public class ProprietyPoint extends Device implements Serializable {
 		}
     }
 
-	/********************************************* Getters & Setters *******************************************/
+    public static List<SearchVO> fullTextSearchForSearching(String param, int start, int noOfRecords, String locale,
+			Map<String, String[]> requestMap) {
+		return getProprietyPointRepository().fullTextSearchForSearching(param,start,noOfRecords, locale, requestMap);
+	}
+
+    /********************************************* Getters & Setters *******************************************/
 	public HouseType getHouseType() {
 		return houseType;
 	}
@@ -987,8 +993,8 @@ public class ProprietyPoint extends Device implements Serializable {
 		}
 		return formattedProprietyPointDate;
 	}
-
-	public String getSubject() {
+    
+    public String getSubject() {
 		return subject;
 	}
 

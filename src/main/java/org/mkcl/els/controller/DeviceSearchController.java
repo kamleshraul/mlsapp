@@ -23,6 +23,7 @@ import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -104,7 +105,20 @@ public class DeviceSearchController extends BaseController{
 					masterVOs.add(masterVO);
 				}
 				model.addAttribute("groups",masterVOs);
-			}else{
+				
+			} else if(device.equals("SpecialMentionNotice") || device.equals("proprietypoint")) {
+				List<DeviceType> combinedDeviceTypes = new ArrayList<DeviceType>();
+				DeviceType smisDeviceType = DeviceType.findByType(ApplicationConstants.SPECIAL_MENTION_NOTICE, locale.toString());
+				combinedDeviceTypes.add(smisDeviceType);
+				DeviceType proisDeviceType = DeviceType.findByType(ApplicationConstants.PROPRIETY_POINT, locale.toString());
+				combinedDeviceTypes.add(proisDeviceType);
+				model.addAttribute("dTypes", combinedDeviceTypes);
+				
+				List<Ministry> ministries= Ministry.
+						findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale.toString()) ;
+				model.addAttribute("ministries", ministries);
+				
+			} else{
 				List<DeviceType> dTypes = DeviceType.
 						findAllByFieldName(DeviceType.class, "device", deviceType.getDevice(), "name", "asc", locale.toString());
 				model.addAttribute("dTypes", dTypes);
@@ -189,6 +203,9 @@ public class DeviceSearchController extends BaseController{
 								fullTextSearchForSearching(param, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
 					}else if(deviceType.getDevice().equals("SpecialMentionNotice")){
 						searchVOs = SpecialMentionNotice.
+								fullTextSearchForSearching(param, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
+					}else if(deviceType.getDevice().equals("proprietypoint")){
+						searchVOs = ProprietyPoint.
 								fullTextSearchForSearching(param, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
 					}
 					

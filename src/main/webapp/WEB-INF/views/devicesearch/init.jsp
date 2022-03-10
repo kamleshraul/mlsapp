@@ -793,6 +793,12 @@ td>table{
 		<c:when test="${fn:contains(deviceTypeType, 'resolutions_')}">
 		<th class="expand"><spring:message code="clubbing.subject" text="Subject"></spring:message></th>
 		</c:when>
+		<c:when test="${fn:contains(deviceTypeType, 'notices_specialmention')}">
+		<th class="expand"><spring:message code="clubbing.subject" text="Subject"></spring:message></th>
+		</c:when>
+		<c:when test="${fn:contains(deviceTypeType, 'proprietypoint')}">
+		<th class="expand"><spring:message code="clubbing.subject" text="Subject"></spring:message></th>
+		</c:when>
 		</c:choose>
 		<c:choose>
 		<c:when test="${fn:contains(deviceTypeType, 'questions_')}">
@@ -807,10 +813,16 @@ td>table{
 		<c:when test="${fn:contains(deviceTypeType, 'bills_')}">
 		<th class="expand"><spring:message code="clubbing.bill" text="Content Draft"></spring:message></th>
 		</c:when>
-		</c:choose>
-		<c:if test="${fn:contains(deviceTypeType, 'bills_')}">
+		<c:when test="${fn:contains(deviceTypeType, 'notices_specialmention')}">
+		<th class="expand"><spring:message code="clubbing.notices_specialmention" text="Special Mention Notice Content"></spring:message></th>
+		</c:when>
+		<c:when test="${fn:contains(deviceTypeType, 'proprietypoint')}">
+		<th class="expand"><spring:message code="clubbing.proprietypoint" text="Points of Propriety"></spring:message></th>
+		</c:when>
+		<c:when test="${fn:contains(deviceTypeType, 'bills_')}">
 			<th class="expand"><spring:message code="clubbing.billDetails" text="Bill Details"></spring:message></th>
-		</c:if>
+		</c:when>
+		</c:choose>
 		</tr>
 		</thead>
 		<tbody id="searchresultbody">
