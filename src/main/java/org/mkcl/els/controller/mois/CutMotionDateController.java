@@ -652,7 +652,16 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 			Integer discussionDatesCount = Integer.parseInt(request.getParameter("discussionDatesCount"));
 			for (int i = 1; i <= discussionDatesCount; i++) {
 				Date discussionDate = FormaterUtil.formatStringToDate(request.getParameter("discussionDate"+i), ApplicationConstants.DB_DATEFORMAT);
-				Date submissionEndDate = FormaterUtil.formatStringToDate(request.getParameter("submissionEndDate"+i), ApplicationConstants.DB_DATEFORMAT);
+				Date submissionEndDate = null;
+				String defaultSubmissionEndTime = "17:00:00";
+				CustomParameter csptDefaultSubmissionEndTimeForCutMotion = CustomParameter.findByName(CustomParameter.class, domain.getDeviceType().getType().toUpperCase()+"_DEFAULT_SUBMISSION_END_TIME", "");
+				if(csptDefaultSubmissionEndTimeForCutMotion!=null && csptDefaultSubmissionEndTimeForCutMotion.getValue()!=null) {
+					defaultSubmissionEndTime = csptDefaultSubmissionEndTimeForCutMotion.getValue();
+				}
+				StringBuffer submissionEndDateStr = new StringBuffer(request.getParameter("submissionEndDate"+i));
+				submissionEndDateStr.append(" ");
+				submissionEndDateStr.append(defaultSubmissionEndTime);
+				submissionEndDate = FormaterUtil.formatStringToDate(submissionEndDateStr.toString(), ApplicationConstants.DB_DATETIME__24HOURS_FORMAT);
 				Integer departmentsCount = Integer.parseInt(request.getParameter("discussionDate"+i+"_departmentsCount"));
 				if(departmentsCount.intValue()==0) { //user left departments unselected
 					CutMotionDepartmentDatePriority departmentDateForDiscussionDate = null;
@@ -778,7 +787,16 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 	private void setDepartmentDatesForDiscussionDates(CutMotionDate cutMotionDate, final ModelMap model, final HttpServletRequest request) {
 		List<CutMotionDepartmentDatePriority> departmentDates = new ArrayList<CutMotionDepartmentDatePriority>();
 		Date discussionDate = FormaterUtil.formatStringToDate(request.getParameter("discussionDate"), ApplicationConstants.DB_DATEFORMAT);
-		Date submissionEndDate = FormaterUtil.formatStringToDate(request.getParameter("submissionEndDate"), ApplicationConstants.DB_DATEFORMAT);			
+		Date submissionEndDate = null;
+		String defaultSubmissionEndTime = "17:00:00";
+		CustomParameter csptDefaultSubmissionEndTimeForCutMotion = CustomParameter.findByName(CustomParameter.class, cutMotionDate.getDeviceType().getType().toUpperCase()+"_DEFAULT_SUBMISSION_END_TIME", "");
+		if(csptDefaultSubmissionEndTimeForCutMotion!=null && csptDefaultSubmissionEndTimeForCutMotion.getValue()!=null) {
+			defaultSubmissionEndTime = csptDefaultSubmissionEndTimeForCutMotion.getValue();
+		}
+		StringBuffer submissionEndDateStr = new StringBuffer(request.getParameter("submissionEndDate"));
+		submissionEndDateStr.append(" ");
+		submissionEndDateStr.append(defaultSubmissionEndTime);
+		submissionEndDate = FormaterUtil.formatStringToDate(submissionEndDateStr.toString(), ApplicationConstants.DB_DATETIME__24HOURS_FORMAT);
 		String[] selectedDepartmentsArr = request.getParameter("selectedDepartmentsForDiscussionDate").split(",");
 		if(selectedDepartmentsArr.length==1 && selectedDepartmentsArr[0].equals("null")) { //user left departments unselected
 			CutMotionDepartmentDatePriority departmentDateForDiscussionDate = null;
@@ -985,6 +1003,11 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 						
 						/**** Status,Internal Status and recommendation Status is set ****/
 						Status newstatus = Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTIONDATE_DATE_SUBMIT, domain.getLocale());
+						CustomParameter csptAutoApprovalForCutMotionDate = CustomParameter.findByName(CustomParameter.class, "CUTMOTIONDATE_AUTO_APPROVAL_ALLOWED", "");
+						if(csptAutoApprovalForCutMotionDate!=null && csptAutoApprovalForCutMotionDate.getValue()!=null
+								&& csptAutoApprovalForCutMotionDate.getValue().equalsIgnoreCase("YES")) {
+							newstatus = Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTIONDATE_FINAL_DATE_ADMISSION, domain.getLocale());
+						}
 						domain.setStatus(newstatus);
 						domain.setInternalStatus(newstatus);
 						domain.setRecommendationStatus(newstatus);
@@ -1070,6 +1093,11 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 					}
 					
 					Status newstatus = Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTIONDATE_DATE_SUBMIT, domain.getLocale());
+					CustomParameter csptAutoApprovalForCutMotionDate = CustomParameter.findByName(CustomParameter.class, "CUTMOTIONDATE_AUTO_APPROVAL_ALLOWED", "");
+					if(csptAutoApprovalForCutMotionDate!=null && csptAutoApprovalForCutMotionDate.getValue()!=null
+							&& csptAutoApprovalForCutMotionDate.getValue().equalsIgnoreCase("YES")) {
+						newstatus = Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTIONDATE_FINAL_DATE_ADMISSION, domain.getLocale());
+					}
 					domain.setStatus(newstatus);
 					domain.setInternalStatus(newstatus);
 					domain.setRecommendationStatus(newstatus);
