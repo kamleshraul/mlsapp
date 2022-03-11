@@ -246,6 +246,7 @@
         	<input type="hidden" id="topNotificationForUpperhouseMembers" value="<spring:message code='generic.topNotificationForUpperhouseMembers' text=''/>"/>
        		<input type="hidden" id="markAllNotificationsAsReadPrompt" value="<spring:message code='notification.markAllAsReadPrompt' text='Do you really want to mark all pending notifications as read?'/>"/>
        		<input type="hidden" id="system_notifier_name" value="<spring:message code='notification.system_username' text='System Notifier'/>"/>
+			<input type="hidden" id="submittedParliamentaryDevicesCannotBeDeletedPrompt" value="<spring:message code='generic.submittedParliamentaryDeviceCannotBeDeletedPrompt' text='parliamentary devices cannot be deleted post submission'></spring:message>" />
         	
         <div id="container" class="clearfix">
 			<div id="page">

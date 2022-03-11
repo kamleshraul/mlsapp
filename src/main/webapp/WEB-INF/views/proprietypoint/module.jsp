@@ -408,21 +408,27 @@
 				return;
 			}
 			else{
-				$.prompt($('#confirmDeleteMessage').val()+ row,{
-					buttons: {Ok:true, Cancel:false}, callback: function(v){
-			        if(v){
-				        $.delete_('proprietypoint/'+row+'/delete', null, function(data, textStatus, XMLHttpRequest) {
-				        	showProprietyPointList();
-				        }).fail(function(){
-							if($("#ErrorMsg").val()!=''){
-								$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-							}else{
-								$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-							}
-							scrollTop();
-						});
-			        }
-				}});
+				deviceNumber = $("#grid").jqGrid ('getCell', row, 'number');
+			    if(deviceNumber!='-') {
+			    	$.prompt($('#submittedParliamentaryDevicesCannotBeDeletedPrompt').val());
+					return;
+			    } else {
+					$.prompt($('#confirmDeleteMessage').val()+ row,{
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+					        $.delete_('proprietypoint/'+row+'/delete', null, function(data, textStatus, XMLHttpRequest) {
+					        	showProprietyPointList();
+					        }).fail(function(){
+								if($("#ErrorMsg").val()!=''){
+									$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+								}else{
+									$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+								}
+								scrollTop();
+							});
+				        }
+					}});			    	
+			    }
 			}
 		}
 		function convertToDbFormat(date){

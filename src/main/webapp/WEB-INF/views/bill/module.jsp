@@ -160,14 +160,20 @@
 				return;
 			}
 			else{
-				$.prompt($('#confirmDeleteMessage').val()+ row,{
-					buttons: {Ok:true, Cancel:false}, callback: function(v){
-			        if(v){
-				        $.delete_('bill/'+row+'/delete', null, function(data, textStatus, XMLHttpRequest) {
-					    showBillList();
-				        });
-			        }
-				}});
+				deviceNumber = $("#grid").jqGrid ('getCell', row, 'number');
+			    if(deviceNumber!='-') {
+			    	$.prompt($('#submittedParliamentaryDevicesCannotBeDeletedPrompt').val());
+					return;
+			    } else {
+					$.prompt($('#confirmDeleteMessage').val()+ row,{
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+					        $.delete_('bill/'+row+'/delete', null, function(data, textStatus, XMLHttpRequest) {
+						    showBillList();
+					        });
+				        }
+					}});			    	
+			    }
 			}
 		}
 		
