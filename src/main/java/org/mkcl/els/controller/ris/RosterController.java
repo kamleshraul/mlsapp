@@ -940,6 +940,8 @@ public class RosterController extends GenericController<Roster>{
 			
 			List report = org.mkcl.els.domain.Query.findReport("RIS_ROSTER_REPORT_ROSTER", parametersMap);
 			model.addAttribute("report", report);
+			
+			if(roster.getCommitteeMeeting()!=null)
 			model.addAttribute("committeName", roster.getCommitteeMeeting().getCommittee().getCommitteeName().getDisplayName());
 			
 			model.addAttribute("rosterDate", FormaterUtil.formatDateToString(roster.getStartTime(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
@@ -947,7 +949,7 @@ public class RosterController extends GenericController<Roster>{
 			Map reportFields = simplifyRosterSlotReport(report);
 			
 			//generate report
-			generateReportUsingFOP(new Object[]{reportFields}, "template_roster", "PDF", "roster slots report", locale.toString());
+			//generateReportUsingFOP(new Object[]{reportFields}, "template_roster", "PDF", "roster slots report", locale.toString());
 			returnValue = "roster/rosterreport";
 					
 		}catch (Exception e) {

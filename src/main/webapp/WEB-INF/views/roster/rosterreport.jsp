@@ -41,7 +41,9 @@
 		<br /><br />
 		<span style="font-size: 14px; color: black; font-weight: bold;"><spring:message code="generic.date" text="Date" />: ${rosterDate}</span>
 		<br /><br />
+		<c:if test="${committeName!=NULL}">
 		<span style="font-size: 14px; color: black; font-weight: bold;"><spring:message code="committeeName" text="Committee Name" />: ${committeName}</span>
+		</c:if>
 	</div>
 	<div style="min-width: 800px; overflow: scroll; margin: 10px 0px 0px 10px;" id="repDiv">
 		<table border="1" style="width: 100%;">
