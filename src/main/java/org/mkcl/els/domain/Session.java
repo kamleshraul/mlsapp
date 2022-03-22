@@ -102,6 +102,14 @@ public class Session extends BaseDomain implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date tentativeEndDate;
 
+    /** The actual start date. */
+    @Temporal(TemporalType.DATE)
+    private Date actualStartDate;
+
+    /** The actual end date. */
+    @Temporal(TemporalType.DATE)
+    private Date actualEndDate;
+
     /*
      * devices enabled for a session.This will be a list of enabled device type separated
      * by comma
@@ -651,6 +659,47 @@ public class Session extends BaseDomain implements Serializable {
 	public void setTentativeEndDate(final Date tentativeEndDate) {
 		this.tentativeEndDate = tentativeEndDate;
 	}
+
+
+	/**
+	 * Gets the actual start date.
+	 *
+	 * @return the actual start date
+	 */
+	public Date getActualStartDate() {
+		return actualStartDate;
+	}
+
+
+	/**
+	 * Sets the actual start date.
+	 *
+	 * @param actualStartDate the new actual start date
+	 */
+	public void setActualStartDate(final Date actualStartDate) {
+		this.actualStartDate = actualStartDate;
+	}
+
+
+	/**
+	 * Gets the actual end date.
+	 *
+	 * @return the actual end date
+	 */
+	public Date getActualEndDate() {
+		return actualEndDate;
+	}
+
+
+	/**
+	 * Sets the actual end date.
+	 *
+	 * @param actualEndDate the new actual end date
+	 */
+	public void setActualEndDate(final Date actualEndDate) {
+		this.actualEndDate = actualEndDate;
+	}
+	
 
 	/**
 	 * Gets the device types enabled.
