@@ -372,7 +372,7 @@ $('#ministries').change(function(){
 		<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
 	
-	
+	</c:if>
 
 	<p>
 	<table>
@@ -448,7 +448,7 @@ $('#ministries').change(function(){
 		</c:choose>	
 	</table>
 	</p>
-	</c:if>
+	
 		<p id="internalStatusDiv">
 	<label class="small"><spring:message code="discussionmotion.currentStatus" text="Current Status"/></label>
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly" class="sText">
