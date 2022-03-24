@@ -357,7 +357,7 @@
 		<input id="type" name="type" value="${discussionMotionType}" type="hidden">		
 		<form:errors path="type" cssClass="validationError"/>		
 	</p>	
-	
+	<div>
 	<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
 	<p>
 		<label class="small"><spring:message code="discussionmotion.primaryMember" text="Primary Member"/>*</label>
@@ -369,7 +369,8 @@
 		<input type="text" readonly="readonly" value="${constituency}" class="sText" id="constituency" name="constituency">		
 	</p>
 	</security:authorize>
-	
+	</div>
+	<div>
 	<security:authorize access="hasAnyRole('DMOIS_TYPIST')">		
 	<p>
 		<label class="small"><spring:message code="discussionmotion.primaryMember" text="Primary Member"/>*</label>
@@ -378,23 +379,25 @@
 		<form:errors path="primaryMember" cssClass="validationError"/>		
 	</p>	
 	</security:authorize>		
-	
-	
-	<p>
+	</div>
 
-		<div class="small" style="margin-left:160px;">
+		<p>
+			<label ><spring:message code="question.supportingMembers" text="Supporting Members"/></label>
+	
+		</p>
+		
+		<div  style="width:50%;margin-bottom: 10px;margin-left:160px; border-style: groove;border-color: coral;border-width: 1px;">
 		<c:if test="${!(empty membersbyPartyType)}">		
 		<select  id="multipleSelectID"  name="selectedSupportingMembers" multiple>
 		<c:forEach items="${membersbyPartyType}" var="i">
 		<option value="${i.id}">${i.getName()}</option>
 		</c:forEach>		
 		
-		
 		</select>
 		</c:if>
 		</div>
-	</p>	
-	
+
+		
 	
 
 	<p>
