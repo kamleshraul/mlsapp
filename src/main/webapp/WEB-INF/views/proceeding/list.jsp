@@ -264,12 +264,7 @@
 								}
 					        }
 						});
-						
-					
-			
-						
-				
-				}else{
+}else{
 					$("#selectionDiv1").hide();			
 					$("#cancelFn").val("rowDblClickHandler");			
 					$('#key').val(rowid);
