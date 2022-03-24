@@ -3766,6 +3766,7 @@ public class ReferenceController extends BaseController {
 							masterVo.setName(p.getRevisedContent());
 							masterVo.setType(p.getPageHeading());
 							masterVo.setDisplayName(p.getMainHeading());
+							masterVo.setValue(p.getProceeding().getId().toString());
 							masterVOs.add(masterVo);
 						}
 						
