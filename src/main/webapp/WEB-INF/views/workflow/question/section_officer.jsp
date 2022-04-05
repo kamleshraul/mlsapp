@@ -772,7 +772,8 @@
 			}
 			
 			if($('#internalStatusType').val()=="question_final_rejection"){
-				if($('#rejectionReason').val()==""){
+				var rejectedWithReason = $("#internalStatusMaster option[value='question_processed_rejectionWithReason']").text();
+				if($('#recommendationStatus').val()==rejectedWithReason && $('#rejectionReason').val()==""){
 					$.prompt($('#noRejectionReasonProvidedMsg').val());
 				}else{ 
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
