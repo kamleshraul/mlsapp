@@ -1147,8 +1147,13 @@ import org.springframework.beans.factory.annotation.Configurable;
 	}
 	
 	//For Grav website 
-		public static MemberBiographyVO findBiographyForGrav(final long id,final String strHouseType, final String locale) {
-			return getMemberRepository().findBiographyForGrav(id,strHouseType,locale);
+	public static MemberBiographyVO findBiographyForGrav(final long id,final String strHouseType, final String locale) {
+		return getMemberRepository().findBiographyForGrav(id,strHouseType,locale);
+	}
+		
+	//For Mobile Application
+	public static MemberBiographyVO findBiographyForMobileApp(final long id,final String strHouseType, final String locale) {
+		return getMemberRepository().findBiographyForMobileApp(id,strHouseType,locale);
 	}
 	
 	// ------------------------------------------Getters/Setters-----------------------------------
@@ -2288,6 +2293,14 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public static List<Member> findMembersWithHousetype(final String houseType,
 			final String locale) {
 		List<Member> members = getMemberRepository().findMembersWithHousetype(houseType, locale);
+		
+		
+		return members;
+	}
+	
+	public static List<Member> findMembersWithHousetype(final String houseType, final String sortBy, final String sortOrder, 
+			final String locale) {
+		List<Member> members = getMemberRepository().findMembersWithHousetype(houseType, sortBy, sortOrder, locale);
 		
 		
 		return members;

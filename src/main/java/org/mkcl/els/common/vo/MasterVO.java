@@ -62,6 +62,13 @@ public class MasterVO {
 		this.name = name;
 	}
 
+	public MasterVO(final Long id, final String name, final String value) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.value = value;
+	}
+
 	public MasterVO() {
         super();
     }

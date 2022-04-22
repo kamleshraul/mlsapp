@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.CalenderVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberBiographiesVO;
@@ -201,6 +202,40 @@ public class MemberBiographyWebService {
     	   return biographiesVOs;
   }
     
+    //For Mobile Application
+    //List of members by housetype 
+    @RequestMapping(value="biographyforMobileApp/allMembersByHouseType/{houseType}/{locale}")
+    public @ResponseBody MemberBiographiesVO getAllMembersForMobileAppByHouseType(@PathVariable("houseType") final String houseType, 
+    			@PathVariable("locale") final String locale,
+    			HttpServletRequest request, HttpServletResponse response) throws ELSException, UnsupportedEncodingException{
+    		List<Member> members =
+    		Member.findMembersWithHousetype(houseType, "birthDate", ApplicationConstants.ASC, locale);
+    		MemberBiographiesVO biographiesVOs = new MemberBiographiesVO();
+    		
+    		for(Member member : members){
+    			
+    			Long memberId = member.getId();
+    				String initialLetterParameter = request.getParameter("letter");
+    				if(initialLetterParameter!=null && !initialLetterParameter.isEmpty()) {
+    					initialLetterParameter = new String(initialLetterParameter.getBytes("ISO-8859-1"),"UTF-8");
+    				}
+    				if(initialLetterParameter!=null && !initialLetterParameter.isEmpty() && !member.getFirstName().startsWith(initialLetterParameter)  && !initialLetterParameter.startsWith("सर्व")) {
+    					continue;
+    				} else {
+    					try{
+    	    				MemberBiographyVO biographyVO = Member.findBiographyForMobileApp(memberId.longValue(), houseType, locale);
+    	    				biographiesVOs.getMemberBiographyVOs().add(biographyVO);
+    	    				
+    	    			} catch(IllegalArgumentException iae){
+    	    				System.out.println(memberId);
+    	    				iae.printStackTrace();
+    	    			}
+    				}	    			
+    		}
+    		response.setHeader("Access-Control-Allow-Origin", "*");
+    	   return biographiesVOs;
+  }
+    
     //All members districtwise for website
     @RequestMapping(value="membersforGrav/allMembersDistrictwise/{houseType}/{locale}")
 	public @ResponseBody List<MemberBiographyVO> findActiveMembersByDistricts(@PathVariable("houseType") final String houseType,
@@ -301,6 +336,52 @@ public class MemberBiographyWebService {
    		}
    		response.setHeader("Access-Control-Allow-Origin", "*");
    		return members;
+   	}
+    
+	//All members partywise for mobile app
+    @RequestMapping(value="membersforMobileApp/allMembersPartywise/{houseType}/{locale}")
+   	public @ResponseBody MemberBiographiesVO findActiveMembersForMobileAppByParty(@PathVariable("houseType") final String strHouseType,
+   			@PathVariable("locale")  final Locale locale,
+   			final HttpServletRequest request,final HttpServletResponse response)throws ELSException, UnsupportedEncodingException {
+    	//Member.findMembersWithHousetype(houseType, locale.toString());
+    	HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+    	House house = House.find(houseType, new Date(), locale.toString());
+   		String partyId = request.getParameter("partyId");
+   
+   		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+   		
+   		MemberBiographiesVO biographiesVOs = new MemberBiographiesVO();
+			
+		if(customParameter!=null){
+   			Map<String, String[]> parameters = new HashMap<String, String[]>();
+   			parameters.put("locale", new String[]{locale.toString()});
+   			parameters.put("houseid", new String[]{house.getId().toString()});
+   			parameters.put("partyId", new String[]{partyId});
+   			List result = Query.findReport("ACTIVE_MEMBERS_PARTYWISE_FORWEBSITE", parameters);
+   			
+   			for(int i=0;i<result.size();i++){
+   		       	 Object[] row = (Object[])result.get(i);
+   		       	 
+   		      String initialLetterParameter = request.getParameter("letter");
+				if(initialLetterParameter!=null && !initialLetterParameter.isEmpty()) {
+					initialLetterParameter = new String(initialLetterParameter.getBytes("ISO-8859-1"),"UTF-8");
+				}
+				if(initialLetterParameter!=null && !initialLetterParameter.isEmpty() && !row[2].toString().startsWith(initialLetterParameter)  && !initialLetterParameter.startsWith("सर्व")) {
+					continue;
+				} else {
+					try{
+	    				MemberBiographyVO biographyVO = Member.findBiographyForMobileApp(Long.parseLong(row[6].toString()), houseType.getType(), locale.toString());
+	    				biographiesVOs.getMemberBiographyVOs().add(biographyVO);
+	    				
+	    			} catch(IllegalArgumentException iae){
+	    				System.out.println(row[6].toString());
+	    				iae.printStackTrace();
+	    			}
+				}
+   			}
+   		}
+   		response.setHeader("Access-Control-Allow-Origin", "*");
+   		return biographiesVOs;
    	}
     
 	//All members CalenderEvent for website

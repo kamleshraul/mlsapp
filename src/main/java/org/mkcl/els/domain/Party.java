@@ -157,6 +157,10 @@ public class Party extends BaseDomain implements Serializable {
     	
     	return false;
     }
+
+	public String findCurrentPartySymbolPhoto() {
+		return getPartyRepository().findCurrentPartySymbolPhoto(this);
+	}
     
     // -------------------------------Getters/Setters---------------------------------------------
     /**

@@ -3335,6 +3335,44 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		return members;
 	}
 	
+	public List<Member> findMembersWithHousetype(final String houseType, final String sortBy, final String sortOrder,  
+					final String locale) {
+		CustomParameter parameter =
+			CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+		String currentDate = 
+			FormaterUtil.formatDateToString(new Date(), parameter.getValue());
+
+		StringBuffer strQueryBuffer = new StringBuffer();
+
+		String strQuery = "SELECT m from " +
+			" Member m JOIN m.houseMemberRoleAssociations mhr " +
+			" LEFT JOIN mhr.role mr " +
+			" LEFT JOIN mr.houseType ht " +
+			"LEFT JOIN mhr.constituency c"+
+			" WHERE mhr.fromDate <= '" + currentDate  + "'" +
+			" AND mhr.toDate >= '" + currentDate  + "'" +			
+			" AND ht.type = '" + houseType  + "'" +	
+			" AND mr.type = 'MEMBER'"+
+			" AND ht.locale = '" + locale + "'";
+		
+		strQueryBuffer.append(strQuery);
+		
+		if(sortBy!=null && !sortBy.isEmpty()) {
+			strQueryBuffer.append(" ORDER BY m." + sortBy);
+		}
+		
+		if(sortOrder!=null && sortOrder.equals(ApplicationConstants.ASC)) {
+			strQueryBuffer.append(" " + ApplicationConstants.ASC);
+		} 
+		else if(sortOrder!=null && sortOrder.equals(ApplicationConstants.DESC)) {
+			strQueryBuffer.append(" " + ApplicationConstants.DESC);
+		}
+
+		TypedQuery<Member> query = this.em().createQuery(strQueryBuffer.toString(), Member.class);
+		List<Member> members = query.getResultList();
+		return members;
+	}
+	
 	public List<Member> findMembersWithConstituency(final String houseType,final Long constituency) {
 		CustomParameter parameter =
 			CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
@@ -4376,6 +4414,794 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		//position held is left out right now.
 		return memberBiographyVO;
 	}
+	
+	public MemberBiographyVO findBiographyForMobileApp(final long id, final String strHouseType, final String locale) {
+		CustomParameter parameter = CustomParameter.findByName(
+				CustomParameter.class, "SERVER_DATEFORMAT_DDMMMYYYY", "");
+		SimpleDateFormat dateFormat=FormaterUtil.getDateFormatter(parameter.getValue(), locale);
+		NumberFormat formatWithGrouping=FormaterUtil.getNumberFormatterGrouping(locale);
+		NumberFormat formatWithoutGrouping=FormaterUtil.getNumberFormatterNoGrouping(locale);
+		Member m=Member.findById(Member.class, id);
+		MemberBiographyVO memberBiographyVO=new MemberBiographyVO();
+		memberBiographyVO.setId(m.getId());
+		
+		HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+		
+		//the header in the biography page.
+		//for the time being setting party flag to "-"
+//		memberBiographyVO.setPartyFlag("-");
+		if(m.getTitle()==null){
+			memberBiographyVO.setTitle("-");
+		}else{
+			memberBiographyVO.setTitle(m.getTitle().getName());
+		}
+		if(m.getAlias().isEmpty()){
+			memberBiographyVO.setAlias("-");
+		}else{
+			memberBiographyVO.setAlias(m.getAlias());
+		}
+		memberBiographyVO.setEnableAliasing(m.getAliasEnabled());
+		memberBiographyVO.setFirstName(m.getFirstName());
+		memberBiographyVO.setMiddleName(m.getMiddleName());
+		memberBiographyVO.setLastName(m.getLastName());
+		if(m.getPhoto().isEmpty()){
+			memberBiographyVO.setPhoto("-");
+		}else{
+			memberBiographyVO.setPhoto(m.getPhoto());
+		}
+		Constituency constituency=findConstituency(m.getId());
+		if(constituency!=null){
+			memberBiographyVO.setConstituency(constituency.getDisplayName());
+		}else{
+			memberBiographyVO.setConstituency("-");
+		}
+		Party party=findParty(m.getId());
+		if(party!=null){
+		memberBiographyVO.setPartyName(party.getName());
+		}else{
+			memberBiographyVO.setPartyName("-");
+		}
+		if(m.getGender()!=null){
+		memberBiographyVO.setGender(m.getGender().getName());
+		}else{
+			memberBiographyVO.setGender("-");
+		}
+//		if(m.getMaritalStatus()!=null){
+//			memberBiographyVO.setMaritalStatus(m.getMaritalStatus().getName());		
+//		}else{
+//			memberBiographyVO.setMaritalStatus("-");
+//		}
+//		memberBiographyVO.setFatherName("-");
+//		memberBiographyVO.setMotherName("-");
+//		memberBiographyVO.setNoOfDaughter("-");
+//		memberBiographyVO.setNoOfSons("-");
+//		memberBiographyVO.setNoOfChildren("-");
+//		memberBiographyVO.setSpouseName("-");
+//		memberBiographyVO.setSonCount(0);
+//		memberBiographyVO.setDaughterCount(0);
+//		if(m.getFamilyMembers()!=null&&!m.getFamilyMembers().isEmpty()){
+//		//right now we are doing just for marathi.and so we are comparing directly with the ids.
+//			int noOfSons=0;
+//			int noOfDaughters=0;
+//			int noOfChildren=0;            
+//
+//			for(FamilyMember i:m.getFamilyMembers()){
+//				if(i.getRelation().getType().equals(ApplicationConstants.WIFE)||i.getRelation().getType().equals(ApplicationConstants.HUSBAND)){
+//					memberBiographyVO.setSpouseName(i.getName());
+//					memberBiographyVO.setSpouseRelation(i.getRelation().getName());
+//				}else if(i.getRelation().getType().equals(ApplicationConstants.SON)){
+//					noOfSons++;
+//				}else if(i.getRelation().getType().equals(ApplicationConstants.DAUGHTER)){
+//					noOfDaughters++;
+//				}
+//			}
+//			if(noOfSons==0){
+//				memberBiographyVO.setNoOfSons("-");
+//			}else{
+//				memberBiographyVO.setNoOfSons(formatWithoutGrouping.format(noOfSons));
+//				memberBiographyVO.setSonCount(noOfSons);
+//			}
+//			if(noOfDaughters==0){
+//				memberBiographyVO.setNoOfDaughter("-");
+//			}else{
+//				memberBiographyVO.setNoOfDaughter(formatWithoutGrouping.format(noOfDaughters));
+//				memberBiographyVO.setDaughterCount(noOfDaughters);
+//			}
+//			noOfChildren=noOfDaughters+noOfSons;
+//			if(noOfChildren==0){
+//				memberBiographyVO.setNoOfChildren("-");
+//			}else{
+//				memberBiographyVO.setNoOfChildren(formatWithoutGrouping.format(noOfChildren));
+//			}
+//		}
+		//birth date and birth place
+		if(m.getBirthDate()==null){
+			memberBiographyVO.setBirthDate("-");
+		}else{
+			memberBiographyVO.setBirthDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(m.getBirthDate()), locale));
+		}
+//		memberBiographyVO.setPlaceOfBirth(m.getBirthPlace().trim());
+
+		//death date,condolence date and obituary
+//		if(m.getDeathDate()==null){
+//			memberBiographyVO.setDeathDate("-");
+//		}else{
+//			memberBiographyVO.setDeathDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(m.getDeathDate()),locale));
+//		}
+//		if(m.getCondolenceDate()==null){
+//			memberBiographyVO.setCondolenceDate("-");
+//		}else{
+//			memberBiographyVO.setCondolenceDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(m.getCondolenceDate()),locale));
+//		}
+//		if(m.getObituary()==null){
+//			memberBiographyVO.setObituary("-");
+//		}else{
+//			memberBiographyVO.setObituary(m.getObituary().trim());
+//		}
+//		if(m.getMarriageDate()==null){
+//			memberBiographyVO.setMarriageDate("-");
+//		}else{
+//			memberBiographyVO.setMarriageDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(m.getMarriageDate()),locale));
+//		}
+//		//qualifications.this will be separated by line
+//		List<Qualification> qualifications=m.getQualifications();
+//		if(qualifications!=null&&!qualifications.isEmpty()){
+//			StringBuffer buffer=new StringBuffer();
+//			int count=0;
+//			for(Qualification i:qualifications){
+//				if(count>0){
+//					buffer.append("<br>"+i.getDetails());
+//				}else{
+//					if(i.getDetails().isEmpty()){
+//						if(i.getDegree()!=null){
+//							buffer.append(i.getDegree().getName());
+//						}else{
+//							buffer.append("-");
+//						}
+//					}else{
+//						buffer.append(i.getDetails());
+//					}
+//				}
+//			}
+//			memberBiographyVO.setEducationalQualification(buffer.toString());
+//		}else if(qualifications==null){
+//			memberBiographyVO.setEducationalQualification("-");
+//		}else if(qualifications.isEmpty()){
+//			memberBiographyVO.setEducationalQualification("-");
+//		}
+//		//languages.This will be comma separated values
+//		CustomParameter andLocalizedName=CustomParameter.findByName(CustomParameter.class,"AND", locale);
+//		List<Language> languages=m.getLanguages();
+//		if(languages!=null&&!languages.isEmpty()){
+//			Map<Integer,Language> languageMap=new HashMap<Integer, Language>();
+//			Set<Integer> keys=new TreeSet<Integer>();
+//			for(Language i:m.getLanguages()){
+//				languageMap.put(i.getPriority(),i);
+//				keys.add(i.getPriority());
+//			}
+//			List<Language> sortedLanguage=new ArrayList<Language>();
+//			for(Integer i:keys){
+//				sortedLanguage.add(languageMap.get(i));
+//			}
+//			StringBuffer buffer=new StringBuffer();
+//			int size=sortedLanguage.size();
+//			int count=0;
+//			for(Language i:sortedLanguage){
+//				count++;
+//				if(count==size-1){
+//					buffer.append(i.getName()+" "+andLocalizedName.getValue()+" ");
+//				}else if(count==size){
+//					buffer.append(i.getName());
+//				}else{
+//					buffer.append(i.getName()+", ");
+//				}
+//			}
+//			//buffer.deleteCharAt(buffer.length()-1);
+//			memberBiographyVO.setLanguagesKnown(buffer.toString());
+//		}else if(languages==null){
+//			memberBiographyVO.setLanguagesKnown("-");
+//		}else if(languages.isEmpty()){
+//			memberBiographyVO.setLanguagesKnown("-");
+//		}
+//		//profession.this will also be comma separated values
+//		List<Profession> professions=m.getProfessions();
+//		if(professions!=null&&!professions.isEmpty()){
+//			StringBuffer buffer=new StringBuffer();
+//			int size=professions.size();
+//			int count=0;
+//			for(Profession i:professions){
+//				count++;
+//				if(count==size-1){
+//					buffer.append(i.getName()+" "+andLocalizedName.getValue()+" ");
+//				}else if(count==size){
+//					buffer.append(i.getName());
+//				}else{
+//					buffer.append(i.getName()+", ");
+//				}
+//			}
+//			// buffer.deleteCharAt(buffer.length()-1);
+//			memberBiographyVO.setProfession(buffer.toString());
+//		}if(professions==null){
+//			memberBiographyVO.setProfession("-");
+//		}else if(professions.isEmpty()){
+//			memberBiographyVO.setProfession("-");
+//		}
+//		//contact info
+//		Contact contact=m.getContact();
+//		if(contact==null){
+//			memberBiographyVO.setEmail("-");
+//			memberBiographyVO.setWebsite("-");
+//			memberBiographyVO.setFax1("-");
+//			memberBiographyVO.setFax2("-");
+//			memberBiographyVO.setFax3("-");
+//			memberBiographyVO.setFax4("-");
+//			memberBiographyVO.setFax5("-");
+//			memberBiographyVO.setFax6("-");
+//			memberBiographyVO.setFax7("-");
+//			memberBiographyVO.setFax8("-");
+//			memberBiographyVO.setFax9("-");
+//			memberBiographyVO.setFax10("-");
+//			memberBiographyVO.setFax11("-");
+//			memberBiographyVO.setFax12("-");
+//			memberBiographyVO.setMobile("-");
+//			memberBiographyVO.setTelephone1("-");
+//			memberBiographyVO.setTelephone2("-");
+//			memberBiographyVO.setTelephone3("-");
+//			memberBiographyVO.setTelephone4("-");
+//			memberBiographyVO.setTelephone5("-");
+//			memberBiographyVO.setTelephone6("-");
+//			memberBiographyVO.setTelephone7("-");
+//			memberBiographyVO.setTelephone8("-");
+//			memberBiographyVO.setTelephone9("-");
+//			memberBiographyVO.setTelephone10("-");
+//			memberBiographyVO.setTelephone11("-");
+//			memberBiographyVO.setTelephone12("-");
+//
+//		}else{
+//			memberBiographyVO.setEmail("-");
+//			memberBiographyVO.setWebsite("-");
+//			memberBiographyVO.setFax1("-");
+//			memberBiographyVO.setFax2("-");
+//			memberBiographyVO.setFax3("-");
+//			memberBiographyVO.setFax4("-");
+//			memberBiographyVO.setFax5("-");
+//			memberBiographyVO.setFax6("-");
+//			memberBiographyVO.setFax7("-");
+//			memberBiographyVO.setFax8("-");
+//			memberBiographyVO.setFax9("-");
+//			memberBiographyVO.setFax10("-");
+//			memberBiographyVO.setFax11("-");
+//			memberBiographyVO.setFax12("-");
+//			memberBiographyVO.setMobile("-");
+//			memberBiographyVO.setTelephone1("-");
+//			memberBiographyVO.setTelephone2("-");
+//			memberBiographyVO.setTelephone3("-");
+//			memberBiographyVO.setTelephone4("-");
+//			memberBiographyVO.setTelephone5("-");
+//			memberBiographyVO.setTelephone6("-");
+//			memberBiographyVO.setTelephone7("-");
+//			memberBiographyVO.setTelephone8("-");
+//			memberBiographyVO.setTelephone9("-");
+//			memberBiographyVO.setTelephone10("-");
+//			memberBiographyVO.setTelephone11("-");
+//			memberBiographyVO.setTelephone12("-");
+//			if(contact.getEmail1()!=null&&!contact.getEmail1().isEmpty()
+//					&&contact.getEmail2()!=null&&!contact.getEmail2().isEmpty()){
+//				memberBiographyVO.setEmail(contact.getEmail1()+"<br>"+contact.getEmail2());
+//			}else if(contact.getEmail1()!=null&&!contact.getEmail1().isEmpty()){
+//				memberBiographyVO.setEmail(contact.getEmail1());
+//			}else if(contact.getEmail2()!=null&&!contact.getEmail2().isEmpty()){
+//				memberBiographyVO.setEmail(contact.getEmail2());
+//			}
+//			if(contact.getWebsite1()!=null&&!contact.getWebsite1().isEmpty()
+//					&&contact.getWebsite2()!=null&&!contact.getWebsite2().isEmpty()){
+//				memberBiographyVO.setWebsite(contact.getWebsite1()+"<br>"+contact.getWebsite2());
+//			}else if(contact.getWebsite1()!=null&&!contact.getWebsite1().isEmpty()){
+//				memberBiographyVO.setWebsite(contact.getWebsite1());
+//			}else if(contact.getWebsite2()!=null&&!contact.getWebsite2().isEmpty()){
+//				memberBiographyVO.setWebsite(contact.getWebsite2());
+//			}
+//			if(contact.getMobile1()!=null&&!contact.getMobile1().isEmpty()
+//					&&contact.getMobile2()!=null&&!contact.getMobile2().isEmpty()){
+//				memberBiographyVO.setMobile(contact.getMobile1()+"<br>"+contact.getMobile2());
+//			}else if(contact.getMobile1()!=null&&!contact.getMobile1().isEmpty()){
+//				memberBiographyVO.setMobile(contact.getMobile1());
+//			}else if(contact.getMobile2()!=null&&!contact.getMobile2().isEmpty()){
+//				memberBiographyVO.setMobile(contact.getMobile2());
+//			}
+//			if(contact.getFax1()!=null){
+//				if(!contact.getFax1().trim().isEmpty()){
+//					memberBiographyVO.setFax1(contact.getFax1().trim());
+//				}
+//			}
+//			if(contact.getFax2()!=null){
+//				if(!contact.getFax2().trim().isEmpty()){
+//					memberBiographyVO.setFax2(contact.getFax2().trim());
+//				}
+//			}
+//			if(contact.getFax3()!=null){
+//				if(!contact.getFax3().trim().isEmpty()){
+//					memberBiographyVO.setFax3(contact.getFax3().trim());
+//				}
+//			}
+//			if(contact.getFax4()!=null){
+//				if(!contact.getFax4().trim().isEmpty()){
+//					memberBiographyVO.setFax4(contact.getFax4().trim());
+//				}
+//			}
+//			if(contact.getFax5()!=null){
+//				if(!contact.getFax5().trim().isEmpty()){
+//					memberBiographyVO.setFax5(contact.getFax5().trim());
+//				}
+//			}
+//
+//			if(contact.getFax6()!=null){
+//				if(!contact.getFax6().trim().isEmpty()){
+//					memberBiographyVO.setFax6(contact.getFax6().trim());
+//				}
+//			}
+//			if(contact.getFax7()!=null){
+//				if(!contact.getFax7().trim().isEmpty()){
+//					memberBiographyVO.setFax7(contact.getFax7().trim());
+//				}
+//			}
+//			if(contact.getFax8()!=null){
+//				if(!contact.getFax8().trim().isEmpty()){
+//					memberBiographyVO.setFax8(contact.getFax8().trim());
+//				}
+//			}
+//			if(contact.getFax9()!=null){
+//				if(!contact.getFax9().trim().isEmpty()){
+//					memberBiographyVO.setFax9(contact.getFax9().trim());
+//				}
+//			}
+//			if(contact.getFax10()!=null){
+//				if(!contact.getFax10().trim().isEmpty()){
+//					memberBiographyVO.setFax10(contact.getFax10().trim());
+//				}
+//			}
+//
+//			if(contact.getFax11()!=null){
+//				if(!contact.getFax11().trim().isEmpty()){
+//					memberBiographyVO.setFax11(contact.getFax11().trim());
+//				}
+//			}
+//			if(contact.getFax12()!=null){
+//				if(!contact.getFax12().trim().isEmpty()){
+//					memberBiographyVO.setFax12(contact.getFax12().trim());
+//				}
+//			}			
+//			if(contact.getTelephone1()!=null){
+//				if(!contact.getTelephone1().isEmpty()){
+//					memberBiographyVO.setTelephone1(contact.getTelephone1());
+//				}
+//			}
+//			if(contact.getTelephone2()!=null){
+//				if(!contact.getTelephone2().isEmpty()){
+//					memberBiographyVO.setTelephone2(contact.getTelephone2());
+//				}
+//			}
+//			if(contact.getTelephone3()!=null){
+//				if(!contact.getTelephone3().isEmpty()){
+//					memberBiographyVO.setTelephone3(contact.getTelephone3());
+//				}
+//			}
+//			if(contact.getTelephone4()!=null){
+//				if(!contact.getTelephone4().isEmpty()){
+//					memberBiographyVO.setTelephone4(contact.getTelephone4());
+//				}
+//			}
+//			if(contact.getTelephone5()!=null){
+//				if(!contact.getTelephone5().isEmpty()){
+//					memberBiographyVO.setTelephone5(contact.getTelephone5());
+//				}
+//			}
+//
+//			if(contact.getTelephone6()!=null){
+//				if(!contact.getTelephone6().isEmpty()){
+//					memberBiographyVO.setTelephone6(contact.getTelephone6());
+//				}
+//			}
+//			if(contact.getTelephone7()!=null){
+//				if(!contact.getTelephone7().isEmpty()){
+//					memberBiographyVO.setTelephone7(contact.getTelephone7());
+//				}
+//			}
+//			if(contact.getTelephone8()!=null){
+//				if(!contact.getTelephone8().isEmpty()){
+//					memberBiographyVO.setTelephone8(contact.getTelephone8());
+//				}
+//			}
+//			if(contact.getTelephone9()!=null){
+//				if(!contact.getTelephone9().isEmpty()){
+//					memberBiographyVO.setTelephone9(contact.getTelephone9());
+//				}
+//			}
+//			if(contact.getTelephone10()!=null){
+//				if(!contact.getTelephone10().isEmpty()){
+//					memberBiographyVO.setTelephone10(contact.getTelephone10());
+//				}
+//			}
+//			if(contact.getTelephone11()!=null){
+//				if(!contact.getTelephone11().isEmpty()){
+//					memberBiographyVO.setTelephone11(contact.getTelephone11());
+//				}
+//			}
+//			if(contact.getTelephone12()!=null){
+//				if(!contact.getTelephone12().isEmpty()){
+//					memberBiographyVO.setTelephone12(contact.getTelephone12());
+//				}
+//			}
+//
+//		}
+//		//initialize addresses
+//		CustomParameter tehsilLocalized=CustomParameter.findByName(CustomParameter.class,"TEHSIL", locale);
+//		CustomParameter districtLocalized=CustomParameter.findByName(CustomParameter.class,"DISTRICT", locale);
+//		CustomParameter stateLocalized=CustomParameter.findByName(CustomParameter.class,"STATE", locale);
+//
+//		memberBiographyVO.setPermanentAddress("-");
+//		memberBiographyVO.setPermanentAddress1("-");
+//		memberBiographyVO.setPermanentAddress2("-");
+//		memberBiographyVO.setPresentAddress("-");
+//		memberBiographyVO.setPresentAddress1("-");
+//		memberBiographyVO.setPresentAddress2("-");
+//		memberBiographyVO.setCorrespondenceAddress("-");
+//		memberBiographyVO.setOfficeAddress("-");
+//		memberBiographyVO.setOfficeAddress1("-");
+//		memberBiographyVO.setOfficeAddress1("-");
+//		memberBiographyVO.setOfficeAddress2("-");
+//		memberBiographyVO.setTempAddress1("-");
+//		memberBiographyVO.setTempAddress2("-");
+//		//present address
+//		Address presentAddress=m.getPresentAddress();
+//		if(presentAddress!=null){
+//			if(presentAddress.getDetails()!=null){
+//				if(!presentAddress.getDetails().trim().isEmpty()){
+//					if(presentAddress.getTehsil()!=null){
+//						memberBiographyVO.setPresentAddress(presentAddress.getDetails()+"<br>"+tehsilLocalized.getValue()+"-"+presentAddress.getTehsil().getName()+","+districtLocalized.getValue()+"-"+presentAddress.getDistrict().getName()+","+stateLocalized.getValue()+"-"+presentAddress.getState().getName()+" "+presentAddress.getPincode());
+//					}else{
+//						memberBiographyVO.setPresentAddress(presentAddress.getDetails()+"<br>"+districtLocalized.getValue()+"-"+presentAddress.getDistrict().getName()+","+stateLocalized.getValue()+"-"+presentAddress.getState().getName()+" "+presentAddress.getPincode());
+//					}
+//				}
+//			}
+//		}
+//
+//		//present address
+//		Address presentAddress1=m.getPresentAddress1();
+//		if(presentAddress1!=null){
+//			if(presentAddress1.getDetails()!=null){
+//				if(!presentAddress1.getDetails().trim().isEmpty()){
+//					if(presentAddress1.getTehsil()!=null){
+//						memberBiographyVO.setPresentAddress1(presentAddress1.getDetails()+"<br>"+tehsilLocalized.getValue()+"-"+presentAddress1.getTehsil().getName()+","+districtLocalized.getValue()+"-"+presentAddress1.getDistrict().getName()+","+stateLocalized.getValue()+"-"+presentAddress1.getState().getName()+" "+presentAddress1.getPincode());
+//					}else{
+//						memberBiographyVO.setPresentAddress1(presentAddress1.getDetails()+"<br>"+districtLocalized.getValue()+"-"+presentAddress1.getDistrict().getName()+","+stateLocalized.getValue()+"-"+presentAddress1.getState().getName()+" "+presentAddress1.getPincode());
+//					}
+//				}
+//			}
+//		}
+//		//present address
+//		Address presentAddress2=m.getPresentAddress2();
+//		if(presentAddress2!=null){
+//			if(presentAddress2.getDetails()!=null){
+//				if(!presentAddress2.getDetails().trim().isEmpty()){
+//					if(presentAddress2.getTehsil()!=null){
+//						memberBiographyVO.setPresentAddress2(presentAddress2.getDetails()+"<br>"+tehsilLocalized.getValue()+"-"+presentAddress2.getTehsil().getName()+","+districtLocalized.getValue()+"-"+presentAddress2.getDistrict().getName()+","+stateLocalized.getValue()+"-"+presentAddress2.getState().getName()+" "+presentAddress2.getPincode());
+//					}else{
+//						memberBiographyVO.setPresentAddress2(presentAddress2.getDetails()+"<br>"+districtLocalized.getValue()+"-"+presentAddress2.getDistrict().getName()+","+stateLocalized.getValue()+"-"+presentAddress2.getState().getName()+" "+presentAddress2.getPincode());
+//					}
+//				}
+//			}
+//		}
+//		//permanent address
+//		Address permanentAddress=m.getPermanentAddress();
+//		if(permanentAddress!=null){
+//			if(permanentAddress.getDetails()!=null){
+//				if(!permanentAddress.getDetails().trim().isEmpty()) {
+//					if(permanentAddress.getTehsil()!=null){
+//						memberBiographyVO.setPermanentAddress(permanentAddress.getDetails()+"<br>"+tehsilLocalized.getValue()+"-"+permanentAddress.getTehsil().getName()+","+districtLocalized.getValue()+"-"+permanentAddress.getDistrict().getName()+","+stateLocalized.getValue()+"-"+permanentAddress.getState().getName()+" "+permanentAddress.getPincode());
+//					}else{
+//						memberBiographyVO.setPermanentAddress(permanentAddress.getDetails()+"<br>"+districtLocalized.getValue()+"-"+permanentAddress.getDistrict().getName()+","+stateLocalized.getValue()+"-"+permanentAddress.getState().getName()+" "+permanentAddress.getPincode());
+//					}
+//				}
+//			}
+//		}
+//		//permanent address
+//		Address permanentAddress1=m.getPermanentAddress1();
+//		if(permanentAddress1!=null){
+//			if(permanentAddress1.getDetails()!=null){
+//				if(!permanentAddress1.getDetails().trim().isEmpty()) {
+//					if(permanentAddress1.getTehsil()!=null){
+//						memberBiographyVO.setPermanentAddress1(permanentAddress1.getDetails()+"<br>"+tehsilLocalized.getValue()+"-"+permanentAddress1.getTehsil().getName()+","+districtLocalized.getValue()+"-"+permanentAddress1.getDistrict().getName()+","+stateLocalized.getValue()+"-"+permanentAddress1.getState().getName()+" "+permanentAddress1.getPincode());
+//					}else{
+//						memberBiographyVO.setPermanentAddress1(permanentAddress1.getDetails()+"<br>"+districtLocalized.getValue()+"-"+permanentAddress1.getDistrict().getName()+","+stateLocalized.getValue()+"-"+permanentAddress1.getState().getName()+" "+permanentAddress1.getPincode());
+//					}
+//				}
+//			}
+//		}
+//		//permanent address
+//		Address permanentAddress2=m.getPermanentAddress2();
+//		if(permanentAddress2!=null){
+//			if(permanentAddress2.getDetails()!=null){
+//				if(!permanentAddress2.getDetails().trim().isEmpty()) {
+//					if(permanentAddress2.getTehsil()!=null){
+//						memberBiographyVO.setPermanentAddress2(permanentAddress2.getDetails()+"<br>"+tehsilLocalized.getValue()+"-"+permanentAddress2.getTehsil().getName()+","+districtLocalized.getValue()+"-"+permanentAddress2.getDistrict().getName()+","+stateLocalized.getValue()+"-"+permanentAddress2.getState().getName()+" "+permanentAddress2.getPincode());
+//					}else{
+//						memberBiographyVO.setPermanentAddress2(permanentAddress2.getDetails()+"<br>"+districtLocalized.getValue()+"-"+permanentAddress2.getDistrict().getName()+","+stateLocalized.getValue()+"-"+permanentAddress2.getState().getName()+" "+permanentAddress2.getPincode());
+//					}
+//				}
+//			}
+//		}
+//		//office address
+//		Address officeAddress=m.getOfficeAddress();
+//		if(officeAddress!=null){
+//			if(officeAddress.getDetails()!=null){
+//				if(!officeAddress.getDetails().trim().isEmpty()){
+//					if(officeAddress.getTehsil()!=null){
+//						memberBiographyVO.setOfficeAddress(officeAddress.getDetails()+"<br>"+tehsilLocalized.getValue()+"-"+officeAddress.getTehsil().getName()+","+districtLocalized.getValue()+"-"+officeAddress.getDistrict().getName()+","+stateLocalized.getValue()+"-"+officeAddress.getState().getName()+" "+officeAddress.getPincode());
+//					}else{
+//						memberBiographyVO.setOfficeAddress(officeAddress.getDetails()+"<br>"+districtLocalized.getValue()+"-"+officeAddress.getDistrict().getName()+","+stateLocalized.getValue()+"-"+officeAddress.getState().getName()+" "+officeAddress.getPincode());
+//					}
+//				}
+//			}
+//		}
+//		//office address
+//		Address officeAddress1=m.getOfficeAddress1();
+//		if(officeAddress1!=null){
+//			if(officeAddress1.getDetails()!=null){
+//				if(!officeAddress1.getDetails().trim().isEmpty()){
+//					if(officeAddress1.getTehsil()!=null){
+//						memberBiographyVO.setOfficeAddress1(officeAddress1.getDetails()+"<br>"+tehsilLocalized.getValue()+"-"+officeAddress1.getTehsil().getName()+","+districtLocalized.getValue()+"-"+officeAddress1.getDistrict().getName()+","+stateLocalized.getValue()+"-"+officeAddress1.getState().getName()+" "+officeAddress1.getPincode());
+//					}else{
+//						memberBiographyVO.setOfficeAddress1(officeAddress1.getDetails()+"<br>"+districtLocalized.getValue()+"-"+officeAddress1.getDistrict().getName()+","+stateLocalized.getValue()+"-"+officeAddress1.getState().getName()+" "+officeAddress1.getPincode());
+//					}
+//				}
+//			}
+//		}
+//		//office address
+//		Address officeAddress2=m.getOfficeAddress2();
+//		if(officeAddress2==null){
+//			memberBiographyVO.setOfficeAddress2("-");
+//		}else{
+//			if(!officeAddress2.getDetails().trim().isEmpty()){
+//				if(officeAddress2.getTehsil()!=null){
+//					memberBiographyVO.setOfficeAddress2(officeAddress2.getDetails()+"<br>"+tehsilLocalized.getValue()+"-"+officeAddress2.getTehsil().getName()+","+districtLocalized.getValue()+"-"+officeAddress2.getDistrict().getName()+","+stateLocalized.getValue()+"-"+officeAddress2.getState().getName()+" "+officeAddress2.getPincode());
+//				}else{
+//					memberBiographyVO.setOfficeAddress2(officeAddress2.getDetails()+"<br>"+districtLocalized.getValue()+"-"+officeAddress2.getDistrict().getName()+","+stateLocalized.getValue()+"-"+officeAddress2.getState().getName()+" "+officeAddress2.getPincode());
+//				}
+//			}else{
+//				memberBiographyVO.setOfficeAddress2("-");
+//			}
+//		}
+//		//temp1 address
+//		Address tempAddress1=m.getTempAddress1();
+//		if(tempAddress1!=null){
+//			if(tempAddress1.getDetails()!=null){
+//				if(!tempAddress1.getDetails().trim().isEmpty()){
+//					if(tempAddress1.getTehsil()!=null){
+//						memberBiographyVO.setTempAddress1(tempAddress1.getDetails()+"<br>"+tehsilLocalized.getValue()+"-"+tempAddress1.getTehsil().getName()+","+districtLocalized.getValue()+"-"+tempAddress1.getDistrict().getName()+","+stateLocalized.getValue()+"-"+tempAddress1.getState().getName()+" "+tempAddress1.getPincode());
+//					}else{
+//						memberBiographyVO.setTempAddress1(tempAddress1.getDetails()+"<br>"+districtLocalized.getValue()+"-"+tempAddress1.getDistrict().getName()+","+stateLocalized.getValue()+"-"+tempAddress1.getState().getName()+" "+tempAddress1.getPincode());
+//					}
+//				}
+//			}
+//		}
+//		//temp2 address
+//		Address tempAddress2=m.getTempAddress2();
+//		if(tempAddress2!=null){
+//			if(tempAddress2.getDetails()!=null){
+//				if(tempAddress2.getDetails()!=null){
+//					if(!tempAddress2.getDetails().trim().isEmpty()){
+//						if(tempAddress2.getTehsil()!=null){
+//							memberBiographyVO.setTempAddress2(tempAddress2.getDetails()+"<br>"+tehsilLocalized.getValue()+"-"+tempAddress2.getTehsil().getName()+","+districtLocalized.getValue()+"-"+tempAddress2.getDistrict().getName()+","+stateLocalized.getValue()+"-"+tempAddress2.getState().getName()+" "+tempAddress2.getPincode());
+//						}else{
+//							memberBiographyVO.setTempAddress2(tempAddress2.getDetails()+"<br>"+districtLocalized.getValue()+"-"+tempAddress2.getDistrict().getName()+","+stateLocalized.getValue()+"-"+tempAddress2.getState().getName()+" "+tempAddress2.getPincode());
+//						}
+//					}else{
+//						memberBiographyVO.setTempAddress2("-");
+//					}
+//				}
+//			}
+//		}
+//		//correspondence address
+//		Address correspondenceAddress=m.getCorrespondenceAddress();
+//		if(correspondenceAddress!=null){
+//			if(correspondenceAddress.getDetails()!=null){
+//				if(correspondenceAddress.getDetails()!=null){
+//					if(!correspondenceAddress.getDetails().trim().isEmpty()){
+//						memberBiographyVO.setCorrespondenceAddress(tempAddress2.getDetails()+"<br>"+tempAddress2.getPincode());
+//					}else{
+//						memberBiographyVO.setCorrespondenceAddress("-");
+//					}
+//				}
+//			}
+//		}
+//		//other info.
+//		if(m.getCountriesVisited()!=null&&!m.getCountriesVisited().equals("<p></p>")){
+//			if(m.getCountriesVisited().trim().isEmpty()){
+//				memberBiographyVO.setCountriesVisited("-");
+//			}else{
+//				memberBiographyVO.setCountriesVisited(m.getCountriesVisited().trim());
+//			}
+//		}else{
+//			memberBiographyVO.setCountriesVisited("-");
+//		}
+//
+//		if(m.getEducationalCulturalActivities()!=null&&!m.getEducationalCulturalActivities().equals("<p></p>")){
+//			if(m.getEducationalCulturalActivities().trim().isEmpty()){
+//				memberBiographyVO.setEducationalCulAct("-");
+//			}else{
+//				memberBiographyVO.setEducationalCulAct(m.getEducationalCulturalActivities().trim());
+//			}
+//		}else{
+//			memberBiographyVO.setEducationalCulAct("-");
+//		}
+//
+//		if(m.getFavoritePastimeRecreation()!=null&&!m.getFavoritePastimeRecreation().equals("<p></p>")){
+//			if(m.getFavoritePastimeRecreation().trim().isEmpty()){
+//				memberBiographyVO.setPastimeRecreation("-");
+//			}else{
+//				memberBiographyVO.setPastimeRecreation(m.getFavoritePastimeRecreation().trim());
+//			}
+//		}else{
+//			memberBiographyVO.setPastimeRecreation("-");
+//		}
+//
+//		if(m.getHobbySpecialInterests()!=null&&!m.getHobbySpecialInterests().equals("<p></p>")){
+//			if(m.getHobbySpecialInterests().trim().isEmpty()){
+//				memberBiographyVO.setSpecialInterests("-");
+//			}else{
+//				memberBiographyVO.setSpecialInterests(m.getHobbySpecialInterests().trim());
+//			}
+//		}else{
+//			memberBiographyVO.setSpecialInterests("-");
+//		}
+//
+//		if(m.getLiteraryArtisticScientificAccomplishments()!=null&&!m.getLiteraryArtisticScientificAccomplishments().equals("<p></p>")){
+//			if(m.getLiteraryArtisticScientificAccomplishments().trim().isEmpty()){
+//				memberBiographyVO.setLiteraryArtisticScAccomplishment("-");
+//			}else{
+//				memberBiographyVO.setLiteraryArtisticScAccomplishment(m.getLiteraryArtisticScientificAccomplishments().trim());
+//			}
+//		}else{
+//			memberBiographyVO.setLiteraryArtisticScAccomplishment("-");
+//		}
+//
+//		if(m.getPublications()!=null&&!m.getPublications().equals("<p></p>")){
+//			if(m.getPublications().trim().isEmpty()){
+//				memberBiographyVO.setPublications("-");
+//			}else{
+//				memberBiographyVO.setPublications(m.getPublications().trim());
+//			}
+//		}else{
+//			memberBiographyVO.setPublications("-");
+//		}
+//		if(m.getOtherInformation()!=null&&!m.getOtherInformation().equals("<p></p>")){
+//			if(m.getOtherInformation().trim().isEmpty()){
+//				memberBiographyVO.setOtherInfo("-");
+//			}else{
+//				memberBiographyVO.setOtherInfo(m.getOtherInformation().trim());
+//			}
+//		}else{
+//			memberBiographyVO.setOtherInfo("-");
+//		}
+//
+//		if(m.getSocialCulturalActivities()!=null&&!m.getSocialCulturalActivities().equals("<p></p>")){
+//			if(m.getSocialCulturalActivities().trim().isEmpty()){
+//				memberBiographyVO.setSocioCulturalActivities("-");
+//			}else{
+//				memberBiographyVO.setSocioCulturalActivities(m.getSocialCulturalActivities().trim());
+//			}
+//		}else{
+//			memberBiographyVO.setSocioCulturalActivities("-");
+//		}
+//
+//		if(m.getSportsClubs()!=null&&!m.getSportsClubs().equals("<p></p>")){
+//			if(m.getSportsClubs().trim().isEmpty()){
+//				memberBiographyVO.setSportsClubs("-");
+//			}else{
+//				memberBiographyVO.setSportsClubs(m.getSportsClubs().trim());
+//			}
+//		}else{
+//			memberBiographyVO.setSportsClubs("-");
+//		}
+//		
+//		//elelction results
+//		//this will be according to the from and to date of elections.but right now we are taking the
+//		//first entry
+//		List<ElectionResult> electionResults=m.getElectionResults();
+//		if(electionResults.isEmpty()){
+//			memberBiographyVO.setValidVotes("-");
+//			memberBiographyVO.setVotesReceived("-");
+//			memberBiographyVO.setNoOfVoters("-");
+//			memberBiographyVO.setRivalMembers(new ArrayList<RivalMemberVO>());
+//		}else{
+//			if(electionResults.get(0).getTotalValidVotes()!=null){
+//				//memberBiographyVO.setValidVotes(formatWithGrouping.format(electionResults.get(0).getTotalValidVotes()));
+//				memberBiographyVO.setValidVotes(FormaterUtil.formatToINS(formatWithGrouping.format(electionResults.get(0).getTotalValidVotes())));;
+//			}else{
+//				memberBiographyVO.setValidVotes("-");
+//			}
+//			if(electionResults.get(0).getVotesReceived()!=null){
+//				memberBiographyVO.setVotesReceived(FormaterUtil.formatToINS(formatWithGrouping.format(electionResults.get(0).getVotesReceived())));
+//			}else{
+//				memberBiographyVO.setVotesReceived("-");
+//			}
+//			if(electionResults.get(0).getNoOfVoters()!=null){
+//				memberBiographyVO.setNoOfVoters(FormaterUtil.formatToINS(formatWithGrouping.format(electionResults.get(0).getNoOfVoters())));
+//			}else{
+//				memberBiographyVO.setNoOfVoters("-");
+//			}
+//			if(electionResults.get(0).getElectionResultDate()!=null){
+//				memberBiographyVO.setElectionResultDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(electionResults.get(0).getElectionResultDate()),locale));
+//			}else{
+//				memberBiographyVO.setElectionResultDate("-");
+//			}
+//			if(electionResults.get(0).getVotingDate()!=null){
+//				memberBiographyVO.setVotingDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(electionResults.get(0).getVotingDate()),locale));
+//			}else{
+//				memberBiographyVO.setVotingDate("-");
+//			}
+//			List<RivalMember> rivals=electionResults.get(0).getRivalMembers();
+//			List<RivalMemberVO> rivalMemberVOs=new ArrayList<RivalMemberVO>();
+//			if(!rivals.isEmpty()){
+//				for(RivalMember i:rivals){
+//					RivalMemberVO rivalMemberVO=new RivalMemberVO();
+//					rivalMemberVO.setName(i.getName());
+//					rivalMemberVO.setParty(i.getParty().getName());
+//					if(i.getVotesReceived()!=null){
+//						rivalMemberVO.setVotesReceived(FormaterUtil.formatToINS(formatWithGrouping.format(i.getVotesReceived())));
+//					}else{
+//						rivalMemberVO.setVotesReceived("-");
+//					}
+//					rivalMemberVOs.add(rivalMemberVO);
+//				}
+//				memberBiographyVO.setRivalMembers(rivalMemberVOs);
+//			}else{
+//				memberBiographyVO.setRivalMembers(rivalMemberVOs);
+//			}
+//		}
+		
+//		Session session = null;
+//		try {
+//			session = Session.findLatestSession(houseType);
+//		} catch (ELSException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
+//		Map<String, String[]> params = new HashMap<String, String[]>();
+//		params.put("memberId", new String[]{m.getId().toString()});
+//		params.put("locale", new String[]{locale.toString()});
+//		List report = Query.findReport("LOAD_MINISTER_OF_MEMBER", params);
+//		if(report != null && !report.isEmpty()){
+//			Object[] obj = (Object[])report.get(0);
+//			if(obj[0] != null){
+//				memberBiographyVO.setMinistries("ministries");
+//				//model.addAttribute("memberDesignation");
+//			}else{
+//				List<MemberRole> memberRoles = HouseMemberRoleAssociation.findAllActiveRolesOfMemberInSession(m, session, locale.toString());
+//				for(MemberRole mr : memberRoles){
+//					if(mr.getType().equalsIgnoreCase(ApplicationConstants.STATE_MINISTER)
+//						|| mr.getType().equalsIgnoreCase(ApplicationConstants.SPEAKER)
+//						|| mr.getType().equalsIgnoreCase(ApplicationConstants.CHAIRMAN)
+//						|| mr.getType().equalsIgnoreCase(ApplicationConstants.DEPUTY_CHAIRMAN)
+//						|| mr.getType().equalsIgnoreCase(ApplicationConstants.DEPUTY_SPEAKER)
+//						|| mr.getType().equalsIgnoreCase(ApplicationConstants.LEADER_OF_OPPOSITION)){
+//						//model.addAttribute("memberRole",mr.getName());
+//						memberBiographyVO.setMemberRole(mr.getName());
+//						break;
+//					}else{
+//						//model.addAttribute("memberRole",mr.getName());
+//						memberBiographyVO.setMemberRole(mr.getName());
+//					}
+//				}
+//			}
+//		}
+	
+		//position held is left out right now.
+		return memberBiographyVO;
+	}
+
 
 	@SuppressWarnings("unchecked")
 	public List<String> findMembersByHouseDates(Long houseTypeId, String fromDate, String toDate, String locale) {

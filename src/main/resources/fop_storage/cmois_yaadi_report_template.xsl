@@ -189,13 +189,13 @@
 																	</xsl:if>
 																	रूपये:- <xsl:value-of select="element_2_4"/>/-
 																</fo:block>
-																<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_14"/></fo:block>																			
+																<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_14"/></fo:block>
 															</fo:table-cell>																				
 														</fo:table-row>
 													</xsl:when>
 													<xsl:otherwise>
 														<xsl:choose>
-															<xsl:when test="$rowCount=1 or ../element_2[$rowCount -1]/element_2_3 != element_2_3">
+															<xsl:when test="element_2_15='motions_cutmotion_budgetary' and ../element_2[$rowCount -1]/element_2_3 != element_2_3">
 																<fo:table-row>
 																	<fo:table-cell>
 																		<fo:block>&#160;</fo:block>

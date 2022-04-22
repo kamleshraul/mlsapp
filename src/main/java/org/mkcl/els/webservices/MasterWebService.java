@@ -40,6 +40,7 @@ import org.mkcl.els.domain.MaritalStatus;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Part;
+import org.mkcl.els.domain.PartySymbol;
 //import org.mkcl.els.domain.PartDraft;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.State;
@@ -113,7 +114,8 @@ public class MasterWebService {
         List<Party> parties= Party.findAll(Party.class,"name",ApplicationConstants.ASC, locale);
         List<MasterVO> partiesVO=new ArrayList<MasterVO>();
         for(Party i:parties){
-        	MasterVO masterVO=new MasterVO(i.getId(),i.getName());
+        	String partySymbolPhoto = i.findCurrentPartySymbolPhoto();
+        	MasterVO masterVO=new MasterVO(i.getId(),i.getName(),partySymbolPhoto);
         	partiesVO.add(masterVO);
         }
         return partiesVO;
