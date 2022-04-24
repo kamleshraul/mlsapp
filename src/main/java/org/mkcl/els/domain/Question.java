@@ -424,6 +424,9 @@ public class Question extends Device implements Serializable {
     
     /**** Processed by Authorities ****/
     private Boolean processed = false;
+    
+    /** The flag for whether question submitted in batch 1. */
+    private Boolean submittedInBatch1 = false;
     	       
     private static transient volatile Integer STARRED_CUR_NUM_LOWER_HOUSE = 0;
     private static transient volatile Integer STARRED_CUR_NUM_UPPER_HOUSE = 0;
@@ -4137,6 +4140,16 @@ public class Question extends Device implements Serializable {
 
 	public void setProcessed(Boolean processed) {
 		this.processed = processed;
+	}
+
+
+	public Boolean getSubmittedInBatch1() {
+		return submittedInBatch1;
+	}
+
+
+	public void setSubmittedInBatch1(Boolean submittedInBatch1) {
+		this.submittedInBatch1 = submittedInBatch1;
 	}
 
 
