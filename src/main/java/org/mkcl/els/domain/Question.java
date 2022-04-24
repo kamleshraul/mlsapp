@@ -425,7 +425,7 @@ public class Question extends Device implements Serializable {
     /**** Processed by Authorities ****/
     private Boolean processed = false;
     
-    /** The flag for whether question submitted in batch 1. */
+    /** The flag for whether starred question is submitted in batch 1 submission. */
     private Boolean submittedInBatch1 = false;
     	       
     private static transient volatile Integer STARRED_CUR_NUM_LOWER_HOUSE = 0;
