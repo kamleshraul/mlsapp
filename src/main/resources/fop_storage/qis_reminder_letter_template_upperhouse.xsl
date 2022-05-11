@@ -248,7 +248,7 @@
 						<fo:block font-size="6px">&#160;</fo:block>		
 								
 						<fo:block text-align="right">
-							<fo:block margin-right="3.2cm">आपला,</fo:block>
+							<fo:block margin-right="2.6cm">आपला/आपली,</fo:block>
 							<fo:block font-size="14px">&#160;</fo:block>							
 							<fo:block margin-right="2.7cm">कक्ष अधिकारी</fo:block>							
 							<fo:block margin-right="1.4cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
