@@ -40,6 +40,7 @@ import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.MenuItem;
+import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -240,7 +241,12 @@ public class WorkflowController extends BaseController {
 		if(houseType.equals("bothhouse")){
 			houseType="lowerhouse";
 		}
-		model.addAttribute("houseType",houseType);		
+		model.addAttribute("houseType",houseType);	
+		HouseType selectedHouseType = HouseType.findByType(houseType, locale);
+		if(selectedHouseType==null) {
+			selectedHouseType = HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale);
+		}
+		MessageResource bothHouseName = MessageResource.findByFieldName(MessageResource.class, "code", "generic.both_house_label", locale);
 		/**** Session Types ****/
 		List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
 		/**** Latest Session of a House Type ****/
@@ -314,22 +320,55 @@ public class WorkflowController extends BaseController {
 		//UserGroupType userGroupType = null;
 		List<DeviceType> deviceTypes=null;
 		String alldeviceTypeNameParam="";
+		List<String> ugTypes = new ArrayList<String>();
 		for(UserGroup ug : userGroups){
-			UserGroup userGroup = UserGroup.findActive(cr, ug.getUserGroupType(), new Date(), locale.toString());
-			if(userGroup != null){
-				/**** Authenticated User's usergroup and usergroupType ****/
-				String userGroupType = userGroup.getUserGroupType().getType();			
-				model.addAttribute("usergroup", userGroup.getId());
-				model.addAttribute("usergroupType", userGroupType);
-				
-				Map<String, String> parameters = UserGroup.findParametersByUserGroup(ug);
-				String deviceTypeNameParam= parameters.get(ApplicationConstants.DEVICETYPE_KEY + "_" + locale);
-				if(deviceTypeNameParam != null && ! deviceTypeNameParam.equals("")) {
-					//alldeviceTypeNameParam.concat(deviceTypeNameParam);
-					alldeviceTypeNameParam=alldeviceTypeNameParam+deviceTypeNameParam;
-					//deviceTypes=DeviceType.findAllowedTypesForUser(deviceTypeNameParam, "##", locale);
+			String ugType = ug.getUserGroupType().getType();
+			boolean isUGTAlreadyConsidered = false;
+			if(!ugTypes.isEmpty()) {
+				for(String ugt: ugTypes) {
+					if(ugt.equals(ugType)) {
+						isUGTAlreadyConsidered = true;
+						break;
+					}
 				}
-			
+			}
+			if(ugTypes.isEmpty() || !isUGTAlreadyConsidered) {
+				List<UserGroup> activeUserGroupsForGivenUGType = UserGroup.findAllActive(cr, ug.getUserGroupType(), new Date(), locale);
+				if(activeUserGroupsForGivenUGType!=null && !activeUserGroupsForGivenUGType.isEmpty()) {
+					ugTypes.add(ugType);
+					for(UserGroup userGroup: activeUserGroupsForGivenUGType) {
+						if(userGroup != null){
+							/**** Authenticated User's usergroup and usergroupType ****/
+							String userGroupType = userGroup.getUserGroupType().getType();			
+							model.addAttribute("usergroup", userGroup.getId());
+							model.addAttribute("usergroupType", userGroupType);
+							
+							Map<String, String> parameters = UserGroup.findParametersByUserGroup(userGroup);
+							
+							String houseTypeNameParam = parameters.get(ApplicationConstants.HOUSETYPE_KEY + "_" + locale);
+							if(houseTypeNameParam!=null && bothHouseName!=null && houseTypeNameParam.equals(bothHouseName.getValue())) {
+								MessageResource lowerHouseName = MessageResource.findByFieldName(MessageResource.class, "code", "generic.lowerhouse", locale);
+								houseTypeNameParam = lowerHouseName.getValue();
+							}
+							
+							if(houseTypeNameParam!=null && selectedHouseType.getName().equals(houseTypeNameParam)) {
+								String deviceTypeNameParam= parameters.get(ApplicationConstants.DEVICETYPE_KEY + "_" + locale);
+								if(deviceTypeNameParam != null && ! deviceTypeNameParam.equals("")) {
+									//alldeviceTypeNameParam.concat(deviceTypeNameParam);
+									if(!alldeviceTypeNameParam.isEmpty()
+											&& !alldeviceTypeNameParam.endsWith("##")) {
+										alldeviceTypeNameParam=alldeviceTypeNameParam+"##";
+									}
+									alldeviceTypeNameParam=alldeviceTypeNameParam+deviceTypeNameParam;
+									//deviceTypes=DeviceType.findAllowedTypesForUser(deviceTypeNameParam, "##", locale);
+								}
+							}						
+						}
+					}
+				}
+				
+			} else {
+				continue;
 			}
 		}
 		deviceTypes=DeviceType.findAllowedTypesForUser(alldeviceTypeNameParam, "##", locale);

@@ -8993,11 +8993,73 @@ public class ReferenceController extends BaseController {
 		String deviceTypeType = request.getParameter("deviceType");
 		
 		if(houseType!=null && !houseType.isEmpty()) {
+			HouseType selectedHouseType = HouseType.findByType(houseType, locale.toString());
+			if(selectedHouseType==null) {
+				selectedHouseType = HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale.toString());
+			}
+			MessageResource bothHouseName = MessageResource.findByFieldName(MessageResource.class, "code", "generic.both_house_label", locale.toString());
+			
 			List<DeviceType> deviceTypes = null;
 			if(deviceTypeType!=null && !deviceTypeType.isEmpty()) {
 				deviceTypes = DeviceType.findDeviceTypesStartingWith(deviceTypeType, locale.toString());
 			} else {
-				deviceTypes = DeviceType.findAll(DeviceType.class,"priority",ApplicationConstants.ASC, locale.toString());
+				//deviceTypes = DeviceType.findAll(DeviceType.class,"priority",ApplicationConstants.ASC, locale.toString());
+				
+				Credential cr = Credential.findByFieldName(Credential.class, "username", this.getCurrentUser().getActualUsername(), "");				
+				List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+				String alldeviceTypeNameParam="";
+				List<String> ugTypes = new ArrayList<String>();
+				for(UserGroup ug : userGroups){
+					String ugType = ug.getUserGroupType().getType();
+					boolean isUGTAlreadyConsidered = false;
+					if(!ugTypes.isEmpty()) {
+						for(String ugt: ugTypes) {
+							if(ugt.equals(ugType)) {
+								isUGTAlreadyConsidered = true;
+								break;
+							}
+						}
+					}
+					if(ugTypes.isEmpty() || !isUGTAlreadyConsidered) {
+						List<UserGroup> activeUserGroupsForGivenUGType = UserGroup.findAllActive(cr, ug.getUserGroupType(), new Date(), locale.toString());
+						if(activeUserGroupsForGivenUGType!=null && !activeUserGroupsForGivenUGType.isEmpty()) {
+							ugTypes.add(ugType);
+							for(UserGroup userGroup: activeUserGroupsForGivenUGType) {
+								if(userGroup != null){
+									/**** Authenticated User's usergroup and usergroupType ****/
+									String userGroupType = userGroup.getUserGroupType().getType();			
+									model.addAttribute("usergroup", userGroup.getId());
+									model.addAttribute("usergroupType", userGroupType);
+									
+									Map<String, String> parameters = UserGroup.findParametersByUserGroup(userGroup);
+									
+									String houseTypeNameParam = parameters.get(ApplicationConstants.HOUSETYPE_KEY + "_" + locale.toString());
+									if(houseTypeNameParam!=null && bothHouseName!=null && houseTypeNameParam.equals(bothHouseName.getValue())) {
+										MessageResource lowerHouseName = MessageResource.findByFieldName(MessageResource.class, "code", "generic.lowerhouse", locale.toString());
+										houseTypeNameParam = lowerHouseName.getValue();
+									}
+									
+									if(houseTypeNameParam!=null && selectedHouseType.getName().equals(houseTypeNameParam)) {
+										String deviceTypeNameParam= parameters.get(ApplicationConstants.DEVICETYPE_KEY + "_" + locale.toString());
+										if(deviceTypeNameParam != null && ! deviceTypeNameParam.equals("")) {
+											//alldeviceTypeNameParam.concat(deviceTypeNameParam);
+											if(!alldeviceTypeNameParam.isEmpty()
+													&& !alldeviceTypeNameParam.endsWith("##")) {
+												alldeviceTypeNameParam=alldeviceTypeNameParam+"##";
+											}
+											alldeviceTypeNameParam=alldeviceTypeNameParam+deviceTypeNameParam;
+											//deviceTypes=DeviceType.findAllowedTypesForUser(deviceTypeNameParam, "##", locale);
+										}
+									}						
+								}
+							}
+						}
+						
+					} else {
+						continue;
+					}
+				}
+				deviceTypes=DeviceType.findAllowedTypesForUser(alldeviceTypeNameParam, "##", locale.toString());
 			}
 			if(deviceTypes==null || deviceTypes.isEmpty()) {
 				logger.error("/**** no devicetypes found ****/");
