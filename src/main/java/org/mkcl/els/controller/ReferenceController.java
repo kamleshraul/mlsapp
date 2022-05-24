@@ -9035,8 +9035,7 @@ public class ReferenceController extends BaseController {
 									
 									String houseTypeNameParam = parameters.get(ApplicationConstants.HOUSETYPE_KEY + "_" + locale.toString());
 									if(houseTypeNameParam!=null && bothHouseName!=null && houseTypeNameParam.equals(bothHouseName.getValue())) {
-										MessageResource lowerHouseName = MessageResource.findByFieldName(MessageResource.class, "code", "generic.lowerhouse", locale.toString());
-										houseTypeNameParam = lowerHouseName.getValue();
+										houseTypeNameParam = selectedHouseType.getName();
 									}
 									
 									if(houseTypeNameParam!=null && selectedHouseType.getName().equals(houseTypeNameParam)) {
