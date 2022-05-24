@@ -1178,6 +1178,23 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 			return null;
 		}
 	}
+
+	public List<UserGroup> findAllActive(final Credential credential,
+			final UserGroupType usergroupType,
+			final Date onDate, String locale) {
+		String strQuery = "SELECT ug FROM UserGroup ug " +
+				" WHERE ug.userGroupType.id=:usergroupTypeId "+
+				" AND ug.activeFrom<=:onDate"+
+				" AND ug.activeTo>=:onDate"+
+				" AND ug.credential.id=:credentialId"+ 
+				" ORDER BY ug.id DESC";
+		Query query = this.em().createQuery(strQuery);
+		query.setParameter("usergroupTypeId", usergroupType.getId());
+		query.setParameter("onDate", onDate);
+		query.setParameter("credentialId", credential.getId());
+		List<UserGroup> userGroups = query.getResultList();
+		return userGroups;
+	}
 	
 	public UserGroup findActive(final String userGroupType,
 			final Date onDate, String locale) {
