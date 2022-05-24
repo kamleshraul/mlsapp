@@ -48,6 +48,7 @@ import org.mkcl.els.domain.ballot.BallotEntry;
 import org.mkcl.els.domain.ballot.DeviceSequence;
 import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.repository.QuestionRepository;
+import org.mkcl.els.repository.WorkflowDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.transaction.annotation.Transactional;
@@ -14449,5 +14450,37 @@ public class Question extends Device implements Serializable {
 	
 	public static int updateTimeoutSupportingMemberTasksForDevice(final Long deviceId, final Date submissionDate) {
 		return getQuestionRepository().updateTimeoutSupportingMemberTasksForDevice(deviceId, submissionDate);
+	}
+	
+	public static boolean anySupportingMembersWorkflows(final Question question) {
+		List<SupportingMember> supportingMembers = question.getSupportingMembers();
+		if(supportingMembers!=null && supportingMembers.size()>0) {
+			for(SupportingMember sm :supportingMembers) {
+				if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean deleteSupportingMembersWorkflows(final Question question) {
+		List<Long> workflowDetailsList=new ArrayList<Long>();
+		if(question!=null && question.getId()>0 && question.getSupportingMembers()!=null 
+				&& question.getSupportingMembers().size()>0) {
+			List<SupportingMember> supportingMembers = question.getSupportingMembers();
+			for(SupportingMember sm :supportingMembers) {
+				if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+					workflowDetailsList.add(Long.valueOf(sm.getWorkflowDetailsId()));
+			}
+		}
+		
+		int deleteCount=0;
+		for(Long workFlowDetailsId : workflowDetailsList) {
+			BaseDomain workFlowdetails = WorkflowDetails.findById(WorkflowDetails.class, workFlowDetailsId);
+			boolean isDeleted = WorkflowDetails.getBaseRepository().remove(workFlowdetails);
+			if(isDeleted)deleteCount++;
+		}
+		
+		return workflowDetailsList!=null && deleteCount== workflowDetailsList.size();
 	}
 }
