@@ -2617,6 +2617,13 @@ class UnstarredQuestionController {
 			Status status=question.getStatus();
 			if(status.getType().equals(ApplicationConstants.QUESTION_UNSTARRED_INCOMPLETE)
 					||status.getType().equals(ApplicationConstants.QUESTION_UNSTARRED_COMPLETE)){
+				// deleting workflows of supporting member before deleting question
+				// and supporting members
+				if(question.getSupportingMembers()!=null && question.getSupportingMembers().size()>0) {
+					if(Question.anySupportingMembersWorkflows(question)) {
+						Question.deleteSupportingMembersWorkflows(question);
+					}
+				}
 				return true;
 			}else{
 				return false;
