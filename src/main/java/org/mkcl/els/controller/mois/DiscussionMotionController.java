@@ -2643,6 +2643,7 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 			Status status=discussionMotion.getStatus();
 			if(status.getType().equals(ApplicationConstants.DISCUSSIONMOTION_INCOMPLETE)
 					||status.getType().equals(ApplicationConstants.DISCUSSIONMOTION_COMPLETE)){
+				DiscussionMotion.supportingMemberWorkflowDeletion(discussionMotion);
 				return true;
 			}else{
 				return false;

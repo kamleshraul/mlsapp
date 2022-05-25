@@ -2455,6 +2455,7 @@ public class EventMotionController extends GenericController<EventMotion>{
 			Status status=eventMotion.getStatus();
 			if(status.getType().equals(ApplicationConstants.EVENTMOTION_INCOMPLETE)
 					||status.getType().equals(ApplicationConstants.EVENTMOTION_COMPLETE)){
+				EventMotion.supportingMemberWorkflowDeletion(eventMotion);
 				return true;
 			}else{
 				return false;

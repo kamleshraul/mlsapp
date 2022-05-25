@@ -2275,6 +2275,7 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 			Status status=billAmendmentMotion.getStatus();
 			if(status.getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_INCOMPLETE)
 					||status.getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_COMPLETE)){
+				BillAmendmentMotion.supportingMemberWorkflowDeletion(billAmendmentMotion);
 				return true;
 			}else{
 				return false;

@@ -2643,6 +2643,7 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 		if(motion!=null){
 			Status status=motion.getStatus();
 			if(status.getType().equals(ApplicationConstants.STANDALONE_INCOMPLETE)||status.getType().equals(ApplicationConstants.STANDALONE_COMPLETE)){
+				StandaloneMotion.supportingMemberWorkflowDeletion(motion);
 				return true;
 			}else{
 				return false;

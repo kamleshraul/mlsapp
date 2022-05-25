@@ -4191,6 +4191,7 @@ public class MotionController extends GenericController<Motion>{
 		if(motion!=null){
 			Status status=motion.getStatus();
 			if(status.getType().equals(ApplicationConstants.MOTION_INCOMPLETE)||status.getType().equals(ApplicationConstants.MOTION_COMPLETE)){
+				Motion.supportingMemberWorkflowDeletion(motion);
 				return true;
 			}else{
 				return false;

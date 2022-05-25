@@ -2744,6 +2744,7 @@ public class AppropriationBillMotionController extends GenericController<Appropr
 		if(motion!=null){
 			Status status=motion.getStatus();
 			if(status.getType().equals(ApplicationConstants.APPROPRIATIONBILLMOTION_INCOMPLETE)||status.getType().equals(ApplicationConstants.APPROPRIATIONBILLMOTION_COMPLETE)){
+				AppropriationBillMotion.supportingMemberWorkflowDeletion(motion);
 				return true;
 			}else{
 				return false;

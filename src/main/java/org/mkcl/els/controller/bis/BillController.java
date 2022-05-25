@@ -5855,6 +5855,7 @@ public class BillController extends GenericController<Bill> {
 		if(bill!=null){
 			Status status=bill.getStatus();
 			if(status.getType().equals(ApplicationConstants.BILL_INCOMPLETE)||status.getType().equals(ApplicationConstants.BILL_COMPLETE)){
+				Bill.supportingMemberWorkflowDeletion(bill);
 				return true;
 			}else{
 				return false;

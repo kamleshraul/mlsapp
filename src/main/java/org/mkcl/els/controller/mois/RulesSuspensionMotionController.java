@@ -2599,6 +2599,7 @@ public class RulesSuspensionMotionController extends GenericController<RulesSusp
 			Status status=rulesSuspensionMotion.getStatus();
 			if(status.getType().equals(ApplicationConstants.RULESSUSPENSIONMOTION_INCOMPLETE)
 					||status.getType().equals(ApplicationConstants.RULESSUSPENSIONMOTION_COMPLETE)){
+				RulesSuspensionMotion.supportingMemberWorkflowDeletion(rulesSuspensionMotion);
 				return true;
 			}else{
 				return false;

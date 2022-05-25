@@ -2780,6 +2780,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 		if(motion!=null){
 			Status status=motion.getStatus();
 			if(status.getType().equals(ApplicationConstants.CUTMOTION_INCOMPLETE)||status.getType().equals(ApplicationConstants.CUTMOTION_COMPLETE)){
+				CutMotion.supportingMemberWorkflowDeletion(motion);
 				return true;
 			}else{
 				return false;

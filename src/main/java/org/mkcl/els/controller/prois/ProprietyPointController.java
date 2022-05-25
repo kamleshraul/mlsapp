@@ -2464,6 +2464,7 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 			if(status!=null && 
 					(ApplicationConstants.PROPRIETYPOINT_COMPLETE.equalsIgnoreCase(status.getType().trim())
 					|| (ApplicationConstants.PROPRIETYPOINT_INCOMPLETE.equalsIgnoreCase(status.getType().trim())))){
+				ProprietyPoint.supportingMemberWorkflowDeletion(proprietyPoint);
 				return true;
 			}
 		}

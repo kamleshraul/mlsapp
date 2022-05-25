@@ -2221,6 +2221,7 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 			Status status=adjournmentMotion.getStatus();
 			if(status.getType().equals(ApplicationConstants.ADJOURNMENTMOTION_INCOMPLETE)
 					||status.getType().equals(ApplicationConstants.ADJOURNMENTMOTION_COMPLETE)){
+				AdjournmentMotion.supportingMemberWorkflowDeletion(adjournmentMotion);
 				return true;
 			}else{
 				return false;
