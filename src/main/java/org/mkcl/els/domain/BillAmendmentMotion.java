@@ -1617,4 +1617,43 @@ public class BillAmendmentMotion extends Device implements Serializable {
 		this.drafts = drafts;
 	}
 	
+	public static void supportingMemberWorkflowDeletion(final BillAmendmentMotion billAmendmentMotion) {
+    	if(billAmendmentMotion!=null && billAmendmentMotion.getId()>0) {
+    		if(anySupportingMembersWorkflows(billAmendmentMotion)) {
+    			deleteSupportingMembersWorkflows(billAmendmentMotion);
+    		}
+    	}
+    }
+    
+    public static boolean anySupportingMembersWorkflows(final BillAmendmentMotion billAmendmentMotion) {
+		List<SupportingMember> supportingMembers = billAmendmentMotion.getSupportingMembers();
+		if(supportingMembers!=null && supportingMembers.size()>0) {
+			for(SupportingMember sm :supportingMembers) {
+				if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean deleteSupportingMembersWorkflows(final BillAmendmentMotion billAmendmentMotion) {
+		List<Long> workflowDetailsList=new ArrayList<Long>();
+		if(billAmendmentMotion!=null && billAmendmentMotion.getId()>0 && billAmendmentMotion.getSupportingMembers()!=null 
+				&& billAmendmentMotion.getSupportingMembers().size()>0) {
+			List<SupportingMember> supportingMembers = billAmendmentMotion.getSupportingMembers();
+			for(SupportingMember sm :supportingMembers) {
+				if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+					workflowDetailsList.add(Long.valueOf(sm.getWorkflowDetailsId()));
+			}
+		}
+		
+		int deleteCount=0;
+		for(Long workFlowDetailsId : workflowDetailsList) {
+			BaseDomain workFlowdetails = WorkflowDetails.findById(WorkflowDetails.class, workFlowDetailsId);
+			boolean isDeleted = WorkflowDetails.getBaseRepository().remove(workFlowdetails);
+			if(isDeleted)deleteCount++;
+		}
+		
+		return workflowDetailsList!=null && deleteCount== workflowDetailsList.size();
+	}
 }

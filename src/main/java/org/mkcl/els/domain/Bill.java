@@ -2068,4 +2068,44 @@ public class Bill extends Device implements Serializable {
 		return numberingHouseTypeName;
 	}
 	
+	public static void supportingMemberWorkflowDeletion(final Bill bill) {
+    	if(bill!=null && bill.getId()>0) {
+    		if(anySupportingMembersWorkflows(bill)) {
+    			deleteSupportingMembersWorkflows(bill);
+    		}
+    	}
+    }
+    
+    public static boolean anySupportingMembersWorkflows(final Bill bill) {
+		List<SupportingMember> supportingMembers = bill.getSupportingMembers();
+		if(supportingMembers!=null && supportingMembers.size()>0) {
+			for(SupportingMember sm :supportingMembers) {
+				if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean deleteSupportingMembersWorkflows(final Bill bill) {
+		List<Long> workflowDetailsList=new ArrayList<Long>();
+		if(bill!=null && bill.getId()>0 && bill.getSupportingMembers()!=null 
+				&& bill.getSupportingMembers().size()>0) {
+			List<SupportingMember> supportingMembers = bill.getSupportingMembers();
+			for(SupportingMember sm :supportingMembers) {
+				if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+					workflowDetailsList.add(Long.valueOf(sm.getWorkflowDetailsId()));
+			}
+		}
+		
+		int deleteCount=0;
+		for(Long workFlowDetailsId : workflowDetailsList) {
+			BaseDomain workFlowdetails = WorkflowDetails.findById(WorkflowDetails.class, workFlowDetailsId);
+			boolean isDeleted = WorkflowDetails.getBaseRepository().remove(workFlowdetails);
+			if(isDeleted)deleteCount++;
+		}
+		
+		return workflowDetailsList!=null && deleteCount== workflowDetailsList.size();
+	}
+	
 }

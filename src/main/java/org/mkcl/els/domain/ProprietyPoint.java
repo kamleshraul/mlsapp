@@ -1,6 +1,7 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -1373,5 +1374,45 @@ public class ProprietyPoint extends Device implements Serializable {
 	    	
     	}
     }
+    
+    public static void supportingMemberWorkflowDeletion(final ProprietyPoint proprietyPoint) {
+    	if(proprietyPoint!=null && proprietyPoint.getId()>0) {
+    		if(anySupportingMembersWorkflows(proprietyPoint)) {
+    			deleteSupportingMembersWorkflows(proprietyPoint);
+    		}
+    	}
+    }
+    
+    public static boolean anySupportingMembersWorkflows(final ProprietyPoint proprietyPoint) {
+		List<SupportingMember> supportingMembers = proprietyPoint.getSupportingMembers();
+		if(supportingMembers!=null && supportingMembers.size()>0) {
+			for(SupportingMember sm :supportingMembers) {
+				if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean deleteSupportingMembersWorkflows(final ProprietyPoint proprietyPoint) {
+		List<Long> workflowDetailsList=new ArrayList<Long>();
+		if(proprietyPoint!=null && proprietyPoint.getId()>0 && proprietyPoint.getSupportingMembers()!=null 
+				&& proprietyPoint.getSupportingMembers().size()>0) {
+			List<SupportingMember> supportingMembers = proprietyPoint.getSupportingMembers();
+			for(SupportingMember sm :supportingMembers) {
+				if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+					workflowDetailsList.add(Long.valueOf(sm.getWorkflowDetailsId()));
+			}
+		}
+		
+		int deleteCount=0;
+		for(Long workFlowDetailsId : workflowDetailsList) {
+			BaseDomain workFlowdetails = WorkflowDetails.findById(WorkflowDetails.class, workFlowDetailsId);
+			boolean isDeleted = WorkflowDetails.getBaseRepository().remove(workFlowdetails);
+			if(isDeleted)deleteCount++;
+		}
+		
+		return workflowDetailsList!=null && deleteCount== workflowDetailsList.size();
+	}
 	
 }

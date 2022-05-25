@@ -2290,4 +2290,43 @@ public class DiscussionMotion extends Device implements Serializable{
 		 return getDiscussionMotionRepository().findMemberMinisterIfExists(discussionmotion, ministry);		 
 	 }
 	 
+	 public static void supportingMemberWorkflowDeletion(final DiscussionMotion discussionMotion) {
+	    	if(discussionMotion!=null && discussionMotion.getId()>0) {
+	    		if(anySupportingMembersWorkflows(discussionMotion)) {
+	    			deleteSupportingMembersWorkflows(discussionMotion);
+	    		}
+	    	}
+	    }
+	    
+	    public static boolean anySupportingMembersWorkflows(final DiscussionMotion discussionMotion) {
+			List<SupportingMember> supportingMembers = discussionMotion.getSupportingMembers();
+			if(supportingMembers!=null && supportingMembers.size()>0) {
+				for(SupportingMember sm :supportingMembers) {
+					if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+						return true;
+				}
+			}
+			return false;
+		}
+		
+		public static boolean deleteSupportingMembersWorkflows(final DiscussionMotion discussionMotion) {
+			List<Long> workflowDetailsList=new ArrayList<Long>();
+			if(discussionMotion!=null && discussionMotion.getId()>0 && discussionMotion.getSupportingMembers()!=null 
+					&& discussionMotion.getSupportingMembers().size()>0) {
+				List<SupportingMember> supportingMembers = discussionMotion.getSupportingMembers();
+				for(SupportingMember sm :supportingMembers) {
+					if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+						workflowDetailsList.add(Long.valueOf(sm.getWorkflowDetailsId()));
+				}
+			}
+			
+			int deleteCount=0;
+			for(Long workFlowDetailsId : workflowDetailsList) {
+				BaseDomain workFlowdetails = WorkflowDetails.findById(WorkflowDetails.class, workFlowDetailsId);
+				boolean isDeleted = WorkflowDetails.getBaseRepository().remove(workFlowdetails);
+				if(isDeleted)deleteCount++;
+			}
+			
+			return workflowDetailsList!=null && deleteCount== workflowDetailsList.size();
+		}
 }

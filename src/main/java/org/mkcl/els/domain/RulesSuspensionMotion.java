@@ -1957,4 +1957,44 @@ public class RulesSuspensionMotion extends Device implements Serializable{
     		return true;
 		}
 	}
+	
+	public static void supportingMemberWorkflowDeletion(final RulesSuspensionMotion rulesSuspensionMotion) {
+    	if(rulesSuspensionMotion!=null && rulesSuspensionMotion.getId()>0) {
+    		if(anySupportingMembersWorkflows(rulesSuspensionMotion)) {
+    			deleteSupportingMembersWorkflows(rulesSuspensionMotion);
+    		}
+    	}
+    }
+    
+    public static boolean anySupportingMembersWorkflows(final RulesSuspensionMotion rulesSuspensionMotion) {
+		List<SupportingMember> supportingMembers = rulesSuspensionMotion.getSupportingMembers();
+		if(supportingMembers!=null && supportingMembers.size()>0) {
+			for(SupportingMember sm :supportingMembers) {
+				if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean deleteSupportingMembersWorkflows(final RulesSuspensionMotion rulesSuspensionMotion) {
+		List<Long> workflowDetailsList=new ArrayList<Long>();
+		if(rulesSuspensionMotion!=null && rulesSuspensionMotion.getId()>0 && rulesSuspensionMotion.getSupportingMembers()!=null 
+				&& rulesSuspensionMotion.getSupportingMembers().size()>0) {
+			List<SupportingMember> supportingMembers = rulesSuspensionMotion.getSupportingMembers();
+			for(SupportingMember sm :supportingMembers) {
+				if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+					workflowDetailsList.add(Long.valueOf(sm.getWorkflowDetailsId()));
+			}
+		}
+		
+		int deleteCount=0;
+		for(Long workFlowDetailsId : workflowDetailsList) {
+			BaseDomain workFlowdetails = WorkflowDetails.findById(WorkflowDetails.class, workFlowDetailsId);
+			boolean isDeleted = WorkflowDetails.getBaseRepository().remove(workFlowdetails);
+			if(isDeleted)deleteCount++;
+		}
+		
+		return workflowDetailsList!=null && deleteCount== workflowDetailsList.size();
+	}
 }

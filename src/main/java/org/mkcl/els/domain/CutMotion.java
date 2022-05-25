@@ -2686,4 +2686,44 @@ public class CutMotion extends Device implements Serializable {
 	public void setReasonForLateReply(String reasonForLateReply) {
 		this.reasonForLateReply = reasonForLateReply;
 	}
+	
+	public static void supportingMemberWorkflowDeletion(final CutMotion cutMotion) {
+    	if(cutMotion!=null && cutMotion.getId()>0) {
+    		if(anySupportingMembersWorkflows(cutMotion)) {
+    			deleteSupportingMembersWorkflows(cutMotion);
+    		}
+    	}
+    }
+    
+    public static boolean anySupportingMembersWorkflows(final CutMotion cutMotion) {
+		List<SupportingMember> supportingMembers = cutMotion.getSupportingMembers();
+		if(supportingMembers!=null && supportingMembers.size()>0) {
+			for(SupportingMember sm :supportingMembers) {
+				if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean deleteSupportingMembersWorkflows(final CutMotion cutMotion) {
+		List<Long> workflowDetailsList=new ArrayList<Long>();
+		if(cutMotion!=null && cutMotion.getId()>0 && cutMotion.getSupportingMembers()!=null 
+				&& cutMotion.getSupportingMembers().size()>0) {
+			List<SupportingMember> supportingMembers = cutMotion.getSupportingMembers();
+			for(SupportingMember sm :supportingMembers) {
+				if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+					workflowDetailsList.add(Long.valueOf(sm.getWorkflowDetailsId()));
+			}
+		}
+		
+		int deleteCount=0;
+		for(Long workFlowDetailsId : workflowDetailsList) {
+			BaseDomain workFlowdetails = WorkflowDetails.findById(WorkflowDetails.class, workFlowDetailsId);
+			boolean isDeleted = WorkflowDetails.getBaseRepository().remove(workFlowdetails);
+			if(isDeleted)deleteCount++;
+		}
+		
+		return workflowDetailsList!=null && deleteCount== workflowDetailsList.size();
+	}
 }

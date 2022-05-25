@@ -1222,5 +1222,45 @@ public class AppropriationBillMotion extends Device implements Serializable {
 	public void setWorkflowDetailsId(Long workflowDetailsId) {
 		this.workflowDetailsId = workflowDetailsId;
 	}
+	
+	public static void supportingMemberWorkflowDeletion(final AppropriationBillMotion appropriationBillMotion) {
+    	if(appropriationBillMotion!=null && appropriationBillMotion.getId()>0) {
+    		if(anySupportingMembersWorkflows(appropriationBillMotion)) {
+    			deleteSupportingMembersWorkflows(appropriationBillMotion);
+    		}
+    	}
+    }
+    
+    public static boolean anySupportingMembersWorkflows(final AppropriationBillMotion appropriationBillMotion) {
+		List<SupportingMember> supportingMembers = appropriationBillMotion.getSupportingMembers();
+		if(supportingMembers!=null && supportingMembers.size()>0) {
+			for(SupportingMember sm :supportingMembers) {
+				if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean deleteSupportingMembersWorkflows(final AppropriationBillMotion appropriationBillMotion) {
+		List<Long> workflowDetailsList=new ArrayList<Long>();
+		if(appropriationBillMotion!=null && appropriationBillMotion.getId()>0 && appropriationBillMotion.getSupportingMembers()!=null 
+				&& appropriationBillMotion.getSupportingMembers().size()>0) {
+			List<SupportingMember> supportingMembers = appropriationBillMotion.getSupportingMembers();
+			for(SupportingMember sm :supportingMembers) {
+				if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+					workflowDetailsList.add(Long.valueOf(sm.getWorkflowDetailsId()));
+			}
+		}
+		
+		int deleteCount=0;
+		for(Long workFlowDetailsId : workflowDetailsList) {
+			BaseDomain workFlowdetails = WorkflowDetails.findById(WorkflowDetails.class, workFlowDetailsId);
+			boolean isDeleted = WorkflowDetails.getBaseRepository().remove(workFlowdetails);
+			if(isDeleted)deleteCount++;
+		}
+		
+		return workflowDetailsList!=null && deleteCount== workflowDetailsList.size();
+	}
 
 }

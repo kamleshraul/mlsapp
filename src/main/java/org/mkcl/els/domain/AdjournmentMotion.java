@@ -2351,5 +2351,45 @@ public class AdjournmentMotion extends Device implements Serializable {
 	    	
     	}
     }
+    
+    public static void supportingMemberWorkflowDeletion(final AdjournmentMotion adjournmentMotion) {
+    	if(adjournmentMotion!=null && adjournmentMotion.getId()>0) {
+    		if(anySupportingMembersWorkflows(adjournmentMotion)) {
+    			deleteSupportingMembersWorkflows(adjournmentMotion);
+    		}
+    	}
+    }
+    
+    public static boolean anySupportingMembersWorkflows(final AdjournmentMotion adjournmentMotion) {
+		List<SupportingMember> supportingMembers = adjournmentMotion.getSupportingMembers();
+		if(supportingMembers!=null && supportingMembers.size()>0) {
+			for(SupportingMember sm :supportingMembers) {
+				if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean deleteSupportingMembersWorkflows(final AdjournmentMotion adjournmentMotion) {
+		List<Long> workflowDetailsList=new ArrayList<Long>();
+		if(adjournmentMotion!=null && adjournmentMotion.getId()>0 && adjournmentMotion.getSupportingMembers()!=null 
+				&& adjournmentMotion.getSupportingMembers().size()>0) {
+			List<SupportingMember> supportingMembers = adjournmentMotion.getSupportingMembers();
+			for(SupportingMember sm :supportingMembers) {
+				if(sm.getWorkflowDetailsId()!=null && sm.getWorkflowDetailsId().trim().length()>0)
+					workflowDetailsList.add(Long.valueOf(sm.getWorkflowDetailsId()));
+			}
+		}
+		
+		int deleteCount=0;
+		for(Long workFlowDetailsId : workflowDetailsList) {
+			BaseDomain workFlowdetails = WorkflowDetails.findById(WorkflowDetails.class, workFlowDetailsId);
+			boolean isDeleted = WorkflowDetails.getBaseRepository().remove(workFlowdetails);
+			if(isDeleted)deleteCount++;
+		}
+		
+		return workflowDetailsList!=null && deleteCount== workflowDetailsList.size();
+	}
 
 }
