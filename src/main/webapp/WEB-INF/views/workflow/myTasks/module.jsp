@@ -851,10 +851,18 @@
 		//to get the new pending tasks
 		function pendingNewTasks(){
 			if($("#getNewTasks").val() != undefined && $("#getNewTasks").val() != ''){
+				var allowedDeviceTypes = "";				
+				$('#selectedDeviceType option').each(function() {
+					allowedDeviceTypes += this.value;
+					allowedDeviceTypes += "~";
+				});
+				
 				var url = "ref/newpendingtasks?sessionYear=" + $("#selectedSessionYear").val() +
-							"&sessionType=" + $("#selectedSessionType").val() + 
-							"&houseType=" + $("#selectedHouseType").val() +
-							"&status=PENDING";
+						"&sessionType=" + $("#selectedSessionType").val() + 
+						"&houseType=" + $("#selectedHouseType").val() +
+						"&allowedDeviceTypes=" + allowedDeviceTypes +
+						"&status=PENDING";
+		
 				$.get(url, function(data){
 					if(data){
 						$("#notificationDiv").html(data.value);
@@ -862,7 +870,7 @@
 					}
 				}).fail(function(){
 					clearInterval(pendingTasksReference);
-				});
+				});				
 			}			  
 		}
 		
