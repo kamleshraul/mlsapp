@@ -1510,6 +1510,38 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 		List<WorkflowDetails> list = jpQuery.getResultList();
     	return list;
 	}
+	
+	public int findPendingWorkflowCountOfCurrentUser(final java.util.Map<String, String> parameters, 
+			final String orderBy,
+			final String sortOrder){
+		
+		StringBuffer strQuery = new StringBuffer("SELECT COUNT(t.id) FROM WorkflowDetails t WHERE");
+		int index = 0; 
+    	for (Entry<String, String> i : parameters.entrySet()) {
+            strQuery.append(" t." + i.getKey() + "=:" + i.getKey());
+            if(index < (parameters.entrySet().size() - 1)){
+            	strQuery.append(" AND");	            	
+            }
+            index++;
+        }
+    	
+    	strQuery.append(" ORDER BY t."+orderBy +" " + sortOrder);
+    	
+    	Query jpQuery = this.em().createQuery(strQuery.toString());
+    	
+    	for (Entry<String, String> i : parameters.entrySet()) {
+            jpQuery.setParameter(i.getKey(), i.getValue());
+        }
+    	
+    	Long pendingWorkflowCount;
+    	try {
+    		pendingWorkflowCount = (Long) jpQuery.getSingleResult();
+        	return pendingWorkflowCount.intValue();
+        	
+    	} catch(NoResultException e) {
+    		return 0;
+    	}
+	}
 
 	public List<WorkflowDetails> findPendingWorkflowOfCurrentUserByAssignmentTimeRange(final java.util.Map<String, String> parameters,
 			final Date toDate,

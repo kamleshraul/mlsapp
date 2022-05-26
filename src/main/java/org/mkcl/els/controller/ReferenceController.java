@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -6087,6 +6088,7 @@ public class ReferenceController extends BaseController {
 			String strHouseType = request.getParameter("houseType");
 			String strWorkflowType = request.getParameter("workflowType");
 			String strWorkflowSubType = request.getParameter("workflowSubType");
+			String strAllowedDeviceTypes = request.getParameter("allowedDeviceTypes");
 			
 			if(strSessionYear != null && !strSessionYear.isEmpty()
 					&& strSessionType != null && !strSessionType.isEmpty()
@@ -6101,17 +6103,21 @@ public class ReferenceController extends BaseController {
 						strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"), "UTF-8");
 						strSessionType = new String(strSessionType.getBytes("ISO-8859-1"), "UTF-8");
 						strHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");
+						
+						if(strAllowedDeviceTypes!=null && !strAllowedDeviceTypes.isEmpty()) {
+							strAllowedDeviceTypes = new String(strAllowedDeviceTypes.getBytes("ISO-8859-1"), "UTF-8");
+						}
 					}
 				}
 				
 				
-				Map<String, String> parameters = new HashMap<String, String>();
-				parameters.put("locale", locale.toString());
+				Map<String, String> parameters = new LinkedHashMap<String, String>();
 				parameters.put("assignee", this.getCurrentUser().getActualUsername());
+				parameters.put("status", strStatus);
 				parameters.put("sessionYear", strSessionYear);
 				parameters.put("sessionType", strSessionType);
 				parameters.put("houseType", strHouseType);
-				parameters.put("status", strStatus);
+				parameters.put("locale", locale.toString());
 				if(strWorkflowType != null && !strWorkflowType.isEmpty()){
 					parameters.put("workflowType", strWorkflowType);
 				}
@@ -6119,12 +6125,21 @@ public class ReferenceController extends BaseController {
 					parameters.put("workflowSubType", strWorkflowSubType);
 				}
 				
-				List<WorkflowDetails> workflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.ASC);
-				
-				if(workflows != null){
+				int pendingTasksCount = 0;
+				if(strAllowedDeviceTypes!=null && !strAllowedDeviceTypes.isEmpty()) {
 					
-						data.setValue(String.valueOf(workflows.size()));
-				}
+					for(String allowedDeviceType: strAllowedDeviceTypes.split("~")) {
+						if(!allowedDeviceType.isEmpty()) {
+							parameters.put("deviceType", allowedDeviceType);
+							pendingTasksCount += WorkflowDetails.findPendingWorkflowCountOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.ASC);							
+						}
+					}
+					
+				} else {
+					pendingTasksCount = WorkflowDetails.findPendingWorkflowCountOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.ASC);
+				}			
+				
+				data.setValue(String.valueOf(pendingTasksCount));
 			}
 		}catch(Exception e){
 			logger.error(e.getMessage());
