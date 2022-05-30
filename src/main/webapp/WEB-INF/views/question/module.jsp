@@ -1173,7 +1173,7 @@
 	}
 	/**** To Generate Intimation Letter ****/
 	function generateIntimationLetter() {		 
-		if($("#intimationLetterFilter").val()=='reminderReportForAnswer') { //for reminder letter report only
+		if($("#intimationLetterFilter").val()=='previewReminderReportForAnswer') { //for reminder letter report only
 			generateReminderLetter(false);
 		} else if($("#intimationLetterFilter").val()=='reminderToDepartmentForAnswer') { //for reminder letter generation to be saved as entry
 			$.prompt("Do you really want to send reminder letter to department now?",{
@@ -1221,6 +1221,9 @@
 			}).done(function(){
 				if(selectedQuestionIds!=undefined && selectedQuestionIds.length>=1) {
 					var outputFormat = 'WORD';
+					if(isRequiredToSend==false) {
+						outputFormat = 'PDF';
+					}
 					if($('#currentusergroupType').val()=='department' || $('#currentusergroupType').val()=='department_deskofficer') {
 						outputFormat = 'PDF';
 					}

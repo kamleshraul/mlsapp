@@ -1325,7 +1325,7 @@ public class QuestionReportController extends BaseController{
     			reminderLetterNumber = FormaterUtil.formatNumberNoGrouping(1, locale.toString());
     		}
     		
-    		reportFile = generateReportUsingFOP(new Object[] {resultList, expectedAnswerReceivingDates, serialNumbers, reminderLetterNumber, isDepartmentLogin}, "qis_reminder_letter_template_"+houseType.getType().toLowerCase().trim(), request.getParameter("outputFormat"), "qis_reminder_letter", locale.toString()); 		
+    		reportFile = generateReportUsingFOP(new Object[] {resultList, expectedAnswerReceivingDates, serialNumbers, reminderLetterNumber, isDepartmentLogin, isRequiredToSendStr}, "qis_reminder_letter_template_"+houseType.getType().toLowerCase().trim(), request.getParameter("outputFormat"), "qis_reminder_letter", locale.toString()); 		
     		if(reportFile!=null) {
     			System.out.println("Report generated successfully in " + request.getParameter("outputFormat") + " format!");
     			openOrSaveReportFileFromBrowser(response, reportFile, request.getParameter("outputFormat"));  
@@ -1361,7 +1361,7 @@ public class QuestionReportController extends BaseController{
     				} 				
     			}
     			
-    			/**** SEND NOTIFICATION TO DEPARTMENT USERS IF REMINDER LETTER IS GENERATED FROM QUESTIONS BRANCH AT VIDHAN BHAVAN ****/
+    			/**** SEND NOTIFICATION TO DEPARTMENT USERS AS WELL AS BRANCH USERS IF REMINDER LETTER IS GENERATED FROM QUESTIONS BRANCH AT VIDHAN BHAVAN ****/
     			if(deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) { //currently required only for unstarred questions
     				if(!isDepartmentLogin.equals("YES")) {
     					if(isRequiredToSend) {
@@ -1371,12 +1371,12 @@ public class QuestionReportController extends BaseController{
         					if(actorAtDepartmentLevel!=null) {
         						String userAtDepartmentLevel = actorAtDepartmentLevel.getId();
             					departmentCoordinationUsername = userAtDepartmentLevel.split("#")[0];
-                				NotificationController.sendReminderLetterForReplyNotReceivedFromDepartmentUsers(houseType, deviceType, departmentCoordinationUsername, departmentName, locale.toString());
+                				NotificationController.sendReminderLetterForReplyNotReceivedFromDepartmentUsers(houseType, deviceType, departmentCoordinationUsername, latestQuestion.getSubDepartment().getName(), departmentName, locale.toString());
                 				
                 				/** UPDATE RECEIVERS IN CURRENT REMINDER LETTER ENTRY **/
                 				currentReminderLetter.setReceivers(departmentCoordinationUsername);
                     			currentReminderLetter.merge();
-        					}
+        					}       					
     					}        				    					
         			}
     			}    			

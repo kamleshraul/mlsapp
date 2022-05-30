@@ -57,7 +57,7 @@ public class NotificationController extends GenericController<Notification> {
 	private INotificationService notificationService;
 	
 	public static INotificationService getNotificationService() {
-    	INotificationService notificationService = new NotificationController().notificationService;
+		INotificationService notificationService = new NotificationController().notificationService;
         if (notificationService == null) {
         	System.out.println("INotificationService has not been injected in QuestionController Singleton Instance");
         	notificationService = new NotificationServiceImpl();
@@ -486,6 +486,48 @@ public class NotificationController extends GenericController<Notification> {
 		templateParameters.put("currentSubDepartment", new String[]{currentSubDepartment});
 		//templateParameters.put("currentSubDepartmentLike", new String[]{"%"+currentSubDepartment+"##%"});		
 		getNotificationService().sendNotificationWithTitleUsingTemplate("DEPARTMENT_REPLY_NOT_RECEIVED_REMINDER_LETTER", templateParameters, locale);
+	}
+	
+	public static void sendReminderLetterForReplyNotReceivedFromDepartmentUsers(final HouseType houseType,
+					final DeviceType deviceType,
+					final String departmentUserName,
+					final String currentSubDepartment,
+					final String currentSubDepartmentMinistryDisplayName,
+					final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("houseTypeType", new String[]{houseType.getType()});
+		templateParameters.put("houseTypeName", new String[]{houseType.getName()});
+		templateParameters.put("deviceTypeType", new String[]{deviceType.getType()});
+		if(deviceType.getName_lowerhouse()!=null && deviceType.getName_upperhouse()!=null
+				&& !deviceType.getName_lowerhouse().equals(deviceType.getName_upperhouse())) {
+			if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+				templateParameters.put("deviceTypeName", new String[]{deviceType.getName_lowerhouse()});
+			} else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+				templateParameters.put("deviceTypeName", new String[]{deviceType.getName_upperhouse()});
+			}
+		} else {
+			templateParameters.put("deviceTypeName", new String[]{deviceType.getName()});
+		}				
+		templateParameters.put("departmentUserName", new String[]{departmentUserName});
+		templateParameters.put("currentSubDepartment", new String[]{currentSubDepartment});
+		templateParameters.put("currentSubDepartmentMinistryDisplayName", new String[]{currentSubDepartmentMinistryDisplayName});
+		//templateParameters.put("currentSubDepartmentLike", new String[]{"%"+currentSubDepartment+"##%"});		
+		getNotificationService().sendNotificationWithTitleUsingTemplate("DEPARTMENT_REPLY_NOT_RECEIVED_REMINDER_LETTER", templateParameters, locale);
+		
+		templateParameters.put("houseTypeNameLike", new String[]{"%"+houseType.getName()+"%"});
+		templateParameters.put("deviceTypeNameLike", new String[]{"%"+deviceType.getName()+"%"});
+		templateParameters.put("currentSubDepartmentLike", new String[]{"%"+currentSubDepartment+"%"});
+		String usergroupTypes = "";
+		CustomParameter csptUserGroupTypesForReminderLetterGeneratedNotification = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_USERGROUPTYPES_FOR_REMINDER_LETTER_GENERATED_NOTIFICATION_TO_BRANCH_USERS", "");
+		if(csptUserGroupTypesForReminderLetterGeneratedNotification!=null 
+				&& csptUserGroupTypesForReminderLetterGeneratedNotification.getValue()!=null) {
+			usergroupTypes = csptUserGroupTypesForReminderLetterGeneratedNotification.getValue();
+		} else {
+			usergroupTypes = "section_officer,assistant,clerk";
+		}
+		templateParameters.put("usergroupTypes", new String[]{usergroupTypes});
+		getNotificationService().sendNotificationWithTitleUsingTemplate("REMINDER_LETTER_GENERATED_NOTIFICATION_TO_BRANCH_USERS", templateParameters, locale);
 	}
 	
 	public static void sendReplyReceivedIntimationToPrimaryMemberOfDevice(final Session session, final DeviceType deviceType, final String deviceNumber, final String primaryMemberUserName, final String locale) {
