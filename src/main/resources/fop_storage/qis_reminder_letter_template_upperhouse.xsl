@@ -82,7 +82,9 @@
 		            					<fo:table-cell>
 		            						<fo:block-container>
 			            						<fo:block text-decoration="underline">तात्काळ</fo:block>
-			            						<fo:block>स्मरणपत्र क्रमांक : <xsl:value-of select="element_4"></xsl:value-of></fo:block>
+			            						<fo:block>
+			            							स्मरणपत्र क्रमांक : <xsl:value-of select="element_4"></xsl:value-of>&#160;<xsl:if test="element_6='false' and element_5='NO'">(PREVIEW COPY)</xsl:if>
+			            						</fo:block>
 		            						</fo:block-container>
 		            					</fo:table-cell>	            					
 		            					<fo:table-cell>

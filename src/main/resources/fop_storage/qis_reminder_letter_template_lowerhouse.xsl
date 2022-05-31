@@ -75,6 +75,7 @@
 	            	<fo:block font-family="Mangal" font-size="10.5px">	  
 	            		<fo:block font-weight="bold" font-size="12px" text-align="center">
 	            			स्मरणपत्र
+	            			<xsl:if test="element_6='false' and element_5='NO'">(PREVIEW COPY)</xsl:if>
 	            		</fo:block>       
 	            		<fo:block font-size="4px">&#160;</fo:block>   					
 						<fo:block text-align="right">
