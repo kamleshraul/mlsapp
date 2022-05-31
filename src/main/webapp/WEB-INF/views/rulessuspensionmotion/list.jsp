@@ -155,7 +155,7 @@
 			</a> |		
 			<c:choose>
 				<c:when test="${houseType=='lowerhouse'}">
-					<a href="#" id="rsmois_bhag_1_report" class="butSim">
+					<%-- <a href="#" id="rsmois_bhag_1_report" class="butSim">
 						<spring:message code="rsmois.bhag_1_report" text="Notice Report"/>
 					</a> |
 					<a href="#" id="rsmois_bhag_2_report" class="butSim">
@@ -163,6 +163,9 @@
 					</a> |
 					<a href="#" id="rsmois_statement_report" class="butSim">
 						<spring:message code="rsmois.statement_report" text="Statement Report"/>
+					</a> | --%>
+					<a href="#" id="rsmois_register_report" class="butSim">
+						<spring:message code="rsmois.register_report" text="Register Report"/>
 					</a> |
 				</c:when>
 				<c:when test="${houseType=='upperhouse'}">

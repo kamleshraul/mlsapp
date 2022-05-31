@@ -535,9 +535,10 @@
 		/**** Register Report Generation ****/
 		function generateRegisterReport() {
 			var selectedRuleSuspensionDate = $('#selectedRuleSuspensionDate').val();
-			$("#amois_register_report").attr('href',
+			$("#rsmois_register_report").attr('href',
 					'rulessuspensionmotion/report/register?'
-					+'ruleSuspensionDate=' + selectedRuleSuspensionDate
+					+'adjourningDate=' + selectedRuleSuspensionDate
+					+'&sessionId=' + $("#loadedSession").val()
 					+'&reportQueryName=RSMOIS_REGISTER_REPORT');
 		}
 		/**** Memberwise Devices Report Generation ****/
