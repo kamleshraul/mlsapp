@@ -27,7 +27,13 @@
 	                  	page-height="29.7cm" page-width="21cm"
 	                  	margin-top="0.5cm" margin-bottom="1.5cm"
 	                  	margin-left="1.5cm" margin-right="1.25cm">
-			      	<fo:region-body margin-top="0cm"/>
+			      	<fo:region-body margin-top="0cm">
+			      		<xsl:if test="element_6='false' and element_5='NO'">
+				      		<xsl:attribute name="background-image">
+	                			<xsl:text>report_images/preview_watermark.jpg</xsl:text>
+	                		</xsl:attribute>
+                		</xsl:if>
+			      	</fo:region-body>
 			      	<fo:region-before region-name="rb-first" extent="2cm"/>
 			      	<fo:region-after region-name="ra-first" extent="1.5cm"/>
   				</fo:simple-page-master>
@@ -99,7 +105,8 @@
 												<fo:block>महाराष्ट्र विधानमंडळ सचिवालय,</fo:block>
 												<fo:block>विधान भवन,</fo:block>
 												<fo:block>मुंबई/नागपूर</fo:block>
-												<fo:block>दिनांक : <xsl:value-of select="element_1[1]/element_1_14"/></fo:block>
+												<!-- <fo:block>दिनांक : <xsl:value-of select="element_1[1]/element_1_14"/></fo:block> -->
+												<fo:block>दिनांक : <xsl:value-of select="element_7"/></fo:block>
 											</fo:block-container>
 		            					</fo:table-cell>
 		            				</fo:table-row>

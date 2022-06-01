@@ -1295,6 +1295,7 @@ public class QuestionReportController extends BaseController{
     			}
     		}    
     		
+    		Date reminderLetterDate = new Date();
     		String reminderLetterNumber = "";
     		Map<String, String> reminderLetterIdentifiers = new HashMap<String, String>();
     		reminderLetterIdentifiers.put("houseType", houseType.getType());
@@ -1317,6 +1318,7 @@ public class QuestionReportController extends BaseController{
     					reminderLetterNumber = FormaterUtil.formatNumberNoGrouping((Integer.parseInt(latestReminderLetter.getReminderNumber())+1), locale.toString());
     				} else {
     					reminderLetterNumber = latestReminderLetter.getReminderNumber();
+    					reminderLetterDate = latestReminderLetter.getReminderDate();
     				}    				
     			} else {
     				reminderLetterNumber = latestReminderLetter.getReminderNumber();
@@ -1324,8 +1326,8 @@ public class QuestionReportController extends BaseController{
     		} else {
     			reminderLetterNumber = FormaterUtil.formatNumberNoGrouping(1, locale.toString());
     		}
-    		
-    		reportFile = generateReportUsingFOP(new Object[] {resultList, expectedAnswerReceivingDates, serialNumbers, reminderLetterNumber, isDepartmentLogin, isRequiredToSendStr}, "qis_reminder_letter_template_"+houseType.getType().toLowerCase().trim(), request.getParameter("outputFormat"), "qis_reminder_letter", locale.toString()); 		
+    		String formattedReminderLetterDate = FormaterUtil.formatDateToString(reminderLetterDate, ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_3, locale.toString());
+    		reportFile = generateReportUsingFOP(new Object[] {resultList, expectedAnswerReceivingDates, serialNumbers, reminderLetterNumber, isDepartmentLogin, isRequiredToSendStr, formattedReminderLetterDate}, "qis_reminder_letter_template_"+houseType.getType().toLowerCase().trim(), request.getParameter("outputFormat"), "qis_reminder_letter", locale.toString()); 		
     		if(reportFile!=null) {
     			System.out.println("Report generated successfully in " + request.getParameter("outputFormat") + " format!");
     			openOrSaveReportFileFromBrowser(response, reportFile, request.getParameter("outputFormat"));  

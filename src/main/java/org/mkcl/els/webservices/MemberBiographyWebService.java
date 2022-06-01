@@ -263,6 +263,8 @@ public class MemberBiographyWebService {
 		       	membersDistrictwise.setPhoto(row[5].toString());
 		       	membersDistrictwise.setBirthDate(row[6].toString());
 		       	membersDistrictwise.setDeathDate(row[7].toString());
+		       	membersDistrictwise.setMiddleName(row[8].toString());
+		       	membersDistrictwise.setPartyName(row[9].toString());
 				members.add(membersDistrictwise);
 			}
 		}
