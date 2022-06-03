@@ -262,7 +262,8 @@ public class MemberBiographyWebService {
 		       	membersDistrictwise.setEmail(row[4].toString());//Houses
 		       	membersDistrictwise.setPhoto(row[5].toString());
 		       	membersDistrictwise.setBirthDate(row[6].toString());
-		       	membersDistrictwise.setDeathDate(row[7].toString());
+		       	//membersDistrictwise.setDeathDate(row[7].toString()); //to be replaced with title as follows
+		       	membersDistrictwise.setTitle(row[7].toString());
 		       	membersDistrictwise.setMiddleName(row[8].toString());
 		       	membersDistrictwise.setPartyName(row[9].toString());
 				members.add(membersDistrictwise);
