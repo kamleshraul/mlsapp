@@ -7,184 +7,191 @@
 		$(document).ready(function() {
 			view_chart();
 			$("#create_chart").click(function() {
-				if($('#currentDeviceType').val()=='resolutions_nonofficial'){
-					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-					var parameters = "houseType="+$("#selectedHouseType").val()
-									 +"&sessionYear="+$("#selectedSessionYear").val()
-									 +"&sessionType="+$("#selectedSessionType").val()
-									 +"&deviceType="+$("#selectedDeviceType").val()
-									 +"&status="+$("#selectedStatus").val()
-									 +"&role="+$("#srole").val(); 
-					var resourceURL = 'chart/create?' + parameters;
-					$.get(resourceURL, function(data) {
-						var displayMessage = data;
-						if(data == "CREATED" || data == "ALREADY_EXISTS") {
-							var newResourceURL = 'chart/view?' + parameters;
-							$.get(newResourceURL,function(data){
-								$("#chartResultDiv").empty();
-								$("#chartResultDiv").html(data);
-								$.unblockUI();					
-							},'html').fail(function(){
-								$.unblockUI();
-								if($("#ErrorMsg").val()!=''){
-									$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-								}else{
-									$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				$.prompt($('#chartCreationConfirmationMsg').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+				   		if(v){
+				   			if($('#currentDeviceType').val()=='resolutions_nonofficial'){
+								$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+								var parameters = "houseType="+$("#selectedHouseType").val()
+												 +"&sessionYear="+$("#selectedSessionYear").val()
+												 +"&sessionType="+$("#selectedSessionType").val()
+												 +"&deviceType="+$("#selectedDeviceType").val()
+												 +"&status="+$("#selectedStatus").val()
+												 +"&role="+$("#srole").val(); 
+								var resourceURL = 'chart/create?' + parameters;
+								$.get(resourceURL, function(data) {
+									var displayMessage = data;
+									if(data == "CREATED" || data == "ALREADY_EXISTS") {
+										var newResourceURL = 'chart/view?' + parameters;
+										$.get(newResourceURL,function(data){
+											$("#chartResultDiv").empty();
+											$("#chartResultDiv").html(data);
+											$.unblockUI();					
+										},'html').fail(function(){
+											$.unblockUI();
+											if($("#ErrorMsg").val()!=''){
+												$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+											}else{
+												$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+											}
+											scrollTop();
+										});
+									}else {
+										displayMessage = "Error Occurred while creating Chart";
+										$.unblockUI();
+										$.fancybox.open(displayMessage);
+									}
+								}).fail(function(){
+									$.unblockUI();
+									if($("#ErrorMsg").val()!=''){
+										$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+									}else{
+										$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+									}
+									scrollTop();
+								});
+							}else if($('#currentDeviceType').val()=="questions_starred"){
+								var parameters = "houseType="+$("#selectedHouseType").val()
+												 +"&sessionYear="+$("#selectedSessionYear").val()
+												 +"&sessionType="+$("#selectedSessionType").val()
+												 +"&deviceType="+$("#selectedQuestionType").val()
+												 +"&group="+$("#selectedGroup").val()
+												 +"&status="+$("#selectedStatus").val()
+												 +"&role="+$("#srole").val() 
+												 + "&answeringDate=" + $("#selectedAnsweringDate").val();
+								if($("#selectedHouseType").val()=='lowerhouse' && $("#chartCreatePermissionLowerhouse").val()=='yes'){
+									$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+									var resourceURL = 'chart/create?' + parameters;
+									$.get(resourceURL, function(data) {
+										var displayMessage = data;
+										if(data == "CREATED" || data == "ALREADY_EXISTS") {
+											var newResourceURL = 'chart/view?' + parameters;
+											$.get(newResourceURL,function(data){
+												$("#chartResultDiv").empty();
+												$("#chartResultDiv").html(data);
+												$.unblockUI();					
+											},'html').fail(function(){
+												$.unblockUI();
+												if($("#ErrorMsg").val()!=''){
+													$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+												}else{
+													$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+												}
+												scrollTop();
+											});
+										}
+										else if(data == "PREVIOUS_CHART_IS_NOT_PROCESSED") {
+											displayMessage = "Previos Chart is not Processed. Kindly process it before creating a new Chart.";
+											$.unblockUI();
+											$.fancybox.open(displayMessage);
+										}
+										else {
+											displayMessage = "Error Occurred while creating Chart";
+											$.unblockUI();
+											$.fancybox.open(displayMessage);
+										}
+									}).fail(function(){
+										$.unblockUI();
+										if($("#ErrorMsg").val()!=''){
+											$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+										}else{
+											$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+										}
+										scrollTop();
+									});
+								}else if($("#selectedHouseType").val()=='upperhouse' && $("#chartCreatePermissionUpperhouse").val()=='yes'){
+									$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+									var resourceURL = 'chart/create?' + parameters;
+									$.get(resourceURL, function(data) {
+										var displayMessage = data;
+										if(data == "CREATED" || data == "ALREADY_EXISTS") {
+											var newResourceURL = 'chart/view?' + parameters;
+											$.get(newResourceURL,function(data){
+												$("#chartResultDiv").empty();
+												$("#chartResultDiv").html(data);
+												$.unblockUI();					
+											},'html').fail(function(){
+												$.unblockUI();
+												if($("#ErrorMsg").val()!=''){
+													$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+												}else{
+													$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+												}
+												scrollTop();
+											});
+										}
+										else if(data == "PREVIOUS_CHART_IS_NOT_PROCESSED") {
+											displayMessage = "Previos Chart is not Processed. Kindly process it before creating a new Chart.";
+											$.unblockUI();
+											$.fancybox.open(displayMessage);
+										}
+										else {
+											displayMessage = "Error Occurred while creating Chart";
+											$.unblockUI();
+											$.fancybox.open(displayMessage);
+										}
+									}).fail(function(){
+										$.unblockUI();
+										if($("#ErrorMsg").val()!=''){
+											$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+										}else{
+											$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+										}
+										scrollTop();
+									});
 								}
-								scrollTop();
-							});
-						}else {
-							displayMessage = "Error Occurred while creating Chart";
-							$.unblockUI();
-							$.fancybox.open(displayMessage);
-						}
-					}).fail(function(){
-						$.unblockUI();
-						if($("#ErrorMsg").val()!=''){
-							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-						}else{
-							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-						}
-						scrollTop();
-					});
-				}else if($('#currentDeviceType').val()=="questions_starred"){
-					var parameters = "houseType="+$("#selectedHouseType").val()
-									 +"&sessionYear="+$("#selectedSessionYear").val()
-									 +"&sessionType="+$("#selectedSessionType").val()
-									 +"&deviceType="+$("#selectedQuestionType").val()
-									 +"&group="+$("#selectedGroup").val()
-									 +"&status="+$("#selectedStatus").val()
-									 +"&role="+$("#srole").val() 
-									 + "&answeringDate=" + $("#selectedAnsweringDate").val();
-					if($("#selectedHouseType").val()=='lowerhouse' && $("#chartCreatePermissionLowerhouse").val()=='yes'){
-						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-						var resourceURL = 'chart/create?' + parameters;
-						$.get(resourceURL, function(data) {
-							var displayMessage = data;
-							if(data == "CREATED" || data == "ALREADY_EXISTS") {
-								var newResourceURL = 'chart/view?' + parameters;
-								$.get(newResourceURL,function(data){
-									$("#chartResultDiv").empty();
-									$("#chartResultDiv").html(data);
-									$.unblockUI();					
-								},'html').fail(function(){
-									$.unblockUI();
-									if($("#ErrorMsg").val()!=''){
-										$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-									}else{
-										$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-									}
-									scrollTop();
-								});
-							}
-							else if(data == "PREVIOUS_CHART_IS_NOT_PROCESSED") {
-								displayMessage = "Previos Chart is not Processed. Kindly process it before creating a new Chart.";
-								$.unblockUI();
-								$.fancybox.open(displayMessage);
-							}
-							else {
-								displayMessage = "Error Occurred while creating Chart";
-								$.unblockUI();
-								$.fancybox.open(displayMessage);
-							}
-						}).fail(function(){
-							$.unblockUI();
-							if($("#ErrorMsg").val()!=''){
-								$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-							}else{
-								$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-							}
-							scrollTop();
-						});
-					}else if($("#selectedHouseType").val()=='upperhouse' && $("#chartCreatePermissionUpperhouse").val()=='yes'){
-						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-						var resourceURL = 'chart/create?' + parameters;
-						$.get(resourceURL, function(data) {
-							var displayMessage = data;
-							if(data == "CREATED" || data == "ALREADY_EXISTS") {
-								var newResourceURL = 'chart/view?' + parameters;
-								$.get(newResourceURL,function(data){
-									$("#chartResultDiv").empty();
-									$("#chartResultDiv").html(data);
-									$.unblockUI();					
-								},'html').fail(function(){
-									$.unblockUI();
-									if($("#ErrorMsg").val()!=''){
-										$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-									}else{
-										$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-									}
-									scrollTop();
-								});
-							}
-							else if(data == "PREVIOUS_CHART_IS_NOT_PROCESSED") {
-								displayMessage = "Previos Chart is not Processed. Kindly process it before creating a new Chart.";
-								$.unblockUI();
-								$.fancybox.open(displayMessage);
-							}
-							else {
-								displayMessage = "Error Occurred while creating Chart";
-								$.unblockUI();
-								$.fancybox.open(displayMessage);
-							}
-						}).fail(function(){
-							$.unblockUI();
-							if($("#ErrorMsg").val()!=''){
-								$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-							}else{
-								$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-							}
-							scrollTop();
-						});
-					}
 
-				}else if($('#currentDeviceType').val()=="motions_standalonemotion_halfhourdiscussion"){
-					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-					var parameters = "houseType="+$("#selectedHouseType").val()
-									 +"&sessionYear="+$("#selectedSessionYear").val()
-									 +"&sessionType="+$("#selectedSessionType").val()
-									 +"&deviceType="+$("#selectedQuestionType").val()
-									 +"&status="+$("#selectedStatus").val()
-									 +"&role="+$("#srole").val();
-					var resourceURL = 'chart/create?' + parameters;
-					$.get(resourceURL, function(data) {
-						var displayMessage = data;
-						if(data == "CREATED" || data == "ALREADY_EXISTS") {
-							var newResourceURL = 'chart/view?' + parameters;
-							$.get(newResourceURL,function(data){
-								$("#chartResultDiv").empty();
-								$("#chartResultDiv").html(data);
-								$.unblockUI();					
-							},'html').fail(function(){
-								$.unblockUI();
-								if($("#ErrorMsg").val()!=''){
-									$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-								}else{
-									$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-								}
-								scrollTop();
-							});
-						}
-						else if(data == "PREVIOUS_CHART_IS_NOT_PROCESSED") {
-							displayMessage = "Previos Chart is not Processed. Kindly process it before creating a new Chart.";
-							$.unblockUI();
-							$.fancybox.open(displayMessage);
-						}
-						else {
-							displayMessage = "Error Occurred while creating Chart";
-							$.unblockUI();
-							$.fancybox.open(displayMessage);
-						}
-					}).fail(function(){
-						$.unblockUI();
-						if($("#ErrorMsg").val()!=''){
-							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-						}else{
-							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-						}
-						scrollTop();
-					});
-				}				
+							}else if($('#currentDeviceType').val()=="motions_standalonemotion_halfhourdiscussion"){
+								$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+								var parameters = "houseType="+$("#selectedHouseType").val()
+												 +"&sessionYear="+$("#selectedSessionYear").val()
+												 +"&sessionType="+$("#selectedSessionType").val()
+												 +"&deviceType="+$("#selectedQuestionType").val()
+												 +"&status="+$("#selectedStatus").val()
+												 +"&role="+$("#srole").val();
+								var resourceURL = 'chart/create?' + parameters;
+								$.get(resourceURL, function(data) {
+									var displayMessage = data;
+									if(data == "CREATED" || data == "ALREADY_EXISTS") {
+										var newResourceURL = 'chart/view?' + parameters;
+										$.get(newResourceURL,function(data){
+											$("#chartResultDiv").empty();
+											$("#chartResultDiv").html(data);
+											$.unblockUI();					
+										},'html').fail(function(){
+											$.unblockUI();
+											if($("#ErrorMsg").val()!=''){
+												$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+											}else{
+												$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+											}
+											scrollTop();
+										});
+									}
+									else if(data == "PREVIOUS_CHART_IS_NOT_PROCESSED") {
+										displayMessage = "Previos Chart is not Processed. Kindly process it before creating a new Chart.";
+										$.unblockUI();
+										$.fancybox.open(displayMessage);
+									}
+									else {
+										displayMessage = "Error Occurred while creating Chart";
+										$.unblockUI();
+										$.fancybox.open(displayMessage);
+									}
+								}).fail(function(){
+									$.unblockUI();
+									if($("#ErrorMsg").val()!=''){
+										$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+									}else{
+										$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+									}
+									scrollTop();
+								});
+							}
+				   		}
+					}
+				});
+				return false;								
 			});
 			
 			$("#view_chart").click(function(){
@@ -515,5 +522,6 @@
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 <input type="hidden" id="chartCreatePermissionLowerhouse" value="<spring:message code='chart.createpermission.lowerhouse'/>"/>
 <input type="hidden" id="chartCreatePermissionUpperhouse" value="<spring:message code='chart.createpermission.upperhouse'/>"/>
+<input type="hidden" id="chartCreationConfirmationMsg" value="<spring:message code='chart.creation.confirmationMessage' text='Are you sure you want to create this chart now?'/>"/>
 </body>
 </html>
