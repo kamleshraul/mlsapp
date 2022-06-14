@@ -77,7 +77,7 @@
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		    
 			       <!-- content as per report -->
-			      <fo:block font-family="mangal" font-size="13px" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">	
+			      <fo:block font-family="Kokila" font-size="15px" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">	
 		     		  	<fo:block font-weight="bold" text-align="left">प्रेषक :</fo:block>
 		     		  	<fo:block font-weight="bold" text-align="left">&#160;&#160;&#160;&#160;&#160;प्रधान सचिव,</fo:block>
 		     		  	<fo:block text-align="left">&#160;&#160;&#160;&#160;&#160;महाराष्ट्र विधानमंडळ सचिवालय</fo:block>	
@@ -87,10 +87,10 @@
 		     		  	<fo:block font-weight="bold" text-align="left">&#160;&#160;&#160;&#160;&#160;&#160;विषय:-सन २०१५-२०१६ या वर्षासाठी गठीत झालेल्या आश्वासन समितीची प्रारंभिक बैठक</fo:block>
 		     		  	<fo:block font-size="10px">&#160;</fo:block>	
 				       	<fo:block font-weight="bold" text-align="left">महोदय/महोदया,</fo:block>
-					  <fo:block  font-size="12px">
+					  <fo:block  font-size="14px">
 			       		&#160;&#160;&#160;&#160;&#160;निदेशानुसार आपणास कळविण्यात येते की,सन २०१५-२०१६ या वर्षासाठी गठीत झालेल्या आश्वासन समितीची प्रारंभीक बैठक शुक्रवार, दिनांक  १२ फेब्रुवारी,२०१६ रोजी दुपारी २.०० वाजता कक्ष क्रमांक २००१ (विसावा मजला),  विधान भवन,मुंबई येथे आयोजित करण्यात आली आहे. 				       		
 			      	  </fo:block>	
-			      	  	  <fo:block  font-size="12px">
+			      	  	  <fo:block  font-size="14px">
 			       		&#160;&#160;&#160;&#160;&#160;कृपया बैठकीस उपस्थित राहावे,ही विनंती. 				       		
 			      	  </fo:block>	
 			      	  	<fo:block text-align="right">

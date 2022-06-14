@@ -58,21 +58,21 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            	
-	            	<fo:block font-family="Mangal" font-size="10.5px">
+	            	<fo:block font-family="Kokila" font-size="15px">
 	            		<fo:block>
 		            		<fo:block>
 		            			<fo:table table-layout="fixed" width="100%">
@@ -82,7 +82,7 @@
 									<fo:table-body>
 										<fo:table-row>
 											<fo:table-cell>
-												<fo:block text-align="left" font-size="18" font-weight="bold" text-decoration="underline">
+												<fo:block text-align="left" font-size="20" font-weight="bold" text-decoration="underline">
 													स्मरणपत्र क्र.१										
 												</fo:block>										
 											</fo:table-cell>
@@ -90,7 +90,7 @@
 												<fo:block>&#160;</fo:block>
 											</fo:table-cell>
 											<fo:table-cell>
-												<fo:block text-align="right" font-size="18" font-weight="bold">
+												<fo:block text-align="right" font-size="20" font-weight="bold">
 							            			<xsl:value-of select="./element_1/element_1_4"/>
 							            		</fo:block>
 											</fo:table-cell>
@@ -107,7 +107,7 @@
 									<fo:table-body>
 										<fo:table-row>
 											<fo:table-cell>
-												<fo:block text-align="left" font-size="13" font-weight="bold" text-decoration="underline">
+												<fo:block text-align="left" font-size="15" font-weight="bold" text-decoration="underline">
 													<fo:block>विधानपरिषद म.वि.प. नियम ९३ अन्वये सूचना</fo:block>
 													<fo:block>अति-तात्काळ</fo:block>
 												</fo:block>										
@@ -138,7 +138,7 @@
 	            						<fo:table-row>
 	            							<fo:table-cell>
 	            								<fo:block>
-													<fo:block text-align="left" font-size="11" font-weight="bold">प्रेषक : </fo:block>	            									
+													<fo:block text-align="left" font-size="14" font-weight="bold">प्रेषक : </fo:block>	            									
 	            									<fo:block>
 														<fo:table>
 															<fo:table-body>								
@@ -308,7 +308,7 @@
 														<fo:block text-align="right">
 															<fo:block margin-right="3.1cm" font-weight="bold">आपला,</fo:block>
 															<fo:block>&#160;</fo:block>
-															<fo:block margin-right="2.5cm" font-size="10.5px" font-weight="bold">(मंदार शेमणकर)</fo:block>							
+															<fo:block margin-right="2.5cm" font-size="15px" font-weight="bold">(मंदार शेमणकर)</fo:block>							
 															<fo:block margin-right="2.5cm">कक्ष अधिकारी,</fo:block>							
 															<fo:block margin-right="1.5cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 														</fo:block>

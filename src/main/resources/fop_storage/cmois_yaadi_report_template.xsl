@@ -59,7 +59,7 @@
 	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="page-number">	        	
-		        	<fo:block font-family="Mangal" font-size="10pt" text-align="center">
+		        	<fo:block font-family="Kokila" font-size="15pt" text-align="center">
 		        		<fo:page-number/>		        				        		
 		        	</fo:block>
 		        </fo:static-content>		
@@ -67,7 +67,7 @@
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		    
 			       <!-- content as per report -->	
-			       <fo:block font-family="Mangal" font-size="10.5pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
+			       <fo:block font-family="Kokila" font-size="15.5pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
 			       		<!-- <fo:block font-size="20px" font-weight="bold" text-align="center" border-bottom-width="1px" border-bottom-style="solid">
 							<xsl:value-of select="element_1/element_1_1"/>
 						</fo:block> -->
@@ -326,7 +326,7 @@
 										</fo:table-body>
 									</fo:table>
 								</fo:block>
-								<fo:block font-size="6pt">
+								<fo:block font-size="9pt">
 		               				<fo:leader leader-pattern="rule" leader-length="100%" rule-style="solid" rule-thickness="2pt"/>
 		               			</fo:block>
 								<fo:block font-size="4px">&#160;</fo:block>
@@ -404,10 +404,10 @@
 		               			<fo:block margin-top="50">
 		               				&#160;
 		               			</fo:block>
-		               			<fo:block font-size="6pt" text-align="center">               				
+		               			<fo:block font-size="9pt" text-align="center">               				
 		               				_____________________________________________
 		               			</fo:block>
-		               			<fo:block font-size="9.5px" text-align="center">
+		               			<fo:block font-size=15px" text-align="center">
 		               				<xsl:value-of select="element_1/element_1_18"/>
 		               			</fo:block>
 			       			</xsl:when>

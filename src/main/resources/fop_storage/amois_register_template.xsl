@@ -58,30 +58,30 @@
 	        <fo:page-sequence master-reference="others" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-common">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-common">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            	
-	            	<fo:block font-family="Mangal" font-size="10.5px">
+	            	<fo:block font-family="Kokila" font-size="15px">
 	            		<xsl:choose>
 	            			<xsl:when test="element_1">
-	            				<fo:block text-align="center" font-size="18px" font-weight="bold">
+	            				<fo:block text-align="center" font-size="20px" font-weight="bold">
 			            			<xsl:value-of select="element_1[1]/element_1_4"></xsl:value-of>
 			            		</fo:block>
-			            		<fo:block text-align="center" font-size="14px" font-weight="bold">
+			            		<fo:block text-align="center" font-size="18px" font-weight="bold">
 			            			<xsl:value-of select="element_1[1]/element_1_2"/>
 			            		</fo:block>
-			            		<fo:block text-align="center" font-size="12px" font-weight="bold">
+			            		<fo:block text-align="center" font-size="16px" font-weight="bold">
 			            			<xsl:value-of select="element_1[1]/element_1_6"></xsl:value-of>
 			            		</fo:block>	
 			            		<fo:block font-size="10px">&#160;</fo:block>
@@ -203,7 +203,7 @@
 								</fo:block>           				
 	            			</xsl:when>
 	            			<xsl:otherwise>
-	            				<fo:block text-align="center" font-size="14px" font-weight="bold">
+	            				<fo:block text-align="center" font-size="16px" font-weight="bold">
 	            					सध्या एकही सूचना उपलब्ध नाही.
 	            				</fo:block>
 	            			</xsl:otherwise>

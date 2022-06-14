@@ -77,7 +77,7 @@
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		    
 			       <!-- content as per report -->
-			      <fo:block font-family="mangal" font-size="13px" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">	
+			      <fo:block font-family="Kokila" font-size="15px" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">	
 		     		  	
 				 
 			     
@@ -119,17 +119,17 @@
 															<fo:block font-weight="bold" text-decoration="underline" text-align="center">विषय :<xsl:value-of select="./element_1_2"/>वर सदस्यांची नामनियुक्ती (२०१५-२०१६)</fo:block>
 															<xsl:choose>
 																	<xsl:when test="./element_1_8='विधानसभा'">
-																		<fo:block  font-size="12px">
+																		<fo:block  font-size="14px">
 			       												&#160;&#160;&#160;&#160;&#160;महाराष्ट्र विधानसभा नियम _____अन्वये मा.उपाध्यक्ष विधानसभा यांनी <xsl:value-of select="../element_2"/> रोजी सन २०१५-२०१६ या वर्षासाठी <xsl:value-of select="./element_1_2"/>वर अनुक्रमे महाराष्ट्र विधानसभेचे खालील सदस्य नामनियुक्ती केली आहे.				       		
 			      	  										</fo:block>	
 																	</xsl:when>
 																	<xsl:when test="./element_1_8='विधानपरिषद'">
-																		<fo:block  font-size="12px">
+																		<fo:block  font-size="14px">
 			       												&#160;&#160;&#160;&#160;&#160;महाराष्ट्र विधानपरिषद नियम _____अन्वये मा.सभापती,विधानपरिषद यांनी <xsl:value-of select="../element_2"/> रोजी सन २०१५-२०१६ या वर्षासाठी <xsl:value-of select="./element_1_2"/>वर अनुक्रमे महाराष्ट्र विधानपरिषदेचे खालील सदस्य नामनियुक्ती केली आहे.				       		
 			      	  										</fo:block>	
 																	</xsl:when>
 																	<xsl:when test="./element_1_8='दोन्ही सभागृह'">
-																			<fo:block  font-size="12px">
+																			<fo:block  font-size="14px">
 			       												&#160;&#160;&#160;&#160;&#160;महाराष्ट्र विधानसभा नियम _____अन्वये मा.उपाध्यक्ष विधानसभा यांनी <xsl:value-of select="../element_2"/> रोजी आणि महाराष्ट्र विधानपरिषद नियम _______ अन्वये मा.सभापती,विधानपरिषद यांनी <xsl:value-of select="../element_2"/> रोजी सन २०१५-२०१६ या वर्षासाठी <xsl:value-of select="./element_1_2"/>वर अनुक्रमे महाराष्ट्र विधानसभेचे व महाराष्ट्र विधानपरिषदेचे खालील सदस्य नामनियुक्ती केली आहे.				       		
 			      	  										</fo:block>	
 																	</xsl:when>

@@ -77,9 +77,9 @@
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		    
 			       <!-- content as per report -->
-			      <fo:block font-family="mangal" font-size="13px" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">	
+			      <fo:block font-family="Kokila" font-size="15px" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">	
 		     		  	<fo:block font-weight="bold" text-align="right">क्रमांक - _____</fo:block>	
-				       	<fo:block font-weight="bold" font-size="16px" text-align="center" >
+				       	<fo:block font-weight="bold" font-size="18px" text-align="center" >
 								<fo:block text-decoration="underline">महाराष्ट्र <xsl:value-of select="./element_1/element_1_7"/></fo:block>
 								<fo:block text-decoration="underline">पत्रक भाग दोन </fo:block>
 								<fo:block>	<xsl:value-of select="./element_2"/>/<xsl:value-of select="./element_3"/></fo:block>
@@ -90,17 +90,17 @@
 			      
 			      <xsl:choose>
 						<xsl:when test="./element_1/element_1_7='विधानसभा'">
-								  <fo:block  font-size="12px">
+								  <fo:block  font-size="14px">
 			       					&#160;&#160;&#160;&#160;&#160;सन २०१५-२०१६ या वर्षासाठी विधानमंडळाच्या विविध समित्यावर मा.उपाध्यक्ष,महाराष्ट्र विधानसभा यांनी <xsl:value-of select="./element_2"/> रोजी विधानसभा सदस्यांची खालीलप्रमाणे नामनियुक्ती केली आहे.				       		
 			      	  			 </fo:block>
 						</xsl:when>
 						<xsl:when test="./element_1/element_1_7='विधानपरिषद'">
-							  		<fo:block  font-size="12px">
+							  		<fo:block  font-size="14px">
 			       					&#160;&#160;&#160;&#160;&#160;सन २०१५-२०१६ या वर्षासाठी विधानमंडळाच्या विविध समित्यावर मा.सभापती,महाराष्ट्र विधानपरिषद यांनी <xsl:value-of select="./element_2"/> रोजी विधानपरिषद सदस्यांची खालीलप्रमाणे नामनियुक्ती केली आहे.				       		
 			      	  				</fo:block>
 						</xsl:when>
 						<xsl:when test="./element_1/element_1_7='दोन्ही सभागृह'">
-								 <fo:block  font-size="12px">
+								 <fo:block  font-size="14px">
 			       					&#160;&#160;&#160;&#160;&#160;सन २०१५-२०१६ या वर्षासाठी विधानमंडळाच्या विविध समित्यावर मा.उपाध्यक्ष,महाराष्ट्र विधानसभा व मा.सभापती,महाराष्ट्र विधानपरिषद यांनी <xsl:value-of select="./element_2"/> रोजी विधानसभा व विधानपरिषद सदस्यांची खालीलप्रमाणे नामनियुक्ती केली आहे.				       		
 			      	  			 </fo:block>
 						</xsl:when>
