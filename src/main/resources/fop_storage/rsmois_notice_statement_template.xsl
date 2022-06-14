@@ -58,21 +58,21 @@
 	        <fo:page-sequence master-reference="others" id="DocumentBody1">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-common">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-common">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            	
-	            	<fo:block font-family="Mangal" font-size="12px">
+	            	<fo:block font-family="Kokila" font-size="15px">
 	            		<xsl:choose>
 	            			<xsl:when test="element_1">
 	            				<fo:block text-align="center" font-weight="bold" text-decoration="underline"> नियम २८९ अन्वये सभागृहाचे सर्व कामकाज स्थगित करण्याची सूचना</fo:block>
@@ -136,7 +136,7 @@
 	            				</fo:table>				
 	            			</xsl:when>
 	            			<xsl:otherwise>
-	            				<fo:block text-align="center" font-size="14px" font-weight="bold">
+	            				<fo:block text-align="center" font-size="15px" font-weight="bold">
 	            					&#160; सूचना नाही आहे.
 	            				</fo:block>
 	            			</xsl:otherwise>

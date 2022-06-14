@@ -74,12 +74,12 @@
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		    
 			       <!-- content as per report -->	
-			       <fo:block font-family="Mangal" font-size="10.5px">
+			       <fo:block font-family="Kokila" font-size="15px">
 			       		<xsl:variable name="houseType" select="element_1[1]/element_1_2"/>
 			       		<xsl:variable name="selectedAnsweringDate" select="element_4"/>
 			       		<xsl:variable name="deviceType" select="element_1[1]/element_1_12"/>
 			       		<xsl:variable name="status" select="element_1[1]/element_1_14"/>
-			       		<fo:block font-size="13px" text-align="center" font-weight="bold" text-decoration="underline">
+			       		<fo:block font-size="18px" text-align="center" font-weight="bold" text-decoration="underline">
 			       			<xsl:value-of select="element_1[1]/element_1_3"/>&#160;<xsl:value-of select="element_2[2]"/>
 			       		</fo:block>	
 			       		<fo:block font-size="4px">&#160;</fo:block>
@@ -89,7 +89,7 @@
 			       			<xsl:value-of select="element_2[4]"/> :- &#160;&#160;<fo:inline font-weight="bold"><xsl:value-of select="element_1[1]/element_1_5"/></fo:inline>
 			       		</fo:block>
 			       		<fo:block font-size="4px">&#160;</fo:block>
-			       		<fo:block font-size="11px" font-weight="bold" text-decoration="underline">
+			       		<fo:block font-size="15px" font-weight="bold" text-decoration="underline">
 			       			<xsl:value-of select="element_1[1]/element_1_13"/> - <xsl:value-of select="element_1[1]/element_1_15"/>
 			       		</fo:block>
 			       		<xsl:variable name="isSubDepartmentSelected">
@@ -97,13 +97,13 @@
 			       		</xsl:variable>
 			       		<xsl:if test="$isSubDepartmentSelected='yes'">
 				       		<fo:block font-size="4px">&#160;</fo:block>
-				       		<fo:block font-size="11px" font-weight="bold" text-decoration="underline">
+				       		<fo:block font-size="15px" font-weight="bold" text-decoration="underline">
 				       			<xsl:value-of select="element_2[6]"/> - <xsl:value-of select="element_1[1]/element_1_6"/>
 				       		</fo:block>
 			       		</xsl:if>
 			       		<fo:block font-size="4px">&#160;</fo:block>
 			       		<xsl:if test="$houseType='lowerhouse' and $deviceType='questions_starred' and $status='question_final_admission' and $selectedAnsweringDate!=''">
-				       		<fo:block font-size="11px" font-weight="bold" text-align="center">		       			
+				       		<fo:block font-size="15px" font-weight="bold" text-align="center">		       			
 				       			<xsl:value-of select="element_1[1]/element_1_18"/>&#160;<xsl:value-of select="element_2[13]"/>
 				       		</fo:block>			       		
 				       		<fo:block font-size="4px">&#160;</fo:block>

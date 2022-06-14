@@ -58,21 +58,21 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">	
-	            	<fo:block font-family="Mangal" font-size="10.5px">	  
+	            	<fo:block font-family="Kokila" font-size="15px">	  
 	            		<fo:block>
 	            			<fo:table table-layout="fixed" width="100%">
 	            				<fo:table-column column-number="1" column-width="70%" />
@@ -213,28 +213,28 @@
 	        <fo:page-sequence master-reference="others" id="DocumentBody2">    	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-common">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-common">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            	
-	            	<fo:block font-family="Mangal" font-size="10.5px">
-	            		<fo:block font-size="14px" font-weight="bold" text-align="center">
+	            	<fo:block font-family="Kokila" font-size="15px">
+	            		<fo:block font-size="18px" font-weight="bold" text-align="center">
 	            			<xsl:value-of select="element_1[1]/element_1_3"></xsl:value-of>
 	            		</fo:block>
 	            		
 	            		<fo:block font-size="6px">&#160;</fo:block>	
 	            		
-	            		<fo:block font-size="13px" font-weight="bold" text-align="center" text-decoration="underline">
+	            		<fo:block font-size="16px" font-weight="bold" text-align="center" text-decoration="underline">
 	            			विवरणपत्र
 	            		</fo:block>
 	            	

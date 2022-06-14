@@ -80,7 +80,7 @@
 			
 	        <fo:page-sequence master-reference="otherPages" id="DocumentBody">
 		        <fo:flow flow-name="xsl-region-body">	
-	            	<fo:block font-family="Mangal" font-size="10.5pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
+	            	<fo:block font-family="Kokila" font-size="15pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
 					    <fo:block font-size="18" font-weight="bold" text-align="center">
 							महाराष्ट्र <xsl:value-of select="element_3"/>
 						</fo:block>
@@ -117,7 +117,7 @@
 							-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;
 						</fo:block> -->						
 						<fo:block font-size="2px">&#160;</fo:block>
-	                	<fo:block text-align="left" margin-left="0.25cm" font-size="12.5pt" font-weight="bold">
+	                	<fo:block text-align="left" margin-left="0.25cm" font-size="17pt" font-weight="bold">
 	                		अतारांकित प्रश्नोत्तरांची 
                 			<xsl:choose>
                 				<xsl:when test="element_9 = '१'"><fo:inline font-weight="bold" text-decoration="underline">पहिली यादी</fo:inline></xsl:when>
@@ -161,17 +161,17 @@
 						                        <fo:table-header>
 						                        	<fo:table-row height="10mm">
 						                        		<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" font-weight="bold">
-							                        	   	<fo:block text-align="center" font-size="10.5pt" font-weight="bold">
+							                        	   	<fo:block text-align="center" font-size="15pt" font-weight="bold">
 					                                                                    अ.क्र.
 						                                    </fo:block>
 							                        	</fo:table-cell>
 							                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" font-weight="bold">
-							                        	    <fo:block text-align="center" font-size="10.5pt" font-weight="bold">
+							                        	    <fo:block text-align="center" font-size="15pt" font-weight="bold">
 					                                                                    प्रश्न क्रमांक
 						                                    </fo:block>
 							                        	</fo:table-cell>
 							                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" font-weight="bold">
-							                        	    <fo:block text-align="center" font-size="10.5pt" font-weight="bold">
+							                        	    <fo:block text-align="center" font-size="15pt" font-weight="bold">
 					                                                                    अधिवेशन
 						                                    </fo:block>
 							                        	</fo:table-cell>
@@ -236,17 +236,17 @@
 						                        <fo:table-header>
 						                        	<fo:table-row height="10mm">
 						                        		<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" font-weight="bold">
-							                        	   	<fo:block text-align="center" font-size="10.5pt" font-weight="bold">
+							                        	   	<fo:block text-align="center" font-size="15pt" font-weight="bold">
 					                                                                    अ.क्र.
 						                                    </fo:block>
 							                        	</fo:table-cell>
 							                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" font-weight="bold">
-							                        	    <fo:block text-align="center" font-size="10.5pt" font-weight="bold">
+							                        	    <fo:block text-align="center" font-size="15pt" font-weight="bold">
 					                                                                    प्रश्न क्रमांक
 						                                    </fo:block>
 							                        	</fo:table-cell>
 							                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" font-weight="bold">
-							                        	    <fo:block text-align="center" font-size="10.5pt" font-weight="bold">
+							                        	    <fo:block text-align="center" font-size="15pt" font-weight="bold">
 					                                                                    अधिवेशन
 						                                    </fo:block>
 							                        	</fo:table-cell>

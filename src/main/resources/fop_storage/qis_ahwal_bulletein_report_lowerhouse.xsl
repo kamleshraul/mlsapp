@@ -77,12 +77,12 @@
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		    
 			       <!-- content as per report -->	
-			       <fo:block font-family="Mangal" font-size="9px">
-			       		<fo:block text-align="center" font-size="10.5px" font-weight="bold">			       			
+			       <fo:block font-family="Kokila" font-size="15px">
+			       		<fo:block text-align="center" font-size="20px" font-weight="bold">			       			
 			       			<xsl:apply-templates select="element_1[1]/element_1_3"/>
 			       		</fo:block>
 			       		<fo:block font-size="6px">&#160;</fo:block>
-			       		<fo:block text-align="center" font-size="10px" font-weight="bold">
+			       		<fo:block text-align="center" font-size="18px" font-weight="bold">
 			       			<xsl:variable name="groupHeader" select="element_1[1]/element_1_2"></xsl:variable>			       			
 			       			<fo:block>(विवरण क्र. १)</fo:block>			       			
 			       			<fo:block>तारांकित प्रश्न</fo:block>
@@ -287,7 +287,7 @@
 				      	</fo:block>		       		
 			       		
 			       		<fo:block font-size="8px">&#160;</fo:block>
-			       		<fo:block text-align="center" font-size="10px" font-weight="bold">
+			       		<fo:block text-align="center" font-size="14px" font-weight="bold">
 			       			<fo:block>(विवरण क्र. २)</fo:block>			       			
 			       			<fo:block>अल्पसूचना प्रश्न</fo:block>
 			       		</fo:block>
@@ -427,7 +427,7 @@
 				      	</fo:block>
 			       		
 			       		<fo:block>
-			       		<fo:block text-align="center" font-size="10px" font-weight="bold">
+			       		<fo:block text-align="center" font-size="14px" font-weight="bold">
 			       			<fo:block>(विवरण क्र. ३)</fo:block>			       			
 			       			<fo:block>तारांकित प्रश्नाच्या उत्तरातून उद्भवलेल्या अर्धा-तास चर्चेच्या सूचना</fo:block>
 			       		</fo:block>
@@ -616,7 +616,7 @@
 				      	</fo:block>
 			       		
 			       		<fo:block font-size="8px">&#160;</fo:block>
-			       		<fo:block text-align="center" font-size="10px" font-weight="bold">
+			       		<fo:block text-align="center" font-size="14px" font-weight="bold">
 			       			<fo:block>(विवरण क्र. ४)</fo:block>			       			
 			       			<fo:block>मूळ अतारांकित प्रश्न</fo:block>
 			       		</fo:block>

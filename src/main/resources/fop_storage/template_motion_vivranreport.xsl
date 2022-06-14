@@ -96,14 +96,14 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>

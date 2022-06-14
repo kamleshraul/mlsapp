@@ -58,21 +58,21 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            	
-	            	<fo:block font-family="Mangal" font-size="10.5px">
+	            	<fo:block font-family="Kokila" font-size="15px">
 	            		<fo:block>
             				<fo:table>
             					<fo:table-body>
@@ -377,20 +377,20 @@
             							</fo:table-cell>
             							<fo:table-cell>
             								<fo:block>
-            									<fo:block text-align="center" font-size="8px">
+            									<fo:block text-align="center" font-size="14px">
             										लक्षवेधी सूचनेची प्रत
             									</fo:block>
-            									<fo:block text-align="center" font-size="8px">
+            									<fo:block text-align="center" font-size="14px">
             										महत्वाची टिप
             									</fo:block>
             									<xsl:choose>
             										<xsl:when test="./element_2='advanceCopy'">
-            											<fo:block text-align="center" font-size="8px">
+            											<fo:block text-align="center" font-size="14px">
 		            										सदरची प्रत ही असुधारीत असून मा.सदस्यांचे सुधारित प्रारूप व सुधारित नावे लक्षवेधी सूचनेवरील चर्चेच्या आदल्या दिवशी पुनश्च पाठविण्यात येईल
 		            									</fo:block>
             										</xsl:when>
             										<xsl:when test="./element_2='revisedCopy'">
-            											<fo:block text-align="center" font-size="8px">
+            											<fo:block text-align="center" font-size="14px">
 		            										मा.सदस्यांचे सुधारित प्रारूप व सुधारित नावे
 		            									</fo:block>
 		            									<fo:block font-weight="bold">
@@ -398,7 +398,7 @@
 		            									</fo:block>
             										</xsl:when>
             										<xsl:when test="./element_2='tentativeCopy'">
-            											<fo:block text-align="center" font-size="6px">
+            											<fo:block text-align="center" font-size="12px">
 		            										सदरची प्रत ही असुधारीत असून मा.सदस्यांचे सुधारित प्रारूप व सुधारित नावे पुनश्च पाठविण्यात येईल.
 		            									</fo:block>
             										</xsl:when>
@@ -434,7 +434,7 @@
             				&#160;
             			</fo:block>
             			
-            			<fo:block font-size="9px" text-align="justify" width="500px" margin-left="40px" margin-right="40px">
+            			<fo:block font-size="14px" text-align="justify" width="500px" margin-left="40px" margin-right="40px">
             				टिप : अधिवेशन कालावधीत सदरहू लक्षवेधीवर चर्चा न झाल्यास सत्र समाप्तीच्या दिवशीच्या आदल्या कामकाजाच्या दिवशी निवेदनाच्या ७०० प्रती सभागृहाच्या पटलावर ठेवणेकरिता या सचिवालयाकडे पाठविण्यात याव्यात.  अंतिम निवेदन पाठविणे अगोदर लक्षवेधीचे प्रारुप व सुधारित नावांबाबत शाखेकडे खात्री करुन घ्यावी.) 
             				<xsl:choose>
             					<xsl:when test="./element_1/element_1_11='नागपूर'">

@@ -59,14 +59,14 @@
 	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-common">
-					<fo:block font-family="Mangal" font-size="10.5pt" font-weight="bold" text-align="right" text-decoration="underline">
+					<fo:block font-family="Kokila" font-size="15pt" font-weight="bold" text-align="right" text-decoration="underline">
 		        		<xsl:value-of select="element_1/element_1_1"/>		        		
 		        	</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<!-- <fo:static-content flow-name="ra-common">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	content for footer for all pages
 					</fo:block>
 			    </fo:static-content> -->
@@ -74,17 +74,17 @@
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		    
 			       <!-- content as per report -->	
-			       <fo:block font-family="Mangal" font-size="10.5pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">			       
-			       		<fo:block font-size="18pt" font-weight="bold" text-align="center" text-decoration="underline">
+			       <fo:block font-family="Kokila" font-size="15pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">			       
+			       		<fo:block font-size="20pt" font-weight="bold" text-align="center" text-decoration="underline">
 			       			<xsl:value-of select="element_1/element_1_2"/>
 			       		</fo:block>
-			       		<fo:block font-size="14pt" font-weight="bold" text-align="center" text-decoration="underline">
+			       		<fo:block font-size="18pt" font-weight="bold" text-align="center" text-decoration="underline">
 			       			<xsl:value-of select="element_1/element_1_3"/>
 			       		</fo:block>
-			       		<fo:block font-size="14pt" font-weight="bold" text-align="center" text-decoration="underline">
+			       		<fo:block font-size="18pt" font-weight="bold" text-align="center" text-decoration="underline">
 			       			<xsl:value-of select="element_4"/>
 			       		</fo:block>
-			       		<fo:block font-size="14pt" font-weight="bold" text-align="center">
+			       		<fo:block font-size="18pt" font-weight="bold" text-align="center">
 			       			<xsl:value-of select="element_1/element_1_4"/>
 			       		</fo:block>
 			       		<fo:block font-size="5pt">&#160;</fo:block>
@@ -157,7 +157,7 @@
 		                                        		</fo:table>		                                        	
 			                                        </fo:block> 
 			                                        <xsl:if test="position()=last()">
-			                                        <fo:block font-size="14pt" font-weight="bold" text-align="center">
+			                                        <fo:block font-size="18pt" font-weight="bold" text-align="center">
 				     									<xsl:value-of select="../element_1/element_1_9"/>
 				     								</fo:block>
 			                                        </xsl:if>			                                        
@@ -181,7 +181,7 @@
                				&#160;&#160;&#160;&#160;&#160;&#160;
                				<xsl:value-of select="element_1/element_1_10"/>
                			</fo:block>
-               			<fo:block font-size="6pt">
+               			<fo:block font-size="9pt">
                				<fo:leader leader-pattern="rule" leader-length="100%" rule-style="solid" rule-thickness="2pt"/>
                			</fo:block>   
                			<fo:block font-weight="bold">

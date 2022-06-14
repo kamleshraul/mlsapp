@@ -58,14 +58,14 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
@@ -75,8 +75,8 @@
 	            	<xsl:variable name="endPartOfSubDepartment">
 						<xsl:value-of select="substring(subDepartment,(string-length(subDepartment)-4))"/>
 					</xsl:variable>
-	            	<fo:block font-family="Mangal" font-size="10.5px">
-	            		<fo:block text-align="center" font-weight="bold" font-size="12px">
+	            	<fo:block font-family="Kokila" font-size="15px">
+	            		<fo:block text-align="center" font-weight="bold" font-size="18px">
 	            			
 	            			<xsl:choose>
 								<!-- <xsl:when test="houseType='lowerhouse'">वि.स.स. यांनी महाराष्ट्र विधानसभा नियम ९२ (१) अन्वयेर</xsl:when> -->

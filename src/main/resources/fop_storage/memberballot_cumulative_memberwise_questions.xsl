@@ -58,21 +58,21 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            	       	
-	            	<fo:block font-family="Mangal" font-size="12px">	   
+	            	<fo:block font-family="Kokila" font-size="15px">	   
 	            	<xsl:for-each select="memberwiseQuestionDataList/MemberwiseQuestionData">         			
 	            		<fo:block font-weight="bold">
 	            			<fo:block margin-left="2cm">            				     				
@@ -138,7 +138,7 @@
 											<xsl:variable name="currentGroupNumber" select="number"/>
 											<fo:block break-after="page">
 											<fo:block text-align="center" font-weight="bold">
-												<fo:block font-size="13px">गट-<xsl:value-of select="formattedNumber"/></fo:block>
+												<fo:block font-size="18px">गट-<xsl:value-of select="formattedNumber"/></fo:block>
 												<fo:block font-size="15px" text-decoration="underline">
 													<xsl:value-of select="../../member"/>
 													<xsl:choose>
@@ -155,17 +155,17 @@
 													<fo:table-header>
 														<fo:table-row>
 														<fo:table-cell border-width="0.5pt" border-style="solid">
-															<fo:block text-align="center" font-size="13px">गटामध्ये समाविष्ट असलेले मंत्री</fo:block>
+															<fo:block text-align="center" font-size="18px">गटामध्ये समाविष्ट असलेले मंत्री</fo:block>
 														</fo:table-cell>
 														<fo:table-cell border-width="0.5pt" border-style="solid">
-															<fo:block font-size="13px" margin-left="0.2cm">उत्तराचा दिनांक</fo:block>
+															<fo:block font-size="15px" margin-left="0.2cm">उत्तराचा दिनांक</fo:block>
 														</fo:table-cell>
 														</fo:table-row>														
 													</fo:table-header>
 													<fo:table-body>
 														<fo:table-row display-align="center">
 														<fo:table-cell border-width="0.5pt" border-style="solid" margin-left="0.2cm" margin-right="1.0cm">
-															<fo:block font-size="11px">
+															<fo:block font-size="15px">
 																<fo:block font-size="6px">&#160;</fo:block>
 																<xsl:for-each select="./ministries">	
 																	<fo:table table-layout="fixed" width="100%">
@@ -188,7 +188,7 @@
 															</fo:block>
 														</fo:table-cell>
 														<fo:table-cell border-width="0.5pt" border-style="solid">
-															<fo:block font-size="11px" margin-left="0.2cm">
+															<fo:block font-size="18px" margin-left="0.2cm">
 																<xsl:for-each select="./answeringDates">																	
 																	<fo:block>
 																		<xsl:value-of select="name"/>																	 
@@ -217,16 +217,16 @@
 													<fo:table-header>
 														<fo:table-row>
 															<fo:table-cell display-align="center" margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm">
-																<fo:block font-weight="bold" font-size="13px">अ.क्र.</fo:block>
+																<fo:block font-weight="bold" font-size="15px">अ.क्र.</fo:block>
 															</fo:table-cell>
 															<fo:table-cell text-align="center" display-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
-																<fo:block font-weight="bold" font-size="13px">प्रश्न क्रमांक</fo:block>
+																<fo:block font-weight="bold" font-size="15px">प्रश्न क्रमांक</fo:block>
 															</fo:table-cell>
 															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
-																<fo:block font-weight="bold" font-size="13px">विषय</fo:block>
+																<fo:block font-weight="bold" font-size="15px">विषय</fo:block>
 															</fo:table-cell>
 															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
-																<fo:block font-weight="bold" font-size="13px">जोडणी विषयक माहिती</fo:block>
+																<fo:block font-weight="bold" font-size="15px">जोडणी विषयक माहिती</fo:block>
 															</fo:table-cell>
 														</fo:table-row>
 													</fo:table-header>
@@ -267,16 +267,16 @@
 													<fo:table-header>
 														<fo:table-row>
 															<fo:table-cell display-align="center" margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm">
-																<fo:block font-weight="bold" font-size="13px">अ.क्र.</fo:block>
+																<fo:block font-weight="bold" font-size="15px">अ.क्र.</fo:block>
 															</fo:table-cell>
 															<fo:table-cell text-align="center" display-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
-																<fo:block font-weight="bold" font-size="13px">प्रश्न क्रमांक</fo:block>
+																<fo:block font-weight="bold" font-size="15px">प्रश्न क्रमांक</fo:block>
 															</fo:table-cell>
 															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
-																<fo:block font-weight="bold" font-size="13px">विषय</fo:block>
+																<fo:block font-weight="bold" font-size="15px">विषय</fo:block>
 															</fo:table-cell>
 															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
-																<fo:block font-weight="bold" font-size="13px">जोडणी विषयक माहिती</fo:block>
+																<fo:block font-weight="bold" font-size="15px">जोडणी विषयक माहिती</fo:block>
 															</fo:table-cell>
 														</fo:table-row>
 													</fo:table-header>
@@ -317,16 +317,16 @@
 													<fo:table-header>
 														<fo:table-row>
 															<fo:table-cell display-align="center" margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm">
-																<fo:block font-weight="bold" font-size="13px">अ.क्र.</fo:block>
+																<fo:block font-weight="bold" font-size="15px">अ.क्र.</fo:block>
 															</fo:table-cell>
 															<fo:table-cell text-align="center" display-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
-																<fo:block font-weight="bold" font-size="13px">प्रश्न क्रमांक</fo:block>
+																<fo:block font-weight="bold" font-size="15px">प्रश्न क्रमांक</fo:block>
 															</fo:table-cell>
 															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
-																<fo:block font-weight="bold" font-size="13px">विषय</fo:block>
+																<fo:block font-weight="bold" font-size="15px">विषय</fo:block>
 															</fo:table-cell>
 															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
-																<fo:block font-weight="bold" font-size="13px">कारणे</fo:block>
+																<fo:block font-weight="bold" font-size="15px">कारणे</fo:block>
 															</fo:table-cell>
 														</fo:table-row>
 													</fo:table-header>
@@ -367,16 +367,16 @@
 													<fo:table-header>
 														<fo:table-row>
 															<fo:table-cell display-align="center" margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm">
-																<fo:block font-weight="bold" font-size="13px">अ.क्र.</fo:block>
+																<fo:block font-weight="bold" font-size="15px">अ.क्र.</fo:block>
 															</fo:table-cell>
 															<fo:table-cell text-align="center" display-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
-																<fo:block font-weight="bold" font-size="13px">प्रश्न क्रमांक</fo:block>
+																<fo:block font-weight="bold" font-size="15px">प्रश्न क्रमांक</fo:block>
 															</fo:table-cell>
 															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
-																<fo:block font-weight="bold" font-size="13px">विषय</fo:block>
+																<fo:block font-weight="bold" font-size="15px">विषय</fo:block>
 															</fo:table-cell>
 															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
-																<fo:block font-weight="bold" font-size="13px">सादर प्रकार</fo:block>
+																<fo:block font-weight="bold" font-size="15px">सादर प्रकार</fo:block>
 															</fo:table-cell>
 														</fo:table-row>
 													</fo:table-header>

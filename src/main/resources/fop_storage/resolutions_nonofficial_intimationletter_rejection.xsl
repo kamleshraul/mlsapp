@@ -58,14 +58,14 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
@@ -75,10 +75,10 @@
 	            	<xsl:variable name="endPartOfSubDepartment">
 						<xsl:value-of select="substring(subDepartment,(string-length(subDepartment)-4))"/>
 					</xsl:variable>
-					<fo:block font-weight="bold">
-						<fo:block text-align="center">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
+					<fo:block font-family="Kokila" font-size="18px" font-weight="bold">
+						<fo:block font-family="Kokila" text-align="center">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 						</fo:block>
-	            	<fo:block font-family="Mangal" font-size="10.5px">	            					
+	            	<fo:block font-family="Kokila" font-size="15px">	            					
 						<fo:block text-align="right">
 							<fo:block margin-right="0.20cm">क्रमांक...............................
 							<xsl:choose>
@@ -89,7 +89,7 @@
 							<fo:block margin-right="0.40cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 							<fo:block margin-right="3.21cm">विधान भवन,</fo:block>
 							<fo:block margin-right="3.33cm">मुंबई/नागपूर</fo:block>
-							<fo:block margin-right="1.78cm">दिनांक :- &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
+							<fo:block margin-right="2.53cm">दिनांक :- &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
 						</fo:block>			
 						
 						<fo:block font-weight="bold">प्रेषक</fo:block>

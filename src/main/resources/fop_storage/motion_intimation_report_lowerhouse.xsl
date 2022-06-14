@@ -58,21 +58,21 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            	
-	            	<fo:block font-family="Mangal" font-size="10.5px" line-height="20pt">
+	            	<fo:block font-family="Kokila" font-size="15px" line-height="20pt">
             			<!-- <fo:block text-align="center" font-weight="bold" font-size="14pt">
 	            			महाराष्ट्र विधानमंडळ सचिवालय					
 	            		</fo:block> -->
@@ -253,7 +253,7 @@
 						<fo:block page-break-before="always">&#160;</fo:block>
 						
 						<fo:block>
-							<fo:block font-size="14px">लक्षवेधी सूचनेची संलग्न प्रत (वस्तुस्थितीकरिता प्रस्तावित)</fo:block>
+							<fo:block font-size="17px">लक्षवेधी सूचनेची संलग्न प्रत (वस्तुस्थितीकरिता प्रस्तावित)</fo:block>
 							<fo:block>&#160;</fo:block>
 							<fo:block font-weight="bold">लक्षवेधी सूचना क्रमांक : <xsl:value-of select="./element_2/element_2_3"></xsl:value-of> </fo:block>
 							<fo:block>&#160;</fo:block>

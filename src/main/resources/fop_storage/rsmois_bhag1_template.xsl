@@ -58,27 +58,27 @@
 	        <fo:page-sequence master-reference="others" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-common">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-common">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            	
-	            	<fo:block font-family="Mangal" font-size="10.5px">
+	            	<fo:block font-family="Kokila" font-size="15px">
 	            		<xsl:choose>
 	            			<xsl:when test="element_1">
-	            				<fo:block text-align="center" font-size="16px" font-weight="bold">
+	            				<fo:block text-align="center" font-size="18px" font-weight="bold">
 			            			<xsl:value-of select="element_1[1]/element_1_1"></xsl:value-of>
 			            		</fo:block>
-			            		<fo:block text-align="center" font-size="14px" font-weight="bold">
+			            		<fo:block text-align="center" font-size="16px" font-weight="bold">
 			            			<xsl:value-of select="element_1[1]/element_1_4"/>
 			            		</fo:block>
 			            		<fo:block text-align="center" font-size="14px" font-weight="bold">
@@ -98,7 +98,7 @@
 										</fo:block>
 			            		</fo:block>    
 			            		<fo:block >
-			            			<fo:block font-size="14px" font-weight="bold">सूचना क्र.  (<xsl:value-of select="element_1[1]/element_1_6"/>) :  
+			            			<fo:block font-size="15px" font-weight="bold">सूचना क्र.  (<xsl:value-of select="element_1[1]/element_1_6"/>) :  
 			            				<xsl:choose>
                                       		<xsl:when test="element_1_7='श्री.देवेंद्र फडणवीस'">श्री.देवेंद्र फडणवीस,मा.विरोधी पक्ष नेता व इतर वि.स.स.</xsl:when>
 											<xsl:otherwise><xsl:value-of select="element_1[1]/element_1_7"/> व इतर वि.स.स.</xsl:otherwise>
@@ -111,7 +111,7 @@
 			            		</fo:block>		
 	            			</xsl:when>
 	            			<xsl:otherwise>
-	            				<fo:block text-align="center" font-size="14px" font-weight="bold">
+	            				<fo:block text-align="center" font-size="15px" font-weight="bold">
 	            					सध्या एकही प्रस्ताव भाग १ साठी उपलब्ध नाही.
 	            				</fo:block>
 	            			</xsl:otherwise>

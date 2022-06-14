@@ -58,25 +58,25 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            	
-	            	<fo:block font-family="Mangal" font-size="10.5px">	       
+	            	<fo:block font-family="Kokila" font-size="15px">	       
             			<fo:block text-align="right" font-weight="bold" text-decoration="underline">
            					तात्काळ
            				</fo:block>
-	            		<fo:block font-size="6px">&#160;</fo:block>    
+	            		<fo:block font-size="14px">&#160;</fo:block>    
 	            			 <xsl:if test="./element_2/element_2_10='motions_discussionmotion_lastweek'">
 																<fo:block font-weight="bold" text-align="justify">
 							सर्वश्री <xsl:value-of select="./element_2/element_2_8"></xsl:value-of> वि.स.स यांचा म.वि.स. नियम २९२ अन्वये प्रस्तराव :

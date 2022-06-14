@@ -74,9 +74,9 @@
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		    
 			       <!-- content as per report -->	
-			       <fo:block font-family="Mangal" font-size="9px">
+			       <fo:block font-family="Kokila" font-size="15px">
 			     		<xsl:for-each select="./element_1">
-			     			<fo:block text-align="center" font-weight="bold" font-size="12px">
+			     			<fo:block text-align="center" font-weight="bold" font-size="18px">
 			     				<xsl:value-of select="element_1_1"/>
 			     			</fo:block>
 			     			<fo:block font-size="9px">&#160;</fo:block>			     			
@@ -91,32 +91,32 @@
 			                        <fo:table-header>
 			                        	<fo:table-row>
 			                        		<fo:table-cell border-width="0.5pt" border-style="solid">
-				                        	   	<fo:block margin-left="0.1cm" font-weight="bold" font-size="10px">
+				                        	   	<fo:block margin-left="0.1cm" font-weight="bold" font-size="15px">
 		                                                                    अ.क्र.
 			                                    </fo:block>
 				                        	</fo:table-cell>
 				                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-				                        	    <fo:block margin-left="0.1cm" font-weight="bold" font-size="10px">
+				                        	    <fo:block margin-left="0.1cm" font-weight="bold" font-size="15px">
 		                                                                    प्रश्न क्रमांक
 			                                    </fo:block>
 				                        	</fo:table-cell>
 				                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-				                        	    <fo:block margin-left="0.2cm" font-weight="bold" font-size="10px">
+				                        	    <fo:block margin-left="0.2cm" font-weight="bold" font-size="15px">
 		                                                                    विषय
 			                                    </fo:block>
 				                        	</fo:table-cell>
 				                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-				                        	    <fo:block margin-left="0.2cm" font-weight="bold" font-size="10px">
+				                        	    <fo:block margin-left="0.2cm" font-weight="bold" font-size="15px">
 		                                                                    अधिवेशन
 			                                    </fo:block>
 				                        	</fo:table-cell>
 				                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-				                        	    <fo:block margin-left="0.2cm" font-weight="bold" font-size="10px">
+				                        	    <fo:block margin-left="0.2cm" font-weight="bold" font-size="15px">
 		                                                                    प्रश्न पाठविल्याचा दिनांक
 			                                    </fo:block>
 				                        	</fo:table-cell>
 				                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-				                        	    <fo:block margin-left="0.2cm" font-weight="bold" font-size="10px">
+				                        	    <fo:block margin-left="0.2cm" font-weight="bold" font-size="15px">
 		                                                                    उत्तर पाठविण्याचा दिनांक
 			                                    </fo:block>
 				                        	</fo:table-cell>

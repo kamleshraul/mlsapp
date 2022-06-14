@@ -96,14 +96,14 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
@@ -116,19 +116,19 @@
 	            			<xsl:for-each select="./element_2" >
 			            		<xsl:choose>
 			            			<xsl:when test="position()=1">
-			            				<fo:block text-align="center" text-decoration="underline" font-family="Mangal" font-size="16px" font-weight="bold">
+			            				<fo:block text-align="center" text-decoration="underline" font-family="Kokila" font-size="16px" font-weight="bold">
 				    						<xsl:value-of select="."></xsl:value-of>
 				    					</fo:block>
 			            			</xsl:when>
 			            			<xsl:otherwise>	
-			            				<fo:block text-align="center" text-decoration="underline" font-family="Mangal">
+			            				<fo:block text-align="center" text-decoration="underline" font-family="Kokila">
 				    						<xsl:value-of select="."></xsl:value-of>
 				    					</fo:block>
 			            			</xsl:otherwise>
 		    					</xsl:choose>
    							</xsl:for-each>
    							
-	            			<fo:block font-family="Mangal" font-size="12px">     					
+	            			<fo:block font-family="Kokila" font-size="12px">     					
 		     					<fo:block text-align="center" font-size="9px">&#160;</fo:block>
 		       						
 		       					<xsl:for-each select="./element_1">
@@ -164,7 +164,7 @@
 				            	</fo:block>
 	            			</xsl:for-each>
 	            			
-	            			<fo:block font-family="Mangal" font-size="12px">     					
+	            			<fo:block font-family="Kokila" font-size="12px">     					
 		     					<fo:block text-align="center" font-size="9px">&#160;</fo:block>
 		       						
 		       					<fo:block width="600px">

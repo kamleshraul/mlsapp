@@ -75,13 +75,13 @@
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">	
 	            	    
-			      	<fo:block font-family="Mangal" font-size="12px" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
+			      	<fo:block font-family="Kokila" font-size="15px" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
 	               		
-	               		<fo:block font-size="14px" font-weight="bold" text-align="right">
+	               		<fo:block font-size="15px" font-weight="bold" text-align="right">
 							पताका क्रमांक <xsl:value-of select="karyavaliNumber"/>
 						</fo:block>
 	               		
-	               		<fo:block font-size="14px" font-weight="bold">							
+	               		<fo:block font-size="15px" font-weight="bold">							
 							<xsl:choose>
 			            		<xsl:when test="houseType='lowerhouse'">अशासकीय ठराव (म.वि.स. नियम १०६):-</xsl:when>
 			            		<xsl:when test="houseType='upperhouse'">अशासकीय ठराव (म.वि.प. नियम १०२):-</xsl:when>
@@ -95,7 +95,7 @@
 				<xsl:choose>
 					<xsl:when test="not(./resolutionList/resolutionListForMember)">
 						<fo:block font-size="7px">&#160;</fo:block>
-						<fo:block font-size="12px" font-weight="bold">
+						<fo:block font-size="15px" font-weight="bold">
 				     		माहिती उपलब्ध नाही.
 				     	 </fo:block>
 					</xsl:when>
@@ -103,7 +103,7 @@
 					<fo:block>
 						 <xsl:for-each select="./resolutionList/resolutionListForMember" >
 						 	<fo:block font-size="7px">&#160;</fo:block>
-						 	<fo:block font-size="13px" font-weight="bold">				    
+						 	<fo:block font-size="15px" font-weight="bold">				    
 						      <xsl:value-of select="memberName" /> यांचे ठराव क्रमांक
 						      <xsl:for-each select="./deviceVOs" >
 								<xsl:value-of select="formattedNumber" />

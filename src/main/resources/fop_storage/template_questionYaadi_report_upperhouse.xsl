@@ -560,7 +560,7 @@
 			
 	        <fo:page-sequence master-reference="{$pageSequenceVariable}" id="DocumentBody">
 		        <fo:static-content flow-name="page-number">	        	
-		        	<fo:block font-family="Mangal" font-size="10pt" text-align="center">
+		        	<fo:block font-family="Kokila" font-size="10pt" text-align="center">
 		        		<fo:page-number/>		        				        		
 		        	</fo:block>
 		        </fo:static-content>       	        
@@ -573,12 +573,12 @@
 			      <fo:table-body>
 				<fo:table-row>
 				  <fo:table-cell>
-				    <fo:block text-align="start" font-family="Mangal" font-style="italic" font-weight="bold">
+				    <fo:block text-align="start" font-family="Kokila" font-style="italic" font-weight="bold">
 				      powered by महाराष्ट्र ज्ञान महामंडळ मर्यादित
 				    </fo:block>
 				  </fo:table-cell>
 				  <fo:table-cell>
-				    <fo:block text-align="end" font-family="Mangal" font-style="italic" font-weight="normal">Page 
+				    <fo:block text-align="end" font-family="Kokila" font-style="italic" font-weight="normal">Page 
 				      <fo:page-number/> of 
 				      <fo:page-number-citation-last
 					ref-id="DocumentBody"/>
@@ -598,14 +598,14 @@
 			      <fo:table-body>
 				<fo:table-row>
 				  <fo:table-cell>
-				    <fo:block text-align="start" font-family="Mangal" font-style="italic" font-weight="normal">Page 
+				    <fo:block text-align="start" font-family="Kokila" font-style="italic" font-weight="normal">Page 
 				      <fo:page-number/> 
 				      of <fo:page-number-citation-last 
 				      ref-id="DocumentBody"/>
 				    </fo:block>
 				  </fo:table-cell>
 				  <fo:table-cell>
-				    <fo:block text-align="end" font-family="Mangal" font-style="italic" font-weight="bold">
+				    <fo:block text-align="end" font-family="Kokila" font-style="italic" font-weight="bold">
 				      powered by महाराष्ट्र ज्ञान महामंडळ मर्यादित
 				    </fo:block>
 				  </fo:table-cell>
@@ -616,23 +616,23 @@
 		    </fo:static-content>
 
 		    <fo:static-content flow-name="rb-right">
-			<fo:block font-size="10pt" text-align="start" font-family="Mangal" font-style="italic" font-weight="bold">
+			<fo:block font-size="10pt" text-align="start" font-family="Kokila" font-style="italic" font-weight="bold">
 			    ई-विधानमंडळ
 			</fo:block>
 		    </fo:static-content>
 
 		    <fo:static-content flow-name="rb-left">
-			<fo:block font-size="10pt" text-align="start" font-family="Mangal" font-style="italic" font-weight="bold">
+			<fo:block font-size="10pt" text-align="start" font-family="Kokila" font-style="italic" font-weight="bold">
 			    ई-विधानमंडळ
 			</fo:block>
 		    </fo:static-content> -->
 	
 	            <fo:flow flow-name="xsl-region-body">	
-	            	<fo:block font-family="Mangal" font-size="11pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
-					    <fo:block font-size="16" font-weight="bold" text-align="center">
+	            	<fo:block font-family="Kokila" font-size="15pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
+					    <fo:block font-size="20" font-weight="bold" text-align="center">
 							महाराष्ट्र <xsl:value-of select="houseType"/>												
 						</fo:block>
-						<fo:block font-size="13pt" font-weight="bold" text-align="center">
+						<fo:block font-size="16pt" font-weight="bold" text-align="center">
 							<xsl:choose>
 								<xsl:when test="sessionNumber = 1">
 									पहिले
@@ -658,17 +658,17 @@
 							</xsl:choose>
 							अधिवेशन, <xsl:value-of select="sessionYear"/>																								
 						</fo:block>		
-						<fo:block text-align="center" font-weight="bold" font-size="7pt">
+						<fo:block text-align="center" font-weight="bold" font-size="9pt">
 							---------------------------------------------
 						</fo:block>		                	
-	                	<fo:block text-align="center" font-size="11pt" font-weight="bold">
+	                	<fo:block text-align="center" font-size="15pt" font-weight="bold">
 	                		तारांकित प्रश्नोत्तरांची यादी
 	                	</fo:block>
-	                	<fo:block font-size="10pt">&#160;</fo:block>	                	           	
+	                	<fo:block font-size="15pt">&#160;</fo:block>	                	           	
 	                	<fo:block text-align="center" font-weight="bold">
 	                		<xsl:value-of select="displayAnsweringDate"/> / <xsl:value-of select="displayAnsweringDateInIndianCalendar"/> ( शके )
 	                	</fo:block>
-	                	<fo:block font-size="10pt">&#160;</fo:block>
+	                	<fo:block font-size="15pt">&#160;</fo:block>
 	                	<fo:block text-align="center" font-weight="bold">
 	                		<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
 	                			<fo:table-column column-number="1" column-width="1.5cm" />
@@ -738,16 +738,16 @@
 	                		</fo:table>
 	                	</fo:block>
 	                	<fo:block font-size="10pt">&#160;</fo:block>
-	                	<fo:block text-align="center" font-size="7pt" font-weight="bold">
+	                	<fo:block text-align="center" font-size="9pt" font-weight="bold">
 	                		-------------------------------------
 	                		<!-- <fo:block font-size="0pt">&#160;</fo:block> -->
-	                		<fo:block font-size="11pt">प्रश्नांची एकूण संख्या - <xsl:value-of select="totalNumberOfDevices"/></fo:block>
+	                		<fo:block font-size="15pt">प्रश्नांची एकूण संख्या - <xsl:value-of select="totalNumberOfDevices"/></fo:block>
 	                		<!-- <fo:block font-size="0pt">&#160;</fo:block> -->
 	                		-------------------------------------
 	                	</fo:block>
 	                	<fo:block font-size="10pt">&#160;</fo:block>
 	                	<xsl:for-each select="./deviceVOs/deviceVO" >
-	                		<fo:block text-align="center" font-size="12pt" font-weight="bold">
+	                		<fo:block text-align="center" font-size="15pt" font-weight="bold">
 	                			<xsl:value-of select="subject"/>
 	                		</fo:block>
 	                		<fo:block font-size="5pt">&#160;</fo:block>

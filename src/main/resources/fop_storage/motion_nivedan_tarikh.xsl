@@ -58,36 +58,36 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            	
-	            	<fo:block font-family="Mangal" font-size="10.5px">
+	            	<fo:block font-family="Kokila" font-size="15px">
 	            	
 	            		<xsl:choose>
 	            			<xsl:when test="./element_1/element_1_10='upperhouse'">
 	            				
 	            				<xsl:if test="./element_2='yes'">
-	            					<fo:block text-align="right" font-weight="bold" font-size="14pt">
+	            					<fo:block text-align="right" font-weight="bold" font-size="20pt">
 	            						अग्रिम प्रत
 	            					</fo:block>
 	            					<fo:block font-size="12px">&#160;</fo:block>
 	            				</xsl:if>
-		            			<fo:block text-align="center" font-weight="bold" font-size="14pt">
+		            			<fo:block text-align="center" font-weight="bold" font-size="20pt">
 			            			<xsl:value-of select="./element_1/element_1_2"></xsl:value-of>						
 			            		</fo:block>  
 			            		<fo:block font-size="6px">&#160;</fo:block>    
-			            		<fo:block text-align="center" font-weight="bold" font-size="14pt">
+			            		<fo:block text-align="center" font-weight="bold" font-size="20pt">
 			            			     <xsl:value-of select="./element_1/element_1_3"></xsl:value-of>       			
 			            		</fo:block> 
 			            		<fo:block font-size="12px">&#160;</fo:block>
@@ -647,7 +647,7 @@
 		            				&#160;
 		            			</fo:block>
 		            			
-		            			<fo:block font-size="9px" text-align="justify" width="500px" margin-left="40px" margin-right="40px">
+		            			<fo:block font-size="14px" text-align="justify" width="500px" margin-left="40px" margin-right="40px">
 		            				टिप : अधिवेशन कालावधीत सदरहू लक्षवेधीवर चर्चा न झाल्यास सत्र समाप्तीच्या दिवशीच्या आदल्या कामकाजाच्या दिवशी निवेदनाच्या ६०० प्रती सभागृहाच्या पटलावर ठेवणेकरिता या सचिवालयाकडे पाठविण्यात याव्यात.  अंतिम निवेदन पाठविणे अगोदर लक्षवेधीचे प्रारुप व सुधारित नावांबाबत शाखेकडे खात्री करुन घ्यावी.) (Phone: ०७१२-२५३००१९/ ९  Ext : २२०१, २२०२ )
 		            			</fo:block>
 		            			

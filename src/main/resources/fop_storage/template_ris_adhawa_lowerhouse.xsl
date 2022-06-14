@@ -58,7 +58,7 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
@@ -72,7 +72,7 @@
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            	
-	            	<fo:block font-family="mangal" font-size="14px">		
+	            	<fo:block font-family="Kokila" font-size="14px">		
 	            	<fo:block text-align="center" font-weight="bold" text-decoration="underline">सत्र काळातील कामकाजाचा आढावा</fo:block>
 	            	<fo:block>&#160;</fo:block>
 	            	<fo:block text-align="left" >&#160;&#160;&#160;&#160;&#160;&#160;<fo:inline font-weight="bold">उपाध्यक्ष :</fo:inline>		 पावसाळी अधिवेशनाचा आजचा शेवटचा दिवस आहे आणि आजचे दिवसाचे कामकाज सुध्दा आता संपले आहे.मी या सत्र काळातील कामकाजाचा आढावा आता सदनासमोर ठेवतो.</fo:block>

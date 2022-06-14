@@ -58,21 +58,21 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">	
-	            	<fo:block font-family="Mangal" font-size="10.5px">	            					
+	            	<fo:block font-family="Kokila" font-size="15px">	            					
 					<fo:block text-align="right" font-weight="bold">
 							<fo:block margin-right="2.2cm">
 								<xsl:value-of select="element_1/element_1_1"/>
@@ -131,7 +131,7 @@
 							
 						</fo:block>		
 						<fo:block>----------------------------------------------------------------------------------------------------------------------------------------------</fo:block>	
-							<fo:block text-align="center" font-weight="bold" font-size="14px">संमती पत्र</fo:block>
+							<fo:block text-align="center" font-weight="bold" font-size="15px">संमती पत्र</fo:block>
 							<fo:block font-weight="bold">प्रेषक :</fo:block>
 							<fo:block margin-left="1cm" >	
 								<fo:block>प्रधान सचिव,</fo:block>

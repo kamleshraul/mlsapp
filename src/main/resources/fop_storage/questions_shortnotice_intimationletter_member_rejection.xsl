@@ -58,14 +58,14 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
@@ -80,7 +80,7 @@
 							<xsl:otherwise><xsl:value-of select="memberNames"/></xsl:otherwise>
 						</xsl:choose>					
 					</xsl:variable>
-	            	<fo:block font-family="Mangal" font-size="10.5px">	            					
+	            	<fo:block font-family="Kokila" font-size="15px">	            					
 						<fo:block text-align="right">
 							<fo:block margin-right="1.45cm">क्रमांक - _____&#160;/&#160;
 							<xsl:choose>
@@ -97,7 +97,7 @@
 									<fo:block margin-right="1.98cm">विधान भवन, <xsl:value-of select="sessionPlace"/></fo:block>
 								</xsl:when>
 							</xsl:choose>
-							<fo:block margin-right="1.82cm">दिनांक - &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
+							<fo:block margin-right="2.53cm">दिनांक - &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
 						</fo:block>			
 						
 						<!-- <fo:block>&#160;</fo:block> -->
@@ -169,7 +169,7 @@
 							<fo:block margin-right="0.7cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>								
 						</fo:block>
 						<fo:block font-size="6px">&#160;</fo:block>
-						----------------------------------------------------------------------------------------------------------------------------------------
+						-------------------------------------------------------------------------------------------------------------------------------------
 						<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block>
 							विषय - <xsl:value-of select="subject"/>

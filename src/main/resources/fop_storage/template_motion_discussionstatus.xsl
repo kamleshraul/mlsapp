@@ -66,27 +66,27 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="Mangal">
+					<fo:block text-align="center" font-family="Kokila">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="Mangal">
+					<fo:block  text-align="center" font-family="Kokila">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            	
-	            	<fo:block font-family="Mangal" font-size="10.5px">
+	            	<fo:block font-family="Kokila" font-size="15px">
 																																	
 						<fo:block>
 							<fo:table xsl:use-attribute-sets="myBorder">
 							  	<fo:table-header text-align="center" background-color="silver">
 							  		<fo:table-row>
-							  			<fo:table-cell padding="1mm" border-width="0.1mm" border-style="solid" number-columns-spanned="5" font-weight="bold" font-size="14px">
+							  			<fo:table-cell padding="1mm" border-width="0.1mm" border-style="solid" number-columns-spanned="5" font-weight="bold" font-size="15px">
 							  				<fo:block>
 							   					<xsl:value-of select="./element_2[1]"></xsl:value-of>
 							   				</fo:block>

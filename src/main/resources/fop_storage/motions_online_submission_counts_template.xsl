@@ -59,7 +59,7 @@
 	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="page-number">	        	
-		        	<fo:block font-family="Mangal" font-size="9pt" text-align="right">
+		        	<fo:block font-family="Kokila" font-size="15pt" text-align="right">
 		        		Page <fo:page-number/>	        				        		
 		        	</fo:block>
 		        </fo:static-content>				
@@ -67,7 +67,7 @@
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		    
 			       <!-- content as per report -->	
-			       <fo:block font-family="Mangal" font-size="10.5pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
+			       <fo:block font-family="Kokila" font-size="17pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
 			       		<xsl:choose>
 			       			<xsl:when test="boolean(element_1) and count(element_1)>=1">
 			       				<fo:block font-size="20px" font-weight="bold" text-align="center">
@@ -78,11 +78,11 @@
 									<xsl:value-of select="element_1[1]/element_1_2"></xsl:value-of>						
 								</fo:block>								
 								<fo:block font-size="6px">&#160;</fo:block>
-								<fo:block font-size="15.5px" font-weight="bold" text-align="center">
+								<fo:block font-size="18px" font-weight="bold" text-align="center">
 									<xsl:value-of select="element_1[1]/element_1_4"></xsl:value-of>
 								</fo:block>
 								<fo:block font-size="6px">&#160;</fo:block>
-								<fo:block font-size="14px" font-weight="bold" text-align="center">
+								<fo:block font-size="17px" font-weight="bold" text-align="center">
 									<xsl:value-of select="element_1[1]/element_1_3"></xsl:value-of>
 								</fo:block>
 								<fo:block font-size="6px">&#160;</fo:block>

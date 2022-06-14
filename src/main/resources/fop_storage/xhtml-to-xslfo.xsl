@@ -188,32 +188,32 @@
     =============================================== -->
 
         <fo:static-content flow-name="rb-right">
-          <fo:block font-size="10px" font-family="Mangal">
+          <fo:block font-size="10px" font-family="Kokila">
             
           </fo:block>
         </fo:static-content>
         <fo:static-content flow-name="ra-right">
-          <fo:block font-size="10px" font-family="Mangal">
+          <fo:block font-size="10px" font-family="Kokila">
             
           </fo:block>
         </fo:static-content>
         <fo:static-content flow-name="rb-left">
-          <fo:block font-size="10px" font-family="Mangal">
+          <fo:block font-size="10px" font-family="Kokila">
             
           </fo:block>
         </fo:static-content>
         <fo:static-content flow-name="ra-left">
-          <fo:block font-size="10px" font-family="Mangal">
+          <fo:block font-size="10px" font-family="Kokila">
            
           </fo:block>
         </fo:static-content>
         <fo:static-content flow-name="rb-standard">
-          <fo:block font-size="10px" font-family="Mangal">
+          <fo:block font-size="10px" font-family="Kokila">
             
           </fo:block>
         </fo:static-content>
         <fo:static-content flow-name="ra-standard">
-          <fo:block font-size="10px" font-family="Mangal">
+          <fo:block font-size="10px" font-family="Kokila">
             
           </fo:block>
         </fo:static-content>
@@ -334,7 +334,7 @@
     =============================================== -->
         
     <fo:flow flow-name="xsl-region-body">
-     <fo:block font-size="12pt" font-family="Mangal">
+     <fo:block font-size="12pt" font-family="Kokila">
       <xsl:apply-templates select="/html/head/title"/>
       
           

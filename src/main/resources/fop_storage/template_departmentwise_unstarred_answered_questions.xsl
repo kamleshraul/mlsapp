@@ -74,14 +74,14 @@
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		    
 			       <!-- content as per report -->	
-			       <fo:block font-family="Mangal" font-size="9px">
-			       		<fo:block font-size="14px" font-weight="bold" text-align="center">
+			       <fo:block font-family="Kokila" font-size="15px">
+			       		<fo:block font-size="20px" font-weight="bold" text-align="center">
 			       			<!-- <xsl:value-of select="element_1/element_1_2"/> -->
 			       			<xsl:apply-templates select="element_1/element_1_2"/>
 			       		</fo:block>
 			       		<fo:block font-size="10px">&#160;</fo:block>
 			     		<xsl:for-each select="./element_2">
-			     			<fo:block text-align="center" font-weight="bold" font-size="12px">
+			     			<fo:block text-align="center" font-weight="bold" font-size="16px">
 			     				<xsl:choose>
 			     					<xsl:when test="element_2_2[1]/element_2_2_14='datewise'">
 			     						<xsl:value-of select="../element_1/element_1_17"/>&#160;<xsl:value-of select="element_2_2[1]/element_2_2_9"/>
@@ -107,27 +107,27 @@
 					                        <fo:table-header>
 					                        	<fo:table-row>
 					                        		<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	   	<fo:block text-align="center" font-weight="bold" font-size="10px">
+						                        	   	<fo:block text-align="center" font-weight="bold" font-size="15px">
 				                                        		<xsl:value-of select="../element_1/element_1_5"/>
 					                                    </fo:block>
 						                        	</fo:table-cell>
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	   	<fo:block text-align="center" font-weight="bold" font-size="10px">
+						                        	   	<fo:block text-align="center" font-weight="bold" font-size="15px">
 				                                        		<xsl:value-of select="../element_1/element_1_18"/>
 					                                    </fo:block>
 						                        	</fo:table-cell>
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	    <fo:block text-align="center" font-weight="bold" font-size="10px">
+						                        	    <fo:block text-align="center" font-weight="bold" font-size="15px">
 				                                        		<xsl:value-of select="../element_1/element_1_6"/>
 					                                    </fo:block>
 						                        	</fo:table-cell>
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	    <fo:block text-align="center" font-weight="bold" font-size="10px">
+						                        	    <fo:block text-align="center" font-weight="bold" font-size="15px">
 				                                        		<xsl:value-of select="../element_1/element_1_7"/>
 					                                    </fo:block>
 						                        	</fo:table-cell>
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	    <fo:block text-align="center" font-weight="bold" font-size="10px">
+						                        	    <fo:block text-align="center" font-weight="bold" font-size="15px">
 				                                        		<xsl:value-of select="../element_1/element_1_8"/>
 					                                    </fo:block>
 						                        	</fo:table-cell>
@@ -137,7 +137,7 @@
 					                                    </fo:block>
 						                        	</fo:table-cell> -->
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	    <fo:block text-align="center" font-weight="bold" font-size="10px">
+						                        	    <fo:block text-align="center" font-weight="bold" font-size="15px">
 						                        	    	<xsl:choose>									     						
 					                                        	<xsl:when test="element_2_2[1]/element_2_2_14='datewise'">
 					                                        		<xsl:value-of select="../element_1/element_1_3"/>                    		                     		
@@ -149,7 +149,7 @@
 					                                    </fo:block>
 						                        	</fo:table-cell>
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	    <fo:block text-align="center" font-weight="bold" font-size="10px">
+						                        	    <fo:block text-align="center" font-weight="bold" font-size="15px">
 						                        	    	<xsl:choose>									     						
 					                                        	<xsl:when test="element_2_2[1]/element_2_2_14='datewise'">
 					                                        		<xsl:value-of select="../element_1/element_1_11"/>          		                     		

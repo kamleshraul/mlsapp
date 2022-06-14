@@ -80,7 +80,7 @@
 			
 	        <fo:page-sequence master-reference="otherPages" id="DocumentBody">
 		        <fo:static-content flow-name="page-number">	        	
-		        	<fo:block font-family="Mangal" font-size="9pt" text-align="left">
+		        	<fo:block font-family="Kokila" font-size="15pt" text-align="left">
 		        		<xsl:choose>
 		        			<xsl:when test="element_3='विधानसभा'">वि.स. </xsl:when>
 		        			<xsl:when test="element_3='विधानपरिषद'">वि.प. </xsl:when>
@@ -90,14 +90,14 @@
 		        </fo:static-content>    
 	
 	            <fo:flow flow-name="xsl-region-body">	
-	            	<fo:block font-family="Mangal" font-size="10.5pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
+	            	<fo:block font-family="Kokila" font-size="16pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
 					    <xsl:choose>
 					    	<xsl:when test="element_3='विधानसभा'">
 					    		<fo:block font-size="20" font-weight="bold" text-align="center">
 									महाराष्ट्र <xsl:value-of select="element_3"/>												
 								</fo:block>
 								<fo:block font-size="2px">&#160;</fo:block>
-								<fo:block font-size="14pt" font-weight="bold" text-align="center">
+								<fo:block font-size="17pt" font-weight="bold" text-align="center">
 									<xsl:choose>
 										<xsl:when test="element_4 = 1">
 											पहिले
@@ -124,11 +124,11 @@
 									अधिवेशन, <xsl:value-of select="element_6"/>																								
 								</fo:block>		
 								<!-- <fo:block font-size="7px">&#160;</fo:block> -->													
-								<fo:block text-align="center" font-size="9pt" font-weight="bold">
+								<fo:block text-align="center" font-size="18pt" font-weight="bold">
 									-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;
 								</fo:block>						
 								<fo:block font-size="5px">&#160;</fo:block>	                	
-			                	<fo:block text-align="center" font-size="12pt" font-weight="bold">
+			                	<fo:block text-align="center" font-size="16pt" font-weight="bold">
 			                		<fo:block>
 			                			दिनांक <xsl:value-of select="element_10"/> रोजी सभागृहाच्या पटलावर ठेवण्यात आलेल्या
 			                		</fo:block>
@@ -140,7 +140,7 @@
 			                		</fo:block>		                		
 			                	</fo:block>	 
 			                	<fo:block font-size="9px">&#160;</fo:block>           		                	           	
-			                	<fo:block text-align="center" font-size="12pt" font-weight="bold">
+			                	<fo:block text-align="center" font-size="16pt" font-weight="bold">
 			                		<fo:block>प्रश्नांची एकूण संख्या - <xsl:value-of select="element_2"/></fo:block>
 			                	</fo:block>
 			                	<!-- <fo:block font-size="7px">&#160;</fo:block> -->
@@ -148,7 +148,7 @@
 			                		___________
 								</fo:block>
 			                	<fo:block font-size="7pt">&#160;</fo:block>
-			                	<fo:block text-align="center" font-size="12pt" font-weight="bold">
+			                	<fo:block text-align="center" font-size="16pt" font-weight="bold">
 			                		प्रश्नांचा तपशील
 			                	</fo:block>
 			                	<fo:block font-size="7pt">&#160;</fo:block>
@@ -163,7 +163,7 @@
 									महाराष्ट्र <xsl:value-of select="element_3"/>												
 								</fo:block>
 								<fo:block font-size="2px">&#160;</fo:block>
-								<fo:block font-size="14pt" font-weight="bold" text-align="center">
+								<fo:block font-size="16pt" font-weight="bold" text-align="center">
 									<xsl:choose>
 										<xsl:when test="element_4 = 1">
 											पहिले
@@ -195,7 +195,7 @@
 									-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;-&#160;
 								</fo:block>						
 								<fo:block font-size="5px">&#160;</fo:block>	                	
-			                	<fo:block text-align="center" font-size="12pt" font-weight="bold">
+			                	<fo:block text-align="center" font-size="16pt" font-weight="bold">
 			                		<fo:block>
 			                			दिनांक <xsl:value-of select="element_10"/> रोजी सभागृहाच्या पटलावर ठेवण्यात आलेल्या
 			                		</fo:block>
@@ -207,7 +207,7 @@
 			                		</fo:block>		                		
 			                	</fo:block>	 
 			                	<fo:block font-size="9px">&#160;</fo:block>           		                	           	
-			                	<fo:block text-align="center" font-size="12pt" font-weight="bold">
+			                	<fo:block text-align="center" font-size="16pt" font-weight="bold">
 			                		<fo:block>प्रश्नांची एकूण संख्या - <xsl:value-of select="element_2"/></fo:block>
 			                	</fo:block>
 			                	<!-- <fo:block font-size="7px">&#160;</fo:block> -->
@@ -215,7 +215,7 @@
 			                		___________
 								</fo:block>
 			                	<fo:block font-size="8pt">&#160;</fo:block>
-			                	<fo:block text-align="center" font-size="12pt" font-weight="bold">
+			                	<fo:block text-align="center" font-size="16pt" font-weight="bold">
 			                		प्रश्नांचा तपशील
 			                	</fo:block>
 			                	<fo:block font-size="8pt">&#160;</fo:block>
@@ -234,37 +234,37 @@
 		                        <fo:table-header>
 		                        	<fo:table-row background-color="green">
 		                        		<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" color="white">
-			                        	   	<fo:block text-align="center" font-size="9.5pt" font-weight="bold">
+			                        	   	<fo:block text-align="center" font-size="15pt" font-weight="bold">
 	                                                                    अ. क्र.
 		                                    </fo:block>
 			                        	</fo:table-cell>
 			                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" color="white">
-			                        	    <fo:block text-align="center" font-size="9.5pt" font-weight="bold">
+			                        	    <fo:block text-align="center" font-size="15pt" font-weight="bold">
 	                                                                    प्रश्न क्रमांक
 		                                    </fo:block>
 			                        	</fo:table-cell>
 			                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" color="white">
-			                        	    <fo:block text-align="center" font-size="9.5pt" font-weight="bold">
+			                        	    <fo:block text-align="center" font-size="15pt" font-weight="bold">
 	                                                                    सदस्यांचे नांव
 		                                    </fo:block>
 			                        	</fo:table-cell>
 			                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" color="white">
-			                        	    <fo:block text-align="center" font-size="9.5pt" font-weight="bold">
+			                        	    <fo:block text-align="center" font-size="15pt" font-weight="bold">
 	                                                                    मंत्री व विभाग
 		                                    </fo:block>
 			                        	</fo:table-cell>
 			                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" color="white">
-			                        	    <fo:block text-align="center" font-size="9.5pt" font-weight="bold">
+			                        	    <fo:block text-align="center" font-size="15pt" font-weight="bold">
 	                                                                    विषय
 		                                    </fo:block>
 			                        	</fo:table-cell>
 			                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" color="white">
-			                        	    <fo:block text-align="center" font-size="9.5pt" font-weight="bold">
+			                        	    <fo:block text-align="center" font-size="15pt" font-weight="bold">
 	                                                                    विभागाला पाठविल्याचा दिनांक
 		                                    </fo:block>
 			                        	</fo:table-cell>
 			                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" color="white">
-			                        	    <fo:block text-align="center" font-size="9.5pt" font-weight="bold">
+			                        	    <fo:block text-align="center" font-size="15pt" font-weight="bold">
 	                                                                    उत्तर प्राप्त झाल्याचा दिनांक
 		                                    </fo:block>
 			                        	</fo:table-cell>

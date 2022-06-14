@@ -73,10 +73,10 @@
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		    
-			       <fo:block font-family="Mangal" font-size="9px">
-			       		<fo:block font-size="10.5px" text-align="center" font-weight="bold">
+			       <fo:block font-family="Kokila" font-size="15px">
+			       		<fo:block font-size="18px" text-align="center" font-weight="bold">
 			       			<fo:block><xsl:value-of select="element_3[1]"/></fo:block>
-			       			<fo:block font-size="9px"><xsl:apply-templates select="element_3[2]"/></fo:block>
+			       			<fo:block font-size="13px"><xsl:apply-templates select="element_3[2]"/></fo:block>
 			       		</fo:block>
 			       		<fo:block font-size="3px">&#160;</fo:block>
 			       		<fo:block>
