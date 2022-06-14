@@ -1067,15 +1067,19 @@ public class ReferenceController extends BaseController {
 			if(server.equals("TOMCAT")){
 				String strParam=request.getParameter("term");
 				try {
-					String param=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
-					memberVOs=HouseMemberRoleAssociation.findAllActiveMemberVOSInSession(house, selectedSession, locale.toString(), param);
+					if(strParam!=null && !strParam.isEmpty()) {
+						String param=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
+						memberVOs=HouseMemberRoleAssociation.findAllActiveMemberVOSInSession(house, selectedSession, locale.toString(), param.trim());
+					}					
 				}
 				catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 				}
 			}else{
 				String param=request.getParameter("term");
-				memberVOs=HouseMemberRoleAssociation.findAllActiveMemberVOSInSession(house, selectedSession, locale.toString(), param);
+				if(param!=null && !param.isEmpty()) {
+					memberVOs=HouseMemberRoleAssociation.findAllActiveMemberVOSInSession(house, selectedSession, locale.toString(), param.trim());
+				}
 			}
 		}
 		for(MasterVO i:memberVOs){
@@ -1111,15 +1115,19 @@ public class ReferenceController extends BaseController {
 			if(server.equals("TOMCAT")){
 				String strParam=request.getParameter("tag");
 				try {
-					String param=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
-					memberVOs=HouseMemberRoleAssociation.findAllActiveMemberVOSInSession(house, selectedSession, locale.toString(), param);
+					if(strParam!=null && !strParam.isEmpty()) {
+						String param=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
+						memberVOs=HouseMemberRoleAssociation.findAllActiveMemberVOSInSession(house, selectedSession, locale.toString(), param.trim());
+					}
 				}
 				catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 				}
 			}else{
 				String param=request.getParameter("tag");
-				memberVOs=HouseMemberRoleAssociation.findAllActiveMemberVOSInSession(house, selectedSession, locale.toString(), param);
+				if(param!=null && !param.isEmpty()) {
+					memberVOs=HouseMemberRoleAssociation.findAllActiveMemberVOSInSession(house, selectedSession, locale.toString(), param.trim());
+				}
 			}
 		}
 		for(MasterVO i:memberVOs){
@@ -2105,15 +2113,19 @@ public class ReferenceController extends BaseController {
 			if(server.equals("TOMCAT")){
 				String strParam = request.getParameter("term");
 				try {
-					String param = new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
-					memberVOs = HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house, selectedSession, locale.toString(), param,primaryMemberId);
+					if(strParam!=null && !strParam.isEmpty()) {
+						String param = new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
+						memberVOs = HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house, selectedSession, locale.toString(), param.trim(),primaryMemberId);
+					}					
 				}
 				catch (UnsupportedEncodingException e){
 					e.printStackTrace();
 				}
 			}else{
 				String param = request.getParameter("term");
-				memberVOs = HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house,selectedSession, locale.toString(), param, primaryMemberId);
+				if(param!=null && !param.isEmpty()) {
+					memberVOs = HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house,selectedSession, locale.toString(), param.trim(), primaryMemberId);
+				}
 			}
 		}
 		for(MasterVO i : memberVOs){
@@ -5806,15 +5818,19 @@ public class ReferenceController extends BaseController {
 			if(server.equals("TOMCAT")){
 				String strParam=request.getParameter("term");
 				try {
-					String param=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
-					ministerVOs = Ministry.findMinistriesAssignedToGroupsByTerm(session.getHouse().getType(), session.getYear(), session.getType(),param, locale.toString());
+					if(strParam!=null && !strParam.isEmpty()) {
+						String param=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
+						ministerVOs = Ministry.findMinistriesAssignedToGroupsByTerm(session.getHouse().getType(), session.getYear(), session.getType(),param.trim(), locale.toString());
+					}
 				}
 				catch (UnsupportedEncodingException e){
 					e.printStackTrace();
 				}
 			}else{
 				String param=request.getParameter("term");
-				ministerVOs=Ministry.findMinistriesAssignedToGroupsByTerm(session.getHouse().getType(), session.getYear(), session.getType(),param, locale.toString());
+				if(param!=null && !param.isEmpty()) {
+					ministerVOs=Ministry.findMinistriesAssignedToGroupsByTerm(session.getHouse().getType(), session.getYear(), session.getType(),param.trim(), locale.toString());
+				}				
 			}
 		}
 		for(MasterVO i:ministerVOs){
@@ -5845,15 +5861,19 @@ public class ReferenceController extends BaseController {
 			if(server.equals("TOMCAT")){
 				String strParam=request.getParameter("term");
 				try {
-					String param=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");					
-					ministerVOs = Ministry.findAssignedMinistriesInSessionByTerm(session.getStartDate(), param, locale.toString());
+					if(strParam!=null && !strParam.isEmpty()) {
+						String param=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
+						ministerVOs = Ministry.findAssignedMinistriesInSessionByTerm(session.getStartDate(), param.trim(), locale.toString());
+					}
 				}
 				catch (UnsupportedEncodingException e){
 					e.printStackTrace();
 				}
 			}else{
 				String param=request.getParameter("term");
-				ministerVOs = Ministry.findAssignedMinistriesInSessionByTerm(session.getStartDate(), param, locale.toString());
+				if(param!=null && !param.isEmpty()) {
+					ministerVOs = Ministry.findAssignedMinistriesInSessionByTerm(session.getStartDate(), param.trim(), locale.toString());
+				}				
 			}
 		}
 		for(MasterVO i:ministerVOs){
