@@ -407,7 +407,7 @@
 		               			<fo:block font-size="9pt" text-align="center">               				
 		               				_____________________________________________
 		               			</fo:block>
-		               			<fo:block font-size=15px" text-align="center">
+		               			<fo:block font-size="15px" text-align="center">
 		               				<xsl:value-of select="element_1/element_1_18"/>
 		               			</fo:block>
 			       			</xsl:when>
