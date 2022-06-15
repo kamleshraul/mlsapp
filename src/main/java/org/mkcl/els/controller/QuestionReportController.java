@@ -1322,6 +1322,7 @@ public class QuestionReportController extends BaseController{
     				}    				
     			} else {
     				reminderLetterNumber = latestReminderLetter.getReminderNumber();
+    				reminderLetterDate = latestReminderLetter.getReminderDate();
     			}    			
     		} else {
     			reminderLetterNumber = FormaterUtil.formatNumberNoGrouping(1, locale.toString());
