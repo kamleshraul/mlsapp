@@ -15,7 +15,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class CustomParameter.
@@ -78,6 +80,30 @@ public class CustomParameter extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods----------------------------------------------
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	@Transactional(readOnly = true)
+    public static CustomParameter findByName(final Class persistenceClass,
+    		final String fieldValue,
+            final String locale) {
+    	
+    	if(fieldValue!=null && fieldValue.equalsIgnoreCase("DEPLOYMENT_SERVER")) {
+    		
+    		if(ApplicationConstants.environment!=null && ApplicationConstants.environment.acceptsProfiles("dev")) {
+    			
+    			return (CustomParameter) getBaseRepository().findByName(persistenceClass, "DEPLOYMENT_LOCAL_SERVER",
+                        locale);
+    			
+    		} else {
+    			return (CustomParameter) getBaseRepository().findByName(persistenceClass, "DEPLOYMENT_SERVER",
+                        locale);
+    		}
+    		 
+    	} else {
+            return (CustomParameter) getBaseRepository().findByName(persistenceClass, fieldValue,
+                    locale);
+    	}
+    }
+    
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.

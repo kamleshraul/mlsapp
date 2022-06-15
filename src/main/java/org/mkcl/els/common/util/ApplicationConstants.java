@@ -12,6 +12,10 @@ package org.mkcl.els.common.util;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.core.env.Environment;
+
 // TODO: Auto-generated Javadoc
 /**
  * The Class ApplicationConstants.
@@ -20,7 +24,21 @@ import java.util.ResourceBundle;
  * @author sandeeps
  * @since v1.0.0
  */
+@Configurable
 public class ApplicationConstants {
+	
+	@Autowired
+	private Environment environmentInstance;
+	
+	public static Environment environment;
+	
+	static {
+		environment = new ApplicationConstants().environmentInstance;
+		if (environment == null) {
+			throw new IllegalStateException(
+					"Environment has not been injected in ApplicationConstants");
+		}
+	}
 	
 	public static final String SYSTEM_PROPERTIES_FILENAME = "system"; //base-name (or location) of system.properties file on class-path (located in src/main/resources)
 	
@@ -3129,5 +3147,9 @@ public class ApplicationConstants {
 	public static final String REQUEST_METHOD_PUT = "PUT";
 	
 	public static final String REQUEST_METHOD_DELETE = "DELETE";
+	
+	public void setEnvironmentInstance(Environment environment) {
+		this.environmentInstance = environment;
+	}
 	
 }
