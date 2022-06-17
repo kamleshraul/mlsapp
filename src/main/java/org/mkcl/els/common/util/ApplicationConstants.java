@@ -1124,6 +1124,12 @@ public class ApplicationConstants {
 
 	/** Prefix of bills **/
 	public static final String DEVICE_BILLS="bills_";
+	
+	/** Prefix of bill amendment motions **/
+	public static final String DEVICE_BILLAMENDMENTMOTIONS="motions_billamendment";
+	
+	/** Prefix of rule suspension motions **/
+	public static final String DEVICE_RULESUSPENSIONMOTIONS="motions_rules_suspension";
 
 	/** Prefix of acts **/
 	public static final String DEVICE_ACTS="act";

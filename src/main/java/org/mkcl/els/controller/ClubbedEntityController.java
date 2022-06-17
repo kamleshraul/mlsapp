@@ -176,9 +176,11 @@ public class ClubbedEntityController extends BaseController{
 			retVal = "searchfacility/init";
 			
 		}else{
+			String deviceForClubbing = "";
 			String strquestionId=request.getParameter("id");
 			if(strquestionId!=null){
 				if(!strquestionId.isEmpty()){
+					deviceForClubbing = ApplicationConstants.DEVICE_QUESTIONS;
 					Question question=Question.findById(Question.class,Long.parseLong(strquestionId));
 					/**** Advanced Search Options ****/
 					/**** First we will check if clubbing is allowed on the given question ****/
@@ -275,6 +277,7 @@ public class ClubbedEntityController extends BaseController{
 				
 				if(strbillId!=null) {
 					if(!strbillId.isEmpty()) {
+						deviceForClubbing = ApplicationConstants.DEVICE_BILLS;
 						Bill bill=Bill.findById(Bill.class,Long.parseLong(strbillId));
 						/**** Advanced Search Options ****/
 						/**** First we will check if clubbing is allowed on the given bill ****/
@@ -338,7 +341,7 @@ public class ClubbedEntityController extends BaseController{
 						}
 					}				
 				} else if(strMotionId != null && !strMotionId.isEmpty()){
-					
+					deviceForClubbing = ApplicationConstants.DEVICE_MOTIONS_CALLING;
 					Motion motion = Motion.findById(Motion.class, new Long(strMotionId));
 					/**** Advanced Search Options ****/
 					/**** First we will check if clubbing is allowed on the given bill ****/
@@ -393,7 +396,7 @@ public class ClubbedEntityController extends BaseController{
 						return "clubbing/error";
 					}
 				} else if(strStandaloneMotionId != null && !strStandaloneMotionId.isEmpty()){
-					
+					deviceForClubbing = ApplicationConstants.DEVICE_STANDALONEMOTIONS;
 					StandaloneMotion motion = StandaloneMotion.findById(StandaloneMotion.class, new Long(strStandaloneMotionId));
 					Boolean isClubbingAllowed = false;
 					if(strUseForFiling != null && !strUseForFiling.isEmpty() && strUseForFiling.equals("yes")){
@@ -469,7 +472,7 @@ public class ClubbedEntityController extends BaseController{
 						return "clubbing/error";
 					}
 				}else if(strCutMotionId != null && !strCutMotionId.isEmpty()){
-					
+					deviceForClubbing = ApplicationConstants.DEVICE_CUTMOTIONS;
 					CutMotion motion = CutMotion.findById(CutMotion.class, new Long(strCutMotionId));
 					/**** Advanced Search Options ****/
 					/**** First we will check if clubbing is allowed on the given bill ****/
@@ -519,7 +522,7 @@ public class ClubbedEntityController extends BaseController{
 						return "clubbing/error";
 					}
 				}else if(strEventMotionId != null && !strEventMotionId.isEmpty()){
-					
+					deviceForClubbing = ApplicationConstants.DEVICE_EVENTMOTIONS;
 					EventMotion motion = EventMotion.findById(EventMotion.class, new Long(strEventMotionId));
 					/**** Advanced Search Options ****/
 					/**** First we will check if clubbing is allowed on the given bill ****/
@@ -569,7 +572,7 @@ public class ClubbedEntityController extends BaseController{
 						return "clubbing/error";
 					}
 				}else if(strDiscussionMotionId != null && !strDiscussionMotionId.isEmpty()){
-					
+					deviceForClubbing = ApplicationConstants.DEVICE_DISCUSSIONMOTIONS;
 					DiscussionMotion motion = DiscussionMotion.findById(DiscussionMotion.class, new Long(strDiscussionMotionId));
 					/**** Advanced Search Options ****/
 					/**** First we will check if clubbing is allowed on the given bill ****/
@@ -619,6 +622,7 @@ public class ClubbedEntityController extends BaseController{
 						return "clubbing/error";
 					}
 				} else if(strAdjournmentMotionId!=null && !strAdjournmentMotionId.isEmpty()) {
+					deviceForClubbing = ApplicationConstants.DEVICE_ADJOURNMENTMOTIONS;
 					AdjournmentMotion adjournmentMotion = AdjournmentMotion.findById(AdjournmentMotion.class, new Long(strAdjournmentMotionId));
 					/**** Advanced Search Options ****/
 					/**** First we will check if clubbing is allowed on the given motion ****/
@@ -668,6 +672,7 @@ public class ClubbedEntityController extends BaseController{
 						return "clubbing/error";
 					}
 				}else if(strSpecialMentionNoticeId!=null && !strSpecialMentionNoticeId.isEmpty()) {
+					deviceForClubbing = ApplicationConstants.DEVICE_SPECIALMENTIONNOTICES;
 					SpecialMentionNotice specialMentionNotice = SpecialMentionNotice.findById(SpecialMentionNotice.class, new Long(strSpecialMentionNoticeId));
 					/**** Advanced Search Options ****/
 					/**** First we will check if clubbing is allowed on the given motion ****/
@@ -717,6 +722,7 @@ public class ClubbedEntityController extends BaseController{
 						return "clubbing/error";
 					}
 				} else if(strBillAmendmentMotionId!=null && !strBillAmendmentMotionId.isEmpty()) {
+					deviceForClubbing = ApplicationConstants.DEVICE_BILLAMENDMENTMOTIONS;
 					BillAmendmentMotion billAmendmentMotion = BillAmendmentMotion.findById(BillAmendmentMotion.class, new Long(strBillAmendmentMotionId));
 					/**** Advanced Search Options ****/
 					/**** First we will check if clubbing is allowed on the given motion ****/
@@ -788,6 +794,7 @@ public class ClubbedEntityController extends BaseController{
 						return "clubbing/error";
 					}
 				}else if(strResolutionId != null && !strResolutionId.isEmpty()){
+					deviceForClubbing = ApplicationConstants.DEVICE_RESOLUTIONS;
 					Resolution r = Resolution.findById(Resolution.class, new Long(strResolutionId));
 					Boolean isClubbingAllowed = false;
 					if(strUseForFiling != null && !strUseForFiling.isEmpty() && strUseForFiling.equals("yes")){
@@ -849,6 +856,7 @@ public class ClubbedEntityController extends BaseController{
 						return "clubbing/error";
 					}
 				}else if(strRulesSuspensionMotionId !=null && !strRulesSuspensionMotionId.isEmpty()) {
+					deviceForClubbing = ApplicationConstants.DEVICE_RULESUSPENSIONMOTIONS;
 					RulesSuspensionMotion rulesSuspensionMotion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, new Long(strRulesSuspensionMotionId));
 					/**** Advanced Search Options ****/
 					/**** First we will check if clubbing is allowed on the given motion ****/
@@ -902,6 +910,21 @@ public class ClubbedEntityController extends BaseController{
 					model.addAttribute("flag","REQUEST_PARAMETER_NULL");
 					return "clubbing/error";
 				}		
+			}
+			
+			CustomParameter csptDevicesAllowedForBulkClubbing = CustomParameter.findByName(CustomParameter.class, "DEVICES_ALLOWED_FOR_BULK_CLUBBING", "");
+			if(csptDevicesAllowedForBulkClubbing!=null && csptDevicesAllowedForBulkClubbing.getValue()!=null) {
+				for(String deviceAllowedForBulkClubbing: csptDevicesAllowedForBulkClubbing.getValue().split("~")) {
+					if(deviceForClubbing.equalsIgnoreCase(deviceAllowedForBulkClubbing)) {
+						int devicesCountLimitAllowedForBulkClubbing = 5;
+						CustomParameter csptLimitOfDevicesCountAllowedForBulkClubbing = CustomParameter.findByName(CustomParameter.class, "DEVICES_COUNT_LIMIT_ALLOWED_FOR_BULK_CLUBBING", "");
+						if(csptLimitOfDevicesCountAllowedForBulkClubbing!=null && csptLimitOfDevicesCountAllowedForBulkClubbing.getValue()!=null) {
+							devicesCountLimitAllowedForBulkClubbing = Integer.parseInt(csptLimitOfDevicesCountAllowedForBulkClubbing.getValue());
+						}
+						model.addAttribute("devicesCountLimitAllowedForBulkClubbing", devicesCountLimitAllowedForBulkClubbing);
+						return "clubbing/bulk_init";
+					}
+				}
 			}
 			
 			retVal = "clubbing/init";
