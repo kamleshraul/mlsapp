@@ -12,7 +12,9 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BillSearchVO;
+import org.mkcl.els.common.vo.ClubbingResultVO;
 import org.mkcl.els.common.vo.DeviceSearchVO;
+import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MotionSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
@@ -1984,6 +1986,73 @@ public class ClubbedEntityController extends BaseController{
 			}
 		}
 		return status;
+	}
+	
+	@Transactional
+	@RequestMapping(value="/bulk_clubbing",method=RequestMethod.POST)
+	public @ResponseBody ClubbingResultVO bulkClubbing(final HttpServletRequest request,final ModelMap model,final Locale locale) throws ELSException{
+		ClubbingResultVO clubbingResultVO = new ClubbingResultVO();
+		clubbingResultVO.setWhichDevice(ApplicationConstants.DEVICE_MOTIONS_CALLING);
+		
+		String strpId=request.getParameter("pId");
+		String strcIds=request.getParameter("clubIds");
+		String whichDevice=request.getParameter("whichDevice");
+		
+		if(strpId!=null&&strcIds!=null&&whichDevice!=null){
+			if(!strpId.isEmpty()&&!strcIds.isEmpty()&&!whichDevice.isEmpty()){
+				/**** current user's usergrouptype (needed for clubbing draft updation of edited as) ****/
+				String editedAs = null;
+				String strUserGroupType = request.getParameter("usergroupType");
+				if(strUserGroupType != null && !strUserGroupType.isEmpty()){
+					UserGroupType userGroupType = UserGroupType.findByType(strUserGroupType,locale.toString());
+					if(userGroupType==null) {
+						logger.error("request parameter 'usergroupType' not found");
+						throw new ELSException("ClubbedEntityController/bulk_clubbing/4", "request parameter 'usergroupType' not found");
+					}
+					editedAs = userGroupType.getName();
+				}
+				/**** current user's username (needed for clubbing draft updation of edited by) ****/
+				String editedBy = this.getCurrentUser().getActualUsername();
+				/**** clubbing process ****/					
+				Long primaryId=Long.parseLong(strpId);
+				Long clubbingId;
+				for(String strcId: strcIds.split(",")) {
+					clubbingId=Long.parseLong(strcId);
+					if(whichDevice.equals("motions_")){
+						try {
+							clubbingResultVO = Motion.club(primaryId, clubbingId, clubbingResultVO, locale.toString());
+							if(clubbingResultVO.getResult()==false) {
+								return clubbingResultVO;
+							} else {
+								primaryId = clubbingResultVO.getParentDevice().getId();
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+							clubbingResultVO.setResult(false);
+							Motion pMotion = Motion.findById(Motion.class, primaryId);
+							Motion cMotion = Motion.findById(Motion.class, clubbingId);
+							if(pMotion!=null && cMotion!=null) {
+								clubbingResultVO.setClubFailureDetails("Error occurred in clubbing of "+ pMotion.getNumber() + " and " + cMotion.getNumber());
+							} else {
+								clubbingResultVO.setClubFailureDetails("Error occurred in clubbing of some motions.. contact administrator");
+							}
+						}
+					}
+				}
+				List<DeviceVO> childDevices = clubbingResultVO.getChildDevices();
+				if(childDevices!=null && !childDevices.isEmpty()) {
+					StringBuffer clubSuccessDetails = new StringBuffer("");
+					for(DeviceVO child: childDevices) {
+						clubSuccessDetails.append(child.getFormattedNumber()+",");
+					}
+					clubSuccessDetails.deleteCharAt(clubSuccessDetails.length()-1);
+					clubSuccessDetails.append(" clubbed to ");
+					clubSuccessDetails.append(clubbingResultVO.getParentDevice().getFormattedNumber());
+					clubbingResultVO.setClubSuccessDetails(clubSuccessDetails.toString());
+				}
+			}
+		}
+		return clubbingResultVO;
 	}
 	
 	@Transactional

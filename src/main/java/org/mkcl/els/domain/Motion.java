@@ -31,6 +31,8 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.ClubbingResultVO;
+import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.SearchVO;
@@ -1257,6 +1259,59 @@ import org.springframework.transaction.annotation.Transactional;
 		
 		return club(m1, m2, locale); 
 		
+	}
+	
+	public static ClubbingResultVO club(final Long primary, final Long clubbing, ClubbingResultVO clubbingResultVO, final String locale) throws ELSException{
+		
+		Motion m1 = Motion.findById(Motion.class, primary);
+		Motion m2 = Motion.findById(Motion.class, clubbing);
+		
+		boolean clubbingStatus =  club(m1, m2, locale);
+		
+		if(clubbingResultVO==null) {
+			clubbingResultVO = new ClubbingResultVO();
+			clubbingResultVO.setWhichDevice(ApplicationConstants.DEVICE_MOTIONS_CALLING);
+		}
+		if(clubbingStatus) {
+			clubbingResultVO.setResult(true);
+			DeviceVO parentDevice = clubbingResultVO.getParentDevice();
+			if(clubbingResultVO.getParentDevice()==null) {
+				parentDevice = new DeviceVO();
+			}		
+			DeviceVO childDevice = new DeviceVO();
+			if(m2.getParent()!=null && m1.getId().equals(m2.getParent().getId())) { //m1 is parent and m2 is child
+				parentDevice.setId(m1.getId());
+				parentDevice.setNumber(m1.getNumber());
+				parentDevice.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(m1.getNumber(), locale));
+				
+				childDevice.setId(m2.getId());
+				childDevice.setNumber(m2.getNumber());
+				childDevice.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(m2.getNumber(), locale));			
+			} 
+			else if(m1.getParent()!=null && m2.getId().equals(m1.getParent().getId())) { //m2 is parent and m1 is child
+				parentDevice.setId(m2.getId());
+				parentDevice.setNumber(m2.getNumber());
+				parentDevice.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(m2.getNumber(), locale));
+				
+				childDevice.setId(m1.getId());
+				childDevice.setNumber(m1.getNumber());
+				childDevice.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(m1.getNumber(), locale));
+			}
+			clubbingResultVO.setParentDevice(parentDevice);
+			if(clubbingResultVO.getChildDevices()!=null && !clubbingResultVO.getChildDevices().isEmpty()) {
+				clubbingResultVO.getChildDevices().add(childDevice);
+			} 
+			else {
+				List<DeviceVO> childDevices = new ArrayList<DeviceVO>();
+				childDevices.add(childDevice);
+				clubbingResultVO.setChildDevices(childDevices);
+			}
+		} else {
+			clubbingResultVO.setResult(false);
+			clubbingResultVO.setClubFailureDetails("Clubbing of " + m1.getNumber() + " AND " + m2.getNumber() + " Failed!");
+		}
+		
+		return clubbingResultVO;
 	}
 
 	public static boolean club(final Motion q1,final Motion q2,final String locale) throws ELSException{    	

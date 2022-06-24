@@ -1133,7 +1133,81 @@
 			if(devicesCount>parseInt(bulkClubbingDevicesLimit)) {
 				$.prompt("You cannot club more than " + bulkClubbingDevicesLimit + " devices in bulk!");
 			} else {
-				alert(clubbingIds);
+				$.prompt($('#bulkClubbingConfirmationMsg').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+						if(v){
+							$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });		
+							var deviceId=$("#deviceId").val();	
+							var whichDevice = $('#whichDevice').val();
+							$.post('clubentity/bulk_clubbing?pId='+deviceId+"&clubIds="+clubbingIds
+									+"&usergroupType="+$("#currentusergroupType").val()
+									+'&whichDevice='+whichDevice,function(data){
+									
+									console.log("data.result=:"+data.result);
+									//console.log("data.result=:"+data[result]);						
+								
+									if(data.result==true){
+										console.log("data.success_result=:"+data.result);
+										var text="<span style='color:green;font-weight:bold;font-size:16px;'>"+data.clubSuccessDetails;
+										$("#clubbingResult").empty();
+										$("#clubbingResult").html(text);
+										
+										$(".action").each(function() {
+											if($(this).is(":checked")) {
+												var selectedClubId = $(this).attr('id').split("chk")[1];
+												$("#operation"+selectedClubId).empty();
+												$("#operation"+selectedClubId).html("<a onclick='unclubbing("+selectedClubId+");' style='margin:10px;'>"+$("#unclubMsg").val()+"</a>");
+												$(this).removeAttr('checked');
+											}
+										});										
+										
+									} else if(data.result==false){										
+										console.log("data.error_result=:"+data.result);
+										var text="<span style='color:red;font-weight:bold;font-size:16px;'>"+data.clubFailureDetails;
+										text += "<br>" + data.clubSuccessDetails;
+										$("#clubbingResult").empty();
+										$("#clubbingResult").html(text);	
+										
+										if(data.childDevices!=null && data.childDevices!=undefined
+												&& data.childDevices.length>=1) {
+											for(var i=0; i<data.childDevices.length; i++) {
+												var selectedClubId = data.childDevices[i].id;
+												$("#operation"+selectedClubId).empty();
+												$("#operation"+selectedClubId).html("<a onclick='unclubbing("+selectedClubId+");' style='margin:10px;'>"+$("#unclubMsg").val()+"</a>");
+												$('#chk'+selectedClubId).removeAttr('checked');
+											}
+										}
+									} else{ //error case
+										console.log("data.error_result=:"+data.result);
+										var text="<span style='color:red;font-weight:bold;font-size:16px;'>"+data.clubFailureDetails;
+										text += "<br>" + data.clubSuccessDetails;
+										$("#clubbingResult").empty();
+										$("#clubbingResult").html(text);	
+										
+										if(data.childDevices!=null && data.childDevices!=undefined
+												&& data.childDevices.length>=1) {
+											for(var i=0; i<data.childDevices.length; i++) {
+												var selectedClubId = data.childDevices[i].id;
+												$("#operation"+selectedClubId).empty();
+												$("#operation"+selectedClubId).html("<a onclick='unclubbing("+selectedClubId+");' style='margin:10px;'>"+$("#unclubMsg").val()+"</a>");
+												$('#chk'+selectedClubId).removeAttr('checked');
+											}
+										}
+									}
+									$.unblockUI();
+									scrollTop();								
+							}).fail(function(){
+								$.unblockUI();
+								if($("#ErrorMsg").val()!=''){
+									$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+								}else{
+									$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+								}
+								scrollTop();
+							});
+						}
+					}
+				});
 			}			
 			return false;
 		}
@@ -1879,7 +1953,7 @@ td>table{
 <input id="amendedBillInfo" value="${amendedBillInfo}" type="hidden">
 <input type="hidden" id="defaultAmendedBillLanguage" value="${defaultAmendedBillLanguage}" />
 <input type="hidden" id="useforfiling" value="${useforfiling}" />
-<input type="hidden" id="fileNumberSelectionMsg" value="<spring:message code='filing.filenumselect' text='Select file number.' />" />
 <input type="hidden" id="devicesCountLimitAllowedForBulkClubbing" value="${devicesCountLimitAllowedForBulkClubbing}" />
+<input type="hidden" id="bulkClubbingConfirmationMsg" value="<spring:message code='clubbing.bulk_clubbing.confirmationMessage' text='Are you sure you want to club selected devices now?' />" />
 </body>
 </html>

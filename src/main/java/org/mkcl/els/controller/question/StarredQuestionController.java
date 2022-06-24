@@ -3514,14 +3514,17 @@ class StarredQuestionController {
 										if(strWorkflowdetails != null && ! strWorkflowdetails.isEmpty()) {
 											WorkflowDetails workflowDetails = WorkflowDetails.findById(
 													WorkflowDetails.class, Long.parseLong(strWorkflowdetails));
-											workflowDetails.setStatus("TIMEOUT");
-											workflowDetails.setCompletionTime(new Date());
-											workflowDetails.merge();
-			
-											/**** Complete Task ****/
-											String strTaskId = workflowDetails.getTaskId();
-											Task task = processService.findTaskById(strTaskId);
-											processService.completeTask(task);
+											
+											if(workflowDetails!=null) {
+												workflowDetails.setStatus("TIMEOUT");
+												workflowDetails.setCompletionTime(new Date());
+												workflowDetails.merge();
+												
+												/**** Complete Task ****/
+												String strTaskId = workflowDetails.getTaskId();
+												Task task = processService.findTaskById(strTaskId);
+												processService.completeTask(task);
+											}											
 										}
 									}
 			
