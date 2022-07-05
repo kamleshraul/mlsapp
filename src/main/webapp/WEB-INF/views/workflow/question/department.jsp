@@ -1514,7 +1514,7 @@
 			<textarea id="reanswer" name="reanswer" class="wysiwyg">${reanswerText}</textarea>
 		</p>
 	</c:if> --%>
-	<c:choose>
+	<%-- <c:choose>
 		<c:when test="${not empty domain.factualPosition}">
 			<p>
 				<label class="wysiwyglabel"><spring:message code="question.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
@@ -1555,7 +1555,26 @@
 			</c:if>
 		</c:otherwise>
 		
-	</c:choose>
+	</c:choose> --%>
+	
+	<c:if test="${not empty domain.factualPosition}">
+			<p>
+				<label class="wysiwyglabel"><spring:message code="question.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
+				<textarea class="wysiwyg" rows="5" cols="50" readonly="readonly">${formattedQuestionsAskedInFactualPosition}</textarea>
+				<form:hidden path="questionsAskedInFactualPosition"/>
+				<form:hidden path="questionsAskedInFactualPositionForMember"/>
+			</p>
+			<p>
+			<label class="small"><spring:message code="question.lastDateOfFactualPositionReceiving" text="Last date of receiving Factual Position"/></label>
+			<form:input path="lastDateOfFactualPositionReceiving" cssClass="datemask sText" readonly="true"/>
+			<form:errors path="lastDateOfFactualPositionReceiving" cssClass="validationError"/>
+			</p>
+			<p>
+			<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
+			<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+			</p>
+	</c:if>
 
 	
 	<c:if test="${not empty domain.reasonForLateReply}">
