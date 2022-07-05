@@ -10654,13 +10654,15 @@ public class ReferenceController extends BaseController {
 	
 	@RequestMapping(value = "/isUserSessionActive", method = RequestMethod.GET)
 	public @ResponseBody boolean isUserSessionActive(HttpServletRequest request, Locale locale){
-		boolean isUserSessionActive = false;
-		Object loggedInUser = request.getSession().getAttribute("logged_in_active_user");
-        if(loggedInUser!=null && !loggedInUser.toString().isEmpty()) {
-        	isUserSessionActive = true;
-        }
-        ApplicationConstants.isUserSessionActive_URL_HIT_COUNT++; //temporary code
-		return isUserSessionActive;
+//		boolean isUserSessionActive = false;
+//		Object loggedInUser = request.getSession().getAttribute("logged_in_active_user");
+//        if(loggedInUser!=null && !loggedInUser.toString().isEmpty()) {
+//        	isUserSessionActive = true;
+//        }
+//        ApplicationConstants.isUserSessionActive_URL_HIT_COUNT++; //temporary code
+//		return isUserSessionActive;
+		
+		return this.isAuthenticated();
 	}
 	
 	//temporary method

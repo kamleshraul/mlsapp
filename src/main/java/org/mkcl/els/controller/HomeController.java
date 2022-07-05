@@ -94,10 +94,19 @@ public class HomeController extends BaseController {
      */
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String login(@RequestParam(required = false) final String lang,
-            final Model model, 
+            final ModelMap model, 
             final HttpServletRequest request,
             final HttpServletResponse response,
             final Locale locale) {
+    	if(this.isAuthenticated()) {    		
+    		Object loggedInUser = request.getSession().getAttribute("logged_in_active_user");
+            if(loggedInUser!=null) {
+            	model.addAttribute("loggedInUser", loggedInUser.toString());    
+            	response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+            	response.setHeader("Location", "home.htm");
+            }
+    		return home(model, request, locale);
+    	}
         List<ApplicationLocale> supportedLocales = ApplicationLocale.findAll(
                 ApplicationLocale.class, "language", ASC, "");
         CustomParameter csptDefaultLocale = CustomParameter.findByName(CustomParameter.class, "DEFAULT_LOCALE", "");

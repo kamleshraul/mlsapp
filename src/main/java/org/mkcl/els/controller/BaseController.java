@@ -44,6 +44,8 @@ import org.mkcl.els.service.impl.ReportServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
@@ -92,6 +94,15 @@ public abstract class BaseController {
         } else {
             return true;
         }
+    }
+    
+    protected boolean isAuthenticated() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || AnonymousAuthenticationToken.class.
+          isAssignableFrom(authentication.getClass())) {
+            return false;
+        }
+        return authentication.isAuthenticated();
     }
 
     /**** Report Generation Using FOP with default fop config file 
