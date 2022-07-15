@@ -490,7 +490,11 @@ public class QuestionWorkflowController  extends BaseController{
 				StringBuffer bufferFirstNamesFirst = new StringBuffer();
 				for(SupportingMember i : selectedSupportingMembers){
 					Member m = i.getMember();
-					bufferFirstNamesFirst.append(m.getFullname() + ",");
+					if(i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+						if(m.isActiveMemberOn(new Date(), locale)){
+							bufferFirstNamesFirst.append(m.getFullname() + ",");
+						}
+					}
 					supportingMembers.add(m);
 				}
 				bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
@@ -873,10 +877,15 @@ public class QuestionWorkflowController  extends BaseController{
 			}
 			List<SupportingMember> clubbedSupportingMember = ce.getQuestion().getSupportingMembers();
 			if(clubbedSupportingMember != null && !clubbedSupportingMember.isEmpty()){
-				for(SupportingMember l:clubbedSupportingMember){
-					String tempSupporting=l.getMember().getFullname();
-					if(!buffer1.toString().contains(tempSupporting)){
-						buffer1.append(tempSupporting+",");
+				for(SupportingMember l : clubbedSupportingMember){
+					if(l.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+						Member supportingMember = l.getMember();
+						if(supportingMember.isActiveMemberOn(new Date(), locale)){
+							String tempSupporting=supportingMember.getFullname();
+							if(!buffer1.toString().contains(tempSupporting)){
+								buffer1.append(tempSupporting+",");
+							}
+						}
 					}
 				}
 			}
