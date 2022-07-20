@@ -1059,6 +1059,21 @@ public class CutMotionWorkflowController extends BaseController {
 							domain.setWorkflowDetailsId(workflowDetails2.getId());
 							domain.setTaskReceivedOn(new Date());
 							
+							/**** SEND NOTIFICATION TO DEPARTMENT USER WHEN REQUESTED FOR ANSWER ****/
+							if(usergroupType.getType().equals(ApplicationConstants.DEPARTMENT) || usergroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+								NotificationController.sendDepartmentProcessNotificationForCutMotion(domain, workflowDetails2.getAssignee(), domain.getLocale());
+							}
+							
+							/**** SEND NOTIFICATION OF REPLY RECEIVED ONLINE TO BRANCH USERS ****/
+							if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
+									&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_SENDTOSECTIONOFFICER)
+									&& usergroupType.getType().equals(ApplicationConstants.SECTION_OFFICER)
+									&& domain.getReply()!=null && !domain.getReply().isEmpty())
+							{
+								String usergroupTypes = "clerk,assistant,section_officer";
+								NotificationController.sendAnswerReceivedOnlineNotification(domain.getNumber().toString(), domain.getDeviceType(), domain.getHouseType(), domain.getSubDepartment().getName(), usergroupTypes, domain.getLocale());
+							}
+							
 						} else if (endflag.equals("end")) {
 							//in case answer to be sent to member login after received by section officer
 							if(csptAnswerToBeNotifiedToMemberPostReceivedBySectionOfficer!=null

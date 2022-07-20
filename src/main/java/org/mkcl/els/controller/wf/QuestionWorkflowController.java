@@ -2418,6 +2418,17 @@ public class QuestionWorkflowController  extends BaseController{
 											NotificationController.sendDepartmentProcessNotificationForUnstarredQuestion(domain, newWFDetails.getAssignee(), domain.getLocale());
 										}
 										
+										/**** SEND NOTIFICATION OF ANSWER RECEIVED ONLINE TO BRANCH USERS IF DEVICE IS UNSTARRED QUESTION ****/
+										if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
+												&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
+												&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_SENDTOSECTIONOFFICER)
+												&& usergroupType.getType().equals(ApplicationConstants.SECTION_OFFICER)
+												&& domain.getAnswer()!=null && !domain.getAnswer().isEmpty())
+										{
+											String usergroupTypes = "clerk,assistant,section_officer";
+											NotificationController.sendAnswerReceivedOnlineNotification(domain.getNumber().toString(), domain.getType(), domain.getHouseType(), domain.getSubDepartment().getName(), usergroupTypes, domain.getLocale());
+										}
+										
 										/**** FOr CLarificationFromMember and Department ****/
 										if(domain.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_FINAL_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)
 												&& domain.getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_PROCESSED_SENDTODEPARTMENT)){

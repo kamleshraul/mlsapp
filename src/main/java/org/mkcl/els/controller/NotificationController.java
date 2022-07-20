@@ -22,6 +22,7 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.NotificationVO;
 import org.mkcl.els.domain.CommitteeMeeting;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
@@ -331,6 +332,38 @@ public class NotificationController extends GenericController<Notification> {
 		templateParameters.put("requestedField", new String[]{copyType});
 		templateParameters.put("departmentUserName", new String[]{departmentUserName});
 		getNotificationService().sendNotificationWithTitleUsingTemplate(motion.getType().getType().toUpperCase() + "_REQUEST_FOR_DEPARTMENT_PROCESSING", templateParameters, locale);
+	}
+	
+	public static void sendDepartmentProcessNotificationForCutMotion(final CutMotion motion, final String departmentUserName, final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("deviceNumber", new String[]{FormaterUtil.formatNumberNoGrouping(motion.getNumber(), locale)});
+		templateParameters.put("deviceTypeId", new String[]{motion.getDeviceType().getId().toString()});
+		templateParameters.put("sessionId", new String[]{motion.getSession().getId().toString()});
+		templateParameters.put("requestedField", new String[]{"answer"});
+		templateParameters.put("departmentUserName", new String[]{departmentUserName});
+		getNotificationService().sendNotificationWithTitleUsingTemplate(motion.getDeviceType().getType().toUpperCase() + "_REQUEST_FOR_DEPARTMENT_PROCESSING", templateParameters, locale);
+	}
+	
+	public static void sendAnswerReceivedOnlineNotification(final String deviceNumber,
+								final DeviceType deviceType,
+								final HouseType houseType,
+								final String currentSubDepartment,
+								final String usergroupTypes,
+								final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("deviceNumber", new String[]{deviceNumber});
+		templateParameters.put("deviceTypeType", new String[]{deviceType.getType()});
+		templateParameters.put("deviceTypeName", new String[]{deviceType.getName()});
+		templateParameters.put("deviceTypeNameLike", new String[]{"%"+deviceType.getName()+"%"});
+		templateParameters.put("houseTypeType", new String[]{houseType.getType()});
+		templateParameters.put("houseTypeName", new String[]{houseType.getName()});
+		templateParameters.put("houseTypeNameLike", new String[]{"%"+houseType.getName()+"%"});
+		templateParameters.put("currentSubDepartment", new String[]{currentSubDepartment});
+		templateParameters.put("currentSubDepartmentLike", new String[]{"%"+currentSubDepartment+"%"});
+		templateParameters.put("usergroupTypes", new String[]{usergroupTypes});		
+		getNotificationService().sendNotificationWithTitleUsingTemplate("ANSWER_RECEIVED_ONLINE_FROM_DEPARTMENT_INTIMATION", templateParameters, locale);
 	}
 	
 	public static void sendReverseClubbingNotification(final String houseTypeName, final String parentDeviceNumber, final String childDeviceNumber, final String parentDeviceTypeName, final String childDeviceTypeName, final String parentSubdepartmentName, final String locale) {
