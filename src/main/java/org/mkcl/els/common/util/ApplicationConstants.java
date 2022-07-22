@@ -2830,7 +2830,7 @@ public class ApplicationConstants {
 	
 	public static final String MOTION_SYSTEM_ADVANCECOPYRECEIVED = "motion_system_advanceCopyReceived";
 	
-	public static final String MOTION_PROCESSED_RESENDREVISEDMOTIONTEXTTODEPARTMENT = "motion_processed_resendRevisedMotionTexttoDepartment";
+	public static final String MOTION_PROCESSED_RESENDREVISEDMOTIONTEXTTODEPARTMENT = "motion_processed_resendRevisedMotionTextToDepartment";
 	
 	public static final String MOTION_PROCESSED_RESENDREVISEDMOTIONTEXTTOSECTIONOFFICER = "motion_processed_resendRevisedMotionTextToSectionOfficer";
 	
@@ -3145,6 +3145,14 @@ public class ApplicationConstants {
 	public static final String REMINDER_LETTER_ACKNOWLEDGED_STATUS = "acknowledged";
 	
 	public static final String REMINDER_LETTER_TIMEOUT_STATUS = "timeout";
+	
+	public static final String INTIMATION_FOR_REPLY_FROM_DEPARTMENT = "intimation_for_reply_from_department";
+	
+	public static final String REFERENCE_LETTER_DISPATCHED_STATUS = "dispatched";
+	
+	public static final String REFERENCE_LETTER_ACKNOWLEDGED_STATUS = "acknowledged";
+	
+	public static final String REFERENCE_LETTER_TIMEOUT_STATUS = "timeout";
 	
 	public static final String CUTMOTION_SEARCH_USE_CURRENT_SESSION = "CUTMOTION_SEARCH_USE_CURRENT_SESSION";
 	

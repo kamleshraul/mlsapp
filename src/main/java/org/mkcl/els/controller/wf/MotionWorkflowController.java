@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -24,7 +25,6 @@ import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
-import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
 import org.mkcl.els.controller.NotificationController;
@@ -33,20 +33,18 @@ import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Query;
-import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.ReferenceLetter;
 import org.mkcl.els.domain.ReferenceUnit;
-import org.mkcl.els.domain.ReferencedEntity;
-import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
-import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
@@ -456,6 +454,15 @@ public class MotionWorkflowController extends BaseController{
 				&& workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)
 				&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.MOTION_FINAL_ADMISSION))){
 			boolResendRevisedMotionText = true;
+			if(domain.getAnsweringDate()==null) {
+				Date defaultAnsweringDate = Holiday.getNextWorkingDateFrom(new Date(), 1, locale);
+				domain.setAnsweringDate(defaultAnsweringDate);
+			}
+		}
+		
+		if(domain.getAnsweringDate()!=null) {
+			model.addAttribute("answeringDate", domain.getAnsweringDate());
+			model.addAttribute("formattedAnsweringDate", FormaterUtil.formatDateToString(domain.getAnsweringDate(), ApplicationConstants.SERVER_DATEFORMAT, locale));
 		}
 		
 		/******Set Clarification Not Received *********/
@@ -547,10 +554,15 @@ public class MotionWorkflowController extends BaseController{
 				List<SupportingMember> clubbedSupportingMember=ce.getMotion().getSupportingMembers();
 				if(clubbedSupportingMember!=null){
 					if(!clubbedSupportingMember.isEmpty()){
-						for(SupportingMember l:clubbedSupportingMember){
-							String tempSupporting=l.getMember().getFullname();
-							if(!buffer1.toString().contains(tempSupporting)){
-								buffer1.append(tempSupporting+",");
+						for(SupportingMember l : clubbedSupportingMember){
+							if(l.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+								Member supportingMember = l.getMember();
+								if(supportingMember.isActiveMemberOn(new Date(), locale)){
+									String tempSupporting=supportingMember.getFullname();
+									if(!buffer1.toString().contains(tempSupporting)){
+										buffer1.append(tempSupporting+",");
+									}
+								}
 							}
 						}
 					}
@@ -743,6 +755,23 @@ public class MotionWorkflowController extends BaseController{
 			}
 		}	
 		
+		/**** answer related dates ****/
+		if(domain.getAnsweringDate()==null) {
+			String strAnsweringDate = request.getParameter("setAnsweringDate");
+			if(strAnsweringDate!=null && !strAnsweringDate.isEmpty()) {
+				Date answeringDate = null;
+				try {
+					answeringDate = FormaterUtil.getDateFormatter("en_US").parse(strAnsweringDate);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				//Added the above code as the following code was giving exception of unparseble date
+				//Date answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, ApplicationConstants.DB_DATEFORMAT, locale.toString());
+				domain.setAnsweringDate(answeringDate);
+			}
+		}
+		
 		//---new code
 		String currentDeviceTypeWorkflowType = null;
 		Workflow workflowFromUpdatedStatus = null;
@@ -821,6 +850,7 @@ public class MotionWorkflowController extends BaseController{
 						ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale.toString());	
 						assigneeLevel = assigneeLevel - 1;
 					}
+					TODO://find below as per latest reference letter for non department users
 					referenceNumber = wfDetails.getReferenceNumber();
 					referredNumber = wfDetails.getReferredNumber();
 					Workflow workflow = Workflow.findByStatus(motion.getInternalStatus(), locale.toString());
@@ -864,21 +894,106 @@ public class MotionWorkflowController extends BaseController{
 							WorkflowDetails resendRevisedMotionTextWorkflowDetails;
 							try {
 								if(pendingWorkflow != null){
-									Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
-									processService.completeTask(prevTask, properties);
-									pendingWorkflow.setStatus("COMPLETED");
-									pendingWorkflow.setCompletionTime(new Date());
-									pendingWorkflow.merge();
-									/*String strReferenceNumber = pendingWorkflow.getReferenceNumber();
-									if(strReferenceNumber != null && !strReferenceNumber.isEmpty()){
-										String[] referenceNumberSplits = strReferenceNumber.split(motion.getId().toString());
-										Integer referenceNo = Integer.parseInt(referenceNumberSplits[1]) + 1;
-										referenceNumber= referenceNo.toString();
-										referredNumber = strReferenceNumber;
-									}*/
+									if(pendingWorkflow.getStatus().equals(ApplicationConstants.MYTASK_PENDING)) {
+										Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
+										processService.completeTask(prevTask, properties);
+										pendingWorkflow.setStatus("COMPLETED");
+										pendingWorkflow.setCompletionTime(new Date());
+										pendingWorkflow.merge();
+									}			
+									
+									//Old Logic for Reference Number and Referred Number (Remove below commented block once New Logic works fine)
+//									WorkflowDetails wfDetail = WorkflowDetails.findByDeviceAssignee(domain, null, ApplicationConstants.DEPARTMENT,  locale.toString());
+//									if(wfDetail!=null) {
+//										String strReferenceNumber = wfDetail.getReferenceNumber();
+//										if(strReferenceNumber != null && !strReferenceNumber.isEmpty()){
+//											String[] referenceNumberSplits = strReferenceNumber.split(domain.getId().toString());
+//											Integer referenceNo = Integer.parseInt(referenceNumberSplits[1]) + 1;
+//											referenceNumber = domain.getId().toString() + referenceNo.toString();
+//											referredNumber = strReferenceNumber;
+//										}else{
+//											referenceNumber= domain.getId().toString() + "1";
+//										}
+//									}else{
+//										referenceNumber= domain.getId().toString() + "1";
+//									}		
+									//==================================Old Logic End================================//
+									
+									//New Logic for Reference Number and Referred Number
+									ReferenceLetter latestIntimationReferenceLetterHavingMotion = ReferenceLetter.findLatestHavingGivenDevice(domain.getId().toString(), ApplicationConstants.INTIMATION_FOR_REPLY_FROM_DEPARTMENT, locale.toString());
+									
+									Map<String, String> referenceLetterIdentifiers = new LinkedHashMap<String, String>();
+									referenceLetterIdentifiers.put("parentDeviceId", domain.getId().toString());
+									referenceLetterIdentifiers.put("referenceFor", ApplicationConstants.INTIMATION_FOR_REPLY_FROM_DEPARTMENT);
+									ReferenceLetter latestIntimationReferenceLetterForMotion = ReferenceLetter.findLatestByFieldNames(referenceLetterIdentifiers, locale.toString());
+									
+									if(latestIntimationReferenceLetterHavingMotion!=null && latestIntimationReferenceLetterForMotion!=null
+											&& latestIntimationReferenceLetterHavingMotion.getParentDeviceId().equals(domain.getId().toString()))
+									{
+										String strReferenceNumber = latestIntimationReferenceLetterForMotion.getReferenceNumber();
+										if(strReferenceNumber != null && !strReferenceNumber.isEmpty())
+										{
+											String[] referenceNumberSplits = strReferenceNumber.split(domain.getId().toString());
+											Integer referenceNo = Integer.parseInt(referenceNumberSplits[1]) + 1;
+											referenceNumber= domain.getId().toString() + referenceNo.toString();
+											referredNumber = strReferenceNumber;
+										}
+									} 
+									else {
+										if(latestIntimationReferenceLetterHavingMotion!=null
+												&& ! latestIntimationReferenceLetterHavingMotion.getParentDeviceId().equals(domain.getId())) 
+										{
+											Motion previousParentMotion = Motion.findById(Motion.class, Long.parseLong(latestIntimationReferenceLetterHavingMotion.getParentDeviceId()));
+											if(previousParentMotion!=null && previousParentMotion.getParent().getId().equals(domain.getId())) 
+											{
+												referredNumber = latestIntimationReferenceLetterHavingMotion.getReferenceNumber();
+											}
+										}
+										if(latestIntimationReferenceLetterForMotion!=null) {
+											String strReferenceNumber = latestIntimationReferenceLetterForMotion.getReferenceNumber();
+											if(strReferenceNumber != null && !strReferenceNumber.isEmpty())
+											{
+												String[] referenceNumberSplits = strReferenceNumber.split(domain.getId().toString());
+												Integer referenceNo = Integer.parseInt(referenceNumberSplits[1]) + 1;
+												referenceNumber= domain.getId().toString() + referenceNo.toString();
+											}
+										} 
+										else {
+											referenceNumber= domain.getId().toString() + "1";
+										}									
+									}
+									//==================================New Logic End================================//
 								}
 								resendRevisedMotionTextWorkflowDetails = WorkflowDetails.
 										create(domain,resendRevisedMotionTextTask,usergroupType,currentDeviceTypeWorkflowType,level, referenceNumber, referredNumber);
+								
+								String copyType = null;
+								if(referredNumber!=null && !referredNumber.isEmpty()){
+									copyType = "revisedCopy";
+								}else{
+									copyType = "tentativeCopy";
+								}
+								
+								/**** SEND NOTIFICATION TO DEPARTMENT USER****/
+								if(usergroupType.getType().equals(ApplicationConstants.DEPARTMENT) || usergroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) 
+								{								
+									NotificationController.sendDepartmentProcessNotificationForMotion(domain, resendRevisedMotionTextWorkflowDetails.getAssignee(), copyType, domain.getLocale());
+								}
+								
+								/**** CREATE REFERENCE LETTER FOR DEPARTMENT USER****/							
+								if(usergroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+										&& domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_ADMISSION)
+										&& (domain.getRecommendationStatus().getType().equals(ApplicationConstants.MOTION_PROCESSED_SEND_TO_DEPARTMENT)
+												|| domain.getRecommendationStatus().getType().equals(ApplicationConstants.MOTION_PROCESSED_RESENDREVISEDMOTIONTEXTTODEPARTMENT))
+										&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER))
+								{
+									ReferenceLetter referenceLetter = Motion.generateReferenceLetter(domain, copyType, this.getCurrentUser().getActualUsername(), resendRevisedMotionTextWorkflowDetails.getAssignee(), referenceNumber, referredNumber, locale.toString());
+									
+									if(referenceLetter==null || referenceLetter.getId()==null) {
+										logger.error("Error in generation of reference letter while sending for reply to department");
+									}
+								}
+								
 								domain.setWorkflowDetailsId(resendRevisedMotionTextWorkflowDetails.getId());
 								resendRevisedMotionTextWorkflowDetails.setPreviousWorkflowDetail(workflowDetails.getId());
 								resendRevisedMotionTextWorkflowDetails.merge();
@@ -908,38 +1023,103 @@ public class MotionWorkflowController extends BaseController{
 //							Status recommendStatus = Status.findByType(ApplicationConstants.MOTION_PROCESSED_SEND_TO_DEPARTMENT, locale.toString());
 //							Status revisedRecommendStatus = Status.findByType(ApplicationConstants.MOTION_PROCESSED_RESENDREVISEDMOTIONTEXTTODEPARTMENT, locale.toString());
 							if(usergroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+									&& domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_ADMISSION)
 									&& (domain.getRecommendationStatus().getType().equals(ApplicationConstants.MOTION_PROCESSED_SEND_TO_DEPARTMENT)
 											|| domain.getRecommendationStatus().getType().equals(ApplicationConstants.MOTION_PROCESSED_RESENDREVISEDMOTIONTEXTTODEPARTMENT))
 									&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
-								WorkflowDetails wfDetail = WorkflowDetails.findByDeviceAssignee(motion, null, ApplicationConstants.DEPARTMENT,  locale.toString());
-								if(wfDetail != null){
-									if(wfDetail.getReferenceNumber() != null && !wfDetail.getReferenceNumber().isEmpty()){
-										String strReferenceNumber = wfDetail.getReferenceNumber();
-										if(strReferenceNumber != null && !strReferenceNumber.isEmpty()){
-											String[] referenceNumberSplits = strReferenceNumber.split(motion.getId().toString());
-											Integer referenceNo = Integer.parseInt(referenceNumberSplits[1]) + 1;
-											referenceNumber= motion.getId().toString() + referenceNo.toString();
-											referredNumber = strReferenceNumber;
-										}
-									}else{
-										referenceNumber= motion.getId().toString() + "1";
-									}
-								}else{
-									referenceNumber= motion.getId().toString() + "1";
-								}
 								
+								//Old Logic for Reference Number and Referred Number (Remove below commented block once New Logic works fine)
+//								WorkflowDetails wfDetail = WorkflowDetails.findByDeviceAssignee(domain, null, ApplicationConstants.DEPARTMENT,  locale.toString());
+//								if(wfDetail != null){
+//									if(wfDetail.getReferenceNumber() != null && !wfDetail.getReferenceNumber().isEmpty()){
+//										String strReferenceNumber = wfDetail.getReferenceNumber();
+//										if(strReferenceNumber != null && !strReferenceNumber.isEmpty()){
+//											String[] referenceNumberSplits = strReferenceNumber.split(domain.getId().toString());
+//											Integer referenceNo = Integer.parseInt(referenceNumberSplits[1]) + 1;
+//											referenceNumber= domain.getId().toString() + referenceNo.toString();
+//											referredNumber = strReferenceNumber;
+//										}
+//									}else{
+//										referenceNumber= domain.getId().toString() + "1";
+//									}
+//								}else{
+//									referenceNumber= domain.getId().toString() + "1";
+//								}
+								//==================================Old Logic End================================//
+								
+								//New Logic for Reference Number and Referred Number
+								ReferenceLetter latestIntimationReferenceLetterHavingMotion = ReferenceLetter.findLatestHavingGivenDevice(domain.getId().toString(), ApplicationConstants.INTIMATION_FOR_REPLY_FROM_DEPARTMENT, locale.toString());
+								
+								Map<String, String> referenceLetterIdentifiers = new LinkedHashMap<String, String>();
+								referenceLetterIdentifiers.put("parentDeviceId", domain.getId().toString());
+								referenceLetterIdentifiers.put("referenceFor", ApplicationConstants.INTIMATION_FOR_REPLY_FROM_DEPARTMENT);
+								ReferenceLetter latestIntimationReferenceLetterForMotion = ReferenceLetter.findLatestByFieldNames(referenceLetterIdentifiers, locale.toString());
+								
+								if(latestIntimationReferenceLetterHavingMotion!=null && latestIntimationReferenceLetterForMotion!=null
+										&& latestIntimationReferenceLetterHavingMotion.getParentDeviceId().equals(domain.getId().toString()))
+								{
+									String strReferenceNumber = latestIntimationReferenceLetterForMotion.getReferenceNumber();
+									if(strReferenceNumber != null && !strReferenceNumber.isEmpty())
+									{
+										String[] referenceNumberSplits = strReferenceNumber.split(domain.getId().toString());
+										Integer referenceNo = Integer.parseInt(referenceNumberSplits[1]) + 1;
+										referenceNumber= domain.getId().toString() + referenceNo.toString();
+										referredNumber = strReferenceNumber;
+									}
+								} 
+								else {
+									if(latestIntimationReferenceLetterHavingMotion!=null
+											&& ! latestIntimationReferenceLetterHavingMotion.getParentDeviceId().equals(domain.getId())) 
+									{
+										Motion previousParentMotion = Motion.findById(Motion.class, Long.parseLong(latestIntimationReferenceLetterHavingMotion.getParentDeviceId()));
+										if(previousParentMotion!=null && previousParentMotion.getParent().getId().equals(domain.getId())) 
+										{
+											referredNumber = latestIntimationReferenceLetterHavingMotion.getReferenceNumber();
+										}
+									}
+									if(latestIntimationReferenceLetterForMotion!=null) {
+										String strReferenceNumber = latestIntimationReferenceLetterForMotion.getReferenceNumber();
+										if(strReferenceNumber != null && !strReferenceNumber.isEmpty())
+										{
+											String[] referenceNumberSplits = strReferenceNumber.split(domain.getId().toString());
+											Integer referenceNo = Integer.parseInt(referenceNumberSplits[1]) + 1;
+											referenceNumber= domain.getId().toString() + referenceNo.toString();
+										}
+									} 
+									else {
+										referenceNumber= domain.getId().toString() + "1";
+									}									
+								}
+								//==================================New Logic End================================//
 							}
 							/**** Workflow Detail entry made only if its not the end of workflow ****/
 							WorkflowDetails workflowDetails2 = WorkflowDetails.create(domain, newtask, usergroupType, currentDeviceTypeWorkflowType,level, referenceNumber, referredNumber);
+							
+							String copyType = null;
+							if(referredNumber!=null && !referredNumber.isEmpty()){
+								copyType = "revisedCopy";
+							}else{
+								copyType = "tentativeCopy";
+							}
+							
 							/**** SEND NOTIFICATION TO DEPARTMENT USER****/
-							if(usergroupType.getType().equals(ApplicationConstants.DEPARTMENT) || usergroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
-								String copyType = null;
-								if(referredNumber!=null && !referredNumber.isEmpty()){
-									copyType = "revisedCopy";
-								}else{
-									copyType = "tentativeCopy";
-								}
+							if(usergroupType.getType().equals(ApplicationConstants.DEPARTMENT) || usergroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) 
+							{								
 								NotificationController.sendDepartmentProcessNotificationForMotion(domain, workflowDetails2.getAssignee(), copyType, domain.getLocale());
+							}
+							
+							/**** CREATE REFERENCE LETTER FOR DEPARTMENT USER****/							
+							if(usergroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+									&& domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_ADMISSION)
+									&& (domain.getRecommendationStatus().getType().equals(ApplicationConstants.MOTION_PROCESSED_SEND_TO_DEPARTMENT)
+											|| domain.getRecommendationStatus().getType().equals(ApplicationConstants.MOTION_PROCESSED_RESENDREVISEDMOTIONTEXTTODEPARTMENT))
+									&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER))
+							{
+								ReferenceLetter referenceLetter = Motion.generateReferenceLetter(domain, copyType, this.getCurrentUser().getActualUsername(), workflowDetails2.getAssignee(), referenceNumber, referredNumber, locale.toString());
+								
+								if(referenceLetter==null || referenceLetter.getId()==null) {
+									logger.error("Error in generation of reference letter while sending for reply to department");
+								}
 							}
 							/**** FOr CLarificationFromMember and Department ****/
 							if(domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
@@ -950,8 +1130,8 @@ public class MotionWorkflowController extends BaseController{
 								Credential credential = user.getCredential();
 								parameters.put("pv_endflag", endflag);	
 								parameters.put("pv_user",credential.getUsername());
-								parameters.put("pv_deviceId", String.valueOf(motion.getId()));
-								parameters.put("pv_deviceTypeId", String.valueOf(motion.getType().getId()));
+								parameters.put("pv_deviceId", String.valueOf(domain.getId()));
+								parameters.put("pv_deviceTypeId", String.valueOf(domain.getType().getId()));
 
 								ProcessDefinition processDefinition1 =processService.
 										findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);

@@ -857,7 +857,8 @@
 	<input type="hidden" name="workflowStartedOnDate" id="workflowStartedOnDate" value="${workflowStartedOnDate }">
 	<input type="hidden" name="taskReceivedOnDate" id="taskReceivedOnDate" value="${taskReceivedOnDate }">	
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
-	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
+	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
+	<input type="hidden" id="answeringDate" name="setAnsweringDate" class="datemask sText" value="${formattedAnsweringDate}"/>	
 </form:form>
 <input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">

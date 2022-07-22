@@ -10,8 +10,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -21,7 +23,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -36,7 +37,6 @@ import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.SearchVO;
-import org.mkcl.els.domain.ballot.Ballot;
 import org.mkcl.els.repository.MotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -760,6 +760,90 @@ import org.springframework.transaction.annotation.Transactional;
 		}		
 		
 		return memberStatus;
+	}
+	
+	public static ReferenceLetter generateReferenceLetter(final Motion motion, final String copyType, final String generatedBy, final String receivers, final String referenceNumber, final String referredNumber, final String locale)
+	{
+		ReferenceLetter referenceLetter = new ReferenceLetter();
+		referenceLetter.setLocale(locale.toString());
+		referenceLetter.setCopyType(copyType);
+		referenceLetter.setDispatchDate(new Date());
+		referenceLetter.setGeneratedBy(generatedBy);
+		referenceLetter.setHouseType(motion.getHouseType().getType());
+		referenceLetter.setDeviceType(motion.getType().getType());
+		referenceLetter.setSessionId(motion.getSession().getId().toString());
+		referenceLetter.setMinistryId(motion.getMinistry().getId().toString());
+		referenceLetter.setSubDepartmentId(motion.getSubDepartment().getId().toString());
+		referenceLetter.setReferenceFor(ApplicationConstants.INTIMATION_FOR_REPLY_FROM_DEPARTMENT);
+		referenceLetter.setReferenceNumber(referenceNumber);
+		referenceLetter.setReferredNumber(referredNumber);
+		referenceLetter.setReferenceTo(motion.getSubDepartment().getId().toString());
+		StringBuffer deviceIdsStr = new StringBuffer(motion.getId().toString());
+		if(motion.getClubbedEntities()!=null) {
+			for(ClubbedEntity ce: motion.getClubbedEntities()) {
+				deviceIdsStr.append(",");
+				deviceIdsStr.append(ce.getMotion().getId().toString());
+			}
+		}
+		referenceLetter.setDeviceIds(deviceIdsStr.toString());
+		referenceLetter.setParentDeviceId(motion.getId().toString());
+		if(deviceIdsStr.toString().contains(",")) {
+			referenceLetter.setClubbedDeviceIds(deviceIdsStr.toString().split(motion.getId().toString()+",")[1]);
+		}
+		StringBuffer memberIdsStr = new StringBuffer(motion.getPrimaryMember().getId().toString());
+		Set<Long> allSupportingClubbedMemberIds = new LinkedHashSet<Long>();
+		if(motion.getSupportingMembers()!=null) {
+			for(SupportingMember sm: motion.getSupportingMembers()) {
+				if(sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+					Member supportingMember = sm.getMember();
+					if(supportingMember.isActiveMemberOn(new Date(), locale.toString())){
+						allSupportingClubbedMemberIds.add(supportingMember.getId());
+					}
+					allSupportingClubbedMemberIds.add(supportingMember.getId());
+				}
+			}
+		}
+		if(motion.getClubbedEntities()!=null) {
+			for(ClubbedEntity ce: motion.getClubbedEntities()) {
+				Motion clubbedMotion = ce.getMotion();
+				allSupportingClubbedMemberIds.add(clubbedMotion.getPrimaryMember().getId());
+				if(clubbedMotion.getSupportingMembers()!=null) {
+					for(SupportingMember csm: clubbedMotion.getSupportingMembers()) {
+						if(csm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+							Member clubbedSupportingMember = csm.getMember();
+//							if(clubbedSupportingMember.isActiveMemberOn(new Date(), locale.toString())){
+//								allSupportingClubbedMemberIds.add(clubbedSupportingMember.getId());
+//							}
+							allSupportingClubbedMemberIds.add(clubbedSupportingMember.getId());
+						}
+					}
+				}
+			}
+		}
+		for(Long memberId: allSupportingClubbedMemberIds) {
+			memberIdsStr.append(",");
+			memberIdsStr.append(memberId.toString());
+		}
+		referenceLetter.setMemberIds(memberIdsStr.toString());
+		if(motion.getRevisedSubject()!=null && !motion.getRevisedSubject().isEmpty()) {
+			referenceLetter.setSubject(motion.getRevisedSubject());
+		}
+		else {
+			referenceLetter.setSubject(motion.getSubject());
+		}
+		if(motion.getRevisedDetails()!=null && !motion.getRevisedDetails().isEmpty()) {
+			referenceLetter.setNoticeContent(motion.getRevisedDetails());
+		}
+		else {
+			referenceLetter.setNoticeContent(motion.getDetails());
+		}
+		referenceLetter.setAnsweringDate(motion.getAnsweringDate());
+		referenceLetter.setReceivers(receivers);
+		referenceLetter.setStatus(ApplicationConstants.REFERENCE_LETTER_DISPATCHED_STATUS);
+		
+		referenceLetter.persist();
+		
+		return referenceLetter;
 	}
 	
 	/**** Getters and Setters ****/

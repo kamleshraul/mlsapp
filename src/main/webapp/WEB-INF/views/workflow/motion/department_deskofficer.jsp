@@ -654,6 +654,10 @@
 		<p>		
 			<label class="small"><spring:message code="motion.submissionDate" text="Submitted On"/></label>
 			<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
+			<c:if test="${not empty formattedAnsweringDate}">
+				<label class="small"><spring:message code="motion.answeringDate" text="Answering Date"/></label>
+				<input id="answeringDate" name="setAnsweringDate" value="${formattedAnsweringDate }" class="datemask sText" readonly="readonly">
+			</c:if>
 		</p>
 			
 	</div>

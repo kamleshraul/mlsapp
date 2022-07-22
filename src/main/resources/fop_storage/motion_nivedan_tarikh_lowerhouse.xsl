@@ -115,13 +115,13 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block>विधान भवन, 
-																							<xsl:value-of select="./element_1/element_1_11" />  
+																							<xsl:value-of select="./element_1/element_1_11" />
 																						</fo:block>
 																					</fo:table-cell>
 																				</fo:table-row>
 																				
 																				<fo:table-row>
-																					<fo:table-cell text-align="justify"><fo:block>दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block></fo:table-cell>
+																					<fo:table-cell text-align="justify"><fo:block>दिनांक : <xsl:value-of select="./element_7" /></fo:block></fo:table-cell>
 																				</fo:table-row>
 																			</fo:table-body>
 																		</fo:table>
@@ -376,30 +376,39 @@
             								</fo:block>
             							</fo:table-cell>
             							<fo:table-cell>
-            								<fo:block>
-            									<fo:block text-align="center" font-size="14px">
-            										लक्षवेधी सूचनेची प्रत
-            									</fo:block>
-            									<fo:block text-align="center" font-size="14px">
-            										महत्वाची टिप
-            									</fo:block>
+            								<fo:block>            									
             									<xsl:choose>
             										<xsl:when test="./element_2='advanceCopy'">
             											<fo:block text-align="center" font-size="14px">
-		            										सदरची प्रत ही असुधारीत असून मा.सदस्यांचे सुधारित प्रारूप व सुधारित नावे लक्षवेधी सूचनेवरील चर्चेच्या आदल्या दिवशी पुनश्च पाठविण्यात येईल
+		            										लक्षवेधी सूचनेची अग्रिम प्रत
+		            									</fo:block>
+		            									<fo:block text-align="center" font-size="14px">
+		            										महत्वाची टिप
+		            									</fo:block>
+            											<fo:block text-align="center" font-size="12px">
+		            										सदरची प्रत ही असुधारित असून मा.सदस्यांचे सुधारित प्रारूप व सुधारित नावे लक्षवेधी सूचनेवरील चर्चेच्या आदल्या दिवशी पुनश्च पाठविण्यात येईल
 		            									</fo:block>
             										</xsl:when>
             										<xsl:when test="./element_2='revisedCopy'">
             											<fo:block text-align="center" font-size="14px">
-		            										मा.सदस्यांचे सुधारित प्रारूप व सुधारित नावे
+		            										लक्षवेधी सूचनेची प्रत
 		            									</fo:block>
-		            									<fo:block font-weight="bold">
-		            										संदर्भ : या सचिवालयाचे पत्र क्र.<xsl:value-of select="./element_6" />/फ दिनांकित  <xsl:value-of select="./element_7" />
+		            									<fo:block text-align="center" font-size="15px">
+		            										सुधारित प्रत.
+		            									</fo:block>
+		            									<fo:block font-size="14px" font-weight="bold">
+		            										संदर्भ : या सचिवालयाचे पत्र क्र.<xsl:value-of select="./element_6" />/फ दिनांकित  <xsl:value-of select="./element_8" />
 		            									</fo:block>
             										</xsl:when>
             										<xsl:when test="./element_2='tentativeCopy'">
+            											<fo:block text-align="center" font-size="14px">
+		            										लक्षवेधी सूचनेची प्रत
+		            									</fo:block>
+		            									<fo:block text-align="center" font-size="14px">
+		            										महत्वाची टिप
+		            									</fo:block>
             											<fo:block text-align="center" font-size="12px">
-		            										सदरची प्रत ही असुधारीत असून मा.सदस्यांचे सुधारित प्रारूप व सुधारित नावे पुनश्च पाठविण्यात येईल.
+		            										सदरची प्रत ही असुधारित असून मा.सदस्यांचे सुधारित प्रारूप व सुधारित नावे लक्षवेधी सूचनेवरील चर्चेच्या आदल्या दिवशी पुनश्च पाठविण्यात येईल
 		            									</fo:block>
             										</xsl:when>
             										<xsl:otherwise>

@@ -3966,13 +3966,12 @@ public class MotionController extends GenericController<Motion>{
 				strSessionType = request.getSession().getAttribute("sessionType").toString();
 				strSessionYear = request.getSession().getAttribute("sessionYear").toString();
 				strAssignee = request.getSession().getAttribute("assignee").toString();
-			}else{
-				if(csptDeployment!=null){
-					if(csptDeployment.getValue().equals("TOMCAT")){
-						strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
-						strSessionType = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
-						strHouseType = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
-					}
+			}
+			if(csptDeployment!=null){
+				if(csptDeployment.getValue().equals("TOMCAT")){
+					strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
+					strSessionType = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
+					strHouseType = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
 				}
 			}
 			if(strHouseType != null && !(strHouseType.isEmpty())

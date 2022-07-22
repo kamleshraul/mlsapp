@@ -2478,8 +2478,8 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 	/**************Motion****************************/
 	public WorkflowDetails findCurrentWorkflowDetail(final Motion motion, String workflowType) {
 		try{
-			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+motion.getId().toString()
-			+" AND m.workflowType='"+workflowType+"' "
+			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId='"+motion.getId().toString()
+			+"' AND m.workflowType='"+workflowType+"' "
 			+" ORDER BY m.assignmentTime "+ApplicationConstants.DESC;
 			WorkflowDetails workflowDetails=(WorkflowDetails) this.em().createQuery(query).setMaxResults(1).getSingleResult();
 			return workflowDetails;

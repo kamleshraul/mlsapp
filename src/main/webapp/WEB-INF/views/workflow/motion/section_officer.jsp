@@ -164,6 +164,7 @@
 	function loadActors(value){
 		if(value!='-'){
 		var resendToDepartment = $("#internalStatusMaster option[value='motion_processed_resendRevisedMotionTextToDepartment']").text();
+		//var resendToDepartmentWhenPendingAtDeskOfficer = $("#internalStatusMaster option[value='motion_processed_sendToDeskOfficer']").text();
 	    var sendback=$("#internalStatusMaster option[value='motion_recommend_sendback']").text();			
 	    var discuss=$("#internalStatusMaster option[value='motion_recommend_discuss']").text();
 	    var sendToDepartment=$("#internalStatusMaster option[value='motion_processed_sendToDepartment']").text();
@@ -176,7 +177,7 @@
 	    if(value==sendback || value == discuss) {
 	    	$("#endFlag").val("continue");
 	    	 $("#recommendationStatus").val(value);
-	    } else if(value == sendToDepartment || value == resendToDepartment){
+	    } else if(value == sendToDepartment || value == resendToDepartment/*  || value == resendToDepartmentWhenPendingAtDeskOfficer */){
 	    	valueToSend = $("#oldInternalStatus").val();
 	    	$("#endFlag").val("continue");
 	    }else if(value == answerReceived || value == clarificationReceived || value == clarificationNotReceived) {
@@ -187,7 +188,7 @@
 				return false;	    	
 	    }
 	    
-	    if(sendToDepartment == value || value == resendToDepartment){
+	    if(sendToDepartment == value || value == resendToDepartment/*  || value == resendToDepartmentWhenPendingAtDeskOfficer */){
 			 params="motion="+$("#id").val()+"&status="+valueToSend+
 				"&usergroup="+$("#usergroup").val()+"&level="+ $("#level").val();
 		}else{
@@ -218,7 +219,8 @@
 				if(value!=sendback && value!=discuss && 
 						value != answerReceived && value != clarificationReceived &&
 						value != clarificationNotReceived && value != sendToDepartment 
-						&& value != resendToDepartment){
+						&& value != resendToDepartment
+						/* && value != resendToDepartmentWhenPendingAtDeskOfficer */){
 					$("#internalStatus").val(value);
 				}
 				$("#recommendationStatus").val(value);	
@@ -234,7 +236,8 @@
 				if(value!=sendback && value!=discuss && 
 						value != answerReceived && value != clarificationReceived &&
 						value != clarificationNotReceived && value != sendToDepartment 
-						&& value != resendToDepartment){
+						&& value != resendToDepartment
+						/* && value != resendToDepartmentWhenPendingAtDeskOfficer */){
 					$("#internalStatus").val(value);
 				}
 		   	 	$("#recommendationStatus").val(value);
@@ -915,6 +918,19 @@
 	<p>
 	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="motion.viewcitation" text="View Citations"></spring:message></a>	
 	</p>	
+	
+	<c:choose>
+	<c:when test="${fn:endsWith(internalStatusType, 'final_admission')}">
+		<p>
+		<label class="small"><spring:message code="motion.answeringDate" text="Answering Date"/></label>
+		<input id="formattedAnsweringDate" name="setAnsweringDate" class="datemask sText" value="${formattedAnsweringDate}"/>
+		<form:errors path="answeringDate" cssClass="validationError"/>
+		</p>
+	</c:when>
+	<c:otherwise>
+		<input type="hidden" id="answeringDate" name="setAnsweringDate" class="datemask sText" value="${formattedAnsweringDate}"/>
+	</c:otherwise>
+	</c:choose>
 	
 	<c:if test="${!(empty domain.reply)}">
 	<p>

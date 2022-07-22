@@ -18,7 +18,6 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.xmlvo.DeviceXmlVO;
-import org.mkcl.els.common.xmlvo.XmlVO;
 import org.mkcl.els.domain.ActivityLog;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
@@ -27,8 +26,7 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Query;
-import org.mkcl.els.domain.Question;
-import org.mkcl.els.domain.Roster;
+import org.mkcl.els.domain.ReferenceLetter;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
@@ -663,54 +661,131 @@ public class MotionReportController extends BaseController{
 			String strId = request.getParameter("motionId");
 			String strWorkflowId = request.getParameter("workflowDetailId");
 			WorkflowDetails workflowDetails = null;
+			ReferenceLetter referenceLetter = null;
 			String referenceNumber = null;
 			String referredNumber = null;
+			String strDispatchedDate = null;
 			String strReferencedDate = null;
+			String strReportFormat = request.getParameter("outputFormat");
+			@SuppressWarnings("rawtypes")
+			List reportData = null;
+			String templateName = "motion_nivedan_tarikh_lowerhouse";
+			String strCopyType = request.getParameter("copyType");
+			Boolean isResendRevisedMotionTextWorkflow = false;
+			String strRevisedMotionText = null;
+			
 			if(strWorkflowId != null && !strWorkflowId.isEmpty()){
 				workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
 				if(workflowDetails != null){
 					strId = workflowDetails.getDeviceId();
 					if(workflowDetails.getReferenceNumber() != null && !workflowDetails.getReferenceNumber().isEmpty()){
-						referenceNumber = FormaterUtil.formatNumberNoGrouping(Integer.parseInt(workflowDetails.getReferenceNumber()), locale.toString());
+						referenceLetter = ReferenceLetter.findByFieldName(ReferenceLetter.class, "referenceNumber", workflowDetails.getReferenceNumber(), locale.toString());
+						
+						if(strCopyType != null && strCopyType == "advanceCopy")
+						{
+							List<WorkflowDetails> wkfDetails = WorkflowDetails.findAllByFieldName(WorkflowDetails.class, "referenceNumber", workflowDetails.getReferenceNumber(), "assignmentTime", "ASC", locale.toString());
+							strDispatchedDate = FormaterUtil.formatDateToStringUsingCustomParameterFormat(wkfDetails.get(0).getAssignmentTime(), "CALLINGATTENTIONMOTION_CALLINGATTENTIONDATEFORMAT", locale.toString());
+						}
 					}
-					if(workflowDetails.getReferredNumber() != null && !workflowDetails.getReferredNumber().isEmpty()){
-						referredNumber = FormaterUtil.formatNumberNoGrouping(Integer.parseInt(workflowDetails.getReferredNumber()), locale.toString());
-					}
-					List<WorkflowDetails> wkfDetails = WorkflowDetails.findAllByFieldName(WorkflowDetails.class, "referenceNumber", workflowDetails.getReferenceNumber(), "assignmentTime", "ASC", locale.toString());
-					strReferencedDate = FormaterUtil.formatDateToStringUsingCustomParameterFormat(wkfDetails.get(0).getAssignmentTime(), "CALLINGATTENTIONMOTION_CALLINGATTENTIONDATEFORMAT", locale.toString());
 				}
-			}
+			} 
 			
-			String strReportFormat = request.getParameter("outputFormat");	
-			String strCopyType = request.getParameter("copyType");
-			
-			Boolean isResendRevisedMotionTextWorkflow = false;
-			if(strId != null && !strId.isEmpty()){
-				Map<String, String[]> parameters = new HashMap<String, String[]>();
-				parameters.put("locale", new String[]{locale.toString()});
-				parameters.put("motionId", new String[]{strId});
-				
-				@SuppressWarnings("rawtypes")
-				List reportData = Query.findReport("MOTION_NIVEDAN_TARIKH_LOWERHOUSE", parameters);	
-				String templateName = "motion_nivedan_tarikh_lowerhouse";
-				
+			if(strId != null && !strId.isEmpty())
+			{
 				Motion motion = Motion.findById(Motion.class, Long.parseLong(strId));
-				String strRevisedMotionText = motion.getRevisedDetails();
-				if(workflowDetails != null){
-					if(workflowDetails.getReferredNumber() != null && !workflowDetails.getReferredNumber().isEmpty()){
-						strRevisedMotionText = workflowDetails.getText();
-						strCopyType = "revisedCopy";
+				
+				if(referenceLetter==null) {
+					ReferenceLetter latestIntimationReferenceLetterHavingMotion = ReferenceLetter.findLatestHavingGivenDevice(strId, ApplicationConstants.INTIMATION_FOR_REPLY_FROM_DEPARTMENT, locale.toString());
+					
+					if(latestIntimationReferenceLetterHavingMotion!=null
+							&& latestIntimationReferenceLetterHavingMotion.getParentDeviceId().equals(strId))
+					{
+						referenceLetter = latestIntimationReferenceLetterHavingMotion;
+					}
+					else if(latestIntimationReferenceLetterHavingMotion!=null
+							&& ! latestIntimationReferenceLetterHavingMotion.getParentDeviceId().equals(Long.parseLong(strId)))
+					{
+						if(motion.getParent()!=null && motion.getParent().toString().equals(latestIntimationReferenceLetterHavingMotion.getParentDeviceId()))
+						{
+							referenceLetter = latestIntimationReferenceLetterHavingMotion;
+						}
 					}
 				}
-				if(strCopyType != null && strCopyType == "advanceCopy"){
-					referenceNumber = FormaterUtil.formatNumberNoGrouping(motion.getId(), locale.toString());
+				
+				if(referenceLetter==null) { //for advance copy without reference letter
+					if(strCopyType != null && strCopyType == "advanceCopy"){
+						referenceNumber = FormaterUtil.formatNumberNoGrouping(motion.getId(), locale.toString());
+					}
+					Map<String, String[]> parameters = new HashMap<String, String[]>();
+					parameters.put("locale", new String[]{locale.toString()});
+					parameters.put("motionId", new String[]{strId});
+					reportData = Query.findReport("MOTION_NIVEDAN_TARIKH_LOWERHOUSE", parameters);
+				} 
+				else {
+					referenceNumber = FormaterUtil.formatNumberNoGrouping(Integer.parseInt(referenceLetter.getReferenceNumber()), locale.toString());
+					referredNumber = FormaterUtil.formatNumberNoGrouping(Integer.parseInt(referenceLetter.getReferredNumber()), locale.toString());
+					strDispatchedDate = FormaterUtil.formatDateToStringUsingCustomParameterFormat(referenceLetter.getDispatchDate(), "CALLINGATTENTIONMOTION_CALLINGATTENTIONDATEFORMAT", locale.toString());
+					
+					if(referredNumber!=null) {
+						ReferenceLetter previousReferenceLetter = ReferenceLetter.findByFieldName(ReferenceLetter.class, "referenceNumber", referenceLetter.getReferredNumber(), locale.toString());
+						if(previousReferenceLetter!=null) {
+							strReferencedDate = FormaterUtil.formatDateToStringUsingCustomParameterFormat(previousReferenceLetter.getDispatchDate(), "CALLINGATTENTIONMOTION_CALLINGATTENTIONDATEFORMAT", locale.toString());
+						}
+					}
+					
+					Map<String, String[]> parameters = new HashMap<String, String[]>();
+					parameters.put("locale", new String[]{locale.toString()});
+					parameters.put("motionId", new String[]{strId});
+					parameters.put("referenceLetterId", new String[]{referenceLetter.getId().toString()});
+					reportData = Query.findReport("MOTION_NIVEDAN_TARIKH_FROM_REFERENCE_LETTER_LOWERHOUSE", parameters);
+					
+					if(reportData!=null && !reportData.isEmpty()) 
+					{
+						Object[] obj = (Object[]) reportData.get(0);
+						if(obj[8]==null || obj[8].toString().isEmpty()) 
+						{							
+							if(obj[13]!=null && !obj[13].toString().isEmpty()) {
+								/**** populating member names with customized formatting ****/
+								String memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;
+								CustomParameter memberNameFormatParameter = null;
+								if(motion.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+									memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "MOIS_INTIMATIONLETTER_MEMBERNAMEFORMAT_LOWERHOUSE", "");
+								} else if(motion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+									memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "MOIS_INTIMATIONLETTER_MEMBERNAMEFORMAT_UPPERHOUSE", "");
+								}
+								if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
+									memberNameFormat = memberNameFormatParameter.getValue();
+								}
+								
+								StringBuffer memberNames = new StringBuffer("");
+								String[] memberIds = obj[13].toString().split(",");
+								for(String memberId: memberIds) {
+									Member member = Member.findById(Member.class, Long.parseLong(memberId));
+									memberNames.append(member.findNameInGivenFormat(memberNameFormat));
+									memberNames.append(",");
+								}
+								memberNames.deleteCharAt(memberIds.length-1);
+								
+								obj[8] = memberNames.toString();
+							}
+						}
+					}
+					
+					strRevisedMotionText = motion.getRevisedDetails();
+					if(referenceLetter.getReferredNumber() != null && !referenceLetter.getReferredNumber().isEmpty())
+					{
+						strRevisedMotionText = referenceLetter.getNoticeContent();
+						strCopyType = "revisedCopy";
+						isResendRevisedMotionTextWorkflow = true;
+					}
 				}
+				
 				File reportFile = null;
 				
-				reportFile = generateReportUsingFOP(new Object[] {reportData, strCopyType, isResendRevisedMotionTextWorkflow, strRevisedMotionText, referenceNumber, referredNumber, strReferencedDate}, templateName, strReportFormat, "motionNivedanTarikh",locale.toString());
+				reportFile = generateReportUsingFOP(new Object[] {reportData, strCopyType, isResendRevisedMotionTextWorkflow, strRevisedMotionText, referenceNumber, referredNumber, strDispatchedDate, strReferencedDate}, templateName, strReportFormat, "motionNivedanTarikh",locale.toString());
 				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
 				
-				model.addAttribute("info", "general_info");;
+				model.addAttribute("info", "general_info");
 				//retVal = "motion/info";
 			}			
 		}catch(Exception e){
