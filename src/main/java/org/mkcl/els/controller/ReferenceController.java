@@ -6109,6 +6109,7 @@ public class ReferenceController extends BaseController {
 			String strWorkflowType = request.getParameter("workflowType");
 			String strWorkflowSubType = request.getParameter("workflowSubType");
 			String strAllowedDeviceTypes = request.getParameter("allowedDeviceTypes");
+			String usergroupType = request.getParameter("usergroupType");
 			
 			if(strSessionYear != null && !strSessionYear.isEmpty()
 					&& strSessionType != null && !strSessionType.isEmpty()
@@ -6130,13 +6131,11 @@ public class ReferenceController extends BaseController {
 					}
 				}
 				
+				HouseType houseType = HouseType.findByName(strHouseType, locale.toString());
 				
 				Map<String, String> parameters = new LinkedHashMap<String, String>();
 				parameters.put("assignee", this.getCurrentUser().getActualUsername());
-				parameters.put("status", strStatus);
-				parameters.put("sessionYear", strSessionYear);
-				parameters.put("sessionType", strSessionType);
-				parameters.put("houseType", strHouseType);
+				parameters.put("status", strStatus);												
 				parameters.put("locale", locale.toString());
 				if(strWorkflowType != null && !strWorkflowType.isEmpty()){
 					parameters.put("workflowType", strWorkflowType);
@@ -6146,20 +6145,88 @@ public class ReferenceController extends BaseController {
 				}
 				
 				int pendingTasksCount = 0;
-				if(strAllowedDeviceTypes!=null && !strAllowedDeviceTypes.isEmpty()) {
-					
-					for(String allowedDeviceType: strAllowedDeviceTypes.split("~")) {
-						if(!allowedDeviceType.isEmpty()) {
+				int pendingTasksInSessionCount = 0;
+				if(strAllowedDeviceTypes!=null && !strAllowedDeviceTypes.isEmpty()) 
+				{
+					int pendingTasksCountForDeviceType = 0;
+					CustomParameter csptAllowedDeviceTypesForPastPendingCounts = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.ALLOWED_DEVICETYPES_FOR_VIEWING_PAST_PENDING_TASKS_COUNTS, locale.toString());
+					String allowedDeviceTypesForPastPendingCounts = "";
+					if(csptAllowedDeviceTypesForPastPendingCounts!=null && csptAllowedDeviceTypesForPastPendingCounts.getValue()!=null) {
+						allowedDeviceTypesForPastPendingCounts = csptAllowedDeviceTypesForPastPendingCounts.getValue();
+					}
+					for(String allowedDeviceType: strAllowedDeviceTypes.split("~"))
+					{
+						if(!allowedDeviceType.isEmpty())
+						{
 							parameters.put("deviceType", allowedDeviceType);
-							pendingTasksCount += WorkflowDetails.findPendingWorkflowCountOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.ASC);							
+							
+							if(allowedDeviceTypesForPastPendingCounts.contains("##"+allowedDeviceType+"##")) 
+							{
+								if(houseType!=null && houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) 
+								{
+									parameters.put("assignmentTimeStartLimit", ApplicationConstants.LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE);
+								}
+								else //for council
+								{
+									if(usergroupType!=null 
+											&& (usergroupType.equals(ApplicationConstants.DEPARTMENT) || usergroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))) 
+									{
+										parameters.put("assignmentTimeStartLimit", ApplicationConstants.STARTING_DATE_FOR_FULLY_ONLINE_DEPARTMENT_PROCESSING_OF_DEVICES);
+									}	
+									else {
+										parameters.put("assignmentTimeStartLimit", ApplicationConstants.LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE);
+									}
+								}
+								
+								parameters.remove("sessionYear");
+								parameters.remove("sessionType");
+								parameters.remove("houseType");
+								
+								//below result includes pending counts of previous sessions also subject to assignmentTimeStartLimit parameter
+								pendingTasksCountForDeviceType = WorkflowDetails.findPendingWorkflowCountOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.ASC);
+								
+								pendingTasksCount += pendingTasksCountForDeviceType;
+								
+								parameters.put("sessionYear", strSessionYear);
+								parameters.put("sessionType", strSessionType);
+								parameters.put("houseType", strHouseType);		
+								
+								parameters.remove("assignmentTimeStartLimit");
+								
+								//below result includes pending counts of only current session as per session parameters
+								pendingTasksCountForDeviceType = WorkflowDetails.findPendingWorkflowCountOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.ASC);
+								
+								pendingTasksInSessionCount += pendingTasksCountForDeviceType;
+							}
+							else 
+							{
+								parameters.put("sessionYear", strSessionYear);
+								parameters.put("sessionType", strSessionType);
+								parameters.put("houseType", strHouseType);		
+								
+								parameters.remove("assignmentTimeStartLimit");
+								
+								pendingTasksCountForDeviceType = WorkflowDetails.findPendingWorkflowCountOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.ASC);
+								
+								pendingTasksInSessionCount += pendingTasksCountForDeviceType;
+								
+								pendingTasksCount += pendingTasksCountForDeviceType;
+							}								
 						}
 					}
 					
 				} else {
-					pendingTasksCount = WorkflowDetails.findPendingWorkflowCountOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.ASC);
+					parameters.put("sessionYear", strSessionYear);
+					parameters.put("sessionType", strSessionType);
+					parameters.put("houseType", strHouseType);
+					
+					pendingTasksInSessionCount = WorkflowDetails.findPendingWorkflowCountOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.ASC);
+					
+					pendingTasksCount = pendingTasksInSessionCount;
 				}			
 				
-				data.setValue(String.valueOf(pendingTasksCount));
+				data.setValue(String.valueOf(pendingTasksInSessionCount));
+				data.setName(String.valueOf(pendingTasksCount));
 			}
 		}catch(Exception e){
 			logger.error(e.getMessage());

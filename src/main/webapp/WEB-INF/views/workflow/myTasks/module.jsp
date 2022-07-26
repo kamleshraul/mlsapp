@@ -825,9 +825,9 @@
 			if($("#getNewTasks").val() != undefined && $("#getNewTasks").val() != ''){
 				pendingTasksReference = setInterval(function(){pendingNewTasks();}, 900000);
 			}
-			$("#notificationDiv").hide();
+			$("#currentCountDiv").hide();
 			$("#newTasksDiv").hide();	
-			$("#notificationDiv").hide();
+			$("#overallCountDiv").hide();
 			$("#newMessageDiv").hide();
 			
 			$("#newMessageDivViewer").click(function(){
@@ -846,6 +846,11 @@
 			departmentUtility();
 						
 			$("#selectedDeviceType").change();
+			
+			$(".legends title]").qtip({
+	    		show: 'mouseover',
+	    		hide: 'mouseout'
+	    	});
 		});
 				
 		//to get the new pending tasks
@@ -861,12 +866,19 @@
 						"&sessionType=" + $("#selectedSessionType").val() + 
 						"&houseType=" + $("#selectedHouseType").val() +
 						"&allowedDeviceTypes=" + allowedDeviceTypes +
+						"&usergroupType=" + $('#currentusergroupType').val() +
 						"&status=PENDING";
 		
 				$.get(url, function(data){
 					if(data){
-						$("#notificationDiv").html(data.value);
-						$("#notificationDiv").show();
+						$("#currentCountDivLink").text(data.value);
+						$("#overallCountDivLink").text(data.name);
+						$("#currentCountDiv").show();
+						if(data.value != data.name) {
+							$("#overallCountDiv").show();
+						} else {
+							$("#overallCountDiv").hide();
+						}
 					}
 				}).fail(function(){
 					clearInterval(pendingTasksReference);
@@ -1930,24 +1942,46 @@
 			text-align: center;
 			border: 1px solid black;
 			z-index: 5000;
-			bottom: 5px;
+			bottom: 15px;
 			right: 90px;			
 			position: fixed;
 			cursor: pointer;
 		}
-		#notificationDiv{
+		#currentCountDiv{
 			background: #FCCD32 scroll no-repeat;
 			max-width: 100px;
 			width: 50px;
 			max-height: 15px;
 			/*border-radius: 10px;*/
+			font-weight: bold;
 			text-align: center;
 			border: 1px solid black;
 			z-index: 5000;
-			bottom: 5px;
+			bottom: 15px;
 			right: 5px;			
 			position: fixed;
+		}
+		#overallCountDiv{
+			background: lightgoldenrodyellow scroll no-repeat;
+			max-width: 100px;
+			width: 50px;
+			max-height: 15px;
+			/*border-radius: 10px;*/
+			text-align: center;
+			font-weight: bold;
+			border: 1px solid black;
+			z-index: 5000;
+			bottom: 15px;
+			right: 70px;			
+			position: fixed;
+		}		
+		.legends a{
 			cursor: pointer;
+			
+		}
+		.legends a{
+			text-decoration: none;
+			
 		}
 		#newTasksDiv{
 			background: #FCCD32 scroll no-repeat;
@@ -2224,11 +2258,15 @@
 			Content
 		</div>
 		
-		<div id="notificationDiv">
-			V
+		<div id="currentCountDiv" class="legends" title="<spring:message code='workflow.mytasks.currentCount' text='Current Pending Count'/>">
+			<a id="currentCountDivLink">V</a>
 		</div>
 		
-		<div id="newMessageDivViewer">
+		<div id="overallCountDiv" class="legends" title="<spring:message code='workflow.mytasks.overallCount' text='Total Pending Count'/>">
+			<a id="overallCountDivLink">V</a>
+		</div>
+				
+		<div id="newMessageDivViewer" style="display: none;">
 			<b>&#9668;</b>
 		</div>
 		

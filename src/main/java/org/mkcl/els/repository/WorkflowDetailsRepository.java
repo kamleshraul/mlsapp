@@ -1518,7 +1518,12 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 		StringBuffer strQuery = new StringBuffer("SELECT COUNT(t.id) FROM WorkflowDetails t WHERE");
 		int index = 0; 
     	for (Entry<String, String> i : parameters.entrySet()) {
-            strQuery.append(" t." + i.getKey() + "=:" + i.getKey());
+    		if(i.getKey().equals("assignmentTimeStartLimit")) {
+    			strQuery.append(" DATE(t.assignmentTime)>='" + i.getValue() + "'");
+    		}
+    		else {
+    			strQuery.append(" t." + i.getKey() + "=:" + i.getKey());
+    		}            
             if(index < (parameters.entrySet().size() - 1)){
             	strQuery.append(" AND");	            	
             }
@@ -1530,6 +1535,9 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
     	Query jpQuery = this.em().createQuery(strQuery.toString());
     	
     	for (Entry<String, String> i : parameters.entrySet()) {
+    		if(i.getKey().equals("assignmentTimeStartLimit")) {
+    			continue;
+    		}
             jpQuery.setParameter(i.getKey(), i.getValue());
         }
     	
