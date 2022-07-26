@@ -215,6 +215,7 @@
             
             <input type="hidden" name="cancelFn" id="cancelFn"/>
             <input type="hidden" id="startURL" name="startURL" value="${startURL}"/>	
+            <input type="hidden" id="latestAssemblyHouseFormationDate" name="latestAssemblyHouseFormationDate" value="${latestAssemblyHouseFormationDate}"/>
             <!-- This is done to remove a bug wherein messages Download/Remove in file uploading donot canges to locale specific.
             values as the reuest for jsp is not passing through Resource Bundle Filter -->
             <input type="hidden" name="downloadUploadedFile" id="downloadUploadedFile" value="<spring:message code='file.download' text='Download'></spring:message>"/>	
