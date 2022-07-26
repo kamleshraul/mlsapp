@@ -403,6 +403,15 @@ public class HomeController extends BaseController {
         	model.addAttribute("pushNotificationsEnabled", "NO");
         }
         
+        //set and populate 'LATEST ASSSEMBLY HOUSE FORMATION DATE'
+        if(ApplicationConstants.LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE=="") {
+			CustomParameter csptLatestAssemblyHouseFormationDate = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CSPT_LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE, "");
+			if(csptLatestAssemblyHouseFormationDate!=null && csptLatestAssemblyHouseFormationDate.getValue()!=null) {
+				ApplicationConstants.LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE = csptLatestAssemblyHouseFormationDate.getValue();
+			}
+		}
+        model.addAttribute("latestAssemblyHouseFormationDate", ApplicationConstants.LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE);
+        
         //flag for checking if this request is redirection to home page
         String redirectedToHomePage = request.getParameter("redirectedToHomePage");
         if(redirectedToHomePage==null || !redirectedToHomePage.equals("yes")) {

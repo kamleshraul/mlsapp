@@ -12,6 +12,7 @@ package org.mkcl.els.common.util;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
+import org.mkcl.els.domain.CustomParameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.core.env.Environment;
@@ -3161,6 +3162,15 @@ public class ApplicationConstants {
 	public static final String REQUEST_METHOD_PUT = "PUT";
 	
 	public static final String REQUEST_METHOD_DELETE = "DELETE";
+	
+	public static String CSPT_LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE = "LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE";
+	
+	public static String LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE = "";
+	
+	public static final String ALLOWED_DEVICETYPES_FOR_VIEWING_PAST_PENDING_TASKS_COUNTS = "ALLOWED_DEVICETYPES_FOR_VIEWING_PAST_PENDING_TASKS_COUNTS";
+	
+	public static final String STARTING_DATE_FOR_FULLY_ONLINE_DEPARTMENT_PROCESSING_OF_DEVICES = "2016-05-01";
+
 	
 	public void setEnvironmentInstance(Environment environment) {
 		this.environmentInstance = environment;

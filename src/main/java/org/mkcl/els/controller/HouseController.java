@@ -16,6 +16,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
@@ -128,7 +130,8 @@ public class HouseController extends GenericController<House>{
 		String htype=request.getParameter("houseType");
 		 HouseType housetype=HouseType.findByFieldName(HouseType.class, "type", htype, domain.getLocale());
 		 domain.setType(housetype);
-		}
+	}
+	
 	@Override
 	protected void populateCreateIfErrors(final ModelMap model,
 			final House domain,
@@ -147,4 +150,44 @@ public class HouseController extends GenericController<House>{
 		model.addAttribute("type", "error");
 		model.addAttribute("msg", "create_failed");
 	}
+
+	@Override
+	protected void populateAfterCreate(ModelMap model, House domain,
+			HttpServletRequest request) throws Exception 
+	{
+		if(domain.getType().getType().equals(ApplicationConstants.LOWER_HOUSE))
+		{
+			CustomParameter csptLatestAssemblyHouseFormationDate = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CSPT_LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE, "");
+			if(csptLatestAssemblyHouseFormationDate!=null && csptLatestAssemblyHouseFormationDate.getValue()!=null) {
+				Date latestHouseFormationDateInDB = FormaterUtil.formatStringToDate(csptLatestAssemblyHouseFormationDate.getValue(), ApplicationConstants.DB_DATEFORMAT);
+				if(latestHouseFormationDateInDB.before(domain.getFormationDate())) {
+					String updatedLatestHouseFormationDate = FormaterUtil.formatDateToString(domain.getFormationDate(), ApplicationConstants.DB_DATEFORMAT);
+					csptLatestAssemblyHouseFormationDate.setValue(updatedLatestHouseFormationDate);
+					csptLatestAssemblyHouseFormationDate.merge();
+					ApplicationConstants.LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE = updatedLatestHouseFormationDate;
+				}
+			}
+		}
+	}
+
+	@Override
+	protected void populateUpdateIfNoErrors(ModelMap model, House domain,
+			HttpServletRequest request) throws Exception 
+	{
+		if(domain.getType().getType().equals(ApplicationConstants.LOWER_HOUSE))
+		{
+			CustomParameter csptLatestAssemblyHouseFormationDate = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CSPT_LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE, "");
+			if(csptLatestAssemblyHouseFormationDate!=null && csptLatestAssemblyHouseFormationDate.getValue()!=null) {
+				Date latestHouseFormationDateInDB = FormaterUtil.formatStringToDate(csptLatestAssemblyHouseFormationDate.getValue(), ApplicationConstants.DB_DATEFORMAT);
+				House house = House.findById(House.class, domain.getId());
+				if(latestHouseFormationDateInDB.equals(house.getFormationDate())) {
+					String updatedLatestHouseFormationDate = FormaterUtil.formatDateToString(domain.getFormationDate(), ApplicationConstants.DB_DATEFORMAT);
+					csptLatestAssemblyHouseFormationDate.setValue(updatedLatestHouseFormationDate);
+					csptLatestAssemblyHouseFormationDate.merge();
+					ApplicationConstants.LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE = updatedLatestHouseFormationDate;
+				}
+			}
+		}
+	}
+	
 }
