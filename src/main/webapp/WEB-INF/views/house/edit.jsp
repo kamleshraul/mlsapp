@@ -39,6 +39,16 @@
 			</p>
 			<p>
 				<label class="small"><spring:message
+						code="house.display_name" text="Assembly DisplayName" />&nbsp;*</label>
+
+				<form:input path="displayName" cssClass="sText"></form:input>
+				<label class="small"><spring:message
+						code="house.assemblyDisplayNameExample" text="e.g. Eleventh Assembly 2004-2009" /></label>
+				<form:errors path="displayName" cssClass="validationError"></form:errors>
+
+			</p>
+			<p>
+				<label class="small"><spring:message
 						code="house.number" text="Assembly Number" />&nbsp;*</label>
 				<form:input path="number" cssClass="sText"></form:input>
 				
