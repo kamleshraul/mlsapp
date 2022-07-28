@@ -1550,6 +1550,53 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
     		return 0;
     	}
 	}
+	
+	public int findPendingWorkflowCountOfCurrentUser(final java.util.Map<String, String> parameters, 
+			final String lowerHouseName,
+			final String upperHouseName,
+			final String orderBy,
+			final String sortOrder){
+		
+		StringBuffer strQuery = new StringBuffer("SELECT COUNT(t.id) FROM WorkflowDetails t WHERE");
+		int index = 0; 
+    	for (Entry<String, String> i : parameters.entrySet()) {
+    		if(i.getKey().equals("assignmentTimeStartLimit")) 
+    		{
+    			strQuery.append(" (");
+    			strQuery.append(" (t.assigneeUserGroupType LIKE 'department%' AND t.houseType='" + upperHouseName + "' AND DATE(t.assignmentTime)>='" + ApplicationConstants.STARTING_DATE_FOR_FULLY_ONLINE_DEPARTMENT_PROCESSING_OF_DEVICES + "')");
+    			strQuery.append(" OR (t.assigneeUserGroupType NOT LIKE 'department%' AND t.houseType='" + upperHouseName + "' AND DATE(t.assignmentTime)>='" + ApplicationConstants.LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE + "')");
+    			strQuery.append(" OR (t.houseType='" + lowerHouseName + "' AND DATE(t.assignmentTime)>='" + ApplicationConstants.LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE + "')");
+    			strQuery.append(" )");
+    		}
+    		else {
+    			strQuery.append(" t." + i.getKey() + "=:" + i.getKey());
+    		}            
+            if(index < (parameters.entrySet().size() - 1)){
+            	strQuery.append(" AND");	            	
+            }
+            index++;
+        }
+    	
+    	strQuery.append(" ORDER BY t."+orderBy +" " + sortOrder);
+    	
+    	Query jpQuery = this.em().createQuery(strQuery.toString());
+    	
+    	for (Entry<String, String> i : parameters.entrySet()) {
+    		if(i.getKey().equals("assignmentTimeStartLimit")) {
+    			continue;
+    		}
+            jpQuery.setParameter(i.getKey(), i.getValue());
+        }
+    	
+    	Long pendingWorkflowCount;
+    	try {
+    		pendingWorkflowCount = (Long) jpQuery.getSingleResult();
+        	return pendingWorkflowCount.intValue();
+        	
+    	} catch(NoResultException e) {
+    		return 0;
+    	}
+	}
 
 	public List<WorkflowDetails> findPendingWorkflowOfCurrentUserByAssignmentTimeRange(final java.util.Map<String, String> parameters,
 			final Date toDate,

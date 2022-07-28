@@ -8,6 +8,8 @@
 		var nextTaskCurrentCounter = 0;
 		var totalTasksLoaded = 0;
 		var nextLotToLoadPendingTasks = 20;
+		var currentPendingCount = 0;
+		var overallPendingCount = 0;
 		
 		$(document).ready(function(){
 			onPageLoad();
@@ -842,6 +844,51 @@
 				}
 				$("#newMessageDiv").toggle();
 			});
+			
+			$("#currentCountDivLink").click(function(){
+				if(currentPendingCount!=0) {
+					var params="houseType="+$("#selectedHouseType").val()
+					+ "&sessionYear="+$("#selectedSessionYear").val()
+					+ "&sessionType="+$("#selectedSessionType").val()
+					+ "&deviceType="+$("#selectedDeviceType").val()
+					+ "&userGroupType="+$("#currentusergroupType").val()
+					+ "&assignee="+$("#assignee").val()
+					+ "&locale="+$("#moduleLocale").val()
+					+ "&report=MYTASKS_CURRENT_PENDING_COUNT_DETAILS_FOR_USER"
+					+ "&reportout=current_pending_count_details_for_user";
+					
+					$.get('workflow/report/generalreport?'+params, function(data){
+					    $.fancybox.open(data, {autoSize: true, width: 800, height:600});
+				    },'html');
+					
+				    return false;
+				}
+				return false;
+			});
+			
+			$("#overallCountDivLink").click(function(){
+				if(overallPendingCount!=0) {
+					var params="houseType="+$("#selectedHouseType").val()
+					+ "&sessionYear="+$("#selectedSessionYear").val()
+					+ "&sessionType="+$("#selectedSessionType").val()
+					+ "&deviceType="+$("#selectedDeviceType").val()
+					+ "&userGroupType="+$("#currentusergroupType").val()
+					+ "&assignee="+$("#assignee").val()
+					+ "&latestAssemblyHouseFormationDate="+$("#latestAssemblyHouseFormationDate").val()+" 00:00:00"
+					+ "&onlineDepartmentReplyBeginningDate="+$("#onlineDepartmentReplyBeginningDate").val()+" 00:00:00"
+					+ "&locale="+$("#moduleLocale").val()
+					+ "&report=MYTASKS_OVERALL_PENDING_COUNT_DETAILS_FOR_USER"
+					+ "&reportout=overall_pending_count_details_for_user";
+					
+					$.get('workflow/report/generalreport?'+params, function(data){
+					    $.fancybox.open(data, {autoSize: true, width: 800, height:600});
+				    },'html');
+					
+				    return false;
+				}
+				return false;
+			});
+			
 			//Some filters are not required for department screen. this filters are hidden in departmentutility function
 			departmentUtility();
 						
@@ -871,10 +918,12 @@
 		
 				$.get(url, function(data){
 					if(data){
+						currentPendingCount = data.number;
 						$("#currentCountDivLink").text(data.value);
+						overallPendingCount = data.id;
 						$("#overallCountDivLink").text(data.name);
 						$("#currentCountDiv").show();
-						if(data.value != data.name) {
+						if(data.id != data.number && $("#currentusergroupType").val()!='member') {
 							$("#overallCountDiv").show();
 						} else {
 							$("#overallCountDiv").hide();

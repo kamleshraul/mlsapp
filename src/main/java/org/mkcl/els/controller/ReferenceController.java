@@ -6131,7 +6131,8 @@ public class ReferenceController extends BaseController {
 					}
 				}
 				
-				HouseType houseType = HouseType.findByName(strHouseType, locale.toString());
+				HouseType lowerHouseType = HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale.toString());
+				HouseType upperHouseType = HouseType.findByType(ApplicationConstants.UPPER_HOUSE, locale.toString());
 				
 				Map<String, String> parameters = new LinkedHashMap<String, String>();
 				parameters.put("assignee", this.getCurrentUser().getActualUsername());
@@ -6160,36 +6161,23 @@ public class ReferenceController extends BaseController {
 						{
 							parameters.put("deviceType", allowedDeviceType);
 							
-							if(allowedDeviceTypesForPastPendingCounts.contains("##"+allowedDeviceType+"##")) 
+							if(allowedDeviceTypesForPastPendingCounts.contains("##"+allowedDeviceType+"##")
+									&& usergroupType!=null && !usergroupType.equals(ApplicationConstants.MEMBER))
 							{
-								if(houseType!=null && houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) 
-								{
-									parameters.put("assignmentTimeStartLimit", ApplicationConstants.LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE);
-								}
-								else //for council
-								{
-									if(usergroupType!=null 
-											&& (usergroupType.equals(ApplicationConstants.DEPARTMENT) || usergroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))) 
-									{
-										parameters.put("assignmentTimeStartLimit", ApplicationConstants.STARTING_DATE_FOR_FULLY_ONLINE_DEPARTMENT_PROCESSING_OF_DEVICES);
-									}	
-									else {
-										parameters.put("assignmentTimeStartLimit", ApplicationConstants.LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE);
-									}
-								}
+								parameters.put("assignmentTimeStartLimit", ApplicationConstants.LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE);
 								
 								parameters.remove("sessionYear");
 								parameters.remove("sessionType");
-								parameters.remove("houseType");
+								//parameters.remove("houseType");
 								
 								//below result includes pending counts of previous sessions also subject to assignmentTimeStartLimit parameter
-								pendingTasksCountForDeviceType = WorkflowDetails.findPendingWorkflowCountOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.ASC);
+								pendingTasksCountForDeviceType = WorkflowDetails.findPendingWorkflowCountOfCurrentUser(parameters, lowerHouseType.getName(), upperHouseType.getName(), "assignmentTime", ApplicationConstants.ASC);
 								
 								pendingTasksCount += pendingTasksCountForDeviceType;
 								
 								parameters.put("sessionYear", strSessionYear);
 								parameters.put("sessionType", strSessionType);
-								parameters.put("houseType", strHouseType);		
+								//parameters.put("houseType", strHouseType);		
 								
 								parameters.remove("assignmentTimeStartLimit");
 								
@@ -6202,7 +6190,7 @@ public class ReferenceController extends BaseController {
 							{
 								parameters.put("sessionYear", strSessionYear);
 								parameters.put("sessionType", strSessionType);
-								parameters.put("houseType", strHouseType);		
+								//parameters.put("houseType", strHouseType);
 								
 								parameters.remove("assignmentTimeStartLimit");
 								
@@ -6225,8 +6213,10 @@ public class ReferenceController extends BaseController {
 					pendingTasksCount = pendingTasksInSessionCount;
 				}			
 				
-				data.setValue(String.valueOf(pendingTasksInSessionCount));
+				data.setId((long) pendingTasksCount);
 				data.setName(String.valueOf(pendingTasksCount));
+				data.setNumber(pendingTasksInSessionCount);
+				data.setValue(String.valueOf(pendingTasksInSessionCount));
 			}
 		}catch(Exception e){
 			logger.error(e.getMessage());

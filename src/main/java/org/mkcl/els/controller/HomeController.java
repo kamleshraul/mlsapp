@@ -412,6 +412,8 @@ public class HomeController extends BaseController {
 		}
         model.addAttribute("latestAssemblyHouseFormationDate", ApplicationConstants.LATEST_ASSSEMBLY_HOUSE_FORMATION_DATE);
         
+        model.addAttribute("onlineDepartmentReplyBeginningDate", ApplicationConstants.STARTING_DATE_FOR_FULLY_ONLINE_DEPARTMENT_PROCESSING_OF_DEVICES);
+        
         //flag for checking if this request is redirection to home page
         String redirectedToHomePage = request.getParameter("redirectedToHomePage");
         if(redirectedToHomePage==null || !redirectedToHomePage.equals("yes")) {
