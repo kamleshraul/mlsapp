@@ -60,76 +60,83 @@ public class ActivityLog extends BaseDomain implements Serializable{
 	/**** Constructor ****/
 	
 	/**** Domain Methods ****/
-	public static ActivityLog logActivity(HttpServletRequest request, String locale) throws Exception{
-		ActivityLog actLog = new ActivityLog();
+	public static ActivityLog logActivity(HttpServletRequest request, String locale) throws Exception
+	{
+		if(ApplicationConstants.environment!=null && ApplicationConstants.environment.acceptsProfiles("prod")) 
+		{
+			ActivityLog actLog = new ActivityLog();
 
-		String userName = request.getRemoteUser();
-		String url = request.getRequestURL().toString();	
-		@SuppressWarnings("unchecked")
-		Map<String, String[]> requestParametersMap = request.getParameterMap();
-		String userAddress = request.getRemoteAddr();
-		
-		Credential credential = Credential.findByFieldName(Credential.class, "username", userName, null);
-		
-		actLog.setCredetial(credential);
-		actLog.setTimeOfAction(new Date());
-		actLog.setLinkClicked(url);
-		
-		CustomParameter linksRequiringRequestParametersInActivityLog = CustomParameter.findByName(CustomParameter.class, "LINKS_REQUIRING_REQUEST_PARAMETERS_IN_ACTIVITYLOG", "");
-		if(linksRequiringRequestParametersInActivityLog!=null && linksRequiringRequestParametersInActivityLog.getValue()!=null) {
-			boolean isLinkRequiringRequestParameters = false;
-			for(String linkKeyword: linksRequiringRequestParametersInActivityLog.getValue().split("~")) {
-				if(url.contains(linkKeyword)) {
-					isLinkRequiringRequestParameters = true;
-					break;
+			String userName = request.getRemoteUser();
+			String url = request.getRequestURL().toString();	
+			@SuppressWarnings("unchecked")
+			Map<String, String[]> requestParametersMap = request.getParameterMap();
+			String userAddress = request.getRemoteAddr();
+			
+			Credential credential = Credential.findByFieldName(Credential.class, "username", userName, null);
+			
+			actLog.setCredetial(credential);
+			actLog.setTimeOfAction(new Date());
+			actLog.setLinkClicked(url);
+			
+			CustomParameter linksRequiringRequestParametersInActivityLog = CustomParameter.findByName(CustomParameter.class, "LINKS_REQUIRING_REQUEST_PARAMETERS_IN_ACTIVITYLOG", "");
+			if(linksRequiringRequestParametersInActivityLog!=null && linksRequiringRequestParametersInActivityLog.getValue()!=null) {
+				boolean isLinkRequiringRequestParameters = false;
+				for(String linkKeyword: linksRequiringRequestParametersInActivityLog.getValue().split("~")) {
+					if(url.contains(linkKeyword)) {
+						isLinkRequiringRequestParameters = true;
+						break;
+					}
+				}
+				if(isLinkRequiringRequestParameters) {
+					StringBuffer requestParameters = new StringBuffer("");
+					Iterator<String> i = requestParametersMap.keySet().iterator();
+					while ( i.hasNext() ){
+
+						 String key = (String) i.next();
+
+						 String value = ((String[]) requestParametersMap.get( key ))[ 0 ];
+
+						 requestParameters.append("Key: ["+key+"] - Val: ["+value+"]");
+						 requestParameters.append(System.getProperty("line.separator"));
+						 
+					}		
+					actLog.setRequestParameters(requestParameters.toString());
+				}
+				else if(
+						//	request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_POST)
+						// 	|| 
+						//	request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_PUT)
+						// 	|| 
+							request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_DELETE)) {
+					StringBuffer requestParameters = new StringBuffer("");
+					Iterator<String> i = requestParametersMap.keySet().iterator();
+					while ( i.hasNext() ){
+
+						 String key = (String) i.next();
+
+						 String value = ((String[]) requestParametersMap.get( key ))[ 0 ];
+
+						 requestParameters.append("Key: ["+key+"] - Val: ["+value+"]");
+						 requestParameters.append(System.getProperty("line.separator"));
+						 
+					}		
+					actLog.setRequestParameters(requestParameters.toString());
 				}
 			}
-			if(isLinkRequiringRequestParameters) {
-				StringBuffer requestParameters = new StringBuffer("");
-				Iterator<String> i = requestParametersMap.keySet().iterator();
-				while ( i.hasNext() ){
-
-					 String key = (String) i.next();
-
-					 String value = ((String[]) requestParametersMap.get( key ))[ 0 ];
-
-					 requestParameters.append("Key: ["+key+"] - Val: ["+value+"]");
-					 requestParameters.append(System.getProperty("line.separator"));
-					 
-				}		
-				actLog.setRequestParameters(requestParameters.toString());
+			
+			actLog.setLocale(locale);
+			actLog.setUserAddress(userAddress);
+			
+			Object supportUserName = request.getSession().getAttribute("supportUserName");
+			if(supportUserName!=null) {
+				actLog.setSupportUserName(supportUserName.toString());
 			}
-			else if(
-					//	request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_POST)
-					// 	|| 
-					//	request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_PUT)
-					// 	|| 
-						request.getMethod().equalsIgnoreCase(ApplicationConstants.REQUEST_METHOD_DELETE)) {
-				StringBuffer requestParameters = new StringBuffer("");
-				Iterator<String> i = requestParametersMap.keySet().iterator();
-				while ( i.hasNext() ){
-
-					 String key = (String) i.next();
-
-					 String value = ((String[]) requestParametersMap.get( key ))[ 0 ];
-
-					 requestParameters.append("Key: ["+key+"] - Val: ["+value+"]");
-					 requestParameters.append(System.getProperty("line.separator"));
-					 
-				}		
-				actLog.setRequestParameters(requestParameters.toString());
-			}
+			
+			return (ActivityLog)actLog.persist();
 		}
-		
-		actLog.setLocale(locale);
-		actLog.setUserAddress(userAddress);
-		
-		Object supportUserName = request.getSession().getAttribute("supportUserName");
-		if(supportUserName!=null) {
-			actLog.setSupportUserName(supportUserName.toString());
-		}
-		
-		return (ActivityLog)actLog.persist();
+		else {
+			return null;
+		}		
 	}
 	
 	

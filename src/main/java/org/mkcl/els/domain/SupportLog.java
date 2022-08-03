@@ -51,15 +51,22 @@ public class SupportLog extends BaseDomain implements Serializable{
 	}
 
 	/**** Domain Methods ****/
-	public static SupportLog logActivity(String supportUserName, String userAddress, String locale) {
-		Credential supportCredential = Credential.findByFieldName(Credential.class, "username", supportUserName, null);
-		
-		SupportLog supportLog = new SupportLog();	
-		supportLog.setSupportCredential(supportCredential);
-		supportLog.setTimeOfAction(new Date());
-		supportLog.setUserAddress(userAddress);
-		
-		return (SupportLog)supportLog.persist();
+	public static SupportLog logActivity(String supportUserName, String userAddress, String locale) 
+	{
+		if(ApplicationConstants.environment!=null && ApplicationConstants.environment.acceptsProfiles("prod")) 
+		{
+			Credential supportCredential = Credential.findByFieldName(Credential.class, "username", supportUserName, null);
+			
+			SupportLog supportLog = new SupportLog();	
+			supportLog.setSupportCredential(supportCredential);
+			supportLog.setTimeOfAction(new Date());
+			supportLog.setUserAddress(userAddress);
+			
+			return (SupportLog)supportLog.persist();
+		} 
+		else {
+			return null;
+		}
 	}
 	
 	public static SupportLog findLatest(final String userAddress) {
