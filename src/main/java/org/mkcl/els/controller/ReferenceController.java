@@ -9533,6 +9533,12 @@ public class ReferenceController extends BaseController {
 	    		return questionDetails;
     		}
     		
+    		Boolean isAnswerConfirmed = Boolean.valueOf(questionDetailsData[16].toString());
+    		if(!isAnswerConfirmed) {
+    			questionDetails[0]="-10";
+	    		return questionDetails;
+    		}
+    		
     		questionDetails[0]=questionDetailsData[8].toString();
     		questionDetails[1]=questionDetailsData[9].toString();
     		questionDetails[2]=questionDetailsData[10].toString();

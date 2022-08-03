@@ -283,6 +283,11 @@
 								$('#manual_number'+referredNumberId).val($('#manual_number_backup'+referredNumberId).val());
 								return false;
 								
+							} else if(data[0]=="-10") {
+								$.prompt("Answer of question with given number " + $('#manual_number'+referredNumberId).val() + " is not confirmed yet! Please complete the answer confirmation flow...");
+								$('#manual_number'+referredNumberId).val($('#manual_number_backup'+referredNumberId).val());
+								return false;
+								
 							} else {
 								$('#chk'+referredNumberId).attr('name', 'chk'+data[0]);
 								$('#chk'+referredNumberId).attr('id', 'chk'+data[0]);

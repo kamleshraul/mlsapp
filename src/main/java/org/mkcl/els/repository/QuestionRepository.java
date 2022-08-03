@@ -3133,6 +3133,13 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 					+ " AND q.yaadiLayingDate IS NULL"
 					+ " AND q.status.type=:admissionStatusType"
 					+ " AND q.answer IS NOT NULL AND q.answer <> '' AND q.answer <> '<p></p>' AND q.answer <> '<br><p></p>' "
+					+ " AND ("
+					+ "			(q.houseType.type='"+ApplicationConstants.UPPER_HOUSE+"' AND q.type.type='"+ApplicationConstants.UNSTARRED_QUESTION+"' AND q.recommendationStatus.type='"+ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_ANSWERCONFIRMED+"')"
+					+ " 			OR "
+					+ " 		(q.houseType.type='"+ApplicationConstants.UPPER_HOUSE+"' AND q.type.type<>'"+ApplicationConstants.UNSTARRED_QUESTION+"')"
+					+ " 			OR "
+					+ " 		(q.houseType.type='"+ApplicationConstants.LOWER_HOUSE+"')"
+					+ " )"
 					+ " AND q.locale=:locale"
 					+ " AND mhr.fromDate<=:curDate"
 					+ " AND mhr.toDate>=:curDate";
