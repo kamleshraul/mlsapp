@@ -252,14 +252,14 @@
 						(&nbsp&nbsp;स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अस्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;चर्चा करावा&nbsp&nbsp;)<br>
 					#end
 					<br><br>
-					मा. सभापती
+					मा. उप सभापती
 				</td>
 			#else
 				<td colspan="2" style="font-weight: bold; width: 600px; font-size: 17px; word-wrap: break-word; padding-left: 5px; text-align: center;">
 					<br>
 					(&nbsp&nbsp;तारांकित स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अतारांकित स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अस्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;चर्चा करावा&nbsp&nbsp;)<br>
 					<br><br>
-					मा. सभापती
+					मा. उप सभापती
 				</td>
 			#end
 		</tr>
