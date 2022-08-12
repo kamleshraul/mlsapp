@@ -122,7 +122,7 @@
 									                        	</fo:table-cell>
 									                        	<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
 									                        	    <fo:block text-align="center" font-weight="bold">
-							                                    		मा.सभापतींनी शासनाने निवेदन करावे असे निदेश दिल्याचा दिनांक,
+							                                    		मा.उप सभापतींनी शासनाने निवेदन करावे असे निदेश दिल्याचा दिनांक,
 								                                    </fo:block>
 								                                    <fo:block text-align="center" font-weight="bold">
 							                                    		विभागाला पाठविल्याचा जावक क्र./

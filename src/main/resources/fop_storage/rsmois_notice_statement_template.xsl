@@ -102,7 +102,7 @@
 		            					</fo:table-row>
 		            					<fo:table-row>
 		            						<fo:table-cell border="solid 0.2mm black" display-align="before">
-		            							<fo:block>सभापती</fo:block>
+		            							<fo:block>उप सभापती</fo:block>
 		            						</fo:table-cell>
 		            						<fo:table-cell border="solid 0.2mm black" display-align="before">
 		            							<fo:block>&#160;</fo:block>

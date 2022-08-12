@@ -76,7 +76,7 @@
 	            	<fo:block text-align="center" font-weight="bold" text-decoration="underline">सत्र काळातील कामकाजाचा आढावा</fo:block>
 	            	<fo:block>&#160;</fo:block>
 	            	<fo:block text-align="left" >
-	            	&#160;&#160;&#160;<fo:inline font-weight="bold">सभापती :</fo:inline>पावसाळी अधिवेशनाचा आजचा शेवटचा दिवस आहे. आजच्या दिवसाचे कामकाज संपलेले आहे.
+	            	&#160;&#160;&#160;<fo:inline font-weight="bold">उप सभापती :</fo:inline>पावसाळी अधिवेशनाचा आजचा शेवटचा दिवस आहे. आजच्या दिवसाचे कामकाज संपलेले आहे.
 						मी या सत्रकाळातील कामकाजाचा आढावा आता सदनासमोर ठेवतो :-
 	            				</fo:block>
 	            				<fo:block>&#160;</fo:block>

@@ -144,8 +144,8 @@
 						<fo:block>
 							&#160;&#160;&#160;&#160;&#160;&#160;चालू अधिवेशनासाठी मा.
 							<xsl:choose>
-								<xsl:when test="houseType='lowerhouse'">उपाध्यक्षांनी</xsl:when>
-								<xsl:when test="houseType='upperhouse'">सभापतींनी</xsl:when>
+								<xsl:when test="houseType='lowerhouse'">अध्यक्षांनी</xsl:when>
+								<xsl:when test="houseType='upperhouse'">उप सभापतींनी</xsl:when>
 							</xsl:choose>
 							ही सूचना वरील स्वरुपात स्वीकृत केली आहे. या सूचनेवरील चर्चा सभागृहात <xsl:value-of select="discussionDate"/> रोजी घेण्यात येणार आहे.
 						</fo:block>	

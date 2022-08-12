@@ -683,7 +683,7 @@
 		                        	<!-- <xsl:if test="./houseType='lowerhouse'">
 			                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
 			                        	    <fo:block text-align="center" font-weight="bold">
-	                                                                    प्रश्न मा. उपाध्यक्षांकडे पाठविण्याचा दिनांक 
+	                                                                    प्रश्न मा. अध्यक्षांकडे पाठविण्याचा दिनांक 
 		                                    </fo:block>
 			                        	</fo:table-cell>
 		                        	</xsl:if> -->

@@ -91,7 +91,7 @@
 			            		</fo:block>
 			            		<fo:block font-size="8px">&#160;</fo:block> 
 			            		<fo:block>
-			            			<fo:inline font-size="30px" font-weight="bold" text-decoration="underline">मा. सभापती :-</fo:inline>
+			            			<fo:inline font-size="30px" font-weight="bold" text-decoration="underline">मा. उप सभापती :-</fo:inline>
 			            			<fo:inline font-size="20px" font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:inline>
 			            			<fo:inline font-size="30px" font-weight="bold" text-decoration="underline">सूचना</fo:inline>
 			            		</fo:block>	
@@ -109,14 +109,14 @@
 			            		</fo:block>
 			            		<fo:block font-size="14px">&#160;</fo:block>
 			            		<fo:block>
-			            			<fo:inline font-size="30px" font-weight="bold" text-decoration="underline">मा. सभापती :-</fo:inline>
+			            			<fo:inline font-size="30px" font-weight="bold" text-decoration="underline">मा. उप सभापती :-</fo:inline>
 			            			<fo:inline font-size="20px" font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:inline>
 			            			<fo:inline font-size="30px" font-weight="bold" text-decoration="underline">निर्णय</fo:inline>
 			
 			            		</fo:block>    
 			            		<fo:block font-size="8px">&#160;</fo:block>
 			            		<fo:block  text-align="justify">
-			            			&#160;&#160;&#160;महाराष्ट्र विधानपरिषद नियमांतील एखादा नियम स्थगित करणे या संबंधाचा नियम २८९ हा आहे. कोणत्याही सदस्यास  सभापतींच्या अनुमतीने कोणताही नियम स्थगित
+			            			&#160;&#160;&#160;महाराष्ट्र विधानपरिषद नियमांतील एखादा नियम स्थगित करणे या संबंधाचा नियम २८९ हा आहे. कोणत्याही सदस्यास  उप सभापतींच्या अनुमतीने कोणताही नियम स्थगित
 			            			करण्यासंदर्भात सूचना देता येईल.
 			            		</fo:block>
 			            		<fo:block font-size="8px">&#160;</fo:block>  

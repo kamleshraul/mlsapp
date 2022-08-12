@@ -195,8 +195,8 @@
 							</xsl:choose>
 							अन्वये उपस्थित केलेली अर्धा-तास चर्चेची सूचना माननीय
 							<xsl:choose>
-								<xsl:when test="houseType='lowerhouse'">उपाध्यक्षांनी</xsl:when>
-								<xsl:when test="houseType='upperhouse'">सभापतींनी</xsl:when>								
+								<xsl:when test="houseType='lowerhouse'">अध्यक्षांनी</xsl:when>
+								<xsl:when test="houseType='upperhouse'">उप सभापतींनी</xsl:when>								
 							</xsl:choose>
 							स्वीकृत केली आहे.
 						</fo:block>	

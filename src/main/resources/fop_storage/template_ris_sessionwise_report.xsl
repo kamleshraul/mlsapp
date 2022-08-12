@@ -150,7 +150,7 @@
 												<xsl:choose>
 													<xsl:when test="element_1_10!=''">
 													<fo:block text-align="center" font-weight="bold">
-														(उपाध्यक्षस्थानी माननीय <xsl:apply-templates select="element_1_10"></xsl:apply-templates>&#160; <xsl:apply-templates select="element_1_4"></xsl:apply-templates>)
+														(अध्यक्षस्थानी माननीय <xsl:apply-templates select="element_1_10"></xsl:apply-templates>&#160; <xsl:apply-templates select="element_1_4"></xsl:apply-templates>)
 													</fo:block>
 													<fo:block>&#160;</fo:block>
 													</xsl:when>

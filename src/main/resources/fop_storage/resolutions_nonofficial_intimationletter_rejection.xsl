@@ -168,8 +168,8 @@
 							आपणांस असे कळविण्यात येत आहे की,<xsl:value-of select="rejectionReason"/>
 							आपली वरील अशासकीय ठरावाची सूचना मा.
 							<xsl:choose>
-								<xsl:when test="houseType='lowerhouse'">उपाध्यक्षांनी</xsl:when>
-								<xsl:when test="houseType='upperhouse'">सभापतींनी</xsl:when>
+								<xsl:when test="houseType='lowerhouse'">अध्यक्षांनी</xsl:when>
+								<xsl:when test="houseType='upperhouse'">उप सभापतींनी</xsl:when>
 							</xsl:choose>
 						<fo:inline font-weight="bold">&#160;अस्वीकृत</fo:inline> केली आहे.
 						</fo:block>	

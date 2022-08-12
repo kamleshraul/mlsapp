@@ -142,8 +142,8 @@
 						<fo:block>
 							&#160;&#160;&#160;&#160;&#160;&#160;विद्यमान अधिवेशनासाठी मा.
 							<xsl:choose>
-								<xsl:when test="houseType='lowerhouse'">उपाध्यक्षांनी</xsl:when>
-								<xsl:when test="houseType='upperhouse'">सभापतींनी</xsl:when>
+								<xsl:when test="houseType='lowerhouse'">अध्यक्षांनी</xsl:when>
+								<xsl:when test="houseType='upperhouse'">उप सभापतींनी</xsl:when>
 							</xsl:choose>
 							ही सूचना स्वीकृत केली आहे. या सूचनेवरील चर्चा सभागृहात केव्हा घेण्यात येईल ती तारीख मागाहून कळविण्यात येईल.
 						</fo:block>	
