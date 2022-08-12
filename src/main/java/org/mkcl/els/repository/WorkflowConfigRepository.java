@@ -2020,7 +2020,8 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		} else {
 			workflowConfig = getLatest(motion, status, locale.toString());
 			userGroupType = userGroup.getUserGroupType();
-			if(motion.getActor().contains(ApplicationConstants.DEPARTMENT_DESKOFFICER)
+			if(motion.getActor()!=null
+					&& motion.getActor().contains(ApplicationConstants.DEPARTMENT_DESKOFFICER)
 					&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.SECTION_OFFICER)){
 				currentWorkflowActor = getWorkflowActor(workflowConfig,
 						userGroupType, level-2);
