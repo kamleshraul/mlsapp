@@ -91,6 +91,9 @@ public class Ballot extends BaseDomain implements Serializable {
 	@Temporal(TemporalType.DATE)
 	private Date answeringDate;
 	
+	@Temporal(TemporalType.DATE)
+	private Date displayAnsweringDate;
+	
 	// TODO: Remove this attribute once you are sure that the Council Starred
 	// Ballot does not require group attribute. Even if it does, the dependency
 	// can be removed because given a session & answeringDate, group can be determined.
@@ -740,6 +743,14 @@ public class Ballot extends BaseDomain implements Serializable {
 
 	public void setAnsweringDate(final Date answeringDate) {
 		this.answeringDate = answeringDate;
+	}
+
+	public Date getDisplayAnsweringDate() {
+		return displayAnsweringDate;
+	}
+
+	public void setDisplayAnsweringDate(Date displayAnsweringDate) {
+		this.displayAnsweringDate = displayAnsweringDate;
 	}
 
 	public Group getGroup() {

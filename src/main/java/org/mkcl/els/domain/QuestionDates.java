@@ -103,7 +103,23 @@ public class QuestionDates extends BaseDomain implements Serializable {
     }
 
     /**** Domain methods ****/
-
+	/**** Added By Sandeep Singh (Jan 30 2013) ****/
+	public String findFormattedAnsweringDate(){
+		SimpleDateFormat format=FormaterUtil.getDateFormatter(this.getLocale());
+		if(this.displayAnsweringDate!=null) {
+			return format.format(getDisplayAnsweringDate());
+		} else {
+			return format.format(getAnsweringDate());
+		}
+	}
+	
+    public Date findAnsweringDateForReport() {
+    	if(this.displayAnsweringDate!=null) {
+    		return getDisplayAnsweringDate();
+    	} else {
+    		return getAnsweringDate();
+    	}
+    }
     
     
     /**** Getters and Setters ****/
@@ -262,11 +278,5 @@ public class QuestionDates extends BaseDomain implements Serializable {
 	public void setDisplayAnsweringDate(Date displayAnsweringDate) {
 		this.displayAnsweringDate = displayAnsweringDate;
 	}
-
-	/**** Added By Sandeep Singh (Jan 30 2013) ****/
-	public String findFormattedAnsweringDate(){
-		SimpleDateFormat format=FormaterUtil.getDateFormatter(this.getLocale());
-		return format.format(getAnsweringDate());
-	}
-
+	
 }

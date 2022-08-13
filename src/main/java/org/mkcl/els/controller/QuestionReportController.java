@@ -514,7 +514,7 @@ public class QuestionReportController extends BaseController{
 				if(deviceType.getType().trim().equals(ApplicationConstants.STARRED_QUESTION)) {
 					QuestionDates questionDates = Question.findQuestionDatesForStarredQuestion(question);
 					if(questionDates!=null) {
-						Date answeringDate = questionDates.getAnsweringDate();
+						Date answeringDate = questionDates.findAnsweringDateForReport(); //questionDates.getAnsweringDate();
 						if(answeringDate!=null) {
 							if(statusType.equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED) 
 									|| (intimationLetterFilter!=null && intimationLetterFilter.equals("groupChangedAfterBallot"))) {
@@ -572,7 +572,7 @@ public class QuestionReportController extends BaseController{
 				if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 					QuestionDates questionDates = question.findNextAnsweringDate();
 					if(questionDates!=null) {
-						Date nextAnsweringDate = questionDates.getAnsweringDate();
+						Date nextAnsweringDate = questionDates.findAnsweringDateForReport(); //questionDates.getAnsweringDate();
 						if(nextAnsweringDate!=null) {
 							if(intimationLetterFilter!=null && intimationLetterFilter.equals("answeringDateForwarded")) {
 								

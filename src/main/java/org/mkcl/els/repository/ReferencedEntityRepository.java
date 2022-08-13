@@ -232,13 +232,13 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 					"s.id AS sessionId, " +
 					" CASE" +
 					"   WHEN m.answering_date IS NOT NULL THEN " +
-					"     CONCAT(formater(DAY(qd.answering_date), m.locale),'/', formater(MONTH(qd.answering_date), m.locale),'/',formater(YEAR(qd.answering_date), m.locale))" +
+					"     CONCAT(formater(DAY(qd.display_answering_date), m.locale),'/', formater(MONTH(qd.display_answering_date), m.locale),'/',formater(YEAR(qd.display_answering_date), m.locale))" +
 					"   ELSE " +
 					"      '-' " +
 					" END AS actAnsweringDate, " +
 					" CASE" +
 					"     WHEN m.chart_answering_date IS NOT NULL THEN " +
-					"        CONCAT(formater(DAY(qd1.answering_date), m.locale),'/', formater(MONTH(qd1.answering_date), m.locale),'/',formater(YEAR(qd1.answering_date), m.locale)) " +
+					"        CONCAT(formater(DAY(qd1.display_answering_date), m.locale),'/', formater(MONTH(qd1.display_answering_date), m.locale),'/',formater(YEAR(qd1.display_answering_date), m.locale)) " +
 					"     ELSE " +
 					"        '-' " +
 					" END AS chartAnsweringDate, " +
@@ -557,13 +557,13 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 					"s.id AS sessionId, " +
 					" CASE" +
 					"   WHEN m.answering_date IS NOT NULL THEN " +
-					"     CONCAT(formater(DAY(qd.answering_date), m.locale),'/', formater(MONTH(qd.answering_date), m.locale),'/',formater(YEAR(qd.answering_date), m.locale))" +
+					"     CONCAT(formater(DAY(qd.display_answering_date), m.locale),'/', formater(MONTH(qd.display_answering_date), m.locale),'/',formater(YEAR(qd.display_answering_date), m.locale))" +
 					"   ELSE " +
 					"      '-' " +
 					" END AS actAnsweringDate, " +
 					" CASE" +
 					"     WHEN m.chart_answering_date IS NOT NULL THEN " +
-					"        CONCAT(formater(DAY(qd1.answering_date), m.locale),'/', formater(MONTH(qd1.answering_date), m.locale),'/',formater(YEAR(qd1.answering_date), m.locale)) " +
+					"        CONCAT(formater(DAY(qd1.display_answering_date), m.locale),'/', formater(MONTH(qd1.display_answering_date), m.locale),'/',formater(YEAR(qd1.display_answering_date), m.locale)) " +
 					"     ELSE " +
 					"        '-' " +
 					" END AS chartAnsweringDate, " +

@@ -574,14 +574,14 @@ public class QuestionWorkflowController  extends BaseController{
 				List<MasterVO> masterVOs = new ArrayList<MasterVO>();
 				for(QuestionDates i : answeringDates){
 					MasterVO masterVO = new MasterVO(i.getId(),
-							FormaterUtil.getDateFormatter(locale).format(i.getAnsweringDate()));
+							FormaterUtil.getDateFormatter(locale).format(i.findAnsweringDateForReport()));
 					masterVOs.add(masterVO);
 				}
 				model.addAttribute("answeringDates", masterVOs);
 				if(domain.getAnsweringDate() != null){
 					model.addAttribute("answeringDate", domain.getAnsweringDate().getId());
 					model.addAttribute("formattedAnsweringDate",FormaterUtil.getDateFormatter(locale).
-							format(domain.getAnsweringDate().getAnsweringDate()));
+							format(domain.getAnsweringDate().findAnsweringDateForReport()));
 					model.addAttribute("answeringDateSelected", domain.getAnsweringDate().getId());
 				}
 				//populate original answering date
@@ -595,7 +595,7 @@ public class QuestionWorkflowController  extends BaseController{
 			if(domain.getChartAnsweringDate() != null) {
 				model.addAttribute("chartAnsweringDate", domain.getChartAnsweringDate().getId());
 				model.addAttribute("formattedChartAnsweringDate",FormaterUtil.getDateFormatter(locale).
-						format(domain.getChartAnsweringDate().getAnsweringDate()));
+						format(domain.getChartAnsweringDate().findAnsweringDateForReport()));
 			}
 			if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
 				/** Set Last Date of Answer Receiving from Department **/

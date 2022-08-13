@@ -72,7 +72,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				"  sety.session_type as sessionType ,g.number as groupnumber,"+
 				"  mi.name as ministry,d.name as department,sd.name as subdepartment,st.type as statustype," +
 				"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName," +
-				"  qd1.answering_date as answeringDate,"+				
+				"  qd1.display_answering_date as answeringDate,"+				
 				"  q.session_id as sessionId,"+
 				"  dt.type as deviceTypeType"+
 				"  FROM questions as q "+
@@ -290,7 +290,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				"  st.name as status,dt.name as deviceType,s.session_year as sessionYear,"+
 				"  sety.session_type as sessionType ,g.number as groupnumber,"+
 				"  mi.name as ministry,d.name as department,sd.name as subdepartment,st.type as statustype," +
-				"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName, qd1.answering_date as answeringDate,"+
+				"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName, qd1.display_answering_date as answeringDate,"+
 				"  q.localized_actor_name as actor" +
 				"  FROM questions as q "+
 				"  LEFT JOIN housetypes as ht ON(q.housetype_id=ht.id) "+
@@ -6516,7 +6516,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				"  st.name as status,dt.name as deviceType,s.session_year as sessionYear,"+
 				"  sety.session_type as sessionType ,g.number as groupnumber,"+
 				"  mi.name as ministry,d.name as department,sd.name as subdepartment,st.type as statustype," +
-				"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName, qd1.answering_date as answeringDate,"+
+				"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName, qd1.display_answering_date as answeringDate,"+
 				"  q.localized_actor_name as actor," +
 				"  q.ballotstatus_id as ballotStatus," +
 				"  q.parent as parent," +

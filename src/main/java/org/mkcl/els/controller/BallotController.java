@@ -147,7 +147,7 @@ public class BallotController extends BaseController{
 						List<QuestionDates> questionDates = group.getQuestionDates();
 						for(QuestionDates i : questionDates){
 							String strAnsweringDate = 
-									FormaterUtil.getDateFormatter(locale.toString()).format(i.getAnsweringDate());
+									FormaterUtil.getDateFormatter(locale.toString()).format(i.findAnsweringDateForReport());
 							MasterVO masterVO = new MasterVO(i.getId(), strAnsweringDate);
 							masterVO.setValue(FormaterUtil.formatDateToString(i.getAnsweringDate(), ApplicationConstants.DB_DATEFORMAT));
 							masterVOs.add(masterVO);

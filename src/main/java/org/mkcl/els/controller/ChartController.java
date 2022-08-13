@@ -71,7 +71,7 @@ public class ChartController extends BaseController{
 						for(QuestionDates i:questionDates) {
 							MasterVO masterVO = new MasterVO(i.getId(), 
 									FormaterUtil.getDateFormatter(
-											locale.toString()).format(i.getAnsweringDate()));
+											locale.toString()).format(i.findAnsweringDateForReport()));
 							masterVOs.add(masterVO);
 						}
 						model.addAttribute("answeringDates", masterVOs);

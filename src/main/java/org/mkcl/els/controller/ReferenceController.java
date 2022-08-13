@@ -709,9 +709,11 @@ public class ReferenceController extends BaseController {
 		List<Reference> answeringDates=new ArrayList<Reference>();
 		for(QuestionDates i:dates){
 			Date ansDate=i.getAnsweringDate();
-			if(ansDate!=null){
+			Date displayAnsDate = i.findAnsweringDateForReport();
+			if(ansDate!=null && displayAnsDate!=null){
 				String strAnsweringDate=FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT,locale.toString()).format(ansDate);
-				Reference answeringDateVO=new Reference(strAnsweringDate,strAnsweringDate);
+				String strDisplayAnsweringDate=FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT,locale.toString()).format(displayAnsDate);
+				Reference answeringDateVO=new Reference(strAnsweringDate,strDisplayAnsweringDate);
 				answeringDates.add(answeringDateVO);
 			}
 		}
@@ -1628,7 +1630,7 @@ public class ReferenceController extends BaseController {
 		for(QuestionDates i:answeringDates){
 			MasterVO masterVO=new MasterVO();
 			masterVO.setId(i.getId());
-			masterVO.setName(FormaterUtil.getDateFormatter(locale.toString()).format(i.getAnsweringDate()));
+			masterVO.setName(FormaterUtil.getDateFormatter(locale.toString()).format(i.findAnsweringDateForReport()));
 			masterVOs.add(masterVO);
 		}
 		return masterVOs;
@@ -1775,7 +1777,7 @@ public class ReferenceController extends BaseController {
 			if(customParameter!=null){
 				SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(), locale.toString());
 				for(QuestionDates i:dates){
-					MasterVO masterVO=new MasterVO(i.getId(),format.format(i.getAnsweringDate()));
+					MasterVO masterVO=new MasterVO(i.getId(),format.format(i.findAnsweringDateForReport()));
 					masterVOs.add(masterVO);
 				}
 			}else{
@@ -6593,7 +6595,7 @@ public class ReferenceController extends BaseController {
 					for(QuestionDates qd:questionDates){
 						MasterVO masterVO=new MasterVO();
 						masterVO.setValue(qd.getAnsweringDate().toString());
-						masterVO.setName(FormaterUtil.formatDateToString(qd.getAnsweringDate(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+						masterVO.setName(FormaterUtil.formatDateToString(qd.findAnsweringDateForReport(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 						masterVOs.add(masterVO);
 					}
 				}
@@ -8549,7 +8551,7 @@ public class ReferenceController extends BaseController {
 						MasterVO masterVO = new MasterVO();
 						masterVO.setId(qd.getId());
 						masterVO.setValue(qd.getAnsweringDate().toString());
-						masterVO.setName(FormaterUtil.formatDateToString(qd.getAnsweringDate(),
+						masterVO.setName(FormaterUtil.formatDateToString(qd.findAnsweringDateForReport(),
 								ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 						masterVOs.add(masterVO);
 					}

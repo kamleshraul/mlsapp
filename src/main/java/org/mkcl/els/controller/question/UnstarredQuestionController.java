@@ -1068,7 +1068,7 @@ class UnstarredQuestionController {
 			List<MasterVO> masterVOs = new ArrayList<MasterVO>();
 			for(QuestionDates i:answeringDates){
 				MasterVO masterVO = new MasterVO(i.getId(),
-						FormaterUtil.getDateFormatter(locale).format(i.getAnsweringDate()));
+						FormaterUtil.getDateFormatter(locale).format(i.findAnsweringDateForReport()));
 				masterVOs.add(masterVO);
 			}
 			model.addAttribute("answeringDates",masterVOs);
@@ -1079,7 +1079,7 @@ class UnstarredQuestionController {
 		if(questionDate != null){
 			model.addAttribute("answeringDate",questionDate.getId());
 			model.addAttribute("formattedAnsweringDate",FormaterUtil.
-					getDateFormatter(locale).format(questionDate.getAnsweringDate()));
+					getDateFormatter(locale).format(questionDate.findAnsweringDateForReport()));
 			model.addAttribute("answeringDateSelected",questionDate.getId());
 		}
 		//populate original answering date
@@ -1093,7 +1093,7 @@ class UnstarredQuestionController {
 		if(domain.getChartAnsweringDate() != null){
 			QuestionDates chartAnsweringDate = domain.getChartAnsweringDate();
 			model.addAttribute("formattedChartAnsweringDate",FormaterUtil.
-					getDateFormatter(locale).format(chartAnsweringDate.getAnsweringDate()));
+					getDateFormatter(locale).format(chartAnsweringDate.findAnsweringDateForReport()));
 			model.addAttribute("chartAnsweringDate",chartAnsweringDate.getId());
 		}
 		
@@ -1808,7 +1808,7 @@ class UnstarredQuestionController {
 			List<MasterVO> masterVOs = new ArrayList<MasterVO>();
 			for(QuestionDates i:answeringDates){
 				MasterVO masterVO = new MasterVO(i.getId(),
-						FormaterUtil.getDateFormatter(locale).format(i.getAnsweringDate()));
+						FormaterUtil.getDateFormatter(locale).format(i.findAnsweringDateForReport()));
 				masterVOs.add(masterVO);
 			}
 			model.addAttribute("answeringDates", masterVOs);
@@ -1819,7 +1819,7 @@ class UnstarredQuestionController {
 		if(questionDate != null){
 			model.addAttribute("answeringDate",questionDate.getId());
 			model.addAttribute("formattedAnsweringDate", FormaterUtil.
-					getDateFormatter(locale).format(questionDate.getAnsweringDate()));
+					getDateFormatter(locale).format(questionDate.findAnsweringDateForReport()));
 			model.addAttribute("answeringDateSelected", questionDate.getId());
 		}
 		//populate original answering date
@@ -1833,7 +1833,7 @@ class UnstarredQuestionController {
 		if(domain.getChartAnsweringDate() != null){
 			QuestionDates chartAnsweringDate = domain.getChartAnsweringDate();
 			model.addAttribute("formattedChartAnsweringDate",FormaterUtil.
-					getDateFormatter(locale).format(chartAnsweringDate.getAnsweringDate()));
+					getDateFormatter(locale).format(chartAnsweringDate.findAnsweringDateForReport()));
 			model.addAttribute("chartAnsweringDate", chartAnsweringDate.getId());
 		}
 		
