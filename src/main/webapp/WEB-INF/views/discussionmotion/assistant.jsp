@@ -35,6 +35,7 @@
 	}	
 	/**** load actors ****/
 	function loadActors(value){
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		if(value!='-'){
 			var params="discussionmotion="+$("#id").val()+"&status="+value+
 			"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
@@ -71,7 +72,9 @@
 					}
 				    $("#recommendationStatus").val(value);
 				}
+				$.unblockUI();	
 			}).fail(function(){
+				$.unblockUI();	
 				if($("#ErrorMsg").val()!=''){
 					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
 				}else{
@@ -80,6 +83,7 @@
 				scrollTop();
 			});
 		}else{
+			$.unblockUI();	
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			$("#internalStatus").val($("#oldInternalStatus").val());
@@ -493,8 +497,8 @@
 		<label class="small"><spring:message code="discussionmotion.discussionDate" text="Discussion Date"/></label>
 		
 		<input id="formattedDiscussionDate" name="formattedDiscussionDate" value="${formattedDiscussionDate}" class="datemask sText" />
-		<input id="discussionDate" name="discussionDate" value="${discussionDate}" class="sText" type="hidden" />
-		<form:errors path="discussionDate" cssClass="validationError"/>
+		<input id="setDiscussionDate" name="discussionDate" value="${discussionDate}" class="sText" type="hidden" />
+		
 	</c:if>
 	</p>
 
@@ -773,6 +777,7 @@
 	<input type="hidden" name="taskReceivedOnDate" id="taskReceivedOnDate" value="${taskReceivedOnDate }">	
 	<input id="role" name="role" value="${role}" type="hidden">
 	<input id="taskid" name="taskid" value="${taskid}" type="hidden">
+	<input id="workflowdetails" name="workflowdetails" value="${workflowdetails}" type="hidden">
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
 	<input type="hidden" name="originalType" id="originalType" value="${originalType}">

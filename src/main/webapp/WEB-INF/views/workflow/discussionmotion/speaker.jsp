@@ -36,6 +36,7 @@
 	
 	/**** load actors ****/
 	function loadActors(value){
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		if(value!='-'){
 		var params="discussionmotion="+$("#id").val()+"&status="+value+
 		"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
@@ -66,7 +67,9 @@
 				 var actor1=data[0].id;
 				 var temp=actor1.split("#");
 				 $("#level").val(temp[2]);		    
-				 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");					
+				 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");		
+				 $("#actorName").val(temp[4]);
+				 $("#actorName").css('display','inline');
 			}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
@@ -76,6 +79,7 @@
 			}
 		    $("#recommendationStatus").val(value);
 			}
+			$.unblockUI();
 		}).fail(function(){
 			$.unblockUI();
 			if($("#ErrorMsg").val()!=''){
@@ -86,6 +90,7 @@
 			scrollTop();
 		});
 		}else{
+			$.unblockUI();
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			$("#internalStatus").val($("#oldInternalStatus").val());
@@ -357,6 +362,13 @@
 	<p>		
 	<label class="small"><spring:message code="discussionmotion.submissionDate" text="Submitted On"/></label>
 	<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
+	
+	<c:if test="${discussionDate != null}">
+		<label class="small"><spring:message code="discussionmotion.discussionDate" text="Discussion Date"/></label>
+		<input id="formattedDiscussionDate" value="${formattedDiscussionDate}" class="sText" readonly="readonly" />
+		<input id="setDiscussionDate" name="discussionDate" value="${discussionDate}" class="sText" type="hidden" />
+		<form:errors path="discussionDate" cssClass="validationError"/>
+	</c:if>
 	</p>
 	
 	<p>
@@ -572,7 +584,8 @@
 	<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 	<input type="hidden" name="workflowStartedOnDate" id="workflowStartedOnDate" value="${workflowStartedOnDate }">
-	<input type="hidden" name="taskReceivedOnDate" id="taskReceivedOnDate" value="${taskReceivedOnDate }">	
+	<input type="hidden" name="taskReceivedOnDate" id="taskReceivedOnDate" value="${taskReceivedOnDate }">
+		<input id="workflowdetails" name="workflowdetails" value="${workflowdetails}" type="hidden">		
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
 </form:form>

@@ -36,16 +36,23 @@
 	function loadActors(value){
 		var valueToSend="";
 		if(value!='-'){		
-
+			var departmentIntimated = $("#internalStatusMaster option[value='discussionmotion_processed_departmentIntimated']").text();
 			var sendback = $("#internalStatusMaster option[value='discussionmotion_recommend_sendback']").text();
 			var discuss = $("#internalStatusMaster option[value='discussionmotion_recommend_discuss']").text();
-			 var sendToDeskOfficer = $("#internalStatusMaster option[value='discussionmotion_processed_sendToDeskOfficer']").text();
+			var sendToDeskOfficer = $("#internalStatusMaster option[value='discussionmotion_processed_sendToDeskOfficer']").text();
 			 
 			 var valueToSend = "";
 				var changedInternalStatus = $("#changeInternalStatus").val();
-				if(changedInternalStatus == sendToDeskOfficer ) {
+				 	if(value==departmentIntimated){
+						$("#endFlag").val("end");
+						$("#recommendationStatus").val(value);
+						$("#actor").empty();
+						$("#actorDiv").hide();
+						return false;
+					}else if(changedInternalStatus == sendToDeskOfficer ) 
+					{
 					valueToSend = $("#internalStatus").val();
-				}else{
+					}else{
 					valueToSend = value;
 				} 	
 				
@@ -415,10 +422,10 @@
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 		
 	
-	<c:if test="${discussionDateSelected != null}">
+	<c:if test="${discussionDate != null}">
 		<label class="small"><spring:message code="discussionmotion.discussionDate" text="Discussion Date"/></label>
-		<input id="formattedDiscussionDate" value="${formattedDiscussionDateSelected}" class="sText" readonly="readonly" />
-		<input id="discussionDate" name="discussionDate" value="${discussionDateSelected}" class="sText" type="hidden" />
+		<input id="formattedDiscussionDate" value="${formattedDiscussionDate}" class="sText" readonly="readonly" />
+		<input id="setDiscussionDate" name="discussionDate" value="${discussionDate}" class="sText" type="hidden" />
 		<form:errors path="discussionDate" cssClass="validationError"/>
 	</c:if>
 	</p>

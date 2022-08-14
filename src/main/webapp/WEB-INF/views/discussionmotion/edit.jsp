@@ -295,6 +295,8 @@ $('#ministries').change(function(){
 	<label class="small"><spring:message code="discussionmotion.submissionDate" text="Submitted On"/></label>
 	<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
+	
+
 	</p>
 	</c:if>
 	

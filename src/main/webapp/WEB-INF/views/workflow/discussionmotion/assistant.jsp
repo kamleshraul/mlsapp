@@ -35,6 +35,8 @@
 	}
 	/**** load actors ****/
 	function loadActors(value){
+		
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		if(value!='-'){
 		var sendToSectionOfficer = $("#internalStatusMaster option[value='discussionmotion_processed_sendToSectionOfficer']").text();
 		var valueToSend = "";
@@ -80,7 +82,9 @@
 			}
 		    $("#recommendationStatus").val($("#changeInternalStatus").val());
 			}
+			$.unblockUI();	
 		}).fail(function(){
+			$.unblockUI();	
 			if($("#actorDiv").css("display")=='block'){
 				$("#actorDiv").hide();
 			}
@@ -92,6 +96,7 @@
 			scrollTop();
 		});
 		}else{
+			$.unblockUI();	
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			$("#internalStatus").val($("#oldInternalStatus").val());
@@ -382,11 +387,12 @@
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 		
 	
-		<c:if test="${(internalStatusType =='discussionmotion_final_admission')}">
+<c:if test="${(internalStatusType=='discussionmotion_final_admission')}">
 		<label class="small"><spring:message code="discussionmotion.discussionDate" text="Discussion Date"/></label>
-		<input name="formattedDiscussionDate" id="formattedDiscussionDate" value="${formattedDiscussionDate}" class="datemask sText" />
-		<input id="discussionDate" name="discussionDate" value="${discussionDate}" class="sText" type="hidden" />
-		<form:errors path="discussionDate" cssClass="validationError"/>
+		
+		<input id="formattedDiscussionDate" name="formattedDiscussionDate" value="${formattedDiscussionDate}" class="datemask sText" />
+		<input id="setDiscussionDate" name="discussionDate" value="${discussionDate}" class="sText" type="hidden" />
+	
 	</c:if>
 	</p>
 	
@@ -639,7 +645,7 @@
 	<input id="selectedDiscussionMotionType" value="${selectedDiscussionMotionType}" type="hidden">
 	<input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 	<input id="noRejectionReasonProvidedMsg" type="hidden" value='<spring:message code="client.error.noRejectionReason" text="Rejection Reason must be provided"></spring:message>'/>
-	<input id="internalStatusType" type="hidden" value="${internalStatusType}"/>
+
 	<input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 	<input type="hidden" id="originalLevel" value="${level}" />
 	</div>

@@ -66,19 +66,43 @@
 		$("#subDepartments").multiSelect(); */
 		
 		$("#multipleSelectID").multiselect({
-			columns: 4,
-		   placeholder: 'Select Members',
-		    noneSelectedText: '<spring:message code="discussionmotion.selectSupportingMembers" text="Supporting Members"/>',
-		    search: true,
+			
+			noneSelectedText: '<spring:message code="discussionmotion.selectSupportingMembers" text="Supporting Members"/>',
+			  
+            buttonWidth: 250,
+ 
+            enableFiltering: true,
+			
+		    placeholder: 'Select Members',
+		    keepOrder: true,
+		
 		    selectAll: true,
-		    minWidth:500
+		    minWidth:500,
+		    buttonWidth: '300px',
+		    afterSelect: function(value, text){
+		    
+	            var get_val = $("#multiple_value").val();
+	            var hidden_val = (get_val != "") ? get_val+"," : get_val;
+	            $("#multiple_value").val(hidden_val+""+value);
+	          },
+	          afterDeselect: function(value, text){
+	            var get_val = $("#multiple_value").val();
+	            var new_val = get_val.replace(value, "");
+	            $("#multiple_value").val(new_val);
+	          }
 		   
 		});
+		
+		
+	
+		
+		
 		
 		$( ".autosuggestmulticheck" ).change(function() {
 			this.id = $(this).val();	
 			this.value=$( "#multipleSelectID option:selected" ).text();
 			
+	
 			//what happens when we are selecting a value from drop down
 			controlName='selectedSupportingMembers'
 		
@@ -86,6 +110,8 @@
 			textoption="<option value='"+this.id+"' selected='selected' class='"+this.value+"'></option>";				
 			text=text+textoption+"</select>";
 			$("select[name='"+controlName+"']").after(text);
+			alert(text);
+			
 		});
 
 		
@@ -118,14 +144,15 @@
 			//current value of autocomplete.if a value is found which is there in autocomplete but not in select box
 			//then that value will be removed from the select box.
 			var value=$(this).val();
-			alert(value);
+			
 			$("select[name='"+controlName+"'] option:selected").each(function(){
 				var optionClass=$(this).attr("class");
 				if(value.indexOf(optionClass)==-1){
 					$("select[name='"+controlName+"'] option[class='"+optionClass+"']").remove();
 				}		
 			});	
-			$("select[name='"+controlName+"']").hide();				
+			$("select[name='"+controlName+"']").hide();		
+		
 		});
 		//http://api.jqueryui.com/autocomplete/#event-select
 		$( ".autosuggestmultiple" ).autocomplete({
@@ -154,13 +181,13 @@
 			select: function( event, ui ) {
 				//what happens when we are selecting a value from drop down
 				var terms = $(this).val().split(",");
-				alert(terms);
+			
 				//if select box is already present i.e atleast one option is already added
 				if($("select[name='"+controlName+"']").length>0){
 					if($("select[name='"+controlName+"'] option[value='"+ui.item.id+"']").length>0){
 					//if option being selected is already present then do nothing
 					this.value = $(this).val();	
-					alert(this.value);
+				
 					$("select[name='"+controlName+"']").hide();						
 					}else{
 					//if option is not present then add it in select box and autocompletebox
@@ -184,7 +211,7 @@
 					terms.push( ui.item.value );
 					terms.push( "" );
 					this.value = terms.join( "," );
-					alert(this.value);
+				
 					}	
 					$("select[name='"+controlName+"']").hide();									
 				}		
@@ -512,6 +539,7 @@
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
 	<input type="hidden" name="selectedSupportingMembersIfErrors" value="${selectedSupportingMembersIfErrors}" />
+	 <input type="hidden" name="multiple_value" id="multiple_value"  />
 </form:form>
 
 <input id="primaryMemberEmptyMsg" value='<spring:message code="client.error.question.primaryMemberEmpty" text="Primary Member can not be empty."></spring:message>' type="hidden">

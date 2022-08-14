@@ -34,7 +34,9 @@
 	}
 	/**** load actors ****/
 	function loadActors(value){
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		var valueToSend="";
+
 		if(value!='-'){		
 			var sendToDepartment=$("#internalStatusMaster option[value='discussionmotion_processed_sendToDepartment']").text();
 			var sendToMember=$("#internalStatusMaster option[value='discussionmotion_processed_sendToMember']").text();
@@ -46,7 +48,8 @@
 			var sendback = $("#internalStatusMaster option[value='discussionmotion_recommend_sendback']").text();
 			var discuss = $("#internalStatusMaster option[value='discussionmotion_recommend_discuss']").text();
 			
-			if( value==rejectedWithReason || value==departmentIntimated||value==clarificationReceived){
+			//if( value==rejectedWithReason || value==departmentIntimated||value==clarificationReceived){
+				if( value==rejectedWithReason||value==clarificationReceived){
 				$("#endFlag").val("end");
 				$("#recommendationStatus").val(value);
 				$("#actor").empty();
@@ -71,6 +74,7 @@
 			var params="discussionmotion="+$("#id").val()+"&status="+valueToSend+
 			"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
 			var resourceURL='ref/discussionmotion/actors?'+params;
+	
 			$.get(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''){
 					$("#actor").empty();
@@ -102,7 +106,9 @@
 					}
 				    $("#recommendationStatus").val(value);
 				}
+				$.unblockUI();	
 			}).fail(function(){
+				$.unblockUI();	
 				if($("#ErrorMsg").val()!=''){
 					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
 				}else{
@@ -111,6 +117,7 @@
 				scrollTop();
 			});
 		}else{
+			$.unblockUI();	
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			//$("#internalStatus").val($("#oldInternalStatus").val());
@@ -434,10 +441,10 @@
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 		
 	
-	<c:if test="${discussionDateSelected != null}">
+		<c:if test="${discussionDate != null}">
 		<label class="small"><spring:message code="discussionmotion.discussionDate" text="Discussion Date"/></label>
-		<input id="formattedDiscussionDate" value="${formattedDiscussionDateSelected}" class="sText" readonly="readonly" />
-		<input id="discussionDate" name="discussionDate" value="${discussionDateSelected}" class="sText" type="hidden" />
+		<input id="formattedDiscussionDate" value="${formattedDiscussionDate}" class="sText" readonly="readonly" />
+		<input id="setDiscussionDate" name="discussionDate" value="${discussionDate}" class="sText" type="hidden" />
 		<form:errors path="discussionDate" cssClass="validationError"/>
 	</c:if>
 	</p>

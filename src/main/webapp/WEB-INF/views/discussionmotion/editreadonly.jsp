@@ -45,6 +45,14 @@
 	<p>		
 	<label class="small"><spring:message code="discussionmotion.submissionDate" text="Submitted On"/></label>
 	<input id="formattedSubmissionDateEdit" name="formattedSubmissionDateEdit" value="${formattedSubmissionDate}" class="sText" readonly="readonly">
+	
+	<c:if test="${(internalStatusType=='discussionmotion_final_admission')}">
+		<label class="small"><spring:message code="discussionmotion.discussionDate" text="Discussion Date"/></label>
+		
+		<input id="formattedDiscussionDate" name="formattedDiscussionDate" value="${formattedDiscussionDate}" class="datemask sText" />
+		<input id="discussionDate" name="discussionDate" value="${discussionDate}" class="sText" type="hidden" />
+		<form:errors path="discussionDate" cssClass="validationError"/>
+	</c:if> 
 	</p>
 	
 	<p>

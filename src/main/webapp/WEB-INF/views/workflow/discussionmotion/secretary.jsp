@@ -65,7 +65,9 @@
 				 var actor1=data[0].id;
 				 var temp=actor1.split("#");
 				 $("#level").val(temp[2]);		    
-				 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");					
+				 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");			
+				 $("#actorName").val(temp[4]);
+				 $("#actorName").css('display','inline');
 			}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
@@ -400,10 +402,10 @@
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 		
 	
-	<c:if test="${discussionDateSelected != null}">
+	<c:if test="${discussionDate != null}">
 		<label class="small"><spring:message code="discussionmotion.discussionDate" text="Discussion Date"/></label>
-		<input id="formattedDiscussionDate" value="${formattedDiscussionDateSelected}" class="sText" readonly="readonly" />
-		<input id="discussionDate" name="discussionDate" value="${discussionDateSelected}" class="sText" type="hidden" />
+		<input id="formattedDiscussionDate" value="${formattedDiscussionDate}" class="sText" readonly="readonly" />
+		<input id="setDiscussionDate" name="discussionDate" value="${discussionDate}" class="sText" type="hidden" />
 		<form:errors path="discussionDate" cssClass="validationError"/>
 	</c:if>
 	</p>
