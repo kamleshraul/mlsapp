@@ -268,8 +268,12 @@ public abstract class Device extends BaseDomain {
 			RulesSuspensionMotion rulesSuspensionMotion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, deviceId);
 			rulesSuspensionMotion.startWorkflow(rulesSuspensionMotion, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
 		
+		} else if(deviceName.split("_")[0].toUpperCase().equals("DISCUSSIONMOTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
+		DiscussionMotion discussionMotion = DiscussionMotion.findById(DiscussionMotion.class, deviceId);
+		discussionMotion.startWorkflow(discussionMotion, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
 		}
 	}
+	
 	
 	public static void endDeviceWorkflow(String deviceName, Long deviceId, String workflowHouseType, String locale) throws ELSException {
 		
@@ -309,7 +313,12 @@ public abstract class Device extends BaseDomain {
 			RulesSuspensionMotion rulesSuspensionMotion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, deviceId);
 			rulesSuspensionMotion.endWorkflow(rulesSuspensionMotion, workflowHouseType, locale);
 		
+		}else if(deviceName.split("_")[0].toUpperCase().equals("DISCUSSIONMOTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
+			DiscussionMotion discussionMotion = DiscussionMotion.findById(DiscussionMotion.class, deviceId);
+			discussionMotion.endWorkflow(discussionMotion, workflowHouseType, locale);
+		
 		}
+		
 		
 	}
 	
