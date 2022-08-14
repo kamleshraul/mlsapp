@@ -220,7 +220,8 @@
 </head>
 	<body>	
 		<h4 id="error_p">&nbsp;</h4>
-<%-- 		<c:if test="${(error!='') && (error!=null)}">
+	<h4 id="error_p">&nbsp;</h4>
+ 		<c:if test="${(error!='') && (error!=null)}">
 			<h4 style="color: #FF0000;">${error}</h4>
 		</c:if>
 		<c:if test="${! (empty recommendAdmission) }">
@@ -229,12 +230,21 @@
 		<c:if test="${! (empty recommendRejection) }">
 			<p style="color:green;margin-bottom: 15px;">${recommendRejection} sent for rejection.</p>
 		</c:if>
+		<c:if test="${! (empty recommendClarification) }">
+			<p style="color:green;margin-bottom: 15px;">${recommendClarification} sent for Clarification.</p>
+		</c:if>
 		<c:if test="${! (empty admitted) }">
 			<p style="color:green;margin-bottom: 15px;">${admitted} are admitted.</p>
 		</c:if>
 		<c:if test="${! (empty rejected) }">
 			<p style="color:green;margin-bottom: 15px;">${rejected} are rejected.</p>
-		</c:if> --%>
+		</c:if> 
+		<c:if test="${! (empty clarification) }">
+			<p style="color:green;margin-bottom: 15px;">${clarification} are sent for Clarification.</p>
+		</c:if> 
+				<c:if test="${! (empty errorMsg) }">
+			<p style="color:red;margin-bottom: 15px;">${errorMsg} are having problem, please contact support team.</p>
+		</c:if> 
 		<%@ include file="/common/info.jsp"%>
 		<div id="bulkResultDiv">	
 				<c:choose>
