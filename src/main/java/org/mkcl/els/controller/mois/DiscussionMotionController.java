@@ -25,7 +25,6 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
-import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -94,7 +93,7 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 				// Populate House types configured for the current user
 				List<HouseType> houseTypes=null;
 				try {
-					houseTypes = QuestionController.getHouseTypes(currentUser, deviceType, locale);
+					houseTypes = DiscussionMotionController.getHouseTypes(currentUser, deviceType, locale);
 				} catch (ELSException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -106,7 +105,7 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 					authUserHouseType = houseTypes.get(0);					
 				} else {
 					try {
-						authUserHouseType = QuestionController.getHouseType(currentUser, locale);
+						authUserHouseType = DiscussionMotionController.getHouseType(currentUser, locale);
 					} catch (ELSException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1570,12 +1569,17 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 		String strSubmissionDate=request.getParameter("setSubmissionDate");
 		String strWorkflowStartedOnDate=request.getParameter("workflowStartedOnDate");
 		String strTaskReceivedOnDate=request.getParameter("taskReceivedOnDate");
+		String strDiscussionDate=request.getParameter("setDiscussionDate");
+		
 		CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
 		if(dateTimeFormat!=null){
 			SimpleDateFormat format=FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
 			try {
 				if(strSubmissionDate!=null&&!strSubmissionDate.isEmpty()){
 					domain.setSubmissionDate(format.parse(strSubmissionDate));
+				}
+				if(strDiscussionDate!=null&&!strDiscussionDate.isEmpty()){
+					domain.setDiscussionDate(format.parse(strDiscussionDate));
 				}
 				if(strCreationDate!=null&&!strCreationDate.isEmpty()){
 					domain.setCreationDate(format.parse(strCreationDate));
@@ -1626,7 +1630,7 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 											i.setApprovalDate(new Date());	
 											i.setApprovedText(domain.getNoticeContent());
 											i.setApprovedSubject(domain.getSubject());
-											i.setApprovalType("ONLINE");
+											i.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_ONLINE);
 											/**** Update Workflow Details ****/
 											String strWorkflowdetails=i.getWorkflowDetailsId();
 											if(strWorkflowdetails!=null&&!strWorkflowdetails.isEmpty()){
@@ -1726,7 +1730,7 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 		/**** Checking if its submission request or normal update ****/
 		String operation=request.getParameter("operation");		
 		String usergroupType=request.getParameter("usergroupType");
-		/**** Question status will be complete if all mandatory fields have been filled ****/
+		/**** DiscussionMotion status will be complete if all mandatory fields have been filled ****/
 		if(domain.getHouseType()!=null&&domain.getType()!=null&&domain.getSession()!=null
 				&& domain.getPrimaryMember()!=null &&
 				(!domain.getSubject().isEmpty())
@@ -1838,12 +1842,16 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 		String strSubmissionDate=request.getParameter("setSubmissionDate");
 		String strWorkflowStartedOnDate=request.getParameter("workflowStartedOnDate");
 		String strTaskReceivedOnDate=request.getParameter("taskReceivedOnDate");
+		String strDiscussionDate=request.getParameter("setDiscussionDate");
 		CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
 		if(dateTimeFormat!=null){
 			SimpleDateFormat format=FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
 			try {
 				if(strSubmissionDate!=null&&!strSubmissionDate.isEmpty()){
 					domain.setSubmissionDate(format.parse(strSubmissionDate));
+				}
+				if(strDiscussionDate!=null&&!strDiscussionDate.isEmpty()){
+					domain.setDiscussionDate(format.parse(strDiscussionDate));
 				}
 				if(strCreationDate!=null&&!strCreationDate.isEmpty()){
 					domain.setCreationDate(format.parse(strCreationDate));
@@ -2109,6 +2117,56 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 			}
 		}
 		
+	}
+	
+	
+	public static List<HouseType> getHouseTypes(final AuthUser user, final DeviceType deviceType,
+			final String locale) throws ELSException {
+		List<HouseType> houseTypes = new ArrayList<HouseType>();
+		
+		String strHouseType = user.getHouseType();
+		if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)
+				|| strHouseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+			houseTypes = HouseType.findAllByFieldName(HouseType.class, 
+					"type", strHouseType, "name", ApplicationConstants.ASC, locale);
+		}
+		else if(strHouseType.equals(ApplicationConstants.BOTH_HOUSE)) {
+			//check for lower house in the active usergroup having selected device type
+			HouseType lowerHouseType = HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale);
+			List<UserGroup> currentUserGroupsWithDeviceTypeForLowerHouse = UserGroup.findActiveUserGroupsOfGivenUser(user.getActualUsername(), lowerHouseType.getName(), deviceType.getName(), locale);
+			if(currentUserGroupsWithDeviceTypeForLowerHouse!=null && !currentUserGroupsWithDeviceTypeForLowerHouse.isEmpty()) {
+				houseTypes.add(lowerHouseType);
+			}
+			//check for upper house in the active usergroup having selected device type
+			HouseType upperHouseType = HouseType.findByType(ApplicationConstants.UPPER_HOUSE, locale);
+			List<UserGroup> currentUserGroupsWithDeviceTypeForUpperHouse = UserGroup.findActiveUserGroupsOfGivenUser(user.getActualUsername(), upperHouseType.getName(), deviceType.getName(), locale);
+			if(currentUserGroupsWithDeviceTypeForUpperHouse!=null && !currentUserGroupsWithDeviceTypeForUpperHouse.isEmpty()) {
+				houseTypes.add(upperHouseType);
+			}
+			if(houseTypes.isEmpty()) { //no active usergroup for the user or no need for having usergroup for the user
+				houseTypes = HouseType.findAll(HouseType.class, "type", ApplicationConstants.ASC, locale);
+			}			
+		}
+		else {
+			throw new ELSException("DiscussionMotionController.getHouseTypes/2", 
+					"Inappropriate house type is set in AuthUser.");
+		}
+		
+		return houseTypes;
+	}
+	
+	public static HouseType getHouseType(final AuthUser user,
+			final String locale) throws ELSException {
+		// Assumption: LOWER_HOUSE is the default house type
+		HouseType houseType = HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale);
+		
+		String strHouseType = user.getHouseType();
+		if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+			houseType = HouseType.findByType(strHouseType, locale);
+		}
+		
+		// In case strHouseType = "BOTH_HOUSE", return the default houseType i.e LOWER_HOUSE
+		return houseType;
 	}
 	
 	
