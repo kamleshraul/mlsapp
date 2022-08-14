@@ -3587,7 +3587,8 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 							+ user.getLastName());
 					reference.setName(userGroupTypeTemp.getDisplayName());
 					references.add(reference);
-					break;
+					//Rajesh -commented below line to fetch all department actors
+					//break;
 				}
 			}
 		}

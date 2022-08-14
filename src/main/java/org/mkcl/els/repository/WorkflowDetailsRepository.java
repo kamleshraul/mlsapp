@@ -4847,21 +4847,40 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 	/*********************EventMotion*********************/
 	
 	/********************DiscussionMotion******************/
+	public WorkflowDetails findCurrentWorkflowDetail(final DiscussionMotion discussionmotion) throws ELSException{
+		WorkflowDetails workflowDetails = null;
+		try{
+			Workflow workflow = discussionmotion.findWorkflowFromStatus();
+			if(workflow!=null) {
+				workflowDetails = findCurrentWorkflowDetail(discussionmotion, workflow.getType());
+			}			
+		}catch (NoResultException e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+		}catch(Exception e){	
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findCurrentWorkflowDetail_question", "WorkflowDetails Not Found");
+			throw elsException;
+		}		
+		
+		return workflowDetails;
+	}
+	
 	@SuppressWarnings("unchecked")
-	public WorkflowDetails findCurrentWorkflowDetail(final DiscussionMotion motion) throws ELSException{
+	public WorkflowDetails findCurrentWorkflowDetail(final DiscussionMotion discussionmotion, final String workflowType) throws ELSException{
 		WorkflowDetails workflowDetails = null;
 		try{
 			/**** To make the HDS to take the workflow with mailer task ****/
-			String currentDeviceTypeWorkflowType = ApplicationConstants.APPROVAL_WORKFLOW;
-			
 			String strQuery="SELECT m FROM WorkflowDetails m" +
 					" WHERE m.deviceId=:deviceId"+
 					" AND m.workflowType=:workflowType" +
 					" AND m.status='PENDING'" +
 					" ORDER BY m.assignmentTime " + ApplicationConstants.DESC;
 			Query query=this.em().createQuery(strQuery);
-			query.setParameter("deviceId", motion.getId().toString());
-			query.setParameter("workflowType",currentDeviceTypeWorkflowType);
+			query.setParameter("deviceId", discussionmotion.getId().toString());
+			query.setParameter("workflowType",workflowType);
 			List<WorkflowDetails> details = (List<WorkflowDetails>)query.getResultList();
 			if(details != null && !details.isEmpty()){
 				workflowDetails = details.get(0);
@@ -4873,24 +4892,39 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 			e.printStackTrace();
 			logger.error(e.getMessage());
 			ELSException elsException=new ELSException();
-			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findCurrentWorkflowDetail_cutmotion", "WorkflowDetails Not Found");
+			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findCurrentWorkflowDetail_question", "WorkflowDetails Not Found");
 			throw elsException;
 		}		
 		
 		return workflowDetails;
 	}
-		
-	public WorkflowDetails findCurrentWorkflowDetail(final DiscussionMotion motion, String workflowType) {
+	
+	@SuppressWarnings("unchecked")
+	public List<WorkflowDetails> findPendingWorkflowDetails(final DiscussionMotion discussionmotion, final String workflowType) throws ELSException{
+		List<WorkflowDetails> details = new ArrayList<WorkflowDetails>();
 		try{
-			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+motion.getId().toString()
-			+" AND m.workflowType='"+workflowType+"' "
-			+" ORDER BY m.assignmentTime "+ApplicationConstants.DESC;
-			WorkflowDetails workflowDetails=(WorkflowDetails) this.em().createQuery(query).setMaxResults(1).getSingleResult();
-			return workflowDetails;
-		}catch(Exception e){
+			/**** To make the HDS to take the workflow with mailer task ****/
+			String strQuery="SELECT m FROM WorkflowDetails m" +
+					" WHERE m.deviceId=:deviceId"+
+					" AND m.workflowType=:workflowType" +
+					" AND m.status='PENDING'" +
+					" ORDER BY m.assignmentTime " + ApplicationConstants.DESC;
+			Query query=this.em().createQuery(strQuery);
+			query.setParameter("deviceId", discussionmotion.getId().toString());
+			query.setParameter("workflowType",workflowType);
+			details = (List<WorkflowDetails>)query.getResultList();
+		}catch (NoResultException e) {
 			e.printStackTrace();
-			return new WorkflowDetails();
+			logger.error(e.getMessage());
+		}catch(Exception e){	
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findCurrentWorkflowDetail_question", "WorkflowDetails Not Found");
+			throw elsException;
 		}		
+		
+		return details;
 	}
 	
 	public List<WorkflowDetails> create(final DiscussionMotion domain,final List<Task> tasks,
