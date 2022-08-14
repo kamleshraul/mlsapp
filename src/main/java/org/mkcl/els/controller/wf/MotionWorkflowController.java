@@ -379,8 +379,13 @@ public class MotionWorkflowController extends BaseController{
 					Member m=i.getMember();					
 					if(i.getDecisionStatus()!=null
 							&&i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
-						bufferFirstNamesFirst.append(m.getFullname()+",");
+						if(m.isActiveMemberOn(new Date(), locale)){
+							bufferFirstNamesFirst.append(m.getFullname()+",");
+						}
 					}
+				}
+				if(bufferFirstNamesFirst.length()>0) {
+					bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);					
 				}
 				model.addAttribute("supportingMembersName", bufferFirstNamesFirst.toString());
 				model.addAttribute("supportingMembers",selectedSupportingMembers);

@@ -497,7 +497,9 @@ public class QuestionWorkflowController  extends BaseController{
 					}
 					supportingMembers.add(m);
 				}
-				bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
+				if(bufferFirstNamesFirst.length()>0) {
+					bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);					
+				}
 				model.addAttribute("supportingMembersName", bufferFirstNamesFirst.toString());
 				model.addAttribute("supportingMembers", supportingMembers);
 				model.addAttribute("selectedSupportingMembersIds", selectedSupportingMembers);
