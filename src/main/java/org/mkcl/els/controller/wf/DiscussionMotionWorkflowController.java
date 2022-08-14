@@ -443,6 +443,10 @@ public class DiscussionMotionWorkflowController extends BaseController{
 			if(domain.getCreationDate()!=null){
 				model.addAttribute("creationDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getCreationDate()));
 			}
+			if(domain.getDiscussionDate()!=null){
+				model.addAttribute("discussionDate",FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT,"en_US").format(domain.getDiscussionDate()));
+				model.addAttribute("formattedDiscussionDate",FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT,locale).format(domain.getDiscussionDate()));
+			}
 			if(domain.getWorkflowStartedOn()!=null){
 				model.addAttribute("workflowStartedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getWorkflowStartedOn()));
 			}
@@ -455,7 +459,8 @@ public class DiscussionMotionWorkflowController extends BaseController{
 			model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
 		}
 		/**** Created By ****/
-		model.addAttribute("createdBy",domain.getCreatedBy());	
+		model.addAttribute("createdBy",domain.getCreatedBy());
+		model.addAttribute("dataEnteredBy",domain.getDataEnteredBy());
 
 		/**** UserGroup and UserGroup Type ****/
 		model.addAttribute("usergroup",workflowDetails.getAssigneeUserGroupId());
@@ -611,6 +616,10 @@ public class DiscussionMotionWorkflowController extends BaseController{
 			}else if(actor.isEmpty()){
 				CustomParameter defaultStatus=CustomParameter.findByName(CustomParameter.class,"DISCUSSIONMOTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_DEFAULT", "");
 				internalStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
+			}	else if(actor.equals("department")){
+				CustomParameter defaultStatus=CustomParameter.findByName(CustomParameter.class,"DISCUSSIONMOTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_DEPARTMENT", "");
+				internalStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
+				
 			}else{
 				String usergroupType=actor.split("#")[1];
 				/**** Final Approving Authority(Final Status) ****/
@@ -749,7 +758,11 @@ public class DiscussionMotionWorkflowController extends BaseController{
 				}
 			}
 			/**** Workflowdetails ****/
-			WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,domain.getWorkflowDetailsId());
+			Long longWorkflowdetails=(Long) request.getAttribute("workflowdetails");
+			if(longWorkflowdetails==null){
+				longWorkflowdetails=Long.parseLong(request.getParameter("workflowdetails"));
+			}
+			WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,longWorkflowdetails);
 			userGroupType=workflowDetails.getAssigneeUserGroupType();
 			/**** Updating domain ****/
 			domain.setEditedOn(new Date());
@@ -759,12 +772,16 @@ public class DiscussionMotionWorkflowController extends BaseController{
 			String strSubmissionDate=request.getParameter("setSubmissionDate");
 			String strWorkflowStartedOnDate=request.getParameter("workflowStartedOnDate");
 			String strTaskReceivedOnDate=request.getParameter("taskReceivedOnDate");
+			String strDiscussionDate= request.getParameter("formattedDiscussionDate");
 			CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
 			if(dateTimeFormat!=null){
 				SimpleDateFormat format=FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
 				try {
 					if(strSubmissionDate!=null&&!strSubmissionDate.isEmpty()){
 						domain.setSubmissionDate(format.parse(strSubmissionDate));
+					}
+					if(strDiscussionDate!=null&&!strDiscussionDate.isEmpty()){
+						domain.setDiscussionDate(FormaterUtil.formatStringToDate(strDiscussionDate, ApplicationConstants.SERVER_DATEFORMAT));
 					}
 					if(strCreationDate!=null&&!strCreationDate.isEmpty()){
 						domain.setCreationDate(format.parse(strCreationDate));
@@ -824,6 +841,9 @@ public class DiscussionMotionWorkflowController extends BaseController{
 			if(bulkEdit==null||!bulkEdit.equals("yes")){
 				/**** Complete Task ****/		
 				String nextuser=domain.getActor();
+				
+			
+				
 				String level=domain.getLevel();
 				UserGroupType usergroupType = null;
 				Map<String,String> properties=new HashMap<String, String>();
@@ -835,19 +855,57 @@ public class DiscussionMotionWorkflowController extends BaseController{
 						properties.put("pv_user",temp[0]);
 						usergroupType = UserGroupType.findByType(temp[1], locale.toString());
 					}
-				}	
+				}
+				else
+				{
+					nextuser=motion.getActor();
+					domain.setActor(ApplicationConstants.DEPARTMENT);
+				}
 				String endflag=domain.getEndFlag();
-				properties.put("pv_endflag",request.getParameter("endflag"));
+				properties.put("pv_endflag",request.getParameter("endFlag"));
 				String strTaskId=workflowDetails.getTaskId();
 				Task task=processService.findTaskById(strTaskId);
+				if(task!=null){
 				processService.completeTask(task,properties);		
+				}
 				if(endflag!=null){
 					if(!endflag.isEmpty()){
 						if(endflag.equals("continue")){
+							WorkflowDetails workflowDetails2=null;
+							if(Integer.parseInt(level)>8){
+							//Rajesh - Code for multiple department task start
+							List<Reference> actors = new ArrayList<Reference>();
+							//String strDiscussionmotion = request.getParameter("discussionmotion");
+							String strInternalStatus = request.getParameter("status");
+							String strUserGroup = request.getParameter("usergroup");
+							String strLevel = request.getParameter("level");
+							if ( strInternalStatus != null && !strInternalStatus.isEmpty()
+								&& strUserGroup != null && (!strUserGroup.isEmpty())
+								&& strLevel != null && !strLevel.isEmpty()) {
+								Status internalStatus = Status.findById(Status.class, Long.parseLong(strInternalStatus));
+								//DiscussionMotion motion = DiscussionMotion.findById(DiscussionMotion.class, Long.parseLong(strDiscussionmotion));
+								UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.parseLong(strUserGroup));
+								actors = WorkflowConfig.findDiscussionMotionActorsVO(motion, internalStatus, userGroup, Integer.parseInt(strLevel), locale.toString());
+							}
+							//////Rajesh
+							for(Reference s : actors){
+								String[] user = s.getId().split("#");
+								domain.setActor(user[0]);
+							
 							ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
 							Task newtask=processService.getCurrentTask(processInstance);
-							WorkflowDetails workflowDetails2 = WorkflowDetails.create(domain, newtask, usergroupType, currentDeviceTypeWorkflowType,level);
-							
+							newtask.setAssignee(user[0]);
+							workflowDetails2 = WorkflowDetails.create(domain, newtask, usergroupType, currentDeviceTypeWorkflowType,level);
+						
+							}
+							domain.setActor(ApplicationConstants.DEPARTMENT);
+							}
+							else
+							{
+							ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+							Task newtask=processService.getCurrentTask(processInstance);
+							workflowDetails2 = WorkflowDetails.create(domain, newtask, usergroupType, currentDeviceTypeWorkflowType,level);
+								
 							/**** FOr CLarificationFromMember and Department ****/
 							if(domain.getInternalStatus().getType().equals(ApplicationConstants.DISCUSSIONMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
 									&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.DISCUSSIONMOTION_PROCESSED_SEND_TO_DEPARTMENT)){
@@ -865,6 +923,7 @@ public class DiscussionMotionWorkflowController extends BaseController{
 								Task newMembertask = processService.getCurrentTask(processInstance1);
 								WorkflowDetails.create(domain,newMembertask,currentDeviceTypeWorkflowType,level);
 												
+							}
 							}
 							domain.setWorkflowDetailsId(workflowDetails2.getId());
 							domain.setTaskReceivedOn(new Date());
