@@ -516,9 +516,9 @@
                   page-height="29.7cm"
                   page-width="21cm"
                   margin-top="1.5cm"
-                  margin-bottom="7.5cm"
-                  margin-left="4.5cm"
-                  margin-right="4.5cm">
+                  margin-bottom="2cm"
+                  margin-left="2.5cm"
+                  margin-right="2.5cm">
 			      <fo:region-body margin-top="1cm"/>        
 			      <fo:region-before region-name="page-number" extent="2cm"/>
 			      <fo:region-after extent="1.5cm"/>
@@ -632,7 +632,7 @@
 					    <fo:block font-size="20" font-weight="bold" text-align="center">
 							महाराष्ट्र <xsl:value-of select="houseType"/>												
 						</fo:block>
-						<fo:block font-size="16pt" font-weight="bold" text-align="center">
+						<fo:block font-size="15pt" font-weight="bold" text-align="center">
 							<xsl:choose>
 								<xsl:when test="sessionNumber = 1">
 									पहिले
@@ -805,11 +805,11 @@
 	                	<fo:block font-size="12pt">&#160;</fo:block>
 	                	<xsl:choose>
 	                		<xsl:when test="$formatOut='application/pdf'">
-	                			<fo:block font-size="10.5pt" font-weight="bold" text-align="left">
+	                			<fo:block font-size="15pt" font-weight="bold" text-align="left">
 	                				<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
-	                					<fo:table-column column-number="1" column-width="3cm" />
-				                        <fo:table-column column-number="2" column-width="5cm" />
-				                        <fo:table-column column-number="3" column-width="4cm" />
+	                					<fo:table-column column-number="1" column-width="5cm" />
+				                        <fo:table-column column-number="2" column-width="6cm" />
+				                        <fo:table-column column-number="3" column-width="5cm" />
 				                        <fo:table-body>
 				                        	<fo:table-row border-collapse="collapse">
 				                        		<fo:table-cell>
@@ -866,8 +866,8 @@
 			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
 			                		</fo:block> -->
 			                	</fo:block>
-			                	<fo:block>______________________________________________________</fo:block>
-			                	<fo:block font-size="8.5pt">
+			                	<fo:block>______________________________________________________________________________</fo:block>
+			                	<fo:block font-size="15pt">
 			                		<fo:block text-align="center">
 				                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर करण्यात आली आहे.
 				                	</fo:block>
@@ -878,11 +878,11 @@
 			                	</fo:block>
 	                		</xsl:when>
 	                		<xsl:when test="$formatOut='WORD'">
-	                			<fo:block font-size="10.5pt" font-weight="bold" text-align="left">
+	                			<fo:block font-size="15pt" font-weight="bold" text-align="left">
 	                				<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
-	                					<fo:table-column column-number="1" column-width="3cm" />
-				                        <fo:table-column column-number="2" column-width="5cm" />
-				                        <fo:table-column column-number="3" column-width="4cm" />
+	                					<fo:table-column column-number="1" column-width="5cm" />
+				                        <fo:table-column column-number="2" column-width="6cm" />
+				                        <fo:table-column column-number="3" column-width="5cm" />
 				                        <fo:table-body>
 				                        	<fo:table-row border-collapse="collapse">
 				                        		<fo:table-cell>
@@ -939,8 +939,8 @@
 			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
 			                		</fo:block> -->
 			                	</fo:block>
-			                	<fo:block>______________________________________________________</fo:block>
-			                	<fo:block font-size="8.5pt">
+			                	<fo:block>__________________________________________________________________________</fo:block>
+			                	<fo:block font-size="15pt">
 			                		<fo:block text-align="center">
 				                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर करण्यात आली आहे.
 				                	</fo:block>
