@@ -22,11 +22,11 @@
 				<fo:simple-page-master master-name="firstPage"
                   page-height="29.7cm"
                   page-width="21cm"
-                  margin-top="1.5cm"
-                  margin-bottom="7.5cm"
-                  margin-left="4.5cm"
-                  margin-right="4.5cm">
-			      <fo:region-body margin-top="1cm"/>        
+                  margin-top="2cm"
+                  margin-bottom="2cm"
+                  margin-left="2.5cm"
+                  margin-right="2.5cm">
+			      <fo:region-body margin-top="0cm"/>        
 			      <!-- <fo:region-before region-name="page-number" extent="2cm"/> -->
 			      <fo:region-after extent="1.5cm"/>
 			    </fo:simple-page-master>
@@ -36,9 +36,9 @@
                   page-height="29.7cm"
                   page-width="21cm"
                   margin-top="1.5cm"
-                  margin-bottom="7.5cm"
-                  margin-left="4.5cm"
-                  margin-right="4.5cm">
+                  margin-bottom="2cm"
+                  margin-left="2.5cm"
+                  margin-right="2.5cm">
 			      <fo:region-body margin-top="1cm"/>        
 			      <fo:region-before region-name="page-number" extent="2cm"/>
 			      <fo:region-after extent="1.5cm"/>
@@ -90,7 +90,7 @@
 		        </fo:static-content>    
 	
 	            <fo:flow flow-name="xsl-region-body">
-	            	<fo:block font-size="20pt" font-weight="bold" text-decoration="underline" text-align="right">
+	            	<fo:block font-size="15pt" font-family="kokila" font-weight="bold" text-decoration="underline" text-align="right">
 	            		अतारांकित प्रश्नोत्तरांची  
 	            		<xsl:choose>
 							<xsl:when test="element_9 = '१'">
@@ -117,14 +117,14 @@
 						</xsl:choose>
 	            		यादी
 	            	</fo:block>
-	            	<fo:block font-family="Kokila" font-size="18pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
+	            	<fo:block font-family="Kokila" font-size="15pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
 					    <xsl:choose>
 					    	<xsl:when test="element_3='विधानसभा'">
-					    		<fo:block font-size="20" font-weight="bold" text-align="center">
+					    		<fo:block font-size="20pt" font-weight="bold" text-align="center">
 									महाराष्ट्र <xsl:value-of select="element_3"/>												
 								</fo:block>
 								<fo:block font-size="2px">&#160;</fo:block>
-								<fo:block font-size="18pt" font-weight="bold" text-align="center">
+								<fo:block font-size="15pt" font-weight="bold" text-align="center">
 									<xsl:choose>
 										<xsl:when test="element_4 = 1">
 											पहिले
@@ -152,10 +152,10 @@
 								</fo:block>		
 								<!-- <fo:block font-size="7px">&#160;</fo:block> -->													
 								<fo:block text-align="center" font-size="9pt">
-									___________
+									_____________
 								</fo:block>						
 								<fo:block font-size="5px">&#160;</fo:block>	                	
-			                	<fo:block text-align="center" font-size="18pt" font-weight="bold">
+			                	<fo:block text-align="center" font-size="15pt" font-weight="bold">
 			                		अतारांकित प्रश्नोत्तरांची यादी
 			                	</fo:block>	 
 			                	<fo:block font-size="4.5px">&#160;</fo:block>               		                	           	
@@ -164,7 +164,7 @@
 			                	</fo:block>
 			                	<!-- <fo:block font-size="7px">&#160;</fo:block> -->
 			                	<fo:block text-align="center" font-size="9pt">
-			                		___________
+			                		_____________
 								</fo:block>
 			                	<fo:block font-size="6pt">&#160;</fo:block>
 					    	</xsl:when>
@@ -174,11 +174,11 @@
 					    		<fo:block font-size="9px">&#160;</fo:block>
 					    		<fo:block font-size="9px">&#160;</fo:block>
 					    		<!-- <fo:block font-size="9px">&#160;</fo:block> -->
-					    		<fo:block font-size="23" font-weight="bold" text-align="center">
+					    		<fo:block font-size="20" font-weight="bold" text-align="center">
 									महाराष्ट्र <xsl:value-of select="element_3"/>												
 								</fo:block>
 								<fo:block font-size="2px">&#160;</fo:block>
-								<fo:block font-size="20pt" font-weight="bold" text-align="center">
+								<fo:block font-size="15pt" font-weight="bold" text-align="center">
 									<xsl:choose>
 										<xsl:when test="element_4 = 1">
 											पहिले
@@ -207,26 +207,26 @@
 								</fo:block>		
 								<!-- <fo:block font-size="5px">&#160;</fo:block> -->													
 								<fo:block text-align="center" font-size="9pt" font-weight="bold">
-									___________
+									_____________
 								</fo:block>						
 								<fo:block font-size="7px">&#160;</fo:block>	                	
-			                	<fo:block text-align="center" font-size="18pt" font-weight="bold">
+			                	<fo:block text-align="center" font-size="15pt" font-weight="bold">
 			                		अतारांकित प्रश्नोत्तरांची यादी
 			                	</fo:block>	   
 			                	<fo:block font-size="4.5px">&#160;</fo:block>             		                	           	
 			                	<fo:block text-align="center" font-size="13pt" font-weight="bold">
-			                		<fo:block font-size="17pt">प्रश्नांची एकूण संख्या - <xsl:value-of select="element_2"/></fo:block>
+			                		<fo:block font-size="15pt">प्रश्नांची एकूण संख्या - <xsl:value-of select="element_2"/></fo:block>
 			                	</fo:block>
 			                	<fo:block font-size="3px">&#160;</fo:block>
 			                	<fo:block text-align="center" font-size="9pt" font-weight="bold">
-									___________
+									_____________
 								</fo:block>
 			                	<fo:block font-size="10pt">&#160;</fo:block>
 					    	</xsl:when>
 					    </xsl:choose>
 					    
 	                	<xsl:for-each select="./element_1" >
-	                		<fo:block text-align="center" font-size="18pt" font-weight="bold">
+	                		<fo:block text-align="center" font-size="15pt" font-weight="bold">
 	                			<xsl:value-of select="element_1_6"/>
 	                		</fo:block>
 	                		<fo:block font-size="5pt">&#160;</fo:block>
@@ -276,7 +276,7 @@
 	                	<fo:block font-size="11pt">&#160;</fo:block>
 	                	<xsl:choose>
 	                		<xsl:when test="$formatOut='application/pdf'">
-	                			<fo:block font-size="17pt">
+	                			<fo:block font-size="15pt">
 			                		विधान भवन : 
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
@@ -300,11 +300,11 @@
 			                	</fo:block>
 	                		</xsl:when>
 	                		<xsl:when test="$formatOut='WORD'">
-	                			<fo:block font-size="17pt" font-weight="bold" text-align="left">
+	                			<fo:block font-size="15pt" font-weight="bold" text-align="left">
 	                				<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
-	                					<fo:table-column column-number="1" column-width="3cm" />
-				                        <fo:table-column column-number="2" column-width="5cm" />
-				                        <fo:table-column column-number="3" column-width="4cm" />
+	                					<fo:table-column column-number="1" column-width="5cm" />
+				                        <fo:table-column column-number="2" column-width="6cm" />
+				                        <fo:table-column column-number="3" column-width="5cm" />
 				                        <fo:table-body>
 				                        	<fo:table-row border-collapse="collapse">
 				                        		<fo:table-cell>
@@ -366,8 +366,8 @@
 			                		<fo:block>_________________________</fo:block>
 			                		<fo:block>शासकीय मध्यवर्ती मुद्रणालय, <xsl:value-of select="element_7"/>.</fo:block>				     				
 				     			</fo:block> -->
-				     			<fo:block>______________________________________________________</fo:block>
-			                	<fo:block font-size="13pt">
+				     			<fo:block>___________________________________________________________________________</fo:block>
+			                	<fo:block font-size="15pt">
 			                		<fo:block text-align="center">
 				                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर करण्यात आली आहे.
 				                	</fo:block>
