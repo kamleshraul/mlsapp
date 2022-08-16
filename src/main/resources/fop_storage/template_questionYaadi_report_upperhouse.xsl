@@ -628,11 +628,11 @@
 		    </fo:static-content> -->
 	
 	            <fo:flow flow-name="xsl-region-body">	
-	            	<fo:block font-family="Kokila" font-size="15pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
-					    <fo:block font-size="20" font-weight="bold" text-align="center">
+	            	<fo:block font-family="Kokila" font-size="17pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
+					    <fo:block font-size="24" font-weight="bold" text-align="center">
 							महाराष्ट्र <xsl:value-of select="houseType"/>												
 						</fo:block>
-						<fo:block font-size="15pt" font-weight="bold" text-align="center">
+						<fo:block font-size="19pt" font-weight="bold" text-align="center">
 							<xsl:choose>
 								<xsl:when test="sessionNumber = 1">
 									पहिले
@@ -661,14 +661,14 @@
 						<fo:block text-align="center" font-weight="bold" font-size="9pt">
 							---------------------------------------------
 						</fo:block>		                	
-	                	<fo:block text-align="center" font-size="15pt" font-weight="bold">
+	                	<fo:block text-align="center" font-size="17pt" font-weight="bold">
 	                		तारांकित प्रश्नोत्तरांची यादी
 	                	</fo:block>
 	                	<fo:block font-size="15pt">&#160;</fo:block>	                	           	
-	                	<fo:block text-align="center" font-weight="bold">
+	                	<fo:block font-size="16pt" text-align="center" font-weight="bold">
 	                		<xsl:value-of select="displayAnsweringDate"/> / <xsl:value-of select="displayAnsweringDateInIndianCalendar"/> ( शके )
 	                	</fo:block>
-	                	<fo:block font-size="15pt">&#160;</fo:block>
+	                	<fo:block font-size="17pt">&#160;</fo:block>
 	                	<fo:block text-align="center" font-weight="bold">
 	                		<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
 	                			<fo:table-column column-number="1" column-width="1.5cm" />
@@ -738,22 +738,22 @@
 	                		</fo:table>
 	                	</fo:block>
 	                	<fo:block font-size="10pt">&#160;</fo:block>
-	                	<fo:block text-align="center" font-size="9pt" font-weight="bold">
-	                		-------------------------------------
+	                	<fo:block text-align="center" font-size="17pt" font-weight="bold">
+	                		------------------------------------------
 	                		<!-- <fo:block font-size="0pt">&#160;</fo:block> -->
-	                		<fo:block font-size="15pt">प्रश्नांची एकूण संख्या - <xsl:value-of select="totalNumberOfDevices"/></fo:block>
+	                		<fo:block font-size="17pt">प्रश्नांची एकूण संख्या - <xsl:value-of select="totalNumberOfDevices"/></fo:block>
 	                		<!-- <fo:block font-size="0pt">&#160;</fo:block> -->
-	                		-------------------------------------
+	                		------------------------------------------
 	                	</fo:block>
 	                	<fo:block font-size="10pt">&#160;</fo:block>
 	                	<xsl:for-each select="./deviceVOs/deviceVO" >
-	                		<fo:block text-align="center" font-size="15pt" font-weight="bold">
+	                		<fo:block text-align="center" font-size="18pt" font-weight="bold">
 	                			<xsl:value-of select="subject"/>
 	                		</fo:block>
 	                		<fo:block font-size="5pt">&#160;</fo:block>
 	                		<fo:block font-weight="bold">	                			
                 				(<xsl:value-of select="serialNumber"/>)
-                				<fo:inline vertical-align="super" font-size="15pt">*</fo:inline>
+                				<fo:inline vertical-align="super" font-size="17pt">*</fo:inline>
                 				&#160;<xsl:value-of select="formattedNumber"/>
                 				&#160;&#160;<xsl:value-of select="memberNames"/>&#160;:&#160;
                 				<xsl:if test="questionReferenceText!=''">
@@ -805,7 +805,7 @@
 	                	<fo:block font-size="12pt">&#160;</fo:block>
 	                	<xsl:choose>
 	                		<xsl:when test="$formatOut='application/pdf'">
-	                			<fo:block font-size="15pt" font-weight="bold" text-align="left">
+	                			<fo:block font-size="17pt" font-weight="bold" text-align="left">
 	                				<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
 	                					<fo:table-column column-number="1" column-width="5cm" />
 				                        <fo:table-column column-number="2" column-width="6cm" />
@@ -866,8 +866,8 @@
 			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
 			                		</fo:block> -->
 			                	</fo:block>
-			                	<fo:block>______________________________________________________________________________</fo:block>
-			                	<fo:block font-size="15pt">
+			                	<fo:block>________________________________________________________________________</fo:block>
+			                	<fo:block font-size="12pt">
 			                		<fo:block text-align="center">
 				                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर करण्यात आली आहे.
 				                	</fo:block>
@@ -878,7 +878,7 @@
 			                	</fo:block>
 	                		</xsl:when>
 	                		<xsl:when test="$formatOut='WORD'">
-	                			<fo:block font-size="15pt" font-weight="bold" text-align="left">
+	                			<fo:block font-size="17pt" font-weight="bold" text-align="left">
 	                				<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
 	                					<fo:table-column column-number="1" column-width="5cm" />
 				                        <fo:table-column column-number="2" column-width="6cm" />
@@ -939,8 +939,8 @@
 			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
 			                		</fo:block> -->
 			                	</fo:block>
-			                	<fo:block>__________________________________________________________________________</fo:block>
-			                	<fo:block font-size="15pt">
+			                	<fo:block>____________________________________________________________________</fo:block>
+			                	<fo:block font-size="12pt">
 			                		<fo:block text-align="center">
 				                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर करण्यात आली आहे.
 				                	</fo:block>
