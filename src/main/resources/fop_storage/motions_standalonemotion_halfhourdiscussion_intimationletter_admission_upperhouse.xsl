@@ -78,10 +78,10 @@
 	            	<fo:block font-family="Kokila" font-size="15px">
 	            		<fo:block text-align="center" font-weight="bold" font-size="18px">
 	            			
-	            			<xsl:choose>
-								<!-- <xsl:when test="houseType='lowerhouse'">वि.स.स. यांनी महाराष्ट्र विधानसभा नियम ९२ (१) अन्वयेर</xsl:when> -->
-				<!-- 				<xsl:when test="houseType='upperhouse'">सर्वसाधारण अर्धा-तास चर्चा </xsl:when> -->
-							</xsl:choose>
+	            			<!-- <xsl:choose>
+								<xsl:when test="houseType='lowerhouse'">वि.स.स. यांनी महाराष्ट्र विधानसभा नियम ९२ (१) अन्वयेर</xsl:when>
+								<xsl:when test="houseType='upperhouse'">सर्वसाधारण अर्धा-तास चर्चा </xsl:when>
+							</xsl:choose> -->
 											
 	            		</fo:block>
 	            			<fo:block font-size="6px">&#160;</fo:block>   

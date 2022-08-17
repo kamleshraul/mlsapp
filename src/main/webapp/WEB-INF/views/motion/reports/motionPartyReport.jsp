@@ -105,7 +105,7 @@
 								<th style="width: 130px;">${topHeader[2]}</th>
 								<th style="width: 380px;">${topHeader[3]}</th>
 								<th style="width: 90px;">${topHeader[4]}</th>
-								<%-- <th style="width: 10px;">${topHeader[5]}</th> --%>
+								<th style="width: 30px">${topHeader[5]}</th>
 								<th style="width: 50px;">${topHeader[6]}</th>
 							</tr>						
 						</thead>
@@ -113,13 +113,13 @@
 							<c:forEach items="${report}" var="r" varStatus="counter">
 								
 								<tr class="page-break">
-									<td style="width: 20px; text-align: center;">${formater.formatNumberNoGrouping(counter.count, locale)}</th>
-									<td style="width: 20px; text-align: center;">${r[4]}</th>
-									<td style="width: 130x; text-align: left;">${r[6]}</th>
-									<td style="width: 380px; text-align: center;">${r[8]}</th>
-									<td style="width: 90px; text-align: center;">${r[9]}</th>
-									<%-- <td style="width: 10px; text-align: center;">${r[10]}</th> --%>
-									<td style="width: 50px; text-align: center;">${r[7]}</th>
+									<td style="width: 20px; text-align: center;">${formater.formatNumberNoGrouping(counter.count, locale)}</td>
+									<td style="width: 20px; text-align: center;">${r[4]}</td>
+									<td style="width: 130x; text-align: left;">${r[6]}</td>
+									<td style="width: 380px; text-align: center;">${r[8]}</td>
+									<td style="width: 90px; text-align: center;">${r[9]}</td>
+									<td style="width: 30px; text-align: center;">${r[10]}</td>
+									<td style="width: 50px; text-align: center;">${r[7]}</td>
 								</tr>	
 								<c:set var="total" value="${counter.count}" />
 							</c:forEach>
