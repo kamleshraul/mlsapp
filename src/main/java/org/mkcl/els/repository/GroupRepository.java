@@ -718,7 +718,7 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 		
 		String strQuery = "SELECT * FROM groups g" +
 							" INNER JOIN question_dates qd ON (qd.group_id=g.id)" +
-							" WHERE qd.answering_date=:answeringDate" +
+							" WHERE (qd.answering_date=:answeringDate OR qd.display_answering_date=:answeringDate)" +
 							" AND g.housetype_id=:houseTypeId";
 		
 		try{
