@@ -26,7 +26,7 @@
 				<fo:simple-page-master master-name="first"
 	                  	page-height="29.7cm" page-width="21cm"
 	                  	margin-top="2.3cm" margin-bottom="1.5cm"
-	                  	margin-left="1.5cm" margin-right="1.25cm">
+	                  	margin-left="3cm" margin-right="1.5cm">
 			      	<fo:region-body margin-top="0cm"/>
 			      	<fo:region-before region-name="rb-first" extent="2cm"/>
 			      	<fo:region-after region-name="ra-first" extent="1.5cm"/>
@@ -80,8 +80,8 @@
 							<fo:block margin-right="1.65cm">क्रमांक - _____&#160;/ई-२,
 							</fo:block>						
 							<fo:block margin-right="0.20cm">महाराष्ट्र विधानमंडळ सचिवालय,</fo:block>
-							<fo:block margin-right="1.75cm">विधानभवन, <xsl:value-of select="./element_1/element_1_11" />.</fo:block>
-							<fo:block margin-right="1.65cm">दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
+							<fo:block margin-right="2.20cm">विधानभवन, <xsl:value-of select="./element_1/element_1_11" />.</fo:block>
+							<fo:block margin-right="2.40cm">दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
 						</fo:block>	
             				<fo:table>
             					<fo:table-body>
@@ -160,11 +160,19 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block font-weight="bold">
-																							सचिव,
+																							प्रधान सचिव / सचिव ,
 																						</fo:block>
 																					</fo:table-cell>										
 																				</fo:table-row>
 																				
+																				
+																				<fo:table-row>
+																					<fo:table-cell text-align="justify">
+																						<fo:block>
+																							<xsl:value-of select="./element_1/element_1_8" />&#160;(<xsl:value-of select="./element_1/element_1_7" />) विभाग, 
+																						</fo:block>
+																					</fo:table-cell>										
+																				</fo:table-row>
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block>
@@ -175,13 +183,8 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block>
-																							<xsl:value-of select="./element_1/element_1_8" />&#160;(<xsl:value-of select="./element_1/element_1_7" />) विभाग, 
-																						</fo:block>
-																					</fo:table-cell>										
-																				</fo:table-row>																				<fo:table-row>
-																					<fo:table-cell text-align="justify">
-																						<fo:block>
-																							शिबीर कार्यालय,<xsl:value-of select="./element_1/element_1_11" />.
+																							<!--शिबीर कार्यालय,<xsl:value-of select="./element_1/element_1_11" />.-->
+																							मंत्रालय  , <xsl:value-of select="./element_1/element_1_11" />.
 																						</fo:block>
 																					</fo:table-cell>										
 																				</fo:table-row>
@@ -197,7 +200,7 @@
 												<fo:block font-size="6px">&#160;</fo:block>
 												
 												&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-												<fo:block>
+												<fo:block margin-left="1.35cm">
 													<fo:inline font-weight="bold">विषय:- </fo:inline>
 													<fo:inline>
 													<xsl:choose>
@@ -229,18 +232,21 @@
 												<fo:block>
 													संबंधित विषयाबाबत केलेली कार्यवाही, म.वि.प. नियम "१०१-फ" अन्वये सभागृहात सूचना उपस्थित केल्याचा
             										<fo:block>
-            										दिनंकापासून<fo:inline font-weight="bold">तीस दिवसांच्या </fo:inline>आत मंत्री महोदयानी संबंधित सदस्यांना परस्पर पठाविणे आवश्यक असून त्यासंबंधीची प्रत
-            										</fo:block>
-            										<fo:block>
-            										या सचिवालयाला पाठविनयत यावी, अशी आपणास विनंती करण्यात येत आहे.
+            										दिनांकापासून <fo:inline font-weight="bold"> तीस दिवसांच्या </fo:inline>आत मंत्री महोदयानी संबंधित सदस्यांना परस्पर पठाविणे आवश्यक असून त्यासंबंधीची प्रत
+            										<!--</fo:block>
+            										<fo:block>-->
+            										या सचिवालयाला पाठविण्यात यावी, अशी आपणास विनंती करण्यात येत आहे.
             										</fo:block>
             										
             										</fo:block>
 											</fo:block>	
 												<fo:block>
 													<fo:block text-align="right">
+														<fo:block>&#160;</fo:block>
 														<fo:block margin-right="3.1cm" font-weight="bold">आपला,</fo:block>
 														<fo:block>&#160;</fo:block>
+														<fo:block>&#160;</fo:block>
+														<fo:block>&#160;</fo:block>														
 														<fo:block margin-right="2.5cm" font-size="15px" font-weight="bold">(मंदार शेमणकर)</fo:block>							
 														<fo:block margin-right="2.5cm">कक्ष अधिकारी,</fo:block>							
 														<fo:block margin-right="1.5cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
@@ -269,7 +275,8 @@
 												</fo:block>
 												
 												<fo:block>
-													(३) 	&#160;सचिव, महाराष्ट्र शासन, संसदीय कार्य विभाग, शिबीर कार्यालय, <xsl:value-of select="./element_1/element_1_11" />.				
+													<!--(३) 	&#160;प्रधान सचिव, महाराष्ट्र शासन, संसदीय कार्य विभाग, शिबीर कार्यालय, <xsl:value-of select="./element_1/element_1_11" />.-->
+													      ३) 	&#160;प्रधान सचिव /सचिव ,संसदीय कार्य विभाग,  महाराष्ट्र शासन,  मंत्रालय ,<xsl:value-of select="./element_1/element_1_11" />.													
 												</fo:block>
 											
             								</fo:block>
