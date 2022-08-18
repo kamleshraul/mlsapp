@@ -203,11 +203,11 @@
 					</td>
 					<td class="finalTotal">
 						<c:choose>
-							<c:when test="${empty r[13]}">
+							<c:when test="${empty r[11]}">
 								-
 							</c:when>
 							<c:otherwise>
-								${r[13]} 
+								${r[11]} 
 							</c:otherwise>
 						</c:choose>
 					</td>
@@ -218,11 +218,11 @@
 					</td>
 					<td class="finalTotal">
 						<c:choose>
-							<c:when test="${empty r[11]}">
+							<c:when test="${empty r[9]}">
 								-
 							</c:when>
 							<c:otherwise>
-								${r[11]} 
+								${r[9]} 
 							</c:otherwise>
 						</c:choose>
 					</td>
@@ -233,11 +233,11 @@
 					</td>
 					<td class="finalTotal">
 						<c:choose>
-							<c:when test="${empty r[12]}">
+							<c:when test="${empty r[10]}">
 								-
 							</c:when>
 							<c:otherwise>
-								${r[12]} 
+								${r[10]} 
 							</c:otherwise>
 						</c:choose>
 					</td>

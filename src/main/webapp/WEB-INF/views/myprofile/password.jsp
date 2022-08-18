@@ -168,10 +168,10 @@
 						<input type="password" id="confirmedPassword" name="confirmedPassword" value="${confirmedPassword}"/>
 					</p>
 					
-					<p>
+					<%-- <p>
 						<label class="small"><spring:message code="user.birthdate"  text="Birth Date"/></label>
 						<input type="text" id="birthDate" name="birthDate" value="${birthDate}">
-					</p>
+					</p> --%>
 					<div class="fields">
 						<h2></h2>
 						<p class="tright">
