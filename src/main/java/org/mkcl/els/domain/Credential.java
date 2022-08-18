@@ -222,7 +222,8 @@ public class Credential extends BaseDomain implements Serializable {
     }
     
     private String genSpecials(){
-    	String specials = "!@#$%^&*()";
+    	//String specials = "!@#$%^&*()";
+    	String specials = "!@#$%&*";
     	StringBuffer retVal = new StringBuffer();
     	Random rnd = new Random();
     	int length = specials.length() - 1;

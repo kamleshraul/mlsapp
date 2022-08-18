@@ -116,12 +116,12 @@
 											<fo:table-row>
 												<fo:table-cell  width="100px" text-align="right">
 													<fo:block>
-														प्रस्तावाचा विषय :-
+														प्रस्तावाचा विषय :
 													</fo:block>
 												</fo:table-cell>
 												<fo:table-cell  width="350px" text-align="left">
 													<fo:block font-weight="bold" text-align="justify">
-														 <xsl:value-of select="./element_2/element_2_6"></xsl:value-of>
+														“ <xsl:value-of select="./element_2/element_2_6"></xsl:value-of> ”
 													</fo:block>
 												</fo:table-cell>
 											
@@ -135,7 +135,7 @@
 			            					
 	           <xsl:if test="./element_2/element_2_14='motions_discussionmotion_lastweek'">
 	            			
-	            					  <fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;महाराष्ट्र विधानसभा "बैठकीची दिनदर्शिका" यामध्ये दर्शविल्याप्रमाणे <xsl:value-of select="./element_2/element_2_10"></xsl:value-of> रोजी <fo:inline font-weight="bold">"
+	            					  <fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;महाराष्ट्र विधानसभा "बैठकीची दिनदर्शिका" यामध्ये दर्शविल्याप्रमाणे <xsl:value-of select="./element_2/element_2_10"></xsl:value-of> रोजी <fo:inline font-weight="bold">“
 										<xsl:if test="./element_2/element_2_15='ruling_party'">सत्तारूढ</xsl:if>
 										<xsl:if test="./element_2/element_2_15='opposition_party'">विरोधी</xsl:if>
 										<xsl:if test="./element_2/element_2_15='independent'">अपक्ष</xsl:if>
@@ -146,7 +146,7 @@
 									 पक्षाकडून अंतिम आठवडा प्रस्तावाची सूचना प्राप्त झाली आहे.</fo:block>
 	            					</xsl:if>
 	            					 <xsl:if test="./element_2/element_2_14='motions_discussionmotion_publicimportance'">
-		            					<fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;महाराष्ट्र विधानसभा "बैठकीची दिनदर्शिका" यामध्ये दर्शविल्याप्रमाणे <xsl:value-of select="./element_2/element_2_10"></xsl:value-of> रोजी <fo:inline font-weight="bold">"
+		            					<fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;महाराष्ट्र विधानसभा "बैठकींची दिनदर्शिका" यामध्ये दर्शविल्याप्रमाणे <xsl:value-of select="./element_2/element_2_10"></xsl:value-of> रोजी <fo:inline font-weight="bold">"
 		            						 <xsl:if test="./element_2/element_2_15='ruling_party'">सत्तारूढ</xsl:if>
 										<xsl:if test="./element_2/element_2_15='opposition_party'">विरोधी</xsl:if>
 										<xsl:if test="./element_2/element_2_15='independent'">अपक्ष</xsl:if>
@@ -207,10 +207,13 @@
 <fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;मान्यतेसाठी सादर.</fo:block>
 <fo:block>&#160;</fo:block>    
 <fo:block>&#160;</fo:block>
-<fo:block font-weight="bold">कक्ष अधिकारी (श्री. परब) :</fo:block>
+<fo:block font-weight="bold">कक्ष अधिकारी :</fo:block>
 <fo:block>&#160;</fo:block>    
 <fo:block>&#160;</fo:block>
 <fo:block font-weight="bold">अवर सचिव :</fo:block>
+<fo:block>&#160;</fo:block>    
+<fo:block>&#160;</fo:block>
+<fo:block font-weight="bold">उप सचिव :</fo:block>
 <fo:block>&#160;</fo:block>    
 <fo:block>&#160;</fo:block>
 <fo:block font-weight="bold" >प्रधान सचिव : </fo:block>

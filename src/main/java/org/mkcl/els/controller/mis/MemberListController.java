@@ -151,10 +151,10 @@ public class MemberListController extends GenericController<Member> {
 			model.addAttribute("report", reportData);
 		
 			if(reportData!=null && !reportData.isEmpty()) {
-				String username = reportData.get(0)[11].toString();
+				String username = reportData.get(0)[9].toString();
 				if(username!=null && !username.isEmpty()) {
 					Credential credential = Credential.findByFieldName(Credential.class, "username", username, "");
-					if(credential != null && credential.getPasswordChangeCount()>1) {
+					if(credential != null) {
 						String strPassword = Credential.generatePassword(Integer.parseInt(ApplicationConstants.DEFAULT_PASSWORD_LENGTH));
 						String encodedPassword = securityService.getEncodedPassword(strPassword);
 						credential.setPassword(encodedPassword);
@@ -162,7 +162,7 @@ public class MemberListController extends GenericController<Member> {
 						credential.setPasswordChangeDateTime(new Date());
 						credential.merge();
 						//reportData.get(0)[12] = credential.getPassword();
-						reportData.get(0)[12] = strPassword;
+						reportData.get(0)[10] = strPassword;
 					}
 				}
 			}
