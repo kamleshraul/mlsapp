@@ -600,15 +600,19 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 						}
 						
 						//Getting the Slot Name of First Adjourned Slot
+						//ch = slotPreviousToAdjournedSlot.getName().charAt(0);
 						ch = slotPreviousToAdjournedSlot.getName().charAt(0);
+						ch++;
+						/*
+									
 						if(ch<'Z'){
 							ch++;
 						}else{
 							ch='A';
 							repeat++;
-						}
+						}*/
 						
-						for(int i=1;i<=repeat;i++){
+						for(int i=1;i<=slotPreviousToAdjournedSlot.getName().length();i++){
 							nextSlotName.append(ch);
 						}
 						lastSlotReporterPosition = nextReporter.getPosition();
