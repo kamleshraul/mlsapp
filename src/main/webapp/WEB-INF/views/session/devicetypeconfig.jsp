@@ -2568,16 +2568,16 @@
 			<div id="proprietypoint" class="formDiv">
 				<p >
 					<label class="small"><spring:message code="session.deviceType.submissionStartTime" text="Submission Start Time"></spring:message></label>
-					<input type="text" class="sText" maxlength="5" name="proprietypoint_submissionStartTime" id="proprietypoint_submissionStartTime" value="${proprietypoint_submissionstarttime}" />
+					<input type="text" class="sText datetimemask" placeholder="__/__/____ __:__:__" name="proprietypoint_submissionStartTime" id="proprietypoint_submissionStartTime" value="${proprietypoint_submissionstarttime}" />
 					<label style="margin-left: 5px;">
-						(<b>Format</b> = &nbsp;<spring:message code="generic.hour" text="hours"/> <b>:</b> <spring:message code="generic.minute" text="minutes"/>)
+						<%-- (<b>Format</b> = &nbsp;<spring:message code="generic.hour" text="hours"/> <b>:</b> <spring:message code="generic.minute" text="minutes"/>) --%>
 					</label>
 				</p>
 				<p >
 					<label class="small"><spring:message code="session.deviceType.submissionEndTime" text="Submission End Time"></spring:message></label>
-					<input type="text" class="sText" maxlength="5" name="proprietypoint_submissionEndTime" id="proprietypoint_submissionEndTime" value="${proprietypoint_submissionendtime}" />
+					<input type="text" class="sText datetimemask"  placeholder="__/__/____ __:__:__" name="proprietypoint_submissionEndTime" id="proprietypoint_submissionEndTime" value="${proprietypoint_submissionendtime}" />
 					<label style="margin-left: 5px;">
-						(<b>Format</b> = &nbsp;<spring:message code="generic.hour" text="hours"/> <b>:</b> <spring:message code="generic.minute" text="minutes"/>)
+						<%-- (<b>Format</b> = &nbsp;<spring:message code="generic.hour" text="hours"/> <b>:</b> <spring:message code="generic.minute" text="minutes"/>) --%>
 					</label>
 				</p>
 			</div>
