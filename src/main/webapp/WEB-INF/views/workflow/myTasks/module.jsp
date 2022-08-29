@@ -96,7 +96,7 @@
 										for(var i=0; i<data.length-1; i++) {
 											htmlText += "<option value='"+data[i][0]+"'";
 											if(data[i][0]==defaultAdjourningDate) {
-												htmlText += "selected='selected'";
+												htmlText += " selected='selected'";
 											}
 											htmlText += ">"+data[i][1]+"</option>";									
 										}	
@@ -106,7 +106,8 @@
 										} 
 										else{
 											if(defaultAdjourningDate!=undefined && defaultAdjourningDate!=null && defaultAdjourningDate!='') {
-												prependSelectedAdjourningDateOption(defaultAdjourningDate, formattedDefaultAdjourningDate);
+												//prependSelectedAdjourningDateOption(defaultAdjourningDate, formattedDefaultAdjourningDate);
+												moveSelectedAdjourningDateOptionOnTop();
 											}
 											else{
 												prependOptionToSelectedAdjourningDate();
@@ -129,7 +130,7 @@
 										for(var i=0; i<data.length-1; i++) {
 											htmlText += "<option value='"+data[i][0]+"'";
 											if(data[i][0]==defaultRuleSuspensionDate) {
-												htmlText += "selected='selected'";
+												htmlText += " selected='selected'";
 											}
 											htmlText += ">"+data[i][1]+"</option>";									
 										}	
@@ -154,7 +155,7 @@
 										for(var i=0; i<data.length-1; i++) {
 											htmlText += "<option value='"+data[i][0]+"'";
 											if(data[i][0]==defaultProprietyPointDate) {
-												htmlText += "selected='selected'";
+												htmlText += " selected='selected'";
 											}
 											htmlText += ">"+data[i][1]+"</option>";									
 										}	
@@ -163,7 +164,8 @@
 											prependOptionToSelectedAdjourningDate();
 										}
 										else if(defaultProprietyPointDate!=undefined && defaultProprietyPointDate!=null && defaultProprietyPointDate!='') {
-											prependSelectedAdjourningDateOption(defaultProprietyPointDate, formattedDefaultProprietyPointDate);
+											//prependSelectedAdjourningDateOption(defaultProprietyPointDate, formattedDefaultProprietyPointDate);
+											moveSelectedAdjourningDateOptionOnTop();
 										} else {
 											prependOptionToSelectedAdjourningDate();
 										}
@@ -186,7 +188,7 @@
 										for(var i=0; i<data.length-1; i++) {
 											htmlText += "<option value='"+data[i][0]+"'";
 											if(data[i][0]==defaultSpecialMentionNoticeDate) {
-												htmlText += "selected='selected'";
+												htmlText += " selected='selected'";
 											}
 											htmlText += ">"+data[i][1]+"</option>";									
 										}	
@@ -194,8 +196,9 @@
 										if(usergroupType=='department' || usergroupType=='department_deskofficer'){
 											prependOptionToSelectedAdjourningDate();
 										}
-										else if(defaultAdjourningDate!=undefined && defaultAdjourningDate!=null && defaultAdjourningDate!='') {
-											prependSelectedAdjourningDateOption(defaultAdjourningDate, formattedDefaultAdjourningDate);
+										else if(defaultSpecialMentionNoticeDate!=undefined && defaultSpecialMentionNoticeDate!=null && defaultSpecialMentionNoticeDate!='') {
+											//prependSelectedAdjourningDateOption(defaultSpecialMentionNoticeDate, formattedDefaultSpecialMentionNoticeDate);
+											moveSelectedAdjourningDateOptionOnTop();
 										} else {
 											prependOptionToSelectedAdjourningDate();
 										}
@@ -249,7 +252,7 @@
 									for(var i=0; i<data.length-1; i++) {
 										htmlText += "<option value='"+data[i][0]+"'";
 										if(data[i][0]==defaultAdjourningDate) {
-											htmlText += "selected='selected'";
+											htmlText += " selected='selected'";
 										}
 										htmlText += ">"+data[i][1]+"</option>";									
 									}	
@@ -272,7 +275,7 @@
 									for(var i=0; i<data.length-1; i++) {
 										htmlText += "<option value='"+data[i][0]+"'";
 										if(data[i][0]==defaultRuleSuspensionDate) {
-											htmlText += "selected='selected'";
+											htmlText += " selected='selected'";
 										}
 										htmlText += ">"+data[i][1]+"</option>";									
 									}	
@@ -291,25 +294,18 @@
 								if(data.length>1) {
 									var usergroupType = $("#currentusergroupType").val();
 									var defaultProprietyPointDate = data[data.length-1][0];
-									var formattedDefaultProprietyPointDate = data[data.length-1][1];
+									//var formattedDefaultProprietyPointDate = data[data.length-1][1];
 									$('#selectedAdjourningDate').empty();
 									var htmlText = "";
 									for(var i=0; i<data.length-1; i++) {
 										htmlText += "<option value='"+data[i][0]+"'";
 										if(data[i][0]==defaultProprietyPointDate) {
-											htmlText += "selected='selected'";
+											htmlText += " selected='selected'";
 										}
 										htmlText += ">"+data[i][1]+"</option>";									
 									}	
 									$('#selectedAdjourningDate').html(htmlText);
-									if(usergroupType=='department' || usergroupType=='department_deskofficer'){
-										prependOptionToSelectedAdjourningDate();
-									}
-									else if(defaultProprietyPointDate!=undefined && defaultProprietyPointDate!=null && defaultProprietyPointDate!='') {
-										prependSelectedAdjourningDateOption(defaultProprietyPointDate, formattedDefaultProprietyPointDate);
-									} else {
-										prependOptionToSelectedAdjourningDate();
-									}
+									prependOptionToSelectedAdjourningDate();
 									
 								} else {
 									$.prompt("some error..please contact administrator");
@@ -322,13 +318,13 @@
 							$.get('ref/specialmentionnotice/specialmentionnoticedatesforsession?houseType='+$('#selectedHouseType').val()
 									+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
 								if(data.length>1) {
-									var defaultSpecialMentionNoticeDate = data[data.length-1][0];
+									var defaultSpecialMentionNoticeDate = data[data.length-1][0];									
 									$('#selectedAdjourningDate').empty();
 									var htmlText = "";
 									for(var i=0; i<data.length-1; i++) {
 										htmlText += "<option value='"+data[i][0]+"'";
 										if(data[i][0]==defaultSpecialMentionNoticeDate) {
-											htmlText += "selected='selected'";
+											htmlText += " selected='selected'";
 										}
 										htmlText += ">"+data[i][1]+"</option>";									
 									}	
@@ -372,7 +368,7 @@
 									for(var i=0; i<data.length-1; i++) {
 										htmlText += "<option value='"+data[i][0]+"'";
 										if(data[i][0]==defaultAdjourningDate) {
-											htmlText += "selected='selected'";
+											htmlText += " selected='selected'";
 										}
 										htmlText += ">"+data[i][1]+"</option>";									
 									}	
@@ -395,7 +391,7 @@
 									for(var i=0; i<data.length-1; i++) {
 										htmlText += "<option value='"+data[i][0]+"'";
 										if(data[i][0]==defaultRuleSuspensionDate) {
-											htmlText += "selected='selected'";
+											htmlText += " selected='selected'";
 										}
 										htmlText += ">"+data[i][1]+"</option>";									
 									}	
@@ -420,19 +416,12 @@
 									for(var i=0; i<data.length-1; i++) {
 										htmlText += "<option value='"+data[i][0]+"'";
 										if(data[i][0]==defaultProprietyPointDate) {
-											htmlText += "selected='selected'";
+											htmlText += " selected='selected'";
 										}
 										htmlText += ">"+data[i][1]+"</option>";									
 									}	
 									$('#selectedAdjourningDate').html(htmlText);
-									if(usergroupType=='department' || usergroupType=='department_deskofficer'){
-										prependOptionToSelectedAdjourningDate();
-									}
-									else if(defaultProprietyPointDate!=undefined && defaultProprietyPointDate!=null && defaultProprietyPointDate!='') {
-										prependSelectedAdjourningDateOption(defaultProprietyPointDate, formattedDefaultProprietyPointDate);
-									} else {
-										prependOptionToSelectedAdjourningDate();
-									}
+									prependOptionToSelectedAdjourningDate();
 									
 								} else {
 									$.prompt("some error..please contact administrator");
@@ -451,7 +440,7 @@
 									for(var i=0; i<data.length-1; i++) {
 										htmlText += "<option value='"+data[i][0]+"'";
 										if(data[i][0]==defaultSpecialMentionNoticeDate) {
-											htmlText += "selected='selected'";
+											htmlText += " selected='selected'";
 										}
 										htmlText += ">"+data[i][1]+"</option>";									
 									}	
@@ -559,12 +548,13 @@
 						if(data.length>1) {
 							var usergroupType = $("#currentusergroupType").val();
 							var defaultAdjourningDate = data[data.length-1][0];
+							//var formattedDefaultAdjourningDate = data[data.length-1][1];
 							$('#selectedAdjourningDate').empty();
 							var htmlText = "";
 							for(var i=0; i<data.length-1; i++) {
 								htmlText += "<option value='"+data[i][0]+"'";
 								if(data[i][0]==defaultAdjourningDate) {
-									htmlText += "selected='selected'";
+									htmlText += " selected='selected'";
 								}
 								htmlText += ">"+data[i][1]+"</option>";									
 							}	
@@ -575,7 +565,8 @@
 							}
 							else{
 								if(defaultAdjourningDate!=undefined && defaultAdjourningDate!=null && defaultAdjourningDate!='') {
-									prependSelectedAdjourningDateOption(defaultAdjourningDate, formattedDefaultAdjourningDate);
+									//prependSelectedAdjourningDateOption(defaultAdjourningDate, formattedDefaultAdjourningDate);
+									moveSelectedAdjourningDateOptionOnTop();
 								}
 								else{ 
 									prependOptionToSelectedAdjourningDate();
@@ -594,17 +585,26 @@
 								+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
 							if(data.length>1) {
 								var defaultRuleSuspensionDate = data[data.length-1][0];
+								//var formattedDefaultRuleSuspensionDate = data[data.length-1][1];
 								$('#selectedAdjourningDate').empty();
 								var htmlText = "";
 								for(var i=0; i<data.length-1; i++) {
 									htmlText += "<option value='"+data[i][0]+"'";
 									if(data[i][0]==defaultRuleSuspensionDate) {
-										htmlText += "selected='selected'";
+										htmlText += " selected='selected'";
 									}
 									htmlText += ">"+data[i][1]+"</option>";									
 								}	
 								$('#selectedAdjourningDate').html(htmlText);
-								prependOptionToSelectedAdjourningDate();
+								if(usergroupType=='department' || usergroupType=='department_deskofficer'){
+									prependOptionToSelectedAdjourningDate();
+								}
+								else if(defaultRuleSuspensionDate!=undefined && defaultRuleSuspensionDate!=null && defaultRuleSuspensionDate!='') {
+									//prependSelectedAdjourningDateOption(defaultProprietyPointDate, formattedDefaultRuleSuspensionDate);
+									moveSelectedAdjourningDateOptionOnTop();
+								} else {
+									prependOptionToSelectedAdjourningDate();
+								}
 							} else {
 								$.prompt("some error..please contact administrator");
 							}
@@ -618,13 +618,13 @@
 						if(data.length>1) {
 							var usergroupType = $("#currentusergroupType").val();
 							var defaultProprietyPointDate = data[data.length-1][0];
-							var formattedDefaultProprietyPointDate = data[data.length-1][1];
+							//var formattedDefaultProprietyPointDate = data[data.length-1][1];
 							$('#selectedAdjourningDate').empty();
 							var htmlText = "";
 							for(var i=0; i<data.length-1; i++) {
 								htmlText += "<option value='"+data[i][0]+"'";
 								if(data[i][0]==defaultProprietyPointDate) {
-									htmlText += "selected='selected'";
+									htmlText += " selected='selected'";
 								}
 								htmlText += ">"+data[i][1]+"</option>";									
 							}	
@@ -633,7 +633,8 @@
 								prependOptionToSelectedAdjourningDate();
 							}
 							else if(defaultProprietyPointDate!=undefined && defaultProprietyPointDate!=null && defaultProprietyPointDate!='') {
-								prependSelectedAdjourningDateOption(defaultProprietyPointDate, formattedDefaultProprietyPointDate);
+								//prependSelectedAdjourningDateOption(defaultProprietyPointDate, formattedDefaultProprietyPointDate);
+								moveSelectedAdjourningDateOptionOnTop();
 							} else {
 								prependOptionToSelectedAdjourningDate();
 							}
@@ -652,22 +653,24 @@
 						if(data.length>1) {
 							var usergroupType = $("#currentusergroupType").val();
 							var defaultSpecialMentionNoticeDate = data[data.length-1][0];
-							$('#selectedSpecialMentionNoticeDate').empty();
+							//var formattedDefaultSpecialMentionNoticeDate = data[data.length-1][0];
+							$('#selectedAdjourningDate').empty();
 							var htmlText = "";
 							for(var i=0; i<data.length-1; i++) {
 								htmlText += "<option value='"+data[i][0]+"'";
 								if(data[i][0]==defaultSpecialMentionNoticeDate) {
-									htmlText += "selected='selected'";
+									htmlText += " selected='selected'";
 								}
 								htmlText += ">"+data[i][1]+"</option>";									
 							}	
-							$('#selectedSpecialMentionNoticeDate').html(htmlText);
+							$('#selectedAdjourningDate').html(htmlText);
 							 if(usergroupType=='department' || usergroupType=='department_deskofficer'){
 									prependOptionToSelectedAdjourningDate();
 								}
 								else{
-									if(defaultAdjourningDate!=undefined && defaultAdjourningDate!=null && defaultAdjourningDate!='') {
-										prependSelectedAdjourningDateOption(defaultAdjourningDate, formattedDefaultAdjourningDate);
+									if(defaultSpecialMentionNoticeDate!=undefined && defaultSpecialMentionNoticeDate!=null && defaultSpecialMentionNoticeDate!='') {
+										//prependSelectedAdjourningDateOption(defaultSpecialMentionNoticeDate, formattedDefaultSpecialMentionNoticeDate);
+										moveSelectedAdjourningDateOptionOnTop();
 									}
 									else{ 
 										prependOptionToSelectedAdjourningDate();
@@ -696,8 +699,6 @@
 					$("#selectedAdjourningDate").val("");
 					$("#adjourningDateDiv").hide();
 					$("#departmentDiv").show();
-					$("#selectedSpecialMentionNoticeDate").val("");
-					$("#specialMentionNoticeDateDiv").hide();
 				}
 				//console.log($('#deviceTypeType').val());
 			
@@ -796,10 +797,6 @@
 			});
 			
 			$("#selectedReplyStatus").change(function(){
-				reloadMyTaskGrid();
-			});
-			
-			$("#selectedSpecialMentionNoticeDate").change(function(){
 				reloadMyTaskGrid();
 			});
 			
@@ -1310,21 +1307,31 @@
 		}
 		
 		function prependOptionToSelectedAdjourningDate() {
-			var optionValue = $('#pleaseSelectOption').val();
-			var option = "<option value='' selected>" + optionValue + "</option>";
-			$('#selectedAdjourningDate').prepend(option);
-		}
-		
-		 function prependSelectedAdjourningDateOption(optionValue, optionLabel) {
-				var option = "<option value='"+optionValue+"' selected>" + optionLabel + "</option>";
-			$('#selectedAdjourningDate').prepend(option);
-		}
-		
-		/*  function prependOptionToSelectedSpecialMentionNoticeDate() {
+			console.log("In prependOptionToSelectedAdjourningDate..");
+			var pleaseSelectOption = $('#selectedAdjourningDate option[value=""]');
+			if(pleaseSelectOption!=undefined && pleaseSelectOption!=null) {
+				pleaseSelectOption.remove();
+				$('#selectedAdjourningDate').prepend(pleaseSelectOption);
+			} else {
 				var optionValue = $('#pleaseSelectOption').val();
-				var option = "<option value=''>" + optionValue + "</option>";
-				$('#selectedSpecialMentionNoticeDate').prepend(option);
-		 } */
+				var option = "<option value='' selected>" + optionValue + "</option>";
+				$('#selectedAdjourningDate').prepend(option);
+			}
+			/* var optionValue = $('#pleaseSelectOption').val();
+			var option = "<option value='' selected>" + optionValue + "</option>";
+			$('#selectedAdjourningDate').prepend(option); */
+		}
+		
+		function moveSelectedAdjourningDateOptionOnTop() {
+			var selectedOption = $('#selectedAdjourningDate option[selected]');
+			selectedOption.remove();
+			$('#selectedAdjourningDate').prepend(selectedOption);
+		}
+		 
+		function prependSelectedAdjourningDateOption(optionValue, optionLabel) {
+			var option = "<option value='"+optionValue+"' selected>" + optionLabel + "</option>";
+			$('#selectedAdjourningDate').prepend(option);
+		}
 		 
 		/****Provide introduction date ****/
 		function provideDate(){
