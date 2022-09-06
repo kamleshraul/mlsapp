@@ -60,8 +60,18 @@
 	function loadActors(value){
 		var motion=$("#motionId").val();
 		if(motion!=undefined&&motion!=''){
-			var params="cutmotion="+motion+"&status="+value+
-			"&usergroup="+$("#apprusergroup").val()+"&level=1";
+			var params="cutmotion="+motion+"&status=";
+							//+value+"&usergroup="+$("#apprusergroup").val()+"&level=1";
+			if(($("#currentusergroupType").val()=='assistant' 
+				|| $("#currentusergroupType").val()=='section_officer') 
+				&& ($("#apprworkflowSubType").val().indexOf("final")>-1)){
+				
+				params += $("#subWFMaster option[value='"+ $("#selectedSubWorkflow").val() +"']").text() + "&level=8";
+				
+			}else{
+				params += value+"&level="+$("#questionLevel").val();
+			}
+			params +="&usergroup="+$("#apprusergroup").val() ;
 			var resourceURL='ref/cutmotion/actors?'+params;				
 			$.get(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''){
