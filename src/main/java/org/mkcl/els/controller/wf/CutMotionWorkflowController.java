@@ -1696,6 +1696,7 @@ public class CutMotionWorkflowController extends BaseController {
 		String[] selectedItems = request.getParameterValues("items[]");
 		String strStatus = request.getParameter("status");
 		String strWorkflowSubType = request.getParameter("workflowSubType");
+		String currentUserGroupType = request.getParameter("usergroupType");
 		StringBuffer recommendAdmissionMsg = new StringBuffer();
 		StringBuffer recommendRejectionMsg = new StringBuffer();
 		StringBuffer admittedMsg = new StringBuffer();
@@ -1824,11 +1825,50 @@ public class CutMotionWorkflowController extends BaseController {
 										workflowFromUpdatedStatus = Workflow.findByStatus(internalStatus, locale.toString());
 									}
 									
+									if(currentUserGroupType.equals(ApplicationConstants.SECTION_OFFICER)
+											&& motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)
+											&& motion.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_SENDTODEPARTMENT)
+											&& (motion.getReply()==null || motion.getReply().isEmpty())) 
+									{
+										if(motion.getReplyRequestedDate() == null) {
+											motion.setReplyRequestedDate(new Date());
+										}
+										/** Set Last Date of Answer Receiving from Department **/
+										Date lastDateOfReplyReceiving = null;
+										String daysCountForReceivingReplyFromDepartment = "30";
+										CustomParameter csptDaysCountForReceivingReplyFromDepartment = CustomParameter.findByName(CustomParameter.class, motion.getDeviceType().getType().toUpperCase()+"_"+ApplicationConstants.LOWER_HOUSE.toUpperCase()+"_"+ApplicationConstants.DAYS_COUNT_FOR_RECEIVING_ANSWER_FROM_DEPARTMENT, "");
+										if(csptDaysCountForReceivingReplyFromDepartment!=null
+												&& csptDaysCountForReceivingReplyFromDepartment.getValue()!=null) {
+											daysCountForReceivingReplyFromDepartment = csptDaysCountForReceivingReplyFromDepartment.getValue();
+										}
+										if(motion.getReplyRequestedDate()!=null) {
+											lastDateOfReplyReceiving = Holiday.getNextWorkingDateFrom(motion.getReplyRequestedDate(), Integer.parseInt(daysCountForReceivingReplyFromDepartment), locale.toString());
+										} else {
+											lastDateOfReplyReceiving = Holiday.getNextWorkingDateFrom(new Date(), Integer.parseInt(daysCountForReceivingReplyFromDepartment), locale.toString());
+										}
+										motion.setLastDateOfReplyReceiving(lastDateOfReplyReceiving);
+										//set ministry, department and subdepartment for final yaadi at this stage
+										if(motion.getYaadiMinistry()==null && motion.getYaadiMinistry()==null) {
+											motion.setYaadiMinistry(motion.getMinistry());
+										}
+										if(motion.getYaadiDepartment()==null && motion.getYaadiDepartment()==null) {
+											motion.setYaadiDepartment(motion.getDepartment());
+										}
+										if(motion.getYaadiSubDepartment()==null && motion.getYaadiSubDepartment()==null) {
+											motion.setYaadiSubDepartment(motion.getSubDepartment());
+										}
+									}
+									
 									Task newtask = processService.getCurrentTask(processInstance);
 									WorkflowDetails workflowDetails2 = null;
 									workflowDetails2 = WorkflowDetails.create(motion,newtask,usergroupType,workflowFromUpdatedStatus.getType(),level);
 									motion.setWorkflowDetailsId(workflowDetails2.getId());
 									motion.setTaskReceivedOn(new Date());
+									
+									/**** SEND NOTIFICATION TO DEPARTMENT USER WHEN REQUESTED FOR ANSWER ****/
+									if(usergroupType.getType().equals(ApplicationConstants.DEPARTMENT) || usergroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+										NotificationController.sendDepartmentProcessNotificationForCutMotion(motion, workflowDetails2.getAssignee(), motion.getLocale());
+									}
 								}
 								/**** Update Old Workflow Details ****/
 								wfDetails.setStatus("COMPLETED");
