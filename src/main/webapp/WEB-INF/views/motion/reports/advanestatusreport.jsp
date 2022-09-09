@@ -92,9 +92,18 @@
 								<th style="width: 120px;">${topHeader[2]}</th>
 								<th style="width: 275px;">${topHeader[3]}</th>
 								<th style="width: 125px;">${topHeader[4]}</th>
-								<th style="width: 50px;">${topHeader[6]}</th>
-								<th style="width: 50px;">${topHeader[5]}</th>
-							</tr>						
+								<c:if test="${report[0][7]=='upperhouse'}">
+									<th style="width: 50px;">${topHeader[6]}</th>
+								</c:if>
+								<c:choose>
+									<c:when test="${report[0][7]=='upperhouse'}">
+										<th style="width: 50px;">${topHeader[5]}</th>
+									</c:when>
+									<c:otherwise>
+										<th style="width: 100px;">${topHeader[5]}</th>
+									</c:otherwise>
+								</c:choose>								
+							</tr>
 						</thead>
 						<tbody>
 							<c:forEach items="${report}" var="r" varStatus="counter">
@@ -105,12 +114,21 @@
 								
 								<tr class="page-break">
 									<td style="width: 30px; text-align: center;">${formater.formatNumberNoGrouping(counter.count, locale)}</th>
-									<td style="width: 50px;">${r[1]}</th>
-									<td style="width: 120px;">${r[2]}</th>
-									<td style="width: 275px;">${r[3]}</th>
-									<td style="width: 125px;">${r[4]}</th>
-									<td style="width: 50px;">${r[7]}</th>
-									<td style="width: 50px;">${r[5]}</th>
+									<td style="width: 50px;">${r[1]}</td>
+									<td style="width: 120px;">${r[2]}</td>
+									<td style="width: 275px;">${r[3]}</td>
+									<td style="width: 125px;">${r[4]}</td>
+									<c:if test="${r[7]=='upperhouse'}">
+										<td style="width: 50px;">${r[8]}</td>
+									</c:if>
+									<c:choose>
+										<c:when test="${r[7]=='upperhouse'}">
+											<td style="width: 50px;">${r[5]}</td>
+										</c:when>
+										<c:otherwise>
+											<td style="width: 100px;">${r[5]}</td>
+										</c:otherwise>
+									</c:choose>																		
 								</tr>
 							</c:forEach>
 						</tbody>
