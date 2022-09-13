@@ -24,10 +24,13 @@
 				<!-- <support-icon></support-icon> -->
 				<!-- <notification-icon></notification-icon> -->
 				
-				<span>${authtitle}&nbsp;${authfirstname}&nbsp;${authmiddlename}&nbsp;${authlastname}</span>
-				<span id="server_time_display" style="width: 200px"></span>
+				 <span style="margin-top:2px;">${authtitle}&nbsp;${authfirstname}&nbsp;${authmiddlename}&nbsp;${authlastname}</span>
+				 <span id="server_time_display" style="width: 200px"></span>
+				
 			</div>
+		
 		</div>
+		
 		<div id="notifications" v-if="notificationsList.length > 0">
             <div class="notifications_header">
             	<label><spring:message code="generic.notification" text="Notifications"/></label>       

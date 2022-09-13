@@ -9,7 +9,7 @@
 			//other than grid controller then we need to provide a hidden parameter having id as 
 			//gridURL in list.jsp
 			if($('#gridURL')!=undefined){
-			    grid = loadGrid(gridId,$('#gridURL').val());				
+				grid = loadGrid(gridId,$('#gridURL').val());				
 			}else{
 				//console.log(gridId);
 			    grid = loadGrid(gridId);				
