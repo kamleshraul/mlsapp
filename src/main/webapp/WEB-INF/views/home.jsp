@@ -99,6 +99,45 @@
 		<![endif]-->
 		
 		<style>
+		
+	/* 	#userLoginDetails{
+		float: right;
+		margin-top:2%;
+		} */
+		#module_title{
+		margin-left:50px;
+		}
+		.arrowBox{
+  			position: relative;
+ 			 width:220px;
+  			/* background-color: #0085D1; */
+  			background: #1C5987 !important;
+  			height:40px;
+  			line-height: 40px;
+  			margin-bottom:30px; 
+ 			 text-align:center;
+ 			 color:#fff;
+ 			 /* border: 2px solid red; */
+			}
+
+		.arrowBox a{
+ 			 color:#000000;
+		}
+		
+		.arrow-left:before{
+   			 content: "";
+    		position: absolute;
+   			 left: -20px;
+    		top: 0;
+  		  border-top: 20px solid transparent;
+ 		   border-bottom: 20px solid transparent;
+  		  border-right: 20px solid #0085D1; 
+		}
+		
+		/* #module_title{
+		background-color: lightblue !important;
+		} */
+		
 			@media print {
 			    html, body {
 			      height:100vh; 
@@ -250,6 +289,10 @@
        		<input type="hidden" id="system_notifier_name" value="<spring:message code='notification.system_username' text='System Notifier'/>"/>
 			<input type="hidden" id="submittedParliamentaryDevicesCannotBeDeletedPrompt" value="<spring:message code='generic.submittedParliamentaryDeviceCannotBeDeletedPrompt' text='parliamentary devices cannot be deleted post submission'></spring:message>" />
         	
+        	<%-- <div id="userLoginDetails">
+				<span style="text-align:center;">${authtitle}&nbsp;${authfirstname}&nbsp;${authmiddlename}&nbsp;${authlastname}</span><br/>
+				<span id="server_time_display" style="width: 200px"></span>
+				</div><br/> --%>
         <div id="container" class="clearfix">
 			<div id="page">
 				<div id="browserIncompatible"> 
@@ -257,13 +300,14 @@
 									text="Please Use Mozilla Firefox Browser For Better Performance"/>
 					<small>(<a href="http://mls.org.in/download/firefox/Firefox%20Setup%2038.0b2.rar">Click To Download</a>)</small>
 				</div>
+				
 				<div id="contactDiv">
 					<marquee id="contactDivMarquee" scrollamount="4" width="60%"><spring:message code="home_page.lockdown_support_numbers" text="Lockdown Support: 9867206384 / 9821899411 / 9773955035" /></marquee>
 				</div>
 				<div class="menu clearfix">
 					<%@ include file="/common/menu.jsp" %>
 					 <!-- Page title --> 
-					<div id="module_title"></div>
+					<div id="module_title" class="arrowBox arrow-left"></div>
 				</div>
 				
 				<div class="clearfix content">
