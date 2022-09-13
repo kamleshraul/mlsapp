@@ -5,7 +5,17 @@
 	<spring:message code="member.personal" text="Member Information System"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<style>
+	#submit{
+	cursor: pointer;
+	}
+	#cancel{
+	cursor: pointer;
+	}
+	</style>
+	
 	<script type="text/javascript">
+	
 	var spouseIndex=$("select option:selected").val();	
 	var familyCount=parseInt($('#familyCount').val());
 	var totalFamilyCount=0;
@@ -230,6 +240,34 @@
 			}
 			autoAddFamily();
 		});	
+		
+		var spouseC=0;
+		$("#Spouse2").hide();
+		$("#Spouse3").hide();
+		$("#addSpouse").click(function(){
+			$("#spouseLabel1").show();			
+			spouseC++;
+			if(spouseC==1){
+				$("#Spouse2").show();
+			}else if(spouseC==2){
+				$("#Spouse3").show();
+			}else{
+				alert("MAX Field Limit");
+			}
+		});
+ 		$("#deleteSpouse2").click(function(){
+	     	if($("#Spouse3").is(":hidden")){
+	     		  spouseC--;
+		          $("#Spouse2").hide();
+	     	}else{
+	     		 alert("Please delete the third field");
+	     	}
+	     
+		});
+ 		$("#deleteSpouse3").click(function(){
+			spouseC--;
+			$("#Spouse3").hide();
+		});
 		$("#spouseName").change(function(){
 			//if spousename is not empty then a family is added 
 			if($(this).val().length>0){
@@ -428,6 +466,7 @@
 		<form:input path="birthPlace" cssClass="sText"/>
 		<form:errors path="birthPlace" cssClass="validationError"/>	
 	</p>	
+	
 	<p>
 		<label class="small"><spring:message code="member.personal.nationality" text="Nationality"/></label>
 		<form:select path="nationality" items="${nationalities}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
@@ -505,8 +544,40 @@
 		<form:errors path="maritalStatus" cssClass="validationError"/>
 	</p>
 	<p>
-		<label class="small"><spring:message code="member.personal.spouse" text="Spouse's Name"/></label>
-		<input type="text" class="sText" id="spouseName" name="spouseName" value="${spouseName}"/>
+		
+		
+		<%-- <input type="text" class="sText" id="spouseName" name="spouseName" value="${spouseName}"/>
+	 --%>
+	<c:if test="${!(empty familyMembers)}">
+	<c:set var="count" value="1"></c:set>		
+	<c:forEach items="${familyMembers}" var="outer">
+	<div id="family${count}">
+	<c:if test="${outer.relation.id==4 || outer.relation.id==3}">	
+	<p>
+	    <label class="small"><spring:message code="member.personal.spouse${count}" text="Spouse's Name${count}"/></label>
+	   	<input name="familyMemberName${count}" id="familyMemberName${count}" class="sText" value="${outer.name}" readonly>
+	</p>
+	</c:if>		
+	<c:set var="count" value="${count+1}"></c:set>	
+	</div>	
+	</c:forEach>
+	</c:if>
+	
+	
+		<%-- <a id="addSpouse" href="#!"><spring:message code="add.Spouse" text="Add"></spring:message></a>
+		
+		<div id="Spouse2">
+	     <label class="small"><spring:message code="member.personal.spouse2" text="Spouse's Name 2"/></label>
+		<input type="text" class="sText" id="spouseName1" name="spouseName" value="${spouseName}"/>
+		<a id="deleteSpouse2" href="#!"><spring:message code="remove.Spouse" text="Remove"></spring:message></a>
+		</div>
+
+		<div id="Spouse3">
+		 <label class="small"><spring:message code="member.personal.spouse3" text="Spouse's Name 3"/></label>
+		<input type="text" class="sText" styles="padding-left:400px;" id="spouseName2" name="spouseName" value="${spouseName}"/>
+		<a id="deleteSpouse3" href="#!"><spring:message code="remove.Spouse" text="Remove"></spring:message></a>
+		</div> --%>
+		
 	</p>
 	<p>
 		<label class="small"><spring:message code="member.personal.children" text="Children"/></label>
