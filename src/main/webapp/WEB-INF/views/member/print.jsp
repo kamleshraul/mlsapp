@@ -18,8 +18,8 @@
 
 <tr>
 <td colspan="13">
-<h2><spring:message code="member.new.heading" text="Enter Details"/>:
-</h2>
+<p style="font-size:190px;"><spring:message code="member.new.heading" text="Enter Details"/>:</p>
+
 </td>
 </tr>
 

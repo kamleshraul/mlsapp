@@ -40,6 +40,9 @@
 			$('#suspension_tab').click(function(){
 				listMemberSuspensionDetails($('#key').val());
 			});	
+			$('#report_tab').click(function(){
+				listMemberFullProfileView($('#key').val());
+			});	
 			$(document).keydown(function (e){
 				if(e.which==78 && e.ctrlKey){
 					newRecord();
@@ -199,7 +202,17 @@
 				var housetype=$('#houseType').val();				
 				showTabByIdAndUrl('suspension_tab','member/suspension/list?house='+$('#house').val()+'&houseType='+$("#houseType").val());
 				}
-		}	
+		}
+		function listMemberFullProfileView(row){
+			if(row == null || row == ''){
+				$.prompt($('#selectRowFirstMessage').val());		
+				return;
+			}
+			else{
+				var url = "member/view/"+row;
+				showTabByIdAndUrl('report_tab',url);
+				}
+		}
 	</script>
 </head>
 <body>
@@ -270,6 +283,12 @@
 				   </spring:message>
 				</a>
 			</li>		
+			<li>
+				<a id="report_tab" href="#" class="tab">
+				   <spring:message code="member.profileView.heading" text="Member Profile View">
+				   </spring:message>
+				</a>
+			</li>	
 		</ul>
 		<div class="tabContent clearfix">
 		</div>		

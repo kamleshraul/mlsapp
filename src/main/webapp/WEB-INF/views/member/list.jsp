@@ -212,17 +212,21 @@
 			<a href="#" id="search" class="butSim">
 				<spring:message code="member.search" text="Search"/>
 			</a> 
+			<hr/>
 			<a href="#" id="view" class="butSim" style="display:none;">
 				<spring:message code="member.view" text="View"/>
-			</a>
-			<a href="#" id="print" class="butSim" style="display:none;">
-				<spring:message code="member.print" text="Print"/>
 			</a> 
+			<%--  <a href="#" id="print" class="butSim" style="">
+				<spring:message code="member.print" text="Print"/>
+			</a>   --%>
+		<%-- 	<a href="#" id="previewProfile" class="butSim" >
+				<spring:message code="member.previewProfile" text="Profile Preview"/>
+			</a> | --%>
 				<security:authorize access="hasAnyRole('SUPER_ADMIN')">
 			<a href="#" id="printCredential" class="butSim">
 				<spring:message code="member.print" text="printCredential"/>
 			</a> 
-			</security:authorize>
+			</security:authorize>|
 			<security:authorize access="hasAnyRole('SUPER_ADMIN')">
 				<a href="#" id="memberData" class="butSim">
 					<spring:message code="member.list.export" text="printCredential"/>				
