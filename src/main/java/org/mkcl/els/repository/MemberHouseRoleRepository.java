@@ -68,6 +68,24 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
 			return new HouseMemberRoleAssociation();
 		}
 	}
+	
+	
+//	 public String findByMemberIdAndIdOrderByRecordIndex(final
+//	  Long memberId) {
+//		 String strquery =
+//	  "SELECT m FROM HouseMemberRoleAssociation m" + " WHERE m.member.id=:memberId"
+//	  + " AND  whereorder by m.recordIndex desc LIMIT 1";
+//	  
+//	  try{ 
+//		  Query query=this.em().createQuery(strquery);
+//	 query.setParameter("memberId", memberId);  
+//	 return (HouseMemberRoleAssociation)query.getSingleResult(); 
+//	 } 
+//	  catch (NoResultException e) { e.printStackTrace();
+//	 return new HouseMemberRoleAssociation(); 
+//	 } 
+//	  }
+	 
 
 	/**
 	 * Find highest record index.

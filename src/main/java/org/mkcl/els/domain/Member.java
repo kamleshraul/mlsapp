@@ -2002,8 +2002,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 	 *
 	 * @param memberMinisters the new member ministers
 	 */
-	public void setMemberMinisters(final List<MemberMinister> memberMinisters) {
-		this.memberMinisters = memberMinisters;
+	public void setMemberMinister(final List<MemberMinister> memberMinister) {
+		this.memberMinisters = memberMinister;
 	}
 	
 	public List<MemberSupportingMember> getMemberSupportingMember() {

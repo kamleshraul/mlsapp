@@ -37,6 +37,7 @@ import org.mkcl.els.common.vo.MemberContactVO;
 import org.mkcl.els.common.vo.MemberDetailsForAccountingVO;
 import org.mkcl.els.common.vo.MemberIdentityVO;
 import org.mkcl.els.common.vo.MemberInfo;
+import org.mkcl.els.common.vo.MemberMinisterVO;
 import org.mkcl.els.common.vo.PositionHeldVO;
 import org.mkcl.els.common.vo.RivalMemberVO;
 import org.mkcl.els.domain.Address;
@@ -52,6 +53,7 @@ import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.PartyType;
@@ -1292,6 +1294,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 			memberBiographyVO.setTitle(m.getTitle().getName());
 		}
 		//alias
+	
 		memberBiographyVO.setAlias("-");
 		if(m.getAlias()!=null){
 			if(!m.getAlias().isEmpty()){
@@ -1491,30 +1494,30 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 			}
 		}
 		//positions held
-		List<PositionHeld> positionHelds=m.getPositionsHeld();
-		List<PositionHeldVO> positionHeldVOs=new ArrayList<PositionHeldVO>();
-		if(m.getPositionsHeld()!=null){
-			for(PositionHeld i:positionHelds){
-				PositionHeldVO positionHeldVO=new PositionHeldVO();
-				if(i.getToDate()==null){
-					positionHeldVO.setToDate("-");
-				}else{
-					positionHeldVO.setToDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(i.getToDate()),locale));
-				}
-				if(i.getFromDate()==null){
-					positionHeldVO.setFromDate("-");
-				}else{
-					positionHeldVO.setFromDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(i.getFromDate()),locale));
-				}
-				if(i.getPosition().isEmpty()){
-					positionHeldVO.setPosition("-");
-				}else{
-					positionHeldVO.setPosition(i.getPosition().trim());
-				}
-				positionHeldVOs.add(positionHeldVO);
-			}
-			memberBiographyVO.setPositionsHeld(positionHeldVOs);
-		}
+//		List<PositionHeld> positionHelds=m.getPositionsHeld();
+		
+//		if(m.getPositionsHeld()!=null){
+//			for(PositionHeld i:positionHelds){
+//				PositionHeldVO positionHeldVO=new PositionHeldVO();
+//				if(i.getToDate()==null){
+//					positionHeldVO.setToDate("-");
+//				}else{
+//					positionHeldVO.setToDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(i.getToDate()),locale));
+//				}
+//				if(i.getFromDate()==null){
+//					positionHeldVO.setFromDate("-");
+//				}else{
+//					positionHeldVO.setFromDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(i.getFromDate()),locale));
+//				}
+//				if(i.getPosition().isEmpty()){
+//					positionHeldVO.setPosition("-");
+//				}else{
+//					positionHeldVO.setPosition(i.getPosition().trim());
+//				}
+//				positionHeldVOs.add(positionHeldVO);
+//			}
+//			memberBiographyVO.setPositionsHeld(positionHeldVOs);
+//		}
 		//other info
 		memberBiographyVO.setOtherInformation("-");
 		memberBiographyVO.setCountriesVisited("-");
@@ -2018,7 +2021,65 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 			}
 		}
 		//house member role associations
-		memberBiographyVO.setHouseMemberRoleAssociations(m.getHouseMemberRoleAssociations());
+		List<HouseMemberRoleAssociation> houseMemberRoleAssociations = m.getHouseMemberRoleAssociations();
+		List<PositionHeldVO> positionHeldVOs=new ArrayList<PositionHeldVO>();
+		
+		if(!houseMemberRoleAssociations.isEmpty()) {
+			for(HouseMemberRoleAssociation h:houseMemberRoleAssociations){
+				PositionHeldVO positionHeldVO=new PositionHeldVO();
+				h.getHouse().getDisplayName();
+				positionHeldVO.setFromDate("-");
+				positionHeldVO.setToDate("-");
+				positionHeldVO.setPosition("-");
+				 if(h.getFromDate() != null) {
+					 positionHeldVO.setFromDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(h.getFromDate()),locale));
+				 }
+				 if(h.getToDate() != null) {
+					 positionHeldVO.setToDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(h.getToDate()),locale));
+				 }
+				 if(h.getRole().getName() != null) {
+					 positionHeldVO.setPosition(h.getRole().getName());
+				 }
+				 positionHeldVOs.add(positionHeldVO);
+			}
+			
+			memberBiographyVO.setPositionsHeld(positionHeldVOs);
+			
+		}
+		
+		List<MemberMinister> memberMinisters = m.getMemberMinisters();
+		List<MemberMinisterVO> memberMinisterVOs = new ArrayList<MemberMinisterVO>();
+		
+		if(!memberMinisters.isEmpty()) {
+			for(MemberMinister mm: memberMinisters) {
+				MemberMinisterVO memberMinisterVO = new MemberMinisterVO();
+				memberMinisterVO.setDesignation("-");
+				memberMinisterVO.setMinistryFromDate("-");
+				memberMinisterVO.setMinistryToDate("-");
+				memberMinisterVO.setMinistry("-");
+				memberMinisterVO.setOathDate("-");
+				
+				if(mm.getMinistryFromDate() != null) {
+					memberMinisterVO.setMinistryFromDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(mm.getMinistryFromDate()), locale));
+				}
+				if(mm.getMinistryToDate() != null) {
+					memberMinisterVO.setMinistryToDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(mm.getMinistryToDate()), locale));
+				}
+				if(mm.getOathDate() != null) {
+					memberMinisterVO.setOathDate(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(mm.getOathDate()), locale));
+				}
+				if(mm.getDesignation() != null) {
+					memberMinisterVO.setDesignation(mm.getDesignation().getName());
+				}
+				if(mm.getMinistry() != null) {
+					memberMinisterVO.setMinistry(mm.getMinistry().getName());
+				}
+				memberMinisterVOs.add(memberMinisterVO);
+			}
+			memberBiographyVO.setMemberMinister(memberMinisterVOs);
+		}
+		
+		//memberBiographyVO.setHouseMemberRoleAssociations(m.getHouseMemberRoleAssociations());
 		return memberBiographyVO;
 	}
 

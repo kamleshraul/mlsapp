@@ -264,6 +264,10 @@ public class MemberCompleteDetailVO {
 	//Election Details
     /** The election results. */
 	private List<ElectionResultVO> electionResults;
+	
+	//Member Minister Details
+    /** member minister. */
+	private List<MemberMinisterVO> memberMinisters;
 
 	/**
 	 * Gets the photo.
@@ -1562,6 +1566,25 @@ public class MemberCompleteDetailVO {
 	 */
 	public void setElectionResults(final List<ElectionResultVO> electionResults) {
 		this.electionResults = electionResults;
+	}
+	
+	
+	/**
+	 * Sets the Member Minister.
+	 *
+	 * @return the election results
+	 */
+	public List<MemberMinisterVO> getMemberMinisters() {
+		return memberMinisters;
+	}
+
+	/**
+	 * Gets the Member Minister.
+	 *
+	 * @return the election results
+	 */
+	public void setMemberMinister(List<MemberMinisterVO> memberMinisters) {
+		this.memberMinisters = memberMinisters;
 	}
 
 	/**
