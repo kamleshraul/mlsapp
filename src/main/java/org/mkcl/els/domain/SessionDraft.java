@@ -77,6 +77,14 @@ public class SessionDraft extends BaseDomain implements Serializable{
     /** The tentative end date. */
     @Temporal(TemporalType.DATE)
     private Date tentativeEndDate;
+    
+    /** The actual start date. */
+    @Temporal(TemporalType.DATE)
+    private Date actualStartDate;
+
+    /** The actual end date. */
+    @Temporal(TemporalType.DATE)
+    private Date actualEndDate;
 
     /** The start date. */
     @Temporal(TemporalType.DATE)
@@ -229,6 +237,22 @@ public class SessionDraft extends BaseDomain implements Serializable{
 		this.tentativeEndDate = tentativeEndDate;
 	}
 
+	public Date getActualStartDate() {
+		return actualStartDate;
+	}
+
+	public void setActualStartDate(Date actualStartDate) {
+		this.actualStartDate = actualStartDate;
+	}
+
+	public Date getActualEndDate() {
+		return actualEndDate;
+	}
+
+	public void setActualEndDate(Date actualEndDate) {
+		this.actualEndDate = actualEndDate;
+	}
+	
 	public String getDeviceTypesEnabled() {
 		return deviceTypesEnabled;
 	}

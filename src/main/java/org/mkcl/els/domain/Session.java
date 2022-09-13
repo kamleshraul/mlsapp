@@ -1128,6 +1128,8 @@ public class Session extends BaseDomain implements Serializable {
         
         draft.setTentativeStartDate(this.getTentativeStartDate());
         draft.setTentativeEndDate(this.getTentativeEndDate());
+        draft.setActualStartDate(this.getActualStartDate());
+        draft.setActualEndDate(this.getActualEndDate());
         draft.setStartDate(this.getStartDate());
         draft.setEndDate(this.getEndDate());
         
