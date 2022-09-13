@@ -5,6 +5,14 @@
 	<spring:message code="member.election" text="Member Election Details"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<style>
+	#submit{
+	cursor: pointer;
+	}
+	#cancel{
+	cursor: pointer;
+	}
+	</style>
 	<script type="text/javascript">
 	var rivalCount=parseInt($('#rivalCount').val());
 	var totalRivalCount=0;
