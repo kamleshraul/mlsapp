@@ -5,6 +5,14 @@
 		<spring:message code="member.minister" text="Member Minister Details"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <style>
+	#submit{
+	cursor: pointer;
+	}
+	#cancel{
+	cursor: pointer;
+	}
+	</style>
 	<script type="text/javascript">
 	var memberDepartmentCount = parseInt($('#memberDepartmentCount').val());
 	var totalMemberDepartmentCount = 0;
