@@ -5,6 +5,14 @@
 	<spring:message code="member.contact" text="Member Contact Details"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<style>
+	#submit{
+	cursor: pointer;
+	}
+	#cancel{
+	cursor: pointer;
+	}
+	</style>
 	<script type="text/javascript">
 	function loadDistricts(stateId,type){
 	$.get('ref/state/'+stateId+'/districts',function(data){
