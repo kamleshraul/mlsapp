@@ -149,6 +149,9 @@
 				<form:errors path="tentativeEndDate" cssClass="validationError" />
 
 			</p>
+			
+			 
+			
 			<p>
 				<label class="small"><spring:message
 						code="session.startDate" text="Start Date" />&nbsp;*</label>
@@ -196,7 +199,22 @@
 
 		</p>	
 		<p>
-				<label class="labelcentered"><spring:message code="session.remarks"
+				<label class="small"><spring:message
+						code="session.actualStartDate" text="Actual Start Date" />&nbsp;*</label>
+				<form:input id="actualStartDate" cssClass="datemask sText" path="actualStartDate" />
+				<form:errors path="actualStartDate" cssClass="validationError" />
+
+			</p>
+
+			<p>
+				<label class="small"><spring:message code="session.actualEndDate"
+						text="Actual End Date" /></label>
+				<form:input id="actualEndDate" cssClass="datemask sText" path="actualEndDate" />
+				<form:errors path="actualEndDate" cssClass="validationError" />
+
+			</p> 
+		<p>
+				<label class="small"><spring:message code="session.remarks"
 						text="Remarks" /></label>
 				<form:textarea cssClass="sTextarea" path="remarks" />
 				<form:errors path="remarks" cssClass="validationError" />
