@@ -5,6 +5,14 @@
 	<spring:message code="member.other" text="Member Other Details"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<style>
+	#submit{
+	cursor: pointer;
+	}
+	#cancel{
+	cursor: pointer;
+	}
+	</style>
 	<script type="text/javascript">
 	var positionCount=parseInt($('#positionCount').val());
 	var totalPositionCount=0;
