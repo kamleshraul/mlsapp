@@ -5,7 +5,14 @@
 	<spring:message code="member.suspension" text="Member Suspension Details"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	
+	<style>
+	#submit{
+	cursor: pointer;
+	}
+	#cancel{
+	cursor: pointer;
+	}
+	</style>
 </head>
 
 <body>
