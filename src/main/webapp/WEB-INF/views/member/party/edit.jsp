@@ -5,6 +5,14 @@
 	<spring:message code="member.party" text="Member Party Details"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<style>
+	#submit{
+	cursor: pointer;
+	}
+	#cancel{
+	cursor: pointer;
+	}
+	</style>
 	<script type="text/javascript">
 	function hideUnhideRulingPartyMemberField() {
 		var partyType = getPartyType();
