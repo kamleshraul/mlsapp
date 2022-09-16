@@ -116,7 +116,7 @@
 	            			<xsl:for-each select="./element_2" >
 			            		<xsl:choose>
 			            			<xsl:when test="position()=1">
-			            				<fo:block text-align="center" text-decoration="underline" font-family="Kokila" font-size="16px" font-weight="bold">
+			            				<fo:block text-align="center" text-decoration="underline" font-family="Kokila" font-size="21px" font-weight="bold">
 				    						<xsl:value-of select="."></xsl:value-of>
 				    					</fo:block>
 			            			</xsl:when>
@@ -128,7 +128,7 @@
 		    					</xsl:choose>
    							</xsl:for-each>
    							
-	            			<fo:block font-family="Kokila" font-size="12px">     					
+	            			<fo:block font-family="Kokila" font-size="18px">     					
 		     					<fo:block text-align="center" font-size="9px">&#160;</fo:block>
 		       						
 		       					<xsl:for-each select="./element_1">
@@ -159,12 +159,12 @@
 	            		
 	            		<xsl:when test="./element_3='upperhouse'">
 	            			<xsl:for-each select="./element_2">
-	            				<fo:block font-weight="bold" font-size="16px" text-align="center">
+	            				<fo:block font-weight="bold" font-family="Kokila" font-size="21px" text-align="center">
 				            		<xsl:value-of select="."></xsl:value-of>
 				            	</fo:block>
 	            			</xsl:for-each>
 	            			
-	            			<fo:block font-family="Kokila" font-size="12px">     					
+	            			<fo:block font-family="Kokila" font-size="18px">     					
 		     					<fo:block text-align="center" font-size="9px">&#160;</fo:block>
 		       						
 		       					<fo:block width="600px">
@@ -176,7 +176,7 @@
 	       										<xsl:if test="./element_1_2!=''">
 		       										<fo:table-row>
 		       											<fo:table-cell number-columns-spanned="2">
-		       												<fo:block font-weight="bold" text-align="center" font-size="14px">
+															<fo:block font-weight="bold" text-align="center" font-size="19px">
 								       							<xsl:value-of select="./element_1_1" ></xsl:value-of>
 								       						</fo:block>
 		       											</fo:table-cell>
@@ -230,7 +230,8 @@
 	            		</xsl:when>
 	            	</xsl:choose>
 	            	
-	            	<fo:block width="600px">
+	            	<fo:block width="600px" font-family="Kokila" font-size="18px">
+						<fo:block text-align="center" font-size="9px">&#160;</fo:block>
 						<fo:table>
 							<fo:table-body>
 								
@@ -306,7 +307,7 @@
 							&#160;
 						</fo:block>
 						
-						<fo:block width="600px">
+						<fo:block width="600px" font-family="Kokila" font-size="18px">
 							<fo:table table-layout="fixed">
 								<fo:table-column column-width="7%"/>
 	     						<fo:table-column column-width="93%"/>
