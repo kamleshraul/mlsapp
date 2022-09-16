@@ -59,6 +59,7 @@ public class MemberContactController extends GenericController<Member> {
         }
         model.addAttribute("states", State.findAll(State.class, "name",
                 ApplicationConstants.ASC, domain.getLocale()));
+       
         String strDefaultState = ((CustomParameter) CustomParameter.findByName(
                 CustomParameter.class, "DEFAULT_STATE", domain.getLocale()))
                 .getValue();
@@ -78,9 +79,9 @@ public class MemberContactController extends GenericController<Member> {
         //we will populate the tehsils under the district 0.Else we will populate tehsils under the districts
         //in the domain
 
-        District defaultDistrict1 = districts.get(0);
         District defaultDistrict2 = districts.get(0);
         District defaultDistrict3 = districts.get(0);
+        District defaultDistrict1 = districts.get(0);
         District defaultDistrict4 = districts.get(0);
         District defaultDistrict5 = districts.get(0);        
         District defaultDistrict6 = districts.get(0);

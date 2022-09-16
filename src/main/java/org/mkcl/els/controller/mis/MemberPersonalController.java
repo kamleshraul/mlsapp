@@ -36,6 +36,7 @@ import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Degree;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.FamilyMember;
 import org.mkcl.els.domain.Gender;
 import org.mkcl.els.domain.House;
@@ -53,7 +54,9 @@ import org.mkcl.els.domain.Relation;
 import org.mkcl.els.domain.Religion;
 import org.mkcl.els.domain.Reservation;
 import org.mkcl.els.domain.Role;
+import org.mkcl.els.domain.State;
 import org.mkcl.els.domain.SubDepartment;
+import org.mkcl.els.domain.Tehsil;
 import org.mkcl.els.domain.Title;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
@@ -106,6 +109,12 @@ public class MemberPersonalController extends GenericController<Member> {
 		binder.registerCustomEditor(Gender.class, new BaseEditor(new Gender()));
 		binder.registerCustomEditor(MaritalStatus.class, new BaseEditor(
 				new MaritalStatus()));
+		binder.registerCustomEditor(State.class, new BaseEditor(
+				new State()));
+		binder.registerCustomEditor(District.class, new BaseEditor(
+				new District()));
+		binder.registerCustomEditor(Tehsil.class, new BaseEditor(
+				new Tehsil()));
 		binder.registerCustomEditor(List.class, "professions",
 				new CustomCollectionEditor(List.class) {
 
@@ -142,6 +151,10 @@ public class MemberPersonalController extends GenericController<Member> {
 		String locale=domain.getLocale();
 		model.addAttribute("titles", Title.findAll(Title.class, "name",
 				ApplicationConstants.ASC, locale));
+		
+		//-------------------------------------------
+	
+        //-----------------------------------------------------
 		model.addAttribute("nationalities", Nationality.findAll(
 				Nationality.class, "name", ApplicationConstants.ASC,
 				locale));
@@ -185,6 +198,70 @@ public class MemberPersonalController extends GenericController<Member> {
 		model.addAttribute("house",request.getParameter("house"));
 		//will be sued to load appropriate background image
 		model.addAttribute("houseType",request.getParameter("houseType"));
+		
+		//Edit ---------------------------------------------------
+		 model.addAttribute("states", State.findAll(State.class, "name",
+	                ApplicationConstants.ASC, domain.getLocale()));
+	        String strDefaultState = ((CustomParameter) CustomParameter.findByName(
+	                CustomParameter.class, "DEFAULT_STATE", domain.getLocale()))
+	                .getValue();
+	        State defaultState = State.findByFieldName(State.class, "name",
+	                strDefaultState, domain.getLocale());
+
+	        List<District> districts = new ArrayList<District>();
+	        try{
+	        	districts = District.findDistrictsByStateId(
+	                defaultState.getId(), "name", ApplicationConstants.ASC,
+	                domain.getLocale());
+	        	
+	        }catch (ELSException e) {
+	        	model.addAttribute("MEMBER_Personal_Controller", "Request can not be completed at the moment.");
+			}
+	        model.addAttribute("districts", districts);
+	     
+	    	  model.addAttribute("isdistrictEmpty", true);
+	      
+	    	  model.addAttribute("isTehsilEmpty", true);
+			
+			
+	        //here we will populate tehsils depending on if the district has been set.If it is not then
+	        //we will populate the tehsils under the district 0.Else we will populate tehsils under the districts
+	        //in the domain
+
+	        District defaultDistrict = districts.get(0);
+	   
+
+	    	//when bindinG form controls to fields of nested objects it is necessary to instantiate
+	    	//the nested objects as compiler has no way to initialize a custom object and hence set it to null.
+	    	//This is necessary only when we are first creating these objects.
+	        
+	    
+	     
+	       
+	        if (domain.getBirthPlaceAddress() == null) {
+	            domain.setBirthPlaceAddress(new Address());
+	            domain.getBirthPlaceAddress().setState(defaultState);
+	        }else{
+	            if(domain.getBirthPlaceAddress().getDistrict()!=null){
+	                defaultDistrict=domain.getBirthPlaceAddress().getDistrict();
+	            }
+	        }
+	       
+	       
+	        
+	        
+	    
+	        model.addAttribute("tehsils1", Tehsil.findAllByFieldName(Tehsil.class,
+	                "district", defaultDistrict, "name", ApplicationConstants.ASC,
+	                domain.getLocale()));
+	       
+	      
+	        domain.getBirthPlaceAddress().setLocale(domain.getLocale());
+	        
+
+
+	        
+	     
 	}
 
 	/* (non-Javadoc)
@@ -198,6 +275,64 @@ public class MemberPersonalController extends GenericController<Member> {
 		model.addAttribute("familyCount", domain.getFamilyMembers().size());
 		model.addAttribute("qualifications", domain.getQualifications());
 		model.addAttribute("oldBirthDate", domain.getBirthDate());
+		
+		
+		//Edit ---------------------------------------------------
+		 model.addAttribute("states", State.findAll(State.class, "name",
+	                ApplicationConstants.ASC, domain.getLocale()));
+	        String strDefaultState = ((CustomParameter) CustomParameter.findByName(
+	                CustomParameter.class, "DEFAULT_STATE", domain.getLocale()))
+	                .getValue();
+	        State defaultState = State.findByFieldName(State.class, "name",
+	                strDefaultState, domain.getLocale());
+
+	        List<District> districts = new ArrayList<District>();
+	        try{
+	        	districts = District.findDistrictsByStateId(
+	                defaultState.getId(), "name", ApplicationConstants.ASC,
+	                domain.getLocale());
+	        }catch (ELSException e) {
+	        	model.addAttribute("MEMBER_Personal_Controller", "Request can not be completed at the moment.");
+			}
+	        model.addAttribute("districts", districts);
+	      
+	        //here we will populate tehsils depending on if the district has been set.If it is not then
+	        //we will populate the tehsils under the district 0.Else we will populate tehss under the districts
+	        //in the domain
+
+	         
+	        District defaultDistrict = districts.get(1);
+	   
+
+	    	//when bindinG form controls to fields of nested objects it is necessary to instantiate
+	    	//the nested objects as compiler has no way to initialize a custom object and hence set it to null.
+	    	//This is necessary only when we are first creating these objects.
+	        
+	    
+	     
+	       
+	        if (domain.getBirthPlaceAddress() == null) {
+	            domain.setBirthPlaceAddress(new Address());
+	            domain.getBirthPlaceAddress().setState(defaultState);
+	        }else{
+	            if(domain.getBirthPlaceAddress().getDistrict()!=null){
+	                defaultDistrict=domain.getBirthPlaceAddress().getDistrict();
+	            }
+	        }
+	       
+	       
+	        
+	        
+	    
+	        model.addAttribute("tehsils1", Tehsil.findAllByFieldName(Tehsil.class,
+	                "district", defaultDistrict, "name", ApplicationConstants.ASC,
+	                domain.getLocale()));
+	       
+	      
+	        domain.getBirthPlaceAddress().setLocale(domain.getLocale());
+	        
+		
+		
 		model.addAttribute("qualificationCount", domain.getQualifications()
 				.size());
 		int noOfDaughters=0;
@@ -373,6 +508,10 @@ public class MemberPersonalController extends GenericController<Member> {
 		model.addAttribute("type", "error");
 		model.addAttribute("msg", "create_failed");
 	}
+	
+	
+	
+	
 
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.controller.GenericController#populateUpdateIfErrors(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
@@ -393,6 +532,15 @@ public class MemberPersonalController extends GenericController<Member> {
 	@Override
 	protected void customValidateCreate(final Member domain,
 			final BindingResult result, final HttpServletRequest request) {
+		
+        Date date = Calendar.getInstance().getTime();  
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");  
+        String strDate1 = dateFormat.format(domain.getBirthDate());  
+        
+		System.out.println(strDate1);
+		
+		
+		
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("VersionMismatch", "version");
 		}
@@ -413,6 +561,11 @@ public class MemberPersonalController extends GenericController<Member> {
 		} 
 		if(domain.getBirthDate()==null){
 			result.rejectValue("birthDate", "BirthDateEmpty");
+		}
+		if(domain.getBirthDate()!= null) {
+			if(validateJavaDate(strDate1) == false) {
+				result.rejectValue("birthDate", "Invalid Format Shubham");
+			}
 		}
 //		if(domain.getFirstNameEnglish()==null){
 //			result.rejectValue("firstNameEnglish", "FirstNameEnglishEmpty");
@@ -558,7 +711,9 @@ public class MemberPersonalController extends GenericController<Member> {
 								user.setMiddleName(domain.getMiddleName());
 								user.setLastName(domain.getLastName());
 								user.setBirthDate(domain.getBirthDate());								
-								user.setBirthPlace(domain.getBirthPlace());								
+								user.setBirthPlace(domain.getBirthPlace());
+							
+							
 								user.setHouseType(houseType);
 								user.setJoiningDate(new Date());
 								//set credential for the user
@@ -786,7 +941,11 @@ public class MemberPersonalController extends GenericController<Member> {
 				//update localized names in user entry of member
 				existingMemberUser.setFirstName(domain.getFirstName());
 				existingMemberUser.setMiddleName(domain.getMiddleName());
-				existingMemberUser.setLastName(domain.getLastName());				
+				existingMemberUser.setLastName(domain.getLastName());	
+				existingMemberUser.setBirth_state(domain.getBirthPlaceAddress().getState());
+				existingMemberUser.setBirth_district(domain.getBirthPlaceAddress().getDistrict());
+				existingMemberUser.setBirth_tehsil(domain.getBirthPlaceAddress().getTehsil());
+	
 				Credential credential = existingMemberUser.getCredential();				
 				if(!credential.isEnabled()) {					
 					//enable credential once naming is finalized
@@ -1043,4 +1202,26 @@ public class MemberPersonalController extends GenericController<Member> {
 			result.rejectValue("version", "Member Already Exists.");
 		}
 	}
+	
+   //----------------------------------------------//
+	
+	 public static boolean validateJavaDate(String strDate) {
+		
+		 SimpleDateFormat sdfrmt = new SimpleDateFormat("dd/MM/yyyy");
+		 sdfrmt.setLenient(false);
+		 
+		 try {
+			 Date javaDate = sdfrmt.parse(strDate); 
+		        
+			 
+		 } catch(ParseException e) {
+			return false;
+		 }
+		 
+		 
+		 return true;
+		 
+	 }
+   //----------------------------------------------//	
+	
 }

@@ -14,6 +14,56 @@
 	}
 	</style>
 	<script type="text/javascript">
+	//Edit---------------
+		function loadDistricts(stateId){
+	$.get('ref/state/'+stateId+'/districts',function(data){
+		$('#birthPlaceDistrict').empty();
+		
+		
+		if(data.length>0){
+		var text="";
+		for(var i=0;i<data.length;i++){
+		text=text+"<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+		}
+		$('#birthPlaceDistrict').html(text);
+		loadTehsils(data[0].id);
+		
+		}
+	}).fail(function(){
+		$.unblockUI();
+		if($("#ErrorMsg").val()!=''){
+			$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+		}else{
+			$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+		}
+		scrollTop();
+	});	
+	}
+	function loadTehsils(districtId){
+		
+		$.get('ref/district/'+districtId+'/tehsils',function(data){
+			$('#birthPlaceTehsil').empty();
+			if(data.length>0){
+			var text="";
+			for(var i=0;i<data.length;i++){
+			text=text+"<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+			}
+			$('#birthPlaceTehsil').html(text);			
+			}
+		}).fail(function(){
+			$.unblockUI();
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		});		
+	}
+	
+	
+	///-------------------
+	
 	//for controlling spouse Index
 	var spouseIndex=0;
 	var familyCount=parseInt($('#familyCount').val());
@@ -145,8 +195,97 @@
 			}				
 		}	
 }
+	function prependOptionToDistrict() {
+		var isDeviceTypeFieldEmpty = $('#isdistrictEmpty').val();
+		var optionValue = $('#pleaseSelectOption').val();
+		if(isDeviceTypeFieldEmpty == 'true') {
+			var option = "<option value='0' selected>" + optionValue + "</option>";
+			$('#birthPlaceDistrict').prepend(option);
+		}
+		else {
+			var option = "<option value='0'>" + optionValue + "</option>";
+			$('#birthPlaceDistrict').prepend(option);	
+		}
+	}
+	
+	function prependOptionToTehsil() {
+		var isDeviceTypeFieldEmpty = $('#isTehsilEmpty').val();
+		var optionValue = $('#pleaseSelectOption').val();
+		if(isDeviceTypeFieldEmpty == 'true') {
+			var option = "<option value='0' selected>" + optionValue + "</option>";
+			$('#birthPlaceTehsil').prepend(option);
+		}
+		else {
+			var option = "<option value='0'>" + optionValue + "</option>";
+			$('#birthPlaceTehsil').prepend(option);	
+		}
+	}
+	//----------------------------------------------------------//
+	
+	 function isDate(txtDate) {
+          var currVal = txtDate;
+          if (currVal == '')
+              return false;
+          var rxDatePattern = /^(\d{1,2})(\/|-)(\d{1,2})(\/|-)(\d{4})$/; 
+          var dtArray = currVal.match(rxDatePattern);
 
-	$(document).ready(function(){	
+          if (dtArray == null)
+              return false;
+          
+          dtMonth = dtArray[1];
+          dtDay = dtArray[3];
+          dtYear = dtArray[5];
+
+          if (dtYear >2100 || dtYear < 1900)
+       	   return false;
+          if (dtMonth < 1 || dtMonth > 12)
+              return false;
+          else if (dtDay < 1 || dtDay > 31)
+              return false;
+          else if ((dtMonth == 4 || dtMonth == 6 || dtMonth == 9 || dtMonth == 11) && dtDay == 31)
+              return false;
+          else if (dtMonth == 2) {
+              var isleap = (dtYear % 4 == 0 && (dtYear % 100 != 0 || dtYear % 400 == 0));
+              if (dtDay > 29 || (dtDay == 29 && !isleap))
+                  return false;
+          }
+          return true;
+      }
+	
+	 function vali()
+    {
+        var s = document.getElementById("birthDate").value;
+       
+            if (isDate(s) == false) {
+           	
+           	 document.getElementById("birthDate").value = '';
+              
+             
+            } else {
+           	
+                document.getElementById("birthDate").value = s;
+                
+            }     
+    }
+
+	
+	//----------------------------------------------------------//
+
+	$(document).ready(function(){
+		
+		$('#birthPlaceState').change(function(){
+			console.log($('#birthPlaceState').val())
+			loadDistricts($('#birthPlaceState').val());
+		});	
+		
+		$('#birthPlaceDistrict').change(function(){
+			loadTehsils($('#birthPlaceDistrict').val());
+		});	
+		
+		prependOptionToDistrict();
+		prependOptionToTehsil();
+		
+		
 		$('#relationMaster').hide();
 		$('#degreeMaster').hide();
 		$('#addFamily').click(function(){
@@ -407,7 +546,7 @@
 	</p>
 	<p>
 		<label class="small"><spring:message code="member.personal.birthDate" text="Birth Date"/></label>
-		<form:input path="birthDate" cssClass="datemask sText" value="24/10/1970"/>
+		<form:input path="birthDate" cssClass="sText datemask " onchange = "vali()"   value="24/10/1970" />
 		<input type="checkbox" id="isEnabled" name="isEnabled" value="false" class="sCheck" style="margin-left: 94px;"/>
 		<label class="small" style="padding-left: 5px;"><spring:message code="member.personal.isEnabled" text="Is Enabled?"/></label>
 		<form:errors path="birthDate" cssClass="validationError"/>
@@ -416,7 +555,46 @@
 		<label class="small"><spring:message code="member.personal.birthPlace" text="Birth Place"/></label>
 		<form:input path="birthPlace" cssClass="sText"/>
 		<form:errors path="birthPlace" cssClass="validationError"/>	
+		
 	</p>	
+	
+	<!-- Edit ---------------------------- -->
+<hr>
+	<fieldset>
+		<legend> 
+		<spring:message code="member.personal.birthPlaceAddress" text="Birth Place Address"/>
+	
+		</legend>
+		<p>
+			<label class="small"><spring:message code="generic.addressDetails" text="Address"/></label>
+			<form:textarea path="birthPlaceAddress.details" cssClass="sTextarea"></form:textarea>
+			<form:errors path="birthPlaceAddress.details" cssClass="validationError"/>
+		
+		</p>
+		<p>
+			<label class="small"><spring:message code="generic.state" text="State"/></label>
+			<form:select id="birthPlaceState" path="birthPlaceAddress.state" items="${states}" itemValue="id" itemLabel="name"   cssClass="sSelect" />
+			<form:errors path="birthPlaceAddress.state" cssClass="validationError"/>
+		</p>
+		<p>
+			<label class="small"><spring:message code="generic.district" text="District"/></label>
+			<form:select id="birthPlaceDistrict" name="birthPlaceAddressdistrict" path="birthPlaceAddress.district" items="${districts}" itemValue="id" itemLabel="name"  cssClass="sSelect" />
+	
+			<form:errors path="birthPlaceAddress.district" cssClass="validationError"/>
+		</p>
+		<p>
+			<label class="small"><spring:message code="generic.tehsil" text="Tehsil"/></label>
+			<form:select id="birthPlaceTehsil"  name="birthPlaceTehsil" path="birthPlaceAddress.tehsil" items="${tehsils1}" itemValue="id" itemLabel="name"  cssClass="sSelect" />
+<%-- 			<form:errors path="birthPlaceAddress.tehsil" cssClass="validationError"/>
+ --%>		</p>
+		
+	
+	</fieldset>
+	
+	
+<hr>
+	<!--  ---------------------------- -->
+	
 	<p>
 		<label class="small"><spring:message code="member.personal.nationality" text="Nationality"/></label>
 		<form:select path="nationality" items="${nationalities}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
@@ -636,6 +814,10 @@
     <input id="sonMsg" name="sonMsg" value="<spring:message code='member.personal.noOfSon' text='Son'/>" type="hidden">
     <input id="daughtersMsg" name="daughtersMsg" value="<spring:message code='member.personal.noOfDaughters' text='Daughters'/>" type="hidden">
 	<input id="daughterMsg" name="daughterMsg" value="<spring:message code='member.personal.noOfDaughter' text='Daughter'/>" type="hidden">
+	
+	<input type="hidden" id="isdistrictEmpty" name="isdistrictEmpty" value="${isdistrictEmpty}">
+	<input type="hidden" id="isTehsilEmpty" name="isTehsilEmpty" value="${isTehsilEmpty}">
+	<input type="hidden" id="pleaseSelectOption" name="pleaseSelectOption" value="<spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message>">
 </form:form>
 </div>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>

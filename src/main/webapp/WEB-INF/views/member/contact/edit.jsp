@@ -244,7 +244,34 @@
 		${domain.title.name} ${domain.firstName} ${domain.middleName} ${domain.lastName}
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>
-	
+<!-- //////////////////////////////----- Shubham Amande Edit --------------////////////////////////////// -->
+	<fieldset>
+		<legend> 
+		<spring:message code="member.contact.new.link" text="Contact"/>
+		</legend>
+		<p>
+		<label class="small"><spring:message code="member.contact.mobile1" text="Mobile 1"/></label>
+		<form:input path="contact.mobile1" cssClass="sText"/>
+		<form:errors path="contact.mobile1" cssClass="validationError"/>	
+		</p>
+		<p>
+		<label class="small"><spring:message code="member.contact.mobile2" text="Mobile 2"/></label>
+		<form:input path="contact.mobile2" cssClass="sText"/>
+		<form:errors path="contact.mobile2" cssClass="validationError"/>	
+		</p>
+		<p>
+		<label class="small"><spring:message code="member.contact.email1" text="Email 1"/></label>
+		<form:input path="contact.email1" cssClass="sText"/>
+		<form:errors path="contact.email1" cssClass="validationError" />
+		</p>
+		<p>
+		<label class="small"><spring:message code="member.contact.website1" text="Website 1"/></label>
+		<form:input path="contact.website1" cssClass="sText"/>
+		<form:errors path="contact.website1" cssClass="validationError" />
+		</p>
+	<br>
+	</fieldset>
+	<!-- ///////////////////////////////////////////////////////////////////////////////////// -->
 	<div id="permanentAdd">
 	<fieldset>
 		<legend> 
@@ -297,6 +324,9 @@
 	
 	<c:choose>
 	<c:when test="${!(empty domain.permanentAddress1.details)}">
+	
+
+
 	<div id="permanentAdd1">
 	<fieldset>
 		<legend> <spring:message code="member.contact.permanentAddress2" text="Permanent Address 2"/> </legend>
@@ -1112,31 +1142,13 @@
 			<form:errors path="contact.fax5" cssClass="validationError"/>	
 		</p>
 	</fieldset>	
-	<p>
-		<label class="small"><spring:message code="member.contact.mobile1" text="Mobile 1"/></label>
-		<form:input path="contact.mobile1" cssClass="sText"/>
-		<form:errors path="contact.mobile1" cssClass="validationError"/>	
-	</p>
-	<p>
-		<label class="small"><spring:message code="member.contact.mobile2" text="Mobile 2"/></label>
-		<form:input path="contact.mobile2" cssClass="sText"/>
-		<form:errors path="contact.mobile2" cssClass="validationError"/>	
-	</p>
-	<p>
-		<label class="small"><spring:message code="member.contact.email1" text="Email 1"/></label>
-		<form:input path="contact.email1" cssClass="sText"/>
-		<form:errors path="contact.email1" cssClass="validationError" />
-	</p>
+	
 	<p>
 		<label class="small"><spring:message code="member.contact.email2" text="Email 2"/></label>
 		<form:input path="contact.email2" cssClass="sText"/>
 		<form:errors path="contact.email2" cssClass="validationError" />
 	</p>
-	<p>
-		<label class="small"><spring:message code="member.contact.website1" text="Website 1"/></label>
-		<form:input path="contact.website1" cssClass="sText"/>
-		<form:errors path="contact.website1" cssClass="validationError" />
-	</p>
+	
 	<p>
 		<label class="small"><spring:message code="member.contact.website2" text="Website 2"/></label>
 		<form:input path="contact.website2" cssClass="sText"/>

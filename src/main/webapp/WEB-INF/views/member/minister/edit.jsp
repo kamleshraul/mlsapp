@@ -220,11 +220,18 @@
 		<form:input path="ministryToDate" cssClass="datemask sText"/>
 		<form:errors path="ministryToDate" cssClass="validationError"/>	
 	</p>
+	<security:authorize	access="hasAnyRole('SUPER_ADMIN')">
 	<p>
 		<label class="small"><spring:message code="member.minister.priority" text="Ministry Priority"/></label>
 		<form:input path="priority" cssClass="sText"/>
 		<form:errors path="priority" cssClass="validationError"/>
 	</p>
+	</security:authorize>
+	<security:authorize	access="!hasAnyRole('SUPER_ADMIN')">
+		<form:hidden path="priority" />
+	</security:authorize>
+	
+
 	</div>
 	
 	<!-- Dynamic Addition of Departments -->
