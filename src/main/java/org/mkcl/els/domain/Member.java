@@ -71,7 +71,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 	"paContactNo","paName","publications","educationalCulturalActivities","otherInformation",
 	"countriesVisited","sportsClubs","favoritePastimeRecreation","hobbySpecialInterests","literaryArtisticScientificAccomplishments"
 	,"socialCulturalActivities","caste","alias","aliasEnabled","aliasEnglish","specimenSignature","photo",
-	"marriageDate","fullnameLastNameFirst","fullname","birthPlace","locale",
+	"marriageDate","fullnameLastNameFirst","fullname","birthPlace","birthPlaceAddress","locale",
 	"version","versionMismatch"},ignoreUnknown=true)
 	public class Member extends BaseDomain implements Serializable {
 
@@ -110,6 +110,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 	/** The last name in english. */
 	@Column(length = 100)
 	private String lastNameEnglish;
+	
 
 	/** The birth date. */
 	@Temporal(TemporalType.DATE)
@@ -118,6 +119,18 @@ import org.springframework.beans.factory.annotation.Configurable;
 	/** The birth place. */
 	@Column(length = 300)
 	private String birthPlace;
+	
+    //---------------------- Shubham Amande edit---------------//
+	
+	/** The birth Place address. */
+	@OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
+	@JoinColumn(name = "birthplace_address_id")
+	protected Address birthPlaceAddress;
+	
+	
+	
+	
+	//---------------------------------------------------------//
 
 	/** The marital status. */
 	@ManyToOne(fetch=FetchType.LAZY)
@@ -1317,6 +1330,24 @@ import org.springframework.beans.factory.annotation.Configurable;
 	 */
 	public void setBirthPlace(final String birthPlace) {
 		this.birthPlace = birthPlace;
+	}
+	
+	/**
+	 * Gets the birth place address.
+	 *
+	 * @return the birth place address
+	 */
+	public Address getBirthPlaceAddress() {
+		return birthPlaceAddress;
+	}
+
+	/**
+	 * Sets the birth place address.
+	 *
+	 * @param birthPlaceAddress the new birth place address
+	 */
+	public void setBirthPlaceAddress(final Address birthPlaceAddress) {
+		this.birthPlaceAddress = birthPlaceAddress;
 	}
 
 	/**
