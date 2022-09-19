@@ -278,6 +278,7 @@ public class MemberHouseRoleController extends BaseController {
 			//if a particular house is selected and election results data has been filled then initialize constituencies with
 			//data  filled in selected member election result.
 			Constituency currentConstituency=null;
+			model.addAttribute("newConstituencySelect",true);
 			if(domain.getConstituency()!=null){
 				currentConstituency=domain.getConstituency();
 			}else {
