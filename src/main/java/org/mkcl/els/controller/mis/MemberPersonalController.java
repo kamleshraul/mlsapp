@@ -280,7 +280,7 @@ public class MemberPersonalController extends GenericController<Member> {
 		//Edit ---------------------------------------------------
 		 model.addAttribute("states", State.findAll(State.class, "name",
 	                ApplicationConstants.ASC, domain.getLocale()));
-	        String strDefaultState = ((CustomParameter) CustomParameter.findByName(
+	     String strDefaultState = ((CustomParameter) CustomParameter.findByName(
 	                CustomParameter.class, "DEFAULT_STATE", domain.getLocale()))
 	                .getValue();
 	        State defaultState = State.findByFieldName(State.class, "name",
@@ -319,16 +319,11 @@ public class MemberPersonalController extends GenericController<Member> {
 	                defaultDistrict=domain.getBirthPlaceAddress().getDistrict();
 	            }
 	        }
-	       
-	       
+	
 	        
-	        
-	    
-	        model.addAttribute("tehsils1", Tehsil.findAllByFieldName(Tehsil.class,
+	        model.addAttribute("tehsils", Tehsil.findAllByFieldName(Tehsil.class,
 	                "district", defaultDistrict, "name", ApplicationConstants.ASC,
 	                domain.getLocale()));
-	       
-	      
 	        domain.getBirthPlaceAddress().setLocale(domain.getLocale());
 	        
 		
@@ -933,6 +928,7 @@ public class MemberPersonalController extends GenericController<Member> {
 		populateIfNoErrors(model, domain, request);
 		try {
 			Member member = Member.findById(Member.class, domain.getId());
+		
 			User existingMemberUser = User.findbyNameBirthDate(member.getFirstName(), member.getMiddleName(), member.getLastName(), member.getBirthDate());
 			if(existingMemberUser!=null && existingMemberUser.getId()!=null)
 			{		
@@ -942,9 +938,7 @@ public class MemberPersonalController extends GenericController<Member> {
 				existingMemberUser.setFirstName(domain.getFirstName());
 				existingMemberUser.setMiddleName(domain.getMiddleName());
 				existingMemberUser.setLastName(domain.getLastName());	
-				existingMemberUser.setBirth_state(domain.getBirthPlaceAddress().getState());
-				existingMemberUser.setBirth_district(domain.getBirthPlaceAddress().getDistrict());
-				existingMemberUser.setBirth_tehsil(domain.getBirthPlaceAddress().getTehsil());
+				
 	
 				Credential credential = existingMemberUser.getCredential();				
 				if(!credential.isEnabled()) {					
