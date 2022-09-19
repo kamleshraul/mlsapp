@@ -164,6 +164,7 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
 		Member member = Member.findById(Member.class, memberId);
 		model.addAttribute("member", memberId);
 		model.addAttribute("fullname", member.getFullname());
+		model.addAttribute("isMinisterEmpty",true);
 		
 		CustomParameter parameter = 
 			CustomParameter.findByFieldName(CustomParameter.class, "name", "NON_PORTFOLIO_BASED_DESIGNATIONS", locale);
