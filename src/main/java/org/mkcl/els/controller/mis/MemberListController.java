@@ -184,8 +184,10 @@ public class MemberListController extends GenericController<Member> {
 		return "member/printCredentials_instructions";
 	}
 
-	@RequestMapping(value="/print",method=RequestMethod.GET)
-    public String print(final ModelMap model,final Locale locale){
+	@RequestMapping(value="/print/{member}",method=RequestMethod.GET)
+    public String print(@PathVariable("member") final Long member,final ModelMap model,final Locale locale){
+		MemberCompleteDetailVO memberCompleteDetailVO=Member.getCompleteDetail(member,locale.toString());
+		model.addAttribute("member",memberCompleteDetailVO);
         return "member/print";
     }
 	

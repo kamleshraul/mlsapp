@@ -90,7 +90,7 @@
 		}
 		function printRecord(){
 			var row=$("#key").val();
-			$.get('member/print',function(data){
+			$.get('member/print/'+row,function(data){
 			$.fancybox(data);						
 			},'html').fail(function(){
 				if($("#ErrorMsg").val()!=''){
@@ -216,9 +216,9 @@
 			<a href="#" id="view" class="butSim" style="display:none;">
 				<spring:message code="member.view" text="View"/>
 			</a> 
-			<%--  <a href="#" id="print" class="butSim" style="">
-				<spring:message code="member.print" text="Print"/>
-			</a>   --%>
+		  <a href="#" id="print" class="butSim" style="">
+				<spring:message code="member.previewProfile" text="Preview"/>
+			</a>    
 		<%-- 	<a href="#" id="previewProfile" class="butSim" >
 				<spring:message code="member.previewProfile" text="Profile Preview"/>
 			</a> | --%>
