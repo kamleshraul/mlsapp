@@ -96,14 +96,44 @@
 		});
 	}
 	
+	function prependOptionToDesignation() {
+		var isDeviceTypeFieldEmpty = $('#isMinisterEmpty').val();
+		var optionValue = $('#pleaseSelectOption').val();
+		if(isDeviceTypeFieldEmpty == 'true') {
+			var option = "<option value='0' selected>" + optionValue + "</option>";
+			$('#designation').prepend(option);
+		}
+		else {
+			var option = "<option value='0'>" + optionValue + "</option>";
+			$('#designation').prepend(option);	
+		}
+	}
+	
+	function prependOptionToMinistry() {
+		var isDeviceTypeFieldEmpty = $('#isMinisterEmpty').val();
+		var optionValue = $('#pleaseSelectOption').val();
+		if(isDeviceTypeFieldEmpty == 'true') {
+			var option = "<option value='0' selected>" + optionValue + "</option>";
+			$('#ministry').prepend(option);
+		}
+		else {
+			var option = "<option value='0'>" + optionValue + "</option>";
+			$('#ministry').prepend(option);	
+		}
+	}
+	
+	
 	$(document).ready(function(){
+		prependOptionToDesignation() ;
+		prependOptionToMinistry();
+		
 		$('#departmentMaster').hide();
 		$('#subDepartmentMaster').hide();
 		$('#addMemberDepartment').click(function(){
 			addMemberDepartment();
 		});
-
-		$('#ministry').prepend("<option value=''>SELECT</option>");
+		
+		//$('#ministry').prepend("<option value=''>SELECT</option>");
 		$('.designationClass').change(function(){
 			var options = $(this).context.outerHTML;
 			var tempStr = options.split('<option value="' + $(this).val() + '">')[1];
@@ -142,7 +172,7 @@
 	<!-- Designation related fields -->
 	<p>
 		<label class="small"><spring:message code="member.minister.designation" text="Designation"/></label>
-		<form:select path="designation" items="${designations}" itemLabel="name" itemValue="id" cssClass="sSelect designationClass"/>
+		<form:select path="designation" name="designation"  items="${designations}" itemLabel="name" itemValue="id" cssClass="sSelect designationClass"/>
 		<form:errors path="designation" cssClass="validationError"/>		
 	</p>	
 	<p>
@@ -160,7 +190,7 @@
 	<div id="ministryDiv">
 	<p>
 		<label class="small"><spring:message code="member.minister.ministry" text="Ministry"/></label>
-		<form:select path="ministry" items="${ministries}" itemLabel="name" itemValue="id" cssClass="sSelect ministerClass"/>
+		<form:select path="ministry" name="ministry" items="${ministries}" itemLabel="name" itemValue="id" cssClass="sSelect ministerClass"/>
 		<form:errors path="ministry" cssClass="validationError"/>		
 	</p>
 	<p>
@@ -342,6 +372,8 @@
 	<input id="member" name="member" value="${member}" type="hidden">
 	<input id="houseType" name="houseType" value="${houseType}" type="hidden">
 	<input id="nonPortfolioDesignations" name="nonPortfolioDesignations" value="${nonPortfolioDesignations}" type="hidden">
+		<input type="hidden" id="isMinisterEmpty" name="isMinisterEmpty" value="${isMinisterEmpty}">
+	<input type="hidden" id="pleaseSelectOption" name="pleaseSelectOption" value="<spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message>">
 </form:form>
 </div>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
