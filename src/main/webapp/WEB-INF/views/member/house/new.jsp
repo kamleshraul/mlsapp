@@ -26,7 +26,7 @@
 		    $("#districts").empty();
 			$("#districts").html(text);
 		    }else{
-			$("#districts").empty();			    
+			$("#districts").empty();
 		    }			
 	    },'json').fail(function(){
 			if($("#ErrorMsg").val()!=''){
@@ -39,6 +39,7 @@
 	}
 
 	function loadConstituencies(houseType){
+		var target = $('#constituency option:selected').val();
 		$.get('ref/constituencies/'+houseType,function(data){
 			var text="";
 			if(data.length>0){
@@ -46,8 +47,8 @@
 			    text=text+"<option value='"+data[i].id+"'>"+data[i].name+"</option>";
 			}
 			$("#constituency").empty();
-			$("#constituency").html(text);
-			loadDivisionDistricts(data[0].id);
+			$("#constituency").html(text);		
+			loadDivisionDistricts(data[0].id);		
 			}else{
 				$("#constituency").empty();
 				$("#division").val("");
@@ -108,11 +109,31 @@
 			scrollTop();
 		});
 	}
+	
+	function prependOptionToConstituency() {
+		var isDeviceTypeFieldEmpty = $('#newConstituencySelect').val();
+		var optionValue = $('#pleaseSelectOption').val();
+		if(isDeviceTypeFieldEmpty == 'true') {
+			var option = "<option value='0' selected>" + optionValue + "</option>";
+			$('#constituency').prepend(option);
+		}
+		else {
+			var option = "<option value='0'>" + optionValue + "</option>";
+			$('#constituency').prepend(option);	
+		}
+	}
+	
+
 	    
 		$(document).ready(function(){	
-			$("#constituency").val($("#currentConstituency").val());
-			$("#houseTypes").val($("#selectedhouseType").val());					
+			
+			$("#constituency").val($("#currentConstituency").val()); 
+			console.log($("#constituency").val()+"2nd line");
+			prependOptionToConstituency()
+			$("#houseTypes").val($("#selectedhouseType").val());
+			
 			$("#constituency").change(function(){
+				console.log($(this).val()+"consti");
 				loadDivisionDistricts($(this).val());
 			});
 			if($("#selectedhouseType").val()=="lowerhouse"){
@@ -192,12 +213,13 @@
 		
 	<p>
 		<label class="small"><spring:message code="member.house.constituencies" text="Constituency"/></label>
-		<form:select path="constituency" items="${constituencies}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
+		<form:select path="constituency" name="constituency" items="${constituencies}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
 		<form:errors path="constituency" cssClass="validationError"/>		
 	</p>
 	
 	<p>
 		<label class="small"><spring:message code="member.house.division" text="Division"/></label>
+		
 		<input name="division" id="division" type="text" value="${division}" class="sText" readonly="readonly"/>
 	</p>
 	
@@ -265,11 +287,12 @@
 	<form:hidden path="locale"/>	
 	<input id="member" name="member" value="${member}" type="hidden">
 	<input id="selectedhouseType" name="selectedhouseType" value="${houseType}" type="hidden">
-	<input id="currentConstituency" name="currentConstituency" value="${currentConstituency}" type="hidden">
+	<input id="currentConstituency" name="currentConstituency" value="0" type="hidden">
 	<form:hidden path="isSitting"/>
     <input id="houseType" name="houseType" value="${houseType}" type="hidden">
 	
-	
+	<input type="hidden" id="newConstituencySelect" name="newConstituencySelect" value="${newConstituencySelect}">
+	<input type="hidden" id="pleaseSelectOption" name="pleaseSelectOption" value="<spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message>">
 </form:form>
 </div>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
