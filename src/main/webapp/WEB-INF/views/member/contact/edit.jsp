@@ -12,6 +12,9 @@
 	#cancel{
 	cursor: pointer;
 	}
+	#previewIcon{
+     float:right;
+     }
 	</style>
 	<script type="text/javascript">
 	
@@ -107,7 +110,26 @@
 		$('.district').change(function(){
 			loadTehsils($(this).val(),$(this).attr("id").split('.')[0]);
 		});	
-		 */
+		 */	
+		 
+		 $("#previewContact").click(function(){
+				contactPreview();
+			});
+		 
+			function contactPreview(){
+			//	var row=$("#key").val();
+				$.get('member/preview_contact_info/'+$('#id').val(),function(data){
+				$.fancybox(data);						
+				},'html').fail(function(){
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				});
+			}
+		 
 		$('#permanentAddress_state').change(function(){
 			console.log($('#permanentAddress_state').val())
 			loadDistricts($('#permanentAddress_state').val(),'permanentAddress_district');
@@ -383,11 +405,20 @@
 <c:if test="${(error!='') && (error!=null)}">
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
+<!-- <div id="previewIcon"> -->
+<!-- <a href="#" id="previewContact" class="butSim" >
+	<img src="./resources/images/contact_preview.png" alt="Contact Preview" width="32" height="32">
+</a>
+</div><br/><br/> -->
 <div class="fields clearfix watermark" style="background-image: url('/els/resources/images/${houseType}.jpg');">
 <form:form action="member/contact" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="member.new.heading" text="Enter Details"/>:&nbsp;
 		${domain.title.name} ${domain.firstName} ${domain.middleName} ${domain.lastName}
+	<div id="previewIcon">	
+	<a href="#" id="previewContact" class="butSim" >
+	<img src="./resources/images/contact_preview.png" alt="Contact Preview" width="25" height="25">
+      </a></div>
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>
 <!-- //////////////////////////////----- Shubham Amande Edit --------------////////////////////////////// -->
