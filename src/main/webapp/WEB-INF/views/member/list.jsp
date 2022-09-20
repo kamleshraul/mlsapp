@@ -35,13 +35,19 @@
 					}				
 			});					
 			$('#new_record').click(function(){
-				newRecord();
+				if($('#srole').val()=='SUPER_ADMIN') { //also allow for LIS roles later
+					newRecord();
+				}				
 			});
 			$('#edit_record').click(function(){
-				editRecord($('#key').val());
+				if($('#srole').val()=='SUPER_ADMIN') { //also allow for LIS roles later
+					editRecord($('#key').val());
+				}				
 			});
-			$("#delete_record").click(function() {
-				deleteRecord($('#key').val());
+			$("#delete_record").click(function() {				
+				if($('#srole').val()=='SUPER_ADMIN') { //also allow for LIS roles later
+					deleteRecord($('#key').val());
+				}
 			});
 			$("#search").click(function() {
 				searchRecord();
@@ -66,9 +72,11 @@
 			$('#dateblock').toggle();
 		});
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
-			var rowid=$('#key').val();
-			$("#cancelFn").val("rowDblClickHandler");
-			showTabByIdAndUrl('personal_tab', 'member/personal/'+rowid+'/edit?house='+$('#house').val()+'&houseType='+$("#houseType").val());
+			if($('#srole').val()=='SUPER_ADMIN') { //also allow for LIS roles later
+				var rowid=$('#key').val();
+				$("#cancelFn").val("rowDblClickHandler");
+				showTabByIdAndUrl('personal_tab', 'member/personal/'+rowid+'/edit?house='+$('#house').val()+'&houseType='+$('#houseType').val()+'&usergroupType='+$('#currentusergroupType').val());
+			}
 		}
 		function rowSelectHandler(rowid,status){			
 			if($('#key')){
@@ -200,6 +208,7 @@
 			</c:forEach>
 			</select>			
 			<input id="selectedDate" name="selectedDate" class=" sText datemask" type="text" value="${selectedDate}" style="width:75px;"> |
+			<security:authorize	access="hasAnyRole('SUPER_ADMIN')">
 			<a href="#" id="new_record" class="butSim">
 				<spring:message code="member.new" text="New"/>
 			</a> |
@@ -209,6 +218,7 @@
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="member.delete" text="Delete"/>
 			</a> |
+			</security:authorize>
 			<a href="#" id="search" class="butSim">
 				<spring:message code="member.search" text="Search"/>
 			</a> 

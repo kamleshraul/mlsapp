@@ -10,14 +10,13 @@
 package org.mkcl.els.controller.mis;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,14 +29,17 @@ import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.MemberCompleteDetailVO;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.Credential;
+import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.Role;
+import org.mkcl.els.domain.UserGroup;
+import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.service.ISecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -69,10 +71,58 @@ public class MemberListController extends GenericController<Member> {
 	protected void populateModule(final ModelMap model,
 			final HttpServletRequest request, final String locale,
 			final AuthUser currentUser) {
-		//This is changed to accomodate separate menus for assembly/council
-		//This is used to set houseType parameter in module.jsp which will be passed
-		//as query string in module/list
-		model.addAttribute("housetype", request.getParameter("houseType"));
+		try {
+			//This is changed to accomodate separate menus for assembly/council
+			//This is used to set houseType parameter in module.jsp which will be passed
+			//as query string in module/list
+			model.addAttribute("housetype", request.getParameter("houseType"));
+			
+			Set<Role> roles = currentUser.getRoles();
+			for(Role i : roles) {
+				if(i.getType().startsWith("MIS_")) {
+					model.addAttribute("role", i.getType());
+					break;
+				}
+				else if(i.getType().equals("SUPER_ADMIN")) {
+					model.addAttribute("role", i.getType());
+					break;
+				}
+			}
+			
+			UserGroup userGroup = null;
+			UserGroupType userGroupType = null;
+			List<UserGroup> userGroups = currentUser.getUserGroups();
+			if(userGroups != null && ! userGroups.isEmpty()) {
+				CustomParameter cp = CustomParameter.findByName(CustomParameter.class, "MIS_ALLOWED_USERGROUPTYPES", "");
+				if(cp != null) {
+					List<UserGroupType> configuredUserGroupTypes = 
+							MemberListController.delimitedStringToUGTList(cp.getValue(), ",", locale);
+					
+					userGroup = MemberListController.getUserGroup(userGroups, configuredUserGroupTypes, locale);
+					userGroupType = userGroup.getUserGroupType();
+					
+					model.addAttribute("usergroup", userGroup.getId());
+					model.addAttribute("usergroupType", userGroupType.getType());
+				}
+				else {
+					throw new ELSException("MemberListController.populateModule/3",
+							"MIS_ALLOWED_USERGROUPTYPES key is not set as CustomParameter");
+				}
+			}
+			if(userGroup == null || userGroupType == null) {
+//				throw new ELSException("StarredQuestionController.populateModule/4", 
+//						"User group or User group type is not set for Username: " + currentUser.getUsername());
+				
+				model.addAttribute("errorcode","current_user_has_no_usergroups");
+			}
+		}
+		catch(ELSException elsx) {
+			elsx.printStackTrace();
+		}
+		catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		
 	}
 
 	@Override
@@ -221,4 +271,101 @@ public class MemberListController extends GenericController<Member> {
 		
 		openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
 	}
+	
+	public static List<UserGroupType> delimitedStringToUGTList(final String delimitedUserGroups,
+			final String delimiter,
+			final String locale) {
+		List<UserGroupType> userGroupTypes = new ArrayList<UserGroupType>();
+		
+		String[] strUserGroupTypes = delimitedUserGroups.split(delimiter);
+		for(String strUserGroupType : strUserGroupTypes) {
+			strUserGroupType = strUserGroupType.trim();
+			UserGroupType ugt = UserGroupType.findByType(strUserGroupType, locale);
+			userGroupTypes.add(ugt);
+		}
+		
+		return userGroupTypes;
+	}
+	
+	/**
+	 * Return a userGroup from @param userGroups whose userGroupType is 
+	 * same as one of the @param userGroupTypes.
+	 * 
+	 * Return null if no match is found.
+	 * @throws ELSException 
+	 */
+	public static UserGroup getUserGroup(final List<UserGroup> userGroups,
+			final List<UserGroupType> userGroupTypes, 
+			final String locale) {		
+		for(UserGroup ug : userGroups) {
+			if(UserGroup.isActiveOnCurrentDate(ug,locale)){
+				for(UserGroupType ugt : userGroupTypes) {
+					UserGroupType userGroupType = ug.getUserGroupType();
+					if(ugt.getId().equals(userGroupType.getId())) {
+						return ug;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public static UserGroupType getUserGroupType(HttpServletRequest request,
+			String locale) {
+		String strUserGroupType = request.getParameter("usergroupType");
+		if(strUserGroupType != null && !strUserGroupType.isEmpty()){
+			UserGroupType userGroupType = UserGroupType.findByType(strUserGroupType,locale);
+			return userGroupType;
+		}
+		return null;
+	}
+
+	public static UserGroup getUserGroup(HttpServletRequest request,
+			String locale) {
+		String strUserGroup  = request.getParameter("usergroup");
+		if(strUserGroup != null && !strUserGroup.isEmpty()){
+			UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.parseLong(strUserGroup));
+			return userGroup;
+		}
+		return null;
+	}
+	
+	public static void populateUserGroupType(final HttpServletRequest request, final ModelMap model) throws ELSException {
+		//Populate UserGroup Type
+		String usergroupType = request.getParameter("usergroupType");
+		if(usergroupType != null && !usergroupType.isEmpty()){
+			model.addAttribute("usergroupType", usergroupType);
+		}else{
+			usergroupType = (String) request.getSession().getAttribute("usergroupType");
+			if(usergroupType != null && !usergroupType.isEmpty()){
+				model.addAttribute("usergroupType", usergroupType);
+				request.getSession().removeAttribute("usergroupType");
+			}
+			else{
+				throw new ELSException("MemberListController.populateUserGroupDetails/2", 
+									"UserGroupType is Not set");
+			}
+		}
+	}
+	
+
+	
+	public static void populateUserGroup(final HttpServletRequest request, final ModelMap model) throws ELSException {		
+		//Populate UserGroup
+		String usergroup = request.getParameter("usergroup");
+		if(usergroup != null && !usergroup.isEmpty()){
+			model.addAttribute("usergroup",usergroup);
+		}else{
+			usergroup = (String) request.getSession().getAttribute("usergroup");
+			if(usergroup != null && !usergroup.isEmpty()){
+				model.addAttribute("usergroup", usergroup);
+				request.getSession().removeAttribute("usergroup");
+			}
+			else{
+				throw new ELSException("MemberListController.populateUserGroupDetails/2", 
+									"UserGroup is Not set");
+			}
+		}
+	}
+	
 }

@@ -243,6 +243,24 @@ public class UserGroup extends BaseDomain implements Serializable {
 		return retVal;
 	}	
 	
+	public static boolean isActiveOnCurrentDate(final UserGroup userGroup,
+			final String locale) 
+	{
+		boolean retVal = false;		
+		Date currentDate = new Date();
+		
+		if(userGroup.getActiveFrom().compareTo(currentDate)<=0
+				&& userGroup.getActiveTo().compareTo(currentDate)>=0) 
+		{			
+			retVal = true;
+			
+		}else {			
+			retVal = false;
+		}
+		
+		return retVal;
+	}
+	
 	@Override
     public UserGroup merge() {		
 		if(this.getId()!=null && (this.getDrafts()==null || this.getDrafts().isEmpty())) {

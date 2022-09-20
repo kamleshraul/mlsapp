@@ -45,7 +45,9 @@
 			});	
 			$(document).keydown(function (e){
 				if(e.which==78 && e.ctrlKey){
-					newRecord();
+					if($('#srole').val()=='SUPER_ADMIN') { //also allow for MIS roles later
+						newRecord();
+					}					
 				}
 				if(e.which==83 && e.ctrlKey){
 					$('#submit').trigger('click');
@@ -54,10 +56,14 @@
 					showList();
 				}
 				if(e.which==79 && e.ctrlKey){
-					editRecord($('#key').val());
+					if($('#srole').val()=='SUPER_ADMIN') { //also allow for MIS roles later
+						editRecord($('#key').val());
+					}					
 				}
 				if(e.which==8 && e.ctrlKey){
-					deleteRecord($('#key').val());
+					if($('#srole').val()=='SUPER_ADMIN') { //also allow for MIS roles later
+						deleteRecord($('#key').val());
+					}
 				}
 				
 				if(e.keyCode == 38 || e.keyCode == 40){
@@ -75,7 +81,7 @@
 		function newRecord() {
 			//here house parameter will be used to add house member role association i.e default role and so need to be present in new.jsp/edit.jsp
 			//also housetype is needed to load proper background image
-			showTabByIdAndUrl('personal_tab','member/personal/new?house='+$('#house').val()+'&houseType='+$("#houseType").val());
+			showTabByIdAndUrl('personal_tab','member/personal/new?house='+$('#house').val()+'&houseType='+$('#houseType').val()+'&usergroupType='+$('#currentusergroupType').val());
 			$("#key").val("");			
 			$("#cancelFn").val("newRecord");
 		}
@@ -86,13 +92,13 @@
 				return false;
 			}
 			$("#cancelFn").val("editRecord");
-			showTabByIdAndUrl('personal_tab','member/personal/'+row+'/edit?house='+$('#house').val()+'&houseType='+$("#houseType").val());			
+			showTabByIdAndUrl('personal_tab','member/personal/'+row+'/edit?house='+$('#house').val()+'&houseType='+$("#houseType").val()+'&usergroupType='+$('#currentusergroupType').val());		
 		}	
 
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			var rowid=$('#key').val();
 			$("#cancelFn").val("rowDblClickHandler");
-			showTabByIdAndUrl('personal_tab', 'member/personal/'+rowid+'/edit?house='+$('#house').val()+'&houseType='+$("#houseType").val());
+			showTabByIdAndUrl('personal_tab', 'member/personal/'+rowid+'/edit?house='+$('#house').val()+'&houseType='+$("#houseType").val()+'&usergroupType='+$('#currentusergroupType').val());
 		}			
 		
 		function deleteRecord(row) {
@@ -120,7 +126,7 @@
 			}
 			else{
 				$("#cancelFn").val("editMemberPersonalDetails");
-				showTabByIdAndUrl('personal_tab','member/personal/'+row+'/edit?house='+$('#house').val()+'&houseType='+$("#houseType").val());				
+				showTabByIdAndUrl('personal_tab','member/personal/'+row+'/edit?house='+$('#house').val()+'&houseType='+$("#houseType").val()+'&usergroupType='+$('#currentusergroupType').val());
 				}
 		}
 
@@ -132,7 +138,7 @@
 			}
 			else{
 				$("#cancelFn").val("editMemberContactDetails");
-				showTabByIdAndUrl('contact_tab','member/contact/'+row+'/edit?house='+$('#house').val()+'&houseType='+$("#houseType").val());				
+				showTabByIdAndUrl('contact_tab','member/contact/'+row+'/edit?house='+$('#house').val()+'&houseType='+$("#houseType").val()+'&usergroupType='+$('#currentusergroupType').val());				
 				}
 		}
 
@@ -144,7 +150,7 @@
 			}
 			else{
 				$("#cancelFn").val("editMemberOtherDetails");
-				showTabByIdAndUrl('other_tab','member/other/'+row+'/edit?house='+$('#house').val()+'&houseType='+$("#houseType").val());							
+				showTabByIdAndUrl('other_tab','member/other/'+row+'/edit?house='+$('#house').val()+'&houseType='+$("#houseType").val()+'&usergroupType='+$('#currentusergroupType').val());							
 				}
 		}
 
@@ -227,12 +233,14 @@
 					<spring:message code="generic.list" text="List"></spring:message>
 				</a>
 			</li>	
+			<security:authorize	access="hasAnyRole('SUPER_ADMIN')">
 			<li>
 				<a id="personal_tab" href="#" class="tab">
 				   <spring:message code="member.module.memberPersonalDetails" text="Personal Details">
 				   </spring:message>
 				</a>
 			</li>
+			</security:authorize>
 			<li>
 				<a id="contact_tab" href="#" class="tab">
 				   <spring:message code="member.module.memberContactDetails" text="Contact Details">
@@ -245,6 +253,7 @@
 				   </spring:message>
 				</a>
 			</li>
+			<security:authorize	access="hasAnyRole('SUPER_ADMIN')">
 			<li>
 				<a id="house_tab" href="#" class="tab">
 					<c:choose>
@@ -288,7 +297,8 @@
 				   <spring:message code="member.profileView.heading" text="Member Profile View">
 				   </spring:message>
 				</a>
-			</li>	
+			</li>
+			</security:authorize>	
 		</ul>
 		<div class="tabContent clearfix">
 		</div>		
@@ -296,7 +306,10 @@
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
 		<input type="hidden" name="houseType" id="houseType" value="${housetype}">
-		<input type="hidden" name="house" id="house" value="">		
+		<input type="hidden" name="srole" id="srole" value="${role}">
+		<input type="hidden" name="house" id="house" value="">
+		<input type="hidden" name="currentusergroup" id="currentusergroup" value="${usergroup}">
+		<input type="hidden" name="currentusergroupType" id="currentusergroupType" value="${usergroupType}">
 		</div> 
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </body>
