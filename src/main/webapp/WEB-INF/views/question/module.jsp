@@ -1933,6 +1933,8 @@
 				
 				var url = "question/report/generalreport?sessionId=" + data.id
 				+ "&deviceTypeId=" + $("#selectedQuestionType").val()
+				+ "&originalDeviceTypeId=" + $("#selectedOriginalDeviceType").val()
+				+ "&latestAssemblyHouseFormationDate=" + $("#latestAssemblyHouseFormationDate").val()
 				+ "&locale=" + $("#moduleLocale").val()
 				+ "&houseType=" + $("#selectedHouseType").val()
 				+ "&statusId=" + $("#selectedStatus").val() 
