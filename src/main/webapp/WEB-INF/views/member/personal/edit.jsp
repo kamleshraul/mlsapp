@@ -576,16 +576,18 @@
 	
 	</p>
 	
-	<p>
+	<br>
+	
+<%-- 	<p>
 		<label class="small"><spring:message code="member.personal.birthPlace" text="Birth Place"/></label>
 		<form:input path="birthPlace" cssClass="sText"/>
 		<form:errors path="birthPlace" cssClass="validationError"/>	
-	</p>	
+	</p> --%>	
 	<!-- Edit ---------------------------- -->
-<hr>
+
 	<fieldset>
 		<legend> 
-		<spring:message code="member.personal.birthPlaceAddress" text="Birth Place Address"/>
+		<spring:message code="member.personal.birthPlace" text="Birth Place Address"/>
 	
 		</legend>
 		<p>
@@ -612,9 +614,8 @@
 		
 	
 	</fieldset>
-	
-	
-<hr>
+	<br><br>
+
 	<!--  ---------------------------- -->	
 	<p>
 		<label class="small"><spring:message code="member.personal.nationality" text="Nationality"/></label>
