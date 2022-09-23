@@ -1319,6 +1319,23 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 				memberBiographyVO.setBirthPlace(m.getBirthPlace().trim());
 			}
 		}
+		
+		//state 
+		if (m.getBirthPlaceAddress() == null) {
+			memberBiographyVO.setState("-");
+			memberBiographyVO.setDistrict("-");
+			memberBiographyVO.setTehsil("-");
+		}
+		else {
+			memberBiographyVO.setState(m.getBirthPlaceAddress().getState().getName());
+			memberBiographyVO.setDistrict(m.getBirthPlaceAddress().getDistrict().getName());
+			memberBiographyVO.setTehsil(m.getBirthPlaceAddress().getTehsil().getName());
+		}
+		
+//		
+		
+		
+		
 		//nationality
 		if(m.getNationality()==null){
 			memberBiographyVO.setNationality("-");
