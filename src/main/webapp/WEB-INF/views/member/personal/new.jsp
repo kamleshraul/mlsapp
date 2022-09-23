@@ -551,18 +551,20 @@
 		<label class="small" style="padding-left: 5px;"><spring:message code="member.personal.isEnabled" text="Is Enabled?"/></label>
 		<form:errors path="birthDate" cssClass="validationError"/>
 	</p>
-	<p>
+<%-- 	<p>
 		<label class="small"><spring:message code="member.personal.birthPlace" text="Birth Place"/></label>
 		<form:input path="birthPlace" cssClass="sText"/>
 		<form:errors path="birthPlace" cssClass="validationError"/>	
 		
 	</p>	
-	
+	 --%>
 	<!-- Edit ---------------------------- -->
-<hr>
+	
+<br>
+
 	<fieldset>
 		<legend> 
-		<spring:message code="member.personal.birthPlaceAddress" text="Birth Place Address"/>
+		<spring:message code="member.personal.birthPlace" text="Birth Place Address"/>
 	
 		</legend>
 		<p>
@@ -592,7 +594,7 @@
 	</fieldset>
 	
 	
-<hr>
+<br><br>
 	<!--  ---------------------------- -->
 	
 	<p>
