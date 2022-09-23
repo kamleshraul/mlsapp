@@ -60,6 +60,17 @@ public class MemberCompleteDetailVO {
 
 	/** The birth place. */
 	private String birthPlace;
+	
+	/** The birth place Address. State  */
+	private String State;
+	
+	/** The birth place Address. District  */
+	private String District;
+	
+	
+	/** The birth place Address. Tehsil  */
+	private String Tehsil;
+	
 
 	/** The nationality. */
 	private String nationality;
@@ -429,6 +440,37 @@ public class MemberCompleteDetailVO {
 	 */
 	public void setBirthPlace(final String birthPlace) {
 		this.birthPlace = birthPlace;
+	}
+	
+	
+	/**
+	 * Gets  And Sets the birth place Address // For State District Tehsil // .
+	 *
+	 * @param birthPlace the new birth place
+	 */
+
+	public String getState() {
+		return State;
+	}
+
+	public void setState(String state) {
+		State = state;
+	}
+
+	public String getDistrict() {
+		return District;
+	}
+
+	public void setDistrict(String district) {
+		District = district;
+	}
+
+	public String getTehsil() {
+		return Tehsil;
+	}
+
+	public void setTehsil(String tehsil) {
+		Tehsil = tehsil;
 	}
 
 	/**
