@@ -219,7 +219,7 @@
 	</td>
 	<td><center style="color:black;"><strong>:</strong></center></td>
 	<td>
-	<center style="color:black;text-align:left;"><label class="newsmall">${member.birthPlace}</label></center>
+	<center style="color:black;text-align:left;"><label class="newsmall">${member.state}, ${member.district }, ${member.tehsil }</label></center>
     </td>
     </tr>
     <tr>
