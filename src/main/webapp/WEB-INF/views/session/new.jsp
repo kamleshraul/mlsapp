@@ -141,6 +141,8 @@
 				<form:errors path="tentativeStartDate" cssClass="validationError" />
 
 			</p>
+			
+		
 
 			<p>
 				<label class="small"><spring:message code="session.tentativeEndDate"
@@ -166,6 +168,12 @@
 				<form:input id="endDate" cssClass="datemask sText" path="endDate" />
 				<form:errors path="endDate" cssClass="validationError" />
 
+			</p>
+			
+			<p>
+				<label class="small"><spring:message code="session.financialyear" text="Session Year"/>&nbsp;*</label>
+				<form:input id="financialYear"  cssClass="sText" path="financialYear" /> <label class="small">(  eg :- 2022-2023)</label>
+				<form:errors path="year" cssClass="validationError" />			
 			</p>
 			
 			
