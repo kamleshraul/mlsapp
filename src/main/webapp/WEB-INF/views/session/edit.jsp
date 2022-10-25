@@ -110,6 +110,11 @@
 			</p>
 			
 			<p>
+				<label class="small"><spring:message code="session.financialyear" text="Session Year"/>&nbsp;*</label>
+				<form:input id="financialYear"  cssClass=" sText" path="financialYear" />
+				<form:errors path="year" cssClass="validationError" />			
+			</p>
+			<p>
 				<label class="small"><spring:message code="session.type" text="Session Type" />&nbsp;*</label>
 				<form:select cssClass="sSelect" path="type"
 					items="${sessionType}" itemValue="id" itemLabel="sessionType">
