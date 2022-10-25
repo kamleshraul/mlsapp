@@ -134,7 +134,8 @@ public class Session extends BaseDomain implements Serializable {
     /** The remarks. */
     @Column(length = 1000)
     private String remarks;
-   
+    
+
     //---------------------Added by anand, vikas & dhananjay--------------------------------
     /** The parameters. */
 	@ElementCollection
@@ -164,6 +165,13 @@ public class Session extends BaseDomain implements Serializable {
     /** The session repository. */
     @Autowired
     private transient SessionRepository sessionRepository;
+    
+    
+    //---------------------Added by Shubham A--------------------------------
+    /** Financial Year  **/
+    @Column(length=1000)
+    private String financialYear;
+   
 
     // -------------------------------Constructors----------------------------------------------
 
@@ -861,6 +869,24 @@ public class Session extends BaseDomain implements Serializable {
 	 */
 	public void setDrafts(List<SessionDraft> drafts) {
 		this.drafts = drafts;
+	}
+	
+	
+	
+
+	/**
+	 * @return the Financial Year
+	 */
+	public String getFinancialYear() {
+		return financialYear;
+	}
+
+
+	/**
+	 * @Sets the Financial Year
+	 */
+	public void setFinancialYear(String financialYear) {
+		this.financialYear = financialYear;
 	}
 
 
