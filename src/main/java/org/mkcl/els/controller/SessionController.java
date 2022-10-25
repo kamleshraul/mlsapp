@@ -194,6 +194,8 @@ public class SessionController extends GenericController<Session> {
         	}    
         }
         model.addAttribute("deviceTypesEnabled", deviceTypesEnabled);
+//        String financialYear = domain.getFinancialYear();
+        model.addAttribute("financialYear",domain.getFinancialYear());
         
     }
 
