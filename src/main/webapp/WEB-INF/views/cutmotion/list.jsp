@@ -73,6 +73,12 @@
 				generateDepartmentwiseAdmittedCountsReport();
 			});
 			
+			/**** Departmentwise Pending-for-Reply Counts ****/
+			$("#departmentwisePendingForReplyCountsReport").click(function() {
+				$("#selectionDiv1").hide();
+				generateDepartmentwisePendingForReplyCountsReport();
+			});
+			
 			$("#generateCurrentStatusReport").click(function(){
 				var selectedMotionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
 				
@@ -196,9 +202,13 @@
 				<a href="#" id="generateYaadiReport" class="butSim">
 					<spring:message code="cutmotion.generateYaadiReport" text="Yaadi Report"/>
 				</a> |
-				 <a href="#" id="generateReminderLetter" class="butSim">
+				<hr/>
+				<a href="#" id="generateReminderLetter" class="butSim">
 					<spring:message code="generic.mytask.device.ReminderLetter" text="Reminder Letter"/>
-				 </a> |
+				</a> |
+				<a href="#" id="departmentwisePendingForReplyCountsReport" class="butSim">
+					<spring:message code="cutmotion.departmentwise_pending_for_reply_counts_report" text="Departmentwise Pending-for-Reply Counts"/>
+				</a> |
 			</security:authorize>	
 			<%-- <security:authorize access="hasAnyRole('CMOIS_ASSISTANT','CMOIS_SECTION_OFFICER')">				
 				<a href="#" id="generateYaadiReport" class="butSim">

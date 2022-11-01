@@ -211,6 +211,23 @@
 		});
 	}
 	
+	function generateDepartmentwisePendingForReplyCountsReport() {
+		var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+		+ "/" + $("#selectedSessionYear").val()
+		+ "/" + $("#selectedSessionType").val();
+		
+		$.get(url,function(data){
+			if(data){				
+				showTabByIdAndUrl("details_tab","cutmotion/report/genreport?"
+						+"sessionId="+data.id
+						+"&deviceTypeId="+$("#selectedCutMotionType").val()
+						+"&locale="+$("#moduleLocale").val()
+						+"&report=CMOIS_DEPARTMENTWISE_PENDING_FOR_REPLY_COUNTS"
+						+"&reportout=departmentwise_pending_for_reply_counts_report");
+			}
+		});
+	}
+	
 	/**** new question ****/
 	function newCutMotion() {
 		$("#cancelFn").val("newCutMotion");
