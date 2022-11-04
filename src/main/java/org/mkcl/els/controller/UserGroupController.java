@@ -62,7 +62,8 @@ public class UserGroupController extends GenericController<UserGroup>{
 			/****Allowed Groups ****/
 			User user  = User.findByUserName(credential.getUsername(), locale);
 			if(user != null){
-				model.addAttribute("groupsAllowed", user.getGroupsAllowed());
+				model.addAttribute("groupsAllowed", user.getGroupsAllowed());			
+				model.addAttribute("fullName",user.findFullName());	
 			}
 			
 			/**** User Group Types ****/
@@ -170,13 +171,14 @@ public class UserGroupController extends GenericController<UserGroup>{
 			/****Allowed Groups ****/
 			String allowedGroups = domain.
 					getParameterValue(ApplicationConstants.GROUPSALLOWED_KEY + "_" + locale);
+			Credential credential = domain.getCredential();
+			User user  = User.findByUserName(credential.getUsername(), locale);
+			model.addAttribute("fullName",user.findFullName());	
 			if(allowedGroups != null && !allowedGroups.isEmpty()){
 				model.addAttribute("groupsAllowed", allowedGroups);
 			}else{
-				Credential credential = domain.getCredential();
-				User user  = User.findByUserName(credential.getUsername(), locale);
 				if(user != null){
-					model.addAttribute("groupsAllowed", user.getGroupsAllowed());
+					model.addAttribute("groupsAllowed", user.getGroupsAllowed());	
 				}
 			}
 			

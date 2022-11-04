@@ -1870,7 +1870,16 @@
 						+ "&locale="+$("#authlocale").val() 
 						+ "&reportout=cutmotion_department_statement_report"
 						+ "&report=CMOIS_DEPARTMENT_STATEMENT_REPORT";
-					} else {
+					}  else if(currentDevice.indexOf('motions_adjournment') == 0){
+						url = "adjournmentmotion/report/generalreport?sessionId=" + data.id
+						+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
+						+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
+						+ "&assignee=" + $("#authusername").val()
+						+ "&houseType="+$("#selectedHouseType").val() 
+						+ "&locale="+$("#authlocale").val() 
+						+ "&reportout=adjournmentmotion_department_statement_report"
+						+ "&report=AMOIS_DEPARTMENT_STATEMENT_REPORT";
+					}  else {
 						url = "question/report/generalreport?sessionId=" + data.id
 						+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
 						+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
