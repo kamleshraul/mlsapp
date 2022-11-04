@@ -126,6 +126,7 @@
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.new.heading" text="Enter Details"/>
 		[<spring:message code="generic.id" text="Id"></spring:message>:&nbsp;<spring:message code="generic.new" text="New"></spring:message>]
+	<span style="float:right;">${fullName} [${domain.credential.username}]</span>
 	</h2>	
 	<form:errors path="version" cssClass="validationError"/>		 
 	<p>

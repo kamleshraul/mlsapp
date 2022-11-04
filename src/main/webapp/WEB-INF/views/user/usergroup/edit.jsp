@@ -216,9 +216,12 @@
 <div class="fields clearfix">
 <form:form action="user/usergroup" method="PUT"  modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
+   
 	<h2><spring:message code="generic.edit.heading" text="Details"/>
-		[<spring:message code="generic.id" text="Id"></spring:message>:${domain.id}]</h2>
-	<form:errors path="version" cssClass="validationError"/>		 
+		[<spring:message code="generic.id" text="Id"></spring:message>:${domain.id}]
+		<span style="float:right;">${fullName} [${domain.credential.username}]</span>
+	</h2>
+	<form:errors path="version" cssClass="validationError"/>	
 	<p>
 		<label class="small"><spring:message code="usergroup.housetype" text="House Type" /></label>			
 		<select  id="param_HOUSETYPE_${locale}" name="param_HOUSETYPE_${locale}" class="sSelect">
