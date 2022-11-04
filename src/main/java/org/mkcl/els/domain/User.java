@@ -285,7 +285,20 @@ public class User extends BaseDomain implements Serializable {
 	}
 
 	public String findFullName(){
-		return this.getTitle()+" "+this.getFirstName()+" "+this.getMiddleName()+" "+this.getLastName();
+		StringBuilder sb = new StringBuilder();
+		if(this.getTitle() != null ) {
+			sb.append(this.getTitle()+' ');
+		}
+		if(this.getFirstName() != null ) {
+			sb.append(this.getFirstName()+' ');
+		}
+		if(this.getMiddleName() != null ) {
+			sb.append(this.getMiddleName()+' ');
+		}
+		if(this.getLastName() != null ) {
+			sb.append(this.getLastName());
+		}
+		return sb.toString();
 	}
 	
 	public String findFullNameForRis(){

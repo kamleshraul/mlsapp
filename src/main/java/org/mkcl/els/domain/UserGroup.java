@@ -70,7 +70,7 @@ public class UserGroup extends BaseDomain implements Serializable {
     @ManyToOne(fetch=FetchType.LAZY)
     @PrimaryKeyJoinColumn(name = "credential_id", referencedColumnName = "id")
     private Credential credential;
-
+    
     @Temporal(TemporalType.DATE)
     private Date activeFrom;
     
