@@ -41,6 +41,8 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	
 	private String previousMinistryDesignation;
 	
+	private String previousMinistryDisplayName;
+	
 	private String memberNames;
 	
 	private String hasMoreMembers;
@@ -48,6 +50,8 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	private String department;
 	
 	private String subDepartment;
+	
+	private String ministryDisplayName;
 	
 	private Boolean isSubDepartmentNameSameAsDepartmentName;
 	
@@ -244,6 +248,15 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 		this.previousMinistryDesignation = previousMinistryDesignation;
 	}
 
+	@XmlElement(name = "previousMinistryDisplayName")
+	public String getPreviousMinistryDisplayName() {
+		return previousMinistryDisplayName;
+	}
+
+	public void setPreviousMinistryDisplayName(String previousMinistryDisplayName) {
+		this.previousMinistryDisplayName = previousMinistryDisplayName;
+	}
+
 	@XmlElement(name = "memberNames")
 	public String getMemberNames() {
 		return memberNames;
@@ -288,6 +301,15 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	public void setIsSubDepartmentNameSameAsDepartmentName(
 			Boolean isSubDepartmentNameSameAsDepartmentName) {
 		this.isSubDepartmentNameSameAsDepartmentName = isSubDepartmentNameSameAsDepartmentName;
+	}
+
+	@XmlElement(name = "ministryDisplayName")
+	public String getMinistryDisplayName() {
+		return ministryDisplayName;
+	}
+
+	public void setMinistryDisplayName(String ministryDisplayName) {
+		this.ministryDisplayName = ministryDisplayName;
 	}
 
 	@XmlElement(name = "previousDepartment")

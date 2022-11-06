@@ -2,6 +2,7 @@ package org.mkcl.els.common.xmlvo;
 
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.mkcl.els.common.vo.MasterVO;
@@ -33,6 +34,8 @@ public class ResolutionIntimationLetterXmlVO extends XmlVO{
 	
 	private String previousMinistryDesignation;
 	
+	private String previousMinistryDisplayName;
+	
 	private String memberNames;
 	
 	private String hasMoreMembers;
@@ -40,6 +43,8 @@ public class ResolutionIntimationLetterXmlVO extends XmlVO{
 	private String department;
 	
 	private String subDepartment;
+	
+	private String ministryDisplayName;
 	
 	private Boolean isSubDepartmentNameSameAsDepartmentName;
 	
@@ -159,6 +164,15 @@ public class ResolutionIntimationLetterXmlVO extends XmlVO{
 		this.previousMinistryDesignation = previousMinistryDesignation;
 	}
 
+	@XmlElement(name = "previousMinistryDisplayName")
+	public String getPreviousMinistryDisplayName() {
+		return previousMinistryDisplayName;
+	}
+
+	public void setPreviousMinistryDisplayName(String previousMinistryDisplayName) {
+		this.previousMinistryDisplayName = previousMinistryDisplayName;
+	}
+
 	public String getMemberNames() {
 		return memberNames;
 	}
@@ -189,6 +203,15 @@ public class ResolutionIntimationLetterXmlVO extends XmlVO{
 
 	public void setSubDepartment(String subDepartment) {
 		this.subDepartment = subDepartment;
+	}
+
+	@XmlElement(name = "ministryDisplayName")
+	public String getMinistryDisplayName() {
+		return ministryDisplayName;
+	}
+
+	public void setMinistryDisplayName(String ministryDisplayName) {
+		this.ministryDisplayName = ministryDisplayName;
 	}
 
 	public Boolean getIsSubDepartmentNameSameAsDepartmentName() {

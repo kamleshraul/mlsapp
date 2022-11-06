@@ -49,6 +49,10 @@ public class Ministry extends BaseDomain implements Serializable{
     /** The display name. */
     @Column(length = 900)
     private String displayName;
+    
+    /** The dropdown display name. */
+    @Column(length = 900)
+    private String dropdownDisplayName;
 
     /** The is expired. */
     @Column
@@ -163,6 +167,14 @@ public class Ministry extends BaseDomain implements Serializable{
 	 */
 	public void setDisplayName(final String displayName) {
 		this.displayName = displayName;
+	}
+
+	public String getDropdownDisplayName() {
+		return dropdownDisplayName;
+	}
+
+	public void setDropdownDisplayName(String dropdownDisplayName) {
+		this.dropdownDisplayName = dropdownDisplayName;
 	}
 
 	/**
