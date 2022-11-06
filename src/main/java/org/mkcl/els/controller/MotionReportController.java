@@ -723,7 +723,9 @@ public class MotionReportController extends BaseController{
 				} 
 				else {
 					referenceNumber = FormaterUtil.formatNumberNoGrouping(Integer.parseInt(referenceLetter.getReferenceNumber()), locale.toString());
-					referredNumber = FormaterUtil.formatNumberNoGrouping(Integer.parseInt(referenceLetter.getReferredNumber()), locale.toString());
+					if(referenceLetter.getReferredNumber()!=null && !referenceLetter.getReferredNumber().isEmpty()) {
+						referredNumber = FormaterUtil.formatNumberNoGrouping(Integer.parseInt(referenceLetter.getReferredNumber()), locale.toString());
+					}					
 					strDispatchedDate = FormaterUtil.formatDateToStringUsingCustomParameterFormat(referenceLetter.getDispatchDate(), "CALLINGATTENTIONMOTION_CALLINGATTENTIONDATEFORMAT", locale.toString());
 					
 					if(referredNumber!=null) {
