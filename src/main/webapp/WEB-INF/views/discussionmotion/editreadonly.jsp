@@ -67,10 +67,10 @@
 			</c:forEach>
 			<c:choose>
 				<c:when test="${selectedMinistry=='yes'}">
-					<option selected="selected" value="${i.id}">${i.name}</option>
+					<option selected="selected" value="${i.id}">${i.dropdownDisplayName}</option>
 				</c:when>
 				<c:otherwise>
-					<option value="${i.id}">${i.name}</option>
+					<option value="${i.id}">${i.dropdownDisplayName}</option>
 				</c:otherwise>
 			</c:choose>
 		</c:forEach>

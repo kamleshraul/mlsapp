@@ -885,7 +885,7 @@ class StarredQuestionController {
 			//Populate Ministry
 			Ministry ministry = domain.getMinistry();
 			if(ministry != null) {
-				model.addAttribute("formattedMinistry", ministry.getName());
+				model.addAttribute("formattedMinistry", ministry.getDropdownDisplayName());
 				model.addAttribute("ministrySelected", ministry.getId());
 			}
 					
@@ -1292,7 +1292,7 @@ class StarredQuestionController {
 			Ministry ministry = domain.getMinistry();
 			if(ministry != null){
 				model.addAttribute("ministrySelected", ministry.getId());
-				model.addAttribute("formattedMinistry",ministry.getName());
+				model.addAttribute("formattedMinistry",ministry.getDropdownDisplayName());
 			}
 			
 			//Populate Group
@@ -2102,7 +2102,7 @@ class StarredQuestionController {
 			Ministry ministry = domain.getMinistry();
 			if(ministry != null){
 				model.addAttribute("ministrySelected", ministry.getId());
-				model.addAttribute("formattedMinistry", ministry.getName());
+				model.addAttribute("formattedMinistry", ministry.getDropdownDisplayName());
 			}
 			
 			

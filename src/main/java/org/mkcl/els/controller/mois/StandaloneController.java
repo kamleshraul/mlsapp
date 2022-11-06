@@ -856,7 +856,7 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 		Ministry ministry = domain.getMinistry();
 		if(ministry != null){
 			model.addAttribute("ministrySelected", ministry.getId());
-			model.addAttribute("formattedMinistry", ministry.getName());
+			model.addAttribute("formattedMinistry", ministry.getDropdownDisplayName());
 			if(domain.getGroup() != null){
 				model.addAttribute("formattedGroup",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getGroup().getNumber()));
 				model.addAttribute("group", domain.getGroup().getId());

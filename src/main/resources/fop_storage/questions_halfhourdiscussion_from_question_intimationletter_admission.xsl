@@ -230,6 +230,9 @@
 										<xsl:choose>
 											<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">
 												<xsl:value-of select="primaryMemberDesignation"/>.
+											</xsl:when>
+											<xsl:when test="ministryDisplayName='मुख्यमंत्री' or ministryDisplayName='उप मुख्यमंत्री'">
+												<xsl:value-of select="ministryDisplayName"/>.
 											</xsl:when>									
 											<xsl:otherwise>
 												<xsl:choose>

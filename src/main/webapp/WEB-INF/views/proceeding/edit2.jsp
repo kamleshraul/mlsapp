@@ -2147,10 +2147,10 @@
 		<c:forEach items="${ministries}" var="i">
 		<c:choose>
 			<c:when test="${ministry==i.id}">
-				<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
+				<option value="${i.id}" selected="selected"><c:out value="${i.dropdownDisplayName}"></c:out></option>
 			</c:when>
 			<c:otherwise>
-				<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+				<option value="${i.id}"><c:out value="${i.dropdownDisplayName}"></c:out></option>
 			</c:otherwise>
 		</c:choose>
 		</c:forEach>

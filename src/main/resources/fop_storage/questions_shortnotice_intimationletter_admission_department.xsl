@@ -153,8 +153,14 @@
 									<xsl:when test="primaryMemberDesignation='मुख्यमंत्री'">
 										१. माननीय <xsl:value-of select="primaryMemberDesignation"/>
 									</xsl:when>
+									<xsl:when test="ministryDisplayName='मुख्यमंत्री'">
+										१. माननीय <xsl:value-of select="ministryDisplayName"/>
+									</xsl:when>
 									<xsl:when test="primaryMemberDesignation='उप मुख्यमंत्री'">
 										१. माननीय <xsl:value-of select="primaryMemberDesignation"/>
+									</xsl:when>
+									<xsl:when test="ministryDisplayName='उप मुख्यमंत्री'">
+										१. माननीय <xsl:value-of select="ministryDisplayName"/>
 									</xsl:when>
 									<xsl:otherwise>
 										<xsl:choose>

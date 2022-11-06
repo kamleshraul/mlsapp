@@ -305,6 +305,7 @@ public class StandaloneReportController extends BaseController{
 				SubDepartment subDepartment = question.getSubDepartment();
 				if(subDepartment!=null) {
 					letterVO.setSubDepartment(subDepartment.getName());
+					letterVO.setMinistryDisplayName(subDepartment.getMinistryDisplayName().trim());
 				}
 				Department department = subDepartment.getDepartment();
 				if(department!=null) {

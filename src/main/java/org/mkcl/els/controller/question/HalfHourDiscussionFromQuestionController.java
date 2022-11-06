@@ -952,7 +952,7 @@ class HalfHourDiscussionFromQuestionController {
 		//Populate Ministry
 		Ministry ministry = domain.getMinistry();
 		if(ministry != null) {
-			model.addAttribute("formattedMinistry", ministry.getName());
+			model.addAttribute("formattedMinistry", ministry.getDropdownDisplayName());
 			model.addAttribute("ministrySelected", ministry.getId());
 		}
 		
@@ -1338,7 +1338,7 @@ class HalfHourDiscussionFromQuestionController {
 		Ministry ministry = domain.getMinistry();
 		if(ministry!=null){
 			model.addAttribute("ministrySelected", ministry.getId());
-			model.addAttribute("formattedMinistry",ministry.getName());
+			model.addAttribute("formattedMinistry",ministry.getDropdownDisplayName());
 		}
 		
 		//Populate Group
@@ -2032,7 +2032,7 @@ class HalfHourDiscussionFromQuestionController {
 		//Populate Ministry
 		Ministry ministry = domain.getMinistry();
 		model.addAttribute("ministrySelected", ministry.getId());
-		model.addAttribute("formattedMinistry",ministry.getName());
+		model.addAttribute("formattedMinistry",ministry.getDropdownDisplayName());
 		//Populate Group
 		Group group = domain.getGroup();
 		if(group != null) {

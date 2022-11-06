@@ -106,13 +106,13 @@ public class MinistryRepository extends BaseRepository<Ministry, Long> {
 	
 	public List<MasterVO> findAssignedMinistriesInSessionByTerm(final Date startDate,final String param,final String locale) {
 		try{
-			String strQuery = "SELECT m.id,m.name FROM Ministry m " +
+			String strQuery = "SELECT m.id,m.dropdownDisplayName FROM Ministry m " +
 			"WHERE m.locale =:locale AND " +
 			" m.id IN " +
 				"(SELECT m.id FROM MemberMinister mm JOIN mm.ministry m " +
 				" WHERE mm.ministryFromDate<=:onDate" +
 				" AND (mm.ministryToDate IS NULL OR mm.ministryToDate>=:onDate)) " +
-				" AND m.name like :term " +
+				" AND m.dropdownDisplayName like :term " +
 				" ORDER BY m.name";
 			javax.persistence.Query query=this.em().createQuery(strQuery);
 			query.setParameter("locale",locale);
@@ -159,6 +159,7 @@ public class MinistryRepository extends BaseRepository<Ministry, Long> {
 			    ministry.setIsExpired(Boolean.parseBoolean(o[3].toString()));
 			    ministry.setName(o[4].toString());
 			    ministry.setRemarks(o[5].toString());
+			    ministry.setDropdownDisplayName(o[6].toString());
 			    ministries.add(ministry);
 			}
 		} catch (NumberFormatException e) {
@@ -178,7 +179,7 @@ public class MinistryRepository extends BaseRepository<Ministry, Long> {
 	public List<MasterVO> findMinistriesAssignedToGroupsByTerm(HouseType houseType,
 			Integer sessionYear, SessionType sessionType, String param,
 			String locale) {
-		String strQuery="SELECT m.id,m.name" +
+		String strQuery="SELECT m.id,m.dropdown_display_name" +
 				" FROM ministries AS m " +
 				"JOIN groups_ministries AS gm " +
 				"JOIN groups AS g " +
@@ -188,7 +189,7 @@ public class MinistryRepository extends BaseRepository<Ministry, Long> {
 				"AND g.housetype_id=:houseTypeId " +
 				"AND g.sessiontype_id=:sessionTypeId " +
 				"AND g.group_year=:sessionYear " +
-				"AND m.name like :term " +
+				"AND m.dropdown_display_name like :term " +
 				"ORDER BY m.name ASC";
 		javax.persistence.Query query=this.em().createNativeQuery(strQuery);
 		query.setParameter("locale", locale);

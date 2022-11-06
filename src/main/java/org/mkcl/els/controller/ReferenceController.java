@@ -13,7 +13,6 @@ package org.mkcl.els.controller;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -55,10 +54,7 @@ import org.mkcl.els.domain.*;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.service.ISecurityService;
 import org.mkcl.els.service.impl.JwtServiceImpl;
-import org.omg.CORBA.Request;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Controller;
@@ -675,7 +671,7 @@ public class ReferenceController extends BaseController {
 		for(Ministry i:ministries){
 			MasterVO masterVO=new MasterVO();
 			masterVO.setId(i.getId());
-			masterVO.setName(i.getName());
+			masterVO.setName(i.getDropdownDisplayName());
 			ministriesVOs.add(masterVO);
 		}
 		groupVO.setMinistries(ministriesVOs);
@@ -1662,7 +1658,7 @@ public class ReferenceController extends BaseController {
 		for(Ministry i:ministries){
 			MasterVO masterVO=new MasterVO();
 			masterVO.setId(i.getId());
-			masterVO.setName(i.getName());
+			masterVO.setName(i.getDropdownDisplayName());
 			masterVOs.add(masterVO);
 		}
 		return masterVOs;
@@ -2069,7 +2065,7 @@ public class ReferenceController extends BaseController {
 		}
 		
 		for(Ministry i:ministries){
-			MasterVO masterVO=new MasterVO(i.getId(),i.getName());
+			MasterVO masterVO=new MasterVO(i.getId(),i.getDropdownDisplayName());
 			masterVOs.add(masterVO);
 		}
 		return masterVOs;
@@ -2311,7 +2307,7 @@ public class ReferenceController extends BaseController {
 					ministries.removeAll(ministriesOfOtherGroupsInSameSession);
 				}
 				for(Ministry i : ministries){
-					MasterVO masterVO=new MasterVO(i.getId(),i.getName());
+					MasterVO masterVO=new MasterVO(i.getId(),i.getDropdownDisplayName());
 					masterVOs.add(masterVO);
 				}
 			}
@@ -7052,7 +7048,7 @@ public class ReferenceController extends BaseController {
 			List<Ministry> mins = Ministry.findMinistriesAssignedToGroups(selectedHouseType, sessionYear, selectedSessionType, locale.toString());			
 			
 			for(Ministry i : mins){
-				MasterVO masterVO = new MasterVO(i.getId(),i.getName());
+				MasterVO masterVO = new MasterVO(i.getId(),i.getDropdownDisplayName());
 				ministries.add(masterVO);
 			}
 			
@@ -7839,8 +7835,11 @@ public class ReferenceController extends BaseController {
 			defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(session, true);
 		} else {
 			defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(session, false);
-		}		
-		adjourningDates.add(new Object[]{FormaterUtil.formatDateToString(defaultAdjourningDate, ApplicationConstants.SERVER_DATEFORMAT)});
+		}	
+		adjourningDates.add(new Object[]{
+									FormaterUtil.formatDateToString(defaultAdjourningDate, ApplicationConstants.SERVER_DATEFORMAT),
+									FormaterUtil.formatDateToStringUsingCustomParameterFormat(defaultAdjourningDate, "ADJOURNMENTMOTION_ADJOURNINGDATEFORMAT", locale.toString())
+							});
 		
 		return adjourningDates;
 	}
@@ -7888,8 +7887,11 @@ public class ReferenceController extends BaseController {
 		} else {
 			defaultRuleSuspensionDate = RulesSuspensionMotion.findDefaultRuleSuspensionDateForSession(session, false);
 		}		
-		ruleSuspensionDates.add(new Object[]{FormaterUtil.formatDateToString(defaultRuleSuspensionDate, ApplicationConstants.SERVER_DATEFORMAT)});
-		
+		ruleSuspensionDates.add(new Object[]{
+				FormaterUtil.formatDateToString(defaultRuleSuspensionDate, ApplicationConstants.SERVER_DATEFORMAT),
+				FormaterUtil.formatDateToStringUsingCustomParameterFormat(defaultRuleSuspensionDate, "RULESSUSPENSIONMOTION_RULESUSPENSIONDATEFORMAT", locale.toString())
+		});
+
 		return ruleSuspensionDates;
 	}
 	

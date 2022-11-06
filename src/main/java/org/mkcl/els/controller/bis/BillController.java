@@ -599,7 +599,7 @@ public class BillController extends GenericController<Bill> {
 		Ministry ministry=domain.getMinistry();
 		if(ministry!=null){
 			model.addAttribute("ministrySelected",ministry.getId());
-			model.addAttribute("formattedMinistry",ministry.getName());
+			model.addAttribute("formattedMinistry",ministry.getDropdownDisplayName());
 			List<SubDepartment> assignedSubDepartments = MemberMinister.
 					findAssignedSubDepartments(ministry,selectedSession.getEndDate(), locale);
 			model.addAttribute("subDepartments", assignedSubDepartments);
@@ -637,7 +637,7 @@ public class BillController extends GenericController<Bill> {
 					if(memberMinisters!=null && !memberMinisters.isEmpty()) {
 						ministry = memberMinisters.get(0).getMinistry();
 						model.addAttribute("ministrySelected",ministry.getId());
-						model.addAttribute("formattedMinistry",ministry.getName());
+						model.addAttribute("formattedMinistry",ministry.getDropdownDisplayName());
 						List<SubDepartment> assignedSubDepartments = MemberMinister.findAssignedSubDepartments(ministry,selectedSession.getStartDate(), locale);
 						model.addAttribute("subDepartments", assignedSubDepartments);
 						if(!assignedSubDepartments.isEmpty()) {
@@ -928,7 +928,7 @@ public class BillController extends GenericController<Bill> {
 		Ministry ministry=domain.getMinistry();
 		if(ministry!=null){
 			model.addAttribute("ministrySelected",ministry.getId());
-			model.addAttribute("formattedMinistry",ministry.getName());
+			model.addAttribute("formattedMinistry",ministry.getDropdownDisplayName());
 			List<SubDepartment> assignedSubDepartments = MemberMinister.
 					findAssignedSubDepartments(ministry,selectedSession.getEndDate(), locale);
 			model.addAttribute("subDepartments", assignedSubDepartments);
@@ -966,7 +966,7 @@ public class BillController extends GenericController<Bill> {
 					if(memberMinisters!=null && !memberMinisters.isEmpty()) {
 						ministry = memberMinisters.get(0).getMinistry();
 						model.addAttribute("ministrySelected",ministry.getId());
-						model.addAttribute("formattedMinistry",ministry.getName());
+						model.addAttribute("formattedMinistry",ministry.getDropdownDisplayName());
 						List<SubDepartment> assignedSubDepartments = MemberMinister.findAssignedSubDepartments(ministry,selectedSession.getStartDate(), locale);
 						model.addAttribute("subDepartments", assignedSubDepartments);
 						if(!assignedSubDepartments.isEmpty()) {

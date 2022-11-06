@@ -1,5 +1,5 @@
 <%@ include file="/common/taglibs.jsp" %>
-<%@ page import="java.util.Date;" %>
+<%-- <%@ page import="java.util.Date;" %> --%>
 <html>
 <head>
 	<title>
@@ -805,7 +805,7 @@
 		
 		
 		$('#sendBack').click(function(){			
-			var currTimeMillis = (new Date()).getTime();
+			//var currTimeMillis = (new Date()).getTime();
 			var goAhead = 'false';
 			
 			$(".wysiwyg").each(function(){
@@ -1041,7 +1041,7 @@
 <div class="fields clearfix watermark">
 
 <div id="assistantDiv">
-<c:set var="currTimeMillis" value="<%=(new Date()).getTime()%>" />
+<%-- <c:set var="currTimeMillis" value="<%=(new Date()).getTime()%>" /> --%>
 <form:form action="workflow/question" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	 <c:if test="${(answeringAttempts < maxAnsweringAttempts) and (workflowstatus=='COMPLETED')}">
@@ -1192,10 +1192,10 @@
 		<c:forEach items="${ministries }" var="i">
 			<c:choose>
 				<c:when test="${i.id==ministrySelected }">
-					<option value="${i.id }" selected="selected">${i.name}</option>
+					<option value="${i.id }" selected="selected">${i.dropdownDisplayName}</option>
 				</c:when>
 				<c:otherwise>
-					<option value="${i.id }" >${i.name}</option>
+					<option value="${i.id }" >${i.dropdownDisplayName}</option>
 				</c:otherwise>
 			</c:choose>
 		</c:forEach>

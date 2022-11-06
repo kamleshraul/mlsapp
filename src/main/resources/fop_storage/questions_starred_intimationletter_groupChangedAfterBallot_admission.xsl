@@ -207,7 +207,10 @@
 							<xsl:choose>
 								<xsl:when test="previousMinistryDesignation='मुख्यमंत्री' or previousMinistryDesignation='उप मुख्यमंत्री'">
 									<xsl:value-of select="previousMinistryDesignation"/>
-								</xsl:when>								
+								</xsl:when>		
+								<xsl:when test="previousMinistryDisplayName='मुख्यमंत्री' or previousMinistryDisplayName='उप मुख्यमंत्री'">
+									<xsl:value-of select="previousMinistryDisplayName"/>
+								</xsl:when>						
 								<xsl:otherwise>
 									<xsl:choose>
 										<xsl:when test="previousDepartment=previousSubDepartment and $endPartOfPreviousSubDepartment='विभाग'">											
@@ -224,9 +227,9 @@
 								<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">
 									<xsl:value-of select="primaryMemberDesignation"/>
 								</xsl:when>
-								<!-- <xsl:when test="primaryMemberDesignation='उप मुख्यमंत्री'">
-									<xsl:value-of select="primaryMemberDesignation"/>
-								</xsl:when> -->
+								<xsl:when test="ministryDisplayName='मुख्यमंत्री' or ministryDisplayName='उप मुख्यमंत्री'">
+									<xsl:value-of select="ministryDisplayName"/>
+								</xsl:when>
 								<xsl:otherwise>
 									<xsl:choose>
 										<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true' and $endPartOfSubDepartment='विभाग'">											
@@ -244,9 +247,9 @@
 									<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">
 										<xsl:value-of select="primaryMemberDesignation"/>
 									</xsl:when>
-									<!-- <xsl:when test="primaryMemberDesignation='उप मुख्यमंत्री'">
-										<xsl:value-of select="primaryMemberDesignation"/>
-									</xsl:when> -->
+									<xsl:when test="ministryDisplayName='मुख्यमंत्री' or ministryDisplayName='उप मुख्यमंत्री'">
+										<xsl:value-of select="ministryDisplayName"/>
+									</xsl:when>
 									<xsl:otherwise>
 										<xsl:choose>
 											<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true' and $endPartOfSubDepartment='विभाग'">											
@@ -285,9 +288,9 @@
 									<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">
 										<xsl:value-of select="primaryMemberDesignation"/>
 									</xsl:when>
-									<!-- <xsl:when test="primaryMemberDesignation='उप मुख्यमंत्री'">
-										<xsl:value-of select="primaryMemberDesignation"/>
-									</xsl:when> -->
+									<xsl:when test="ministryDisplayName='मुख्यमंत्री' or ministryDisplayName='उप मुख्यमंत्री'">
+										<xsl:value-of select="ministryDisplayName"/>
+									</xsl:when>
 									<xsl:otherwise>
 										<xsl:choose>
 											<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true' and $endPartOfSubDepartment='विभाग'">											

@@ -587,6 +587,7 @@ public class ResolutionReportController extends BaseController{
 				SubDepartment subDepartment = resolution.getSubDepartment();
 				if(subDepartment!=null) {
 					letterVO.setSubDepartment(subDepartment.getName().trim());
+					letterVO.setMinistryDisplayName(subDepartment.getMinistryDisplayName().trim());
 				}
 				Department department = subDepartment.getDepartment();
 				if(department!=null) {

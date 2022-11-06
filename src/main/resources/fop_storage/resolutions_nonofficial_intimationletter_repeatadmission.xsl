@@ -211,9 +211,34 @@
 												</xsl:choose>
 												<fo:block>(३) सर्व संबंधित सदस्य</fo:block>
 											</xsl:when>
+											<xsl:when test="ministryDisplayName='मुख्यमंत्री'">
+												<fo:block>(१) माननीय <fo:inline font-weight="bold"><xsl:value-of select="ministryDisplayName"/></fo:inline></fo:block>
+												<xsl:choose>
+													<xsl:when test="sessionPlace='मुंबई'">
+														<fo:block>(२) "विधानकार्य कक्ष",सामान्य प्रशासन विभाग,मंत्रालय,मुंबई 400 032.</fo:block>
+													</xsl:when>
+													<xsl:when test="sessionPlace='नागपूर'">
+														<fo:block>(२) "विधानकार्य कक्ष",सामान्य प्रशासन विभाग, शिबीर  कार्यालय, नागपूर.</fo:block>
+													</xsl:when>
+												</xsl:choose>
+												<fo:block>(३) सर्व संबंधित सदस्य</fo:block>
+											</xsl:when>
 											<xsl:when test="primaryMemberDesignation='उप मुख्यमंत्री'">
 												<fo:block>(१) माननीय मुख्यमंत्री</fo:block>
 												<fo:block>(२) माननीय <fo:inline font-weight="bold"><xsl:value-of select="primaryMemberDesignation"/></fo:inline></fo:block>
+												<xsl:choose>
+													<xsl:when test="sessionPlace='मुंबई'">
+														<fo:block>(३) "विधानकार्य कक्ष",सामान्य प्रशासन विभाग,मंत्रालय,मुंबई 400 032.</fo:block>
+													</xsl:when>
+													<xsl:when test="sessionPlace='नागपूर'">
+														<fo:block>(२) "विधानकार्य कक्ष",सामान्य प्रशासन विभाग, शिबीर  कार्यालय, नागपूर.</fo:block>
+													</xsl:when>
+												</xsl:choose>
+												<fo:block>(४) सर्व संबंधित सदस्य</fo:block>
+											</xsl:when>
+											<xsl:when test="ministryDisplayName='उप मुख्यमंत्री'">
+												<fo:block>(१) माननीय मुख्यमंत्री</fo:block>
+												<fo:block>(२) माननीय <fo:inline font-weight="bold"><xsl:value-of select="ministryDisplayName"/></fo:inline></fo:block>
 												<xsl:choose>
 													<xsl:when test="sessionPlace='मुंबई'">
 														<fo:block>(३) "विधानकार्य कक्ष",सामान्य प्रशासन विभाग,मंत्रालय,मुंबई 400 032.</fo:block>
@@ -262,8 +287,32 @@
 													</xsl:choose>
 													<fo:block>(३) सर्व संबंधित सदस्य</fo:block>
 												</xsl:when>
+												<xsl:when test="ministryDisplayName='मुख्यमंत्री'">
+													<fo:block>(१) माननीय <fo:inline font-weight="bold"><xsl:value-of select="ministryDisplayName"/></fo:inline></fo:block>
+													<xsl:choose>
+														<xsl:when test="sessionPlace='मुंबई'">
+															<fo:block>(२) सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, मंत्रालय, मुंबई 400 032</fo:block>
+														</xsl:when>
+														<xsl:when test="sessionPlace='नागपूर'">
+															<fo:block>(२) सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, शिबीर  कार्यालय , नागपूर</fo:block>
+														</xsl:when>
+													</xsl:choose>
+													<fo:block>(३) सर्व संबंधित सदस्य</fo:block>
+												</xsl:when>
 												<xsl:when test="primaryMemberDesignation='उप मुख्यमंत्री'">
 													<fo:block>(१) माननीय <fo:inline font-weight="bold"><xsl:value-of select="primaryMemberDesignation"/></fo:inline></fo:block>
+													<xsl:choose>
+														<xsl:when test="sessionPlace='मुंबई'">
+															<fo:block>(२) सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, मंत्रालय, मुंबई 400 032</fo:block>
+														</xsl:when>
+														<xsl:when test="sessionPlace='नागपूर'">
+															<fo:block>(२) सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, शिबीर  कार्यालय , नागपूर</fo:block>
+														</xsl:when>
+													</xsl:choose>
+													<fo:block>(३) सर्व संबंधित सदस्य</fo:block>
+												</xsl:when>
+												<xsl:when test="ministryDisplayName='उप मुख्यमंत्री'">
+													<fo:block>(१) माननीय <fo:inline font-weight="bold"><xsl:value-of select="ministryDisplayName"/></fo:inline></fo:block>
 													<xsl:choose>
 														<xsl:when test="sessionPlace='मुंबई'">
 															<fo:block>(२) सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, मंत्रालय, मुंबई 400 032</fo:block>

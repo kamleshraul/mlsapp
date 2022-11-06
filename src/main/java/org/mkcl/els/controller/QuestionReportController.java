@@ -449,6 +449,7 @@ public class QuestionReportController extends BaseController{
 				SubDepartment subDepartment = question.getSubDepartment();
 				if(subDepartment!=null) {
 					letterVO.setSubDepartment(subDepartment.getDisplayName().trim());
+					letterVO.setMinistryDisplayName(subDepartment.getMinistryDisplayName().trim());
 				}
 				Department department = subDepartment.getDepartment();
 				if(department!=null) {
@@ -505,6 +506,7 @@ public class QuestionReportController extends BaseController{
 						if(previousDepartment!=null) {
 							letterVO.setPreviousDepartment(previousDepartment.getName());
 						}
+						letterVO.setPreviousMinistryDisplayName(previousSubDepartment.getMinistryDisplayName());
 					}																
 				} else {
 					isError = true;

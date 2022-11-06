@@ -694,10 +694,10 @@
 					<c:forEach items="${internalMinistries }" var="i">
 						<c:choose>
 							<c:when test="${i.id==ministrySelected }">
-								<option value="${i.id }" selected="selected">${i.name}</option>
+								<option value="${i.id }" selected="selected">${i.dropdownDisplayName}</option>
 							</c:when>
 							<c:otherwise>
-								<option value="${i.id }" >${i.name}</option>
+								<option value="${i.id }" >${i.dropdownDisplayName}</option>
 							</c:otherwise>
 						</c:choose>
 					</c:forEach>
@@ -707,10 +707,10 @@
 					<c:forEach items="${internalMinistries }" var="i">
 						<c:choose>
 							<c:when test="${i.id==ministrySelected }">
-								<option value="${i.id }" selected="selected">${i.name}</option>
+								<option value="${i.id }" selected="selected">${i.dropdownDisplayName}</option>
 							</c:when>
 							<c:otherwise>
-								<option value="${i.id }" >${i.name}</option>
+								<option value="${i.id }" >${i.dropdownDisplayName}</option>
 							</c:otherwise>
 						</c:choose>
 					</c:forEach>
