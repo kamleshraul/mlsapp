@@ -131,10 +131,10 @@
 							अल्प सूचना प्रश्न क्रमांक  <xsl:value-of select="number"/> ला <fo:inline font-weight="bold"> <xsl:value-of select="answeringDate"/> </fo:inline> रोजी 
 							सभागृहात उत्तर देण्याबाबत मा. 
 							<xsl:choose>
-									<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">
+									<xsl:when test="primaryMemberDesignation='मुख्‍यमंत्री' or primaryMemberDesignation='उप मुख्‍यमंत्री'">
 										<xsl:value-of select="primaryMemberDesignation"/>
 									</xsl:when>
-									<xsl:when test="ministryDisplayName='मुख्यमंत्री' or ministryDisplayName='उप मुख्यमंत्री'">
+									<xsl:when test="ministryDisplayName='मुख्‍यमंत्री' or ministryDisplayName='उप मुख्‍यमंत्री'">
 										<xsl:value-of select="ministryDisplayName"/>
 									</xsl:when>
 									<xsl:otherwise>
@@ -163,10 +163,10 @@
 							<fo:block margin-left="1.0cm">	
 								<fo:block>							
 								<xsl:choose>
-									<xsl:when test="primaryMemberDesignation='मुख्यमंत्री'">
+									<xsl:when test="primaryMemberDesignation='मुख्‍यमंत्री'">
 										१. माननीय <xsl:value-of select="primaryMemberDesignation"/>
 									</xsl:when>
-									<xsl:when test="primaryMemberDesignation='उप मुख्यमंत्री'">
+									<xsl:when test="primaryMemberDesignation='उप मुख्‍यमंत्री'">
 										१. माननीय <xsl:value-of select="primaryMemberDesignation"/>
 									</xsl:when>
 									<xsl:otherwise>

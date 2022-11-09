@@ -205,10 +205,10 @@
 							विभागाकडे हस्तांतरित केल्याचे दिनांक __________ रोजी या सचिवालयास कळविले आहे. या संदर्भात आपल्या निदर्शनास आणण्यात येते की, उपरोक्त प्रश्नांचे बॅलेट दिनांक <xsl:value-of select="ballotDate"/>
 							रोजी काढण्यात आले असून आता सदरहू प्रश्न पूर्वी कळविल्याप्रमाणे दिनांक <xsl:value-of select="answeringDate"/> रोजी उत्तरासाठी मा. 							
 							<xsl:choose>
-								<xsl:when test="previousMinistryDesignation='मुख्यमंत्री' or previousMinistryDesignation='उप मुख्यमंत्री'">
+								<xsl:when test="previousMinistryDesignation='मुख्‍यमंत्री' or previousMinistryDesignation='उप मुख्‍यमंत्री'">
 									<xsl:value-of select="previousMinistryDesignation"/>
 								</xsl:when>		
-								<xsl:when test="previousMinistryDisplayName='मुख्यमंत्री' or previousMinistryDisplayName='उप मुख्यमंत्री'">
+								<xsl:when test="previousMinistryDisplayName='मुख्‍यमंत्री' or previousMinistryDisplayName='उप मुख्‍यमंत्री'">
 									<xsl:value-of select="previousMinistryDisplayName"/>
 								</xsl:when>						
 								<xsl:otherwise>
@@ -224,10 +224,10 @@
 							</xsl:choose>
 							यांच्या ऐवजी मा.
 							<xsl:choose>
-								<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">
+								<xsl:when test="primaryMemberDesignation='मुख्‍यमंत्री' or primaryMemberDesignation='उप मुख्‍यमंत्री'">
 									<xsl:value-of select="primaryMemberDesignation"/>
 								</xsl:when>
-								<xsl:when test="ministryDisplayName='मुख्यमंत्री' or ministryDisplayName='उप मुख्यमंत्री'">
+								<xsl:when test="ministryDisplayName='मुख्‍यमंत्री' or ministryDisplayName='उप मुख्‍यमंत्री'">
 									<xsl:value-of select="ministryDisplayName"/>
 								</xsl:when>
 								<xsl:otherwise>
@@ -244,10 +244,10 @@
 							यांच्या नावे दाखविण्यात आला आहे. तरी आपणास विनंती करण्यात येत आहे की,
 							<fo:inline font-weight="bold">मा.
 								<xsl:choose>
-									<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">
+									<xsl:when test="primaryMemberDesignation='मुख्‍यमंत्री' or primaryMemberDesignation='उप मुख्‍यमंत्री'">
 										<xsl:value-of select="primaryMemberDesignation"/>
 									</xsl:when>
-									<xsl:when test="ministryDisplayName='मुख्यमंत्री' or ministryDisplayName='उप मुख्यमंत्री'">
+									<xsl:when test="ministryDisplayName='मुख्‍यमंत्री' or ministryDisplayName='उप मुख्‍यमंत्री'">
 										<xsl:value-of select="ministryDisplayName"/>
 									</xsl:when>
 									<xsl:otherwise>
@@ -285,10 +285,10 @@
 							 </fo:block>
 							 <fo:block margin-left="1cm">
 							 	(२) मा. <xsl:choose>
-									<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">
+									<xsl:when test="primaryMemberDesignation='मुख्‍यमंत्री' or primaryMemberDesignation='उप मुख्‍यमंत्री'">
 										<xsl:value-of select="primaryMemberDesignation"/>
 									</xsl:when>
-									<xsl:when test="ministryDisplayName='मुख्यमंत्री' or ministryDisplayName='उप मुख्यमंत्री'">
+									<xsl:when test="ministryDisplayName='मुख्‍यमंत्री' or ministryDisplayName='उप मुख्‍यमंत्री'">
 										<xsl:value-of select="ministryDisplayName"/>
 									</xsl:when>
 									<xsl:otherwise>

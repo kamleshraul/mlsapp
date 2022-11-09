@@ -417,10 +417,10 @@
 							<xsl:when test="element_27='bills_nonofficial'">
 								प्रभारी सदस्य.]
 							</xsl:when>
-							<xsl:when test="element_27='bills_government' and element_21='मुख्यमंत्री'">							
+							<xsl:when test="element_27='bills_government' and element_21='मुख्‍यमंत्री'">							
 								<xsl:value-of select="element_21"/>.]
 							</xsl:when>
-							<xsl:otherwise test="element_27='bills_government' and element_21!='मुख्यमंत्री'">							
+							<xsl:otherwise test="element_27='bills_government' and element_21!='मुख्‍यमंत्री'">							
 								<xsl:value-of select="element_5"/>.]
 							</xsl:otherwise>							
 							</xsl:choose>							

@@ -198,7 +198,7 @@
 								<xsl:choose>
 									<xsl:when test="houseType='lowerhouse'">
 										<xsl:choose>
-											<xsl:when test="primaryMemberDesignation='मुख्यमंत्री'">
+											<xsl:when test="primaryMemberDesignation='मुख्‍यमंत्री'">
 												<fo:block>(१) माननीय <fo:inline font-weight="bold"><xsl:value-of select="primaryMemberDesignation"/></fo:inline></fo:block>
 												<xsl:choose>
 													<xsl:when test="sessionPlace='मुंबई'">
@@ -210,7 +210,7 @@
 												</xsl:choose>
 												<fo:block>(३) सर्व संबंधित सदस्य</fo:block>
 											</xsl:when>
-											<xsl:when test="ministryDisplayName='मुख्यमंत्री'">
+											<xsl:when test="ministryDisplayName='मुख्‍यमंत्री'">
 												<fo:block>(१) माननीय <fo:inline font-weight="bold"><xsl:value-of select="ministryDisplayName"/></fo:inline></fo:block>
 												<xsl:choose>
 													<xsl:when test="sessionPlace='मुंबई'">
@@ -222,8 +222,8 @@
 												</xsl:choose>
 												<fo:block>(३) सर्व संबंधित सदस्य</fo:block>
 											</xsl:when>
-											<xsl:when test="primaryMemberDesignation='उप मुख्यमंत्री'">
-												<fo:block>(१) माननीय मुख्यमंत्री</fo:block>
+											<xsl:when test="primaryMemberDesignation='उप मुख्‍यमंत्री'">
+												<fo:block>(१) माननीय मुख्‍यमंत्री</fo:block>
 												<fo:block>(२) माननीय <fo:inline font-weight="bold"><xsl:value-of select="primaryMemberDesignation"/></fo:inline></fo:block>
 												<xsl:choose>
 													<xsl:when test="sessionPlace='मुंबई'">
@@ -235,8 +235,8 @@
 												</xsl:choose>
 												<fo:block>(४) सर्व संबंधित सदस्य</fo:block>
 											</xsl:when>
-											<xsl:when test="ministryDisplayName='उप मुख्यमंत्री'">
-												<fo:block>(१) माननीय मुख्यमंत्री</fo:block>
+											<xsl:when test="ministryDisplayName='उप मुख्‍यमंत्री'">
+												<fo:block>(१) माननीय मुख्‍यमंत्री</fo:block>
 												<fo:block>(२) माननीय <fo:inline font-weight="bold"><xsl:value-of select="ministryDisplayName"/></fo:inline></fo:block>
 												<xsl:choose>
 													<xsl:when test="sessionPlace='मुंबई'">
@@ -251,11 +251,11 @@
 											<xsl:otherwise>
 												<xsl:choose>
 													<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true' and $endPartOfSubDepartment='विभाग'">											
-														<fo:block>(१) माननीय मुख्यमंत्री ( <fo:inline font-weight="bold"> <xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> </fo:inline> विभागामार्फत )</fo:block>		
+														<fo:block>(१) माननीय मुख्‍यमंत्री ( <fo:inline font-weight="bold"> <xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> </fo:inline> विभागामार्फत )</fo:block>		
 														<fo:block>(२) माननीय <xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/>मंत्री</fo:block>
 													</xsl:when>
 													<xsl:otherwise>
-														<fo:block>(१) माननीय मुख्यमंत्री ( <fo:inline font-weight="bold"><xsl:value-of select="subDepartment"/></fo:inline> विभागामार्फत )</fo:block>		
+														<fo:block>(१) माननीय मुख्‍यमंत्री ( <fo:inline font-weight="bold"><xsl:value-of select="subDepartment"/></fo:inline> विभागामार्फत )</fo:block>		
 														<fo:block>(२) माननीय <xsl:value-of select="subDepartment"/> मंत्री</fo:block>
 													</xsl:otherwise>
 												</xsl:choose>	
@@ -273,7 +273,7 @@
 									</xsl:when>
 									<xsl:when test="houseType='upperhouse'">
 											<xsl:choose>
-												<xsl:when test="primaryMemberDesignation='मुख्यमंत्री'">
+												<xsl:when test="primaryMemberDesignation='मुख्‍यमंत्री'">
 													<fo:block>(१) माननीय <fo:inline font-weight="bold"><xsl:value-of select="primaryMemberDesignation"/></fo:inline></fo:block>
 													<xsl:choose>
 														<xsl:when test="sessionPlace='मुंबई'">
@@ -285,7 +285,7 @@
 													</xsl:choose>
 													<fo:block>(३) सर्व संबंधित सदस्य</fo:block>
 												</xsl:when>
-												<xsl:when test="ministryDisplayName='मुख्यमंत्री'">
+												<xsl:when test="ministryDisplayName='मुख्‍यमंत्री'">
 													<fo:block>(१) माननीय <fo:inline font-weight="bold"><xsl:value-of select="ministryDisplayName"/></fo:inline></fo:block>
 													<xsl:choose>
 														<xsl:when test="sessionPlace='मुंबई'">
@@ -297,7 +297,7 @@
 													</xsl:choose>
 													<fo:block>(३) सर्व संबंधित सदस्य</fo:block>
 												</xsl:when>
-												<xsl:when test="primaryMemberDesignation='उप मुख्यमंत्री'">
+												<xsl:when test="primaryMemberDesignation='उप मुख्‍यमंत्री'">
 													<fo:block>(१) माननीय <fo:inline font-weight="bold"><xsl:value-of select="primaryMemberDesignation"/></fo:inline></fo:block>
 													<xsl:choose>
 														<xsl:when test="sessionPlace='मुंबई'">
@@ -309,7 +309,7 @@
 													</xsl:choose>
 													<fo:block>(३) सर्व संबंधित सदस्य</fo:block>
 												</xsl:when>
-												<xsl:when test="ministryDisplayName='उप मुख्यमंत्री'">
+												<xsl:when test="ministryDisplayName='उप मुख्‍यमंत्री'">
 													<fo:block>(१) माननीय <fo:inline font-weight="bold"><xsl:value-of select="ministryDisplayName"/></fo:inline></fo:block>
 													<xsl:choose>
 														<xsl:when test="sessionPlace='मुंबई'">

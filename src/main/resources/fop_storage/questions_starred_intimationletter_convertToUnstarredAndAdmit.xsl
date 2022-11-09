@@ -139,26 +139,26 @@
 							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; -->
 							<fo:block margin-left="1.5cm">
 								<xsl:choose>
-									<xsl:when test="primaryMemberDesignation='मुख्यमंत्री'">
+									<xsl:when test="primaryMemberDesignation='मुख्‍यमंत्री'">
 										<fo:block>(१) माननीय <fo:inline font-weight="bold"><xsl:value-of select="primaryMemberDesignation"/></fo:inline></fo:block>
 										<fo:block>(२) सर्व संबंधित सदस्यांना</fo:block>
 									</xsl:when>
-									<xsl:when test="ministryDisplayName='मुख्यमंत्री'">
+									<xsl:when test="ministryDisplayName='मुख्‍यमंत्री'">
 										<fo:block>(१) माननीय <fo:inline font-weight="bold"><xsl:value-of select="ministryDisplayName"/></fo:inline></fo:block>
 										<fo:block>(२) सर्व संबंधित सदस्यांना</fo:block>
 									</xsl:when>
-									<xsl:when test="primaryMemberDesignation='उप मुख्यमंत्री'">
-										<fo:block>(१) माननीय मुख्यमंत्री</fo:block>
+									<xsl:when test="primaryMemberDesignation='उप मुख्‍यमंत्री'">
+										<fo:block>(१) माननीय मुख्‍यमंत्री</fo:block>
 										<fo:block>(२) माननीय <fo:inline font-weight="bold"><xsl:value-of select="primaryMemberDesignation"/></fo:inline></fo:block>
 										<fo:block>(३) सर्व संबंधित सदस्यांना</fo:block>
 									</xsl:when>
-									<xsl:when test="ministryDisplayName='उप मुख्यमंत्री'">
-										<fo:block>(१) माननीय मुख्यमंत्री</fo:block>
+									<xsl:when test="ministryDisplayName='उप मुख्‍यमंत्री'">
+										<fo:block>(१) माननीय मुख्‍यमंत्री</fo:block>
 										<fo:block>(२) माननीय <fo:inline font-weight="bold"><xsl:value-of select="ministryDisplayName"/></fo:inline></fo:block>
 										<fo:block>(३) सर्व संबंधित सदस्यांना</fo:block>
 									</xsl:when>
 									<xsl:otherwise>
-										<fo:block>(१) माननीय मुख्यमंत्री</fo:block>
+										<fo:block>(१) माननीय मुख्‍यमंत्री</fo:block>
 										<xsl:choose>
 											<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true' and $endPartOfSubDepartment='विभाग'">											
 												<fo:block>(२) माननीय  <fo:inline font-weight="bold"><xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री</fo:inline></fo:block>
@@ -202,10 +202,10 @@
 						<fo:block font-weight="bold">
 							सन्माननीय
 							<xsl:choose>
-								<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">
+								<xsl:when test="primaryMemberDesignation='मुख्‍यमंत्री' or primaryMemberDesignation='उप मुख्‍यमंत्री'">
 									<xsl:value-of select="primaryMemberDesignation"/>
 								</xsl:when>
-								<xsl:when test="ministryDisplayName='मुख्यमंत्री' or ministryDisplayName='उप मुख्यमंत्री'">
+								<xsl:when test="ministryDisplayName='मुख्‍यमंत्री' or ministryDisplayName='उप मुख्‍यमंत्री'">
 									<xsl:value-of select="ministryDisplayName"/>
 								</xsl:when>
 								<xsl:otherwise>

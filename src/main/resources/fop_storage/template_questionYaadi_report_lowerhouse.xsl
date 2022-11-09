@@ -763,10 +763,10 @@
                 					सन्माननीय
                 				</fo:inline>
                 				<xsl:choose>
-									<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">
+									<xsl:when test="primaryMemberDesignation='मुख्‍यमंत्री' or primaryMemberDesignation='उप मुख्‍यमंत्री'">
 										<xsl:value-of select="primaryMemberDesignation"/><fo:inline font-weight="normal"> पुढील गोष्टींचा खुलासा करतील काय :-</fo:inline>
 									</xsl:when>
-									<xsl:when test="ministryName='मुख्यमंत्री' or ministryName='उप मुख्यमंत्री'">
+									<xsl:when test="ministryName='मुख्‍यमंत्री' or ministryName='उप मुख्‍यमंत्री'">
 										<xsl:value-of select="ministryName"/><fo:inline font-weight="normal"> पुढील गोष्टींचा खुलासा करतील काय :-</fo:inline>
 									</xsl:when>
 									<xsl:otherwise>
