@@ -245,17 +245,17 @@
 	<p>
 		<label class="small"><spring:message
 				code="usergroup.firstName" text="First Name" /></label>
-		<form:input cssClass="sText " path="firstName" />		
+		<form:input cssClass="sText " path="firstName" value="${userFirstName}" />		
 	</p>
 	<p>
 		<label class="small"><spring:message
 				code="usergroup.middleName" text="Middle Name" /></label>
-		<form:input cssClass="sText " path="middleName" />		
+		<form:input cssClass="sText " path="middleName" value="${userMiddleName}" />		
 	</p>
 	<p>
 		<label class="small"><spring:message
 				code="usergroup.lastName" text="Last Name" /></label>
-		<form:input cssClass="sText " path="lastName" />		
+		<form:input cssClass="sText " path="lastName" value="${userLastName}" />		
 	</p>
 	
 	<input type="hidden" id="selectedDevices" value="${selectedDeviceType}" />

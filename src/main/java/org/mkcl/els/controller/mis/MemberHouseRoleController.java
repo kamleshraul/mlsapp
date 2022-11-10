@@ -73,6 +73,8 @@ public class MemberHouseRoleController extends BaseController {
 			final HttpServletRequest request) {
 		final String servletPath = request.getServletPath().replaceFirst("\\/","");
 		String urlPattern=servletPath.split("\\/list")[0];
+		Long member = Long.parseLong(request.getParameter("member"));
+		populateNames(model,request,locale.toString(),member);
 		Grid grid;
 		try {
 			grid = Grid.findByDetailView(urlPattern, locale.toString());
@@ -387,6 +389,18 @@ public class MemberHouseRoleController extends BaseController {
 		Long member=domain.getMember().getId();
 		model.addAttribute("member",member);
 		populateModel(model, domain, locale, request,houseType ,member);
+	}
+	
+	/**
+	 * Populate edit.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 */
+	private void populateNames(final ModelMap model,final HttpServletRequest request, final String locale, final Long member) {
+		Member selectedMember=Member.findById(Member.class,member);
+		model.addAttribute("fullname", selectedMember.getFullname());
 	}
 
 	/**

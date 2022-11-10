@@ -147,7 +147,11 @@
 			<p>&nbsp;</p>
 		</div>
 	</div>
-		
+	
+	<h3 style="color:black;"><spring:message code="member.new.heading" text="Enter Details"/>:&nbsp;
+		${fullname}		
+	</h3>
+    
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
 	<input type="hidden" id="gridURLParams" name="gridURLParams">

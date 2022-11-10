@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.DateUtil;
+import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
@@ -62,6 +63,26 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
 		model.addAttribute("houseType", request.getParameter("houseType"));
 	}
 	
+	@Override
+	protected void populateList(ModelMap model, HttpServletRequest request, String locale, AuthUser currentUser) {
+		// TODO Auto-generated method stub
+		Long member = Long.parseLong(request.getParameter("member"));
+        populateNames(model,request,locale.toString(),member);
+		super.populateList(model, request, locale, currentUser);	
+	}
+	
+	/**
+	 * Populate edit.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 */
+	private void populateNames(final ModelMap model,final HttpServletRequest request, final String locale, final Long member) {
+		Member selectedMember=Member.findById(Member.class,member);
+		model.addAttribute("fullname", selectedMember.getFullname());
+	}
+
 	@Override
 	protected void preValidateCreate(MemberMinister domain,
 			final BindingResult result, final HttpServletRequest request) {

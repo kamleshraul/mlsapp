@@ -52,8 +52,22 @@ public class MemberElectionController extends GenericController<ElectionResult>{
     @Override
     protected void populateList(final ModelMap model, final HttpServletRequest request,
             final String locale, final AuthUser currentUser) {
+    	Long member = Long.parseLong(request.getParameter("member"));
+        populateNames(model,request,locale.toString(),member);
         model.addAttribute("houseType", request.getParameter("houseType"));
     }
+    
+	/**
+	 * Populate edit.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 */
+	private void populateNames(final ModelMap model,final HttpServletRequest request, final String locale, final Long member) {
+		Member selectedMember=Member.findById(Member.class,member);
+		model.addAttribute("fullname", selectedMember.getFullname());
+	}
 
 	@Override
 	protected void populateNew(final ModelMap model, final ElectionResult domain,

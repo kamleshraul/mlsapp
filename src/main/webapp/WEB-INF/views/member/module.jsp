@@ -177,7 +177,7 @@
 				return;
 			}
 			else{
-				showTabByIdAndUrl('minister_tab','member/minister/list?house='+$('#house').val()+'&houseType='+$("#houseType").val());
+				showTabByIdAndUrl('minister_tab','member/minister/list?member='+$('#key').val()+'&house='+$('#house').val()+'&houseType='+$("#houseType").val());
 				}
 		}
 		function listMemberPartyDetails(row) {
@@ -186,7 +186,7 @@
 				return;
 			}
 			else{
-				showTabByIdAndUrl('party_tab','member/party/list?house='+$('#house').val()+'&houseType='+$("#houseType").val());
+				showTabByIdAndUrl('party_tab','member/party/list?member='+$('#key').val()+'&house='+$('#house').val()+'&houseType='+$("#houseType").val());
 				}
 		}
 		function listMemberElectionDetails(row) {
@@ -196,7 +196,7 @@
 			}
 			else{
 				var housetype=$('#houseType').val();				
-				showTabByIdAndUrl('election_tab','member/election/list?house='+$('#house').val()+'&houseType='+$("#houseType").val());
+				showTabByIdAndUrl('election_tab','member/election/list?member='+$('#key').val()+'&house='+$('#house').val()+'&houseType='+$("#houseType").val());
 				}
 		}	
 		function listMemberSuspensionDetails(row) {
@@ -206,7 +206,7 @@
 			}
 			else{
 				var housetype=$('#houseType').val();				
-				showTabByIdAndUrl('suspension_tab','member/suspension/list?house='+$('#house').val()+'&houseType='+$("#houseType").val());
+				showTabByIdAndUrl('suspension_tab','member/suspension/list?member='+$('#key').val()+'&house='+$('#house').val()+'&houseType='+$("#houseType").val());
 				}
 		}
 		function listMemberFullProfileView(row){
