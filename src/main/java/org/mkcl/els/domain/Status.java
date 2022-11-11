@@ -48,6 +48,8 @@ public class Status extends BaseDomain implements Serializable{
     private String name;
     
     private Integer priority;
+	
+	private Integer supportOrder;
 
     /** The status repository. */
     @Autowired
@@ -161,12 +163,24 @@ public class Status extends BaseDomain implements Serializable{
 		this.priority = priority;
 	}
 
+	public Integer getSupportOrder() {
+		return supportOrder;
+	}
+
+	public void setSupportOrder(Integer supportOrder) {
+		this.supportOrder = supportOrder;
+	}
+
 	public static List<Status> findStatusContainedIn(final String commadelimitedStatusTypes,final String locale) throws ELSException {
 		return getStatusRepository().findStatusContainedIn(commadelimitedStatusTypes, locale);
 	}
 	
 	public static List<Status> findStatusContainedIn(final String commadelimitedStatusTypes,final String locale, final String sortOrder) {
 		return getStatusRepository().findStatusContainedIn(commadelimitedStatusTypes, locale, sortOrder);
+	}
+	
+	public static List<Status> findStatusWithSupportOrderContainedIn(final String commadelimitedStatusTypes,final String locale) throws ELSException {
+		return getStatusRepository().findStatusWithSupportOrderContainedIn(commadelimitedStatusTypes, locale);
 	}
 
 }

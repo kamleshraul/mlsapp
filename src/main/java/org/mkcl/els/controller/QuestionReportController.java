@@ -193,7 +193,7 @@ public class QuestionReportController extends BaseController{
 		deviceXmlVO.setConstituency(question.getPrimaryMember().findConstituency().getDisplayName());//constituency		
 		Status memberStatus = question.findMemberStatus();
 		deviceXmlVO.setStatus(memberStatus.getName());//status
-		deviceXmlVO.setMinistryName(question.getMinistry().getName());//Ministry Name
+		deviceXmlVO.setMinistryName(question.getMinistry().getDropdownDisplayName());//Ministry Name
 		deviceXmlVO.setSubdepartmentName(question.getSubDepartment().getName());//Subdepartment name
 		if(question.getGroup()!=null){
 			deviceXmlVO.setFormattedGroupNumber(FormaterUtil.formatNumberNoGrouping(question.getGroup().getNumber(), locale.toString()));//Group Number

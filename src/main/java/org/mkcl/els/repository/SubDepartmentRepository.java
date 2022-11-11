@@ -24,6 +24,16 @@ public class SubDepartmentRepository extends BaseRepository<ApplicationLocale, L
 		return applicationLocale;
 	}
 	
+	public List<SubDepartment> findAllCurrentSubDepartments(final String locale) {
+		String query = "Select m FROM SubDepartment m where m.locale= '"+locale+"' and isExpired is false order by m.name";
+
+		TypedQuery<SubDepartment> tQuery = this.em().createQuery(query, SubDepartment.class);
+
+		List<SubDepartment> subdepartments = tQuery.getResultList();
+
+		return subdepartments;
+	}
+	
 	public Ministry findMinistry(final Long subdepartmentId, final Date onDate) {
 		Ministry ministry = null;
 		

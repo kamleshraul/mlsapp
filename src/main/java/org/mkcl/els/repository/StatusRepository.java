@@ -110,4 +110,30 @@ public class StatusRepository extends BaseRepository<Status, Serializable>{
 		return this.em().createQuery(query).getResultList();		
 	}
 
+	public List<Status> findStatusWithSupportOrderContainedIn(final String commadelimitedStatusTypes,
+			final String locale) throws ELSException {
+		try{
+			String initialQuery="SELECT s FROM Status s WHERE s.locale='"+locale+"' ";
+			StringBuffer buffer=new StringBuffer();
+			String[] statusAllowed=commadelimitedStatusTypes.split(",");
+			for(String i:statusAllowed){
+				if(!i.isEmpty()){
+					/**** trim i since there can be extra white spaces present ****/
+					buffer.append(" (s.type='"+i.trim()+"') OR");
+				}
+			}
+			buffer.deleteCharAt(buffer.length()-1);
+			buffer.deleteCharAt(buffer.length()-1);
+			String query=initialQuery+" AND ("+buffer.toString()+") AND s.supportOrder>0 ORDER BY s.supportOrder "+ApplicationConstants.ASC
+					+",s.name "+ApplicationConstants.ASC;
+			return this.em().createQuery(query, Status.class).getResultList();
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("StatusRepository_List<Status>_findStatusContainedIn", "Status Not found");
+			throw elsException;
+		}
+	}
+
 }

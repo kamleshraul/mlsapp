@@ -102,6 +102,10 @@ public class SubDepartment extends BaseDomain implements Serializable{
 		return getSubDepartmentRepository().findMinistry(this.getId(), onDate);
 	}
 	
+	public static List<SubDepartment> findAllCurrentSubDepartments(final String locale) throws ELSException {
+    	return getSubDepartmentRepository().findAllCurrentSubDepartments(locale);
+	}
+	
 	// ---------------------------------Getters and Setters-------------------------------------------------
 	/**
 	 * Gets the name.

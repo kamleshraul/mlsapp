@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -15,9 +16,14 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.AuthUser;
+import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.xmlvo.TestXmlVO;
+import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
@@ -29,7 +35,9 @@ import org.mkcl.els.domain.CutMotionDepartmentDatePriority;
 import org.mkcl.els.domain.CutMotionDraft;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.Holiday;
+import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberDepartment;
 import org.mkcl.els.domain.MemberMinister;
@@ -40,6 +48,7 @@ import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDraft;
 import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
@@ -53,6 +62,7 @@ import org.mkcl.els.service.ISecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -71,6 +81,121 @@ public class AdminController extends BaseController {
 	
 	@Autowired 
 	private INotificationService notificationService;
+	
+	@RequestMapping(value="support_activities/module", method=RequestMethod.GET)
+    public String populateSupportActivitiesModule(final ModelMap model, 
+    		final HttpServletRequest request,
+    		final Locale locale) throws ELSException {
+//		final String servletPath = request.getServletPath().replaceFirst("\\/","");
+//		//here making provisions for displaying error pages
+//        if(model.containsAttribute("errorcode")){
+//            return servletPath.replace("password","error");
+//        }else{
+//            return servletPath;
+//        }
+        
+        // Populate locale
+     	model.addAttribute("moduleLocale", locale.toString());
+     		
+		// Populate Device types
+  		List<DeviceType> deviceTypes = DeviceType.findAll(DeviceType.class, "supportOrder", ApplicationConstants.ASC, locale.toString());
+  		model.addAttribute("deviceTypes", deviceTypes);
+  		String defaultDeviceTypeForSupportActivities = ApplicationConstants.UNSTARRED_QUESTION;
+  		CustomParameter csptDefaultDeviceType = CustomParameter.findByName(CustomParameter.class, "DEFAULT_DEVICETYPE_FOR_SUPPORT_ACTIVITIES", "");
+  		if(csptDefaultDeviceType!=null 
+  				&& csptDefaultDeviceType.getValue()!=null && !csptDefaultDeviceType.getValue().isEmpty()) {
+  			defaultDeviceTypeForSupportActivities = csptDefaultDeviceType.getValue();
+  		}
+  		DeviceType defaultSelectedDeviceType = DeviceType.findByType(defaultDeviceTypeForSupportActivities, locale.toString());
+  		model.addAttribute("deviceType", defaultSelectedDeviceType.getId());
+  		model.addAttribute("selectedDeviceType", defaultSelectedDeviceType.getId());
+ 		model.addAttribute("deviceTypeType", defaultSelectedDeviceType.getType());
+ 		model.addAttribute("whichDevice", "questions_"); //as default devicetype is unstarred questions
+ 		String device = defaultSelectedDeviceType.getDevice();     	
+     	
+      	// Populate House types
+  		List<HouseType> houseTypes = HouseType.findAll(HouseType.class, "name", ApplicationConstants.ASC, locale.toString());
+  		model.addAttribute("houseTypes", houseTypes);
+  		HouseType defaultSelectedHouseType = HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale.toString());
+  		model.addAttribute("defaultSelectedHouseType", defaultSelectedHouseType.getType());
+  		model.addAttribute("defaultSelectedHouseTypeId", defaultSelectedHouseType.getId());
+  		
+  		// Populate Session types
+		List<SessionType> sessionTypes = SessionType.findAll(SessionType.class, "sessionType", ApplicationConstants.ASC, locale.toString());
+		model.addAttribute("sessionTypes", sessionTypes);
+		
+		// Populate latest Session type and year
+		SessionType sessionType = null;
+		Integer sessionYear = new GregorianCalendar().get(Calendar.YEAR);
+		Session latestSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(defaultSelectedHouseType, defaultSelectedDeviceType);
+		if(latestSession != null) {
+			sessionType = latestSession.getType();
+			model.addAttribute("sessionType", sessionType.getId());
+			sessionYear = latestSession.getYear();
+		}
+		else {
+			model.addAttribute("errorcode", "nosessionentriesfound");
+			return "support_activities/error";
+		}
+		model.addAttribute("sessionYear", sessionYear);
+		int year = sessionYear;
+		CustomParameter houseFormationYear=CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+		List<Reference> years = new ArrayList<Reference>();
+		if(houseFormationYear != null){
+			Integer formationYear=Integer.parseInt(houseFormationYear.getValue());
+			for(int i = year; i >= formationYear; i--){
+				Reference reference = new Reference(String.valueOf(i),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i));
+				years.add(reference);
+			}
+		}else{
+			model.addAttribute("errorcode", "houseformationyearnotset");
+			return "support_activities/error";
+		}
+		model.addAttribute("years", years);
+		
+     	// Populate Groups
+     	List<Reference> groups = new ArrayList<Reference>();
+     	String groupNumberLimitParameter = CustomParameter.findByName(CustomParameter.class, "DEFAULT_GROUP_NUMBER", "").getValue();
+     	Integer groupNumberLimit=Integer.parseInt(groupNumberLimitParameter);
+		for(int i = 1; i <= groupNumberLimit; i++){
+			Reference reference = new Reference(String.valueOf(i),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i));
+			groups.add(reference);
+		}
+		model.addAttribute("groups",groups);
+		
+		// Populate SubDepartments
+		List<SubDepartment> currentSubDepartments = SubDepartment.findAllCurrentSubDepartments(locale.toString());
+		model.addAttribute("subdepartments",currentSubDepartments);
+		
+		// Populate Status
+		CustomParameter csptStatusesForDefaultDeviceType=CustomParameter.findByName(CustomParameter.class, "STATUS_TYPES_FOR_"+defaultSelectedDeviceType.getType().toUpperCase(), "");
+		if(csptStatusesForDefaultDeviceType!=null && csptStatusesForDefaultDeviceType.getValue()!=null) {
+			List<Status> statusesForDefaultDeviceType = Status.findStatusWithSupportOrderContainedIn(csptStatusesForDefaultDeviceType.getValue(), locale.toString());
+			model.addAttribute("statusesForDeviceType", statusesForDefaultDeviceType);
+		}
+		
+		
+		// Populate Search By Parameter
+		try{
+			CustomParameter csptSearchByFacility = CustomParameter.findByName(CustomParameter.class, "SEARCHFACILITY_SEARCH_BY", "");
+			if(csptSearchByFacility != null && csptSearchByFacility.getValue() != null && ! csptSearchByFacility.getValue().isEmpty()){
+				List<MasterVO> searchByData = new ArrayList<MasterVO>();
+				for(String sf : csptSearchByFacility.getValue().split(";")){
+					String[] data = sf.split(":");
+					MasterVO newVO = new MasterVO();
+					newVO.setValue(data[0]);
+					newVO.setName(data[1]);
+					searchByData.add(newVO);
+				}
+				model.addAttribute("searchBy", searchByData);
+			}			
+		}catch(Exception e){
+			logger.error("error", e);
+			return "support_activities/error";
+		}
+		
+		return "support_activities/module";
+	}
 
 //	/**
 //	 * Starts question workflow at the given level.

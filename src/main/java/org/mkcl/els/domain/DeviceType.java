@@ -73,6 +73,8 @@ public class DeviceType extends BaseDomain implements Serializable {
     /** The name as displayed in upperhouse. */
     @Column(length = 150)
     private String name_upperhouse;
+	
+	private Integer supportOrder;
     
     @Autowired
     private transient DeviceTypeRepository deviceTypeRepository;
@@ -227,6 +229,16 @@ public class DeviceType extends BaseDomain implements Serializable {
 
 	public void setName_upperhouse(String name_upperhouse) {
 		this.name_upperhouse = name_upperhouse;
+	}
+
+
+	public Integer getSupportOrder() {
+		return supportOrder;
+	}
+
+
+	public void setSupportOrder(Integer supportOrder) {
+		this.supportOrder = supportOrder;
 	}
 	
 }

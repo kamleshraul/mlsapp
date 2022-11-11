@@ -652,6 +652,9 @@
 		
 		<pattern>/myprofile</pattern>
 		<pattern>/myprofile/password</pattern>
+		
+		<pattern>/admin</pattern>
+		<pattern>/admin/support_activities/module</pattern>
 	</decorator>
 	<decorator name="mnu_form" page="mnu_form.jsp">
 		<pattern>/menu</pattern>
