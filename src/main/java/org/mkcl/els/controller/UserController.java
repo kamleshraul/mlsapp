@@ -312,6 +312,19 @@ javax.servlet.http.HttpServletRequest)
         final String servletPath = request.getServletPath().replaceFirst("\\/","");
         /** username **/
         String username = request.getParameter("username");
+    	User user = null;
+    	try {
+			user = User.findByUserName(username, locale.toString());
+		} catch (ELSException e) {
+			e.printStackTrace();
+			//error
+	
+			request.getSession().setAttribute("type","error");
+	      	
+		}
+    	
+    	model.addAttribute("userFirstName", user.findFirstLastName());
+    	model.addAttribute("username", username);
         if(username==null || username.isEmpty()) {
         	username = (String) request.getSession().getAttribute("selectedUsername"); 
         	if(username!=null) {
@@ -374,6 +387,8 @@ javax.servlet.http.HttpServletRequest)
 				request.getSession().setAttribute("type","error");
 		        redirectAttributes.addFlashAttribute("msg", "update_error");	
 			}
+			
+	    	
 			if(user!=null && user.getId()!=null) {
 				Credential credential = user.getCredential();
 				if(credential!=null) {
@@ -534,6 +549,19 @@ javax.servlet.http.HttpServletRequest)
         final String servletPath = request.getServletPath().replaceFirst("\\/","");
         /** username **/
         String username = request.getParameter("username");
+     	User user = null;
+    	try {
+			user = User.findByUserName(username, locale.toString());
+		} catch (ELSException e) {
+			e.printStackTrace();
+			//error
+	
+			request.getSession().setAttribute("type","error");
+	      	
+		}
+    	
+    	model.addAttribute("userFirstName", user.findFirstLastName());
+    	model.addAttribute("username", username);
         if(username==null || username.isEmpty()) {
         	username = (String) request.getSession().getAttribute("selectedUsername"); 
         	if(username!=null) {
