@@ -10,6 +10,14 @@
 	var processMode = $('#processMode').val();
 	$(document).ready(function() {
 		
+		//Shubham A
+		$('#TestReport').click(function(){
+			TestRevisionReport();
+			});	
+		
+		
+		
+		
 		//blink notice message per second interval
 		var f = document.getElementById('noticeMessageDiv');
 		if(f!=null && f!=undefined) {
@@ -318,6 +326,8 @@
 			reloadQuestionGrid();
 			
 		});
+		
+       
 		
 		/**** group changes then reload grid ****/
 		$("#selectedGroup").change(function() {
@@ -1710,6 +1720,24 @@
 		showTabByIdAndUrl('details_tab', 'question/report/halfhourdaysubmitreportdatefilter?'+ param);
 	}
 	
+	//---------------------- #  Edited By Shubham A #-------------------------
+	
+	function TestRevisionReport(){
+		var param = "question/report/generalreport?sessionYear=" + $("#selectedSessionYear").val()
+		+ "&sessionType=" + $("#selectedSessionType").val()
+		+ "&houseType=" + $("#selectedHouseType").val()
+		+ "&deviceType=" + $("#selectedQuestionType").val()
+	    + "&status=" + $("#selectedStatus").val() 
+		+ "&groupId="+$("#selectedGroup").val()
+		+ "&reportout=RevisionReport"
+		+ "&report=LAST_REVISION_REPORT"
+		+ "&locale=mr_IN";
+		console.log(param);
+	    showTabByIdAndUrl('details_tab',param)
+	}
+	
+	//---------------------------------------------------------------------------------
+	
 	function showHDStatAndAdmissionreport(){
 		var param = "sessionYear=" + $("#selectedSessionYear").val()
 		+ "&sessionType=" + $("#selectedSessionType").val()
@@ -1947,7 +1975,7 @@
 				+ "&fromDate=" + ($("#sumRepFromDate").val()==''?'0':$("#sumRepFromDate").val())
 				+ "&toDate=" + ($("#sumRepToDate").val()==''?'0':$("#sumRepToDate").val())
 				+ "&report=STARRED_ADMIT_CONVERT_TO_UNSTARRED_REPORT";
-				
+							
 				if(qId.length>0) {
 					url += "&havingIN=TRUE";
 				} else {
@@ -2430,7 +2458,14 @@
 						</a> |						
 						<a href="#" id="generateMemberDraftReport" class="butSim">
 							<spring:message code="question.generateMemberDraftReport" text="Generate Member Draft Report"/>
-						</a> |
+						</a> 
+						<!-- Edited By Shubham Amande  -->
+						|
+					    <a href="#" id="TestReport" class="butSim" >
+							<spring:message code="question.LastRevisionReport" text="LastRevisionReport"/>
+						</a>
+						 |
+						<!----------------------------------------------------------->
 						<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 							<a href="#" id="showVivranReport" class="butSim">
 								<spring:message code="question.vivranReport" text="Vivran Report"/>
