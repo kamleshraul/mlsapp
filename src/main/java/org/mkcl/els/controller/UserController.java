@@ -387,7 +387,8 @@ javax.servlet.http.HttpServletRequest)
 				request.getSession().setAttribute("type","error");
 		        redirectAttributes.addFlashAttribute("msg", "update_error");	
 			}
-			
+			model.addAttribute("userFirstName", user.findFirstLastName());
+	    	model.addAttribute("username", username);
 	    	
 			if(user!=null && user.getId()!=null) {
 				Credential credential = user.getCredential();
@@ -627,6 +628,8 @@ javax.servlet.http.HttpServletRequest)
 				request.getSession().setAttribute("type","error");
 		        redirectAttributes.addFlashAttribute("msg", "update_error");	
 			}
+			model.addAttribute("userFirstName", user.findFirstLastName());
+	    	model.addAttribute("username", username);
 			if(user!=null && user.getId()!=null) {
 				Credential credential = user.getCredential();
 				if(credential!=null) {
