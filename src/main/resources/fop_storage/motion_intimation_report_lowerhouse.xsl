@@ -257,7 +257,7 @@
 							<fo:block>&#160;</fo:block>
 							<fo:block font-weight="bold">लक्षवेधी सूचना क्रमांक : <xsl:value-of select="./element_2/element_2_3"></xsl:value-of> </fo:block>
 							<fo:block>&#160;</fo:block>
-							<fo:block font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;<xsl:value-of select="./element_2/element_2_6"></xsl:value-of> वि.प.स.</fo:block>
+							<fo:block font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;<xsl:value-of select="./element_2/element_2_6"></xsl:value-of> वि.स.स.</fo:block>
 							<fo:block>&#160;</fo:block>
 							<fo:block><xsl:value-of select="./element_2/element_2_8"></xsl:value-of> </fo:block>
 							<fo:block>&#160;</fo:block>
