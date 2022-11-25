@@ -938,6 +938,13 @@
 	<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
 	</p>
 	</c:if>
+	<c:if test="${not empty domain.factualPositionFromDepartment}">
+	<p id="factualP">
+		<label class="wysiwyglabel"><spring:message code="motion.factualPositionFromDepartment" text="Factual Position"/></label>
+		<form:textarea path="factualPositionFromDepartment" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="factualPositionFromDepartment" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+	</p>
+	</c:if>
 	<p>
 	<label class="wysiwyglabel"><spring:message code="motion.remarks" text="Remarks"/></label>
 	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>

@@ -876,11 +876,19 @@ public class MotionWorkflowController extends BaseController {
 			}
 
 			if (isMinistryChanged || isSubDepartmentChanged) {
-				domain.setRecommendationStatus(motion.getInternalStatus());
+				if (userGroupType.equals(ApplicationConstants.DEPARTMENT)
+						|| userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+					Status sendToDepartmentStatus = Status.findByType(ApplicationConstants.MOTION_PROCESSED_SEND_TO_DEPARTMENT, locale.toString());
+					domain.setRecommendationStatus(sendToDepartmentStatus);
+				} 
+				else {
+					domain.setRecommendationStatus(motion.getInternalStatus());
+				}
+				
 				domain.merge();
 				WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(motion);
 				motion.removeExistingWorkflowAttributes();
-				motion.setRecommendationStatus(motion.getInternalStatus());
+				motion.setRecommendationStatus(domain.getRecommendationStatus());
 
 				if (wfDetails != null) {
 					// Before ending wfDetails process collect information
@@ -892,16 +900,104 @@ public class MotionWorkflowController extends BaseController {
 						ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale.toString());
 						assigneeLevel = assigneeLevel - 1;
 					}
-					TODO: // find below as per latest reference letter for non
-							// department users
-					referenceNumber = wfDetails.getReferenceNumber();
-					referredNumber = wfDetails.getReferredNumber();
+					
+					if(domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
+						ReferenceLetter latestIntimationReferenceLetterHavingMotion = ReferenceLetter
+								.findLatestHavingGivenDevice(domain.getId().toString(),
+										ApplicationConstants.INTIMATION_FOR_REPLY_FROM_DEPARTMENT,
+										locale.toString());
+			
+						Map<String, String> referenceLetterIdentifiers = new LinkedHashMap<String, String>();
+						referenceLetterIdentifiers.put("parentDeviceId", domain.getId().toString());
+						referenceLetterIdentifiers.put("referenceFor",
+								ApplicationConstants.INTIMATION_FOR_REPLY_FROM_DEPARTMENT);
+						ReferenceLetter latestIntimationReferenceLetterForMotion = ReferenceLetter
+								.findLatestByFieldNames(referenceLetterIdentifiers, locale.toString());
+			
+						if (latestIntimationReferenceLetterHavingMotion != null
+								&& latestIntimationReferenceLetterForMotion != null
+								&& latestIntimationReferenceLetterHavingMotion.getParentDeviceId()
+										.equals(domain.getId().toString())) {
+							String strReferenceNumber = latestIntimationReferenceLetterForMotion
+									.getReferenceNumber();
+							if (strReferenceNumber != null && !strReferenceNumber.isEmpty()) {
+								String[] referenceNumberSplits = strReferenceNumber
+										.split(domain.getId().toString());
+								Integer referenceNo = Integer.parseInt(referenceNumberSplits[1]) + 1;
+								referenceNumber = domain.getId().toString() + referenceNo.toString();
+								referredNumber = strReferenceNumber;
+							}
+						} else {
+							if (latestIntimationReferenceLetterHavingMotion != null
+									&& !latestIntimationReferenceLetterHavingMotion.getParentDeviceId()
+											.equals(domain.getId())) {
+								Motion previousParentMotion = Motion.findById(Motion.class, Long.parseLong(
+										latestIntimationReferenceLetterHavingMotion.getParentDeviceId()));
+								if (previousParentMotion != null && previousParentMotion.getParent().getId()
+										.equals(domain.getId())) {
+									referredNumber = latestIntimationReferenceLetterHavingMotion
+											.getReferenceNumber();
+								}
+							}
+							if (latestIntimationReferenceLetterForMotion != null) {
+								String strReferenceNumber = latestIntimationReferenceLetterForMotion
+										.getReferenceNumber();
+								if (strReferenceNumber != null && !strReferenceNumber.isEmpty()) {
+									String[] referenceNumberSplits = strReferenceNumber
+											.split(domain.getId().toString());
+									Integer referenceNo = Integer.parseInt(referenceNumberSplits[1]) + 1;
+									referenceNumber = domain.getId().toString() + referenceNo.toString();
+								}
+							} else {
+								referenceNumber = domain.getId().toString() + "1";
+							}
+						}
+					}					
+					
 					Workflow workflow = Workflow.findByStatus(motion.getInternalStatus(), locale.toString());
 					// Motion in Post final status and pre ballot state can be
 					// group changed by Department
 					// as well as assistant of Secretariat
-					WorkflowDetails.startProcessAtGivenLevel(motion, ApplicationConstants.APPROVAL_WORKFLOW, workflow,
+					WorkflowDetails resendRevisedMotionTextWorkflowDetails = WorkflowDetails.startProcessAtGivenLevel(motion, ApplicationConstants.APPROVAL_WORKFLOW, workflow,
 							ugt, assigneeLevel, referenceNumber, referredNumber, locale.toString());
+					
+					String copyType = null;
+					if (referredNumber != null && !referredNumber.isEmpty()) {
+						copyType = "revisedCopy";
+					} 
+					else {
+						if(domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+							copyType = "factual_position";
+						}
+						else {
+							copyType = "tentativeCopy";
+						}						
+					}
+
+					/**** SEND NOTIFICATION TO DEPARTMENT USER ****/
+					if (resendRevisedMotionTextWorkflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT) 
+							|| userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+						NotificationController.sendDepartmentProcessNotificationForMotion(domain,
+								resendRevisedMotionTextWorkflowDetails.getAssignee(), copyType,
+								domain.getLocale());
+					}
+
+					/****
+					 * CREATE REFERENCE LETTER FOR DEPARTMENT USER
+					 ****/
+					if (resendRevisedMotionTextWorkflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+							&& domain.getInternalStatus().getType()
+									.equals(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
+						ReferenceLetter referenceLetter = Motion.generateReferenceLetter(domain, copyType,
+								this.getCurrentUser().getActualUsername(),
+								resendRevisedMotionTextWorkflowDetails.getAssignee(), referenceNumber,
+								referredNumber, locale.toString());
+
+						if (referenceLetter == null || referenceLetter.getId() == null) {
+							logger.error(
+									"Error in generation of reference letter while sending for reply to department");
+						}
+					}
 
 					/**** display message ****/
 
@@ -1044,7 +1140,12 @@ public class MotionWorkflowController extends BaseController {
 								if (referredNumber != null && !referredNumber.isEmpty()) {
 									copyType = "revisedCopy";
 								} else {
-									copyType = "tentativeCopy";
+									if(domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+										copyType = "factual_position";
+									}
+									else {
+										copyType = "tentativeCopy";
+									}
 								}
 
 								/**** SEND NOTIFICATION TO DEPARTMENT USER ****/
@@ -1223,12 +1324,24 @@ public class MotionWorkflowController extends BaseController {
 							if (referredNumber != null && !referredNumber.isEmpty()) {
 								copyType = "revisedCopy";
 							} else {
-								copyType = "tentativeCopy";
+								if(domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+									copyType = "factual_position";
+								}
+								else {
+									copyType = "tentativeCopy";
+								}
 							}
 
 							/**** SEND NOTIFICATION TO DEPARTMENT USER ****/
-							if (usergroupType.getType().equals(ApplicationConstants.DEPARTMENT)
-									|| usergroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+							if ((usergroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+									|| usergroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))
+									&& domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
+								NotificationController.sendDepartmentProcessNotificationForMotion(domain,
+										workflowDetails2.getAssignee(), copyType, domain.getLocale());
+							}
+							else if ((usergroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+									|| usergroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))
+									&& domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
 								NotificationController.sendDepartmentProcessNotificationForMotion(domain,
 										workflowDetails2.getAssignee(), copyType, domain.getLocale());
 							}

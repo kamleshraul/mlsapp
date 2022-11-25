@@ -2811,6 +2811,12 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							if(motion.getSubDepartment() != null){
 								workflowDetails.setSubdepartment(motion.getSubDepartment().getName());
 							}
+							if(motion.getFactualPositionFromDepartment() != null && !motion.getFactualPositionFromDepartment().isEmpty()){
+								workflowDetails.setReply(motion.getFactualPositionFromDepartment());
+							}
+							if(motion.getFactualPositionFromMember() != null && !motion.getFactualPositionFromMember().isEmpty()){
+								workflowDetails.setReply(motion.getFactualPositionFromMember());
+							}
 							if(motion.getReply() != null && !motion.getReply().isEmpty()){
 								workflowDetails.setReply(motion.getReply());
 							}
@@ -2940,6 +2946,12 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							}
 							if(motion.getSubDepartment() != null){
 								workflowDetails.setSubdepartment(motion.getSubDepartment().getName());
+							}
+							if(motion.getFactualPositionFromDepartment() != null && !motion.getFactualPositionFromDepartment().isEmpty()){
+								workflowDetails.setReply(motion.getFactualPositionFromDepartment());
+							}
+							if(motion.getFactualPositionFromMember() != null && !motion.getFactualPositionFromMember().isEmpty()){
+								workflowDetails.setReply(motion.getFactualPositionFromMember());
 							}
 							if(motion.getReply() != null && !motion.getReply().isEmpty()){
 								workflowDetails.setReply(motion.getReply());
@@ -3199,11 +3211,11 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 						if(domain.getFile()!=null){
 							workflowDetails.setFile(String.valueOf(domain.getFile()));
 						}
-						if(domain.getMinistry() != null){
-							workflowDetails.setMinistry(domain.getMinistry().getName());
+						if(domain.getFactualPositionFromDepartment() != null && !domain.getFactualPositionFromDepartment().isEmpty()){
+							workflowDetails.setReply(domain.getFactualPositionFromDepartment());
 						}
-						if(domain.getSubDepartment() != null){
-							workflowDetails.setSubdepartment(domain.getSubDepartment().getName());
+						if(domain.getFactualPositionFromMember() != null && !domain.getFactualPositionFromMember().isEmpty()){
+							workflowDetails.setReply(domain.getFactualPositionFromMember());
 						}
 						if(domain.getReply() != null && !domain.getReply().isEmpty()){
 							workflowDetails.setReply(domain.getReply());

@@ -32,20 +32,20 @@
 			scrollTop();
 		});	
 	}	
-	/**** detail of clubbed and refernced questions ****/		
+	/**** detail of clubbed and refernced motions ****/		
 	function viewQuestionDetail(id, targetD){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
 		var parameters="houseType="+$("#selectedHouseType").val()
 		+"&sessionYear="+$("#selectedSessionYear").val()
 		+"&sessionType="+$("#selectedSessionType").val()
-		+"&questionType="+targetD
+		+"&motionType="+targetD
 		+"&ugparam="+$("#ugparam").val()
 		+"&status="+$("#selectedStatus").val()
 		+"&role="+$("#srole").val()
 		+"&usergroup="+$("#currentusergroup").val()
 		+"&usergroupType="+$("#currentusergroupType").val()
 		+"&edit=false";
-		var resourceURL='question/'+id+'/edit?'+parameters;
+		var resourceURL='motion/'+id+'/edit?'+parameters;
 		$.get(resourceURL,function(data){
 			$.unblockUI();
 			$.fancybox.open(data,{autoSize:false,width:750,height:700});
@@ -215,10 +215,10 @@
 					
 					if(value ==sendToDeskOfficer){
 						$("#replyP").css("display","none");
-						//$("#factualP").css("display","none");
+						$("#factualP").css("display","none");
 					}else{
 						$("#replyP").css("display","inline-block");
-						//$("#factualP").css("display","inline-block");
+						$("#factualP").css("display","inline-block");
 					}
 					/**** setting level,localizedActorName ****/
 					 //var actor1=data[0].id;
@@ -414,6 +414,11 @@
 			   // $("#submit").removeAttr("disabled");
 			}		    
 	    });
+	    if($('#workflowstatus').val()=="PENDING") {
+			$("#replyP").hide();
+			$("#factualP").hide();
+			
+		}
 	    $("#actor").change(function(){
 		    var actor=$(this).val();
 		    var temp=actor.split("#");
@@ -784,7 +789,7 @@
 	</p>
 					
 	<p style="display:none;">
-		<label class="small"><spring:message code="motion.referencedquestions" text="Referenced Questions"></spring:message></label>
+		<label class="small"><spring:message code="motion.referencedmotions" text="Referenced Motions"></spring:message></label>
 		<c:if test="${!(empty referencedQuestions) }">
 			<c:choose>
 				<c:when test="${!(empty referencedQuestions) }">
@@ -970,13 +975,45 @@
 		
 	<p style="display:none;">
 	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;display:none;"><spring:message code="motion.viewcitation" text="View Citations"></spring:message></a>	
-	</p>
-	
-	
-	<p id="replyP">
-		<label class="wysiwyglabel"><spring:message code="motion.reply" text="Nivedan"/></label>
-		<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
 	</p>	
+	
+	<c:choose>
+		<c:when test="${workflowstatus=='COMPLETED' and internalStatusType != 'motion_final_clarificationNeededFromDepartment'}">
+			<p id="replyP">
+				<label class="wysiwyglabel"><spring:message code="motion.reply" text="Reply"/></label>
+				<form:textarea path="reply" cssClass="wysiwyg" readonly="true"></form:textarea>
+				<form:errors path="reply" cssClass="validationError"></form:errors>
+			</p>
+		</c:when>
+		<c:otherwise>
+			<c:if test="${internalStatusType != 'motion_final_clarificationNeededFromDepartment'}">
+				<p id="replyP">
+					<label class="wysiwyglabel"><spring:message code="motion.reply" text="Reply"/></label>
+					<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
+					<form:errors path="reply" cssClass="validationError"></form:errors>
+				</p>
+			</c:if>
+		</c:otherwise>
+	</c:choose>
+	
+	<c:choose>
+		<c:when test="${not empty domain.factualPositionFromDepartment}">
+			<p id="factualP">
+				<label class="wysiwyglabel"><spring:message code="motion.factualPositionFromDepartment" text="Factual Position"/></label>
+				<form:textarea path="factualPositionFromDepartment" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="factualPositionFromDepartment" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+			</p>
+		</c:when>
+		<c:otherwise>
+			<c:if test="${fn:contains(internalStatusType, 'final_clarificationNeededFromDepartment')}">
+			<p id="factualP">
+				<label class="wysiwyglabel"><spring:message code="motion.factualPositionFromDepartment" text="Factual Position"/></label>
+				<form:textarea path="factualPositionFromDepartment" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="factualPositionFromDepartment" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+			</p>
+			</c:if>
+		</c:otherwise>
+	</c:choose>
 	
 	<p>
 		<label class="wysiwyglabel"><spring:message code="motion.remarks" text="Remarks"/></label>
