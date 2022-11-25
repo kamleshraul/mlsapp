@@ -48,8 +48,8 @@
 		<div class="fields">		
 		<form action="user/resetPassword" method="POST">
 			<%@ include file="/common/info.jsp" %>
-			<h2><spring:message code="user.resetPassword" text="Reset Password"/> (${userFirstName} - ${username})</h2>
-			<%-- <h2 style="color:black;"> ${userFirstName}</h2> --%>
+			<h2><spring:message code="user.resetPassword" text="Reset Password"/> (${userFirstLastName} - ${username})</h2>
+			<%-- <h2 style="color:black;"> ${userFirstLastName}</h2> --%>
 			<p>
 				<label class="small"><spring:message code="user.newPassword" text="New Password"/></label>
 				<input type="password" id="newPassword" name="newPassword" value="${newPassword}"/>

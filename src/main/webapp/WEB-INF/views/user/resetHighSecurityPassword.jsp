@@ -48,7 +48,7 @@
 		<div class="fields">		
 		<form action="user/resetHighSecurityPassword" method="POST">
 			<%@ include file="/common/info.jsp" %>
-			<h2><spring:message code="user.resetHighSecurityPassword" text="Reset High Security Password"/> (${userFirstName} - ${username})</h2>
+			<h2><spring:message code="user.resetHighSecurityPassword" text="Reset High Security Password"/> (${userFirstLastName} - ${username})</h2>
 			<p>
 				<label class="small" style="width: 200px"><spring:message code="user.newHighSecurityPassword" text="New High Security Password"/></label>
 				<input type="password" id="newHighSecurityPassword" name="newHighSecurityPassword" value="${newHighSecurityPassword}"/>

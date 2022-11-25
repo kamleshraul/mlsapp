@@ -312,19 +312,6 @@ javax.servlet.http.HttpServletRequest)
         final String servletPath = request.getServletPath().replaceFirst("\\/","");
         /** username **/
         String username = request.getParameter("username");
-    	User user = null;
-    	try {
-			user = User.findByUserName(username, locale.toString());
-		} catch (ELSException e) {
-			e.printStackTrace();
-			//error
-	
-			request.getSession().setAttribute("type","error");
-	      	
-		}
-    	
-    	model.addAttribute("userFirstName", user.findFirstLastName());
-    	model.addAttribute("username", username);
         if(username==null || username.isEmpty()) {
         	username = (String) request.getSession().getAttribute("selectedUsername"); 
         	if(username!=null) {
@@ -332,6 +319,15 @@ javax.servlet.http.HttpServletRequest)
         	}
         }
         if(username!=null && !username.isEmpty()) {
+         	User user = null;
+        	try {
+    			user = User.findByUserName(username, locale.toString());
+    		} catch (ELSException e) {
+    			e.printStackTrace();
+    			//error    	
+    			request.getSession().setAttribute("type","error");    	      	
+    		}        	
+        	model.addAttribute("userFirstLastName", user.findFirstLastName());
         	model.addAttribute("username", username);
             /** new password **/
             if(request.getSession().getAttribute("newPassword")==null){
@@ -376,7 +372,9 @@ javax.servlet.http.HttpServletRequest)
 		String confirmedPassword = request.getParameter("confirmedPassword");
 		if(username!=null && !username.isEmpty() && newPassword!=null && !newPassword.isEmpty() 
 				&& confirmedPassword!=null && !confirmedPassword.isEmpty() 
-				&& newPassword.equals(confirmedPassword)) {
+				&& newPassword.equals(confirmedPassword)) 
+		{
+	    	model.addAttribute("username", username);
 			User user = null;
 			try {
 				user = User.findByUserName(username, locale.toString());
@@ -386,11 +384,9 @@ javax.servlet.http.HttpServletRequest)
 				redirectAttributes.addFlashAttribute("type", "error");
 				request.getSession().setAttribute("type","error");
 		        redirectAttributes.addFlashAttribute("msg", "update_error");	
-			}
-			model.addAttribute("userFirstName", user.findFirstLastName());
-	    	model.addAttribute("username", username);
-	    	
+			}	    	
 			if(user!=null && user.getId()!=null) {
+				model.addAttribute("userFirstLastName", user.findFirstLastName());
 				Credential credential = user.getCredential();
 				if(credential!=null) {
 					String encodedPassword = securityService.getEncodedPassword(newPassword);
@@ -550,19 +546,6 @@ javax.servlet.http.HttpServletRequest)
         final String servletPath = request.getServletPath().replaceFirst("\\/","");
         /** username **/
         String username = request.getParameter("username");
-     	User user = null;
-    	try {
-			user = User.findByUserName(username, locale.toString());
-		} catch (ELSException e) {
-			e.printStackTrace();
-			//error
-	
-			request.getSession().setAttribute("type","error");
-	      	
-		}
-    	
-    	model.addAttribute("userFirstName", user.findFirstLastName());
-    	model.addAttribute("username", username);
         if(username==null || username.isEmpty()) {
         	username = (String) request.getSession().getAttribute("selectedUsername"); 
         	if(username!=null) {
@@ -570,6 +553,15 @@ javax.servlet.http.HttpServletRequest)
         	}
         }
         if(username!=null && !username.isEmpty()) {
+         	User user = null;
+        	try {
+    			user = User.findByUserName(username, locale.toString());
+    		} catch (ELSException e) {
+    			e.printStackTrace();
+    			//error    	
+    			request.getSession().setAttribute("type","error");    	      	
+    		}        	
+        	model.addAttribute("userFirstLastName", user.findFirstLastName());
         	model.addAttribute("username", username);
         	StringBuffer defaultHighSecurityPassword = new StringBuffer(ApplicationConstants.DEFAULT_HIGH_SECURITY_PASSWORD_INITIAL);
         	String currentDateMonth = FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT_DDMM);
@@ -617,7 +609,9 @@ javax.servlet.http.HttpServletRequest)
 		String confirmedHighSecurityPassword = request.getParameter("confirmedHighSecurityPassword");
 		if(username!=null && !username.isEmpty() && newHighSecurityPassword!=null && !newHighSecurityPassword.isEmpty() 
 				&& confirmedHighSecurityPassword!=null && !confirmedHighSecurityPassword.isEmpty() 
-				&& newHighSecurityPassword.equals(confirmedHighSecurityPassword)) {
+				&& newHighSecurityPassword.equals(confirmedHighSecurityPassword)) 
+		{
+			model.addAttribute("username", username);
 			User user = null;
 			try {
 				user = User.findByUserName(username, locale.toString());
@@ -627,10 +621,9 @@ javax.servlet.http.HttpServletRequest)
 				redirectAttributes.addFlashAttribute("type", "error");
 				request.getSession().setAttribute("type","error");
 		        redirectAttributes.addFlashAttribute("msg", "update_error");	
-			}
-			model.addAttribute("userFirstName", user.findFirstLastName());
-	    	model.addAttribute("username", username);
+			}	    	
 			if(user!=null && user.getId()!=null) {
+				model.addAttribute("userFirstLastName", user.findFirstLastName());
 				Credential credential = user.getCredential();
 				if(credential!=null) {
 					String encodedHighSecurityPassword = securityService.getEncodedPassword(newHighSecurityPassword);
