@@ -107,10 +107,10 @@ public class AdminController extends BaseController {
   			defaultDeviceTypeForSupportActivities = csptDefaultDeviceType.getValue();
   		}
   		DeviceType defaultSelectedDeviceType = DeviceType.findByType(defaultDeviceTypeForSupportActivities, locale.toString());
-  		model.addAttribute("deviceType", defaultSelectedDeviceType.getId());
+  		model.addAttribute("defaultSelectedDeviceType", defaultSelectedDeviceType.getId());
   		model.addAttribute("selectedDeviceType", defaultSelectedDeviceType.getId());
  		model.addAttribute("deviceTypeType", defaultSelectedDeviceType.getType());
- 		model.addAttribute("whichDevice", "questions_"); //as default devicetype is unstarred questions
+ 		model.addAttribute("whichDevice", "questions_"); //as default devicetype is starred / unstarred questions
  		String device = defaultSelectedDeviceType.getDevice();     	
      	
       	// Populate House types
@@ -168,7 +168,7 @@ public class AdminController extends BaseController {
 		model.addAttribute("subdepartments",currentSubDepartments);
 		
 		// Populate Status
-		CustomParameter csptStatusesForDefaultDeviceType=CustomParameter.findByName(CustomParameter.class, "STATUS_TYPES_FOR_"+defaultSelectedDeviceType.getType().toUpperCase(), "");
+		CustomParameter csptStatusesForDefaultDeviceType=CustomParameter.findByName(CustomParameter.class, "STATUS_TYPES_FOR_SUPPORT_ACTIVITIES_OF_"+defaultSelectedDeviceType.getType().toUpperCase(), "");
 		if(csptStatusesForDefaultDeviceType!=null && csptStatusesForDefaultDeviceType.getValue()!=null) {
 			List<Status> statusesForDefaultDeviceType = Status.findStatusWithSupportOrderContainedIn(csptStatusesForDefaultDeviceType.getValue(), locale.toString());
 			model.addAttribute("statusesForDeviceType", statusesForDefaultDeviceType);

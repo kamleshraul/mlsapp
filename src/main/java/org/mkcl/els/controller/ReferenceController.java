@@ -11389,4 +11389,23 @@ public class ReferenceController extends BaseController {
 		return years;
 	}
 	
+	@RequestMapping(value = "devicetype/{devicetypeId}/statuses_for_support_activities", method = RequestMethod.GET)
+	public @ResponseBody List<Status> populateStatusesForSupportActivitiesOfDeviceType(@PathVariable("devicetypeId") final Long deviceTypeId, final ModelMap map, final Locale locale) 
+	{
+		List<Status> statusesForSupportActivitiesOfDeviceType = new ArrayList<Status>();
+		try {
+			DeviceType deviceType = DeviceType.findById(DeviceType.class, deviceTypeId);
+			if(deviceType!=null) {
+				CustomParameter csptStatusesForDefaultDeviceType=CustomParameter.findByName(CustomParameter.class, "STATUS_TYPES_FOR_SUPPORT_ACTIVITIES_OF_"+deviceType.getType().toUpperCase(), "");
+				if(csptStatusesForDefaultDeviceType!=null && csptStatusesForDefaultDeviceType.getValue()!=null) {
+					statusesForSupportActivitiesOfDeviceType = Status.findStatusWithSupportOrderContainedIn(csptStatusesForDefaultDeviceType.getValue(), locale.toString());
+				}
+			}			
+		} catch (ELSException e) {
+			e.printStackTrace();
+		}
+		
+		return statusesForSupportActivitiesOfDeviceType;
+	}
+	
 }

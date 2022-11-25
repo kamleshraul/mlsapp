@@ -18,7 +18,7 @@
 				$("#houseTypeForSearch").val($("#defaultSelectedHouseType").val());
 				$("#houseTypeForSearch").css("color","");
 				var text="<option value='-'>"+$("#pleaseSelect").val()+"</option>";		
-				$("#deviceTypeForSearch").val("-");
+				$("#deviceTypeForSearch").val($("#defaultSelectedDeviceType").val());
 				$("#deviceTypeForSearch").css("color","");
 				$("#sessionYearForSearch").val("-");
 				$("#sessionYearForSearch").css("color","");				
@@ -113,7 +113,16 @@
 			$("#deviceTypeForSearch").change(function(){
 				var value=$(this).val();
 				if(value!='-'){
-					$(this).css("color","blue");				
+					$(this).css("color","blue");
+					$.get('ref/devicetype/'+value+'/statuses_for_support_activities', function(data) {
+						console.log(data);
+						var options="<option value='0'>"+$("#pleaseSelect").val()+"</option>";	
+						$('#statusForSearch option').empty();
+						for(var i=0;i<data.length;i++){
+							options+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						}
+						$('#statusForSearch').html(options);
+					});
 				}else{
 					$(this).css("color","");					
 				}
@@ -264,8 +273,8 @@
 			$("#formattedPrimaryMember").autocomplete({
 				minLength:3,			
 				source:'ref/member/supportingmembers/fromsession?houseType1='+$("#houseTypeCommon").val()+'&houseType2='+$("#houseTypeCommon").val()+
-						'&sessionYear1='+$("#sessionYearForSearch").val()+'&sessionYear2='+$("#selectedSessionYear").val()+
-						'&sessionType1='+$("#sessionTypeForSearch").val()+'&sessionType2='+$("#selectedSessionType").val(),
+						'&sessionYear1='+$("#sessionYearForSearch").val()+'&sessionYear2='+$("#sessionYearForSearch").val()+
+						'&sessionType1='+$("#sessionTypeForSearch").val()+'&sessionType2='+$("#sessionTypeForSearch").val(),
 				select:function(event,ui){			
 				$("#primaryMember").val(ui.item.id);
 				}			
@@ -292,7 +301,7 @@
 		});
 		
 		function loadAllMinistries(){
-			$.get('ref/sessionbyhousetype/'+$("#houseTypeForSearch").val()+"/"+$("#selectedSessionYear").val()+"/"+$("#selectedSessionType").val(),function(data){
+			$.get('ref/sessionbyhousetype/'+$("#houseTypeForSearch").val()+"/"+$("#sessionYearForSearch").val()+"/"+$("#sessionTypeForSearch").val(),function(data){
 				if(data){
 					if($('#whichDevice').val()=='questions_') {						
 						var text="<option value='-'>----"+$("#pleaseSelect").val()+"----</option>";
@@ -476,8 +485,8 @@
 		/**** Department ****/
 		function loadDep(ministry){
 		var param = "houseType=" + $('#houseTypeForSearch').val() +
-		"&sessionType=" + $('#selectedSessionType').val() +
-		"&sessionYear=" +$('#selectedSessionYear').val();
+		"&sessionType=" + $('#sessionTypeForSearch').val() +
+		"&sessionYear=" +$('#sessionYearForSearch').val();
 		$.get('ref/departments/'+ministry+'?'+param,function(data){
 			var text="<option value='-'>----"+$("#pleaseSelect").val()+"----</option>";
 			$("#subDepartmentForSearch").empty();
@@ -504,8 +513,8 @@
 		/**** Sub Department ****/
 		function loadSubDep(ministry,department){
 		var param = "houseType=" + $('#houseTypeForSearch').val() +
-		"&sessionType=" + $('#selectedSessionType').val() +
-		"&sessionYear=" +$('#selectedSessionYear').val();
+		"&sessionType=" + $('#sessionTypeForSearch').val() +
+		"&sessionYear=" +$('#sessionYearForSearch').val();
 		$.get('ref/subdepartments/'+ministry+'/'+department +'?'+ param,function(data){
 			var text="<option value='-'>----"+$("#pleaseSelect").val()+"----</option>";
 			if(data.length>0){
@@ -537,7 +546,7 @@
 			}
 			var resourceURL = "";
 			var postData = "";
-			$.get('ref/sessionbyhousetype/'+$("#houseTypeForSearch").val()+"/"+$("#selectedSessionYear").val()+"/"+$("#selectedSessionType").val(),function(data){
+			$.get('ref/sessionbyhousetype/'+$("#houseTypeForSearch").val()+"/"+$("#sessionYearForSearch").val()+"/"+$("#sessionTypeForSearch").val(),function(data){
 				if(data){				
 					
 					if($('#whichDevice').val()=='questions_') {
@@ -834,8 +843,8 @@
 			}	
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			var parameters="houseType="+$("#houseTypeForSearch").val()
-			+"&sessionYear="+$("#selectedSessionYear").val()
-			+"&sessionType="+$("#selectedSessionType").val()
+			+"&sessionYear="+$("#sessionYearForSearch").val()
+			+"&sessionType="+$("#sessionTypeForSearch").val()
 			+"&"+deviceTypeParameterName+"="+$("#refDeviceType").val()
 			+"&ugparam="+$("#ugparam").val()
 			+"&status="+$("#selectedStatus").val()
@@ -982,7 +991,7 @@ td>.strippedTable{
 					<select name="deviceTypeForSearch" id="deviceTypeForSearch" style="width:100px;height: 25px;">			
 						<c:forEach items="${deviceTypes}" var="i">
 							<c:choose>
-								<c:when test="${deviceType==i.id}">
+								<c:when test="${defaultSelectedDeviceType==i.id}">
 									<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>			
 								</c:when>
 								<c:otherwise>
@@ -1212,6 +1221,7 @@ td>.strippedTable{
 	
 	<input type="hidden" id="moduleLocale" value="${moduleLocale}" />
 	<input type="hidden" id="defaultSelectedHouseType" value="${defaultSelectedHouseType}" />
+	<input type="hidden" id="defaultSelectedDeviceType" value="${defaultSelectedDeviceType}" />
 	<input id="nothingToSearchMsg" value="<spring:message code='clubbing.nothingtosearch' text='Search Field Cannot Be Empty'></spring:message>" type="hidden">
 	<input id="noResultsMsg" value="<spring:message code='clubbing.noresults' text='Search Returned No Results'></spring:message>" type="hidden">
 	<input id="viewDetailMsg" value="<spring:message code='clubbing.viewdetail' text='Detail'></spring:message>" type="hidden">
