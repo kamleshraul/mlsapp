@@ -25,6 +25,7 @@ import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.controller.question.QuestionController;
+import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.ProprietyPointDraft;
@@ -226,17 +227,16 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 				} else {
 					model.addAttribute("errorcode","current_user_has_no_usergroups");
 				}
-				if(session.getHouse().getType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-					List<Date> sessionDates = session.findAllSessionDatesHavingNoHoliday();
-					model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", locale));				
-					Date defaultProprietyPointDate = null;
-					if(userGroupType.getType().equals(ApplicationConstants.MEMBER)) {
-						defaultProprietyPointDate = ProprietyPoint.findDefaultProprietyPointDateForSession(session, true);
-					} else {
-						defaultProprietyPointDate = ProprietyPoint.findDefaultProprietyPointDateForSession(session, false);
-					}
-					model.addAttribute("defaultProprietyPointDate", FormaterUtil.formatDateToString(defaultProprietyPointDate, ApplicationConstants.SERVER_DATEFORMAT));
+				/**** populate propriety point dates ****/
+				List<Date> sessionDates = session.findAllSessionDatesHavingNoHoliday();
+				model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", locale));				
+				Date defaultProprietyPointDate = null;
+				if(userGroupType.getType().equals(ApplicationConstants.MEMBER)) {
+					defaultProprietyPointDate = ProprietyPoint.findDefaultProprietyPointDateForSession(session, true);
+				} else {
+					defaultProprietyPointDate = ProprietyPoint.findDefaultProprietyPointDateForSession(session, false);
 				}
+				model.addAttribute("defaultProprietyPointDate", FormaterUtil.formatDateToString(defaultProprietyPointDate, ApplicationConstants.SERVER_DATEFORMAT));
 				/**** Propriety Point Status Allowed ****/
 				CustomParameter allowedStatus = CustomParameter.findByName(CustomParameter.class,
 								"PROPRIETYPOINT_GRID_STATUS_ALLOWED_"+ userGroupType.getType().toUpperCase(),"");
@@ -324,11 +324,9 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 								this.isObjectExtendingBaseDomainAvailableInList(configuredMemberGridAllowedForRoles, role);
 					 if(isRoleConfiguredForMemberGrid){						   
 						   newUrlPattern=urlPattern+"?usergroup=member&houseType="+houseType;
-						   if(houseType!=null && houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
-							   String selectedProprietyPointDate = request.getParameter("proprietyPointDate");
-							   if(selectedProprietyPointDate!=null && !selectedProprietyPointDate.isEmpty()) {
-								   newUrlPattern=newUrlPattern+"&proprietyPointDate=selected";
-							   }
+						   String selectedProprietyPointDate = request.getParameter("proprietyPointDate");
+						   if(selectedProprietyPointDate!=null && !selectedProprietyPointDate.isEmpty()) {
+							   newUrlPattern=newUrlPattern+"&proprietyPointDate=selected";
 						   }
 						   return newUrlPattern;
 					 }
@@ -346,11 +344,9 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 							QuestionController.isRoleExists(configuredMemberGridAllowedForRoles, role);
 					 if(isRoleConfiguredForMemberGrid){
 						 newUrlPattern=urlPattern+"?usergroup=typist&houseType="+houseType;
-						 if(houseType!=null && houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
-							String selectedProprietyPointDate = request.getParameter("proprietyPointDate");
-							if(selectedProprietyPointDate!=null && !selectedProprietyPointDate.isEmpty()) {
-								newUrlPattern=newUrlPattern+"&proprietyPointDate=selected";
-							}
+						 String selectedProprietyPointDate = request.getParameter("proprietyPointDate");
+						 if(selectedProprietyPointDate!=null && !selectedProprietyPointDate.isEmpty()) {
+							 newUrlPattern=newUrlPattern+"&proprietyPointDate=selected";
 						 }
 					     return newUrlPattern;
 					 }
@@ -368,11 +364,9 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 						QuestionController.isRoleExists(configuredMemberGridAllowedForRoles, role);
 					 if(isRoleConfiguredForMemberGrid){
 						 newUrlPattern=urlPattern+"?usergroup=assistant&houseType="+houseType;
-						 if(houseType!=null && houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
-							String selectedProprietyPointDate = request.getParameter("proprietyPointDate");
-							if(selectedProprietyPointDate!=null && !selectedProprietyPointDate.isEmpty()) {
-								newUrlPattern=newUrlPattern+"&proprietyPointDate=selected";
-							}
+						 String selectedProprietyPointDate = request.getParameter("proprietyPointDate");
+						 if(selectedProprietyPointDate!=null && !selectedProprietyPointDate.isEmpty()) {
+							 newUrlPattern=newUrlPattern+"&proprietyPointDate=selected";
 						 }
 						 return newUrlPattern;
 					 }
@@ -600,19 +594,17 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 				logger.error("Parameter 'questions_starred_rotationOrderPublishingDate' not set in session with Id:"+selectedSession.getId());
 				model.addAttribute("errorcode", "rotationorderpubdate_notset");
 			}
-			/** populate session dates as possible propriety point dates for upperhouse**/
-			if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-				if(selectedSession!=null && selectedSession.getId()!=null) {
-					List<Date> sessionDates = selectedSession.findAllSessionDatesHavingNoHoliday();
-					model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", locale));				
-					Date defaultProprietyPointDate = null;
-					if(usergroupType.equals(ApplicationConstants.MEMBER)) {
-						defaultProprietyPointDate = ProprietyPoint.findDefaultProprietyPointDateForSession(selectedSession, true);
-					} else {
-						defaultProprietyPointDate = ProprietyPoint.findDefaultProprietyPointDateForSession(selectedSession, false);
-					}
-					model.addAttribute("defaultProprietyPointDate", FormaterUtil.formatDateToString(defaultProprietyPointDate, ApplicationConstants.SERVER_DATEFORMAT));
-				}				
+			/** populate session dates as possible propriety point dates **/
+			if(selectedSession!=null && selectedSession.getId()!=null) {
+				List<Date> sessionDates = selectedSession.findAllSessionDatesHavingNoHoliday();
+				model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", locale));				
+				Date defaultProprietyPointDate = null;
+				if(usergroupType.equals(ApplicationConstants.MEMBER)) {
+					defaultProprietyPointDate = ProprietyPoint.findDefaultProprietyPointDateForSession(selectedSession, true);
+				} else {
+					defaultProprietyPointDate = ProprietyPoint.findDefaultProprietyPointDateForSession(selectedSession, false);
+				}
+				model.addAttribute("defaultProprietyPointDate", FormaterUtil.formatDateToString(defaultProprietyPointDate, ApplicationConstants.SERVER_DATEFORMAT));
 			}
 		} catch(ELSException elsx) {
 			elsx.printStackTrace();
@@ -790,16 +782,14 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 			if(domain.getAdmissionNumber()!=null){
 				model.addAttribute("formattedAdmissionNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getAdmissionNumber()));
 			}			
-			/** populate session dates as possible propriety point dates for upperhouse **/
-			if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-				if(selectedSession!=null && selectedSession.getId()!=null) {
-					List<Date> sessionDates = selectedSession.findAllSessionDatesHavingNoHoliday();
-					model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));				
-				}
-				/**** populate propriety point date ****/
-				model.addAttribute("selectedProprietyPointDate", FormaterUtil.formatDateToString(domain.getProprietyPointDate(), ApplicationConstants.SERVER_DATEFORMAT, "en_US"));
-				model.addAttribute("formattedProprietyPointDate", FormaterUtil.formatDateToStringUsingCustomParameterFormat(domain.getProprietyPointDate(), "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));				
+			/** populate session dates as possible propriety point dates **/
+			if(selectedSession!=null && selectedSession.getId()!=null) {
+				List<Date> sessionDates = selectedSession.findAllSessionDatesHavingNoHoliday();
+				model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));				
 			}
+			/**** populate propriety point date ****/
+			model.addAttribute("selectedProprietyPointDate", FormaterUtil.formatDateToString(domain.getProprietyPointDate(), ApplicationConstants.SERVER_DATEFORMAT, "en_US"));
+			model.addAttribute("formattedProprietyPointDate", FormaterUtil.formatDateToStringUsingCustomParameterFormat(domain.getProprietyPointDate(), "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));
 			/**** populate Submission Date and Creation date****/
 			if(domain.getSubmissionDate()!=null) {
 				model.addAttribute("submissionDate", FormaterUtil.formatDateToString(domain.getSubmissionDate(), ApplicationConstants.SERVER_DATETIMEFORMAT));
@@ -1123,6 +1113,13 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 				}
 			} else if(operation.equals("submit")){
 				/**** Submission ****/
+				if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+					//validation to allow limited submissions from member for given propriety point date
+					if(ProprietyPoint.isDatewiseMaximumLimitForMemberReached(domain.getHouseType(), domain.getDeviceType(), domain.getSession(), domain.getPrimaryMember(), domain.getProprietyPointDate(), domain.getLocale())) {
+						result.rejectValue("version","ProprietyPoint.DatewiseMaximumLimitForMemberReached");
+						return;
+					}					
+				}
 				if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 					// Empty check for Ministry
 					if(optionalFields != null && !optionalFields.contains("ministry")){
@@ -1141,92 +1138,90 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 					}	
 					/*if(domain.getSubDepartment()==null){
 						result.rejectValue("subDepartment","SubDepartmentEmpty");
-					}*/					
+					}*/
 				}
 				
-				//submission date limit validations for lowerhouse only (configurable through custom parameters)
-				if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-					if(domain.getSession()!=null && domain.getDeviceType()!=null) {
-						//submission start date limit validation
-						CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
-						if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
-							String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
-							if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
-								String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
-								for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
-									if(dt.trim().equals(domain.getDeviceType().getType().trim())) {
-										String submissionStartLimitDateStr = domain.getSession().getParameter(domain.getDeviceType().getType()+"_"+ApplicationConstants.SUBMISSION_START_DATE_SESSION_PARAMETER_KEY);
-										if(submissionStartLimitDateStr!=null && !submissionStartLimitDateStr.isEmpty()) {
-											Date submissionStartLimitDate = FormaterUtil.formatStringToDate(submissionStartLimitDateStr, ApplicationConstants.DB_DATETIME_FORMAT);
-											if(submissionStartLimitDate!=null
-													&& submissionStartLimitDate.after(new Date())) {
-												submissionStartLimitDateStr = FormaterUtil.formatDateToString(submissionStartLimitDate, ApplicationConstants.SERVER_DATETIMEFORMAT);
-												result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate","Propriety Point cannot be submitted before " + submissionStartLimitDateStr);
-											}else if(submissionStartLimitDate == null){
-												result.rejectValue("version","SubmissionStartDateNotConfigured","Submission Start Date not Configured by the branch for this session");
-											}
-										}else{
-											result.rejectValue("version","SubmissionStartDateNotConfigured","Submission Start Date not Configured by the branch for this session");
-										}
-										break;
-									}
-								}								
-							}
-						}
-						//submission end date limit validation
-						CustomParameter deviceTypesHavingSubmissionEndDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_END_DATE_VALIDATION, "");
-						if(deviceTypesHavingSubmissionEndDateValidationCP!=null) {
-							String deviceTypesHavingSubmissionEndDateValidationValue = deviceTypesHavingSubmissionEndDateValidationCP.getValue();
-							if(deviceTypesHavingSubmissionEndDateValidationValue!=null) {
-								String[] deviceTypesHavingSubmissionEndDateValidation = deviceTypesHavingSubmissionEndDateValidationValue.split(",");
-								for(String dt: deviceTypesHavingSubmissionEndDateValidation) {
-									if(dt.trim().equals(domain.getDeviceType().getType().trim())) {
-										String submissionEndLimitDateStr = domain.getSession().getParameter(domain.getDeviceType().getType()+"_"+ApplicationConstants.SUBMISSION_END_DATE_SESSION_PARAMETER_KEY);
-										if(submissionEndLimitDateStr!=null && !submissionEndLimitDateStr.isEmpty()) {
-											Date submissionEndLimitDate = FormaterUtil.formatStringToDate(submissionEndLimitDateStr, ApplicationConstants.DB_DATETIME_FORMAT);
-											if(submissionEndLimitDate!=null
-													&& submissionEndLimitDate.before(new Date())) {
-												submissionEndLimitDateStr = FormaterUtil.formatDateToString(submissionEndLimitDate, ApplicationConstants.SERVER_DATETIMEFORMAT);
-												result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate","Propriety Point cannot be submitted after " + submissionEndLimitDateStr);
-											}else if(submissionEndLimitDate == null){
-												result.rejectValue("version","SubmissionEndDateNotConfigured","Submission End Date not Configured by the branch for this session");
-											}
-										}else{
-											result.rejectValue("version","SubmissionEndDateNotConfigured","Submission End Date not Configured by the branch for this session");
-										}
-										break;
-									}
-								}								
-							}
-						}
+				//submission date limit validations previously only for lowerhouse (configurable through custom parameters)
+//				if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+//					if(domain.getSession()!=null && domain.getDeviceType()!=null) {
+//						//submission start date limit validation
+//						CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
+//						if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
+//							String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
+//							if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
+//								String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
+//								for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
+//									if(dt.trim().equals(domain.getDeviceType().getType().trim())) {
+//										String submissionStartLimitDateStr = domain.getSession().getParameter(domain.getDeviceType().getType()+"_"+ApplicationConstants.SUBMISSION_START_DATE_SESSION_PARAMETER_KEY);
+//										if(submissionStartLimitDateStr!=null && !submissionStartLimitDateStr.isEmpty()) {
+//											Date submissionStartLimitDate = FormaterUtil.formatStringToDate(submissionStartLimitDateStr, ApplicationConstants.DB_DATETIME_FORMAT);
+//											if(submissionStartLimitDate!=null
+//													&& submissionStartLimitDate.after(new Date())) {
+//												submissionStartLimitDateStr = FormaterUtil.formatDateToString(submissionStartLimitDate, ApplicationConstants.SERVER_DATETIMEFORMAT);
+//												result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate","Propriety Point cannot be submitted before " + submissionStartLimitDateStr);
+//											}else if(submissionStartLimitDate == null){
+//												result.rejectValue("version","SubmissionStartDateNotConfigured","Submission Start Date not Configured by the branch for this session");
+//											}
+//										}else{
+//											result.rejectValue("version","SubmissionStartDateNotConfigured","Submission Start Date not Configured by the branch for this session");
+//										}
+//										break;
+//									}
+//								}								
+//							}
+//						}
+//						//submission end date limit validation
+//						CustomParameter deviceTypesHavingSubmissionEndDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_END_DATE_VALIDATION, "");
+//						if(deviceTypesHavingSubmissionEndDateValidationCP!=null) {
+//							String deviceTypesHavingSubmissionEndDateValidationValue = deviceTypesHavingSubmissionEndDateValidationCP.getValue();
+//							if(deviceTypesHavingSubmissionEndDateValidationValue!=null) {
+//								String[] deviceTypesHavingSubmissionEndDateValidation = deviceTypesHavingSubmissionEndDateValidationValue.split(",");
+//								for(String dt: deviceTypesHavingSubmissionEndDateValidation) {
+//									if(dt.trim().equals(domain.getDeviceType().getType().trim())) {
+//										String submissionEndLimitDateStr = domain.getSession().getParameter(domain.getDeviceType().getType()+"_"+ApplicationConstants.SUBMISSION_END_DATE_SESSION_PARAMETER_KEY);
+//										if(submissionEndLimitDateStr!=null && !submissionEndLimitDateStr.isEmpty()) {
+//											Date submissionEndLimitDate = FormaterUtil.formatStringToDate(submissionEndLimitDateStr, ApplicationConstants.DB_DATETIME_FORMAT);
+//											if(submissionEndLimitDate!=null
+//													&& submissionEndLimitDate.before(new Date())) {
+//												submissionEndLimitDateStr = FormaterUtil.formatDateToString(submissionEndLimitDate, ApplicationConstants.SERVER_DATETIMEFORMAT);
+//												result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate","Propriety Point cannot be submitted after " + submissionEndLimitDateStr);
+//											}else if(submissionEndLimitDate == null){
+//												result.rejectValue("version","SubmissionEndDateNotConfigured","Submission End Date not Configured by the branch for this session");
+//											}
+//										}else{
+//											result.rejectValue("version","SubmissionEndDateNotConfigured","Submission End Date not Configured by the branch for this session");
+//										}
+//										break;
+//									}
+//								}								
+//							}
+//						}
+//					}
+//				} 				
+				//submission window validations (previously only for upperhouse)
+				CustomParameter submissionWindowValidationSkippedCP = CustomParameter.findByName(CustomParameter.class, "PROPRIETYPOINT_SUBMISSION_WINDOW_VALIDATIONS_SKIPPED"+"_"+domain.getHouseType().getType().toUpperCase(), "");
+				if(submissionWindowValidationSkippedCP==null || submissionWindowValidationSkippedCP.getValue()==null
+						|| !submissionWindowValidationSkippedCP.getValue().equals("TRUE")) {
+					if(!domain.validateSubmissionDate()) {
+						result.rejectValue("version","submissionWindowClosed","submission time window is closed for this proprietypoint date!");
+						return;
 					}
-				} 				
-				//submission window validations for upperhouse only
-				else if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-					CustomParameter submissionWindowValidationSkippedCP = CustomParameter.findByName(CustomParameter.class, "PROPRIETYPOINT_SUBMISSION_WINDOW_VALIDATIONS_SKIPPED"+"_"+domain.getHouseType().getType().toUpperCase(), "");
-					if(submissionWindowValidationSkippedCP==null || submissionWindowValidationSkippedCP.getValue()==null
-							|| !submissionWindowValidationSkippedCP.getValue().equals("TRUE")) {
-						if(!domain.validateSubmissionDate()) {
-							result.rejectValue("version","submissionWindowClosed","submission time window is closed for this proprietypoint date!");
-							return;
-						}
-						CustomParameter csptOfflineSubmissionAllowedFlag = CustomParameter.findByName(CustomParameter.class, domain.getDeviceType().getType().toUpperCase()+"_OFFLINE_SUBMISSION_ALLOWED_FLAG"+"_"+domain.getHouseType().getType().toUpperCase(), "");
-						if(csptOfflineSubmissionAllowedFlag!=null 
-								&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
-								&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
-							if(!role.equals("PROIS_TYPIST")){
-								if(!ProprietyPoint.validateSubmissionTime(domain.getSession(), domain.getProprietyPointDate(),new Date())) {
-									result.rejectValue("version","proprietypoint.submissionWindowTimeClosed","submission time window is closed for this proprietypoint date!");
-									return;
-								}
-							}
-						} else {
+					CustomParameter csptOfflineSubmissionAllowedFlag = CustomParameter.findByName(CustomParameter.class, domain.getDeviceType().getType().toUpperCase()+"_OFFLINE_SUBMISSION_ALLOWED_FLAG"+"_"+domain.getHouseType().getType().toUpperCase(), "");
+					if(csptOfflineSubmissionAllowedFlag!=null 
+							&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
+							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
+						if(!role.equals("PROIS_TYPIST")){
 							if(!ProprietyPoint.validateSubmissionTime(domain.getSession(), domain.getProprietyPointDate(),new Date())) {
 								result.rejectValue("version","proprietypoint.submissionWindowTimeClosed","submission time window is closed for this proprietypoint date!");
 								return;
 							}
-						}					
-					}
+						}
+					} else {
+						if(!ProprietyPoint.validateSubmissionTime(domain.getSession(), domain.getProprietyPointDate(),new Date())) {
+							result.rejectValue("version","proprietypoint.submissionWindowTimeClosed","submission time window is closed for this proprietypoint date!");
+							return;
+						}
+					}					
 				}
 			}
 		}
@@ -1343,23 +1338,21 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 				model.addAttribute("supportingMembers", supportingMembers);
 				model.addAttribute("supportingMembersName", this.populateDelimitedSupportingMemberNames(domain.getSupportingMembers(), domain.getLocale()));
 			}
-			/** populate session dates as possible propriety point dates for upperhouse**/
-			if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-				if(selectedSession!=null && selectedSession.getId()!=null) {
-					List<Date> sessionDates = selectedSession.findAllSessionDatesHavingNoHoliday();
-					model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));				
-					Date defaultProprietyPointDate = null;
-					if(usergroupType.equals(ApplicationConstants.MEMBER)) {
-						defaultProprietyPointDate = ProprietyPoint.findDefaultProprietyPointDateForSession(selectedSession, true);
-					} else {
-						defaultProprietyPointDate = ProprietyPoint.findDefaultProprietyPointDateForSession(selectedSession, false);
-					}
-					model.addAttribute("defaultProprietyPointDate", FormaterUtil.formatDateToString(defaultProprietyPointDate, ApplicationConstants.SERVER_DATEFORMAT));
+			/** populate session dates as possible propriety point dates **/
+			if(selectedSession!=null && selectedSession.getId()!=null) {
+				List<Date> sessionDates = selectedSession.findAllSessionDatesHavingNoHoliday();
+				model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));				
+				Date defaultProprietyPointDate = null;
+				if(usergroupType.equals(ApplicationConstants.MEMBER)) {
+					defaultProprietyPointDate = ProprietyPoint.findDefaultProprietyPointDateForSession(selectedSession, true);
+				} else {
+					defaultProprietyPointDate = ProprietyPoint.findDefaultProprietyPointDateForSession(selectedSession, false);
 				}
-				/**** populate propriety point date ****/
-				model.addAttribute("selectedProprietyPointDate", FormaterUtil.formatDateToString(domain.getProprietyPointDate(), ApplicationConstants.SERVER_DATEFORMAT, "en_US"));
-				model.addAttribute("formattedProprietyPointDate", FormaterUtil.formatDateToStringUsingCustomParameterFormat(domain.getProprietyPointDate(), "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));		
+				model.addAttribute("defaultProprietyPointDate", FormaterUtil.formatDateToString(defaultProprietyPointDate, ApplicationConstants.SERVER_DATEFORMAT));
 			}
+			/**** populate propriety point date ****/
+			model.addAttribute("selectedProprietyPointDate", FormaterUtil.formatDateToString(domain.getProprietyPointDate(), ApplicationConstants.SERVER_DATEFORMAT, "en_US"));
+			model.addAttribute("formattedProprietyPointDate", FormaterUtil.formatDateToStringUsingCustomParameterFormat(domain.getProprietyPointDate(), "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));
 			/** error notification **/
 			model.addAttribute("type", "error");
 			model.addAttribute("msg", "create_failed");
@@ -1582,6 +1575,13 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 				}
 			} else if(operation.equals("submit")){
 				/**** Submission ****/
+				if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+					//validation to allow limited submissions from member for given propriety point date
+					if(ProprietyPoint.isDatewiseMaximumLimitForMemberReached(domain.getHouseType(), domain.getDeviceType(), domain.getSession(), domain.getPrimaryMember(), domain.getProprietyPointDate(), domain.getLocale())) {
+						result.rejectValue("version","ProprietyPoint.DatewiseMaximumLimitForMemberReached");
+						return;
+					}					
+				}
 				if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 					// Empty check for Ministry
 					if(optionalFields != null && !optionalFields.contains("ministry")){
@@ -1600,92 +1600,90 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 					}	
 					/*if(domain.getSubDepartment()==null){
 						result.rejectValue("subDepartment","SubDepartmentEmpty");
-					}*/					
+					}*/
 				}
 				
-				//submission date limit validations for lowerhouse only (configurable through custom parameters)
-				if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-					if(domain.getSession()!=null && domain.getDeviceType()!=null) {
-						//submission start date limit validation
-						CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
-						if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
-							String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
-							if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
-								String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
-								for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
-									if(dt.trim().equals(domain.getDeviceType().getType().trim())) {
-										String submissionStartLimitDateStr = domain.getSession().getParameter(domain.getDeviceType().getType()+"_"+ApplicationConstants.SUBMISSION_START_DATE_SESSION_PARAMETER_KEY);
-										if(submissionStartLimitDateStr!=null && !submissionStartLimitDateStr.isEmpty()) {
-											Date submissionStartLimitDate = FormaterUtil.formatStringToDate(submissionStartLimitDateStr, ApplicationConstants.DB_DATETIME_FORMAT);
-											if(submissionStartLimitDate!=null
-													&& submissionStartLimitDate.after(new Date())) {
-												submissionStartLimitDateStr = FormaterUtil.formatDateToString(submissionStartLimitDate, ApplicationConstants.SERVER_DATETIMEFORMAT);
-												result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate","Propriety Point cannot be submitted before " + submissionStartLimitDateStr);
-											}else if(submissionStartLimitDate == null){
-												result.rejectValue("version","SubmissionStartDateNotConfigured","Submission Start Date not Configured by the branch for this session");
-											}
-										}else{
-											result.rejectValue("version","SubmissionStartDateNotConfigured","Submission Start Date not Configured by the branch for this session");
-										}
-										break;
-									}
-								}								
-							}
-						}
-						//submission end date limit validation
-						CustomParameter deviceTypesHavingSubmissionEndDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_END_DATE_VALIDATION, "");
-						if(deviceTypesHavingSubmissionEndDateValidationCP!=null) {
-							String deviceTypesHavingSubmissionEndDateValidationValue = deviceTypesHavingSubmissionEndDateValidationCP.getValue();
-							if(deviceTypesHavingSubmissionEndDateValidationValue!=null) {
-								String[] deviceTypesHavingSubmissionEndDateValidation = deviceTypesHavingSubmissionEndDateValidationValue.split(",");
-								for(String dt: deviceTypesHavingSubmissionEndDateValidation) {
-									if(dt.trim().equals(domain.getDeviceType().getType().trim())) {
-										String submissionEndLimitDateStr = domain.getSession().getParameter(domain.getDeviceType().getType()+"_"+ApplicationConstants.SUBMISSION_END_DATE_SESSION_PARAMETER_KEY);
-										if(submissionEndLimitDateStr!=null && !submissionEndLimitDateStr.isEmpty()) {
-											Date submissionEndLimitDate = FormaterUtil.formatStringToDate(submissionEndLimitDateStr, ApplicationConstants.DB_DATETIME_FORMAT);
-											if(submissionEndLimitDate!=null
-													&& submissionEndLimitDate.before(new Date())) {
-												submissionEndLimitDateStr = FormaterUtil.formatDateToString(submissionEndLimitDate, ApplicationConstants.SERVER_DATETIMEFORMAT);
-												result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate","Propriety Point cannot be submitted after " + submissionEndLimitDateStr);
-											}else if(submissionEndLimitDate == null){
-												result.rejectValue("version","SubmissionEndDateNotConfigured","Submission End Date not Configured by the branch for this session");
-											}
-										}else{
-											result.rejectValue("version","SubmissionEndDateNotConfigured","Submission End Date not Configured by the branch for this session");
-										}
-										break;
-									}
-								}								
-							}
-						}
+				//submission date limit validations previously only for lowerhouse (configurable through custom parameters)
+//				if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+//					if(domain.getSession()!=null && domain.getDeviceType()!=null) {
+//						//submission start date limit validation
+//						CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
+//						if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
+//							String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
+//							if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
+//								String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
+//								for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
+//									if(dt.trim().equals(domain.getDeviceType().getType().trim())) {
+//										String submissionStartLimitDateStr = domain.getSession().getParameter(domain.getDeviceType().getType()+"_"+ApplicationConstants.SUBMISSION_START_DATE_SESSION_PARAMETER_KEY);
+//										if(submissionStartLimitDateStr!=null && !submissionStartLimitDateStr.isEmpty()) {
+//											Date submissionStartLimitDate = FormaterUtil.formatStringToDate(submissionStartLimitDateStr, ApplicationConstants.DB_DATETIME_FORMAT);
+//											if(submissionStartLimitDate!=null
+//													&& submissionStartLimitDate.after(new Date())) {
+//												submissionStartLimitDateStr = FormaterUtil.formatDateToString(submissionStartLimitDate, ApplicationConstants.SERVER_DATETIMEFORMAT);
+//												result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate","Propriety Point cannot be submitted before " + submissionStartLimitDateStr);
+//											}else if(submissionStartLimitDate == null){
+//												result.rejectValue("version","SubmissionStartDateNotConfigured","Submission Start Date not Configured by the branch for this session");
+//											}
+//										}else{
+//											result.rejectValue("version","SubmissionStartDateNotConfigured","Submission Start Date not Configured by the branch for this session");
+//										}
+//										break;
+//									}
+//								}								
+//							}
+//						}
+//						//submission end date limit validation
+//						CustomParameter deviceTypesHavingSubmissionEndDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_END_DATE_VALIDATION, "");
+//						if(deviceTypesHavingSubmissionEndDateValidationCP!=null) {
+//							String deviceTypesHavingSubmissionEndDateValidationValue = deviceTypesHavingSubmissionEndDateValidationCP.getValue();
+//							if(deviceTypesHavingSubmissionEndDateValidationValue!=null) {
+//								String[] deviceTypesHavingSubmissionEndDateValidation = deviceTypesHavingSubmissionEndDateValidationValue.split(",");
+//								for(String dt: deviceTypesHavingSubmissionEndDateValidation) {
+//									if(dt.trim().equals(domain.getDeviceType().getType().trim())) {
+//										String submissionEndLimitDateStr = domain.getSession().getParameter(domain.getDeviceType().getType()+"_"+ApplicationConstants.SUBMISSION_END_DATE_SESSION_PARAMETER_KEY);
+//										if(submissionEndLimitDateStr!=null && !submissionEndLimitDateStr.isEmpty()) {
+//											Date submissionEndLimitDate = FormaterUtil.formatStringToDate(submissionEndLimitDateStr, ApplicationConstants.DB_DATETIME_FORMAT);
+//											if(submissionEndLimitDate!=null
+//													&& submissionEndLimitDate.before(new Date())) {
+//												submissionEndLimitDateStr = FormaterUtil.formatDateToString(submissionEndLimitDate, ApplicationConstants.SERVER_DATETIMEFORMAT);
+//												result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate","Propriety Point cannot be submitted after " + submissionEndLimitDateStr);
+//											}else if(submissionEndLimitDate == null){
+//												result.rejectValue("version","SubmissionEndDateNotConfigured","Submission End Date not Configured by the branch for this session");
+//											}
+//										}else{
+//											result.rejectValue("version","SubmissionEndDateNotConfigured","Submission End Date not Configured by the branch for this session");
+//										}
+//										break;
+//									}
+//								}								
+//							}
+//						}
+//					}
+//				} 				
+				//submission window validations (previously only for upperhouse)
+				CustomParameter submissionWindowValidationSkippedCP = CustomParameter.findByName(CustomParameter.class, "PROPRIETYPOINT_SUBMISSION_WINDOW_VALIDATIONS_SKIPPED"+"_"+domain.getHouseType().getType().toUpperCase(), "");
+				if(submissionWindowValidationSkippedCP==null || submissionWindowValidationSkippedCP.getValue()==null
+						|| !submissionWindowValidationSkippedCP.getValue().equals("TRUE")) {
+					if(!domain.validateSubmissionDate()) {
+						result.rejectValue("version","submissionWindowClosed","submission time window is closed for this proprietypoint date!");
+						return;
 					}
-				} 				
-				//submission window validations for upperhouse only
-				else if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-					CustomParameter submissionWindowValidationSkippedCP = CustomParameter.findByName(CustomParameter.class, "PROPRIETYPOINT_SUBMISSION_WINDOW_VALIDATIONS_SKIPPED"+"_"+domain.getHouseType().getType().toUpperCase(), "");
-					if(submissionWindowValidationSkippedCP==null || submissionWindowValidationSkippedCP.getValue()==null
-							|| !submissionWindowValidationSkippedCP.getValue().equals("TRUE")) {
-						if(!domain.validateSubmissionDate()) {
-							result.rejectValue("version","submissionWindowClosed","submission time window is closed for this proprietypoint date!");
-							return;
-						}
-						CustomParameter csptOfflineSubmissionAllowedFlag = CustomParameter.findByName(CustomParameter.class, domain.getDeviceType().getType().toUpperCase()+"_OFFLINE_SUBMISSION_ALLOWED_FLAG"+"_"+domain.getHouseType().getType().toUpperCase(), "");
-						if(csptOfflineSubmissionAllowedFlag!=null 
-								&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
-								&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
-							if(!role.equals("PROIS_TYPIST")){
-								if(!ProprietyPoint.validateSubmissionTime(domain.getSession(), domain.getProprietyPointDate(),new Date())) {
-									result.rejectValue("version","proprietypoint.submissionWindowTimeClosed","submission time window is closed for this proprietypoint date!");
-									return;
-								}
-							}
-						} else {
+					CustomParameter csptOfflineSubmissionAllowedFlag = CustomParameter.findByName(CustomParameter.class, domain.getDeviceType().getType().toUpperCase()+"_OFFLINE_SUBMISSION_ALLOWED_FLAG"+"_"+domain.getHouseType().getType().toUpperCase(), "");
+					if(csptOfflineSubmissionAllowedFlag!=null 
+							&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
+							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
+						if(!role.equals("PROIS_TYPIST")){
 							if(!ProprietyPoint.validateSubmissionTime(domain.getSession(), domain.getProprietyPointDate(),new Date())) {
 								result.rejectValue("version","proprietypoint.submissionWindowTimeClosed","submission time window is closed for this proprietypoint date!");
 								return;
 							}
-						}					
-					}
+						}
+					} else {
+						if(!ProprietyPoint.validateSubmissionTime(domain.getSession(), domain.getProprietyPointDate(),new Date())) {
+							result.rejectValue("version","proprietypoint.submissionWindowTimeClosed","submission time window is closed for this proprietypoint date!");
+							return;
+						}
+					}					
 				}
 			} else if(operation.equals("startworkflow")){
 				// Empty check for Ministry
@@ -1838,16 +1836,14 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 			if(domain.getNumber()!=null){
 				model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getNumber()));
 			}				
-			/** populate session dates as possible propriety point dates for upperhouse **/
-			if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-				if(selectedSession!=null && selectedSession.getId()!=null) {
-					List<Date> sessionDates = selectedSession.findAllSessionDatesHavingNoHoliday();
-					model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));				
-				}
-				/**** populate propriety point date ****/
-				model.addAttribute("selectedProprietyPointDate", FormaterUtil.formatDateToString(domain.getProprietyPointDate(), ApplicationConstants.SERVER_DATEFORMAT, "en_US"));
-				model.addAttribute("formattedProprietyPointDate", FormaterUtil.formatDateToStringUsingCustomParameterFormat(domain.getProprietyPointDate(), "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));				
+			/** populate session dates as possible propriety point dates **/
+			if(selectedSession!=null && selectedSession.getId()!=null) {
+				List<Date> sessionDates = selectedSession.findAllSessionDatesHavingNoHoliday();
+				model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));				
 			}
+			/**** populate propriety point date ****/
+			model.addAttribute("selectedProprietyPointDate", FormaterUtil.formatDateToString(domain.getProprietyPointDate(), ApplicationConstants.SERVER_DATEFORMAT, "en_US"));
+			model.addAttribute("formattedProprietyPointDate", FormaterUtil.formatDateToStringUsingCustomParameterFormat(domain.getProprietyPointDate(), "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));
 			/**** populate Submission Date and Creation date****/
 			if(domain.getSubmissionDate()!=null) {
 				model.addAttribute("submissionDate", FormaterUtil.formatDateToString(domain.getSubmissionDate(), ApplicationConstants.SERVER_DATETIMEFORMAT));

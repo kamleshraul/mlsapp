@@ -137,18 +137,16 @@ public class ProprietyPointWorkflowController  extends BaseController {
 					if(i.getApprovedText()==null) {
 						i.setApprovedText(proprietyPoint.getPointsOfPropriety());
 					}	
-					if(proprietyPoint.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-						Date approvedAdjourningDate = i.getApprovedAdjourningDate();
+					Date approvedAdjourningDate = i.getApprovedAdjourningDate();
+					if(approvedAdjourningDate==null) {
+						approvedAdjourningDate = proprietyPoint.getProprietyPointDate();
 						if(approvedAdjourningDate==null) {
-							approvedAdjourningDate = proprietyPoint.getProprietyPointDate();
-							if(approvedAdjourningDate==null) {
-								approvedAdjourningDate = ProprietyPoint.findDefaultProprietyPointDateForSession(proprietyPoint.getSession(), true);
-							}
+							approvedAdjourningDate = ProprietyPoint.findDefaultProprietyPointDateForSession(proprietyPoint.getSession(), true);
 						}
-						if(approvedAdjourningDate!=null) {
-							model.addAttribute("approvedAdjourningDate", FormaterUtil.formatDateToString(approvedAdjourningDate, ApplicationConstants.SERVER_DATEFORMAT));
-							model.addAttribute("formattedApprovedAdjourningDate", FormaterUtil.formatDateToStringUsingCustomParameterFormat(approvedAdjourningDate, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", proprietyPoint.getLocale()));
-						}
+					}
+					if(approvedAdjourningDate!=null) {
+						model.addAttribute("approvedAdjourningDate", FormaterUtil.formatDateToString(approvedAdjourningDate, ApplicationConstants.SERVER_DATEFORMAT));
+						model.addAttribute("formattedApprovedAdjourningDate", FormaterUtil.formatDateToStringUsingCustomParameterFormat(approvedAdjourningDate, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", proprietyPoint.getLocale()));
 					}					
 					model.addAttribute("currentSupportingMember", i.getMember().getId());
 					model.addAttribute("domain", i);
@@ -439,16 +437,14 @@ public class ProprietyPointWorkflowController  extends BaseController {
 		if(domain.getAdmissionNumber()!=null){
 			model.addAttribute("formattedAdmissionNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getAdmissionNumber()));
 		}			
-		/** populate session dates as possible propriety point dates for upperhouse **/
-		if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-			if(selectedSession!=null && selectedSession.getId()!=null) {
-				List<Date> sessionDates = selectedSession.findAllSessionDatesHavingNoHoliday();
-				model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));				
-			}
-			/**** populate propriety point date ****/
-			model.addAttribute("selectedProprietyPointDate", FormaterUtil.formatDateToString(domain.getProprietyPointDate(), ApplicationConstants.SERVER_DATEFORMAT, "en_US"));
-			model.addAttribute("formattedProprietyPointDate", FormaterUtil.formatDateToStringUsingCustomParameterFormat(domain.getProprietyPointDate(), "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));				
+		/** populate session dates as possible propriety point dates **/
+		if(selectedSession!=null && selectedSession.getId()!=null) {
+			List<Date> sessionDates = selectedSession.findAllSessionDatesHavingNoHoliday();
+			model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));				
 		}
+		/**** populate propriety point date ****/
+		model.addAttribute("selectedProprietyPointDate", FormaterUtil.formatDateToString(domain.getProprietyPointDate(), ApplicationConstants.SERVER_DATEFORMAT, "en_US"));
+		model.addAttribute("formattedProprietyPointDate", FormaterUtil.formatDateToStringUsingCustomParameterFormat(domain.getProprietyPointDate(), "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", domain.getLocale()));
 		/**** populate Submission Date and Creation date****/
 		if(domain.getSubmissionDate()!=null) {
 			model.addAttribute("submissionDate", FormaterUtil.formatDateToString(domain.getSubmissionDate(), ApplicationConstants.SERVER_DATETIMEFORMAT));
@@ -895,17 +891,10 @@ public class ProprietyPointWorkflowController  extends BaseController {
 					}
 					/**** Workflow Details ****/
 					List<WorkflowDetails> workflowDetails = new ArrayList<WorkflowDetails>();
-					if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-						workflowDetails = WorkflowDetails.
-								findAllForProprietyPoints(strHouseType, strSessionType, strSessionYear,
-										strDeviceType, ApplicationConstants.MYTASK_PENDING, strWorkflowSubType,
-										proprietyPointDate, assignee, strItemsCount, strLocale);					
-					} else {
-						workflowDetails = WorkflowDetails.
-								findAll(strHouseType, strSessionType, strSessionYear,
-										strDeviceType, ApplicationConstants.MYTASK_PENDING, strWorkflowSubType,
-										assignee, strItemsCount, strLocale);
-					}
+					workflowDetails = WorkflowDetails.
+							findAllForProprietyPoints(strHouseType, strSessionType, strSessionYear,
+									strDeviceType, ApplicationConstants.MYTASK_PENDING, strWorkflowSubType,
+									proprietyPointDate, assignee, strItemsCount, strLocale);
 					/**** Populating Bulk Approval VOs ****/
 					List<BulkApprovalVO> bulkapprovals = new ArrayList<BulkApprovalVO>();
 					NumberFormat format = FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
@@ -917,9 +906,7 @@ public class ProprietyPointWorkflowController  extends BaseController {
 							bulkApprovalVO.setId(String.valueOf(i.getId()));
 							bulkApprovalVO.setDeviceId(String.valueOf(proprietyPoint.getId()));	
 							
-							if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-								bulkApprovalVO.setFormattedAdjourningDate(FormaterUtil.formatDateToStringUsingCustomParameterFormat(proprietyPoint.getProprietyPointDate(), "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", proprietyPoint.getLocale()));
-							}						
+							bulkApprovalVO.setFormattedAdjourningDate(FormaterUtil.formatDateToStringUsingCustomParameterFormat(proprietyPoint.getProprietyPointDate(), "PROPRIETYPOINT_PROPRIETYPOINTDATEFORMAT", proprietyPoint.getLocale()));						
 							
 							Map<String, String[]> parameters = new HashMap<String, String[]>();
 							parameters.put("locale", new String[]{locale.toString()});

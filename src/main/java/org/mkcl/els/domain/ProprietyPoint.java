@@ -255,6 +255,8 @@ public class ProprietyPoint extends Device implements Serializable {
 	private static transient volatile Integer CUR_NUM_LOWER_HOUSE = 0;
 	
     private static transient volatile Integer CUR_NUM_UPPER_HOUSE = 0;
+    
+    private static transient volatile Date CUR_PROPRIETYPOINT_DATE_LOWER_HOUSE = new Date();
 	
     private static transient volatile Date CUR_PROPRIETYPOINT_DATE_UPPER_HOUSE = new Date();
     //=========================================================================================//
@@ -302,9 +304,21 @@ public class ProprietyPoint extends Device implements Serializable {
 						String houseType = this.getHouseType().getType();
 						
 						if (houseType.equals(ApplicationConstants.LOWER_HOUSE)) {
-							if (ProprietyPoint.getCurrentNumberLowerHouse() == 0) {
-								number = ProprietyPoint.assignNumber(this.getHouseType(), this.getSession(), this.getDeviceType(), this.getLocale());
+//							if (ProprietyPoint.getCurrentNumberLowerHouse() == 0) {
+//								number = ProprietyPoint.assignNumber(this.getHouseType(), this.getSession(), this.getDeviceType(), this.getLocale());
+//								ProprietyPoint.updateCurrentNumberLowerHouse(number);
+//							}
+							if(ProprietyPoint.getCurrentProprietyPointDateLowerHouse()==null) {
+	                    		isProprietyPointDateDifferent = true;
+	                    	} else if(DateUtil.compareDatePartOnly(new Date(), this.getSession().getEndDate())==0) {
+	                    		isProprietyPointDateDifferent = true;
+	                    	} else if(ProprietyPoint.getCurrentProprietyPointDateLowerHouse().compareTo(this.getProprietyPointDate())!=0) {
+	                    		isProprietyPointDateDifferent = true;
+	                    	}
+							if (ProprietyPoint.getCurrentNumberLowerHouse()==0 || isProprietyPointDateDifferent) {
+								number = ProprietyPoint.assignNumber(this.getHouseType(), this.getSession(), this.getProprietyPointDate(), this.getLocale());
 								ProprietyPoint.updateCurrentNumberLowerHouse(number);
+								ProprietyPoint.updateCurrentProprietyPointDateLowerHouse(this.getProprietyPointDate());
 							}
 						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
 							if(ProprietyPoint.getCurrentProprietyPointDateUpperHouse()==null) {
@@ -546,6 +560,36 @@ public class ProprietyPoint extends Device implements Serializable {
     
     public static Boolean isDuplicateNumberExist(Integer number, Long id, String locale) {
 		return getProprietyPointRepository().isDuplicateNumberExist(number, id, locale);
+	}	
+	
+	public static boolean isDatewiseMaximumLimitForMemberReached(final HouseType houseType, final DeviceType deviceType, final Session session, final Member member, final Date proprietyPointDate, final String locale) {
+		boolean isDatewiseMaximumLimitForMemberReached = false;
+		
+		CustomParameter csptDatewiseMaximumLimitForMember = CustomParameter.findByName(CustomParameter.class, "PROIS_DATEWISE_MAXIMUM_LIMIT_FOR_MEMBER_"+houseType.getType().toUpperCase(), "");
+		if(csptDatewiseMaximumLimitForMember!=null 
+				&& csptDatewiseMaximumLimitForMember.getValue()!=null
+				&& !csptDatewiseMaximumLimitForMember.getValue().isEmpty()) {
+			
+			int maximumLimitCount = Integer.parseInt(csptDatewiseMaximumLimitForMember.getValue());
+			
+			Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+			queryParameters.put("locale", new String[] {locale});
+			queryParameters.put("deviceTypeId", new String[] {deviceType.getId().toString()});
+			queryParameters.put("sessionId", new String[] {session.getId().toString()});
+			queryParameters.put("memberId", new String[] {member.getId().toString()});
+			queryParameters.put("proprietyPointDate", new String[] {FormaterUtil.formatDateToString(proprietyPointDate, ApplicationConstants.DB_DATEFORMAT)});
+			@SuppressWarnings("rawtypes")
+			List proprietyPointsOfMemberForGivenDate = Query.findResultListOfGivenClass("PROPRIETY_POINTS_OF_MEMBER_FOR_DATE_IN_GIVEN_SESSION", queryParameters, ProprietyPoint.class);
+			
+			if(proprietyPointsOfMemberForGivenDate!=null 
+					&& !proprietyPointsOfMemberForGivenDate.isEmpty()
+					&& proprietyPointsOfMemberForGivenDate.size() >= maximumLimitCount) {
+				
+				isDatewiseMaximumLimitForMemberReached = true;
+			}
+		}		
+		
+		return isDatewiseMaximumLimitForMemberReached;
 	}
     
     public ProprietyPointDraft findPreviousDraft() {
@@ -1327,6 +1371,16 @@ public class ProprietyPoint extends Device implements Serializable {
 
 	public static synchronized Integer getCurrentNumberUpperHouse(){
 		return ProprietyPoint.CUR_NUM_UPPER_HOUSE;
+	}
+	
+	public static void updateCurrentProprietyPointDateLowerHouse(Date proprietyPointDate){
+		synchronized (ProprietyPoint.CUR_PROPRIETYPOINT_DATE_LOWER_HOUSE) {
+			ProprietyPoint.CUR_PROPRIETYPOINT_DATE_LOWER_HOUSE = proprietyPointDate;
+		}
+	}
+
+	public static synchronized Date getCurrentProprietyPointDateLowerHouse(){
+		return ProprietyPoint.CUR_PROPRIETYPOINT_DATE_LOWER_HOUSE;
 	}
 	
 	public static void updateCurrentProprietyPointDateUpperHouse(Date proprietyPointDate){
