@@ -2110,11 +2110,11 @@ public class MotionController extends GenericController<Motion>{
 						domain.setRecommendationStatus(status);
 					}
 				}
-				if(domain.getActor() != null && !domain.getActor().isEmpty() && usergroupType.equals(ApplicationConstants.ASSISTANT)){
-					Status status = Status.findByType(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP, domain.getLocale());
-					domain.setInternalStatus(status);
-					domain.setRecommendationStatus(status);
-				}
+//				if(domain.getActor() != null && !domain.getActor().isEmpty() && usergroupType.equals(ApplicationConstants.ASSISTANT)){
+//					Status status = Status.findByType(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP, domain.getLocale());
+//					domain.setInternalStatus(status);
+//					domain.setRecommendationStatus(status);
+//				}
 			}
 		}
 		/**** If all mandatory fields have not been set then status,internal status and recommendation status is set to incomplete ****/
@@ -2203,6 +2203,13 @@ public class MotionController extends GenericController<Motion>{
 						domain.setRecommendationStatus(TOBE_PUTUP);
 					}
 				}
+				
+				//check for sending advance copy to department
+				if(internalStatus.equals(ApplicationConstants.MOTION_RECOMMEND_ADMISSION)
+						&& strUserGroupType.equals("assistant")){
+					
+				}
+				
 				/**** File parameters are set when internal status is something other than 
 				 * submit,complete and incomplete and file is null .Then only the motion gets attached to a file.*/
 				String currentStatus=domain.getInternalStatus().getType();

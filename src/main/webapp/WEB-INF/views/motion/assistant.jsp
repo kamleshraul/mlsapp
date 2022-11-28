@@ -300,8 +300,38 @@
 		return split( term ).pop();
 	}
 	
-	$(document).ready(function(){
+	$(document).ready(function(){		
 		
+		var advanceCopySent = $("#advanceCopySent").val();
+		if(advanceCopySent == "true"){
+			$("#isAdvanceCopySent").attr("checked","checked");
+			$("#isAdvanceCopySent").attr("disabled","disabled");
+		}
+		
+		$('#isAdvanceCopySent').click(function(){
+			if($('#isAdvanceCopySent').is(':checked'))
+		   	{
+				$.prompt($('#sendAdvanceCopyPrompt').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){
+			        	$('#advanceCopySent').val(true);
+					} else {
+						$('#isAdvanceCopySent').removeAttr('checked');
+					}
+			    }});
+			}
+			else
+		   	{ 			
+				$.prompt($('#cancelAdvanceCopyPrompt').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){
+						$('#advanceCopySent').val(false);
+					} else {
+						$("#isAdvanceCopySent").attr("checked","checked");
+					}
+			    }});
+		   	};
+		});
 		
 		/**** Back To motion ****/
 		$("#backToMotion").click(function(){
@@ -720,11 +750,17 @@
 			<input id="number" name="number" value="${domain.number}" type="hidden">
 		</c:otherwise>
 	</c:choose>
-	<form:errors path="number" cssClass="validationError"/>	
-		<c:if test="${internalStatusType =='motion_recommend_admission' || internalStatusType == 'motion_final_admission'}">
+	<form:errors path="number" cssClass="validationError"/>
+	<c:choose>
+		<c:when test="${(internalStatusType =='motion_recommend_admission' || internalStatusType == 'motion_final_admission')
+							&& (usergroupType == 'assistant' || usergroupType == 'section_officer')}">
 			<label class="small" style="margin-left: 150px;"><spring:message code="motion.sendAdvanceCopy" text="Send Advance Copy"/></label>
-			<form:checkbox path="advanceCopySent" cssClass="sCheck"/>
-		</c:if>	
+			<input type="checkbox" name="isAdvanceCopySent" id="isAdvanceCopySent" class="sCheck" >
+		</c:when>	
+		<c:otherwise>
+			<input type="hidden" name="advanceCopySent" id="advanceCopySent" value="${domain.advanceCopySent}">
+		</c:otherwise>
+	</c:choose>
 	</p>
 		
 	<p>		
@@ -914,7 +950,7 @@
 	</p>
 	
 	<p style="display:none;" class="revise2" id="revisedDetailsDiv">
-		<c:if test="${usergroupType == 'assistant' || usergroupType == 'clerk'}">
+		<c:if test="${usergroupType == 'assistant' || usergroupType == 'clerk' || usergroupType == 'section_officer'}">
 			<p style="padding-left:17%" id="maxTextLengthPara">
 				<span class="wordCountBlk" style="display: inline;font-weight: 600;font-size: 1.13em">
 					<spring:message code="max.words.in.text" text="max words"/>
@@ -931,11 +967,10 @@
 		<label class="small"><spring:message code="motion.currentStatus" text="Current Status"/></label>
 		<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
-	<c:if test="${usergroupType == 'assistant' || usergroupType == 'clerk'}">
 	
-	</c:if>
 	<c:if test="${empty parent}">
-	<c:if test="${internalStatusType == 'motion_system_assistantprocessed' 
+	<c:choose>
+	<c:when test="${internalStatusType == 'motion_system_assistantprocessed' 
 					|| internalStatusType == 'motion_system_putup'
 					|| (internalStatusType == 'motion_final_admission' && (usergroupType == 'assistant' || usergroupType == 'clerk'))}">
 		<p>	
@@ -966,8 +1001,12 @@
 			<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
 			<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
 			<input type="text" class="sText" readonly="readonly" value="" id="actorName"/>
-		</p>
-	</c:if>	
+		</p>		
+	</c:when>
+	<c:when test="${not empty domain.actor}">
+		<form:hidden path="actor"/>
+	</c:when>
+	</c:choose>
 	</c:if>
 	
 	<p>
@@ -1064,6 +1103,9 @@
 	<form:hidden path="fileIndex"/>	
 	<form:hidden path="fileSent"/>
 	<form:hidden path="replyReceivedDate"/>
+	<form:hidden path="advanceCopySent"/>
+	<form:hidden path="advanceCopyActor"/>
+	<form:hidden path="advanceCopyPrinted"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">		
 	<input id="taskid" name="taskid" value="${taskid}" type="hidden">	
 	<input type="hidden" name="status" id="status" value="${status }">
@@ -1095,6 +1137,8 @@
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="motionType" type="hidden" value="${selectedMotionType}" />
 <input id="olevel" type="hidden" value="${olevel}" />
+<input id="sendAdvanceCopyPrompt" value="<spring:message code='motion.sendAdvanceCopyPrompt' text='Do you really want to send advance copy to department now?'/>" type="hidden">
+<input id="cancelAdvanceCopyPrompt" value="<spring:message code='motion.cancelAdvanceCopyPrompt' text='Do you really want to cancel sending advance copy to department now?'/>" type="hidden">
 
 <select id="allDevices" style="display: none;">
 	<c:forEach items="${allDevices}" var="i">
