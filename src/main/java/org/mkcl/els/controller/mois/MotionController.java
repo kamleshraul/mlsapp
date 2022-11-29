@@ -2172,8 +2172,8 @@ public class MotionController extends GenericController<Motion>{
 		 * then change its internal and recommendstion status to assistant processed ****/		
 		
 		if(strUserGroupType!=null){
+			String internalStatus = domain.getInternalStatus().getType();
 			if(strUserGroupType.equals("assistant") ||strUserGroupType.equals("clerk")){				
-				String internalStatus = domain.getInternalStatus().getType();
 				if(internalStatus.equals(ApplicationConstants.MOTION_SUBMIT)) {
 					if(optionalFields != null && !optionalFields.contains("ministry")
 							&& !optionalFields.contains("subDepartment")){
@@ -2204,12 +2204,6 @@ public class MotionController extends GenericController<Motion>{
 					}
 				}
 				
-				//check for sending advance copy to department
-				if(internalStatus.equals(ApplicationConstants.MOTION_RECOMMEND_ADMISSION)
-						&& strUserGroupType.equals("assistant")){
-					
-				}
-				
 				/**** File parameters are set when internal status is something other than 
 				 * submit,complete and incomplete and file is null .Then only the motion gets attached to a file.*/
 				String currentStatus=domain.getInternalStatus().getType();
@@ -2236,6 +2230,22 @@ public class MotionController extends GenericController<Motion>{
 						domain.setFileSent(false);
 					}
 				}
+			}
+			
+			//check for sending advance copy to department
+			Motion motion=Motion.findById(Motion.class,domain.getId()); //for checking if advance copy is not already sent
+			if(internalStatus.equals(ApplicationConstants.MOTION_RECOMMEND_ADMISSION)
+					&& (strUserGroupType.equals(ApplicationConstants.ASSISTANT) || strUserGroupType.equals(ApplicationConstants.SECTION_OFFICER))
+					&& (motion.getAdvanceCopySent()==null || motion.getAdvanceCopySent().booleanValue()==false)
+					&& domain.getAdvanceCopySent().booleanValue()==true){
+				String usergroupTypesForAdvanceCopyNotification = "";
+				if(strUserGroupType.equals(ApplicationConstants.ASSISTANT)) {
+					usergroupTypesForAdvanceCopyNotification = "section_officer,department";
+				} else {
+					usergroupTypesForAdvanceCopyNotification = "assistant,department";
+				}
+				NotificationController.sendDepartmentProcessNotificationIncludingBranchForMotion(domain,
+						usergroupTypesForAdvanceCopyNotification, "advanceCopy", domain.getLocale());
 			}
 		}
 	}

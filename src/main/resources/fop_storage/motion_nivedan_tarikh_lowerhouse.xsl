@@ -424,7 +424,7 @@
             									</fo:block>
             									
             									<fo:block text-align="justify">
-            										"<xsl:value-of select="./element_1/element_1_5"></xsl:value-of>"
+            										"<xsl:value-of select="./element_4"></xsl:value-of>"
             									</fo:block>
             									<fo:block font-size="6px">
             										&#160;

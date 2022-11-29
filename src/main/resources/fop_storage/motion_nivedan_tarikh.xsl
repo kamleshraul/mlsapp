@@ -114,7 +114,7 @@
 								<fo:block font-size="12px">&#160;</fo:block>						
 								
 								<fo:block text-align="justify">
-									&#160;&#160;&#160;&#160;&#160;"<xsl:value-of select="./element_1/element_1_5"></xsl:value-of>"
+									&#160;&#160;&#160;&#160;&#160;"<xsl:value-of select="./element_5"></xsl:value-of>"
 								</fo:block>
 								
 								<fo:block>&#160;</fo:block>
@@ -141,7 +141,14 @@
 																	<fo:table-cell width="200px" text-align="justify">
 																		<fo:block>
 																			क्रमांक :
-																			<fo:inline font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;/म.वि.स./ई-2,</fo:inline>
+																			<xsl:choose>
+																				<xsl:when test="boolean(element_6) and ./element_6!=''">
+																					<fo:inline font-weight="bold"><xsl:value-of select="./element_6" />/म.वि.स./ई-2,</fo:inline>
+																				</xsl:when>
+																				<xsl:otherwise>
+																					<fo:inline font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;/म.वि.स./ई-2,</fo:inline>
+																				</xsl:otherwise>
+																			</xsl:choose>																			
 																		</fo:block>
 																	</fo:table-cell>										
 																</fo:table-row>
@@ -159,7 +166,16 @@
 																</fo:table-row>
 																
 																<fo:table-row>
-																	<fo:table-cell width="200px" text-align="justify"><fo:block>दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block></fo:table-cell>
+																	<fo:table-cell width="200px" text-align="justify">
+																		<xsl:choose>
+																			<xsl:when test="boolean(element_8) and ./element_8!=''">
+																				<fo:block>दिनांक : <xsl:value-of select="./element_8" /></fo:block>
+																			</xsl:when>
+																			<xsl:otherwise>
+																				<fo:block>दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
+																			</xsl:otherwise>
+																		</xsl:choose>
+																	</fo:table-cell>
 																</fo:table-row>
 															</fo:table-body>
 														</fo:table>
@@ -173,11 +189,21 @@
 								<fo:block>&#160;</fo:block>
 								<fo:block>&#160;</fo:block>
 								
-								<fo:block>
-									संदर्भ : (1)	या सचिवालयाचे पत्र क्रमांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;/म.वि.स./ई-2, दिनांक :
-								</fo:block>
 								
-								<fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;(2) सचिव, महाराष्ट्र शासन, विभाग यांचे सूचना हस्तांतरणाबाबतचे पत्र           दिनांकित  </fo:block>
+								<xsl:choose>
+									<xsl:when test="boolean(element_7) and ./element_7!=''">
+										<fo:block>
+											संदर्भ : (1)	या सचिवालयाचे पत्र क्रमांक : <xsl:value-of select="./element_7" />/म.वि.स./ई-2, दिनांक : <xsl:value-of select="./element_9" />
+										</fo:block>	
+										<fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;(2) सचिव, महाराष्ट्र शासन, विभाग यांचे सूचना हस्तांतरणाबाबतचे पत्र           दिनांकित  </fo:block>
+									</xsl:when>
+									<xsl:otherwise>
+										<fo:block>
+											संदर्भ : (1)	या सचिवालयाचे पत्र क्रमांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;/म.वि.स./ई-2, दिनांक :
+										</fo:block>
+										<fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;(2) सचिव, महाराष्ट्र शासन, विभाग यांचे सूचना हस्तांतरणाबाबतचे पत्र           दिनांकित  </fo:block>
+									</xsl:otherwise>
+								</xsl:choose>							
 								
 								<fo:block>&#160;</fo:block>
 								<xsl:choose>
@@ -222,9 +248,9 @@
 									
 									&#160;&#160;&#160;&#160;&#160;&#160;&#160;निदेशानुसार आपणास कळविण्यात येते की महाराष्ट्र विधानपरिषदेच्या सद्य: सत्रासाठी मा. उप सभापतींनी
 										उपरोक्त <fo:inline font-weight="bold">लक्षवेधी सूचना क्रमांक <xsl:value-of select="./element_1/element_1_4"></xsl:value-of></fo:inline>
-										वरील स्वरुपात <fo:inline font-weight="bold">स्वीकृत</fo:inline> केली असून  ती दिनांक <fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_11"></xsl:value-of></fo:inline> रोजीच्या दिवसाच्या
+										वरील स्वरुपात <fo:inline font-weight="bold">स्वीकृत</fo:inline> केली असून  ती दिनांक <fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_12"></xsl:value-of></fo:inline> रोजीच्या दिवसाच्या
 										कामकाजाच्या क्रमात दाखविण्यात आली आहे. या लक्षवेधी सूचनेवर संबंधित मंत्री महोदयांनी करावयाच्या निवेदनाच्या <fo:inline font-weight="bold">४५०</fo:inline> 
-										प्रती उशिरात उशिरा दिनांक <fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_11"></xsl:value-of></fo:inline> रोजी &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; वाजेपर्यंत या सचिवालयास पाठवाव्यात.
+										प्रती उशिरात उशिरा दिनांक <fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_12"></xsl:value-of></fo:inline> रोजी &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; वाजेपर्यंत या सचिवालयास पाठवाव्यात.
 										
 									</fo:block>
 								</xsl:if>

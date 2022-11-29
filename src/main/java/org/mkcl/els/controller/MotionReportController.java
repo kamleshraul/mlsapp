@@ -606,6 +606,45 @@ public class MotionReportController extends BaseController{
 		//return retVal;
 	}
 	/**
+	 * Admission report for council (Old)
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param locale
+	 */
+//	private void getNiverdanTarikh(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+//		
+//		//String retVal = "motion/report";
+//		try{			
+//			String strId = request.getParameter("motionId");
+//			String strReportFormat = request.getParameter("outputFormat");	
+//			String strIsAdvanceCopy = request.getParameter("isAdvanceCopy");
+//			String isAdvanceCopy = "no";
+//			if(strId != null && !strId.isEmpty()){
+//				Map<String, String[]> parameters = new HashMap<String, String[]>();
+//				parameters.put("locale", new String[]{locale.toString()});
+//				parameters.put("motionId", new String[]{strId});
+//				if(strIsAdvanceCopy != null && !strIsAdvanceCopy.isEmpty()){
+//					isAdvanceCopy = strIsAdvanceCopy;
+//				}
+//				@SuppressWarnings("rawtypes")
+//				List reportData = Query.findReport("MOTION_NIVEDAN_TARIKH", parameters);	
+//				String templateName = "motion_nivedan_tarikh";
+//				File reportFile = null;				
+//				
+//				reportFile = generateReportUsingFOP(new Object[] {reportData, isAdvanceCopy}, templateName, strReportFormat, "motionNivedanTarikh",locale.toString());
+//				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
+//				
+//				model.addAttribute("info", "general_info");;
+//				//retVal = "motion/info";
+//			}			
+//		}catch(Exception e){
+//			logger.error("error", e);
+//		}
+//		
+//		//return retVal;
+//	}
+	/**
 	 * Admission report for council
 	 * @param model
 	 * @param request
@@ -615,28 +654,147 @@ public class MotionReportController extends BaseController{
 	private void getNiverdanTarikh(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
 		
 		//String retVal = "motion/report";
-		try{
-			
+		try{			
 			String strId = request.getParameter("motionId");
-			String strReportFormat = request.getParameter("outputFormat");	
+			String strWorkflowId = request.getParameter("workflowDetailId");
+			WorkflowDetails workflowDetails = null;
+			ReferenceLetter referenceLetter = null;
+			String referenceNumber = "";
+			String referredNumber = "";
+			String strDispatchedDate = "";
+			String strReferencedDate = "";
+			String strReportFormat = request.getParameter("outputFormat");				
 			String strIsAdvanceCopy = request.getParameter("isAdvanceCopy");
 			String isAdvanceCopy = "no";
+			@SuppressWarnings("rawtypes")
+			List reportData = null;
+			String templateName = "motion_nivedan_tarikh";
+			String strCopyType = request.getParameter("copyType");
+			Boolean isResendRevisedMotionTextWorkflow = false;
+			String strRevisedMotionText = null;
+			
+			if(strWorkflowId != null && !strWorkflowId.isEmpty()){
+				workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
+				if(workflowDetails != null){
+					strId = workflowDetails.getDeviceId();
+					if(workflowDetails.getReferenceNumber() != null && !workflowDetails.getReferenceNumber().isEmpty()){
+						referenceLetter = ReferenceLetter.findByFieldName(ReferenceLetter.class, "referenceNumber", workflowDetails.getReferenceNumber(), locale.toString());
+						
+						if(strCopyType != null && strCopyType.equals("advanceCopy"))
+						{
+							List<WorkflowDetails> wkfDetails = WorkflowDetails.findAllByFieldName(WorkflowDetails.class, "referenceNumber", workflowDetails.getReferenceNumber(), "assignmentTime", "ASC", locale.toString());
+							strDispatchedDate = FormaterUtil.formatDateToStringUsingCustomParameterFormat(wkfDetails.get(0).getAssignmentTime(), "CALLINGATTENTIONMOTION_CALLINGATTENTIONDATEFORMAT", locale.toString());
+						}
+					}
+				}
+			}
+			
 			if(strId != null && !strId.isEmpty()){
-				Map<String, String[]> parameters = new HashMap<String, String[]>();
-				parameters.put("locale", new String[]{locale.toString()});
-				parameters.put("motionId", new String[]{strId});
+				Motion motion = Motion.findById(Motion.class, Long.parseLong(strId));
+				
+				if(referenceLetter==null) {
+					ReferenceLetter latestIntimationReferenceLetterHavingMotion = ReferenceLetter.findLatestHavingGivenDevice(strId, ApplicationConstants.INTIMATION_FOR_REPLY_FROM_DEPARTMENT, locale.toString());
+					
+					if(latestIntimationReferenceLetterHavingMotion!=null
+							&& latestIntimationReferenceLetterHavingMotion.getParentDeviceId().equals(strId))
+					{
+						referenceLetter = latestIntimationReferenceLetterHavingMotion;
+					}
+					else if(latestIntimationReferenceLetterHavingMotion!=null
+							&& ! latestIntimationReferenceLetterHavingMotion.getParentDeviceId().equals(Long.parseLong(strId)))
+					{
+						if(motion.getParent()!=null && motion.getParent().toString().equals(latestIntimationReferenceLetterHavingMotion.getParentDeviceId()))
+						{
+							referenceLetter = latestIntimationReferenceLetterHavingMotion;
+						}
+					}
+				}
+				
+				if(motion.getRevisedDetails()!=null && motion.getRevisedDetails().length()>=6) {
+					strRevisedMotionText = motion.getRevisedDetails();
+				} else {
+					strRevisedMotionText = motion.getDetails();
+				}
+				
+				if(referenceLetter==null) { //for advance copy without reference letter
+					if(strCopyType != null && strCopyType.equals("advanceCopy")){
+						referenceNumber = FormaterUtil.formatNumberNoGrouping(motion.getId(), locale.toString());
+					}
+					Map<String, String[]> parameters = new HashMap<String, String[]>();
+					parameters.put("locale", new String[]{locale.toString()});
+					parameters.put("motionId", new String[]{strId});
+					reportData = Query.findReport("MOTION_NIVEDAN_TARIKH", parameters);
+				} 
+				else {
+					referenceNumber = FormaterUtil.formatNumberNoGrouping(Integer.parseInt(referenceLetter.getReferenceNumber()), locale.toString());
+					if(referenceLetter.getReferredNumber()!=null && !referenceLetter.getReferredNumber().isEmpty()) {
+						referredNumber = FormaterUtil.formatNumberNoGrouping(Integer.parseInt(referenceLetter.getReferredNumber()), locale.toString());
+					}					
+					strDispatchedDate = FormaterUtil.formatDateToStringUsingCustomParameterFormat(referenceLetter.getDispatchDate(), "CALLINGATTENTIONMOTION_CALLINGATTENTIONDATEFORMAT", locale.toString());
+					
+					if(referredNumber!=null && !referredNumber.isEmpty()) {
+						ReferenceLetter previousReferenceLetter = ReferenceLetter.findByFieldName(ReferenceLetter.class, "referenceNumber", referenceLetter.getReferredNumber(), locale.toString());
+						if(previousReferenceLetter!=null) {
+							strReferencedDate = FormaterUtil.formatDateToStringUsingCustomParameterFormat(previousReferenceLetter.getDispatchDate(), "CALLINGATTENTIONMOTION_CALLINGATTENTIONDATEFORMAT", locale.toString());
+						}
+					}
+					
+					Map<String, String[]> parameters = new HashMap<String, String[]>();
+					parameters.put("locale", new String[]{locale.toString()});
+					parameters.put("motionId", new String[]{strId});
+					parameters.put("referenceLetterId", new String[]{referenceLetter.getId().toString()});
+					reportData = Query.findReport("MOTION_NIVEDAN_TARIKH_FROM_REFERENCE_LETTER_UPPERHOUSE", parameters);
+					
+					if(reportData!=null && !reportData.isEmpty()) 
+					{
+						Object[] obj = (Object[]) reportData.get(0);
+						if(obj[8]==null || obj[8].toString().isEmpty()) 
+						{							
+							if(obj[13]!=null && !obj[13].toString().isEmpty()) {
+								/**** populating member names with customized formatting ****/
+								String memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;
+								CustomParameter memberNameFormatParameter = null;
+								if(motion.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+									memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "MOIS_INTIMATIONLETTER_MEMBERNAMEFORMAT_LOWERHOUSE", "");
+								} else if(motion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+									memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "MOIS_INTIMATIONLETTER_MEMBERNAMEFORMAT_UPPERHOUSE", "");
+								}
+								if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
+									memberNameFormat = memberNameFormatParameter.getValue();
+								}
+								
+								StringBuffer memberNames = new StringBuffer("");
+								String[] memberIds = obj[13].toString().split(",");
+								for(String memberId: memberIds) {
+									Member member = Member.findById(Member.class, Long.parseLong(memberId));
+									memberNames.append(member.findNameInGivenFormat(memberNameFormat));
+									memberNames.append(",");
+								}
+								memberNames.deleteCharAt(memberIds.length-1);
+								
+								obj[8] = memberNames.toString();
+							}
+						}
+					}
+					
+					if(referenceLetter.getReferredNumber() != null && !referenceLetter.getReferredNumber().isEmpty())
+					{
+						strRevisedMotionText = referenceLetter.getNoticeContent();
+						strCopyType = "revisedCopy";
+						isResendRevisedMotionTextWorkflow = true;
+					}
+				}
+				
 				if(strIsAdvanceCopy != null && !strIsAdvanceCopy.isEmpty()){
 					isAdvanceCopy = strIsAdvanceCopy;
 				}
-				@SuppressWarnings("rawtypes")
-				List reportData = Query.findReport("MOTION_NIVEDAN_TARIKH", parameters);	
-				String templateName = "motion_nivedan_tarikh";
+				
 				File reportFile = null;				
 				
-				reportFile = generateReportUsingFOP(new Object[] {reportData, isAdvanceCopy}, templateName, strReportFormat, "motionNivedanTarikh",locale.toString());
+				reportFile = generateReportUsingFOP(new Object[] {reportData, isAdvanceCopy, strCopyType, isResendRevisedMotionTextWorkflow, strRevisedMotionText, referenceNumber, referredNumber, strDispatchedDate, strReferencedDate}, templateName, strReportFormat, "motionNivedanTarikh",locale.toString());
 				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
 				
-				model.addAttribute("info", "general_info");;
+				model.addAttribute("info", "general_info");
 				//retVal = "motion/info";
 			}			
 		}catch(Exception e){
@@ -662,10 +820,10 @@ public class MotionReportController extends BaseController{
 			String strWorkflowId = request.getParameter("workflowDetailId");
 			WorkflowDetails workflowDetails = null;
 			ReferenceLetter referenceLetter = null;
-			String referenceNumber = null;
-			String referredNumber = null;
-			String strDispatchedDate = null;
-			String strReferencedDate = null;
+			String referenceNumber = "";
+			String referredNumber = "";
+			String strDispatchedDate = "";
+			String strReferencedDate = "";
 			String strReportFormat = request.getParameter("outputFormat");
 			@SuppressWarnings("rawtypes")
 			List reportData = null;
@@ -681,7 +839,7 @@ public class MotionReportController extends BaseController{
 					if(workflowDetails.getReferenceNumber() != null && !workflowDetails.getReferenceNumber().isEmpty()){
 						referenceLetter = ReferenceLetter.findByFieldName(ReferenceLetter.class, "referenceNumber", workflowDetails.getReferenceNumber(), locale.toString());
 						
-						if(strCopyType != null && strCopyType == "advanceCopy")
+						if(strCopyType != null && strCopyType.equals("advanceCopy"))
 						{
 							List<WorkflowDetails> wkfDetails = WorkflowDetails.findAllByFieldName(WorkflowDetails.class, "referenceNumber", workflowDetails.getReferenceNumber(), "assignmentTime", "ASC", locale.toString());
 							strDispatchedDate = FormaterUtil.formatDateToStringUsingCustomParameterFormat(wkfDetails.get(0).getAssignmentTime(), "CALLINGATTENTIONMOTION_CALLINGATTENTIONDATEFORMAT", locale.toString());
@@ -712,8 +870,14 @@ public class MotionReportController extends BaseController{
 					}
 				}
 				
+				if(motion.getRevisedDetails()!=null && motion.getRevisedDetails().length()>=6) {
+					strRevisedMotionText = motion.getRevisedDetails();
+				} else {
+					strRevisedMotionText = motion.getDetails();
+				}
+				
 				if(referenceLetter==null) { //for advance copy without reference letter
-					if(strCopyType != null && strCopyType == "advanceCopy"){
+					if(strCopyType != null && strCopyType.equals("advanceCopy")){
 						referenceNumber = FormaterUtil.formatNumberNoGrouping(motion.getId(), locale.toString());
 					}
 					Map<String, String[]> parameters = new HashMap<String, String[]>();
@@ -728,7 +892,7 @@ public class MotionReportController extends BaseController{
 					}					
 					strDispatchedDate = FormaterUtil.formatDateToStringUsingCustomParameterFormat(referenceLetter.getDispatchDate(), "CALLINGATTENTIONMOTION_CALLINGATTENTIONDATEFORMAT", locale.toString());
 					
-					if(referredNumber!=null) {
+					if(referredNumber!=null && !referredNumber.isEmpty()) {
 						ReferenceLetter previousReferenceLetter = ReferenceLetter.findByFieldName(ReferenceLetter.class, "referenceNumber", referenceLetter.getReferredNumber(), locale.toString());
 						if(previousReferenceLetter!=null) {
 							strReferencedDate = FormaterUtil.formatDateToStringUsingCustomParameterFormat(previousReferenceLetter.getDispatchDate(), "CALLINGATTENTIONMOTION_CALLINGATTENTIONDATEFORMAT", locale.toString());
@@ -773,7 +937,6 @@ public class MotionReportController extends BaseController{
 						}
 					}
 					
-					strRevisedMotionText = motion.getRevisedDetails();
 					if(referenceLetter.getReferredNumber() != null && !referenceLetter.getReferredNumber().isEmpty())
 					{
 						strRevisedMotionText = referenceLetter.getNoticeContent();

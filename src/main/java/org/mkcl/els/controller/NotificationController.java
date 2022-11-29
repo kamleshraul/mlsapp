@@ -334,6 +334,24 @@ public class NotificationController extends GenericController<Notification> {
 		getNotificationService().sendNotificationWithTitleUsingTemplate(motion.getType().getType().toUpperCase() + "_REQUEST_FOR_DEPARTMENT_PROCESSING", templateParameters, locale);
 	}
 	
+	public static void sendDepartmentProcessNotificationIncludingBranchForMotion(final Motion motion, final String usergroupTypes, final String copyType, final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("deviceNumber", new String[]{FormaterUtil.formatNumberNoGrouping(motion.getNumber(), locale)});
+		templateParameters.put("sessionId", new String[]{motion.getSession().getId().toString()});
+		templateParameters.put("requestedField", new String[]{copyType});		
+//		templateParameters.put("deviceTypeType", new String[]{motion.getType().getType()});
+//		templateParameters.put("deviceTypeName", new String[]{motion.getType().getName()});
+		templateParameters.put("deviceTypeNameLike", new String[]{"%"+motion.getType().getName()+"%"});
+//		templateParameters.put("houseTypeType", new String[]{motion.getHouseType().getType()});
+//		templateParameters.put("houseTypeName", new String[]{motion.getHouseType().getName()});
+		templateParameters.put("houseTypeNameLike", new String[]{"%"+motion.getHouseType().getName()+"%"});
+//		templateParameters.put("currentSubDepartment", new String[]{motion.getSubDepartment().getName()});
+		templateParameters.put("currentSubDepartmentLike", new String[]{"%"+motion.getSubDepartment().getName()+"%"});
+		templateParameters.put("usergroupTypes", new String[]{usergroupTypes});
+		getNotificationService().sendNotificationWithTitleUsingTemplate(motion.getType().getType().toUpperCase() + "_REQUEST_FOR_DEPARTMENT_PROCESSING_INCLUDING_BRANCH", templateParameters, locale);
+	}
+	
 	public static void sendDepartmentProcessNotificationForCutMotion(final CutMotion motion, final String departmentUserName, final String locale) {
 		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
 		templateParameters.put("locale", new String[]{locale});

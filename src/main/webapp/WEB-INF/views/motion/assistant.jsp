@@ -752,7 +752,7 @@
 	</c:choose>
 	<form:errors path="number" cssClass="validationError"/>
 	<c:choose>
-		<c:when test="${(internalStatusType =='motion_recommend_admission' || internalStatusType == 'motion_final_admission')
+		<c:when test="${internalStatusType =='motion_recommend_admission'
 							&& (usergroupType == 'assistant' || usergroupType == 'section_officer')}">
 			<label class="small" style="margin-left: 150px;"><spring:message code="motion.sendAdvanceCopy" text="Send Advance Copy"/></label>
 			<input type="checkbox" name="isAdvanceCopySent" id="isAdvanceCopySent" class="sCheck" >

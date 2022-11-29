@@ -757,7 +757,7 @@
 		}
 		
 		function showPreIntimationAdmissionReport(id){
-			$("#preAdmissionIntimationReport").attr('href','motion/report/commonadmissionreport?motionId=' + id + '&locale=' + $("#moduleLocale").val() + '&outputFormat=' + $("#defaultReportFormat").val() + '&isAdvanceCopy=yes');
+			$("#preAdmissionIntimationReport").attr('href','motion/report/commonadmissionreport?motionId=' + id + '&locale=' + $("#moduleLocale").val() + '&outputFormat=' + $("#defaultReportFormat").val() + '&isAdvanceCopy=yes&copyType=advanceCopy');
 		}
 		
 		/**** Bulk statusupdate(Assistant)****/

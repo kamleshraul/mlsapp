@@ -81,7 +81,7 @@
 			$(".deviceNumber").click(function(){
 				var id = $(this).attr("id").split("deviceNumber")[1];
 				$(this).attr('href', 'motion/report/commonadmissionreport?motionId='+$("#motionId"+id).val()
-						+'&outputFormat=PDF&copyType=advanceCopy');
+						+'&outputFormat=PDF&copyType=advanceCopy&isAdvanceCopy=yes');
 			});
 			
 		});		
@@ -203,7 +203,7 @@
 										<a href="javascript:void(0)" id="deviceNumber${j.index}" class="deviceNumber">${i.deviceNumber}</a> 
 										<input type="hidden" name="motionId${j.index}" id="motionId${j.index}" value="${i.deviceId}"/>
 										<br>
-										<p>
+										<p style="display: none;">
 											<label class="small"><spring:message code="motion.isTransferable" text="is Motion to be transfered?"/></label>
 											<input type="checkbox" name="isTransferable${j.index}" id="isTransferable${j.index}" class="sCheck transferable">
 										</p>
