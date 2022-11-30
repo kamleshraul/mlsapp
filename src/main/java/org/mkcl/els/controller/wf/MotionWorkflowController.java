@@ -5,6 +5,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -605,6 +606,27 @@ public class MotionWorkflowController extends BaseController {
 			model.addAttribute("internalStatusSelected", internalStatus.getId());
 			model.addAttribute("actors", actors);
 		}
+		
+		if(usergroupType.startsWith(ApplicationConstants.DEPARTMENT)
+				&& internalStatus.getType().equals(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
+			CustomParameter csptDepartmentChangeTimeLimitForDepartmentUsers = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_DEPARTMENT_CHANGE_TIME_LIMIT_FOR_"+usergroupType.toUpperCase(), "");
+			if(csptDepartmentChangeTimeLimitForDepartmentUsers!=null
+					&& csptDepartmentChangeTimeLimitForDepartmentUsers.getValue()!=null) {
+				int timeLimitForDepartmentChangeInHours = Integer.parseInt(csptDepartmentChangeTimeLimitForDepartmentUsers.getValue());
+				Calendar assignmentTimeCalendar = Calendar.getInstance();
+				ReferenceLetter referenceLetter = ReferenceLetter.findByFieldName(ReferenceLetter.class, "referenceNumber", workflowDetails.getReferenceNumber(), locale.toString());
+				if(referenceLetter!=null) {
+					assignmentTimeCalendar.setTime(referenceLetter.getDispatchDate());
+				} else {
+					assignmentTimeCalendar.setTime(workflowDetails.getAssignmentTime());
+				}				
+				assignmentTimeCalendar.set(Calendar.HOUR_OF_DAY, assignmentTimeCalendar.get(Calendar.HOUR_OF_DAY)+timeLimitForDepartmentChangeInHours);
+				if(new Date().after(assignmentTimeCalendar.getTime())) {
+					model.addAttribute("departmentChangeTimeLimitCrossed", "YES");
+				}
+			}
+		}
+		
 		/**** add domain to model ****/
 		model.addAttribute("domain", domain);
 	}

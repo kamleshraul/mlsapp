@@ -309,6 +309,10 @@
 		$('#mlsBranchNotifiedOfTransfer').val(null);
 		$('#transferToDepartmentAccepted').val(null);
 		
+		if($('#departmentChangeTimeLimitCrossed').val()=="YES") {
+			$('#isTransferable').attr("disabled", "disabled");
+		}
+		
 		/**** Back To motion ****/
 		$("#backToMotion").click(function(){
 			$("#clubbingResultDiv").hide();
@@ -669,6 +673,9 @@
 	<p>
 		<label class="small"><spring:message code="motion.isTransferable" text="is Motion to be transfered?"/></label>
 		<input type="checkbox" name="isTransferable" id="isTransferable" class="sCheck">
+		<c:if test="${departmentChangeTimeLimitCrossed=='YES'}">
+			&nbsp;&nbsp;<b>(<spring:message code="motion.isTransferable.timeLimitCrossedMessage" text="Time Limit for department change is crossed already!"/>)</b>
+		</c:if>
 	</p>
 	<div>
 		<p>
@@ -1076,6 +1083,7 @@
 <input type="hidden" id="originalLevel" value="${domain.level}" />
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 <input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
+<input id="departmentChangeTimeLimitCrossed" type="hidden" value="${departmentChangeTimeLimitCrossed}">
 
 <select id="allDevices" style="display: none;">
 	<c:forEach items="${allDevices}" var="i">
