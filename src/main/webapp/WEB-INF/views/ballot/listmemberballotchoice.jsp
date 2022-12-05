@@ -389,6 +389,7 @@
 			</c:forEach>
 		</c:forEach>				
 	</table>
+	<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','MEMBER_UPPERHOUSE')">
 	<div class="fields">
 		<p style="margin-top: 20px;"></p>
 		<c:if test="${isMemberFillingQuestionChoices!='YES'}">
@@ -402,6 +403,7 @@
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" style="text-align:center;">
 		</p>
 	</div>
+	</security:authorize>
 </div>
 
 <input id="noOfAdmittedQuestions" name="noOfAdmittedQuestions" value="${noOfAdmittedQuestions }" type="hidden">

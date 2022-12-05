@@ -571,7 +571,7 @@
 			<a href="#" id="preballot" class="butSim link">
 				<spring:message code="memberballot.preballot" text="Pre Ballot"/>
 			</a> |
-			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY','QIS_SECRETARY','QIS_JOINT_SECRETARY','QIS_PRINCIPAL_SECRETARY')">
+			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY','QIS_SECRETARY','QIS_JOINT_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_CHAIRMAN')">
 				<a href="#" id="memberballot" class="butSim link">
 					<spring:message code="memberballot.memberballot" text="Member Ballot"/>
 				</a> |	
@@ -579,30 +579,34 @@
 			<a href="#" id="view_member_ballot_status" class="butSim link">
 				<spring:message code="memberballot.memberballotstatus" text="Member Ballot Status"/>
 			</a> |	
-			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY','QIS_SECRETARY','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_SECTION_OFFICER','QIS_PRINCIPAL_SECRETARY')">
+			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY','QIS_SECRETARY','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_SECTION_OFFICER','QIS_PRINCIPAL_SECRETARY','QIS_CHAIRMAN')">
 			<a href="#" id="view_memberballot_questionchoices_status" class="butSim link">
 				<spring:message code="memberballot.memberballot_questionchoices_status" text="Question Choices Status"/>
 			</a> |		
 			</security:authorize>
 			<hr>
-			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
+			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_CHAIRMAN')">
 			<a href="#" id="memberballotchoice" class="butSim link">
 				<spring:message code="memberballot.memberballotchoice" text="Question Choices"/>
 			</a> |
+			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 			<a href="#" id="updateclubbing" class="butSim link">
 				<spring:message code="memberballot.updateclubbing" text="Update Clubbing"/>
 			</a> |
 			</security:authorize>
+			</security:authorize>
 			<!-- <div style="display:none;"> -->
-			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY')">
+			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY','QIS_CHAIRMAN')">
+				<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY')">
 				<a href="#" id="finalballot" class="butSim link">
 					<spring:message code="memberballot.finalballot" text="Final Ballot"/>
 				</a> |
+				</security:authorize>
 				<a href="#" id="viewfinalballot" class="butSim link">
 					<spring:message code="memberballot.viewfinalballot" text="View Final Ballot"/>
 				</a> |
 			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY','QIS_SECTION_OFFICER')">
+			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY','QIS_SECTION_OFFICER','QIS_CHAIRMAN')">
 				<a href="#" id="previewFinalBallot" class="butSim link">
 					<spring:message code="memberballot.previewFinalballot" text="Preview Final Ballot"/>
 				</a> |
@@ -616,7 +620,7 @@
 				<spring:message code="memberballot.questiondistribution" text="Total Questions Report"/>
 			</a> |
 			<hr>	
-			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
+			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_CHAIRMAN')">
 				<a href="#" id="view_yaadi" class="butSim">
 					<spring:message code="ballotinitial.viewyaadi" text="View Yaadi"/>
 				</a> | 
