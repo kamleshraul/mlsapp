@@ -233,8 +233,10 @@ public class RotationOrderController extends BaseController {
 		            	List<String> numberOfMinisteries= new ArrayList<String>();
 		            	int i=1;
 		            	for(Ministry m:ministries){
-		            		ministriesStr.add(m.getName());
-		            		numberOfMinisteries.add(numberFormat.format(i++));
+		            		if(!ministriesStr.contains(m.getDisplayName())) {
+			            		ministriesStr.add(m.getDisplayName());
+			            		numberOfMinisteries.add(numberFormat.format(i++));		            			
+		            		}
 		            	}
 		            	List<String> answeringDates= new ArrayList<String>();
 		            	List<String> finalSubmissionDates=new ArrayList<String>();

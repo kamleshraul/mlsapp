@@ -91,7 +91,7 @@ public class ProprietyPoint extends Device implements Serializable {
     private List<SupportingMember> supportingMembers;
 	
     /** The propriety point date
-     *  Numbering & Processing of devices will be based on this date for upperhouse processing only.
+     *  Numbering & Processing of devices will be based on this date.
      */
     @Temporal(TemporalType.DATE)
 	@Column(name="propriety_point_date")
@@ -310,8 +310,6 @@ public class ProprietyPoint extends Device implements Serializable {
 //							}
 							if(ProprietyPoint.getCurrentProprietyPointDateLowerHouse()==null) {
 	                    		isProprietyPointDateDifferent = true;
-	                    	} else if(DateUtil.compareDatePartOnly(new Date(), this.getSession().getEndDate())==0) {
-	                    		isProprietyPointDateDifferent = true;
 	                    	} else if(ProprietyPoint.getCurrentProprietyPointDateLowerHouse().compareTo(this.getProprietyPointDate())!=0) {
 	                    		isProprietyPointDateDifferent = true;
 	                    	}
@@ -377,9 +375,19 @@ public class ProprietyPoint extends Device implements Serializable {
 						String houseType = this.getHouseType().getType();
 						
 						if (houseType.equals(ApplicationConstants.LOWER_HOUSE)) {					
-							if (ProprietyPoint.getCurrentNumberLowerHouse() == 0) {
-								number = ProprietyPoint.assignNumber(this.getHouseType(), this.getSession(), this.getDeviceType(), this.getLocale());
+//							if (ProprietyPoint.getCurrentNumberLowerHouse() == 0) {
+//								number = ProprietyPoint.assignNumber(this.getHouseType(), this.getSession(), this.getDeviceType(), this.getLocale());
+//								ProprietyPoint.updateCurrentNumberLowerHouse(number);
+//							}
+							if(ProprietyPoint.getCurrentProprietyPointDateLowerHouse()==null) {
+	                    		isProprietyPointDateDifferent = true;
+	                    	} else if(ProprietyPoint.getCurrentProprietyPointDateLowerHouse().compareTo(this.getProprietyPointDate())!=0) {
+	                    		isProprietyPointDateDifferent = true;
+	                    	}
+							if (ProprietyPoint.getCurrentNumberLowerHouse()==0 || isProprietyPointDateDifferent) {
+								number = ProprietyPoint.assignNumber(this.getHouseType(), this.getSession(), this.getProprietyPointDate(), this.getLocale());
 								ProprietyPoint.updateCurrentNumberLowerHouse(number);
+								ProprietyPoint.updateCurrentProprietyPointDateLowerHouse(this.getProprietyPointDate());
 							}
 						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {					
 							if(ProprietyPoint.getCurrentProprietyPointDateUpperHouse()==null) {
@@ -524,29 +532,50 @@ public class ProprietyPoint extends Device implements Serializable {
 		if(session==null || session.getId()==null) {
 			throw new ELSException();
 		}
-		Calendar c = Calendar.getInstance();
-		c.add(Calendar.DATE, 1); 
-		Date currentDatePlusOne = c.getTime();
-		
-		if(Session.isGivenDateInSession(currentDatePlusOne,session)) {
-			if(!isForMemberLogin || ProprietyPoint.validateSubmissionEndTime(session, new Date()) && !Holiday.isHolidayOnDate(currentDatePlusOne, session.getLocale())) {
-				return currentDatePlusOne;
-			} else {
-				Date nextSessionWorkingDay = session.getNextSessionDate(currentDatePlusOne, 1, session.getLocale());
-				if(nextSessionWorkingDay!=null) {
-					return nextSessionWorkingDay;
+		if(session.getHouse().getType().getType().equals(ApplicationConstants.UPPER_HOUSE)) { //for upperhouse and assuming submissions for next session date
+			Calendar c = Calendar.getInstance();
+			c.add(Calendar.DATE, 1); 
+			Date currentDatePlusOne = c.getTime();
+			
+			if(Session.isGivenDateInSession(currentDatePlusOne,session)) {
+				if((!isForMemberLogin || ProprietyPoint.validateSubmissionEndTime(session, new Date())) && !Holiday.isHolidayOnDate(currentDatePlusOne, session.getLocale())) {
+					return currentDatePlusOne;
 				} else {
-					return session.getEndDate();
-				}
-			}						
-		} else {
-//			Date nextSessionWorkingDay = session.getNextSessionDate(currentDatePlusOne, 1, session.getLocale());
-//			if(nextSessionWorkingDay!=null) {
-//				return nextSessionWorkingDay;
-//			} else {
-//				return session.getEndDate();
-//			}
-			return session.getEndDate();
+					Date nextSessionWorkingDay = session.getNextSessionDate(currentDatePlusOne, 1, session.getLocale());
+					if(nextSessionWorkingDay!=null) {
+						return nextSessionWorkingDay;
+					} else {
+						return session.getEndDate();
+					}
+				}						
+			} else {
+//				Date nextSessionWorkingDay = session.getNextSessionDate(currentDatePlusOne, 1, session.getLocale());
+//				if(nextSessionWorkingDay!=null) {
+//					return nextSessionWorkingDay;
+//				} else {
+//					return session.getEndDate();
+//				}
+				return session.getEndDate();
+			}
+		} 
+		else { //for lowerhouse and assuming submissions for current session date only as default
+			if(session==null || session.getId()==null) {
+				throw new ELSException();
+			}
+			if(Session.isCurrentDateInSession(session)) {
+				if(!isForMemberLogin || ProprietyPoint.validateSubmissionEndTime(session, new Date())) {
+					return new Date();
+				} else {
+					Date nextSessionWorkingDay = session.getNextSessionDate(new Date(), 1, session.getLocale());
+					if(nextSessionWorkingDay!=null) {
+						return nextSessionWorkingDay;
+					} else {
+						return session.getEndDate();
+					}
+				}						
+			} else {
+				return session.getStartDate();
+			}
 		}
 	}
     
@@ -781,22 +810,48 @@ public class ProprietyPoint extends Device implements Serializable {
 	}
     
     public Boolean validateSubmissionDate() {
-    	Date nextWorkingDate = Holiday.getNextWorkingDateFrom(new Date(), 1, this.getLocale());
-    	if(DateUtil.compareDatePartOnly(this.getProprietyPointDate(), nextWorkingDate) == 0
-    			//&& (DateUtil.compareDatePartOnly(this.getSubmissionDate(), new Date())) == 0
-    			&& !(Holiday.isHolidayOnDate(this.getProprietyPointDate(), this.getLocale()))) {
-    		return true;
-    	} else if(DateUtil.compareDatePartOnly(new Date(), this.getSession().getEndDate()) == 0
-    			&& (DateUtil.compareDatePartOnly(this.getProprietyPointDate(), this.getSession().getEndDate())) == 0
-    			&& !(Holiday.isHolidayOnDate(this.getProprietyPointDate(), this.getLocale()))) {
-    		return true;
-    	} else {
-    		return false;
+    	if(this.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+        	Date nextWorkingDate = Holiday.getNextWorkingDateFrom(new Date(), 1, this.getLocale());
+        	if(DateUtil.compareDatePartOnly(this.getProprietyPointDate(), nextWorkingDate) == 0
+        			//&& (DateUtil.compareDatePartOnly(this.getSubmissionDate(), new Date())) == 0
+        			&& !(Holiday.isHolidayOnDate(this.getProprietyPointDate(), this.getLocale()))) {
+        		return true;
+        	} else if(DateUtil.compareDatePartOnly(new Date(), this.getSession().getEndDate()) == 0
+        			&& (DateUtil.compareDatePartOnly(this.getProprietyPointDate(), this.getSession().getEndDate())) == 0
+        			&& !(Holiday.isHolidayOnDate(this.getProprietyPointDate(), this.getLocale()))) {
+        		return true;
+        	} else {
+        		return false;
+        	}    		
+    	}
+    	else {
+    		if(DateUtil.compareDatePartOnly(this.getProprietyPointDate(), new Date()) == 0
+        			&& !(Holiday.isHolidayOnDate(this.getProprietyPointDate(), this.getLocale()))) {
+        		return true;
+        	} else {
+        		return false;
+        	}
     	}
     }
     
-    public static Boolean validateSubmissionTime(final Session proprietyPointSession, Date proprietyPointDate,Date currentSubmissionTime) {
-    	boolean isSubmissionDateValidated = false;    	
+    public static Boolean validateSubmissionTime(final Session proprietyPointSession, Date proprietyPointDate) {
+    	CustomParameter csptSubmissionStartTimeValidationRequired = CustomParameter.findByName(CustomParameter.class, "PROIS_SUBMISSION_START_TIME_VALIDATION_REQUIRED", "");
+    	if(csptSubmissionStartTimeValidationRequired!=null && csptSubmissionStartTimeValidationRequired.getValue().equals("YES")) {
+    		Date currentSubmissionTime = new Date();    	
+        	Date submissionStartTime = ProprietyPoint.findSubmissionStartTime(proprietyPointSession, proprietyPointDate);
+        	Date submissionEndTime = ProprietyPoint.findSubmissionEndTime(proprietyPointSession, proprietyPointDate);    	
+        	if(currentSubmissionTime.compareTo(submissionStartTime)>=0 && currentSubmissionTime.compareTo(submissionEndTime)<=0) {
+        		return true;
+        	} else {
+        		return false;
+        	}
+    	} else {
+    		return ProprietyPoint.validateSubmissionEndTime(proprietyPointSession, proprietyPointDate);
+    	}
+    }
+    
+    public static Boolean validateSubmissionTimeUpperHouse(final Session proprietyPointSession, Date proprietyPointDate, Date currentSubmissionTime) {
+    	boolean isSubmissionDateValidated = false;
     	CustomParameter csptSubmissionStartTimeValidationRequired = CustomParameter.findByName(CustomParameter.class, "PROIS_SUBMISSION_START_TIME_VALIDATION_REQUIRED", "");
     	if(csptSubmissionStartTimeValidationRequired!=null && csptSubmissionStartTimeValidationRequired.getValue().equals("YES")) {	    		   	
         	if(DateUtil.compareDatePartOnly(new Date(), proprietyPointSession.getEndDate()) < 0
@@ -819,7 +874,7 @@ public class ProprietyPoint extends Device implements Serializable {
         	}
     	} else {
     		return ProprietyPoint.validateSubmissionEndTime(proprietyPointSession, currentSubmissionTime);
-    	}    	    	
+    	}
     }
     	
 	 public static Boolean validateSubmissionEndTime(final Session proprietyPointSession, Date currentSubmissionTime) {

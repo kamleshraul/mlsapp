@@ -1211,13 +1211,23 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 							&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
 							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
 						if(!role.equals("PROIS_TYPIST")){
-							if(!ProprietyPoint.validateSubmissionTime(domain.getSession(), domain.getProprietyPointDate(),new Date())) {
+							if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)
+									&& !ProprietyPoint.validateSubmissionTimeUpperHouse(domain.getSession(), domain.getProprietyPointDate(),new Date())) {
+								result.rejectValue("version","proprietypoint.submissionWindowTimeClosed","submission time window is closed for this proprietypoint date!");
+								return;
+							}
+							else if(!ProprietyPoint.validateSubmissionTime(domain.getSession(), domain.getProprietyPointDate())) {
 								result.rejectValue("version","proprietypoint.submissionWindowTimeClosed","submission time window is closed for this proprietypoint date!");
 								return;
 							}
 						}
 					} else {
-						if(!ProprietyPoint.validateSubmissionTime(domain.getSession(), domain.getProprietyPointDate(),new Date())) {
+						if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)
+								&& !ProprietyPoint.validateSubmissionTimeUpperHouse(domain.getSession(), domain.getProprietyPointDate(),new Date())) {
+							result.rejectValue("version","proprietypoint.submissionWindowTimeClosed","submission time window is closed for this proprietypoint date!");
+							return;
+						}
+						else if(!ProprietyPoint.validateSubmissionTime(domain.getSession(), domain.getProprietyPointDate())) {
 							result.rejectValue("version","proprietypoint.submissionWindowTimeClosed","submission time window is closed for this proprietypoint date!");
 							return;
 						}
@@ -1673,13 +1683,23 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 							&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
 							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
 						if(!role.equals("PROIS_TYPIST")){
-							if(!ProprietyPoint.validateSubmissionTime(domain.getSession(), domain.getProprietyPointDate(),new Date())) {
+							if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)
+									&& !ProprietyPoint.validateSubmissionTimeUpperHouse(domain.getSession(), domain.getProprietyPointDate(),new Date())) {
+								result.rejectValue("version","proprietypoint.submissionWindowTimeClosed","submission time window is closed for this proprietypoint date!");
+								return;
+							}
+							else if(!ProprietyPoint.validateSubmissionTime(domain.getSession(), domain.getProprietyPointDate())) {
 								result.rejectValue("version","proprietypoint.submissionWindowTimeClosed","submission time window is closed for this proprietypoint date!");
 								return;
 							}
 						}
 					} else {
-						if(!ProprietyPoint.validateSubmissionTime(domain.getSession(), domain.getProprietyPointDate(),new Date())) {
+						if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)
+								&& !ProprietyPoint.validateSubmissionTimeUpperHouse(domain.getSession(), domain.getProprietyPointDate(),new Date())) {
+							result.rejectValue("version","proprietypoint.submissionWindowTimeClosed","submission time window is closed for this proprietypoint date!");
+							return;
+						}
+						else if(!ProprietyPoint.validateSubmissionTime(domain.getSession(), domain.getProprietyPointDate())) {
 							result.rejectValue("version","proprietypoint.submissionWindowTimeClosed","submission time window is closed for this proprietypoint date!");
 							return;
 						}

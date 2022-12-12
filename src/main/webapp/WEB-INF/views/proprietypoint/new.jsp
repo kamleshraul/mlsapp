@@ -512,7 +512,7 @@
 			
 			<h2></h2>
 			
-			<c:if test="${houseTypeType=='upperhouse'}">
+			<%-- <c:if test="${houseTypeType=='upperhouse'}"> --%>
 			<p>
 				<label class="small"><spring:message code="proprietypoint.selectproprietypointdate" text="Propriety Point Date"/></label>
 				<%-- <input name="proprietyPointDate" id="proprietyPointDate" value="${defaultProprietyPointDate}" style="width:130px;height: 40px;background-color:white;" readonly="readonly"> --%>		
@@ -523,7 +523,7 @@
 				</select>
 				<a href="#" id="changeProprietyPointDate" style="margin-left: 10px;"><spring:message code="proprietypoint.changeProprietyPointDate" text="Change Propriety Point Date"/></a>
 			</p>
-			</c:if>
+			<%-- </c:if> --%>
 			
 			<p>
 				<label class="centerlabel"><spring:message code="proprietypoint.subject" text="Subject"/>*</label>

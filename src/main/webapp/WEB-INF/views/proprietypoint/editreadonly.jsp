@@ -114,11 +114,11 @@
 							<input id="readonly_setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
 						</c:if>
 						
-						<c:if test="${houseTypeType=='upperhouse'}">
+						<%-- <c:if test="${houseTypeType=='upperhouse'}"> --%>
 							<label class="small"><spring:message code="proprietypoint.selectproprietypointdate" text="Propriety Point Date"/></label>
 							<input id="readonly_formattedProprietyPointDate" name="formattedProprietyPointDate" value="${formattedProprietyPointDate}" class="sText" readonly="readonly">
 							<input id="readonly_proprietyPointDate" name="proprietyPointDate" type="hidden"  value="${selectedProprietyPointDate}">
-						</c:if>
+						<%-- </c:if> --%>
 					</p>
 					
 					<c:if test="${houseTypeType=='upperhouse' and !(empty submissionDate)}">

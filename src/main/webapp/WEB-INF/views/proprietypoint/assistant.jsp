@@ -433,20 +433,20 @@
 				<input id="number" name="number" value="${domain.number}" type="hidden">
 				<form:errors path="number" cssClass="validationError"/>
 				
-				<c:if test="${houseTypeType=='lowerhouse' and !(empty submissionDate)}">
+				<%-- <c:if test="${houseTypeType=='lowerhouse' and !(empty submissionDate)}">
 					<label class="small"><spring:message code="proprietypoint.submissionDate" text="Submitted On"/></label>
 					<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
 					<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
-				</c:if>
+				</c:if> --%>
 				
-				<c:if test="${houseTypeType=='upperhouse'}">
+				<%-- <c:if test="${houseTypeType=='upperhouse'}"> --%>
 					<label class="small"><spring:message code="proprietypoint.selectproprietypointdate" text="Propriety Point Date"/></label>
 					<input id="formattedProprietyPointDate" name="formattedProprietyPointDate" value="${formattedProprietyPointDate}" class="sText" readonly="readonly">
 					<input id="proprietyPointDate" name="proprietyPointDate" type="hidden"  value="${selectedProprietyPointDate}">
-				</c:if>
+				<%-- </c:if> --%>
 			</p>
 			
-			<c:if test="${houseTypeType=='upperhouse' and !(empty submissionDate)}">
+			<c:if test="${!(empty submissionDate)}">
 			<p>
 				<label class="small"><spring:message code="proprietypoint.submissionDate" text="Submitted On"/></label>
 				<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">

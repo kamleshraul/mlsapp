@@ -9,10 +9,13 @@
 			$("#selectionDiv1").show();
 			
 			var selectedProprietyPointDate = "";
-			if($('#selectedHouseType').val()=='upperhouse') {
+			/* if($('#selectedHouseType').val()=='upperhouse') {
 				if($("#isProprietyPointDateSelected").is(":checked")) {
 					selectedProprietyPointDate = convertToDbFormat($('#selectedProprietyPointDate').val());
 				}
+			} */
+			if($("#isProprietyPointDateSelected").is(":checked")) {
+				selectedProprietyPointDate = convertToDbFormat($('#selectedProprietyPointDate').val());
 			}
 			
 			/**** grid params which is sent to load grid data being sent ****/				
