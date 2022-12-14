@@ -85,6 +85,13 @@
 								$("#reminderLetterSpan").hide();
 							}
 							
+							if(device == 'motions_calling_attention'){
+								displayNewAdvanceCopyForMotion();
+								$("#advanceCopyDiv").css("display","inline");
+							}else{
+								$("#advanceCopyDiv").hide();
+							}
+							
 							if(device=='motions_adjournment') {
 								$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
 										+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
@@ -242,6 +249,14 @@
 					if($("#selectedDeviceType").val()!=undefined && $("#selectedDeviceType").val()!=null) {
 						var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
 						var houseType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
+						
+						if(device == 'motions_calling_attention'){
+							displayNewAdvanceCopyForMotion();
+							$("#advanceCopyDiv").css("display","inline");
+						}else{
+							$("#advanceCopyDiv").hide();
+						}
+						
 						if(device=='motions_adjournment') {
 							$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
 									+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
@@ -358,6 +373,14 @@
 					if($("#selectedDeviceType").val()!=undefined && $("#selectedDeviceType").val()!=null) {
 						var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
 						var houseType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
+						
+						if(device == 'motions_calling_attention'){
+							displayNewAdvanceCopyForMotion();
+							$("#advanceCopyDiv").css("display","inline");
+						}else{
+							$("#advanceCopyDiv").hide();
+						}
+						
 						if(device=='motions_adjournment') {
 							$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
 									+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
@@ -539,6 +562,13 @@
 					}
 				} else {
 					$("#reminderLetterSpan").hide();
+				}
+				
+				if(device == 'motions_calling_attention'){
+					displayNewAdvanceCopyForMotion();
+					$("#advanceCopyDiv").css("display","inline");
+				}else{
+					$("#advanceCopyDiv").hide();
 				}
 				
 				if(device.indexOf('motions_adjournment')==0){

@@ -770,7 +770,7 @@ public class MotionReportController extends BaseController{
 									memberNames.append(member.findNameInGivenFormat(memberNameFormat));
 									memberNames.append(",");
 								}
-								memberNames.deleteCharAt(memberIds.length-1);
+								memberNames.deleteCharAt(memberNames.length()-1);
 								
 								obj[8] = memberNames.toString();
 							}
