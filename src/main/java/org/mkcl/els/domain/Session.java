@@ -56,7 +56,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "sessions")
-@JsonIgnoreProperties({"parameters", "drafts"})
+@JsonIgnoreProperties({"sessionDates", "parameters", "drafts"})
 public class Session extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
@@ -109,6 +109,10 @@ public class Session extends BaseDomain implements Serializable {
     /** The actual end date. */
     @Temporal(TemporalType.DATE)
     private Date actualEndDate;
+    
+    @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
+    @JoinColumn(name = "session_id", referencedColumnName = "id")
+    private List<SessionDates> sessionDates;
 
     /*
      * devices enabled for a session.This will be a list of enabled device type separated
@@ -708,6 +712,16 @@ public class Session extends BaseDomain implements Serializable {
 		this.actualEndDate = actualEndDate;
 	}
 	
+
+	public List<SessionDates> getSessionDates() {
+		return sessionDates;
+	}
+
+
+	public void setSessionDates(final List<SessionDates> sessionDates) {
+		this.sessionDates = sessionDates;
+	}
+
 
 	/**
 	 * Gets the device types enabled.
