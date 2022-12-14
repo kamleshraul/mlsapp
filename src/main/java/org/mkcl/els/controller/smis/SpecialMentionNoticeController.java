@@ -1227,7 +1227,7 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 				CustomParameter submissionWindowValidationSkippedCP = CustomParameter.findByName(CustomParameter.class, "SPECIALMENTIONNOTICE_SUBMISSION_WINDOW_VALIDATIONS_SKIPPED"+"_"+domain.getHouseType().getType().toUpperCase(), "");
 				if(submissionWindowValidationSkippedCP==null || submissionWindowValidationSkippedCP.getValue()==null
 						|| !submissionWindowValidationSkippedCP.getValue().equals("TRUE")) {
-					if(!domain.validateSubmissionDate()) {
+					if(domain.getNumber()==null && !domain.validateSubmissionDate()) {
 						result.rejectValue("version","submissionWindowClosed","submission time window is closed for this specialmentionnotice date!");
 						return;
 					}
@@ -1529,7 +1529,7 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 				CustomParameter submissionWindowValidationSkippedCP = CustomParameter.findByName(CustomParameter.class, "SPECIALMENTIONNOTICE_SUBMISSION_WINDOW_VALIDATIONS_SKIPPED"+"_"+domain.getHouseType().getType().toUpperCase(), "");
 				if(submissionWindowValidationSkippedCP==null || submissionWindowValidationSkippedCP.getValue()==null
 						|| !submissionWindowValidationSkippedCP.getValue().equals("TRUE")) {
-					if(!domain.validateSubmissionDate()) {
+					if(domain.getNumber()==null && !domain.validateSubmissionDate()) {
 						result.rejectValue("version","submissionWindowClosed","submission time window is closed for this special mention notice!");
 						return;
 					}
