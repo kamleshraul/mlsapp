@@ -28,6 +28,7 @@ import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
+import org.mkcl.els.controller.NotificationController;
 //import org.mkcl.els.domain.Chart;
 import org.mkcl.els.domain.ClarificationNeededFrom;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -896,7 +897,14 @@ public class DiscussionMotionWorkflowController extends BaseController{
 							Task newtask=processService.getCurrentTask(processInstance);
 							newtask.setAssignee(user[0]);
 							workflowDetails2 = WorkflowDetails.create(domain, newtask, usergroupType, currentDeviceTypeWorkflowType,level);
-						
+							String copyType = null;
+							/**** SEND NOTIFICATION TO DEPARTMENT USER ****/
+							if (usergroupType.getType().equals(ApplicationConstants.DEPARTMENT) || usergroupType
+									.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+								NotificationController.sendDepartmentProcessNotificationForDiscussionMotion(domain,
+										workflowDetails2.getAssignee(), domain.getLocale());
+							}
+							
 							}
 							domain.setActor(ApplicationConstants.DEPARTMENT);
 							}
