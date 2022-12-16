@@ -256,7 +256,7 @@ public class DiscussionMotionReportController extends BaseController{
 			
 			String strId = request.getParameter("discussionmotionId");
 			String strReportFormat = request.getParameter("outputFormat");	
-			DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(strId) );
+			DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(request.getParameter("motionType")) );
 			
 			String templateName =deviceType.getType()+"_"+request.getParameter("templateName")+"_"+request.getParameter("houseType");
 			if(strId != null && !strId.isEmpty()){
@@ -288,7 +288,7 @@ public class DiscussionMotionReportController extends BaseController{
 			
 			String strId = request.getParameter("discussionmotionId");
 			String strReportFormat = request.getParameter("outputFormat");	
-			DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(strId) );
+			DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(request.getParameter("motionType")) );
 			
 			String templateName =deviceType.getType()+"_"+request.getParameter("templateName")+"_"+request.getParameter("houseType");
 			

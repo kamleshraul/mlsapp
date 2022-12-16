@@ -24,6 +24,7 @@ import org.mkcl.els.domain.CommitteeMeeting;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.DiscussionMotion;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Motion;
@@ -330,6 +331,15 @@ public class NotificationController extends GenericController<Notification> {
 		templateParameters.put("deviceNumber", new String[]{FormaterUtil.formatNumberNoGrouping(motion.getNumber(), locale)});
 		templateParameters.put("sessionId", new String[]{motion.getSession().getId().toString()});
 		templateParameters.put("requestedField", new String[]{copyType});
+		templateParameters.put("departmentUserName", new String[]{departmentUserName});
+		getNotificationService().sendNotificationWithTitleUsingTemplate(motion.getType().getType().toUpperCase() + "_REQUEST_FOR_DEPARTMENT_PROCESSING", templateParameters, locale);
+	}
+	
+	public static void sendDepartmentProcessNotificationForDiscussionMotion(final DiscussionMotion motion, final String departmentUserName, final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("deviceNumber", new String[]{FormaterUtil.formatNumberNoGrouping(motion.getNumber(), locale)});
+		templateParameters.put("sessionId", new String[]{motion.getSession().getId().toString()});
 		templateParameters.put("departmentUserName", new String[]{departmentUserName});
 		getNotificationService().sendNotificationWithTitleUsingTemplate(motion.getType().getType().toUpperCase() + "_REQUEST_FOR_DEPARTMENT_PROCESSING", templateParameters, locale);
 	}
