@@ -1723,7 +1723,7 @@
 	//---------------------- #  Edited By Shubham A #-------------------------
 	
 	function TestRevisionReport(){
-		var param = "question/report/generalreport?sessionYear=" + $("#selectedSessionYear").val()
+/* 		var param = "question/report/generalreport?sessionYear=" + $("#selectedSessionYear").val()
 		+ "&sessionType=" + $("#selectedSessionType").val()
 		+ "&houseType=" + $("#selectedHouseType").val()
 		+ "&deviceType=" + $("#selectedQuestionType").val()
@@ -1733,7 +1733,24 @@
 		+ "&report=LAST_REVISION_REPORT"
 		+ "&locale=mr_IN";
 		console.log(param);
-	    showTabByIdAndUrl('details_tab',param)
+	    showTabByIdAndUrl('details_tab',param) */
+	    
+		 var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+			+ "/" + $("#selectedSessionYear").val()
+			+ "/" + $("#selectedSessionType").val();
+			$.get(url,function(data){
+				if(data){
+					
+					showTabByIdAndUrl("details_tab","question/report/generalreport?"
+							+"sessionId="+data.id
+							+ "&deviceType=" + $("#selectedQuestionType").val()
+						    + "&status=" + $("#selectedStatus").val() 
+							+ "&groupId="+$("#selectedGroup").val()
+							+ "&locale=mr_IN"
+							+ "&reportout=RevisionReport"
+							+ "&report=LAST_REVISION_REPORT");
+				}
+			}); 
 	}
 	
 	//---------------------------------------------------------------------------------
