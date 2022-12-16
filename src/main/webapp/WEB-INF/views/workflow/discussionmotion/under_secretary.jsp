@@ -451,7 +451,7 @@
 	
 	<p>
 	<label class="labeltop"><spring:message code="discussionmotion.ministries" text="Ministries"/>*</label>
-	<select name="ministries" id="ministries" multiple="multiple" size="5" style="width:200px;">
+	<select name="ministries" id="ministries" multiple="multiple" size="5" readonly="readonly" style="width:200px;">
 		<c:forEach items="${ministries}" var="i">
 			<c:set var="selectedMinistry" value="no"></c:set>
 			<c:forEach items="${selectedministries}" var="j">
@@ -472,7 +472,7 @@
 	<form:errors path="ministries" cssClass="validationError"/>
 	
 	<label class="labeltop"><spring:message code="discussionmotion.subdepartments" text="Sub Departments"/></label>
-	<select name="subDepartments" id="subDepartments" multiple="multiple" size="5">
+	<select name="subDepartments" id="subDepartments" multiple="multiple" readonly="readonly" size="5">
 		<c:forEach items="${subDepartments}" var="i">
 			<c:set var="selectedSubDepartment" value="no"></c:set>
 			<c:forEach items="${selectedSubDepartments}" var="j">
@@ -517,13 +517,13 @@
 		
 	<p style="display:none;" class="revise1" id="revisedSubjectDiv">
 	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
-	<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
+	<form:textarea path="revisedSubject" readonly="readonly" rows="2" cols="50"></form:textarea>
 	<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
 	<p style="display:none;" class="revise2" id="revisedNoticeContentDiv">
 	<label class="wysiwyglabel"><spring:message code="discussionmotion.revisedNoticeContent" text="Revised Notice Content"/></label>
-	<form:textarea path="revisedNoticeContent" cssClass="wysiwyg"></form:textarea>
+	<form:textarea path="revisedNoticeContent" readonly="readonly" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedNoticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	

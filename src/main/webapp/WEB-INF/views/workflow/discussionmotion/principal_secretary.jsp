@@ -485,7 +485,7 @@
 	
 	<p>
 	<label class="labeltop"><spring:message code="discussionmotion.ministries" text="Ministries"/>*</label>
-	<select name="ministries" id="ministries" multiple="multiple" size="5" style="width:200px;">
+	<select name="ministries" id="ministries" readonly="readonly" multiple="multiple" size="5" style="width:200px;">
 		<c:forEach items="${ministries}" var="i">
 			<c:set var="selectedMinistry" value="no"></c:set>
 			<c:forEach items="${selectedministries}" var="j">
@@ -506,7 +506,7 @@
 	<form:errors path="ministries" cssClass="validationError"/>
 	
 	<label class="labeltop"><spring:message code="discussionmotion.subdepartments" text="Sub Departments"/></label>
-	<select name="subDepartments" id="subDepartments" multiple="multiple" size="5">
+	<select name="subDepartments" id="subDepartments" readonly="readonly" multiple="multiple" size="5" >
 		<c:forEach items="${subDepartments}" var="i">
 			<c:set var="selectedSubDepartment" value="no"></c:set>
 			<c:forEach items="${selectedSubDepartments}" var="j">

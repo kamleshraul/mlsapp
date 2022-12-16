@@ -502,7 +502,7 @@
 	</c:if>
 	</p>
 
-		
+	<br>	
 	<p>
 	<label class="centerlabel"><spring:message code="discussionmotion.members" text="Members"/></label>
 	<textarea id="selectedSupportingMembers" class="autosuggestmultiple"  rows="2" cols="50" readonly="readonly">${memberNames}</textarea>
@@ -596,7 +596,7 @@
 	</select> 	
 	<form:errors path="ministries" cssClass="validationError"/>
 	
-	<label class="labeltop"><spring:message code="discussionmotion.subdepartments" text="Sub Departments"/></label>
+	<label class="labeltop"><spring:message code="discussionmotion.subdepartments" text="Sub Departments"/>*</label>
 	<select name="subDepartments" id="subDepartments" multiple="multiple" size="5">
 		<c:forEach items="${subDepartments}" var="i">
 			<c:set var="selectedSubDepartment" value="no"></c:set>
@@ -638,10 +638,10 @@
 	</c:if>
 
 	<p>
-		<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="discussionmotion.reviseSubject" text="Revise Subject"></spring:message></a>
-		<a href="#" id="reviseNoticeContent" style="margin-right: 20px;"><spring:message code="discussionmotion.reviseNoticeContent" text="Revise Notice"></spring:message></a>
+		<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="discussionmotion.revisedSubject" text="Revise Subject"></spring:message></a>
+		<a href="#" id="reviseNoticeContent" style="margin-right: 20px;"><spring:message code="discussionmotion.revisedNoticeContent" text="Revise Notice"></spring:message></a>
 		<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_shortduration'}">
-		<a href="#" id="reviseBriefExplanation" style="margin-right: 20px;"><spring:message code="discussionmotion.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
+		<a href="#" id="reviseBriefExplanation" style="margin-right: 20px;"><spring:message code="discussionmotion.revisedBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
 		</c:if>
 		<a href="#" id="viewRevision"><spring:message code="discussionmotion.viewrevisions" text="View Revisions"></spring:message></a>
 		<br />
@@ -743,7 +743,7 @@
 					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					<c:if test="${(internalStatusType !='discussionmotion_final_admission')}">
 					<security:authorize access="hasAnyRole('DMOIS_ASSISTANT')">
-					<input id="startworkflow" type="button" value="<spring:message code='discussionmotion.putupmotion' text='Put Up Motion'/>" class="butDef">
+					<input id="startworkflow" type="button" value="<spring:message code='discussionmotion.putupdiscussionmotion' text='Put Up Motion'/>" class="butDef">
 					</security:authorize>	
 					</c:if>				
 				</c:if>

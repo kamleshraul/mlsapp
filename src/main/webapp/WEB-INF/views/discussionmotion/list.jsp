@@ -130,7 +130,7 @@
 		
 		function showAdmissionReport(id){
 			
-			
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			$("#admission_report").attr('href',
 					'discussionmotion/report/commonadmissionreport?discussionmotionId=' + id 
 							+ '&locale=' + $("#moduleLocale").val()
@@ -140,11 +140,12 @@
 							+ '&templateName=admission_report'
 							+ '&houseType=' + $("#selectedHouseType").val()
 							+ '&reportName=admissionLetter');
-		
+			$.unblockUI();
 		}
 		
 		
 		function showDepartmentIntimationReport(id){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			$("#departmentIntimation_report").attr('href',
 					'discussionmotion/report/commonadmissionreport?discussionmotionId=' + id 
 							+ '&locale=' + $("#moduleLocale").val()
@@ -154,20 +155,22 @@
 							+ '&templateName=department_intimationletter'
 							+ '&houseType=' + $("#selectedHouseType").val()
 							+ '&reportName=departmentintimationletter');
+			$.unblockUI();
 		
 			}
 		
 		function showHouseItemReport(id){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			$("#houseitem_report").attr('href',
 					'discussionmotion/report/houseitemreport?discussionmotionId=' + id 
 							+ '&locale=' + $("#moduleLocale").val()
-							+ '&motionType=' + $("#selectedMotionType").val()
+							+ '&motionType=' + $("#selectedDiscussionMotionType").val()
 							+ '&outputFormat=' + $("#defaultReportFormat").val()
 							+ '&reportQuery=DISCUSSIONMOTION_HOUSEITEM_LETTER'
 							+ '&templateName=discussionmotion_houseitem_letter'
 							+ '&houseType=' + $("#selectedHouseType").val()
-							+ '&reportName=departmentintimationletter');
-		
+							+ '&reportName=houseitemreport');
+			$.unblockUI();
 			}
 		
 		$("#memberofoppositionreport").click(function(){
@@ -244,10 +247,10 @@
 					</c:choose>
 				</a>
 				|
-				 <a href="#" id="generateCurrentStatusReport" class="butSim">
+				 <%-- <a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="discussionmotion.generateCurrentStatusReport" text="Generate Current Status Report"/>
 				</a> 
-				|
+				| --%>
 						
 					
 								<a href="javascript:void(0);" id="houseitem_report" class="butSim" >

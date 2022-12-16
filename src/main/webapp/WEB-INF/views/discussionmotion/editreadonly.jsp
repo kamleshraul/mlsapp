@@ -128,7 +128,7 @@
 	<a href="#" id="p${parent}" ><c:out value="${formattedParentNumber}"></c:out></a>
 	</p>	
 	<p>
-	<label class="small"><spring:message code="discussionmotion.clubbedquestions" text="Clubbed Questions"></spring:message></label>
+	<label class="small"><spring:message code="discussionmotion.clubbedquestions" text="Clubbed Motions"></spring:message></label>
 	<c:choose>
 		<c:when test="${!(empty clubbedQuestions) }">
 			<c:forEach items="${clubbedQuestions }" var="i">
@@ -141,7 +141,7 @@
 	</c:choose>	
 	</p>
 	<p>
-	<label class="small"><spring:message code="discussionmotion.referencedquestions" text="Referenced Questions"></spring:message></label>
+	<label class="small"><spring:message code="discussionmotion.referencedquestions" text="Referenced Motions"></spring:message></label>
 	<c:choose>
 		<c:when test="${!(empty referencedQuestions) }">
 			<c:forEach items="${referencedQuestions }" var="i">
