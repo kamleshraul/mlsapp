@@ -10,7 +10,7 @@
 			
 			if($("#deviceTypeType").val() == 'motions_calling_attention'){
 				displayNewAdvanceCopyForMotion();
-				$("#advanceCopyDiv").css("display","inline");
+				//$("#advanceCopyDiv").css("display","inline");
 			}else{
 				$("#advanceCopyDiv").hide();
 			}
