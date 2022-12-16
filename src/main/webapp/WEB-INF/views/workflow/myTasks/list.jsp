@@ -209,6 +209,31 @@
 				$("#intimationLetterFilter").css("display","none");
 			} */
 		});
+		
+		function SupportMember(){				
+			$.get("ref/sessionbyhousetypeworkflow" + "/" + $("#selectedHouseType").val()
+					+ "/" + $("#selectedSessionYear").val() + "/" + $("#selectedSessionType").val(),function(data){
+			if(data){
+				
+				$.get("ref/sessionbydevicetypeworkflow" + "/" +$("#selectedDeviceType").val(),function(data1){
+                    if(data1){
+                         if(data1 == 4 || data1 == 5 || data1 == 7 || data1 == 49) {
+							let urlParams = encodeURI('devicescommonreport/report/generalreport?'
+							+'sessionId='+data
+							+'&originaldevicetypeId='+$("#selectedDeviceType").val()
+							    +'&housetypeName='+$("#selectedHouseType").val()
+								    +'&decisionStatus='+$("#selectedSupportStatus").val()
+									+'&locale='+$("#moduleLocale").val()
+									+'&report=WORKFLOW_QUESTION_COMMON_REPORT&reportout=devicesSupportMemberCommonReport');
+					   			showTabByIdAndUrl('details_tab',urlParams);
+                    	  }		                        
+                    }
+				});					
+	     	}
+			});
+			
+		}
+	
 	</script>
 	<style type="text/css">
 		#goSumRep:hover{
@@ -255,6 +280,19 @@
 						<option class="adjournmentmotion" value="reminder1ToDepartmentForReply"><spring:message code='intimationletter.reminder1ToDepartmentForReply' text='reminder 1 for reply' /></option>
 						<option class="adjournmentmotion" value="reminder2ToDepartmentForReply"><spring:message code='intimationletter.reminder2ToDepartmentForReply' text='reminder 2 for reply' /></option>
 				</select>				
+			</security:authorize>
+			<security:authorize access="hasAnyRole('MEMBER_UPPERHOUSE','MEMBER_LOWERHOUSE')">
+			<select id="selectedSupportStatus" name="selectedSupportStatus">
+				<option value="all"><spring:message code="supportReport.all" text="All"></spring:message></option>
+				<option value="supportingmember_pending"><spring:message code="supportReport.pending" text="Pending"></spring:message></option>
+				<option value="supportingmember_approved"><spring:message code="supportReport.approved" text="Approved"></spring:message></option>
+				<option value="supportingmember_rejected"><spring:message code="supportReport.rejected" text="Rejected"></spring:message></option>
+				<option value="supportingmember_timeout"><spring:message code="supportReport.timeout" text="Timeout"></spring:message></option>
+				<option value="supportingmember_notsend"><spring:message code="supportReport.notsend" text="Supporting Member Not Send"></spring:message></option>
+			</select>	
+			<a href="javascript:void(0);" id="support_member_report" onclick="SupportMember();" class="butSim" >
+		     <spring:message code="workflow.supportingmember.report" text="Supporting Member Report"/>
+			</a>
 			</security:authorize>
 			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_SECRETARY','QIS_DEPUTY_SECRETARY','QIS_JOINT_SECRETARY','QIS_CHAIRMAN','QIS_SPEAKER','QIS_SECTION_OFFICER','ROIS_DEPUTYSECRETARY', 'AMOIS_SECTION_OFFICER', 'AMOIS_DEPUTY_SECRETARY')">
 				|

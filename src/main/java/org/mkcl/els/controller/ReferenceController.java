@@ -952,6 +952,45 @@ public class ReferenceController extends BaseController {
 		return new MasterVO();
 	}
 	
+	
+	@RequestMapping(value="/sessionbyhousetypeworkflow/{houseType}/{sessionYear}/{sessionType}", method=RequestMethod.GET)
+	public @ResponseBody Long getSessionByHouseTypeWorkflow(
+			final Locale locale,
+			@PathVariable("houseType")final String houseType,
+			@PathVariable("sessionYear")final String sessionYear,
+			@PathVariable("sessionType") final String sessionType) {
+		    Session selectedSession = null;
+		    		    
+		try {
+			//populating departments
+			NumberFormat numberFormat = NumberFormat.getInstance(locale);
+			Number yearNumber = numberFormat.parse(sessionYear);
+			HouseType selectedHouseType=HouseType.findByName(houseType, locale.toString());
+			SessionType selectedSessionType=SessionType.findByName(sessionType,locale.toString());
+			selectedSession=Session.findSessionByHouseTypeSessionTypeYear(selectedHouseType, selectedSessionType, yearNumber.intValue());
+			return selectedSession.getId();
+			
+		} catch (ELSException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		return selectedSession.getId();
+	}
+	
+	@RequestMapping(value="/sessionbydevicetypeworkflow/{deviceType}", method=RequestMethod.GET)
+	public @ResponseBody Long getSessionByHouseTypeWorkflow(
+			final Locale locale,
+			@PathVariable("deviceType")final String deviceType) {
+     
+		DeviceType selectedDevice= null;
+		    		    
+		selectedDevice= DeviceType.findByName(deviceType,locale.toString());
+		
+		return selectedDevice.getId();
+	}
+	
 	@RequestMapping(value="/sessionbyparametername", method=RequestMethod.GET)
 	public @ResponseBody MasterVO getSessionByHouseType(HttpServletRequest request, final Locale locale) {
 		

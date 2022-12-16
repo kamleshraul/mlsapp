@@ -69,6 +69,13 @@ public class SessionType extends BaseDomain implements Serializable {
 		
 	}
     
+	 public static SessionType findByName(final String sessionTypeName,
+	    		final String locale) {
+		 SessionType sessionType = 
+				 SessionType.findByFieldName(SessionType.class,"sessionType", sessionTypeName, locale);
+	    	return sessionType;
+	    }
+	
     // ------------------------------------------Getters/Setters-----------------------
     /**
      * Gets the session type.

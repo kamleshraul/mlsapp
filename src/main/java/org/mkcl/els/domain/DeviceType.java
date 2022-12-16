@@ -127,6 +127,12 @@ public class DeviceType extends BaseDomain implements Serializable {
     	return deviceType;
     }
     
+    public static DeviceType findByName(final String deviceTypeName, final String locale) {
+    	DeviceType deviceType = 
+    			DeviceType.findByFieldName(DeviceType.class,"name", deviceTypeName, locale);
+    	return deviceType;
+    }
+    
     public static List<DeviceType> findAllowedTypesForUser(String deviceTypeNameParam, String delimiter, final String locale) throws ELSException {
  		return getDeviceTypeRepository().getAllowedTypesForUser(deviceTypeNameParam,delimiter,locale);
  	}
