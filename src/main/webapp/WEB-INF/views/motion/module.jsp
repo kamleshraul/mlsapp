@@ -189,6 +189,18 @@
 				}
 			});
 			
+			/* Edited By Shubham A  */
+			$("#ActiveMinistries").change(function(){
+				var val = $(this).val();
+				if(val!="" && val!='-'){
+					console.log("working");
+					ActiveMinistryReport($(this).val());
+				}
+			});
+			 
+			
+			/*  */
+			
 			$("#entry_register").click(function(e){
 				registerReport();
 			});			
@@ -362,6 +374,7 @@
 						$("#loadedSession").val(data.id);
 						loadMembers();
 						loadParties();
+						loadActiveMinistry();
 						showJodPatraDate(data.id);
 					}
 				});
@@ -415,6 +428,26 @@
 				}
 			});
 		}
+  
+
+		function loadActiveMinistry(){
+		
+			
+			memberArray = [];
+			$.get('ref/getministries_withoutgroup?session='+$('#session').val(), function(data){
+				if(data.length>0){
+					var text="<option value='-'>"+$("#pleaseSelect").val()+"</option>";
+					for(var i = 0; i < data.length; i++){
+						memberArray.push(data[i].name);
+						text+="<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+					}
+					$("#ActiveMinistries").empty();
+					$("#ActiveMinistries").html(text);
+				}
+			});
+		}
+		
+		
 		
 		function loadParties(){
 			memberArray = [];
@@ -854,7 +887,25 @@
 				}
 			});
 		}
-		
+		/* Edited by SHubham A */
+		function ActiveMinistryReport(ActiveMinistry){
+			 var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+			+ "/" + $("#selectedSessionYear").val()
+			+ "/" + $("#selectedSessionType").val();
+			$.get(url,function(data){
+				if(data){
+					
+					showTabByIdAndUrl("details_tab","motion/report/motion/genreport?"
+							+"sessionId="+data.id
+							+"&housetype="+$("#selectedHouseType").val()
+							+"&deviceTypeId="+$("#selectedMotionType").val()
+							+"&ActiveMinistries="+ActiveMinistry 
+							+"&locale="+$("#moduleLocale").val()							
+							+"&report=MOIS_MINISTRY_REPORT&reportout=motionMinistryReport");
+				}
+			}); 
+		}
+		/* ------ */
 		
 		function registerReport(){
 			var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
@@ -1195,7 +1246,17 @@
 							<spring:message code="generic.partyWiseReport" text="Party-wise Report"/>
 						</a>						
 						<select id="parties" class="sSelect" style="display: inline; width:100px;">
-						</select>|<br>
+						</select>|
+						
+						<br>
+						<!-- Edited By Shubham A  -->
+						<a href="javascript:void(0);" id="ministry_report" class="butSim" >
+							<spring:message code="generic.MinistryWiseReport" text="Ministry-wise Report"/>
+						</a>						
+						<select id="ActiveMinistries" class="sSelect" style="display: inline; width:100px;">
+					</select>|
+						
+						<!--  -->
 						<hr>
 						<a href="javascript:void(0);" id="entry_register" class="butSim" >
 							<spring:message code="generic.register" text="Register"/>
