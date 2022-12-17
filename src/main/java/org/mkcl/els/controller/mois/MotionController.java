@@ -4143,6 +4143,7 @@ public class MotionController extends GenericController<Motion>{
 					}
 					
 					/***Ministry and Subdepartment ****/
+					SubDepartment previousSubDepartment = motion.getSubDepartment();
 					if(strMinistry != null && !strMinistry.isEmpty()){
 						Ministry ministry = Ministry.findById(Ministry.class, Long.parseLong(strMinistry));
 						motion.setMinistry(ministry);
@@ -4158,6 +4159,11 @@ public class MotionController extends GenericController<Motion>{
 						motion.setMlsBranchNotifiedOfTransfer(true);
 						motion.setAdvanceCopyActor(null);
 						motion.setAdvanceCopyPrinted(false);
+					}
+					if(motion.getTransferToDepartmentAccepted() && motion.getMlsBranchNotifiedOfTransfer()) {
+						//SEND NOTIFICATION FOR DEPARTMENT CHANGE
+						String usergroupTypes = "assistant,section_officer,department";
+						NotificationController.sendDepartmentChangeNotification(motion.getNumber().toString(), motion.getType(), motion.getHouseType(), previousSubDepartment.getName(), motion.getSubDepartment().getName(), usergroupTypes, motion.getLocale());
 					}
 					/**** Update Advance Copy Actor ****/
 					if(actor != null && !actor.isEmpty() && (strMlsNotified == null || strMlsNotified.equals(""))){

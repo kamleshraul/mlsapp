@@ -189,7 +189,7 @@
 						if(value != sendToDeskOfficer){
 							var ugtActor = data[i].id.split("#");
 							var ugt = ugtActor[1];
-							if(ugt!='member'){
+							if(ugt!='member' && data[i].state!='active'){
 								text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
 							}else{
 								text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
@@ -202,7 +202,7 @@
 							if(act.indexOf("section_officer") < 0){
 								var ugtActor = data[i].id.split("#")
 								var ugt = ugtActor[1];
-								if(ugt!='member'){
+								if(ugt!='member' && data[i].state!='active'){
 									text += "<option value='" + data[i].id + "'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
 								}else{
 									text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
@@ -232,6 +232,7 @@
 					 //var actor1=data[0].id;
 					 var temp = actor1.split("#");
 					 $("#level").val(temp[2]);	
+					 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
 					 $("#actorName").val(temp[3]+"("+temp[4]+")");	
 					 $.unblockUI();
 				}else{
@@ -428,7 +429,8 @@
 		    var actor=$(this).val();
 		    var temp=actor.split("#");
 		    $("#level").val(temp[2]);		    
-		    $("#actorName").val(temp[3]+"("+temp[4]+")");
+		    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+			$("#actorName").val(temp[3]+"("+temp[4]+")");
 	    });
 	    /**** On page Load ****/
 	    //$("#startworkflow").attr("disabled","disabled");

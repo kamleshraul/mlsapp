@@ -188,6 +188,7 @@
 				 var actor1=data[0].id;
 				 var temp=actor1.split("#");
 				 $("#level").val(temp[2]);		    
+				 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
 				 $("#actorName").val(temp[3]+"("+temp[4]+")");					
 			}else{
 			$("#actor").empty();
@@ -366,7 +367,8 @@
 		    var actor=$(this).val();
 		    var temp=actor.split("#");
 		    $("#level").val(temp[2]);		    
-		    $("#actorName").val(temp[3]+"("+temp[4]+")");
+		    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+			$("#actorName").val(temp[3]+"("+temp[4]+")");
 	    });
 	    /**** On page Load ****/
 	    //$("#startworkflow").attr("disabled","disabled");

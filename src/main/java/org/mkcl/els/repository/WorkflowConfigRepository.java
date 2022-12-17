@@ -2158,6 +2158,8 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 							+ " " + user.getMiddleName() + " "
 							+ user.getLastName());
 					reference.setName(userGroupTypeTemp.getDisplayName());
+					reference.setState(params.get(ApplicationConstants.ACTORSTATE_KEY+"_"+locale));
+					reference.setRemark(params.get(ApplicationConstants.ACTORREMARK_KEY+"_"+locale));
 					if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 						if(!reference.getId().equals(motion.getActor())){
 							references.add(reference);

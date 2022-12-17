@@ -75,7 +75,10 @@
 	            	<xsl:variable name="endPartOfSubDepartment">
 						<xsl:value-of select="substring(subDepartment,(string-length(subDepartment)-4))"/>
 					</xsl:variable>
-	            	<fo:block font-family="Kokila" font-size="15px">	            					
+	            	<fo:block font-family="Kokila" font-size="15px">	
+	            		<fo:block font-size="18" font-weight="bold" text-align="center">
+							अग्रिम प्रत											
+						</fo:block>            					
 						<fo:block text-align="right">
 							<fo:block margin-right="1.45cm">क्रमांक - _____&#160;/&#160;
 							<xsl:choose>

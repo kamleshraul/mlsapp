@@ -609,9 +609,10 @@ public class MotionWorkflowController extends BaseController {
 		
 		if(usergroupType.startsWith(ApplicationConstants.DEPARTMENT)
 				&& internalStatus.getType().equals(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
-			CustomParameter csptDepartmentChangeTimeLimitForDepartmentUsers = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_DEPARTMENT_CHANGE_TIME_LIMIT_FOR_"+usergroupType.toUpperCase(), "");
+			CustomParameter csptDepartmentChangeTimeLimitForDepartmentUsers = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_"+domain.getHouseType().getType().toUpperCase()+"_DEPARTMENT_CHANGE_TIME_LIMIT_FOR_"+usergroupType.toUpperCase(), "");
 			if(csptDepartmentChangeTimeLimitForDepartmentUsers!=null
-					&& csptDepartmentChangeTimeLimitForDepartmentUsers.getValue()!=null) {
+					&& csptDepartmentChangeTimeLimitForDepartmentUsers.getValue()!=null
+					&& !csptDepartmentChangeTimeLimitForDepartmentUsers.getValue().isEmpty()) {
 				int timeLimitForDepartmentChangeInHours = Integer.parseInt(csptDepartmentChangeTimeLimitForDepartmentUsers.getValue());
 				Calendar assignmentTimeCalendar = Calendar.getInstance();
 				ReferenceLetter referenceLetter = ReferenceLetter.findByFieldName(ReferenceLetter.class, "referenceNumber", workflowDetails.getReferenceNumber(), locale.toString());
@@ -884,29 +885,34 @@ public class MotionWorkflowController extends BaseController {
 			Motion motion = Motion.findById(Motion.class, domain.getId());
 			boolean isMinistryChanged = false;
 			boolean isSubDepartmentChanged = false;
+			Ministry previousMinistry = motion.getMinistry();
+			SubDepartment previousSubDepartment = motion.getSubDepartment();
 			CustomParameter subDepartmentFilterAllowedFor = CustomParameter.findByName(CustomParameter.class,
 					"MOIS_SUBDEPARTMENT_FILTER_ALLOWED_FOR", "");
 			if (subDepartmentFilterAllowedFor != null) {
 				if (subDepartmentFilterAllowedFor.getValue().contains(userGroupType)) {
-					if (!domain.getMinistry().equals(motion.getMinistry())) {
+					if (!domain.getMinistry().equals(previousMinistry)) {
 						isMinistryChanged = true;
 					} else if (domain.getSubDepartment() != null
-							&& !domain.getSubDepartment().equals(motion.getSubDepartment())) {
+							&& !domain.getSubDepartment().equals(previousSubDepartment)) {
 						isSubDepartmentChanged = true;
 					}
 				}
 			}
 
 			if (isMinistryChanged || isSubDepartmentChanged) {
+				//SEND NOTIFICATION FOR DEPARTMENT CHANGE
+				String usergroupTypesForDeptChangeNotification = "";
 				if (userGroupType.equals(ApplicationConstants.DEPARTMENT)
 						|| userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
 					Status sendToDepartmentStatus = Status.findByType(ApplicationConstants.MOTION_PROCESSED_SEND_TO_DEPARTMENT, locale.toString());
 					domain.setRecommendationStatus(sendToDepartmentStatus);
+					usergroupTypesForDeptChangeNotification = "assistant,section_officer,department";
 				} 
 				else {
 					domain.setRecommendationStatus(motion.getInternalStatus());
-				}
-				
+					usergroupTypesForDeptChangeNotification = "assistant,clerk";
+				}				
 				domain.merge();
 				WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(motion);
 				motion.removeExistingWorkflowAttributes();
@@ -1020,9 +1026,10 @@ public class MotionWorkflowController extends BaseController {
 									"Error in generation of reference letter while sending for reply to department");
 						}
 					}
-
+					
+					NotificationController.sendDepartmentChangeNotification(domain.getNumber().toString(), domain.getType(), domain.getHouseType(), previousSubDepartment.getName(), domain.getSubDepartment().getName(), usergroupTypesForDeptChangeNotification, domain.getLocale());
+					
 					/**** display message ****/
-
 					model.addAttribute("type", "taskcompleted");
 					return "workflow/info";
 				}
@@ -1415,6 +1422,15 @@ public class MotionWorkflowController extends BaseController {
 							}
 							domain.setWorkflowDetailsId(workflowDetails2.getId());
 							domain.setTaskReceivedOn(new Date());
+						}
+						/**** SEND NOTIFICATION OF ANSWER RECEIVED ONLINE TO BRANCH USERS ****/
+						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
+								&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.MOTION_PROCESSED_SEND_TO_SECTIONOFFICER)
+								&& usergroupType.getType().equals(ApplicationConstants.SECTION_OFFICER)
+								&& domain.getReply()!=null && !domain.getReply().isEmpty())
+						{
+							String usergroupTypes = "clerk,assistant,section_officer";
+							NotificationController.sendAnswerReceivedOnlineNotification(domain.getNumber().toString(), domain.getType(), domain.getHouseType(), domain.getSubDepartment().getName(), usergroupTypes, domain.getLocale());
 						}
 					}
 				}

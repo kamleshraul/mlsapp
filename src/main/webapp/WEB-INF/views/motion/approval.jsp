@@ -203,7 +203,7 @@
 										<a href="javascript:void(0)" id="deviceNumber${j.index}" class="deviceNumber">${i.deviceNumber}</a> 
 										<input type="hidden" name="motionId${j.index}" id="motionId${j.index}" value="${i.deviceId}"/>
 										<br>
-										<p style="display: none;">
+										<p>
 											<label class="small"><spring:message code="motion.isTransferable" text="is Motion to be transfered?"/></label>
 											<input type="checkbox" name="isTransferable${j.index}" id="isTransferable${j.index}" class="sCheck transferable">
 										</p>
@@ -214,10 +214,10 @@
 											<c:forEach items="${ministries}" var="k">
 												<c:choose>
 													<c:when test="${k.id==i.ministryId }">
-														<option value="${k.id }" selected="selected">${k.name}</option>
+														<option value="${k.id }" selected="selected">${k.dropdownDisplayName}</option>
 													</c:when>
 													<c:otherwise>
-														<option value="${k.id }" >${k.name}</option>
+														<option value="${k.id }" >${k.dropdownDisplayName}</option>
 													</c:otherwise>
 												</c:choose>
 											</c:forEach>

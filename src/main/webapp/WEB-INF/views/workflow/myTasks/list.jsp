@@ -288,7 +288,7 @@
 				<option value="supportingmember_approved"><spring:message code="supportReport.approved" text="Approved"></spring:message></option>
 				<option value="supportingmember_rejected"><spring:message code="supportReport.rejected" text="Rejected"></spring:message></option>
 				<option value="supportingmember_timeout"><spring:message code="supportReport.timeout" text="Timeout"></spring:message></option>
-				<option value="supportingmember_notsend"><spring:message code="supportReport.notsend" text="Supporting Member Not Send"></spring:message></option>
+				<%-- <option value="supportingmember_notsend"><spring:message code="supportReport.notsend" text="Supporting Member Not Send"></spring:message></option> --%>
 			</select>	
 			<a href="javascript:void(0);" id="support_member_report" onclick="SupportMember();" class="butSim" >
 		     <spring:message code="workflow.supportingmember.report" text="Supporting Member Report"/>
