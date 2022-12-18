@@ -214,19 +214,38 @@
 			$.get("ref/sessionbyhousetypeworkflow" + "/" + $("#selectedHouseType").val()
 					+ "/" + $("#selectedSessionYear").val() + "/" + $("#selectedSessionType").val(),function(data){
 			if(data){
-				
 				$.get("ref/sessionbydevicetypeworkflow" + "/" +$("#selectedDeviceType").val(),function(data1){
                     if(data1){
-                         if(data1 == 4 || data1 == 5 || data1 == 7 || data1 == 49) {
-							let urlParams = encodeURI('devicescommonreport/report/generalreport?'
+                        
+							let queParams = encodeURI('devicescommonreport/report/generalreport?'
 							+'sessionId='+data
 							+'&originaldevicetypeId='+$("#selectedDeviceType").val()
 							    +'&housetypeName='+$("#selectedHouseType").val()
 								    +'&decisionStatus='+$("#selectedSupportStatus").val()
 									+'&locale='+$("#moduleLocale").val()
-									+'&report=WORKFLOW_QUESTION_COMMON_REPORT&reportout=devicesSupportMemberCommonReport');
-					   			showTabByIdAndUrl('details_tab',urlParams);
-                    	  }		                        
+								    +'&report=WORKFLOW_QUESTION_COMMON_REPORT'
+									+'&reportout=devicesSupportMemberCommonReport');
+							
+							let moParams = encodeURI('devicescommonreport/report/generalreport?'
+									+'sessionId='+data
+									+'&originaldevicetypeId='+$("#selectedDeviceType").val()
+									    +'&housetypeName='+$("#selectedHouseType").val()
+										    +'&decisionStatus='+$("#selectedSupportStatus").val()
+											+'&locale='+$("#moduleLocale").val()
+											+'&report=WORKFLOW_MOTION_COMMON_REPORT'
+											+'&reportout=devicesSupportMemberCommonReport');
+							
+							
+							if(data1 == 4 || data1 == 5 || data1 == 7 || data1 == 49) {
+					   			showTabByIdAndUrl('details_tab',queParams);
+							}
+							else if(data1 == 101){
+								showTabByIdAndUrl('details_tab',moParams);
+							}
+							else {
+							   	alert("Currently Report not available for this device");
+							}
+                     
                     }
 				});					
 	     	}
@@ -390,7 +409,7 @@
 	</script>
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
-	<input type="hidden" id="gridURLParams" name="gridURLParams">		
+	<input type="hidden" id="gridURLParams" name="gridURLParams">	
 	</div>
 </body>
 </html>
