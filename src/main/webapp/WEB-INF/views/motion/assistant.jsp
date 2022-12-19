@@ -315,6 +315,13 @@
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
 			        	$('#advanceCopySent').val(true);
+			        	if($('#currentLocalizedActorName').val()!="") {
+			        		$('#localizedActorName').val($('#currentLocalizedActorName').val());
+			        	}
+			        	if($('#currentLevel').val()!="") {
+			        		$('#level').val($('#currentLevel').val());
+			        	}			        	
+			        	$("#isAdvanceCopySent").attr("disabled","disabled");
 					} else {
 						$('#isAdvanceCopySent').removeAttr('checked');
 					}
@@ -1121,6 +1128,8 @@
 	<input id="role" name="role" value="${role}" type="hidden">
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
+	<input id="currentLocalizedActorName" value="${currentLocalizedActorName}" type="hidden">
+	<input id="currentLevel" value="${currentLevel}" type="hidden">
 	<security:authorize access="hasAnyRole('MOIS_CLERK')">
 		<input type="hidden" name="dataEntryType" id="dataEntryType" value="offline">
 	</security:authorize>

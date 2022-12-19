@@ -1009,6 +1009,17 @@ public class MotionController extends GenericController<Motion>{
 			model.addAttribute("parent",domain.getParent().getId());
 		}
 		/**** Populating Put up otions and Actors ****/
+		//preserving current localized actor name & level in case of advance copy to be sent
+		if(domain.getAdvanceCopySent()==null) {
+			model.addAttribute("currentLocalizedActorName", domain.getLocalizedActorName());	
+			model.addAttribute("currentLevel", domain.getLevel());
+		} else if(!domain.getAdvanceCopySent()) {
+			model.addAttribute("currentLocalizedActorName", domain.getLocalizedActorName());	
+			model.addAttribute("currentLevel", domain.getLevel());
+		} else if(domain.getAdvanceCopySent()) {
+			model.addAttribute("currentLocalizedActorName", "");	
+			model.addAttribute("currentLevel", "");
+		}
 		if(domain.getInternalStatus()!=null){
 			String internalStatusType=domain.getInternalStatus().getType();			
 			if(usergroupType!=null&&!usergroupType.isEmpty()&&usergroupType.equals("assistant")

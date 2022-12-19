@@ -37,7 +37,7 @@
 	</div>
 	<br><br>
 	<div style="width: 100%; font-weight: bold; text-align: center; font-size: 22px; ">
-		POST-BALLOT LIST
+		<spring:message code="question.ballot.hdq.assembly.ballot.titleline" text="Title Line"/>
 	</div>
 	<br>
 	<div style="width: 100%;font-size: 16px; font-weight: bold; text-align: center; width:">

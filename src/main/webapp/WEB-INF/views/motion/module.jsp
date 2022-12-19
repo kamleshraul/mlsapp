@@ -132,9 +132,7 @@
 			
 			$("#department_report").click(function(e){
 				var dept = $("#selectedSubDepartment").val();
-				if(dept!="" && dept!='0'){
-					departmentWiseReport(dept);	
-				}
+				departmentWiseReport(dept);	
 			});
 			
 			/**** clubbing status changes then reload grid ****/
@@ -434,7 +432,7 @@
 		
 			
 			memberArray = [];
-			$.get('ref/getministries_withoutgroup?session='+$('#session').val(), function(data){
+			$.get('ref/ministry/'+$('#selectedHouseType').val()+'/'+$('#selectedSessionYear').val()+'/'+$('#selectedSessionType').val(), function(data){
 				if(data.length>0){
 					var text="<option value='-'>"+$("#pleaseSelect").val()+"</option>";
 					for(var i = 0; i < data.length; i++){
@@ -864,6 +862,8 @@
 							+"sessionId="+data.id
 							+"&deviceTypeId="+$("#selectedMotionType").val()
 							+"&subd="+dept 
+							+"&statusId="+$("#selectedStatus").val()
+							+"&ClubStatus="+$("#selectedClubbingStatus").val()
 							+"&locale="+$("#moduleLocale").val()
 							+"&report=MOIS_DEPARTMENT_WISE_REPORT&reportout=motionDepartmentReport");
 				}
@@ -1201,7 +1201,7 @@
 				</select>
 			</security:authorize>
 			
-			<security:authorize	access="hasAnyRole('MOIS_CLERK', 'MOIS_ASSISTANT', 'MOIS_PRINCIPAL_SECRETARY')">
+			<security:authorize	access="hasAnyRole('MOIS_CLERK', 'MOIS_ASSISTANT', 'MOIS_PRINCIPAL_SECRETARY', 'MOIS_SPEAKER', 'MOIS_CHAIRMAN')">
 				<a href="#" id="select_clubbingStatus" class="butSim"> 
 					<spring:message	code="generic.clubbingStatus" text="Clubbing Status"/>
 				</a>
@@ -1220,7 +1220,7 @@
 				</select>
 			</security:authorize>	
 			
-				<security:authorize access="hasAnyRole('MOIS_CLERK','MOIS_ASSISTANT','MOIS_SECTION_OFFICER','MOIS_CHAIRMAN')">
+				<security:authorize access="hasAnyRole('MOIS_CLERK','MOIS_ASSISTANT','MOIS_SECTION_OFFICER','MOIS_SPEAKER','MOIS_CHAIRMAN')">
 					<a href="javascript:void(0);" id="reports_link" class="butSim" style="float: right;">
 						<spring:message code="motion.reports" text="Reports"/>
 					</a>
