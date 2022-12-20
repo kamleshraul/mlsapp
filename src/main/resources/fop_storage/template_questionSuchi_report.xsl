@@ -628,11 +628,11 @@
 		    </fo:static-content> -->
 	
 	            <fo:flow flow-name="xsl-region-body">		    
-					<fo:block font-family="Kokila" font-size="15pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
-					    <fo:block font-size="20pt" font-weight="bold" text-align="center">
+					<fo:block font-family="Kokila" font-size="17pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
+					    <fo:block font-size="24pt" font-weight="bold" text-align="center">
 							महाराष्ट्र <xsl:value-of select="houseType"/>												
 						</fo:block>
-						<fo:block font-size="15pt" font-weight="bold" text-align="center">
+						<fo:block font-size="18pt" font-weight="bold" text-align="center">
 							<xsl:choose>
 								<xsl:when test="sessionNumber = 1">
 									पहिले
@@ -659,12 +659,12 @@
 							अधिवेशन, <xsl:value-of select="sessionYear"/>																						
 						</fo:block>		
 						<fo:block text-align="center" font-weight="bold" font-size="12pt">
-							--------------------------
+							-----------------------------
 						</fo:block>		
-						<fo:block text-align="center" font-weight="bold" font-size="15pt">
+						<fo:block text-align="center" font-weight="bold" font-size="18pt">
 	                		<xsl:value-of select="displayAnsweringDate"/> / <xsl:value-of select="displayAnsweringDateInIndianCalendar"/> ( शके ) रोजीच्या
 	                	</fo:block>	                	             	
-	                	<fo:block text-align="center" font-size="15pt" font-weight="bold">
+	                	<fo:block text-align="center" font-size="18pt" font-weight="bold">
 	                		तारांकित प्रश्नोत्तरांच्या यादीत समाविष्ट करण्यात आलेल्या प्रश्नांची सूची
 	                	</fo:block>
 	                	<fo:block font-size="4pt">&#160;</fo:block>        	           	
@@ -735,9 +735,9 @@
 			     				</fo:table-body>
 	                		</fo:table>
 	                	</fo:block>
-	                	<fo:block font-size="4pt">&#160;</fo:block>
-	                	<fo:block text-align="center" font-size="15pt" font-weight="bold">	 
-	                		<fo:block>प्रश्नांची एकूण संख्या - <xsl:value-of select="totalNumberOfDevices"/></fo:block>
+	                	<fo:block font-size="17pt">&#160;</fo:block>
+	                	<fo:block text-align="center" font-size="17pt" font-weight="bold">	 
+	                		<fo:block font-size="18pt">प्रश्नांची एकूण संख्या - <xsl:value-of select="totalNumberOfDevices"/></fo:block>
 	                		<fo:block font-size="3pt">&#160;</fo:block>
 	                		<xsl:for-each select="./roundVOs/roundVO" >
 	                			<xsl:choose>
@@ -782,16 +782,16 @@
 	                		</xsl:for-each>	                		
 	                		<fo:block font-size="7pt" margin-left="2cm">	                		
 	                		<!-- <fo:block font-size="0pt">&#160;</fo:block> -->
-	                		<fo:block font-size="15pt">एकूण - <xsl:value-of select="totalNumberOfDevices"/></fo:block>
+	                		<fo:block font-size="17pt">एकूण - <xsl:value-of select="totalNumberOfDevices"/></fo:block>
 	                		<!-- <fo:block font-size="0pt">&#160;</fo:block> -->
 	                		--------------------
 	                		</fo:block>
 	                		<fo:block font-size="4pt">&#160;</fo:block>               		
-	                		<fo:block font-size="15pt">प्रश्नांचा तपशील </fo:block>	                		
+	                		<fo:block font-size="17pt">प्रश्नांचा तपशील </fo:block>	                		
 	                	</fo:block>
 	                	<fo:block font-size="10pt">&#160;</fo:block>
 	                	<xsl:for-each select="./roundVOs/roundVO" >
-	                		<fo:block text-align="center" font-size="15pt" font-weight="bold">
+	                		<fo:block text-align="center" font-size="17pt" font-weight="bold">
 	                			<xsl:choose>
 	                				<xsl:when test="position()=1">
 	                					पहिली फेरी
@@ -889,14 +889,29 @@
 	                	<fo:block font-size="20pt">&#160;</fo:block>
 	                	<xsl:choose>
 	                		<xsl:when test="$formatOut='application/pdf'">
-	                			<fo:block font-size="15pt">
+	                			<fo:block font-size="17pt">
 			                		विधान भवन : 
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;	                			                		                		
 			                		<fo:inline font-weight="bold">
-			                			<xsl:value-of select="userName"/>
+										<xsl:variable name="psName" select="userName"/>
+										<xsl:variable name="psNameTitle" select="'श्री.'"/>
+											<xsl:choose>
+												<xsl:when test="starts-with($psName,$psNameTitle)">
+													<fo:block text-align="center">
+														<xsl:value-of select="substring-after($psName,$psNameTitle)"/>
+													</fo:block>
+												
+												</xsl:when>
+												<xsl:otherwise>
+													<fo:block text-align="center">
+														<xsl:value-of select="userName"/>
+													</fo:block>
+												</xsl:otherwise>
+											</xsl:choose>
+			                			<!-- <xsl:value-of select="userName"/> -->
 			                		</fo:inline>
 			                		<fo:block font-size="0pt">&#160;</fo:block>
 			                		<xsl:value-of select="sessionPlace"/>.
@@ -919,7 +934,7 @@
 			                	</fo:block>
 	                		</xsl:when>
 	                		<xsl:when test="$formatOut='WORD'">
-	                			<fo:block font-size="15pt" font-weight="bold" text-align="left">
+	                			<fo:block font-size="17pt" font-weight="bold" text-align="left">
 	                				<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
 	                					<fo:table-column column-number="1" column-width="5cm" />
 				                        <fo:table-column column-number="2" column-width="6cm" />
@@ -937,9 +952,29 @@
 				     								</fo:block>
 				     							</fo:table-cell>
 				     							<fo:table-cell>
+													<xsl:variable name="psName"
+																select="userName"/>
+													<xsl:variable name="psNameTitle"
+																select="'श्री.'"/>
+													<xsl:choose>
+														<xsl:when test="starts-with($psName,$psNameTitle)">
+															<fo:block text-align="center">
+																<xsl:value-of select="substring-after($psName,$psNameTitle)"/>
+															</fo:block>
+														
+														</xsl:when>
+														<xsl:otherwise>
+															<fo:block text-align="center">
+																<xsl:value-of select="userName"/>
+															</fo:block>
+														</xsl:otherwise>
+													</xsl:choose>
+													<!--
 				     								<fo:block text-align="center">
-				     									<xsl:value-of select="userName"/>
-				     								</fo:block>
+														<xsl:value-of select="userName"/>
+													</fo:block>-->
+													
+													
 				     							</fo:table-cell>
 				                        	</fo:table-row>
 				                        	<fo:table-row border-collapse="collapse">
@@ -993,12 +1028,12 @@
 			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
 			                		</fo:block> -->
 			                	</fo:block>
-			                	<fo:block>_______________________________________________________________________</fo:block>
-			                	<fo:block text-align="center">
+			                	<fo:block>____________________________________________________________________</fo:block>
+			                	<fo:block text-align="center" font-size="15pt">
 			                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
 			                	</fo:block>
 			                	<fo:block></fo:block>
-				     			<fo:block text-align="center">
+				     			<fo:block text-align="center" font-size="15pt">
 				     				मुद्रण: शासकीय मध्यवर्ती मुद्रणालय, <xsl:value-of select="sessionPlace"/>.
 				     			</fo:block>
 	                		</xsl:when>
