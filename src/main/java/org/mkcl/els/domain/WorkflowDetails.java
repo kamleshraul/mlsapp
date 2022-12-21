@@ -1704,5 +1704,11 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	public void setReferredNumber(String referredNumber) {
 		this.referredNumber = referredNumber;
 	}
+	
+	public static WorkflowDetails startProcessAtGivenAssigneeForMotion(Motion motion, String approvalWorkflow, Workflow workflow,
+			UserGroupType userGroupType, Integer level, String assignee, String locale)  throws ELSException  {
+		return getRepository().startProcessAtGivenAssigneeMotion(motion, approvalWorkflow, workflow, userGroupType, level, assignee, locale);
+		
+	}
 		
 }
