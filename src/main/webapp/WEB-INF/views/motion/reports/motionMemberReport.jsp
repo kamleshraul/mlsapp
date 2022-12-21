@@ -117,7 +117,7 @@
 							<c:forEach items="${report}" var="r" varStatus="counter">
 								
 								<tr class="page-break">
-									<td style="width: 20px; text-align: center;">${formater.formatNumberNoGrouping(counter.count, locale)}</th>
+									<td style="width: 20px; text-align: center;">${counter.count}</th>
 									<td style="width: 20px; text-align: center;">${r[4]}</th>
 									<td style="width: 380px; text-align: left;">${r[8]}</th>
 									<td style="width: 120px; text-align: center;">${r[9]}</th>
@@ -130,7 +130,7 @@
 						</tbody>
 					</table>
 					<div style="font-weight: bold;  float: rigth; width: 715px; text-align: right; margin: 10px">
-						${labels[4]}&nbsp;${formater.formatNumberNoGrouping(total, locale)}
+						${labels[4]}&nbsp;${total}
 					</div>
 					<div style="font-weight: bold;  width: 715px;  margin: 10px">
 						${labels[5]} - ${report[0][13]}&nbsp;&nbsp;${labels[6]} - ${report[0][14]}&nbsp;&nbsp;
