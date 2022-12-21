@@ -9,6 +9,7 @@
 	<script type="text/javascript">
 		var ids, counter, limit, dataSize;
 		var DeptCondition = $("#selectedSubDepartment").val();
+		var Status = $("#selectedStatus").val()
 		console.log(DeptCondition)
 		
   			
@@ -22,6 +23,19 @@
 			if(DeptCondition == 0){
 				 $(".DepartmentLabel").hide();
 			}
+			
+			if(Status != "0")
+			{
+			 $(".status").hide();
+			
+			 }
+			if(Status == 0){
+				 $(".statusLabel").hide();
+			}
+			
+		
+			
+			
 			
 			
 		});
@@ -109,7 +123,10 @@
 					<br>
 					 <div class="DepartmentLabel"  style="font-weight: bold; width: 700px; margin: 0px 0px 10px 25px;">
 						${labels[2]} - ${report[0][9]}
-					</div> 			
+					</div> 
+					 <div class="statusLabel"  style="font-weight: bold; width: 700px; margin: 0px 0px 10px 25px;">
+						${labels[8]} -  ${report[0][18]}
+					</div> 				
 					<br>
 					<table style="width: 700px; border: 1px solid black;" border="1" align="center" class="strippedTable">  
 						<thead>
@@ -118,6 +135,7 @@
 								<th style="width: 20px;">${topHeader[1]}</th>
 								<th style="width: 130px;">${topHeader[2]}</th>
 								<th class="department"   style="width: 100px;">${topHeader[3]}</th>
+								<th class="status"  style="width: 100px;">${topHeader[9]}</th>
 								<th style="width: 300px;">${topHeader[4]}</th>
 								<th style="width: 50px;">${topHeader[5]}</th>
 								<th style="width: 60px;">${topHeader[6]}</th>
@@ -134,6 +152,7 @@
 									<td style="width: 20px;">${r[4]}</td>
 									<td style="width: 130px;">${r[6]}</td>
 									<td class="department"  style="width: 50px;">${r[9]}</td>
+									<td class="status"  style="width: 50px;">${r[18]}</td>
 									<td style="width: 430px;">${r[8]}</td>
 									<td style="width: 250px;">${r[10]}</td>
 									<td style="width: 120px;">${r[12]}</td>
@@ -146,7 +165,7 @@
 						</tbody>
 					</table>
 					<div style="font-weight: bold;  float: rigth; width: 715px; text-align: right; margin: 10px">
-						${labels[3]}&nbsp;${formater.formatNumberNoGrouping(total, locale)}
+						${labels[3]}&nbsp;${total}
 					</div>
 					<div style="font-weight: bold;  width: 715px;  margin: 10px">
 						${labels[4]} - ${report[0][14]}&nbsp;&nbsp;${labels[5]} - ${report[0][15]}&nbsp;&nbsp;
