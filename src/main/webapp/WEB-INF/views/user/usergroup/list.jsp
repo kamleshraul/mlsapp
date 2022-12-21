@@ -114,6 +114,7 @@
 	</script>
 </head>
 <body>
+<h4><span><spring:message code="" text=""/> (${userFirstLastName} - ${username} )</span></h4>
 	<p id="error_p" style="display: none;">&nbsp;</p>
 	<c:if test="${(error!='') && (error!=null)}">
 		<h4 style="color: #FF0000;">${error}</h4>
@@ -144,6 +145,7 @@
 	<input type="hidden" id="internalKey" name="internalKey">	
 	<input type="hidden" id="credential" name="credential" value="${credential}">
 	<input type="hidden" id="user" name="user" value="${user}">	
+	
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 	</div>
 </body>
