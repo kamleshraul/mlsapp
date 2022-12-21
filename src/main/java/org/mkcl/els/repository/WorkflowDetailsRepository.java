@@ -7813,4 +7813,40 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 			return workflowDetails;		
 		}
 		
+		public WorkflowDetails startProcessAtGivenAssigneeMotion(Motion motion,final String processDefinitionKey, final Workflow processWorkflow, final UserGroupType userGroupType, final int level, final String assignee, final String locale) throws ELSException  {
+			ProcessDefinition processDefinition = processService.findProcessDefinitionByKey(processDefinitionKey);
+			Map<String, String> properties = new HashMap<String, String>();
+			properties.put("pv_endflag", "continue");
+			properties.put("pv_user",assignee);
+			properties.put("pv_deviceId", String.valueOf(motion.getId()));
+			properties.put("pv_deviceTypeId", String.valueOf(motion.getType().getId()));
+			if(processDefinitionKey.equals(ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW)) {
+				properties.put("pv_mailflag", null);
+				properties.put("pv_timerflag", null);
+			}
+			ProcessInstance processInstance= processService.createProcessInstance(processDefinition, properties);
+			Task task= processService.getCurrentTask(processInstance);
+			String workflowType = processWorkflow.getType();
+			WorkflowDetails workflowDetails = WorkflowDetails.create(motion, task, userGroupType, workflowType, Integer.toString(level));
+			motion.setEndFlag("continue");
+			motion.setTaskReceivedOn(new Date());
+			motion.setWorkflowDetailsId(workflowDetails.getId());
+			motion.setWorkflowStarted("YES");
+			motion.setWorkflowStartedOn(new Date());
+			
+			User user = User.findByUserName(assignee, locale);
+			motion.setActor(user.getCredential().getUsername()
+					+"#"+userGroupType.getType()
+					+"#"+level
+					+"#"+userGroupType.getName()
+					+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
+			
+			String[] actorArr = motion.getActor().split("#");
+			motion.setLevel(actorArr[2]);
+			motion.setLocalizedActorName(actorArr[3] + "(" + actorArr[4] + ")");
+			
+			motion.simpleMerge();
+			return workflowDetails;
+		}
+		
 }
