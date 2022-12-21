@@ -987,13 +987,12 @@
 		<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;display:none;"><spring:message code="motion.viewcitation" text="View Citations"></spring:message></a>	
 	</p>
 	
-	<c:if test="${fn:contains(internalStatusType, 'final_admission')
-					and workflowstatus=='COMPLETED'}">
+	<%-- <c:if test="${fn:contains(internalStatusType, 'final_admission') and not empty domain.reply}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="motion.reply" text="Nivedan"/></label>
 			<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
 		</p>	
-	</c:if>
+	</c:if> --%>
 	<p>
 		<label class="wysiwyglabel"><spring:message code="motion.remarks" text="Remarks"/></label>
 		<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
@@ -1025,6 +1024,7 @@
 	<form:hidden path="file"/>
 	<form:hidden path="fileIndex"/>	
 	<form:hidden path="fileSent"/>
+	<form:hidden path="reply"/>
 	<form:hidden path="replyReceivedDate"/>
 	<form:hidden path="advanceCopySent"/>
 	<form:hidden path="advanceCopyPrinted"/>
