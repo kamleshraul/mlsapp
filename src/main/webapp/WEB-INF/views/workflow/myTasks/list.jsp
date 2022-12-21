@@ -235,12 +235,83 @@
 											+'&report=WORKFLOW_MOTION_COMMON_REPORT'
 											+'&reportout=devicesSupportMemberCommonReport');
 							
+							let admoParams = encodeURI('devicescommonreport/report/generalreport?'
+									+'sessionId='+data
+									+'&originaldevicetypeId='+$("#selectedDeviceType").val()
+									    +'&housetypeName='+$("#selectedHouseType").val()
+										    +'&decisionStatus='+$("#selectedSupportStatus").val()
+											+'&locale='+$("#moduleLocale").val()
+											+'&report=WORKFLOW_ADMOTION_COMMON_REPORT'
+											+'&reportout=devicesSupportMemberCommonReport');
 							
+							let cumoParams = encodeURI('devicescommonreport/report/generalreport?'
+									+'sessionId='+data
+									+'&originaldevicetypeId='+$("#selectedDeviceType").val()
+									    +'&housetypeName='+$("#selectedHouseType").val()
+										    +'&decisionStatus='+$("#selectedSupportStatus").val()
+											+'&locale='+$("#moduleLocale").val()
+											+'&report=WORKFLOW_CUMOTION_COMMON_REPORT'
+											+'&reportout=devicesSupportMemberCommonReport');
+							
+							let smoParams = encodeURI('devicescommonreport/report/generalreport?'
+									+'sessionId='+data
+									+'&originaldevicetypeId='+$("#selectedDeviceType").val()
+									    +'&housetypeName='+$("#selectedHouseType").val()
+										    +'&decisionStatus='+$("#selectedSupportStatus").val()
+											+'&locale='+$("#moduleLocale").val()
+											+'&report=WORKFLOW_SMOTION_COMMON_REPORT'
+											+'&reportout=devicesSupportMemberCommonReport');
+							
+							let dmoParams = encodeURI('devicescommonreport/report/generalreport?'
+									+'sessionId='+data
+									+'&originaldevicetypeId='+$("#selectedDeviceType").val()
+									    +'&housetypeName='+$("#selectedHouseType").val()
+										    +'&decisionStatus='+$("#selectedSupportStatus").val()
+											+'&locale='+$("#moduleLocale").val()
+											+'&report=WORKFLOW_DMOTION_COMMON_REPORT'
+											+'&reportout=devicesSupportMemberCommonReport');
+							
+							let rmoParams = encodeURI('devicescommonreport/report/generalreport?'
+									+'sessionId='+data
+									+'&originaldevicetypeId='+$("#selectedDeviceType").val()
+									    +'&housetypeName='+$("#selectedHouseType").val()
+										    +'&decisionStatus='+$("#selectedSupportStatus").val()
+											+'&locale='+$("#moduleLocale").val()
+											+'&report=WORKFLOW_RMOTION_COMMON_REPORT'
+											+'&reportout=devicesSupportMemberCommonReport');
+							
+							let ppmoParams = encodeURI('devicescommonreport/report/generalreport?'
+									+'sessionId='+data
+									+'&originaldevicetypeId='+$("#selectedDeviceType").val()
+									    +'&housetypeName='+$("#selectedHouseType").val()
+										    +'&decisionStatus='+$("#selectedSupportStatus").val()
+											+'&locale='+$("#moduleLocale").val()
+											+'&report=WORKFLOW_PPMOTION_COMMON_REPORT'
+											+'&reportout=devicesSupportMemberCommonReport');
+														
 							if(data1 == 4 || data1 == 5 || data1 == 7 || data1 == 49) {
 					   			showTabByIdAndUrl('details_tab',queParams);
 							}
 							else if(data1 == 101){
 								showTabByIdAndUrl('details_tab',moParams);
+							}
+							else if(data1 == 2552){
+								showTabByIdAndUrl('details_tab',admoParams);
+							}
+							else if(data1 == 104 || data1 == 105){
+								showTabByIdAndUrl('details_tab',cumoParams);
+							}		
+							else if(data1 == 2550){
+								showTabByIdAndUrl('details_tab',smoParams);
+							}	
+							else if(data1 == 2601 || data1 == 2602){
+								showTabByIdAndUrl('details_tab',dmoParams);
+							}
+							else if(data1 == 2700){
+								showTabByIdAndUrl('details_tab',rmoParams);
+							}
+							else if(data1 == 106){
+								showTabByIdAndUrl('details_tab',ppmoParams);
 							}
 							else {
 							   	alert("Currently Report not available for this device");
