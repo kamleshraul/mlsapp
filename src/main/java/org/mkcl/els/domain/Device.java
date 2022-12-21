@@ -238,8 +238,11 @@ public abstract class Device extends BaseDomain {
 		
 		} else if(deviceName.split("_")[0].toUpperCase().equals("MOTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
 			Motion motion = Motion.findById(Motion.class, deviceId);
-			motion.startWorkflow(motion, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
-		
+			if(assignee!=null && !assignee.isEmpty()) {
+				motion.startWorkflowAtGivenAssignee(motion, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, assignee, locale);
+			}else {
+				motion.startWorkflow(motion, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
+			}
 		} else if(deviceName.split("_")[0].toUpperCase().equals("STANDALONEMOTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
 			StandaloneMotion standaloneMotion = StandaloneMotion.findById(StandaloneMotion.class, deviceId);
 			standaloneMotion.startWorkflow(standaloneMotion, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
