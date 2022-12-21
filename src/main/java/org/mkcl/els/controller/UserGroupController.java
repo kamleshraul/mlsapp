@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.Reference;
@@ -49,6 +50,11 @@ public class UserGroupController extends GenericController<UserGroup>{
 		if(credential!=null){
 			model.addAttribute("credential",credential.getId());
 		}
+
+		/*-------- Edited By Shubham A*/
+    	model.addAttribute("userFirstLastName", user.findFirstLastName());
+    	model.addAttribute("username", user.getCredential().getUsername());
+    	/*--------*/
 	}
 
 	@Override
