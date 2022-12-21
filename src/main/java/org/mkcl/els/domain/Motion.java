@@ -2734,6 +2734,17 @@ import org.springframework.transaction.annotation.Transactional;
     	//start required workflow
 		WorkflowDetails.startProcessAtGivenLevel(motion, ApplicationConstants.APPROVAL_WORKFLOW, workflow, userGroupType, level, locale);
     }
+	
+	public void startWorkflowAtGivenAssignee(final Motion motion, final Status status, final UserGroupType userGroupType, final Integer level, final String workflowHouseType, final Boolean isFlowOnRecomStatusAfterFinalDecision, final String assignee, final String locale) throws ELSException {
+    	//end current workflow if exists
+		motion.endWorkflow(motion, workflowHouseType, locale);		
+    	//update motion statuses & devicetype as per the workflow status
+    	motion.updateForInitFlow(status, userGroupType, isFlowOnRecomStatusAfterFinalDecision, locale);
+		//find required workflow from the status
+    	Workflow workflow = Workflow.findByStatus(status, locale);
+    	//start required workflow
+		WorkflowDetails.startProcessAtGivenAssigneeForMotion(motion, ApplicationConstants.APPROVAL_WORKFLOW, workflow, userGroupType, level, assignee, locale);	
+    }
     
     public void endWorkflow(final Motion motion, final String workflowHouseType, final String locale) throws ELSException {
     	WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(motion);
