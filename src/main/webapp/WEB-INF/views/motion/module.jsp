@@ -161,9 +161,19 @@
 			$("#members").change(function(){
 				var val = $(this).val();
 				if(val!="" && val!='-'){
-					memberWiseReport($(this).val());
+				 	memberWiseReport($(this).val()); 
+				
 				}
 			});
+			
+		/* 	$("#member_report").click(function(){
+				
+				var val = $('#members').val();
+				if(val!="" && val!='-'){
+					memberWiseReport(val); 
+				
+				}
+			}); */
 			
 			//$("select[name='"+controlName+"']").hide();
 			
@@ -469,7 +479,7 @@
 						+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+
 						"&ugparam="+$("#ugparam").val()
 						+"&status="+$("#selectedStatus").val()
-						+"&role="+$("#srole").val()
+						+"&role="+$('#srole').val()
 						+"&usergroup="+$("#currentusergroup").val()
 						+"&usergroupType="+$("#currentusergroupType").val()
 						+"&subDepartment="+$("#selectedSubDepartment").val()
@@ -839,14 +849,19 @@
 					
 					var selectedStatus = $("#selectedStatus").val();
 					var statusType = $("#statusMaster option[value='" + selectedStatus + "']").text().trim();
-					
+					var report = 'MOIS_MEMBER_WISE_REPORT';
+					/* <security:authorize access="(hasAnyRole('MOIS_CHAIRMAN'))">
+					var report = 'MOIS_MEMBER_WISE_REPORT';
+					</security:authorize> */
 					showTabByIdAndUrl("details_tab","motion/report/motion/genreport?"
 							+"sessionId="+data.id
 							+"&deviceTypeId="+$("#selectedMotionType").val()
 							+"&memberId="+memberId 
 							+"&locale="+$("#moduleLocale").val()
 							+"&statusId="+selectedStatus
-							+"&report=MOIS_MEMBER_WISE_REPORT&reportout=motionMemberReport");
+							+"&report="+report
+							+"&role="+$('#srole').val()
+							+"&reportout=motionMemberReport");
 				}
 			});
 		}
