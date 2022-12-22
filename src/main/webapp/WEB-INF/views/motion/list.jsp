@@ -6,7 +6,9 @@
 	<script type="text/javascript">	
 		$(document).ready(function(){
 			$(".toolTip").hide();
-			$("#selectionDiv1").show();							
+			$("#selectionDiv1").show();	
+			$("#selectedDisplayContent").hide();
+			$("#generateMotion").hide();
 			/**** grid params which is sent to load grid data being sent ****/		
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
 					+"&sessionYear="+$("#selectedSessionYear").val()
@@ -53,9 +55,14 @@
 			});
 			/****Member's Motions View ****/
 			$("#member_motions_view").click(function() {
+				$("#selectedDisplayContent").show();
+				$("#generateMotion").show();
+			});
+			$("#generateMotion").click(function(){
 				$("#selectionDiv1").hide();
 				memberMotionsView($("#selectedDisplayContent").val());
 			});
+			
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -110,13 +117,16 @@
 				</a> |
 				</span>
 				<hr/>
-				<select name="selectedDisplayContent" id="selectedDisplayContent" style="width:100px;height: 25px;">			
+				<a href="#" id="member_motions_view" class="butSim">
+					<spring:message code="motion.member_motions_view" text="Member's Motions View"/>
+				</a>
+				 <select name="selectedDisplayContent" id="selectedDisplayContent" style="width:100px;height: 25px;">			
 					<option value="subject"><spring:message code="motion.subject" text="Subject"/></option>
 					<option value="details"><spring:message code="motion.details" text="Details"/></option>		
 				</select>
-				<a href="#" id="member_motions_view" class="butSim">
-					<spring:message code="motion.member_motions_view" text="Member's Motions View"/>
-				</a> |
+				<a href="#" id="generateMotion" class="butSim">
+					Go
+				</a>|
 			</security:authorize>
 			<security:authorize access="hasAnyRole('MOIS_ASSISTANT')">
 				<a href="#" id="discussionSelection" class="butSim">
