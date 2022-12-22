@@ -499,12 +499,13 @@
 			showTabByIdAndUrl('details_tab','motion/determine_ordering_for_submission?'+parameters);
 		}
 		
-		function memberMotionsView() {
+		function memberMotionsView(displayContent) {
 			var parameters = "houseType=" + $("#selectedHouseType").val()
 			+ "&sessionYear=" + $("#selectedSessionYear").val()
 			+ "&sessionType=" + $("#selectedSessionType").val()
 			+ "&motionType=" + $("#selectedMotionType").val()
 			+ "&createdBy=" + $("#ugparam").val()
+			+ "&displayContent=" + displayContent 
 			+"&locale="+$("#moduleLocale").val()
 			+ "&report=MEMBER_MOTIONS_VIEW"
 			+ "&reportout=member_motions_view";

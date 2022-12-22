@@ -54,7 +54,7 @@
 			/****Member's Motions View ****/
 			$("#member_motions_view").click(function() {
 				$("#selectionDiv1").hide();
-				memberMotionsView();
+				memberMotionsView($("#selectedDisplayContent").val());
 			});
 		});
 		/**** double clicking record in grid handler ****/
@@ -110,6 +110,10 @@
 				</a> |
 				</span>
 				<hr/>
+				<select name="selectedDisplayContent" id="selectedDisplayContent" style="width:100px;height: 25px;">			
+					<option value="subject"><spring:message code="motion.subject" text="Subject"/></option>
+					<option value="details"><spring:message code="motion.details" text="Details"/></option>		
+				</select>
 				<a href="#" id="member_motions_view" class="butSim">
 					<spring:message code="motion.member_motions_view" text="Member's Motions View"/>
 				</a> |
