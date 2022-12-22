@@ -73,7 +73,7 @@
 </head> 
 
 <body>
-	
+	<center>
 	<div id="reportDiv">
 		<c:choose>
 		
@@ -142,5 +142,6 @@
 			</c:otherwise>
 		</c:choose>
 	</div>
+ </center>
 </body>
 </html>
