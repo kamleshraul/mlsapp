@@ -166,6 +166,11 @@
 				}
 			});
 			
+			/* Motion Discussion */
+			$("#motion_discussion_report").click(function(){		
+				motionDiscussionReport();
+			});
+			
 		/* 	$("#member_report").click(function(){
 				
 				var val = $('#members').val();
@@ -921,6 +926,25 @@
 				}
 			}); 
 		}
+		
+		
+		
+		
+		function  motionDiscussionReport(){
+			 var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+				+ "/" + $("#selectedSessionYear").val()
+				+ "/" + $("#selectedSessionType").val();
+			 $.get(url,function(data){
+					if(data){
+						
+						showTabByIdAndUrl("details_tab","motion/report/motion/genreport?"
+								+"sessionId="+data.id
+								+"&statusId="+$("#selectedStatus").val()
+								+"&locale="+$("#moduleLocale").val()							
+								+"&report=MOIS_DISCUSSION_DATE_REPORT&reportout=motionDiscussionReport");
+					}
+				}); 
+		}
 		/* ------ */
 		
 		function registerReport(){
@@ -1271,6 +1295,9 @@
 						</a>						
 						<select id="ActiveMinistries" class="sSelect" style="display: inline; width:100px;">
 					</select>|
+						<a href="javascript:void(0);" id="motion_discussion_report" class="butSim" >
+							<spring:message code="motion.discussionReport" text="Discussion Motion Report"/>
+						</a>|
 						
 						<!--  -->
 						<hr>
