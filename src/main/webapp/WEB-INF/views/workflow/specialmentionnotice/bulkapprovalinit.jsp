@@ -119,7 +119,7 @@
 			buttons: {Ok:true, Cancel:false}, callback: function(v){
 	        if(v){
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-				$.post('workflow/specialmentionnotice/bulkapproval/update?actor='+next+"&level="+level,
+				/*$.post('workflow/specialmentionnotice/bulkapproval/update?actor='+next+"&level="+level,
 			        	{items:items
 			        	 ,status:status
 			        	 ,houseType:$("#apprhouseType").val()
@@ -147,7 +147,42 @@
 	    	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
 	    	    			}
 	    	    			scrollTop();
-	    	    		});
+	    	    		});*/
+				
+				$.ajax({url: 'workflow/specialmentionnotice/bulkapproval/update', 
+					data: {
+						 actor: next,
+						 level: level,
+						 items:items,
+			        	 status:status,
+			        	 houseType:$("#apprhouseType").val(),
+						 sessionYear:$("#apprsessionYear").val(),
+						 sessionType:$("#apprsessionType").val(),
+						 deviceType:$("#apprdeviceType").val(),
+						 role:$("#apprrole").val(),
+						 usergroup:$("#apprusergroup").val(),
+						 usergroupType:$("#apprusergroupType").val(),
+						 itemscount:$("#appritemscount").val(),
+						 workflowSubType:$("#apprworkflowSubType").val()						 	
+					},
+					type: 'POST',
+					async: false,
+					success: function(data) {	
+						$('html').animate({scrollTop:0}, 'slow');
+       				 	$('body').animate({scrollTop:0}, 'slow');	
+    					$.unblockUI();	
+    					$("#bulkResultDiv").empty();	
+    					$("#bulkResultDiv").html(data);
+					},
+					error: function(data) {
+						$.unblockUI();
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.");
+						}
+					}
+				});
 	        	}}});
 	}	
 	</script>

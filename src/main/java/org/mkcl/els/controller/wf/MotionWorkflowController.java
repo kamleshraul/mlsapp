@@ -1038,6 +1038,13 @@ public class MotionWorkflowController extends BaseController {
 			String bulkEdit = request.getParameter("bulkedit");
 			if (bulkEdit == null || !bulkEdit.equals("yes")) {
 				/**** Complete Task ****/
+				String endflag = null;				
+				if(boolClarificationStatus && workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
+					endflag = "continue";
+					//Do Nothing
+				} else {
+					endflag = domain.getEndFlag();
+				}
 				String nextuser = domain.getActor();
 				String level = domain.getLevel();
 				Map<String, String> properties = new HashMap<String, String>();
@@ -1049,8 +1056,7 @@ public class MotionWorkflowController extends BaseController {
 					properties.put("pv_user", temp[0]);
 					usergroupType = UserGroupType.findByType(temp[1], locale.toString());
 				}
-				String endflag = domain.getEndFlag();
-				properties.put("pv_endflag", request.getParameter("endflag"));
+				properties.put("pv_endflag", domain.getEndFlag());
 				if (endflag != null && !endflag.isEmpty()) {
 					if (endflag.equals("continue")) {
 						if (boolResendRevisedMotionText) {
@@ -2003,7 +2009,7 @@ public class MotionWorkflowController extends BaseController {
 	}
 
 	private void performActionOnClarificationNotReceived(Motion domain) {
-		Status newStatus = Status.findByType(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED,
+		Status newStatus = Status.findByType(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP,
 				domain.getLocale());
 		domain.setInternalStatus(newStatus);
 		domain.setActor(null);

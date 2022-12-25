@@ -1920,19 +1920,24 @@ public class SpecialMentionNoticeWorkflowController  extends BaseController {
 		model.addAttribute("recommendClarificationFromMember", recommendClarificationFromMemberMsg.toString());
 		model.addAttribute("clarificationNeededFromDepartment", clarificationNeededFromDepartmentMsg.toString());
 		model.addAttribute("clarificationNeededFromMember", clarificationNeededFromMemberMsg.toString());
-		populateBulkApprovalView(model,request,locale.toString());		
+		populateBulkApprovalView(model,request,"PENDING",locale.toString());	
 		}
-		return "workflow/specialMentionNotice/bulkapprovalview";
+		return "workflow/specialmentionnotice/bulkapprovalview";
 	}
 	
 	private void populateBulkApprovalView(final Model model,
 			final HttpServletRequest request,final String locale){
+		this.populateBulkApprovalView(model, request, request.getParameter("status"), locale);
+	}
+	
+	private void populateBulkApprovalView(final Model model,
+			final HttpServletRequest request,final String workflowStatus,final String locale){
 		/**** Request Params ****/
 		String strHouseType=request.getParameter("houseType");
 		String strSessionType=request.getParameter("sessionType");
 		String strSessionYear=request.getParameter("sessionYear");
 		String strDeviceType=request.getParameter("deviceType");			
-		String strStatus=request.getParameter("status");
+		String strStatus=workflowStatus;
 		String strRole=request.getParameter("role");
 		String strUsergroup=request.getParameter("usergroup");
 		String strUsergroupType=request.getParameter("usergroupType");

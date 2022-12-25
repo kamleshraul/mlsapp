@@ -187,10 +187,11 @@
 				$("#actorDiv").hide();
 				return false;	    	
 	    }
-	    
-	    if(sendToDepartment == value || value == resendToDepartment/*  || value == resendToDepartmentWhenPendingAtDeskOfficer */){
+	  	//hack SectionOfficer
+	    if(sendToDepartment == value || value == resendToDepartment || value == sendback || value == discuss
+	    		/*  || value == resendToDepartmentWhenPendingAtDeskOfficer */){
 			 params="motion="+$("#id").val()+"&status="+valueToSend+
-				"&usergroup="+$("#usergroup").val()+"&level="+ $("#level").val();
+				"&usergroup="+$("#usergroup").val()+"&level=8";
 		}else{
 			 params="motion="+$("#id").val()+"&status="+valueToSend+
 				"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
@@ -572,8 +573,9 @@
 	    	$("#revisedDetailsDiv").show();
 	    }
 	    /**** Load Actors On Start Up ****/
-		if($('#workflowstatus').val()!='COMPLETED' 
-				|| ($("#internalStatusType").val()=='motion_final_admission' && $('#workflowstatus').val()=='COMPLETED')){
+		if($('#workflowstatus').val()!='COMPLETED' || ($("#workflowstatus").val()=='COMPLETED' 
+				&& ($("#internalStatusType").val()=='motion_final_admission'
+				|| $("#internalStatusType").val()=='motion_final_clarificationNeededFromDepartment'))){
 			var statusType = $("#internalStatusType").val().split("_");
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
 			//alert($('#workflowstatus').val()+":"+statusType+":"+id);
@@ -851,7 +853,7 @@
 	</p>
 	
 	<c:if test="${workflowstatus=='PENDING' or (workflowstatus == 'COMPLETED' 
-						and (internalStatusType=='motion_final_admission'))}">
+						and (internalStatusType=='motion_final_admission' || internalStatusType=='motion_final_clarificationNeededFromDepartment'))}">
 		<p>
 			<label class="small"><spring:message code="motion.putupfor" text="Put up for"/></label>	
 			<select id="changeInternalStatus" class="sSelect">
@@ -968,7 +970,7 @@
 			</div>
 		</c:when>
 		<c:otherwise>
-			<c:if test="${internalStatusType=='motion_final_admission'}">
+			<c:if test="${(internalStatusType=='motion_final_admission' || internalStatusType=='motion_final_clarificationNeededFromDepartment')}">
 			<div class="fields">
 				<h2></h2>
 				<p class="tright">		
@@ -1001,6 +1003,7 @@
 	<form:hidden path="advanceCopyPrinted"/>
 	<form:hidden path="advanceCopyActor"/>
 	<input type="hidden" id="resendMotionTextStatus" name="resendMotionTextStatus" value="${resendMotionTextStatus}" />
+	<input type="hidden" id="clarificationStatus" name="clarificationStatus" value="${clarificationStatus}"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
 	<input type="hidden" name="status" id="status" value="${status }">
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
