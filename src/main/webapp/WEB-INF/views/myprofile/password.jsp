@@ -117,9 +117,10 @@
        					$('html').animate({scrollTop:0}, 'slow');
        				 	$('body').animate({scrollTop:0}, 'slow');
     					$.unblockUI();
+    					window.location.reload();
     					
 	    	        });
-					window.location.reload();
+					
 				});
 			});
 			
