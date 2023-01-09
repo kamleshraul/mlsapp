@@ -37,10 +37,13 @@
 			/**** report links display as per housetype ****/
 			if($('#selectedHouseType').val()=='lowerhouse') {
 				$('.lowerhouse_report').show();
+				$('.bothhouse_report').show();
 				$('.upperhouse_report').hide();
+				
 			} else if($('#selectedHouseType').val()=='upperhouse') {
 				$('.lowerhouse_report').hide();
 				$('.upperhouse_report').show();
+				$('.bothhouse_report').show();
 			}
 			
 			/**** new proprietypoint ****/
@@ -170,10 +173,7 @@
 				<a href="#" id="prois_tobeadmitted_report" class="butSim lowerhouse_report">
 					<spring:message code="prois.tobeadmitted_report" text="Bulk Admission Approval Report"/>
 				</a> |
-				<a href="#" id="prois_toberejected_report" class="butSim lowerhouse_report">
-					<spring:message code="prois.toberejected_report" text="Admitted Notices Report for Reporters"/>
-				</a> |
-				<a href="#" id="prois_submitted_report" class="butSim upperhouse_report">
+				<a href="#" id="prois_submitted_report" class="butSim bothhouse_report">
 					<spring:message code="prois.submitted_report" text="Submitted Notices Report"/>
 				</a> |
 				<a href="#" id="prois_admitted_report" class="butSim upperhouse_report">
@@ -185,7 +185,7 @@
 				<a href="#" id="prois_register_report" class="butSim upperhouse_report">
 					<spring:message code="prois.register_report" text="Register Report"/>
 				</a> |
-				<a href="#" id="prois_admitted_reportingbranch" class="butSim upperhouse_report">
+				<a href="#" id="prois_admitted_reportingbranch" class="butSim bothhouse_report">
 					<spring:message code="prois.admitted_report" text="Admitted Notices Report For Reporters"/>
 				</a> |
 			</security:authorize>

@@ -1716,7 +1716,7 @@
 					<input type="hidden" id="ballotStatus" name="ballotStatus" value="${ballotStatusId}"/>
 				</c:when>
 			</c:choose> --%>
-			<c:if test="${fn:contains(internalStatusType, 'question_final_admission') || fn:contains(internalStatusType, 'question_unstarred_final_admission')}">
+			<c:if test="${fn:contains(internalStatusType, 'question_final_admission') || fn:contains(internalStatusType, 'question_unstarred_final_admission') || fn:contains(internalStatusType, 'question_shortnotice_final_admission')}">
 				<p>
 					<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
 					<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>

@@ -231,7 +231,7 @@ public class MotionReportController extends BaseController{
 		parameters.put("locale", new String[] { locale.toString() });
 		List ministryreport = Query.findReport(ApplicationConstants.ROTATIONORDER_MINISTRY_DEPARTMENTS_REPORT, parameters);
        
-		String houseType = session.getHouse().getType().getType();
+		/*String houseType = session.getHouse().getType().getType();
 		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
 			for(Object ob : ministryreport){
 				jodPatraData.put(((Object[])ob)[2].toString(), new ArrayList<Object>());
@@ -240,6 +240,9 @@ public class MotionReportController extends BaseController{
 			for(Object ob : ministryreport){
 				jodPatraData.put(((Object[])ob)[3].toString(), new ArrayList<Object>());
 			}
+		}*/
+		for(Object ob : ministryreport){
+			jodPatraData.put(((Object[])ob)[3].toString(), new ArrayList<Object>());
 		}
 		
 		
@@ -272,12 +275,15 @@ public class MotionReportController extends BaseController{
 				}
 				ministryName = objArr[3].toString();
 				slotFields.add(FormaterUtil.formatNumberNoGrouping(index, locale));
-				if(objArr[9] != null && !objArr[9].toString().isEmpty() && objArr[9].toString().equals(ApplicationConstants.LOWER_HOUSE)){
+				/*if(objArr[9] != null && !objArr[9].toString().isEmpty() && objArr[9].toString().equals(ApplicationConstants.LOWER_HOUSE)){
 					slotFields.add(objArr[7] + ", " + objArr[8]);
 				}else{
 					slotFields.add(objArr[7]);
 					slotFields.add(objArr[8]);
-				}
+				}*/
+				slotFields.add(objArr[7]);
+				slotFields.add(objArr[8]);
+				
 				slotFields.add(objArr[6]);
 				memberContent.add(slotFields);
 			}else{

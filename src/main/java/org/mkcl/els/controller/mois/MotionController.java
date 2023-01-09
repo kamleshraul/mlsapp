@@ -777,25 +777,19 @@ public class MotionController extends GenericController<Motion>{
 					 * members list will vary. ****/
 					Member m=i.getMember();
 					supportingMembers.add(m);
-					if(usergroupType.equals("clerk") || usergroupType.equals("assistant")){
+					if((usergroupType.equals("member"))
+							&& domain.getInternalStatus()!=null
+							&& (domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_INCOMPLETE)
+									|| domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_COMPLETE))){
 						bufferFirstNamesFirst.append(m.getFullname()+",");
-					}else if((usergroupType.equals("member"))
-							&&domain.getInternalStatus()!=null
-							&&domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_SUBMIT)
-							&&i.getDecisionStatus()!=null
-							&&i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+					}
+					else if(usergroupType.equals("member")
+							&& domain.getInternalStatus()==null){
 						bufferFirstNamesFirst.append(m.getFullname()+",");
-					}else if((usergroupType.equals("member"))
-							&&domain.getInternalStatus()!=null
-							&&(domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_INCOMPLETE)
-									||domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_COMPLETE))){
-						bufferFirstNamesFirst.append(m.getFullname()+",");
-					}else if(usergroupType.equals("member")
-							&&domain.getInternalStatus()==null){
-						bufferFirstNamesFirst.append(m.getFullname()+",");
-					}else if(!(usergroupType.equals("member"))
-							&&i.getDecisionStatus()!=null
-							&&i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+					}
+					else if(domain.getNumber()!=null
+							&& i.getDecisionStatus()!=null
+							&& i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
 						bufferFirstNamesFirst.append(m.getFullname()+",");
 					}
 				}
@@ -982,9 +976,13 @@ public class MotionController extends GenericController<Motion>{
 				if(clubbedSupportingMember!=null){
 					if(!clubbedSupportingMember.isEmpty()){
 						for(SupportingMember l:clubbedSupportingMember){
-							String tempSupporting=l.getMember().getFullname();
-							if(!buffer1.toString().contains(tempSupporting)){
-								buffer1.append(tempSupporting+",");
+							if(l.getDecisionStatus()!=null
+									&& l.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED))
+							{
+								String tempSupporting=l.getMember().getFullname();
+								if(!buffer1.toString().contains(tempSupporting)){
+									buffer1.append(tempSupporting+",");
+								}
 							}
 						}
 					}

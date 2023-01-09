@@ -111,124 +111,82 @@
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            
 	            	  
-	            	<xsl:choose>
-	            		<xsl:when test="./element_3='lowerhouse'">
-	            			<xsl:for-each select="./element_2" >
-			            		<xsl:choose>
-			            			<xsl:when test="position()=1">
-			            				<fo:block text-align="center" text-decoration="underline" font-family="Kokila" font-size="21px" font-weight="bold">
-				    						<xsl:value-of select="."></xsl:value-of>
-				    					</fo:block>
-			            			</xsl:when>
-			            			<xsl:otherwise>	
-			            				<fo:block text-align="center" text-decoration="underline" font-family="Kokila">
-				    						<xsl:value-of select="."></xsl:value-of>
-				    					</fo:block>
-			            			</xsl:otherwise>
-		    					</xsl:choose>
-   							</xsl:for-each>
-   							
-	            			<fo:block font-family="Kokila" font-size="18px">     					
-		     					<fo:block text-align="center" font-size="9px">&#160;</fo:block>
-		       						
-		       					<xsl:for-each select="./element_1">
-		       						<xsl:if test="./element_1_2!=''">
-			       						<fo:block font-weight="bold" text-decoration="underline">
-			       							<xsl:value-of select="./element_1_1" ></xsl:value-of>
-			       						</fo:block>
-			       						     
-			       						<fo:block text-align="center" font-size="9px">&#160;</fo:block>
-			       					</xsl:if>
-		       						  						
-		       						<xsl:for-each select="element_1_2">
-		       							<fo:inline font-weight="bold" page-break-before="always">		       						
-		       								<xsl:value-of select="element_1_2_1"/>.      								
-		       							</fo:inline>
-		       							
-		       							<fo:inline>		       						
-		       								<xsl:apply-templates select="element_1_2_2"/>  								
-		       							</fo:inline>
-		       						
-		       							<fo:block margin="21px">
-		       								<xsl:value-of select="element_1_2_3"/>
-		       							</fo:block>
-		       						</xsl:for-each>
-		       					</xsl:for-each>
-							</fo:block>
-	            		</xsl:when>
-	            		
-	            		<xsl:when test="./element_3='upperhouse'">
-	            			<xsl:for-each select="./element_2">
-	            				<fo:block font-weight="bold" font-family="Kokila" font-size="21px" text-align="center">
-				            		<xsl:value-of select="."></xsl:value-of>
-				            	</fo:block>
-	            			</xsl:for-each>
-	            			
-	            			<fo:block font-family="Kokila" font-size="18px">     					
-		     					<fo:block text-align="center" font-size="9px">&#160;</fo:block>
-		       						
-		       					<fo:block width="600px">
-	       							<fo:table table-layout="fixed" width="100%">
-	       								 <fo:table-column column-width="8%"/>
-     									 <fo:table-column column-width="92%"/>
-	       								<fo:table-body>
-	       									<xsl:for-each select="./element_1">
-	       										<xsl:if test="./element_1_2!=''">
-		       										<fo:table-row>
-		       											<fo:table-cell number-columns-spanned="2">
-															<fo:block font-weight="bold" text-align="center" font-size="19px">
-								       							<xsl:value-of select="./element_1_1" ></xsl:value-of>
-								       						</fo:block>
-		       											</fo:table-cell>
-		       										</fo:table-row>
-		       										
-						       						 <fo:table-row>
-						       						 	<fo:table-cell number-columns-spanned="2">
-						       						 		<fo:block text-align="center" font-size="9px">&#160;</fo:block>
-						       						 	</fo:table-cell>
-						       						 </fo:table-row>
-						       					</xsl:if>    
-					       										
-					       						<xsl:for-each select="element_1_2">
-					       						
-					       							<fo:table-row>
-					       								<fo:table-cell number-columns-spanned="2">
-					       									<fo:block>&#160;</fo:block>
-					       								</fo:table-cell>
-					       							</fo:table-row>
-					       							
-					       							<fo:table-row>
-					       								<fo:table-cell>
-					       									<fo:block font-weight="bold" text-align="center">					
-							       								<xsl:value-of select="element_1_2_1"/>.      								
-							       							</fo:block>
-					       								</fo:table-cell>
-					       								
-					       								<fo:table-cell>
-					       									<fo:block  text-align="justify">		       						
-							       								<xsl:apply-templates select="element_1_2_2"/>  								
-							       							</fo:block>
-					       								</fo:table-cell>
-					       							</fo:table-row>
-					       						
-					       							<fo:table-row>
-					       								<fo:table-cell text-align="center">
-					       									<fo:block>&#160;</fo:block>
-					       								</fo:table-cell>
-					       								<fo:table-cell>
-					       									<fo:block text-align="justify">
-							       								&#160;&#160;&#160;&#160;&#160;"<xsl:value-of select="element_1_2_4"/>"
-							       							</fo:block>
-					       								</fo:table-cell>
-					       							</fo:table-row>
-					       						</xsl:for-each>
-					       					</xsl:for-each>
-	       								</fo:table-body>
-	       							</fo:table>
-	       						</fo:block>
-							</fo:block>
-	            		</xsl:when>
-	            	</xsl:choose>
+	            	<xsl:for-each select="./element_2">
+           				<fo:block font-weight="bold" font-family="Kokila" font-size="21px" text-align="center">
+		            		<xsl:value-of select="."></xsl:value-of>
+		            	</fo:block>
+           			</xsl:for-each>
+           			
+           			<fo:block font-family="Kokila" font-size="18px">     					
+     					<fo:block text-align="center" font-size="9px">&#160;</fo:block>
+       						
+       					<fo:block width="600px">
+      							<fo:table table-layout="fixed" width="100%">
+      								 <fo:table-column column-width="8%"/>
+   									 <fo:table-column column-width="92%"/>
+      								<fo:table-body>
+      									<xsl:for-each select="./element_1">
+      										<xsl:if test="./element_1_2!=''">
+	       										<fo:table-row>
+	       											<fo:table-cell number-columns-spanned="2">
+														<fo:block font-weight="bold" text-align="center" font-size="19px">
+							       							<xsl:value-of select="./element_1_1" ></xsl:value-of>
+							       						</fo:block>
+	       											</fo:table-cell>
+	       										</fo:table-row>
+	       										
+					       						 <fo:table-row>
+					       						 	<fo:table-cell number-columns-spanned="2">
+					       						 		<fo:block text-align="center" font-size="9px">&#160;</fo:block>
+					       						 	</fo:table-cell>
+					       						 </fo:table-row>
+					       					</xsl:if>    
+			       										
+				       						<xsl:for-each select="element_1_2">				       						
+				       							<fo:table-row>
+				       								<fo:table-cell number-columns-spanned="2">
+				       									<fo:block>&#160;</fo:block>
+				       								</fo:table-cell>
+				       							</fo:table-row>
+				       							
+				       							<fo:table-row>
+				       								<fo:table-cell>
+				       									<fo:block font-weight="bold" text-align="center">					
+						       								<xsl:value-of select="element_1_2_1"/>.      								
+						       							</fo:block>
+				       								</fo:table-cell>
+				       								
+				       								<fo:table-cell>
+				       									<fo:block  text-align="justify">		       						
+						       								<xsl:apply-templates select="element_1_2_2"/>  								
+						       							</fo:block>
+				       								</fo:table-cell>
+				       							</fo:table-row>
+				       						
+				       							<fo:table-row>
+				       								<fo:table-cell text-align="center">
+				       									<fo:block>&#160;</fo:block>
+				       								</fo:table-cell>
+				       								<fo:table-cell>
+				       									<fo:block text-align="justify">
+				       										<!-- <xsl:choose>
+				       											<xsl:when test="../../element_3='lowerhouse'">
+				       												&#160;&#160;&#160;&#160;&#160;"<xsl:value-of select="element_1_2_3"/>"
+				       											</xsl:when>
+				       											<xsl:when test="../../element_3='upperhouse'">
+				       												&#160;&#160;&#160;&#160;&#160;"<xsl:value-of select="element_1_2_4"/>"
+				       											</xsl:when>
+				       										</xsl:choose> -->	
+				       										&#160;&#160;&#160;&#160;&#160;"<xsl:value-of select="element_1_2_4"/>"				       								
+						       							</fo:block>
+				       								</fo:table-cell>
+				       							</fo:table-row>
+				       						</xsl:for-each>
+				       					</xsl:for-each>
+      								</fo:table-body>
+      							</fo:table>
+      						</fo:block>
+					</fo:block>
 	            	
 	            	<fo:block width="600px" font-family="Kokila" font-size="18px">
 						<fo:block text-align="center" font-size="9px">&#160;</fo:block>
@@ -302,40 +260,38 @@
 						</fo:table>
 					</fo:block>
 					
-					<xsl:if test="./element_3='upperhouse'">
-						<fo:block font-size="14px">
-							&#160;
-						</fo:block>
-						
-						<fo:block width="600px" font-family="Kokila" font-size="18px">
-							<fo:table table-layout="fixed">
-								<fo:table-column column-width="7%"/>
-	     						<fo:table-column column-width="93%"/>
-								<fo:table-body>
-									<fo:table-row>
-										<fo:table-cell>
-											<fo:block font-weight="bold">
-												टीप :- 
-											</fo:block>
-										</fo:table-cell>
-										<fo:table-cell>
-											<fo:block text-align="justify">
-												या जोडपत्रातील लक्षवेधी सुचनेच्या विभागीय हस्तांतरणाबाबत कृपया सुचनेच्या जोडपत्रातील अनुक्रमांकासहीत या सचिवालयास अवगत करण्यात यावे. 
-											</fo:block>
-										</fo:table-cell>
-									</fo:table-row>
-									
-									<fo:table-row>
-										<fo:table-cell number-columns-spanned="2" text-align="center">
-											<fo:block>
-												 ***************
-											</fo:block>
-										</fo:table-cell>
-									</fo:table-row>
-								</fo:table-body>
-							</fo:table>					
-						</fo:block>
-					</xsl:if>
+					<fo:block font-size="14px">
+						&#160;
+					</fo:block>
+					
+					<fo:block width="600px" font-family="Kokila" font-size="18px">
+						<fo:table table-layout="fixed">
+							<fo:table-column column-width="7%"/>
+     						<fo:table-column column-width="93%"/>
+							<fo:table-body>
+								<fo:table-row>
+									<fo:table-cell>
+										<fo:block font-weight="bold">
+											टीप :- 
+										</fo:block>
+									</fo:table-cell>
+									<fo:table-cell>
+										<fo:block text-align="justify">
+											या जोडपत्रातील लक्षवेधी सुचनेच्या विभागीय हस्तांतरणाबाबत कृपया सुचनेच्या जोडपत्रातील अनुक्रमांकासहीत या सचिवालयास अवगत करण्यात यावे. 
+										</fo:block>
+									</fo:table-cell>
+								</fo:table-row>
+								
+								<fo:table-row>
+									<fo:table-cell number-columns-spanned="2" text-align="center">
+										<fo:block>
+											 ***************
+										</fo:block>
+									</fo:table-cell>
+								</fo:table-row>
+							</fo:table-body>
+						</fo:table>					
+					</fo:block>
 	            								          
 	            </fo:flow>
 	        </fo:page-sequence>        

@@ -1326,7 +1326,7 @@ public class MotionWorkflowController extends BaseController {
 													.equals(domain.getId())) {
 										Motion previousParentMotion = Motion.findById(Motion.class, Long.parseLong(
 												latestIntimationReferenceLetterHavingMotion.getParentDeviceId()));
-										if (previousParentMotion != null
+										if (previousParentMotion != null && previousParentMotion.getParent()!=null
 												&& previousParentMotion.getParent().getId().equals(domain.getId())) {
 											referredNumber = latestIntimationReferenceLetterHavingMotion
 													.getReferenceNumber();
