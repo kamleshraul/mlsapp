@@ -264,4 +264,109 @@ public class PreBallotRepository extends BaseRepository<Ballot, Long> {
 		
 		return true;
 	}
+	
+	@SuppressWarnings({ "rawtypes" })
+	public boolean optimizedRemoveHDS(final PreBallot preBallot) {
+		try {
+			Long id = preBallot.getId();
+			
+			// Get ballot_entry_id's
+			String getBallotEntryIds = "SELECT pbe.ballot_entry_id" +
+								" FROM preballots_ballot_entries AS pbe" + 
+								" WHERE pbe.preballot_id IN (:preBallotId)";
+			Query q1 = this.em().createNativeQuery(getBallotEntryIds);
+			q1.setParameter("preBallotId", id);
+			List ballotEntryIds = q1.getResultList();
+			
+			
+			if(ballotEntryIds != null && ! ballotEntryIds.isEmpty()) {
+				StringBuffer commaSeparatedBallotEntryIds = new StringBuffer("(");
+				int length = ballotEntryIds.size();
+				int counter = 0;
+				for(Object l : ballotEntryIds) {
+					++counter;
+					commaSeparatedBallotEntryIds.append(l);
+					if(counter < length) {
+						if(counter == length) {
+							commaSeparatedBallotEntryIds.append(" ");
+						}
+						else {
+							commaSeparatedBallotEntryIds.append(", ");
+						}
+					}
+				}
+			   	commaSeparatedBallotEntryIds.append(")");
+			
+			   	String str1 = commaSeparatedBallotEntryIds.toString();   
+			 
+			 		// Get device sequences
+			 	String getDeviceSequenceIds = "SELECT beds.device_sequence_id" +
+											" FROM ballot_entries_device_sequences AS beds" + 
+											" WHERE beds.ballot_entry_id IN "+str1;
+		     		Query q2 = this.em().createNativeQuery(getDeviceSequenceIds);
+		     	    List deviceSequenceIds = q2.getResultList();
+		     	    
+		     		// Delete from ballot_entries_device_sequences table
+					String deleteBallotEntryDeviceSequences = "DELETE FROM ballot_entries_device_sequences" +
+										" WHERE ballot_entry_id IN" + str1;
+					Query q3 = this.em().createNativeQuery(deleteBallotEntryDeviceSequences);
+					q3.executeUpdate(); 
+					
+					
+					if(deviceSequenceIds != null && !deviceSequenceIds.isEmpty()) {
+						StringBuffer commaSeparatedDeviceEntryIds = new StringBuffer("(");
+						int deviceLength = deviceSequenceIds.size();
+						int deviceCounter = 0;
+						for(Object l : deviceSequenceIds) {
+							++deviceCounter;
+							commaSeparatedDeviceEntryIds.append(l);
+							if(deviceCounter < deviceLength) {
+								if(deviceCounter == deviceLength) {
+									commaSeparatedDeviceEntryIds.append(" ");
+								}
+								else {
+									commaSeparatedDeviceEntryIds.append(", ");
+								}
+							}
+						}
+						commaSeparatedDeviceEntryIds.append(")");
+					
+					   	String str2 = commaSeparatedDeviceEntryIds.toString(); 
+					   	
+					 // Delete from device_sequences table
+						String deleteDeviceSequences = "DELETE FROM device_sequences" +
+											" WHERE id IN" + str2;
+						Query q4 = this.em().createNativeQuery(deleteDeviceSequences);
+						q4.executeUpdate(); 
+					}
+					
+					
+					 // Delete from preballots_ballot_entries table
+					String deletePreballotEntriesSequences = "DELETE FROM preballots_ballot_entries" +
+										" WHERE preballot_id=:preBallotId";
+					Query q5 = this.em().createNativeQuery(deletePreballotEntriesSequences);
+					q5.setParameter("preBallotId", id);
+					q5.executeUpdate(); 
+					
+					 // Delete from preballots_ballot_entries table
+					String deleteballotEntries = "DELETE FROM ballot_entries" +
+										" WHERE id IN "+str1;
+					Query q7 = this.em().createNativeQuery(deleteballotEntries);
+					q7.executeUpdate(); 					
+			}		
+			// Delete from preballots table
+			String deletePreballot = "DELETE FROM preballots" +
+					" WHERE id IN (:preBallotId)";
+			Query q6 = this.em().createNativeQuery(deletePreballot);
+			q6.setParameter("preBallotId", id);
+			q6.executeUpdate(); 						
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		return true;
+	}
 }

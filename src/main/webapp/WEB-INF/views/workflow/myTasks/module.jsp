@@ -1909,7 +1909,16 @@
 						+ "&locale="+$("#authlocale").val() 
 						+ "&reportout=adjournmentmotion_department_statement_report"
 						+ "&report=AMOIS_DEPARTMENT_STATEMENT_REPORT";
-					}  else {
+					}  else if(currentDevice.indexOf('motions_calling_attention') == 0){
+						url = "motion/report/generalreport?sessionId=" + data.id
+						+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
+						+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
+						+ "&assignee=" + $("#authusername").val()
+						+ "&houseType="+$("#selectedHouseType").val() 
+						+ "&locale="+$("#authlocale").val() 
+						+ "&reportout=motion_department_statement_report"
+						+ "&report=MOIS_DEPARTMENT_STATEMENT_REPORT";
+					} else {
 						url = "question/report/generalreport?sessionId=" + data.id
 						+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
 						+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 

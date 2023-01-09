@@ -53,9 +53,6 @@ import org.mkcl.els.common.xmlvo.CumulativeMemberwiseQuestionsXmlVO;
 import org.mkcl.els.common.xmlvo.MemberBallotTotalQuestionReportXmlVO;
 import org.mkcl.els.common.xmlvo.MemberwiseQuestionsXmlVO;
 import org.mkcl.els.domain.ActivityLog;
-import org.mkcl.els.domain.Question.PROCESSING_MODE;
-import org.mkcl.els.domain.ballot.Ballot;
-import org.mkcl.els.domain.ballot.BallotEntry;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
@@ -70,20 +67,23 @@ import org.mkcl.els.domain.MemberBallotChoiceAudit;
 import org.mkcl.els.domain.MemberBallotChoiceDraft;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
-import org.mkcl.els.domain.StandaloneMotion;
-import org.mkcl.els.domain.WorkflowDetails;
-import org.mkcl.els.domain.ballot.PreBallot;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.Question.PROCESSING_MODE;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionPlace;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
+import org.mkcl.els.domain.WorkflowDetails;
+import org.mkcl.els.domain.ballot.Ballot;
+import org.mkcl.els.domain.ballot.BallotEntry;
+import org.mkcl.els.domain.ballot.PreBallot;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -697,7 +697,7 @@ public class BallotController extends BaseController{
 						
 						StringBuilder voIds = new StringBuilder();
 						for(int i = 0; i < report.size(); i++){
-							serialNumber.add(new MasterVO((i + 1), FormaterUtil.formatNumberNoGrouping((i + 1), locale.toString())));
+							serialNumber.add(new MasterVO((i + 1), Integer.toString(i + 1)));
 							Object[] obj = (Object[])report.get(i);
 							voIds.append(obj[0].toString()+";"+obj[6].toString());
 							if(i < (report.size() - 1)){
@@ -4583,7 +4583,18 @@ public class BallotController extends BaseController{
 				if(csptPreBallotRecreate == null || csptPreBallotRecreate.getValue().equals("YES")){
 					Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
 					if(ballot == null){
-						preBallot.remove();
+						/*
+						 * List<BallotEntry> ballotEntriesList = preBallot.getBallotEntries();
+						 * for(BallotEntry ballotEntry : ballotEntriesList) { List<DeviceSequence>
+						 * deviceSequenceList = ballotEntry.getDeviceSequences(); for(DeviceSequence
+						 * deviceSequence : deviceSequenceList) {
+						 * DeviceSequence.getBaseRepository().removeById(deviceSequence.getId()); //
+						 * deviceSequence.remove(); }
+						 * BallotEntry.getBaseRepository().removeById(ballotEntry.getId()); //
+						 * ballotEntry.remove(); }
+						 * PreBallot.getBaseRepository().removeById(preBallot.getId());
+						 */
+					    preBallot.optimizedRemoveHDS();
 						ballotVOs = Ballot.findPreBallotVO(session, deviceType, answeringDate, locale);
 					}else{
 						if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){

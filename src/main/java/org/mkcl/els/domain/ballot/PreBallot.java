@@ -177,6 +177,11 @@ public class PreBallot extends BaseDomain implements Serializable {
 		return PreBallot.getRepository().optimizedRemove(this);
 	}
 	
+	@Transactional 
+	public boolean optimizedRemoveHDS() {
+		return PreBallot.getRepository().optimizedRemoveHDS(this);
+	}
+	
 	public static PreBallot find(final Session session,
 			final DeviceType deviceType,
 			final Date answeringDate,

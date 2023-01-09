@@ -62,6 +62,28 @@ public class MotionReportController extends BaseController{
 		return retVal;
 	}
 	
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	@RequestMapping(value="/generalreport", method=RequestMethod.GET)
+	public String getReport(HttpServletRequest request, Model model, Locale locale){
+		
+		Map<String, String[]> requestMap = request.getParameterMap();
+		List report = Query.findReport(request.getParameter("report"), requestMap);
+		if(report != null && !report.isEmpty()){
+			Object[] obj = (Object[])report.get(0);
+			if(obj != null){
+				
+				model.addAttribute("topHeader", obj[0].toString().split(";"));
+			}
+			List<String> serialNumbers = populateSerialNumbers(report, locale);
+			model.addAttribute("serialNumbers", serialNumbers);
+		}
+		model.addAttribute("formater", new FormaterUtil());
+		model.addAttribute("locale", locale.toString());
+		model.addAttribute("report", report);
+		
+		return "motion/reports/"+request.getParameter("reportout");		
+	}
+	
 	@RequestMapping(value = "/motion/advancereport", method = RequestMethod.GET)
 	public String getMotionReportNew(HttpServletRequest request, Model model, Locale locale){
 		String retVal = "motion/error";
