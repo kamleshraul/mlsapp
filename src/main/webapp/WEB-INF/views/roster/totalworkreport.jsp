@@ -71,12 +71,19 @@
 					
 							
 							<tr>
-								<td class="td">${slot[0]}</td>
-								<td class="td">${slot[1]}</td>
+								<td class="td">${slot[6]}</td>
+								<td class="td">${slot[6]}</td>
 								<td class="Time">${slot[2]}</td>
 								<td class="td">${slot[3]}</td>
 								<td class="td">${slot[4]}</td>
 								<td class="td">${slot[5]}</td>
+						   </tr>
+							<tr>
+								<td class="td">${slot[6]}</td>
+								<td class="td">${slot[6]}</td>
+								<td colspan="3" class="Time">${slot[0]}</td>
+								<td class="Time">${slot[1]}</td>
+							
 							
 							</tr>
 				</c:forEach>
