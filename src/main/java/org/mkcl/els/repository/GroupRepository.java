@@ -87,6 +87,32 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 		return groups;
 	}
 
+	public Group findByNumbersBySessionId(final Integer groupNumber, final String sessionId) throws ELSException {
+		
+		String strQuery = "SELECT g FROM Group g" +
+				" WHERE g.session.id=:sessionId" +
+				" AND g.number=:groupNumber";
+		
+		Group group = null;
+		
+		try{
+			TypedQuery<Group> jpQuery = this.em().createQuery(strQuery, Group.class);
+			jpQuery.setParameter("sessionId", Long.parseLong(sessionId));
+			jpQuery.setParameter("groupNumber", groupNumber);
+			group = jpQuery.getSingleResult();
+		}catch(NoResultException nre) {
+			return null;
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("GroupRepository_Group>findByNumberHouseTypeSessionTypeYear", "Group is unavailable.");
+			throw elsException;
+		}
+		
+		return group;		 		
+	}
+	
 	/**
 	 * Find answering dates.
 	 *

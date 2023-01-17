@@ -27,6 +27,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.CountsUsingGroupByReportVO;
 import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.MasterVO;
@@ -3456,11 +3457,14 @@ public class QuestionReportController extends BaseController{
 		
 		String responsePage="question/reports/error";
 		
+		AuthUser user = this.getCurrentUser();
+		
 		String strQuestionType = request.getParameter("questionType");
 		String strHouseType = request.getParameter("houseType");
 		String strSessionType = request.getParameter("sessionType");
 		String strSessionYear = request.getParameter("sessionYear");
-		
+		String strSession = request.getParameter("session");
+
 		if(strQuestionType!=null && strHouseType!=null && strSessionType!=null && strSessionYear!=null
 				&& !strQuestionType.isEmpty() && !strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()) {
 			
@@ -3500,6 +3504,19 @@ public class QuestionReportController extends BaseController{
 				return responsePage;
 			}
 			model.addAttribute("sessionType", sessionType.getId());
+			
+			  String strGroups = user.getGroupsAllowed();
+			  if(strGroups != null && ! strGroups.isEmpty()) {
+				  List<Integer> groupNumbers = QuestionController.delimitedStringToIntegerList(strGroups, ",");
+				  List<Group> groups = new ArrayList<Group>();  
+				  Session latestSession = Session.findLatestSession(houseType);
+				  for(Integer groupNumber : groupNumbers) {
+						Group group = Group.findByNumbersBySessionId(groupNumber,  strSession);
+						groups.add(group);					
+					}
+					model.addAttribute("groups", groups);
+			  }
+			
 			/**** populate selected sessionyear ****/
 			Integer sessionYear = Integer.parseInt(strSessionYear);
 			model.addAttribute("sessionYear", sessionYear);		
@@ -3607,6 +3624,7 @@ public class QuestionReportController extends BaseController{
 		String forTodayStr = request.getParameter("forToday");
 		String fromDateStr = request.getParameter("fromDate");
 		String toDateStr = request.getParameter("toDate");
+		String groupId = request.getParameter("groupId");
 		
 		try {
 			if(session!=null && !session.isEmpty() 
@@ -3653,6 +3671,7 @@ public class QuestionReportController extends BaseController{
 						queryParameters.put("houseTypeId", new String[] {houseType});												
 						queryParameters.put("fromDate", new String[] {fromDateStr});
 						queryParameters.put("toDate", new String[] {toDateStr});
+						queryParameters.put("groupId", new String[] {groupId});
 						queryParameters.put("submitStatusId", new String[] {submitStatus.getId().toString()});
 						
 						String queryName = "QIS_MEMBERWISE_QUESTIONS_ONLINE_OFFLINE_SUBMISSION_COUNTS";

@@ -20,8 +20,9 @@
 					var reportURL = "question/report/online_offline_submission_count_report?session="+$('#session').val()
 							+"&houseType="+$('#houseType').val()
 							+"&questionType="+$('#questionType').val()
+							+"&groupId="+$('#selectedGroupCount').val()
 							+"&criteria="+$('#criteria').val();
-							
+					
 					if($('#forToday').is(':checked')) {
 						$('#forToday').val("true");
 						reportURL += "&forToday="+$('#forToday').val();
@@ -48,6 +49,18 @@
 		<p id="error_p" style="display: none;">&nbsp;</p>
 		<div class="fields clearfix">
 		<p>
+		<label class="small"><spring:message code="question.onlinesubmissioncountreport.forAllGroups" text="Groups"/>&nbsp;*</label>
+		<select class="sSelect" name="selectedGroupCount" id="selectedGroupCount" style="width: 100px; height: 25px;">
+		  <option value="0"><spring:message code="question.onlinesubmissioncountreport.forAllGroup" text="Select All"/></option>
+			<c:forEach items="${groups}" var="i">
+				<option value="${i.id}">
+					<c:out value="${i.formatNumber()}"></c:out>
+				</option>
+			</c:forEach>
+		</select>
+		</p>
+		
+		<p>
 			<label class="small"><spring:message code="question.onlinesubmissioncountreport.fromDate" text="From Date"/>&nbsp;*</label>
 			<input id="fromDate" class="datemask sText" type="text" name="fromDate" value="${defaultFromDate}"/>
 		</p>
@@ -56,7 +69,7 @@
 			<label class="small"><spring:message code="question.onlinesubmissioncountreport.toDate" text="To Date"/>&nbsp;*</label>
 			<input id="toDate" class="datemask sText" type="text" name="toDate" value="${defaultToDate}"/>
 		</p>
-		
+			
 		<c:if test="${isCurrentDateValidForSubmission == true}">
 		<p>
 			<label class="small"><spring:message code="question.onlinesubmissioncountreport.forToday" text="For Today?"/></label>

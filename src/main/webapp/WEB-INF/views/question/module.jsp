@@ -1386,7 +1386,8 @@
 		 + "&sessionYear=" + $("#selectedSessionYear").val()
 		 + "&sessionType=" + $("#selectedSessionType").val()
 		 + "&questionType=" + $("#selectedQuestionType").val()		 
-		 + "&role=" + $("#srole").val();		 	
+		 + "&role=" + $("#srole").val()
+		 + "&session=" + $("#loadedSession").val();		 	
 		var resourceURL = 'question/report/online_offline_submission_count_report/init?'+ parameters;
 		$.get(resourceURL,function(data) {
 			$.fancybox.open(data,{autoSize:false,width:400,height:200});

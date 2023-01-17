@@ -367,6 +367,10 @@ public class Group extends BaseDomain implements Serializable {
     			groupNumber, houseType, sessionType, year);
     }
     
+    public static Group findByNumbersBySessionId(final Integer groupNumber, final String sessionId) throws ELSException {
+    	return Group.getRepository().findByNumbersBySessionId(groupNumber, sessionId);
+    }    
+    
     public static List<Group> findByHouseTypeSessionTypeYear(
 			final HouseType houseType, 
 			final SessionType sessionType, 
