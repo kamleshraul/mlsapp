@@ -1234,7 +1234,7 @@
 		<c:choose>
 			<c:when test="${selectedQuestionType=='questions_starred'}">
 				<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
-				<c:if test="${'upperhouse'.equalsIgnoreCase(processingMode) && 'YES'.equalsIgnoreCase(isFirstBatchQuestion)}"><c:set var="hideDRDAnsweringDate" value="true"/></c:if>
+				<c:if test="${processingMode.equalsIgnoreCase('upperhouse') && isFirstBatchQuestion.equalsIgnoreCase('YES')}"><c:set var="hideDRDAnsweringDate" value="true"/></c:if>
 				
 				<select name="answeringDate" id="answeringDate" class="sSelect">
 				
