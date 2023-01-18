@@ -5631,10 +5631,29 @@ class QuestionReportHelper{
 									}
 								}
 							}
+							WorkflowConfig wfConfig = null;
 							
+							CustomParameter csptCurrentStatusAllowedBeforeApproval = CustomParameter.findByName(CustomParameter.class, qt.getType().getType().toUpperCase()+"_"+qt.getHouseType().getType().toUpperCase()+"_CURRENT_STATUS_REPORT_ALLOWED_BEFORE_APPROVAL", "");
+							if(csptCurrentStatusAllowedBeforeApproval!=null && csptCurrentStatusAllowedBeforeApproval.getValue()!=null
+									&& csptCurrentStatusAllowedBeforeApproval.getValue().equals("YES")) {
+								
+							   if (qt.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_SUBMIT) || qt.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_SYSTEM_PUTUP ) || qt.getInternalStatus().getType().endsWith(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED ) || qt.getParent() != null  ) {
+									
+									wfConfig = WorkflowConfig.getLatest(qt, ApplicationConstants.QUESTION_RECOMMEND_ADMISSION, locale.toString());
+									model.addAttribute("currentStatusReportAllowedBeforeApproval", "YES");
+									}
+							   else {
+								   wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
+									model.addAttribute("currentStatusReportAllowedBeforeApproval", "NO");
+							   }
+								
+							} else {
+								 wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
+								model.addAttribute("currentStatusReportAllowedBeforeApproval", "NO");
+							}
 							//Following block is added for solving the issue of question drafts where in if there exist a draft and later the question is pending
 							// at the specific actor, the last remark is displayed
-							WorkflowConfig wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
+							//WorkflowConfig wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
 							List<WorkflowActor> wfActors = wfConfig.getWorkflowactors();
 							List<WorkflowActor> distinctActors = new ArrayList<WorkflowActor>();
 							for(WorkflowActor wf : wfActors){
