@@ -601,6 +601,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 	    	List<String> suchhiDistributionDates=new ArrayList<String>();
 	    	List<String> speakerSendingDates=new ArrayList<String>();
 	    	List<String> selects = new ArrayList<String>();
+	    	List<String> displayAnsweringDates = new ArrayList<String>(); 	
 	    	SimpleDateFormat sf=new SimpleDateFormat("EEEE");
 	    	CustomParameter parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
 	    	if(parameter == null) {
@@ -630,11 +631,17 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 		    	    	if(existingQuestionDate!=null) {
 		    	    		answeringDates.add(current);
 		    	    		aDates.add(dateFormat.format(current));
+		    	    		if(existingQuestionDate.getDisplayAnsweringDate() != null ) {
+		    	    		displayAnsweringDates.add(dateFormat.format(existingQuestionDate.getDisplayAnsweringDate()));
+		    	    		}else {
+		    	    			displayAnsweringDates.add(dateFormat.format(current));
+		    	    		}
 		    	    		select = "true";
 		    	    		selects.add(select);
 		    	    	} else if(sf.format(current).equals("Monday")){
 		    	    		answeringDates.add(current);
 		    	    		aDates.add(dateFormat.format(current));
+		    	    		displayAnsweringDates.add(dateFormat.format(current));
 		    	    		if(isRotationOrderSet==false && !Holiday.isHolidayOnDate(current, domain.getLocale())) {
 		    	    			select = "true";
 		    	    		}
@@ -648,11 +655,17 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 		    	    	if(existingQuestionDate!=null) {
 		    	    		answeringDates.add(current);
 		    	    		aDates.add(dateFormat.format(current));
+		    	    		if(existingQuestionDate.getDisplayAnsweringDate() != null ) {
+			    	    		displayAnsweringDates.add(dateFormat.format(existingQuestionDate.getDisplayAnsweringDate()));
+			    	    		}else {
+			    	    			displayAnsweringDates.add(dateFormat.format(current));
+			    	    		}
 		    	    		select = "true";
 		    	    		selects.add(select);
 		    	    	} else if(sf.format(current).equals("Tuesday")){
 		    	    		answeringDates.add(current);
 		    	    		aDates.add(dateFormat.format(current));
+		    	    		displayAnsweringDates.add(dateFormat.format(current));
 		    	    		if(isRotationOrderSet==false && !Holiday.isHolidayOnDate(current, domain.getLocale())) {
 		    	    			select = "true";
 		    	    		}
@@ -666,11 +679,17 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 		    	    	if(existingQuestionDate!=null) {
 		    	    		answeringDates.add(current);
 		    	    		aDates.add(dateFormat.format(current));
+		    	    		if(existingQuestionDate.getDisplayAnsweringDate() != null ) {
+			    	    		displayAnsweringDates.add(dateFormat.format(existingQuestionDate.getDisplayAnsweringDate()));
+			    	    		}else {
+			    	    			displayAnsweringDates.add(dateFormat.format(current));
+			    	    		}
 		    	    		select = "true";
 		    	    		selects.add(select);
 		    	    	} else if(sf.format(current).equals("Wednesday")){
 		    	    		answeringDates.add(current);
 		    	    		aDates.add(dateFormat.format(current));
+		    	    		displayAnsweringDates.add(dateFormat.format(current));
 		    	    		if(isRotationOrderSet==false && !Holiday.isHolidayOnDate(current, domain.getLocale())) {
 		    	    			select = "true";
 		    	    		}
@@ -684,11 +703,17 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 		    	    	if(existingQuestionDate!=null) {
 		    	    		answeringDates.add(current);
 		    	    		aDates.add(dateFormat.format(current));
+		    	    		if(existingQuestionDate.getDisplayAnsweringDate() != null ) {
+			    	    		displayAnsweringDates.add(dateFormat.format(existingQuestionDate.getDisplayAnsweringDate()));
+			    	    		}else {
+			    	    			displayAnsweringDates.add(dateFormat.format(current));
+			    	    		}
 		    	    		select = "true";
 		    	    		selects.add(select);
 		    	    	} else if(sf.format(current).equals("Thursday")){
 		    	    		answeringDates.add(current);
 		    	    		aDates.add(dateFormat.format(current));
+		    	    		displayAnsweringDates.add(dateFormat.format(current));
 		    	    		if(isRotationOrderSet==false && !Holiday.isHolidayOnDate(current, domain.getLocale())) {
 		    	    			select = "true";
 		    	    		}
@@ -702,11 +727,17 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 		    	    	if(existingQuestionDate!=null) {
 		    	    		answeringDates.add(current);
 		    	    		aDates.add(dateFormat.format(current));
+		    	    		if(existingQuestionDate.getDisplayAnsweringDate() != null ) {
+			    	    		displayAnsweringDates.add(dateFormat.format(existingQuestionDate.getDisplayAnsweringDate()));
+			    	    		}else {
+			    	    			displayAnsweringDates.add(dateFormat.format(current));
+			    	    		}
 		    	    		select = "true";
 		    	    		selects.add(select);
 		    	    	} else if(sf.format(current).equals("Friday")){
 		    	    		answeringDates.add(current);
 		    	    		aDates.add(dateFormat.format(current));
+		    	    		displayAnsweringDates.add(dateFormat.format(current));
 		    	    		if(isRotationOrderSet==false && !Holiday.isHolidayOnDate(current, domain.getLocale())) {
 		    	    			select = "true";
 		    	    		}
@@ -714,9 +745,10 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 		    	    	}
 		    	    	break;  	
 	    	    
-	    	    }    	    
+	    	    }       	  
 	    	}    	
 	    	model.addAttribute("answeringDates", aDates);
+	    	model.addAttribute("displayAnsweringDates", displayAnsweringDates);
 	    	model.addAttribute("originalAnsweringDates", aDates);
 	    	model.addAttribute("selects", selects);
 	    	for(Date answeringDate:answeringDates){    		
@@ -731,6 +763,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 	    		Date suchhiReceivingDate = null;
 	    		Date suchhiDistributionDate = null;
 	    		Date speakerSendingDate = null;
+	 
 	    		
 	    		if(session.getParameter("questions_starred_finalSubmissionDate_difference") != null) {
 		    		difference = Integer.parseInt(session.getParameter("questions_starred_finalSubmissionDate_difference"));
@@ -1010,6 +1043,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 			Date suchhiReceivingDate=null;
 			Date suchhiDistributionDate=null;
 			Date speakerSendingDate=null;
+			Date displayAnsweringDate = null;
 			if(request.getParameter("date"+i)!=null){				
 				if(request.getParameter("date"+i).equals("true")){
 					String aDate=request.getParameter("answeringDate"+i);
@@ -1119,7 +1153,16 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
-
+					String displayAD = request.getParameter("displayAnsweringDates"+i);
+					try {
+						if(displayAD!=null){
+							if(!displayAD.isEmpty())
+								displayAnsweringDate=sf.parse(displayAD);
+						}
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+					
 					QuestionDates questionDate= new QuestionDates();
 					QuestionDates qd= domain.findQuestionDatesByGroupAndAnsweringDate(originalAnsweringDate);					
 					if(qd!=null){
@@ -1136,6 +1179,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 					questionDate.setSuchhiReceivingDate(suchhiReceivingDate);
 					questionDate.setSuchhiDistributionDate(suchhiDistributionDate);
 					questionDate.setSpeakerSendingDate(speakerSendingDate);
+					questionDate.setDisplayAnsweringDate(displayAnsweringDate);
 					questionDate.setLocale(domain.getLocale());
 					questionDates.add(questionDate);					
 				}				
