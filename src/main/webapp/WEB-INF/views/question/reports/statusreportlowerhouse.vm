@@ -188,7 +188,8 @@
 	</table>
 </div>
 <div style="width: 750px; border-top: 2px dotted black;">&nbsp;</div>
-<div style="width: 750px;">	
+#if($currentStatusReportAllowedBeforeApproval == 'NO')
+<div style="width: 750px;">
 	<table style="width: 750px; font-weight: bold; border: 2px solid black; font-size: 16px;" class="uiTable">
 		#foreach($r in $data)
 			<tr class="page-break" style="font-weight: bold;">
@@ -203,8 +204,8 @@
 				<td style="width: 410px; padding: 2px;">$r.get(6)</td>
 				<!--<td style="width: 120px; padding: 2px; text-align: center;">&nbsp;</td>-->
 			</tr>
-		#end
-	</table>
+		#end		
+	</table>	
 	<table style="width: 750px; font-size: 17px;">
 		<tr><td colspan="3">&nbsp;</td></tr>
 		<tr>
@@ -236,5 +237,7 @@
 		</tr>
 	</table>
 </div>
+#else
+#end
 <span class='page-break-before-forced'>&nbsp;</span>
 <hr>
