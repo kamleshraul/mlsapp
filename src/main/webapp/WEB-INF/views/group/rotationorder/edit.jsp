@@ -330,6 +330,17 @@
 							</tr>						
 							<tr></tr>
 							
+							<tr>
+								<th><label style="width: 250px;"><spring:message code="group.rotationorder.displayAnsweringDate" text="Display Answering Date"/></label></th>
+								<c:forEach begin="1" end="${dateCount}" varStatus="i">
+								<td>		
+									<input style="width: 70px;" class="datemask sText" type="text"  name="displayAnsweringDates${i.count-1}" id="displayAnsweringDates${i.count-1}" value="${displayAnsweringDates[i.count-1]}">		
+									<input type="hidden" id="displayAnsweringDates${i.count-1}" value="${displayAnsweringDates[i.count-1]}">
+								</td>
+								</c:forEach>
+							</tr>						
+							<tr></tr>
+							
 							
 						
 						</table>
