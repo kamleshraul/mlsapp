@@ -3521,9 +3521,10 @@ class StarredQuestionController {
 												workflowDetails.merge();
 												
 												/**** Complete Task ****/
-												String strTaskId = workflowDetails.getTaskId();
-												Task task = processService.findTaskById(strTaskId);
-												processService.completeTask(task);
+												// (Commenting below code as no need for TIMEOUT case and due to performance issues)
+//												String strTaskId = workflowDetails.getTaskId();
+//												Task task = processService.findTaskById(strTaskId);
+//												processService.completeTask(task);
 											}											
 										}
 									}
