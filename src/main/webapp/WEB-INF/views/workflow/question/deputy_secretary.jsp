@@ -981,7 +981,14 @@
 			} 
 		});
 		
-		
+		if($('p#revisedQuestionTextDiv iframe')!=undefined && $('p#revisedQuestionTextDiv iframe')!=null
+				&& $('p#revisedQuestionTextDiv iframe').length>0) {
+			try {
+				$('p#revisedQuestionTextDiv iframe')[0].contentDocument.body.style.fontSize='20px';				
+			} catch(e) {
+				//as the css will not be applied, font of revised question text will not be automatically increased!
+			}
+		}
 	});
 	</script>
 	 <style type="text/css">
