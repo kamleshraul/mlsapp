@@ -127,10 +127,10 @@ margin-left: 30px;
 			<tr>
 			<td>
 			<c:choose>
-			<c:when test="${i.findMinistriesByPriority()!=null}">
-			<c:forEach items="${i.findMinistriesByPriority()}" var="j">
+			<c:when test="${i.findMinistryDisplayNamesByPriority()!=null}">
+			<c:forEach items="${i.findMinistryDisplayNamesByPriority()}" var="j">
 			<c:if test="${!(empty j) }">
-			${j.displayName}<br>
+			${j}<br>
 			</c:if>
 			</c:forEach>
 			</c:when>

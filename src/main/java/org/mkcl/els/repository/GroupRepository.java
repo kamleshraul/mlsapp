@@ -765,4 +765,38 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 		}
 		return group;
 	}
+
+	@SuppressWarnings("unchecked")
+	public List<String> findMinistryDisplayNamesByPriority(final Group group) throws ELSException {
+		String query="SELECT DISTINCT m.displayName FROM MemberMinister mm" +
+					" RIGHT JOIN mm.ministry m"+
+					" WHERE m.id IN" +
+					" (SELECT mi.id FROM Group g" +
+					" JOIN g.ministries mi" +
+					" WHERE g.id=:groupId)" +
+					" AND mm.ministryFromDate<=:sessionStartDate " +
+					" AND (mm.ministryToDate>=:sessionStartDate OR mm.ministryToDate IS NULL)" +
+					" ORDER BY mm.priority";
+		
+		
+		List<String> ministries = new ArrayList<String>();
+		try{
+			Query jpQuery = this.em().createQuery(query);
+			jpQuery.setParameter("groupId", group.getId());
+			jpQuery.setParameter("sessionStartDate", group.getSession().getStartDate());
+			List<String> mX = jpQuery.getResultList();
+			if(mX != null){
+				ministries = null;
+				ministries = mX;
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("GroupRepository_List<String>_findMinistryDisplayNamesByPriority", "No ministry found.");
+			throw elsException;
+		}
+		
+		return ministries;	
+	}
 }

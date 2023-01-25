@@ -165,6 +165,20 @@ public class Group extends BaseDomain implements Serializable {
 			return new ArrayList<Ministry>();
 		}
 	}
+    
+    /**
+     * Used In Jsp of Member Ballot Member Wise Report
+     */
+	public  List<String> findMinistryDisplayNamesByPriority() throws ELSException {
+		Long groupId = this.getId();
+		
+		if(groupId != null){
+			return Group.getRepository().findMinistryDisplayNamesByPriority(this);
+		}
+		else{
+			return new ArrayList<String>();
+		}
+	}
 	
 	/**
      * Used In Jsp of Member Ballot Member Wise Report

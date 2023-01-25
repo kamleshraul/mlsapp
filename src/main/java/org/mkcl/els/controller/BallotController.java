@@ -46,6 +46,7 @@ import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.MemberBallotQuestionDistributionVO;
 import org.mkcl.els.common.vo.MemberBallotVO;
 import org.mkcl.els.common.vo.MemberwiseQuestionsVO;
+import org.mkcl.els.common.vo.MinistryVO;
 import org.mkcl.els.common.vo.QuestionSequenceVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.StarredBallotVO;
@@ -1999,13 +2000,14 @@ public class BallotController extends BaseController{
 							List<MemberBallotMemberWiseQuestionVO> rejectedQuestionVOs = new ArrayList<MemberBallotMemberWiseQuestionVO>();
 							groupVO.setNumber(g.getNumber());
 							groupVO.setFormattedNumber(g.formatNumber());
-							List<Ministry> ministries = g.findMinistriesByPriority();	
+							//List<Ministry> ministries = g.findMinistriesByPriority();	
+							List<MinistryVO> ministryVOs = Group.findMinistriesByMinisterView(g, locale.toString());
 							List<MasterVO> ministryMasterVOs = new ArrayList<MasterVO>();
 							int ministryCount = 1;
-							for(Ministry m: ministries) {
+							for(MinistryVO m: ministryVOs) {
 								MasterVO ministryMasterVO = new MasterVO();
 								ministryMasterVO.setFormattedNumber("(" + FormaterUtil.formatNumberNoGrouping(ministryCount, locale.toString())+ ")");
-								ministryMasterVO.setName(m.getDisplayName());
+								ministryMasterVO.setName(m.getName());
 								ministryMasterVOs.add(ministryMasterVO);
 								ministryCount++;
 							}
