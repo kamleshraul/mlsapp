@@ -217,7 +217,7 @@
 				$.get("ref/sessionbydevicetypeworkflow" + "/" +$("#selectedDeviceType").val(),function(data1){
                     if(data1){
                         
-							let queParams = encodeURI('devicescommonreport/report/generalreport?'
+							var queParams = encodeURI('devicescommonreport/report/generalreport?'
 							+'sessionId='+data
 							+'&originaldevicetypeId='+$("#selectedDeviceType").val()
 							    +'&housetypeName='+$("#selectedHouseType").val()
@@ -226,7 +226,7 @@
 								    +'&report=WORKFLOW_QUESTION_COMMON_REPORT'
 									+'&reportout=devicesSupportMemberCommonReport');
 							
-							let moParams = encodeURI('devicescommonreport/report/generalreport?'
+							var moParams = encodeURI('devicescommonreport/report/generalreport?'
 									+'sessionId='+data
 									+'&originaldevicetypeId='+$("#selectedDeviceType").val()
 									    +'&housetypeName='+$("#selectedHouseType").val()
@@ -235,7 +235,7 @@
 											+'&report=WORKFLOW_MOTION_COMMON_REPORT'
 											+'&reportout=devicesSupportMemberCommonReport');
 							
-							let admoParams = encodeURI('devicescommonreport/report/generalreport?'
+							var admoParams = encodeURI('devicescommonreport/report/generalreport?'
 									+'sessionId='+data
 									+'&originaldevicetypeId='+$("#selectedDeviceType").val()
 									    +'&housetypeName='+$("#selectedHouseType").val()
@@ -244,7 +244,7 @@
 											+'&report=WORKFLOW_ADMOTION_COMMON_REPORT'
 											+'&reportout=devicesSupportMemberCommonReport');
 							
-							let cumoParams = encodeURI('devicescommonreport/report/generalreport?'
+							var cumoParams = encodeURI('devicescommonreport/report/generalreport?'
 									+'sessionId='+data
 									+'&originaldevicetypeId='+$("#selectedDeviceType").val()
 									    +'&housetypeName='+$("#selectedHouseType").val()
@@ -253,7 +253,7 @@
 											+'&report=WORKFLOW_CUMOTION_COMMON_REPORT'
 											+'&reportout=devicesSupportMemberCommonReport');
 							
-							let smoParams = encodeURI('devicescommonreport/report/generalreport?'
+							var smoParams = encodeURI('devicescommonreport/report/generalreport?'
 									+'sessionId='+data
 									+'&originaldevicetypeId='+$("#selectedDeviceType").val()
 									    +'&housetypeName='+$("#selectedHouseType").val()
@@ -262,7 +262,7 @@
 											+'&report=WORKFLOW_SMOTION_COMMON_REPORT'
 											+'&reportout=devicesSupportMemberCommonReport');
 							
-							let dmoParams = encodeURI('devicescommonreport/report/generalreport?'
+							var dmoParams = encodeURI('devicescommonreport/report/generalreport?'
 									+'sessionId='+data
 									+'&originaldevicetypeId='+$("#selectedDeviceType").val()
 									    +'&housetypeName='+$("#selectedHouseType").val()
@@ -271,7 +271,7 @@
 											+'&report=WORKFLOW_DMOTION_COMMON_REPORT'
 											+'&reportout=devicesSupportMemberCommonReport');
 							
-							let rmoParams = encodeURI('devicescommonreport/report/generalreport?'
+							var rmoParams = encodeURI('devicescommonreport/report/generalreport?'
 									+'sessionId='+data
 									+'&originaldevicetypeId='+$("#selectedDeviceType").val()
 									    +'&housetypeName='+$("#selectedHouseType").val()
@@ -280,7 +280,7 @@
 											+'&report=WORKFLOW_RMOTION_COMMON_REPORT'
 											+'&reportout=devicesSupportMemberCommonReport');
 							
-							let ppmoParams = encodeURI('devicescommonreport/report/generalreport?'
+							var ppmoParams = encodeURI('devicescommonreport/report/generalreport?'
 									+'sessionId='+data
 									+'&originaldevicetypeId='+$("#selectedDeviceType").val()
 									    +'&housetypeName='+$("#selectedHouseType").val()
