@@ -140,6 +140,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		return chart;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<Device> findDevices(final Chart chart) throws ELSException{
 		StringBuffer strQuery = new StringBuffer();
 		String strDeviceType = chart.getDeviceType().getType();
@@ -169,7 +170,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 					chart.getDeviceType(), chart.getLocale());
 			strQuery.append(resolutionQuery);
 			
-			jpQuery = this.em().createQuery(strQuery.toString(), Device.class);
+			jpQuery = (TypedQuery<Device>) this.em().createNativeQuery(strQuery.toString(), Resolution.class);
 			jpQuery.setParameter("sessionId", chart.getSession().getId());
 			jpQuery.setParameter("deviceTypeId", chart.getDeviceType().getId());
 			jpQuery.setParameter("locale", chart.getLocale());
@@ -202,6 +203,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		return devices;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<Device> findDevices(final Member member, final Chart chart) throws ELSException {
 		StringBuffer strQuery = new StringBuffer();
 		String strDeviceType = chart.getDeviceType().getType();
@@ -231,7 +233,8 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 					chart.getDeviceType(), chart.getLocale());
 			strQuery.append(resolutionQuery);
 			
-			jpQuery = this.em().createQuery(strQuery.toString(), Device.class);
+			//jpQuery = this.em().createQuery(strQuery.toString(), Device.class);
+			jpQuery = (TypedQuery<Device>) this.em().createNativeQuery(strQuery.toString(), Resolution.class);
 			jpQuery.setParameter("sessionId", chart.getSession().getId());
 			jpQuery.setParameter("deviceTypeId", chart.getDeviceType().getId());
 			jpQuery.setParameter("locale", chart.getLocale());
@@ -419,14 +422,20 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 				deviceType, includeStatuses, locale);
 		strQuery.append(resolutionsCountQuery);
 		
-		TypedQuery<Long> query = this.em().createQuery(strQuery.toString(), Long.class);
+		Query query = this.em().createNativeQuery(strQuery.toString());
 		query.setParameter("sessionId", session.getId());
 		query.setParameter("deviceTypeId", deviceType.getId());
 		query.setParameter("locale", locale);
 		query.setParameter("memberId", member.getId());
 		Integer count = null;
 		try{
-			count = query.getSingleResult().intValue();
+			Object countObj = query.getSingleResult();
+			if(countObj!=null) {
+				String countStr = countObj.toString();
+				if(!countStr.isEmpty()) {
+					count = Integer.parseInt(countStr);					
+				}
+			}
 		}catch(EntityNotFoundException enfe){
 			logger.error(enfe.getMessage());
 		}catch (NoResultException nre) {
@@ -450,7 +459,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		String resolutionQuery = this.findResolutionsOnChartQuery(session, deviceType, locale);
 		strQuery.append(resolutionQuery);
 		
-		Query jpQuery = this.em().createQuery(strQuery.toString());
+		Query jpQuery = this.em().createNativeQuery(strQuery.toString(), Resolution.class);
 		jpQuery.setParameter("sessionId", session.getId());
 		jpQuery.setParameter("deviceTypeId", deviceType.getId());
 		jpQuery.setParameter("locale", locale);
@@ -1166,16 +1175,31 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 			final DeviceType deviceType,
 			final String locale) {
 		StringBuffer strQuery = new StringBuffer();
+		
+//		strQuery.append(
+//			"SELECT r" +
+//			" FROM Resolution r" +
+//			" WHERE r.id IN ("+
+//				" SELECT d.id" +
+//				" FROM Chart c JOIN c.chartEntries ce JOIN ce.devices d" +
+//				" WHERE c.session.id =:sessionId" +
+//				" AND c.deviceType.id =:deviceTypeId" +
+//				" AND c.locale = :locale" +
+//				" ORDER BY r.number ASC)");
+		
 		strQuery.append(
-			"SELECT r" +
-			" FROM Resolution r" +
-			" WHERE r.id IN ("+
-				" SELECT d.id" +
-				" FROM Chart c JOIN c.chartEntries ce JOIN ce.devices d" +
-				" WHERE c.session.id =:sessionId" +
-				" AND c.deviceType.id =:deviceTypeId" +
-				" AND c.locale = :locale" +
-				" ORDER BY r.number ASC)");
+				"SELECT r.*" +
+				" FROM resolutions r" +
+				" WHERE r.id IN ("
+					+ " SELECT ced.device_id"
+					+ " FROM charts c"
+					+ " JOIN charts_chart_entries  cce ON (c.id = cce.chart_id)"
+					+ " JOIN chart_entries ce ON (ce.id = cce.chart_entry_id)"
+					+ " JOIN chart_entries_devices ced ON (ced.chart_entry_id=ce.id)"
+					+ " WHERE c.session_id = :sessionId"
+					+ " AND c.device_type =:deviceTypeId" 
+					+ " AND c.locale = :locale)" 
+					+ " ORDER BY r.number ASC");
 		
 		return strQuery.toString();
 	}
@@ -1185,18 +1209,34 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 			final DeviceType deviceType,
 			final String locale) {
 		StringBuffer strQuery = new StringBuffer();
+		
+//		strQuery.append(
+//			"SELECT r" +
+//			" FROM Resolution r" +
+//			" WHERE r.id IN ("+
+//				" SELECT d.id" +
+//				" FROM Chart c JOIN c.chartEntries ce JOIN ce.devices d" +
+//				" WHERE c.session.id =:sessionId" +
+//				" AND c.deviceType.id =:deviceTypeId" +
+//				" AND c.locale =:locale" +
+//				" AND ce.member.id =:memberId )" +
+//				" ORDER BY r.number ASC)"
+//			);
+		
 		strQuery.append(
-			"SELECT r" +
-			" FROM Resolution r" +
-			" WHERE r.id IN ("+
-				" SELECT d.id" +
-				" FROM Chart c JOIN c.chartEntries ce JOIN ce.devices d" +
-				" WHERE c.session.id =:sessionId" +
-				" AND c.deviceType.id =:deviceTypeId" +
-				" AND c.locale =:locale" +
-				" AND ce.member.id =:memberId )" +
-				" ORDER BY r.number ASC)"
-			);
+				"SELECT r.*" +
+				" FROM resolutions r" +
+				" WHERE r.id IN ("
+					+ " SELECT ced.device_id"
+					+ " FROM charts c"
+					+ " JOIN charts_chart_entries  cce ON (c.id = cce.chart_id)"
+					+ " JOIN chart_entries ce ON (ce.id = cce.chart_entry_id)"
+					+ " JOIN chart_entries_devices ced ON (ced.chart_entry_id=ce.id)"
+					+ " WHERE c.session_id = :sessionId"
+					+ " AND c.device_type =:deviceTypeId" 
+					+ " AND c.locale = :locale" 
+					+ " AND ce.member_id =:memberId)"
+					+ " ORDER BY r.number ASC");
 		
 		return strQuery.toString();
 	}
@@ -1237,27 +1277,55 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		StringBuffer strQuery = new StringBuffer();
 		
 		if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
+//			strQuery.append( 
+//				"SELECT COUNT(r)" +
+//				" FROM Resolution r" +
+//				" WHERE r.id IN"+	
+//	           		" (SELECT d.id" +
+//	           		" FROM Chart c JOIN c.chartEntries ce JOIN ce.device d" +
+//	           		" WHERE c.session.id = :sessionId" +
+//	           		" AND c.deviceType.id=:deviceTypeId" +
+//	           		" AND c.locale =:locale)" +
+//	           		" AND r.internalStatusLowerHouse.type = :excludeInternalStatus)");
 			strQuery.append(
-				"SELECT COUNT(r)" +
-				" FROM Resolution r" +
-				" WHERE r.id IN"+	
-	           		" (SELECT d.id" +
-	           		" FROM Chart c JOIN c.chartEntries ce JOIN ce.device d" +
-	           		" WHERE c.session.id = :sessionId" +
-	           		" AND c.deviceType.id=:deviceTypeId" +
-	           		" AND c.locale =:locale)" +
-	           		" AND r.internalStatusLowerHouse.type = :excludeInternalStatus)");
+					"SELECT COUNT(DISTINCT r.id)" +
+					" FROM resolutions r" +
+					" JOIN status ista ON (ista.id=r.lowerhouse_internalstatus_id)" +
+					" WHERE r.id IN ("
+						+ " SELECT ced.device_id"
+						+ " FROM charts c"
+						+ " JOIN charts_chart_entries  cce ON (c.id = cce.chart_id)"
+						+ " JOIN chart_entries ce ON (ce.id = cce.chart_entry_id)"
+						+ " JOIN chart_entries_devices ced ON (ced.chart_entry_id=ce.id)"
+						+ " WHERE c.session_id = :sessionId"
+						+ " AND c.device_type =:deviceTypeId" 
+						+ " AND c.locale = :locale)"
+						+ " AND ista.type = :excludeInternalStatus)");
 		}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
+//			strQuery.append(
+//				"SELECT COUNT(r)" +
+//				" FROM Resolution r" +
+//				" WHERE r.id IN" +	
+//	           		" (SELECT d.id" +
+//	           		" FROM Chart c JOIN c.chartEntries ce JOIN ce.device d" +
+//	           		" WHERE c.session.id =:session.Id" +
+//	           		" AND c.deviceType.id=:deviceType.Id" +
+//	           		" AND c.locale =:locale)" +
+//	           		" AND r.internalStatusUpperHouse.type = :excludeInternalStatus)");
 			strQuery.append(
-				"SELECT COUNT(r)" +
-				" FROM Resolution r" +
-				" WHERE r.id IN" +	
-	           		" (SELECT d.id" +
-	           		" FROM Chart c JOIN c.chartEntries ce JOIN ce.device d" +
-	           		" WHERE c.session.id =:session.Id" +
-	           		" AND c.deviceType.id=:deviceType.Id" +
-	           		" AND c.locale =:locale)" +
-	           		" AND r.internalStatusUpperHouse.type = :excludeInternalStatus)");
+					"SELECT COUNT(DISTINCT r.id)" +
+					" FROM resolutions r" +
+					" JOIN status ista ON (ista.id=r.upperhouse_internalstatus_id)" +
+					" WHERE r.id IN ("
+						+ " SELECT ced.device_id"
+						+ " FROM charts c"
+						+ " JOIN charts_chart_entries  cce ON (c.id = cce.chart_id)"
+						+ " JOIN chart_entries ce ON (ce.id = cce.chart_entry_id)"
+						+ " JOIN chart_entries_devices ced ON (ced.chart_entry_id=ce.id)"
+						+ " WHERE c.session_id = :sessionId"
+						+ " AND c.device_type =:deviceTypeId" 
+						+ " AND c.locale = :locale"
+						+ " AND ista.type = :excludeInternalStatus)");
 		}
 		
 		return strQuery.toString();
@@ -1294,29 +1362,57 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		
 		StringBuffer strQuery = new StringBuffer();
 		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+//			strQuery.append(
+//				"SELECT COUNT(r)" +
+//				" FROM Resolution r" +
+//				" WHERE r.id IN"+	
+//	           		" (SELECT d.id" +
+//	           		" FROM Chart c JOIN c.chartEntries ce JOIN ce.devices d" +
+//	           		" WHERE c.session.id = :sessionId" +
+//	           		" AND c.deviceType.id= :deviceTypeId" +
+//	           		" AND c.locale = :locale" +
+//	           		" AND ce.member.id = :memberId)");
 			strQuery.append(
-				"SELECT COUNT(r)" +
-				" FROM Resolution r" +
-				" WHERE r.id IN"+	
-	           		" (SELECT d.id" +
-	           		" FROM Chart c JOIN c.chartEntries ce JOIN ce.devices d" +
-	           		" WHERE c.session.id = :sessionId" +
-	           		" AND c.deviceType.id= :deviceTypeId" +
-	           		" AND c.locale = :locale" +
-	           		" AND ce.member.id = :memberId)");
+					"SELECT COUNT(DISTINCT r.id)" +
+					" FROM resolutions r" +
+					" WHERE r.id IN ("
+						+ " SELECT ced.device_id"
+						+ " FROM charts c"
+						+ " JOIN charts_chart_entries  cce ON (c.id = cce.chart_id)"
+						+ " JOIN chart_entries ce ON (ce.id = cce.chart_entry_id)"
+						+ " JOIN chart_entries_devices ced ON (ced.chart_entry_id=ce.id)"
+						+ " WHERE c.session_id = :sessionId"
+						+ " AND c.device_type =:deviceTypeId" 
+						+ " AND c.locale = :locale" 
+						+ " AND ce.member_id =:memberId)");
 			
 			strQuery.append(this.getResolutionStatusFilters(houseType, includeStatuses));
-		}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+		}
+		else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+//			strQuery.append(
+//				"SELECT COUNT(r)" +
+//				" FROM Resolution r" +
+//				" WHERE r.id IN" +	
+//	           		" (SELECT d.id" +
+//	           		" FROM Chart c JOIN c.chartEntries ce JOIN ce.devices d" +
+//	           		" WHERE c.session.id = :sessionId" +
+//	           		" AND c.deviceType.id=:deviceTypeId" +
+//	           		" AND c.locale = :locale" +
+//	           		" AND ce.member.id = :memberId)");
 			strQuery.append(
-				"SELECT COUNT(r)" +
-				" FROM Resolution r" +
-				" WHERE r.id IN" +	
-	           		" (SELECT d.id" +
-	           		" FROM Chart c JOIN c.chartEntries ce JOIN ce.devices d" +
-	           		" WHERE c.session.id = :sessionId" +
-	           		" AND c.deviceType.id=:deviceTypeId" +
-	           		" AND c.locale = :locale" +
-	           		" AND ce.member.id = :memberId)");
+					"SELECT COUNT(DISTINCT r.id)" +
+					" FROM resolutions r" +
+					" WHERE r.id IN ("
+						+ " SELECT ced.device_id"
+						+ " FROM charts c"
+						+ " JOIN charts_chart_entries  cce ON (c.id = cce.chart_id)"
+						+ " JOIN chart_entries ce ON (ce.id = cce.chart_entry_id)"
+						+ " JOIN chart_entries_devices ced ON (ced.chart_entry_id=ce.id)"
+						+ " WHERE c.session_id = :sessionId"
+						+ " AND c.device_type =:deviceTypeId" 
+						+ " AND c.locale = :locale" 
+						+ " AND ce.member_id =:memberId)");
+			
 			strQuery.append(this.getResolutionStatusFilters(houseType, includeStatuses));
 		}
 		
@@ -1333,7 +1429,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 			
 			if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 				for(int i = 0; i < n; i++) {
-					sb.append(" r.internalStatusUpperHouse.id = " + statuses[i].getId());
+					sb.append(" r.upperhouse_internalstatus_id = " + statuses[i].getId());
 					if(i < n - 1) {
 						sb.append(" OR");
 					}
@@ -1341,7 +1437,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 			}
 			else if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 				for(int i = 0; i < n; i++) {
-					sb.append(" r.internalStatusLowerHouse.id = " + statuses[i].getId());
+					sb.append(" r.lowerhouse_internalstatus_id = " + statuses[i].getId());
 					if(i < n - 1) {
 						sb.append(" OR");
 					}
@@ -1463,6 +1559,30 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 			Question question = Question.findById(Question.class, Long.parseLong(be.toString()));
 			devices.add(question);
 		}
+		return devices;
+		
+	}
+	
+	public List<Device> findDevicesWithChartEntry(final ChartEntry ce, final String deviceClass) throws ELSException{
+		List<Device> devices = new ArrayList<Device>();
+		String strQuery = "SELECT device_id FROM chart_entries_devices WHERE chart_entry_id=:chartEntryId";
+		Query query = this.em().createNativeQuery(strQuery);
+		query.setParameter("chartEntryId", ce.getId());
+		List<BigInteger> deviceIds = query.getResultList();
+		if(deviceClass!=null && !deviceClass.isEmpty()) {
+			if(deviceClass.equalsIgnoreCase(ApplicationConstants.QUESTION)) {
+				for(BigInteger be : deviceIds){
+					Question question = Question.findById(Question.class, Long.parseLong(be.toString()));
+					devices.add(question);
+				}
+			}
+			else if(deviceClass.equalsIgnoreCase(ApplicationConstants.RESOLUTION)) {
+				for(BigInteger be : deviceIds){
+					Resolution resolution = Resolution.findById(Resolution.class, Long.parseLong(be.toString()));
+					devices.add(resolution);
+				}
+			}
+		}		
 		return devices;
 		
 	}

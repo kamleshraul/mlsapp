@@ -741,8 +741,8 @@ class NonOfficialResolutionChart {
 			resolution.simpleMerge();
 			
 			// Add the Resolution to the Chart.
-			ChartEntry chartEntry = NonOfficialResolutionChart.find(chart.getChartEntries(), member);
-			List<Device> devices = chartEntry.getDevices();
+			ChartEntry chartEntry = NonOfficialResolutionChart.find(chart.getChartEntries(), member);			
+			List<Device> devices = Chart.getChartRepository().findDevicesWithChartEntry(chartEntry, ApplicationConstants.RESOLUTION);
 			devices.add(resolution);
 			devices = NonOfficialResolutionChart.reorderResolutions(devices);
 			chartEntry.setDevices(devices);
