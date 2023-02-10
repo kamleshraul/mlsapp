@@ -75,25 +75,26 @@
 	</table>
 </div>
 <!--<div style="width: 750px; border-top: 2px dotted black;">&nbsp;</div>-->
-<div style="width: 750px;">
+<div style="width: 750px; margin-left:3%;">
 		
 	<table style="width: 750px; font-weight: bold; border: 2px solid black; font-size: 16px;" class="uiTable">
 		#foreach($r in $data)
 			<tr class="page-break" style="font-weight: bold;">
-				<td style="width: 120px; padding: 2px; text-align: center; min-height: 30px;">
+			<td style="width: 30px; padding: 2px; text-align: center;">&nbsp;</td>
+				<td style="width: 180px; padding: 2px; text-align: center; min-height: 30px;">
 					#if($r.get(21)!='assistant' && $r.get(21)!='principal_secretary')
-						$r.get(1)<br>$r.get(0)
+						$r.get(0)
 					#else
 						&nbsp;<br>$r.get(0)
 					#end
 				</td>
-				<td style="width: 100px; padding: 2px; text-align: center;">
-					#if($r.get(21)=='under_secretary')
-						रजेवर</td>
-					#else
-						$r.get(22)</td>
-					#end
-				<td style="width: 410px; padding: 2px;">$r.get(6)</td>
+				<td style="width: 100px; padding: 2px; text-align: center;">&nbsp;</td>
+				<td style="width: 200px; padding: 2px; text-align: center;">$r.get(1)</td>
+				<td style="width: 100px; padding: 2px; text-align: center;">&nbsp;</td>
+				<td style="width: 100px; padding: 2px; text-align: center;">$r.get(23)</td>
+				<td style="width: 100px; padding: 2px; text-align: center;">&nbsp;</td>
+				<td style="width: 110px; padding: 2px;">$r.get(26)</td>
+				<td style="width: 30px; padding: 2px; text-align: center;">&nbsp;</td>
 				<!--<td style="width: 120px; padding: 2px; text-align: center;">&nbsp;</td>-->
 			</tr>
 		#end
