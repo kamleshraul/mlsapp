@@ -901,22 +901,20 @@
 			    	if($('#ministry').val()!=''){
 			    		var r=confirm("Are you Sure");
 			    		if(r==true){
-							$("#formattedGroup").val("");
-							$("#group").val("");
-							loadSubDepartments($('#ministry').val());
+			    			loadGroup($('#ministry').val());
 							}
 				    		else{
-				    			$('#ministry').val($('#ministrySelected').val());
-				    			$('#subDepartment').val($('#subDepartmentSelected').val());
+				    			$("#formattedGroup").val("");
+								$("#group").val("");				
+								$("#subDepartment").empty();				
+								$("#answeringDate").empty();		
+								$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
+								$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
+								groupChanged();
 				    			}
 						}else{
-							$("#formattedGroup").val("");
-							$("#group").val("");				
-							$("#subDepartment").empty();				
-							$("#answeringDate").empty();		
-							$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
-							$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
-							groupChanged();					
+							$('#ministry').val($('#ministrySelected').val());
+			    			$('#subDepartment').val($('#subDepartmentSelected').val());
 						}
 			    }
 			});			
