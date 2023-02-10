@@ -899,7 +899,16 @@
 		    		return false;
 			    } else {
 			    	if($('#ministry').val()!=''){
-						loadGroup($('#ministry').val());
+			    		var r=confirm("Are you Sure");
+			    		if(r==true){
+							$("#formattedGroup").val("");
+							$("#group").val("");
+							loadSubDepartments($('#ministry').val());
+							}
+				    		else{
+				    			$('#ministry').val($('#ministrySelected').val());
+				    			$('#subDepartment').val($('#subDepartmentSelected').val());
+				    			}
 						}else{
 							$("#formattedGroup").val("");
 							$("#group").val("");				
