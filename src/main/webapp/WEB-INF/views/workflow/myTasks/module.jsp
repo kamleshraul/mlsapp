@@ -921,7 +921,7 @@
 						
 			$("#selectedDeviceType").change();
 			
-			$(".legends title]").qtip({
+			$(".legends title").qtip({
 	    		show: 'mouseover',
 	    		hide: 'mouseout'
 	    	});
