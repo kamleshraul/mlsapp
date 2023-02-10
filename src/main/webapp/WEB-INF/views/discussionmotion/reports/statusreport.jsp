@@ -13,6 +13,7 @@
 			if($("#dmIDs").val().length==0){
 				//load the remark report
 				showRemarkReport();
+				
 			}else{
 				if($("#reportType").val()=='multiple'){
 					if($("#dmIDs").val().length>0){
@@ -20,7 +21,7 @@
 						ids = $("#dmIDs").val().split(",");
 						dataSize = ids.length;
 						limit = ids.length;
-						
+						console.log("insidedreportTypr");
 						addRemarkReport();
 					}
 				}
@@ -88,6 +89,7 @@
 		}
 		
 		function addRemarkReport(){
+			console.log("insideAddR3")
 			if(ids.length > 0 && counter < ids.length){
 				var reportQuery = $("#device").val().toUpperCase()+ "_CURRENT_STATUS_REPORT";
 				var houseType = $("#selectedHouseType").val();
@@ -103,7 +105,7 @@
 						reportQuery+="_UPPERHOUSE";
 					}
 				}
-				alert(reportQuery);
+				
 				 $.get('discussionmotion/report/'+ ids[counter] + '/currentstatusreportvm?device='+$("#device").val()+'&reportOut='+reportQuery,function(data1){
 						 								
 							if($('#reportWindow1').text().trim()=='v'){
@@ -129,6 +131,7 @@
 	        	border: 1px solid;
 	        	width: 800px;
 	        	padding: 10px;
+	        	margin-left:5%;
 	        	font-family:Mangal !important;
 	        	font-size: 16px !important;
 	        }	 
@@ -146,6 +149,7 @@
 	        #reportDiv{
 	        	width: 750px;
 	        	padding: 5px;
+	        	
 	        	margin-top: 0px !important;
 	        	font-family:Mangal !important;
 	        	font-size: 18px !important;
