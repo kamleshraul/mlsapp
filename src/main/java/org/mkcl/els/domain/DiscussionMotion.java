@@ -163,28 +163,28 @@ public class DiscussionMotion extends Device implements Serializable {
 	private Member primaryMember;
 
 	/*** The supporting members. ***/
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "discussionmotion_supportingmembers", joinColumns = {
 			@JoinColumn(name = "discussionmotion_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn(name = "supportingmember_id", referencedColumnName = "id") })
 	private List<SupportingMember> supportingMembers;
 
 	/*** The ministry. ***/
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "discussionmotion_ministries", joinColumns = {
 			@JoinColumn(name = "discussionmotion_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn(name = "ministry_id", referencedColumnName = "id") })
 	private List<Ministry> ministries;
 
 	/*** The department. ***/
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "discussionmotion_departments", joinColumns = {
 			@JoinColumn(name = "discussionmotion_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn(name = "department_id", referencedColumnName = "id") })
 	private List<Department> departments;
 
 	/*** The sub department. ***/
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "discussionmotion_subdepartments", joinColumns = {
 			@JoinColumn(name = "discussionmotion_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn(name = "subdepartment_id", referencedColumnName = "id") })
