@@ -2264,7 +2264,7 @@ class DiscussionMotionReportHelper{
 									}
 								}
 							}
-							CustomParameter onPaperSigningAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "QIS_CURRENTSTATUS_ONPAPER_SIGNING_AUTHORITY_"+qt.getHouseType().getType(), "");
+							CustomParameter onPaperSigningAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "DMOIS_CURRENTSTATUS_ONPAPER_SIGNING_AUTHORITY_"+qt.getHouseType().getType(), "");
 							if(onPaperSigningAuthorityParameter != null){
 								String signingAuthority = onPaperSigningAuthorityParameter.getValue();
 								String[] signingAuthorities = signingAuthority.split(",");
