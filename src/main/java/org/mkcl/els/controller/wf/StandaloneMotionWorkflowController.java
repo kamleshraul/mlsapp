@@ -2035,7 +2035,14 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 		if(internalStatus.equals(ApplicationConstants.STANDALONE_FINAL_ADMISSION)
 				&& recommendationStatus.equals(ApplicationConstants.STANDALONE_FINAL_ADMISSION)){
 			performActionOnAdmission(domain);
-		}		
+		}
+		
+		
+		/**** Repeat Admission ****/
+		if(internalStatus.equals(ApplicationConstants.STANDALONE_FINAL_REPEAT_ADMISSION)
+				&& recommendationStatus.equals(ApplicationConstants.STANDALONE_FINAL_REPEAT_ADMISSION)){
+			performActionOnRepeatAdmission(domain);
+		}	
 		/**** Rejection ****/
 		else if(internalStatus.equals(ApplicationConstants.STANDALONE_FINAL_REJECTION)
 				&&recommendationStatus.equals(ApplicationConstants.STANDALONE_FINAL_REJECTION)){
@@ -2198,6 +2205,82 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 			domain.setVersion(domain.getVersion() + 1);
 		}
 	}
+	
+	
+	private void performActionOnRepeatAdmission(StandaloneMotion domain) {
+		//domain.setStatus(domain.getInternalStatus());
+		if(domain.getRevisedSubject()==null){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}else if(domain.getRevisedSubject().isEmpty()){
+			domain.setRevisedSubject(domain.getSubject());
+		}
+		if(domain.getRevisedQuestionText()==null){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}else if(domain.getRevisedQuestionText().isEmpty()){
+			domain.setRevisedQuestionText(domain.getQuestionText());
+		}
+		if(domain.getRevisedReason()==null){
+			domain.setRevisedReason(domain.getReason());
+		}else if(domain.getRevisedReason().isEmpty()){
+			domain.setRevisedReason(domain.getReason());
+		}
+		if(domain.getRevisedBriefExplanation()==null){
+			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
+		}else if(domain.getRevisedBriefExplanation().isEmpty()){
+			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
+		}
+		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
+		if(clubbedEntities!=null){
+			String subject=null;
+			String questionText=null;
+			String reasonText=null;
+			String briefExplainationText=null;
+			if(domain.getRevisedSubject()!=null && !domain.getRevisedSubject().isEmpty()){
+				subject=domain.getRevisedSubject();				
+			}else{
+				subject=domain.getSubject();
+			}
+			if(domain.getRevisedQuestionText()!=null && !domain.getRevisedQuestionText().isEmpty()){
+				questionText=domain.getRevisedQuestionText();
+			}else{
+				questionText=domain.getQuestionText();
+			}
+			if(domain.getRevisedReason()!=null && !domain.getRevisedReason().isEmpty()){
+				reasonText=domain.getRevisedQuestionText();
+			}else{
+				reasonText=domain.getReason();
+			}
+			if(domain.getRevisedBriefExplanation()!=null && !domain.getRevisedBriefExplanation().isEmpty()){
+				briefExplainationText=domain.getRevisedQuestionText();
+			}else{
+				briefExplainationText=domain.getBriefExplanation();
+			}
+			
+			if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
+				
+					for(ClubbedEntity i:clubbedEntities){
+						StandaloneMotion question=i.getStandaloneMotion();
+						question.setRevisedSubject(subject);
+						question.setRevisedQuestionText(questionText);
+						question.setRevisedReason(reasonText);
+						question.setRevisedBriefExplanation(briefExplainationText);
+						question.setStatus(domain.getInternalStatus());
+						question.setInternalStatus(domain.getInternalStatus());
+						question.setRecommendationStatus(domain.getInternalStatus());
+						question.simpleMerge();	
+					}
+			}
+		}
+		
+		if(domain.getParent() != null) {
+			//ClubbedEntity.updateClubbing(domain);
+
+			// Hack (07May2014): Commenting the following line results in 
+			// OptimisticLockException.
+			domain.setVersion(domain.getVersion() + 1);
+		}
+	}
+
 
 	private void performActionOnRejection(StandaloneMotion domain) throws ELSException {
 		domain.setStatus(domain.getInternalStatus());
