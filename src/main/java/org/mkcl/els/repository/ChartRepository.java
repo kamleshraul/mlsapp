@@ -25,6 +25,7 @@ import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.domain.chart.ChartEntry;
@@ -1568,6 +1569,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		String strQuery = "SELECT device_id FROM chart_entries_devices WHERE chart_entry_id=:chartEntryId";
 		Query query = this.em().createNativeQuery(strQuery);
 		query.setParameter("chartEntryId", ce.getId());
+		@SuppressWarnings("unchecked")
 		List<BigInteger> deviceIds = query.getResultList();
 		if(deviceClass!=null && !deviceClass.isEmpty()) {
 			if(deviceClass.equalsIgnoreCase(ApplicationConstants.QUESTION)) {
@@ -1580,6 +1582,12 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 				for(BigInteger be : deviceIds){
 					Resolution resolution = Resolution.findById(Resolution.class, Long.parseLong(be.toString()));
 					devices.add(resolution);
+				}
+			}
+			else if(deviceClass.equalsIgnoreCase(ApplicationConstants.STANDALONE_MOTION)) {
+				for(BigInteger be : deviceIds){
+					StandaloneMotion standaloneMotion = StandaloneMotion.findById(StandaloneMotion.class, Long.parseLong(be.toString()));
+					devices.add(standaloneMotion);
 				}
 			}
 		}		

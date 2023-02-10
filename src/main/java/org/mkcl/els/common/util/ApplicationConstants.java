@@ -1820,6 +1820,8 @@ public class ApplicationConstants {
 	public static final String QUESTION = "Question";
 	
 	public static final String RESOLUTION = "Resolution";
+	
+	public static final String STANDALONE_MOTION = "StandaloneMotion";
 
 	public static final String QUESTION_FINAL = "question_final";
 

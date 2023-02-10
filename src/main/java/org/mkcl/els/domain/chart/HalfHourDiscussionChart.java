@@ -563,7 +563,7 @@ class HalfHourDiscussionChart {
 			// Add the HDS to the Chart.
 			ChartEntry chartEntry = HalfHourDiscussionChart.find(
 					chart.getChartEntries(), member);
-			List<Device> devices = chartEntry.getDevices();
+			List<Device> devices = Chart.getChartRepository().findDevicesWithChartEntry(chartEntry, ApplicationConstants.STANDALONE_MOTION);
 			devices.add(motion);
 			devices = HalfHourDiscussionChart.reorderDevices(devices, motion.getClass().getSimpleName());
 			chartEntry.setDevices(devices);
