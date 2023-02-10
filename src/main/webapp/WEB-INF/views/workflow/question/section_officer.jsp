@@ -1644,8 +1644,10 @@
 	<c:choose>
 		<c:when  test="${!(empty domain.rejectionReason)}">
 			<p id="rejectionReasonP">
-				<label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
-				<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea>
+				<%-- <label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+				<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea> --%>					
+				<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+				<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
 			</p>
 		</c:when>
 		<c:otherwise>
@@ -1654,8 +1656,10 @@
 						  internalStatusType == 'question_halfHourFromQuestion_final_rejection' or
 						  internalStatusType == 'question_shortnotice_final_rejection'}">
 				<p id="rejectionReasonP">
-					<label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
-					<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea>
+					<%-- <label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+					<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea> --%>					
+					<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+					<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
 				</p>
 			</c:if>
 		</c:otherwise>

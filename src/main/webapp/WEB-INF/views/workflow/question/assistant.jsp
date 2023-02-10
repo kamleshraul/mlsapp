@@ -1475,14 +1475,18 @@
 	<c:choose>
 		<c:when  test="${!(empty domain.rejectionReason)}">
 			<p id="rejectionReasonP">
-				<label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
-				<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea>
+				<%-- <label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+				<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea> --%>					
+				<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+				<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
 			</p>
 		</c:when>
 		<c:otherwise>
 			<p id="rejectionReasonP">
-				<label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
-				<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea>
+				<%-- <label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+				<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea> --%>					
+				<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+				<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
 			</p>
 		</c:otherwise>
 	</c:choose>
