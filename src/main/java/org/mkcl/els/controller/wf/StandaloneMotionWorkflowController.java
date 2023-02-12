@@ -2039,8 +2039,8 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 		
 		
 		/**** Repeat Admission ****/
-		if(internalStatus.equals(ApplicationConstants.STANDALONE_FINAL_REPEAT_ADMISSION)
-				&& recommendationStatus.equals(ApplicationConstants.STANDALONE_FINAL_REPEAT_ADMISSION)){
+		if(internalStatus.equals(ApplicationConstants.STANDALONE_FINAL_REPEATADMISSION)
+				&& recommendationStatus.equals(ApplicationConstants.STANDALONE_FINAL_REPEATADMISSION)){
 			performActionOnRepeatAdmission(domain);
 		}	
 		/**** Rejection ****/
