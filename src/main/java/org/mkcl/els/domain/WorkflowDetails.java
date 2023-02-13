@@ -1710,5 +1710,11 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return getRepository().startProcessAtGivenAssigneeMotion(motion, approvalWorkflow, workflow, userGroupType, level, assignee, locale);
 		
 	}
+	
+	public static WorkflowDetails startProcessAtGivenAssigneeForCutMotion(CutMotion cutmotion, String approvalWorkflow, Workflow workflow,
+			UserGroupType userGroupType, Integer level, String assignee, String locale)  throws ELSException  {
+		return getRepository().startProcessAtGivenAssigneeForCutMotion(cutmotion, approvalWorkflow, workflow, userGroupType, level, assignee, locale);
+		
+	}
 		
 }
