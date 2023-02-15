@@ -40,6 +40,7 @@ import org.mkcl.els.common.xmlvo.QuestionIntimationLetterXmlVO;
 import org.mkcl.els.common.xmlvo.QuestionYaadiSuchiXmlVO;
 import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.ballot.Ballot;
+import org.mkcl.els.repository.QuestionRepository;
 import org.mkcl.els.domain.ActivityLog;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
@@ -1726,9 +1727,9 @@ public class QuestionReportController extends BaseController{
 				DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
 				Date answeringDate = null;
 				Date displayAnsweringDate = null;
+				QuestionDates questionDates = null;
 				if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-					QuestionDates questionDates = 
-							QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+					questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 					answeringDate = questionDates.getAnsweringDate();
 					displayAnsweringDate = questionDates.getDisplayAnsweringDate();
 					if(displayAnsweringDate==null) {
@@ -1839,8 +1840,27 @@ public class QuestionReportController extends BaseController{
 					e.printStackTrace();
 				}
 				System.out.println("Question Yaadi Report generated successfully in " + reportFormat + " format!");
-
+				
 				openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);
+				 String notificationUserGroup = "";
+				/* Edited By Shubham A*/
+				Set<Role> roles = getCurrentUser().getRoles();
+				 for(Role i : roles) {                
+	                  if(i.getType().equals("QIS_DEPUTY_SECRETARY")) {
+	                	   notificationUserGroup = "deputy_secretary";
+	                	  if(!questionDates.getYaadiGenerationAllowed().booleanValue()) {
+	                	  questionDates.setYaadiGenerationAllowed(true);                	
+	      				questionDates.merge();}
+	                 }
+	    
+	            /**/
+	         }
+				 CustomParameter notificationAllowed=CustomParameter.findByName(CustomParameter.class,"VIEW_YAADI_NOTIFICATION_ALLOWED", "");
+				 if(notificationAllowed.getValue().equals("YES")) {
+				 String usergroupTypes = "clerk,assistant,section_officer,deputy_secretary";
+				 String userName = getCurrentUser().getUsername();
+				 NotificationController.sendNotificationYaadiGenerated(deviceType, houseType, usergroupTypes, displayAnsweringDate,userName,notificationUserGroup,locale.toString());
+				 }
 			} else{
 				logger.error("**** Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for empty values ****");
 				try {
