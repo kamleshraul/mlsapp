@@ -14,6 +14,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -88,10 +89,14 @@ public class QuestionDates extends BaseDomain implements Serializable {
     /** In exceptional cases to be shown as postponed date.. otherwise same as answering date **/
     @Temporal(TemporalType.DATE)
     private Date displayAnsweringDate;
+    
+    /** Yaadi Generation Allowed. */
+    @Column(columnDefinition = "bit(1) default false")
+    private Boolean yaadiGenerationAllowed;
 
     /**** Constructors ****/
 
-    /**
+	/**
      * Instantiates a new question dates.
      */
     public QuestionDates() {
@@ -277,6 +282,15 @@ public class QuestionDates extends BaseDomain implements Serializable {
 
 	public void setDisplayAnsweringDate(Date displayAnsweringDate) {
 		this.displayAnsweringDate = displayAnsweringDate;
+	}
+	
+	
+	public Boolean getYaadiGenerationAllowed() {
+			return yaadiGenerationAllowed;
+	}
+
+	public void setYaadiGenerationAllowed(Boolean yaadiGenerationAllowed) {
+			this.yaadiGenerationAllowed = yaadiGenerationAllowed;
 	}
 	
 }
