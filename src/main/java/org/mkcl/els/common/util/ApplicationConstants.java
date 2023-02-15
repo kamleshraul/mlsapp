@@ -503,6 +503,8 @@ public class ApplicationConstants {
 	public static final String STANDALONE_RECOMMEND_REPEATREJECTION="standalonemotion_recommend_repeatrejection";
 
 	public static final String STANDALONE_FINAL_ADMISSION="standalonemotion_final_admission";
+	
+	public static final String STANDALONE_FINAL_REPEAT_ADMISSION="standalonemotion_final_repeatadmission";
 
 	public static final String STANDALONE_FINAL_REJECTION="standalonemotion_final_rejection";
 
@@ -1078,6 +1080,8 @@ public class ApplicationConstants {
 
 	/**** Final ****/ 
 	public static final String RESOLUTION_FINAL_ADMISSION="resolution_final_admission";    
+	
+	public static final String RESOLUTION_FINAL_REPEAT_ADMISSION="resolution_final_repeatadmission"; 
 
 	public static final String RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER="resolution_final_clarificationNeededFromMember";
 
@@ -1430,6 +1434,8 @@ public class ApplicationConstants {
 	public static String REPORTING="reporting";
 
 	public static String CLERK="clerk";
+	
+	public static String QIS_GENERAL_CLERK="QIS_GENERAL_CLERK";
 
 	public static String STATE_MINISTER="state_minister";
 
