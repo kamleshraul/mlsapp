@@ -8,8 +8,8 @@
 			if($("#selectedHouseType").val()=='lowerhouse' 
 					&& $("#deviceType").val()=='questions_starred'
 					&& $("#currentusergroupType").val()=='section_officer') {
-				$("#view_yaadi").hide();
-				$("#view_suchi").hide();
+				//$("#view_yaadi").hide();
+				//$("#view_suchi").hide();
 			}
 			
 			/* show publish button for unpublished suchi on default answering date populated */
@@ -100,8 +100,21 @@
 				$("#resultDiv").empty();				
 				var resourceURL="";
 				var parameters="";
+				var yaadiGenerationAllowed= false
+				//Shubham
 				if($("#deviceType").val()=='questions_starred'){
-					//check output format set or not
+				
+					
+					var yaadiGenerationAllowedFlag = "#yaadiGenerationAllowed_"+$('#selectedAnsweringDate').val();
+					
+					 if ($("#houseType").val() == "upperhouse" || $("#DIRECT_VIEW_YAADI_ACCESS").val() == "YES" || $(yaadiGenerationAllowedFlag).val()  == "YES")
+					{
+						yaadiGenerationAllowed = true;
+					
+					} 
+			
+					if (yaadiGenerationAllowed == true){
+						//check output format set or not
 					if($("#outputFormat").val() == "") {
 						$.prompt($('#outputFormatNotSetPrompt').val());
 						return false;
@@ -131,12 +144,17 @@
 									 role: $("#srole").val(), 
 									 answeringDate: $("#selectedAnsweringDate").val(),
 									 category: $("#category").val(),
-									 outputFormat: $("#outputFormat").val()
+									 outputFormat: $("#outputFormat").val(),
 					 			 };
 					
 					/* resourceURL = 'question/report/viewYaadi?' + parameters;
 					$(this).attr('href', resourceURL); */
 					form_submit('question/report/viewYaadi', parameters, 'GET');
+				}
+					else
+					{
+					 window.alert("Not allowed for yaadi generation")
+					}
 					
 				} else if($("#deviceType").val()=='questions_unstarred') {
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
@@ -183,7 +201,24 @@
 				$("#resultDiv").empty();
 				var resourceURL="";
 				var parameters="";
+				var SuchiGenerationAllowed= false
 				if($("#deviceType").val()=='questions_starred'){
+					
+
+					var SuchiGenerationAllowedFlag = "#yaadiGenerationAllowed_"+$('#selectedAnsweringDate').val();
+					
+					
+					if ($("#houseType").val() == "upperhouse"){
+						SuchiGenerationAllowed = true;
+					}else if ($("#DIRECT_VIEW_YAADI_ACCESS").val() == "YES") {
+						SuchiGenerationAllowed = true;
+					}else if($(SuchiGenerationAllowedFlag).val() == "YES") {
+						SuchiGenerationAllowed = true;
+					}
+			
+				
+					
+					if (SuchiGenerationAllowed == true){
 					//check output format set or not
 					if($("#outputFormat").val() == "") {
 						$.prompt($('#outputFormatNotSetPrompt').val());
@@ -219,7 +254,10 @@
 					
 					/* resourceURL = 'question/report/viewSuchi?' + parameters;
 					$(this).attr('href', resourceURL); */
-					form_submit('question/report/viewSuchi', parameters, 'GET');
+					form_submit('question/report/viewSuchi', parameters, 'GET');}else
+					{
+						 window.alert("Not allowed for SUchi generation")
+						}
 					
 				} else if($("#deviceType").val()=='questions_unstarred') {
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
@@ -509,6 +547,10 @@
 				<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
 			</c:forEach> 
 		</select> |
+		<c:forEach items="${answeringDates}" var="i">			
+			<c:set var="yaadiGenerationAllowed" value="yaadiGenerationAllowed_${i.id}" />
+			<input type="hidden" id="yaadiGenerationAllowed_${i.id}" value="${requestScope[yaadiGenerationAllowed]}"/>
+		</c:forEach>
 		<a href="#" id="select_outputformat" class="butSim">
 			<spring:message code="yaadidetails.outputformat" text="Output Format"/>
 		</a>
@@ -532,9 +574,13 @@
 		</a> |
 		</c:if>
 		<%-- </security:authorize> --%>
+		
+		<security:authorize access="!hasAnyRole( 'QIS_GENERAL_CLERK')">
 		<a href="#" id="view_yaadi" class="butSim">
 			<spring:message code="yaadidetails.viewYaadi" text="Yaadi Report"/>
 		</a> |
+		 </security:authorize>
+		 
 		<a href="#" id="view_suchi" class="butSim">
 			<spring:message code="yaadidetails.viewSuchi" text="Suchi Report"/>
 		</a>
@@ -563,6 +609,12 @@
 	<div id="resultDiv">
 	</div>
 	<input id="category" type="hidden" value="${category}" />
+	<input id="DIRECT_VIEW_YAADI_ACCESS" type="hidden" value="${DIRECT_VIEW_YAADI_ACCESS}" />
+	<input id="ds" type="hidden" value="${ds}" />
+	<input id="houseType" type="hidden" value="${houseType}" />
+	
+
+
 	<input id="deviceType" type="hidden" value="${deviceTypeType}" />
 	<%-- <input id="houseType" type="hidden" value="${houseType}" /> --%>
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
