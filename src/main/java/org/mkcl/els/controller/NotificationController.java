@@ -308,6 +308,31 @@ public class NotificationController extends GenericController<Notification> {
 		getNotificationService().sendNotificationWithTitleUsingTemplate("DEPARTMENT_CHANGE_INTIMATION", templateParameters, locale);
 	}
 	
+	
+               /*Edited By Shubham Amande*/	
+	public static void sendNotificationYaadiGenerated(final DeviceType deviceType ,
+										final HouseType houseType,
+										final String usergroupTypes,
+										final Date 	YaadiDate,
+										final String userName,
+										final String notificationUserGroup,
+										final String locale
+										
+										) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("deviceTypeType", new String[]{deviceType.getType()});
+		templateParameters.put("deviceTypeNameLike", new String[]{"%"+deviceType.getName()+"%"});
+		templateParameters.put("houseTypeType", new String[]{houseType.getType()});
+		templateParameters.put("houseTypeName", new String[]{houseType.getName()});
+		templateParameters.put("houseTypeNameLike", new String[]{"%"+houseType.getName()+"%"});
+		templateParameters.put("userName", new String[]{userName});
+		templateParameters.put("usergroupTypes", new String[]{usergroupTypes});
+		templateParameters.put("notificationUserGroup", new String[]{notificationUserGroup});		
+		templateParameters.put("YaadiDate", new String[]{FormaterUtil.formatDateToString(YaadiDate, ApplicationConstants.DB_DATEFORMAT)});
+		getNotificationService().sendNotificationWithTitleUsingTemplate("YAADI_GENERATION_PUSH_NOTIFICATION", templateParameters, locale);
+	}
+	
 	public static void sendDepartmentProcessNotificationForUnstarredQuestion(final Question question, final String departmentUserName, final String locale) {
 		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
 		templateParameters.put("locale", new String[]{locale});
