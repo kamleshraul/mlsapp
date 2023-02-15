@@ -71,14 +71,29 @@
 			$("#ballot_tab").hide();
 		}	
 		
-		/**** For yaadi details tab to be visible ****/
+		/**** For yaadi details tab to be visible ****/		
+		if($("#currentusergroupType").val()=='clerk' || $("#currentusergroupType").val()=='assistant') {
+			if(currentDeviceType == 'questions_unstarred') {
+				$("#yaadi_details_tab").show();
+			} else {
+				$("#yaadi_details_tab").hide();
+			}
+		}	
 		if(currentDeviceType == 'questions_starred') {
 			if(($("#currentusergroupType").val()=='section_officer')
 					|| $("#currentusergroupType").val()=='deputy_secretary'
 					|| $("#currentusergroupType").val()=='joint_secretary2'
-					|| $("#currentusergroupType").val()=='principal_secretary') {
+					|| $("#currentusergroupType").val()=='principal_secretary'
+							
+			) {
+				console.log("inside func");
 				$("#yaadi_details_tab").show();
-			} else if($("#selectedHouseType").val() == 'upperhouse'
+			} 
+			else if(($("#currentusergroupType").val()=='clerk' && $("#generalClerkDisplay").val() !='YES') && $("#selectedHouseType").val() == 'lowerhouse')
+			{  
+			$("#yaadi_details_tab").show();
+			}
+			else if($("#selectedHouseType").val() == 'upperhouse'
 				&& $("#currentusergroupType").val()=='under_secretary'){
 				$("#yaadi_details_tab").show();
 			} else {
@@ -87,13 +102,6 @@
 		} else {
 			$("#yaadi_details_tab").show();
 		}
-		if($("#currentusergroupType").val()=='clerk' || $("#currentusergroupType").val()=='assistant') {
-			if(currentDeviceType == 'questions_unstarred') {
-				$("#yaadi_details_tab").show();
-			} else {
-				$("#yaadi_details_tab").hide();
-			}
-		}	
 		
 		$('#selectedStatus option').each(function() {
 			var selectedStatusType = $("#filterStatusMaster option[value='"+ $(this).attr('value') + "']").text();			
@@ -227,14 +235,27 @@
 				$("#ballot_tab").hide();
 			}
 			
-			/**** For yaadi details tab to be visible ****/
+			/**** For yaadi details tab to be visible ****/						
+			if($("#currentusergroupType").val()=='clerk' || $("#currentusergroupType").val()=='assistant') {
+				if(text == 'questions_unstarred') {
+					$("#yaadi_details_tab").show();
+				} else {
+					$("#yaadi_details_tab").hide();
+				}
+			}
 			if(text == 'questions_starred') {
 				if(($("#currentusergroupType").val()=='section_officer')
 						|| $("#currentusergroupType").val()=='deputy_secretary'
 						|| $("#currentusergroupType").val()=='joint_secretary2'
-						|| $("#currentusergroupType").val()=='principal_secretary') {
+						|| $("#currentusergroupType").val()=='principal_secretary'
+						) {
 					$("#yaadi_details_tab").show();
-				} else if($("#selectedHouseType").val() == 'upperhouse'
+				}
+				else if(($("#currentusergroupType").val()=='clerk' && $("#generalClerkDisplay").val() !='YES') && $("#selectedHouseType").val() == 'lowerhouse')
+					{  
+					$("#yaadi_details_tab").show();
+					}
+				else if($("#selectedHouseType").val() == 'upperhouse'
 						&& $("#currentusergroupType").val()=='under_secretary'){
 					$("#yaadi_details_tab").show();
 				} else {
@@ -242,13 +263,6 @@
 				}
 			} else {
 				$("#yaadi_details_tab").show();
-			}			
-			if($("#currentusergroupType").val()=='clerk' || $("#currentusergroupType").val()=='assistant') {
-				if(text == 'questions_unstarred') {
-					$("#yaadi_details_tab").show();
-				} else {
-					$("#yaadi_details_tab").hide();
-				}
 			}
 			
 			if(text == 'questions_starred' || text == 'questions_unstarred') {
@@ -2511,6 +2525,7 @@
 		<input type="hidden" id="key" name="key"> 
 		<input type="hidden" id="loadedSession" value="" />
 		<input type="hidden" name="ugparam" id="ugparam" value="${ugparam }">
+		<input type="hidden"  id="generalClerkDisplay" value="${GENERAL_CLERK_YAADI_TAB_OFF}">
 		<input type="hidden" name="srole" id="srole" value="${role}">
 		<input type="hidden" name="currentusergroup" id="currentusergroup" value="${usergroup}">
 		<input type="hidden" name="currentusergroupType" id="currentusergroupType" value="${usergroupType}">
