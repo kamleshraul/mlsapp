@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +29,7 @@ import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
+import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
@@ -62,24 +64,31 @@ public class YaadiDetailsController extends BaseController {
 		try {
 			String category = request.getParameter("category");
 			model.addAttribute("category", category);
+			String houseType = request.getParameter("houseType");
+			model.addAttribute("houseType", houseType);
 			/** Populate DeviceType */
 			String strDeviceType = request.getParameter("deviceType");	
 			DeviceType deviceType = 
 					DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
-			model.addAttribute("deviceTypeType", deviceType.getType());					
+			model.addAttribute("deviceTypeType", deviceType.getType());	
+			List<QuestionDates> questionDates =null;
 			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 				/** Populate Group*/
 				String strGroup = request.getParameter("group");
 				Group group = Group.findById(Group.class, Long.parseLong(strGroup));
 				/** Compute & Add answeringDates to model*/
 				List<MasterVO> masterVOs = new ArrayList<MasterVO>();
-				List<QuestionDates> questionDates = group.getQuestionDates();
+				questionDates = group.getQuestionDates();				
 				for(QuestionDates i : questionDates){
 					String strAnsweringDate = 
 							FormaterUtil.getDateFormatter(locale.toString()).format(i.findAnsweringDateForReport());
 					MasterVO masterVO = new MasterVO(i.getId(), strAnsweringDate);
 					masterVO.setValue(FormaterUtil.formatDateToString(i.getAnsweringDate(), ApplicationConstants.DB_DATEFORMAT));
+					//masterVO.setIsSelected(i.getYaadiGenerationAllowed().booleanValue());
 					masterVOs.add(masterVO);
+					if(i.getYaadiGenerationAllowed()) {
+						model.addAttribute("yaadiGenerationAllowed_"+i.getId(), "YES");						
+					}
 				}
 				model.addAttribute("answeringDates", masterVOs);
 			}
@@ -88,6 +97,21 @@ public class YaadiDetailsController extends BaseController {
 			pdfFormat.setName("PDF");
 			pdfFormat.setValue("PDF");
 			outputFormats.add(pdfFormat);
+			
+			/* Shubham A Edit */
+
+			CustomParameter cp = CustomParameter.findByName(CustomParameter.class, "DIRECT_VIEW_YAADI_ACCESS_"+houseType.toUpperCase(),"");
+			
+			Set<Role> roles = getCurrentUser().getRoles();
+			 for(Role i : roles) {
+                
+                  if(cp != null && cp.getValue() != null && cp.getValue().contains(i.getType() )) {
+                         model.addAttribute("DIRECT_VIEW_YAADI_ACCESS", "YES");
+                         break;
+                 }
+         }
+	
+			/*------------------*/
 			MasterVO wordFormat = new MasterVO();
 			wordFormat.setName("WORD");
 			wordFormat.setValue("WORD");
