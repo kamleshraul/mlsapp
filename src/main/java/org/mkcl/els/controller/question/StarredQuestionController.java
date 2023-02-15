@@ -243,6 +243,15 @@ class StarredQuestionController {
 				break;
 			}
 		}
+			for(Role i : roles) {
+			
+			 if(i.getType().equals(ApplicationConstants.QIS_GENERAL_CLERK)) {
+				model.addAttribute("GENERAL_CLERK_YAADI_TAB_OFF", "YES");
+				break;
+
+			}
+		}
+	
 		
 		// Populate Group parameters (ugparams)
 		/**
