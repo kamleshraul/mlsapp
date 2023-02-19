@@ -1826,9 +1826,9 @@ public class MotionController extends GenericController<Motion>{
 															workflowDetails.setCompletionTime(new Date());
 															workflowDetails.merge();
 															/**** Complete Task ****/
-															String strTaskId=workflowDetails.getTaskId();
-															Task task=processService.findTaskById(strTaskId);
-															processService.completeTask(task);
+//															String strTaskId=workflowDetails.getTaskId();
+//															Task task=processService.findTaskById(strTaskId);
+//															processService.completeTask(task);
 														}		
 													}
 													if(!i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
@@ -2067,9 +2067,10 @@ public class MotionController extends GenericController<Motion>{
 												workflowDetails.setRecommendationStatus(timeoutStatus.getName());
 												workflowDetails.merge();
 												/**** Complete Task ****/
-												String strTaskId=workflowDetails.getTaskId();
-												Task task=processService.findTaskById(strTaskId);
-												processService.completeTask(task);
+												// (Commenting below code as no need for TIMEOUT case and due to performance issues)
+//												String strTaskId=workflowDetails.getTaskId();
+//												Task task=processService.findTaskById(strTaskId);
+//												processService.completeTask(task);
 											}											
 										}
 										if(!i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
@@ -2952,9 +2953,10 @@ public class MotionController extends GenericController<Motion>{
 											workflowDetails.setCompletionTime(new Date());
 											workflowDetails.merge();
 											/**** Complete Task ****/
-											String strTaskId=workflowDetails.getTaskId();
-											Task task=processService.findTaskById(strTaskId);
-											processService.completeTask(task);
+											// (Commenting below code as no need for TIMEOUT case and due to performance issues)
+//											String strTaskId=workflowDetails.getTaskId();
+//											Task task=processService.findTaskById(strTaskId);
+//											processService.completeTask(task);
 										}		
 									}
 									if(!sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){

@@ -99,19 +99,17 @@ public class YaadiDetailsController extends BaseController {
 			outputFormats.add(pdfFormat);
 			
 			/* Shubham A Edit */
-
-			CustomParameter cp = CustomParameter.findByName(CustomParameter.class, "DIRECT_VIEW_YAADI_ACCESS_"+houseType.toUpperCase(),"");
-			
-			Set<Role> roles = getCurrentUser().getRoles();
-			 for(Role i : roles) {
-                
-                  if(cp != null && cp.getValue() != null && cp.getValue().contains(i.getType() )) {
-                         model.addAttribute("DIRECT_VIEW_YAADI_ACCESS", "YES");
-                         break;
-                 }
-         }
-	
+			CustomParameter csptDirectViewYaadiAccess = CustomParameter.findByName(CustomParameter.class, "DIRECT_VIEW_YAADI_ACCESS_"+houseType.toUpperCase(),"");			
+			Set<Role> roles = this.getCurrentUser().getRoles();
+			for(Role i : roles) {                
+			    if(csptDirectViewYaadiAccess!=null && csptDirectViewYaadiAccess.getValue()!=null 
+			    		&& csptDirectViewYaadiAccess.getValue().contains(i.getType() )) {
+			        model.addAttribute("DIRECT_VIEW_YAADI_ACCESS", "YES");
+			        break;
+			    }
+			}	
 			/*------------------*/
+			
 			MasterVO wordFormat = new MasterVO();
 			wordFormat.setName("WORD");
 			wordFormat.setValue("WORD");

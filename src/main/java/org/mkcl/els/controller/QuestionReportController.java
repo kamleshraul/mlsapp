@@ -1842,25 +1842,36 @@ public class QuestionReportController extends BaseController{
 				System.out.println("Question Yaadi Report generated successfully in " + reportFormat + " format!");
 				
 				openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);
-				 String notificationUserGroup = "";
+				
 				/* Edited By Shubham A*/
-				Set<Role> roles = getCurrentUser().getRoles();
-				 for(Role i : roles) {                
-	                  if(i.getType().equals("QIS_DEPUTY_SECRETARY")) {
-	                	   notificationUserGroup = "deputy_secretary";
-	                	  if(!questionDates.getYaadiGenerationAllowed().booleanValue()) {
-	                	  questionDates.setYaadiGenerationAllowed(true);                	
-	      				questionDates.merge();}
-	                 }
-	    
-	            /**/
-	         }
-				 CustomParameter notificationAllowed=CustomParameter.findByName(CustomParameter.class,"VIEW_YAADI_NOTIFICATION_ALLOWED", "");
-				 if(notificationAllowed.getValue().equals("YES")) {
-				 String usergroupTypes = "clerk,assistant,section_officer,deputy_secretary";
-				 String userName = getCurrentUser().getUsername();
-				 NotificationController.sendNotificationYaadiGenerated(deviceType, houseType, usergroupTypes, displayAnsweringDate,userName,notificationUserGroup,locale.toString());
-				 }
+				String notificationUserGroup = "";
+				CustomParameter csptDirectViewYaadiAccess = CustomParameter.findByName(CustomParameter.class, "DIRECT_VIEW_YAADI_ACCESS_"+houseType.getType().toUpperCase(),"");			
+				Set<Role> roles = this.getCurrentUser().getRoles();
+				for(Role i : roles) {     
+					if(csptDirectViewYaadiAccess!=null && csptDirectViewYaadiAccess.getValue()!=null 
+				    		&& csptDirectViewYaadiAccess.getValue().contains(i.getType())) {
+						if(questionDates.getYaadiGenerationAllowed()!=null
+	                			  && !questionDates.getYaadiGenerationAllowed().booleanValue()) {
+	                		questionDates.setYaadiGenerationAllowed(true);                	
+	                		questionDates.merge();
+	      				}
+						notificationUserGroup = i.getType();
+						break;
+					}
+				}
+				CustomParameter csptYaadiNotificationAllowed=CustomParameter.findByName(CustomParameter.class,"VIEW_YAADI_NOTIFICATION_ALLOWED_"+houseType.getType().toUpperCase(), "");
+				if(csptYaadiNotificationAllowed!=null && csptYaadiNotificationAllowed.getValue()!=null
+						&& csptYaadiNotificationAllowed.getValue().equals("YES")) {
+					 String usergroupTypes = "clerk,assistant,section_officer,deputy_secretary";
+					 CustomParameter notificationAllowedUserGroupTypes=CustomParameter.findByName(CustomParameter.class,"VIEW_YAADI_NOTIFICATION_ALLOWED_USERGROUPTYPES_"+houseType.getType().toUpperCase(), "");
+					 if(notificationAllowedUserGroupTypes!=null && notificationAllowedUserGroupTypes.getValue()!=null
+							 && !notificationAllowedUserGroupTypes.getValue().isEmpty()) {
+						 usergroupTypes = notificationAllowedUserGroupTypes.getValue();
+					 }
+					 String userName = this.getCurrentUser().getUsername();
+					 NotificationController.sendNotificationYaadiGenerated(deviceType, houseType, usergroupTypes, displayAnsweringDate,userName,notificationUserGroup,locale.toString());
+				}					    
+                /**/
 			} else{
 				logger.error("**** Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for empty values ****");
 				try {
@@ -2435,9 +2446,9 @@ public class QuestionReportController extends BaseController{
 					String processingMode = session.getParameter(deviceType.getType()+"_"+ApplicationConstants.PROCESSINGMODE);
 					Date answeringDate = null;
 					Date displayAnsweringDate = null;
+					QuestionDates questionDates = null;
 					if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-						QuestionDates questionDates = 
-								QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+						questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 						answeringDate = questionDates.getAnsweringDate();
 						displayAnsweringDate = questionDates.getDisplayAnsweringDate();
 						if(displayAnsweringDate==null) {
@@ -2570,6 +2581,36 @@ public class QuestionReportController extends BaseController{
 					System.out.println("Question Suchi Report generated successfully in " + reportFormat + " format!");
 
 					openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);
+					
+					/* Edited By Shubham A*/
+					String notificationUserGroup = "";
+					CustomParameter csptDirectViewYaadiAccess = CustomParameter.findByName(CustomParameter.class, "DIRECT_VIEW_YAADI_ACCESS_"+houseType.getType().toUpperCase(),"");			
+					Set<Role> roles = this.getCurrentUser().getRoles();
+					for(Role i : roles) {     
+						if(csptDirectViewYaadiAccess!=null && csptDirectViewYaadiAccess.getValue()!=null 
+					    		&& csptDirectViewYaadiAccess.getValue().contains(i.getType())) {
+//							if(questionDates.getYaadiGenerationAllowed()!=null
+//		                			  && !questionDates.getYaadiGenerationAllowed().booleanValue()) {
+//		                		questionDates.setYaadiGenerationAllowed(true);                	
+//		                		questionDates.merge();
+//		      				}
+							notificationUserGroup = i.getType();
+							break;
+						}
+					}
+					CustomParameter csptYaadiNotificationAllowed=CustomParameter.findByName(CustomParameter.class,"VIEW_YAADI_NOTIFICATION_ALLOWED_"+houseType.getType().toUpperCase(), "");
+					if(csptYaadiNotificationAllowed!=null && csptYaadiNotificationAllowed.getValue()!=null
+							&& csptYaadiNotificationAllowed.getValue().equals("YES")) {
+						 String usergroupTypes = "clerk,assistant,section_officer,deputy_secretary";
+						 CustomParameter notificationAllowedUserGroupTypes=CustomParameter.findByName(CustomParameter.class,"VIEW_YAADI_NOTIFICATION_ALLOWED_USERGROUPTYPES_"+houseType.getType().toUpperCase(), "");
+						 if(notificationAllowedUserGroupTypes!=null && notificationAllowedUserGroupTypes.getValue()!=null
+								 && !notificationAllowedUserGroupTypes.getValue().isEmpty()) {
+							 usergroupTypes = notificationAllowedUserGroupTypes.getValue();
+						 }
+						 String userName = this.getCurrentUser().getUsername();
+						 NotificationController.sendNotificationSuchiGenerated(deviceType, houseType, usergroupTypes, displayAnsweringDate,userName,notificationUserGroup,locale.toString());
+					}					    
+	                /**/
 				} else{
 					logger.error("**** Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for empty values ****");
 					try {
