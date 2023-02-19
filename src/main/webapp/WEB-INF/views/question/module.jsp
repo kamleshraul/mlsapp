@@ -86,7 +86,7 @@
 					|| $("#currentusergroupType").val()=='principal_secretary'
 							
 			) {
-				console.log("inside func");
+				//console.log("inside func");
 				$("#yaadi_details_tab").show();
 			} 
 			else if(($("#currentusergroupType").val()=='clerk' && $("#generalClerkDisplay").val() !='YES') && $("#selectedHouseType").val() == 'lowerhouse')
