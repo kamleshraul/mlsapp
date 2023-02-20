@@ -15,7 +15,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,6 +28,7 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.HouseTypeVO;
 import org.mkcl.els.common.vo.HouseVO;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.ProceedingVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.ApplicationLocale;
 import org.mkcl.els.domain.Citizen;
@@ -40,14 +43,14 @@ import org.mkcl.els.domain.MaritalStatus;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Part;
-import org.mkcl.els.domain.PartySymbol;
 //import org.mkcl.els.domain.PartDraft;
 import org.mkcl.els.domain.Party;
+import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.State;
 import org.mkcl.els.domain.SubDepartment;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -559,6 +562,37 @@ public class MasterWebService {
         
         return str;
     }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @RequestMapping(value = "/getRoster/{rosterId}/{locale}" ,method = RequestMethod.GET)
+    public @ResponseBody
+    List<ProceedingVO> getRoster(@PathVariable final String locale,@PathVariable final Long rosterId,HttpServletResponse response) {
+    	
+    	Roster roster = null;
+    	roster=Roster.findById(Roster.class,rosterId );
+    	//roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
+    	
+    	Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+		parametersMap.put("locale", new String[]{locale.toString()});
+		parametersMap.put("languageId",new String[]{"1"});
+		parametersMap.put("rosterId", new String[]{roster.getId().toString()});
+		List result=Query.findReport(ApplicationConstants.PROCEEDING_CONTENT_MERGE_REPORT4, parametersMap);
+		 List<ProceedingVO> proceedingVOs=new ArrayList<ProceedingVO>();
+		for(Object i:result){
+			Object[] o=(Object[]) i;
+			ProceedingVO proceedingVO=new ProceedingVO();
+			proceedingVO.setSlotName(o[0].toString());
+			proceedingVO.setCurrentSlotStartDate(o[1].toString());
+			proceedingVO.setCurrentSlotStartTime(o[2].toString());
+			proceedingVO.setLanguageReporter(o[3].toString());
+			proceedingVO.setGeneralNotice(o[4].toString());
+			proceedingVOs.add(proceedingVO);
+		}
+		
+        
+        return proceedingVOs;
+    }
 
+  
     
 }
