@@ -4570,7 +4570,14 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			userGroupType=userGroup.getUserGroupType();
 			currentWorkflowActor=getWorkflowActor(workflowConfig,userGroupType,level);
 			allEligibleActors=getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.DESC);
-		} else{
+		} else if(status.equals(ApplicationConstants.PROPRIETYPOINT_PROCESSED_SENDTODESKOFFICER)
+				&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+			workflowConfig = getLatest(proprietyPoint,proprietyPoint.getInternalStatus().getType(),locale.toString());
+			UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale);
+			currentWorkflowActor = getWorkflowActor(workflowConfig,ugt,(level-1));
+			allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+		}
+		 else{
 			workflowConfig=getLatest(proprietyPoint,status,locale.toString());
 			userGroupType=userGroup.getUserGroupType();
 			currentWorkflowActor=getWorkflowActor(workflowConfig,userGroupType,level);
@@ -4624,8 +4631,17 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
 					reference.setName(userGroupTypeTemp.getDisplayName());
-					references.add(reference);
-					break;
+					
+					reference.setState(params.get(ApplicationConstants.ACTORSTATE_KEY+"_"+locale));
+					reference.setRemark(params.get(ApplicationConstants.ACTORREMARK_KEY+"_"+locale));
+					if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+						if(!reference.getId().equals(proprietyPoint.getActor())){
+							references.add(reference);
+						}
+					}else{
+						references.add(reference);
+						break;
+					}
 				}				
 			}
 		}				

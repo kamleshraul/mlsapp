@@ -312,18 +312,23 @@
 		//************Hiding Unselected Options In Ministry,Department,SubDepartment ***************//
 		$("#ministry option[selected!='selected']").hide();
 		$("#subDepartment option[selected!='selected']").hide(); 
-		
+		$('#changeInternalStatus').attr('disabled', false);
+		$('#actor').attr('disabled', false);
 		$('#isTransferable').change(function() {
 	        if ($(this).is(':checked')) {
 	        	$("#ministry option[selected!='selected']").show();
 	    		$("#subDepartment option[selected!='selected']").show(); 
 	    		$("#transferP").css("display","inline-block");
 	    		$("#submit").css("display","none");
+	    		$('#changeInternalStatus').attr('disabled', true);
+	    		$('#actor').attr('disabled', true);
 	        }else{
 	        	$("#ministry option[selected!='selected']").hide();
 	    		$("#subDepartment option[selected!='selected']").hide(); 
 	    		$("#transferP").css("display","none");
 	    		$("#submit").css("display","inline-block");
+	    		$('#changeInternalStatus').attr('disabled', false);
+	    		$('#actor').attr('disabled', false);
 	        }
 	    });
 		
@@ -479,6 +484,7 @@
 				<label class="small"><spring:message code="specialmentionnotice.number" text="Motion Number"/>*</label>
 				<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
 				<input id="number" name="number" value="${domain.number}" type="hidden">
+				<input id="admissionNumber" name="admissionNumber" value="${domain.admissionNumber}" type="hidden">
 				<form:errors path="number" cssClass="validationError"/>
 				
 				<label class="small"><spring:message code="specialmentionnotice.selectSpecialMentionNoticedate" text="SpecialMentionNotice Date"/></label>
@@ -499,6 +505,15 @@
 				<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
 			</p>
 			</c:if>
+			
+			<p>	
+				<label class="small"><spring:message code="specialmentionnotice.task.creationtime" text="Task Created On"/></label>
+				<input id="createdTime" name="createdTime" value="${taskCreationDate}" class="sText datetimemask" readonly="readonly">
+				<label class="small"><spring:message code="specialmentionnotice.lastDateFromDepartment" text="Last Date From Department"/></label>
+				<input id="formattedLastReplyReceivingDate" name="formattedLastReplyReceivingDate" class="datemask sText" value="${formattedLastReplyReceivingDate}" readonly="readonly"/>
+				<input type="hidden" id="lastDateOfReplyReceiving" name="setLastDateOfReplyReceiving" class="datemask sText" value="${formattedLastReplyReceivingDate}"/>
+				<form:errors path="lastDateOfReplyReceiving" cssClass="validationError"/>
+			</p>
 			
 			<p>
 				<label class="small"><spring:message code="standalonemotion.isTransferable" text="is special mention notice to be transfered?"/></label>
@@ -729,11 +744,11 @@
 					</c:forEach>
 				</select>
 				
-				<select id="internalStatusMaster" style="display:none;">
+	 	    	<select id="internalStatusMaster" style="display:none;">
 					<c:forEach items="${internalStatuses}" var="i">
 						<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
 					</c:forEach>
-				</select>	
+				</select>	 
 				<form:errors path="internalStatus" cssClass="validationError"/>	
 				</p>
 				

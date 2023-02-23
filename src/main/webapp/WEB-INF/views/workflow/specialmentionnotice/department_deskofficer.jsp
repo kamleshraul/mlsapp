@@ -361,18 +361,23 @@
 		//************Hiding Unselected Options In Ministry,Department,SubDepartment ***************//
 		$("#ministry option[selected!='selected']").hide();
 		$("#subDepartment option[selected!='selected']").hide(); 
-		
+		$('#changeInternalStatus').attr('disabled', false);
+		$('#actor').attr('disabled', false);
 		$('#isTransferable').change(function() {
 	        if ($(this).is(':checked')) {
 	        	$("#ministry option[selected!='selected']").show();
 	    		$("#subDepartment option[selected!='selected']").show(); 
 	    		$("#transferP").css("display","inline-block");
 	    		$("#submit").css("display","none");
+	    		$('#changeInternalStatus').attr('disabled', true);
+	    		$('#actor').attr('disabled', true);
 	        }else{
 	        	$("#ministry option[selected!='selected']").hide();
 	    		$("#subDepartment option[selected!='selected']").hide(); 
 	    		$("#transferP").css("display","none");
 	    		$("#submit").css("display","inline-block");
+	    		$('#changeInternalStatus').attr('disabled', false);
+	    		$('#actor').attr('disabled', false);
 	        }
 	    });
 		
@@ -543,7 +548,7 @@
 				<label class="small"><spring:message code="specialmentionnotice.number" text="Motion Number"/>*</label>
 				<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
 				<input id="number" name="number" value="${domain.number}" type="hidden">
-				<input id="number" name="number" value="${domain.number}" type="hidden">
+				<input id="admissionNumber" name="admissionNumber" value="${domain.admissionNumber}" type="hidden">
 				<form:errors path="number" cssClass="validationError"/>
 				
 				<label class="small"><spring:message code="specialmentionnotice.selectspecialmentionnoticedate" text="Special Mention Date"/></label>
@@ -716,7 +721,7 @@
 				<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 			</p>
 			
-			<table class="uiTable" style="margin-left: 165px;width: 900px;">
+			<table class="uiTable" style="margin-left: 165px;width: 600px;">
 				<thead>
 					<tr>
 					<th>

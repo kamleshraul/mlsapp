@@ -29,7 +29,6 @@ import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
 import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.controller.smis.SpecialMentionNoticeController;
-import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
@@ -285,8 +284,22 @@ public class SpecialMentionNoticeWorkflowController  extends BaseController {
 		String memberNames = domain.getPrimaryMember().getFullname();
 		model.addAttribute("memberNames",memberNames);
 		/**** Number ****/
-		if(domain.getNumber()!=null){
-			model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
+		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+				|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+			if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+				model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getAdmissionNumber()));
+			} else {
+				model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
+			}
+		} else {
+			if(domain.getNumber()!=null){
+				model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
+			}
+		}	
+		
+		/**** Admission Number ****/
+		if(domain.getAdmissionNumber()!=null){
+			model.addAttribute("formattedAdmissionNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getAdmissionNumber()));
 		}
 		/** populate session dates as possible special mention notice dates **/
 		if(selectedSession!=null && selectedSession.getId()!=null) {
@@ -687,10 +700,10 @@ public class SpecialMentionNoticeWorkflowController  extends BaseController {
 				List<ClubbedEntity> clubbedEntities = SpecialMentionNotice.findClubbedEntitiesByPosition(domain);
 				if(clubbedEntities!=null) {
 					for(ClubbedEntity ce: clubbedEntities) {
-						AdjournmentMotion clubbedAdjournmentMotion = ce.getAdjournmentMotion();
-						clubbedAdjournmentMotion.setMinistry(domain.getMinistry());
-						clubbedAdjournmentMotion.setSubDepartment(domain.getSubDepartment());
-						clubbedAdjournmentMotion.merge();
+						SpecialMentionNotice clubbedSpecialMentionNotice = ce.getSpecialMentionNotice();
+						clubbedSpecialMentionNotice.setMinistry(domain.getMinistry());
+						clubbedSpecialMentionNotice.setSubDepartment(domain.getSubDepartment());
+						clubbedSpecialMentionNotice.merge();
 					}
 				}			
 				domain.merge();
@@ -1408,6 +1421,7 @@ public class SpecialMentionNoticeWorkflowController  extends BaseController {
 				|| domain.getRevisedNoticeContent().isEmpty()){			
 			domain.setRevisedNoticeContent(domain.getNoticeContent());
 		}
+		domain.setAdmissionNumber(SpecialMentionNotice.assignAdmissionNumber(domain.getSession(), domain.getLocale()));
 		domain.simpleMerge(); 
 		// Hack (11Nov2014): Commenting the following line results in 
 		// OptimisticLockException.

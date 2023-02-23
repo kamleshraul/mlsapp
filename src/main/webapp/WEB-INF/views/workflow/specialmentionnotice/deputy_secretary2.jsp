@@ -645,6 +645,7 @@
 				<label class="small"><spring:message code="adjournmentmotion.number" text="Motion Number"/>*</label>
 				<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
 				<input id="number" name="number" value="${domain.number}" type="hidden">
+			    <input id="admissionNumber" name="admissionNumber" value="${domain.admissionNumber}" type="hidden">
 				<form:errors path="number" cssClass="validationError"/>
 				
 				<label class="small"><spring:message code="adjournmentmotion.selectadjourningdate" text="Adjourning Date"/></label>

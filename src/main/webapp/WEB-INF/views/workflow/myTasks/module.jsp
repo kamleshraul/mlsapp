@@ -42,6 +42,18 @@
 					advancedBulkApproval();
 				}
 			});
+			
+			$('#isAdjourningDateSelected').change(function(){	
+				if($("#isAdjourningDateSelected").is(":checked")) {
+					$('#selectedAdjourningDate').removeAttr('disabled');
+					reloadMyTaskGrid();
+					$("#selectedFileCount").val("-");
+				} else {
+					$('#selectedAdjourningDate').attr('disabled', 'disabled');
+					reloadMyTaskGrid();
+					$("#selectedFileCount").val("-");
+				}				
+			});
 			/**** house type changes then reload grid****/			
 			$("#selectedHouseType").change(function(){
 				var value=$(this).val();
@@ -93,6 +105,7 @@
 							}
 							
 							if(device=='motions_adjournment') {
+								$('#selectedAdjourningDate').removeAttr('disabled');
 								$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
 										+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
 									if(data.length>1) {
@@ -1116,8 +1129,12 @@
 			}		
 		}
 		/**** reload grid ****/
-		function reloadMyTaskGrid(){	
-			var selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
+		function reloadMyTaskGrid(){
+			var selectedAdjourningDate = "";
+			var gridWidth = $('#grid').jqGrid('getGridParam', 'width');
+			if($("#isAdjourningDateSelected").is(":checked")){
+			  selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
+			}
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
 					+"&sessionYear="+$("#selectedSessionYear").val()
 					+"&sessionType="+$("#selectedSessionType").val()
@@ -1137,7 +1154,15 @@
 			newURL=baseURL+"?"+$("#gridURLParams").val();
 			$("#grid").setGridParam({"url":newURL});
 			$("#grid").trigger("reloadGrid");	
-				
+			
+			/**** show/hide special mention notice  date column as per user selection ****/
+			if($("#isAdjourningDateSelected").is(":checked")) {
+				$("#grid").jqGrid('hideCol', 'formattedAdjourningDate');					
+			} else {
+				$("#grid").jqGrid('showCol', 'formattedAdjourningDate');					
+			}			
+		
+			$("#grid").jqGrid('setGridWidth', gridWidth, true);
 		}	
 		
 		
@@ -1337,15 +1362,30 @@
 		}
 		
 		function prependOptionToSelectedAdjourningDate() {
-			console.log("In prependOptionToSelectedAdjourningDate..");
 			var pleaseSelectOption = $('#selectedAdjourningDate option[value=""]');
 			if(pleaseSelectOption!=undefined && pleaseSelectOption!=null) {
-				pleaseSelectOption.remove();
-				$('#selectedAdjourningDate').prepend(pleaseSelectOption);
+				if($("#isAdjourningDateSelected").is(":checked")){
+					$('#selectedAdjourningDate').removeAttr('disabled');
+					pleaseSelectOption.remove();
+					$('#selectedAdjourningDate').prepend(pleaseSelectOption);
+				}
+				else {
+					$('#selectedAdjourningDate').attr('disabled', 'disabled');
+					pleaseSelectOption.remove();
+					$('#selectedAdjourningDate').prepend(pleaseSelectOption);
+				}
 			} else {
+			if($("#isAdjourningDateSelected").is(":checked")){
+				$('#selectedAdjourningDate').attr('disabled', 'disabled');
 				var optionValue = $('#pleaseSelectOption').val();
 				var option = "<option value='' selected>" + optionValue + "</option>";
 				$('#selectedAdjourningDate').prepend(option);
+			  }	
+			  else {
+				  	var optionValue = $('#pleaseSelectOption').val();
+					var option = "<option value='' selected>" + optionValue + "</option>";
+					$('#selectedAdjourningDate').prepend(option);
+		    	}
 			}
 			/* var optionValue = $('#pleaseSelectOption').val();
 			var option = "<option value='' selected>" + optionValue + "</option>";
@@ -2287,8 +2327,8 @@
 				<a href="#" id="workflowLabel" class="butSim" >
 					<spring:message code="mytask.adjourningDate" text="Adjourning Date"/>
 				</a>
-				<!-- <input class="sCheck" type="checkbox" id="isAdjourningDateSelected" name="isAdjourningDateSelected" checked="checked"/> -->
-				<select name="selectedAdjourningDate" id="selectedAdjourningDate" style="width:130px;height: 25px;">	
+				<input class="sCheck" type="checkbox" id="isAdjourningDateSelected" name="isAdjourningDateSelected"/>
+				<select name="selectedAdjourningDate" id="selectedAdjourningDate" style="width:130px;height: 25px;" disabled>	
 				<option value=""><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message></option>
 				<c:forEach items="${sessionDates}" var="i">
 					<option value="${i[0]}" ${i[0]==defaultAdjourningDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		

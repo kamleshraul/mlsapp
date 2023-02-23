@@ -63,6 +63,9 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 		/** The number. */
 		private Integer number;
 		
+		/** The number in sequence of admitted count for the session. */
+		private Integer admissionNumber;
+		
 		/** The primary member. */
 		@ManyToOne(fetch=FetchType.LAZY)
 		@JoinColumn(name="member_id")
@@ -467,6 +470,10 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 		
 		public static Integer assignMotionNo(final HouseType houseType, final Date specialMentionNoticeDate, final String locale) {
 			return getSpecialMentionNoticeRepository().assignMotionNo(houseType, specialMentionNoticeDate, locale);		
+		}
+		
+		public static Integer assignAdmissionNumber(final Session session, final String locale) {
+			return getSpecialMentionNoticeRepository().assignAdmissionNumber(session, locale);
 		}
 		
 		public String formatNumber() {
@@ -1708,6 +1715,14 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 		 */
 		public void setNumber(Integer number) {
 			this.number = number;
+		}
+
+		public Integer getAdmissionNumber() {
+			return admissionNumber;
+		}
+
+		public void setAdmissionNumber(Integer admissionNumber) {
+			this.admissionNumber = admissionNumber;
 		}
 
 		/**

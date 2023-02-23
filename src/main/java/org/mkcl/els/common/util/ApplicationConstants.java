@@ -2784,6 +2784,8 @@ public class ApplicationConstants {
 	
 	public static final String PROPRIETYPOINT_PROCESSED_REPLY_RECEIVED = "proprietypoint_processed_replyReceived";
 	
+	public static final String PROPRIETYPOINT_PROCESSED_SENDTODESKOFFICER = "proprietypoint_processed_sendToDeskOfficer";
+	
 	/**** Put Up ****/
 	public static final String PROPRIETYPOINT_PUTUP_REJECTION="proprietypoint_putup_rejection";
 	

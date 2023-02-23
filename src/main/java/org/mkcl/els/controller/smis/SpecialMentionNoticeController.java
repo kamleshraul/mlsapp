@@ -21,6 +21,7 @@ import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.controller.question.QuestionController;
@@ -35,6 +36,7 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -2047,6 +2049,23 @@ public class SpecialMentionNoticeController extends GenericController<SpecialMen
 		}
 		model.addAttribute("citations",citations);
 		return "specialmentionnotice/citation";
+	}
+	
+	
+	@RequestMapping(value="/revisions/{motionId}",method=RequestMethod.GET)
+	public String getDrafts(final Locale locale,@PathVariable("motionId")  final Long specialMentionNoticeId,
+			final ModelMap model){
+		List<RevisionHistoryVO> drafts=SpecialMentionNotice.getRevisions(specialMentionNoticeId,locale.toString());
+		SpecialMentionNotice specialMentionNotice = SpecialMentionNotice.findById(ProprietyPoint.class, specialMentionNoticeId);
+		if(specialMentionNotice != null){
+			if(specialMentionNotice.getType() != null){
+				if(specialMentionNotice.getType().getType() != null){
+					model.addAttribute("selectedDeviceType", specialMentionNotice.getType().getType());
+				}
+			}
+		}		
+		model.addAttribute("drafts",drafts);
+		return "specialmentionnotice/revisions";
 	}
 	
 	

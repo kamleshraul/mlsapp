@@ -60,6 +60,7 @@
 			}
 			var selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
 			/**** Initially we want to get only those tasks which belongs to current user and of selected status ****/
+			if($('#isAdjourningDateSelected').is(':checked')){
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
 						+"&sessionYear="+$("#selectedSessionYear").val()
 						+"&sessionType="+$("#selectedSessionType").val()
@@ -74,6 +75,23 @@
 						+"&adjourningDate="+selectedAdjourningDate
 						+"&replyReceivedStatus="+$("#selectedReplyStatus").val()
 						);
+			      }
+				else{
+						$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
+								+"&sessionYear="+$("#selectedSessionYear").val()
+								+"&sessionType="+$("#selectedSessionType").val()
+								+"&deviceType="+$("#selectedDeviceType").val()
+								+"&module="+$("#selectedModule").val()
+								+"&status="+$("#selectedStatus").val()
+								+"&workflowSubType="+$("#selectedSubWorkflow").val()
+								+"&assignee="+$("#assignee").val()
+								+"&group="+(($("#selectedGroup").val()==undefined)?"":$("#selectedGroup").val())
+								+"&answeringDate="+$("#selectedAnsweringDate").val()
+								+"&subdepartment="+$("#selectedDepartment").val()
+								+"&adjourningDate="+""
+								+"&replyReceivedStatus="+$("#selectedReplyStatus").val()
+								);
+					}
 			$('#process_record').click(function(){
 				process($('#key').val());
 			});			
