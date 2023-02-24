@@ -163,7 +163,7 @@ public class DiscussionMotion extends Device implements Serializable {
 	private Member primaryMember;
 
 	/*** The supporting members. ***/
-	@ManyToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST,CascadeType.MERGE})
 	@JoinTable(name = "discussionmotion_supportingmembers", joinColumns = {
 			@JoinColumn(name = "discussionmotion_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn(name = "supportingmember_id", referencedColumnName = "id") })
