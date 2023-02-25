@@ -146,7 +146,7 @@ public class PosterActivitiesController extends BaseController {
 						if(updatedMotion.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 							finalAuthorityUGT = UserGroupType.findByType(ApplicationConstants.SPEAKER, updatedMotion.getLocale());
 						}
-						else if(motion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+						else if(updatedMotion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 							finalAuthorityUGT = UserGroupType.findByType(ApplicationConstants.CHAIRMAN, updatedMotion.getLocale());
 						}
 						if(finalAuthorityUGT!=null) {
@@ -158,7 +158,13 @@ public class PosterActivitiesController extends BaseController {
 								String finalAuthorityUsername = finalAuthorityUserGroup.getCredential().getUsername();
 								updatedMotion.setEditedBy(finalAuthorityUsername);
 							}							
-							updatedMotion.setEditedBy("mois_chairman"); //remove later once above code is proper
+							//remove below code later once above code is proper
+							if(updatedMotion.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+								updatedMotion.setEditedBy("mois_speaker");
+							}
+							else if(updatedMotion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+								updatedMotion.setEditedBy("mois_chairman");
+							}
 						}
 						
 						updatedMotion.addMotionDraft();
