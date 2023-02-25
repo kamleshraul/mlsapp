@@ -337,7 +337,7 @@ $('#ministries').change(function(){
 		<label class="small" style="margin-left:100px;"><spring:message code="discussionmotion.primaryMemberConstituency" text="Constituency"/>*</label>
 		<input type="text" readonly="readonly" value="${constituency}" class="sText" id="constituency" name="constituency">
 	</p>
-	
+	<br>
 	<p>
 		<label class="centerlabel"><spring:message code="discussionmotion.supportingMembers" text="Supporting Members"/></label>
 		<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
