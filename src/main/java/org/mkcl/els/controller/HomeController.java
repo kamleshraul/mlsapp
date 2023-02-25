@@ -517,24 +517,39 @@ public class HomeController extends BaseController {
 //			        }
 //				}	
 				
+				Credential credential = null;
+				String encryptedSecurityKey = "";
 				String securedItemId = request.getParameter("securedItemId");
-				String eventName = request.getParameter("eventName");
-				if(securedItemId!=null && securedItemId.equalsIgnoreCase("updateDecisionForMotions")) {
-					//System.out.println("eventName: " + eventName);
-					CustomParameter csptSecuredItemId = CustomParameter.findByName(CustomParameter.class, securedItemId.toUpperCase()+"_SECURITY_KEY", "");
+				String selectedHouseType = request.getParameter("houseType");
+				if(securedItemId!=null) {
+					if(selectedHouseType==null) {
+						selectedHouseType = this.getCurrentUser().getHouseType();
+					} else if(selectedHouseType.isEmpty()) {
+						selectedHouseType = this.getCurrentUser().getHouseType();
+					}
+					CustomParameter csptSecuredItemId = CustomParameter.findByName(CustomParameter.class, securedItemId.toUpperCase()+"_"+selectedHouseType.toUpperCase()+"_SECURITY_KEY", "");
 					if(csptSecuredItemId!=null && csptSecuredItemId.getValue()!=null) {
-						if(securityService.isAuthenticated(highSecurityPassword, csptSecuredItemId.getValue())) {
-				        	isHighSecurityValidated = true;
-				        }
+						credential=Credential.findByFieldName(Credential.class, "username", csptSecuredItemId.getValue(), "");
+						if(credential!=null && credential.getId()!=null) {
+							encryptedSecurityKey = credential.getHighSecurityPassword();
+						} else {
+							encryptedSecurityKey = csptSecuredItemId.getValue();
+						}
+					} else {
+						AuthUser user=this.getCurrentUser();
+				        credential=Credential.findByFieldName(Credential.class, "username",user.getUsername(), "");
+				        encryptedSecurityKey = credential.getHighSecurityPassword();
 					}
 				} else {
 					AuthUser user=this.getCurrentUser();
-			        Credential credential=Credential.findByFieldName(Credential.class, "username",user.getUsername(), "");	
-			        //TODO: create separate service method for validating high security password
-			        if(securityService.isAuthenticated(highSecurityPassword, credential.getHighSecurityPassword())) {
-			        	isHighSecurityValidated = true;
-			        }					
-				}
+			        credential=Credential.findByFieldName(Credential.class, "username",user.getUsername(), "");
+			        encryptedSecurityKey = credential.getHighSecurityPassword();
+				}	
+				
+		        //TODO: create separate service method for validating encrypted security key
+		        if(securityService.isAuthenticated(highSecurityPassword, encryptedSecurityKey)) {
+		        	isHighSecurityValidated = true;
+		        }
 			} 
 //			catch (ELSException e) {
 //				return false;
