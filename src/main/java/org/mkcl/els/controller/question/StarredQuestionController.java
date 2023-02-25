@@ -238,17 +238,16 @@ class StarredQuestionController {
 				model.addAttribute("role", i.getType());
 				break;
 			}
-			else if(i.getType().startsWith("QIS_")) {
+			else if(i.getType().startsWith("QIS_")
+						&& !(i.getType().equals(ApplicationConstants.QIS_GENERAL_CLERK))) {
 				model.addAttribute("role", i.getType());
 				break;
 			}
 		}
-			for(Role i : roles) {
-			
-			 if(i.getType().equals(ApplicationConstants.QIS_GENERAL_CLERK)) {
+		for(Role i : roles) {			
+			if(i.getType().equals(ApplicationConstants.QIS_GENERAL_CLERK)) {
 				model.addAttribute("GENERAL_CLERK_YAADI_TAB_OFF", "YES");
 				break;
-
 			}
 		}
 	

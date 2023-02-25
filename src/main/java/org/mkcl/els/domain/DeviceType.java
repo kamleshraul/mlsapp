@@ -75,6 +75,9 @@ public class DeviceType extends BaseDomain implements Serializable {
     private String name_upperhouse;
 	
 	private Integer supportOrder;
+	
+	@Column(length=100)
+    private String deviceName;
     
     @Autowired
     private transient DeviceTypeRepository deviceTypeRepository;
@@ -245,6 +248,16 @@ public class DeviceType extends BaseDomain implements Serializable {
 
 	public void setSupportOrder(Integer supportOrder) {
 		this.supportOrder = supportOrder;
+	}
+
+
+	public String getDeviceName() {
+		return deviceName;
+	}
+
+
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
 	}
 	
 }

@@ -50,7 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Entity
 @Table(name="motions")
 @JsonIgnoreProperties({"houseType", "session", "type", 
-	"recommendationStatus", "supportingMembers","ballotStatus",
+	"recommendationStatus", "supportingMembers","ballotStatus","discussionStatus",
 	"department", "drafts", "parent", "clubbedEntities", "referencedUnits"})
 	public class Motion extends Device implements Serializable{
 
@@ -156,6 +156,11 @@ import org.springframework.transaction.annotation.Transactional;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="ballotstatus_id")
 	private Status ballotStatus;
+
+	/**** The Disucssion Status. ****/
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="discussionstatus_id")
+	private Status discussionStatus;
 	
 	/**** To be used in case of bulk submission and workflows****/
 	private String workflowStarted;
@@ -426,7 +431,7 @@ import org.springframework.transaction.annotation.Transactional;
     	return getMotionRepository().findClubbedEntitiesByMotionNumber(this,sortOrder, locale);
     }
 	
-	private void addMotionDraft() {
+	public void addMotionDraft() {
 		if(! this.getStatus().getType().equals(ApplicationConstants.MOTION_INCOMPLETE) &&
 				! this.getStatus().getType().equals(ApplicationConstants.MOTION_COMPLETE)) {
 			MotionDraft draft = new MotionDraft();
@@ -464,7 +469,9 @@ import org.springframework.transaction.annotation.Transactional;
 			else{
 				draft.setDetails(this.getDetails());
 				draft.setSubject(this.getSubject());
-			}	            
+			}
+			draft.setActualEditedByUserName(this.getCurrentUser().getActualUsername());
+			draft.setMotionId(this.getId());	            
 			if(this.getId() != null) {
 				Motion motion = Motion.findById(Motion.class, this.getId());
 				List<MotionDraft> originalDrafts = motion.getDrafts();
@@ -689,6 +696,12 @@ import org.springframework.transaction.annotation.Transactional;
 		return getMotionRepository().findAllByMember(session, motionType, status, primaryMember, locale);
 	}
 	
+	public static List<Motion> findAllByNumbersInSession(final Session session,
+			final DeviceType motionType, 
+			final String numbers,
+			final String locale){
+		return getMotionRepository().findAllByNumbersInSession(session, motionType, numbers, locale);
+	}
 			
 	public MotionDraft findLatestDraft() {
 		List<MotionDraft> drafts = this.getDrafts();
@@ -999,6 +1012,14 @@ import org.springframework.transaction.annotation.Transactional;
 		this.ballotStatus = ballotStatus;
 	}
 	
+	public Status getDiscussionStatus() {
+		return discussionStatus;
+	}
+
+	public void setDiscussionStatus(Status discussionStatus) {
+		this.discussionStatus = discussionStatus;
+	}
+
 	public Status getInternalStatus() {
 		return internalStatus;
 	}

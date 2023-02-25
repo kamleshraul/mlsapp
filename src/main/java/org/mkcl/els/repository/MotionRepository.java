@@ -355,7 +355,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 					" AND m.type=:motionType" +
 					" AND m.locale=:locale" +
 					" AND m.status=:status" + 
-					" AND m.recommendationStatus=:undiscussed" +
+					" AND m.discussionStatus=:undiscussed" +
 					" ORDER BY m.submissionDate "+ ApplicationConstants.ASC;
 			TypedQuery<Motion> query = this.em().createQuery(strQuery, Motion.class);
 			query.setParameter("session", session);
@@ -386,7 +386,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 					" AND m.type=:motionType" +
 					" AND m.locale=:locale" +
 					" AND m.status=:status" + 
-					" AND m.recommendationDtatus=:undiscussed" +
+					" AND m.discussionStatus=:undiscussed" +
 					" AND m.primaryMember=:member" +
 					" ORDER BY m.submissionDate "+ ApplicationConstants.ASC;
 			TypedQuery<Motion> query = this.em().createQuery(strQuery, Motion.class);
@@ -420,7 +420,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 					" AND m.type=:motionType" +
 					" AND m.locale=:locale" +
 					" AND m.internalStatus=:internalStatus" + 
-					/*" AND (m.recommendationStatus!=:recommendationStatusDiscussed AND m.recommendationStatus!=:recommendationStatusUndiscussed)" +*/
+					/*" AND (m.discussionStatus!=:recommendationStatusDiscussed AND m.discussionStatus!=:recommendationStatusUndiscussed)" +*/
 					" ORDER BY m.number "+ ApplicationConstants.ASC;
 			TypedQuery<Motion> query = this.em().createQuery(strQuery, Motion.class);
 			query.setParameter("session", session);
@@ -466,6 +466,40 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 		return motions;
 	}
 	
+	public List<Motion> findAllByNumbersInSession(final Session session,
+			final DeviceType motionType, 
+			final String numbers,
+			final String locale) {
+		
+		List<Motion> motions = new ArrayList<Motion>();
+		
+		List<Integer> numbersList = new ArrayList<Integer>();
+		if(numbers!=null && !numbers.isEmpty()) {
+			for(String num : numbers.split(",")){
+				numbersList.add(Integer.parseInt(num));
+			}
+		}
+		
+		try {
+			String strQuery="SELECT m FROM Motion m" +
+					" WHERE m.session=:session" +
+					" AND m.type=:motionType" +
+					" AND m.number IN (:numbersList)" +
+					" AND m.locale=:locale" +
+					" ORDER BY m.number "+ ApplicationConstants.ASC;
+			TypedQuery<Motion> query = this.em().createQuery(strQuery, Motion.class);
+			query.setParameter("session", session);
+			query.setParameter("motionType", motionType);
+			query.setParameter("numbersList", numbersList);
+			query.setParameter("locale", locale);
+			motions = query.getResultList();
+		} catch (Exception e) {
+			logger.error("error", e);
+		} 
+		
+		return motions;
+	}
+	
 	public List<Motion> findAllForDiscussion(final Session session,
 			final DeviceType motionType, 
 			final Status status,
@@ -490,7 +524,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 					" AND m.type=:motionType" +
 					" AND m.locale=:locale" +
 					" AND m.status=:status" + 
-					" AND (m.discussionDate IS NULL OR (m.discussionDate IS NOT NULL AND m.recommendationStatus.type IN (:recommendationStatus)))"+					
+					" AND (m.discussionDate IS NULL OR (m.discussionDate IS NOT NULL AND m.discussionStatus.type IN (:recommendationStatus)))"+					
 					" ORDER BY m.number "+ ApplicationConstants.ASC + 
 					", m.postBallotNumber " + ApplicationConstants.ASC +
 					", m.submissionDate " + ApplicationConstants.ASC;
@@ -753,7 +787,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 				+"  mi.name as ministry,"
 				+"  sd.name as subdepartment,st.type as statustype," 
 				+"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName,"
-				+"  (CASE WHEN mo.discussion_date IS NOT NULL THEN mo.discussion_date ELSE mo.answering_date END) as discussionDate,"
+				+"  (CASE WHEN mo.discussionstatus_id IS NOT NULL AND dst.type='"+ApplicationConstants.MOTION_PROCESSED_DISCUSSED+"' AND mo.discussion_date IS NOT NULL THEN mo.discussion_date ELSE '' END) as discussionDate,"
 				+"  mo.localized_actor_name as actor" 
 				+"  FROM motions as mo "
 				+"  LEFT JOIN housetypes as ht ON(mo.housetype_id=ht.id) "
@@ -765,6 +799,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 				+"  LEFT JOIN titles as t ON(m.title_id=t.id) "
 				+"  LEFT JOIN ministries as mi ON(mo.ministry_id=mi.id) "
 				+"  LEFT JOIN subdepartments as sd ON(mo.subdepartment_id=sd.id) "
+				+"  LEFT JOIN status as dst ON(mo.discussionstatus_id=dst.id) "
 				+"  WHERE mo.locale='"+locale+"'"
 				+"  AND st.type NOT IN('motion_incomplete','motion_complete')";
 		
@@ -891,7 +926,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 				if(o[13]!=null){
 					motionSearchVO.setFormattedPrimaryMember(o[13].toString());
 				}
-				if(o[14]!=null){
+				if(o[14]!=null && !o[14].toString().isEmpty()){
 					motionSearchVO.setChartAnsweringDate(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[14].toString(), ApplicationConstants.DB_DATEFORMAT), ApplicationConstants.SERVER_DATEFORMAT, locale));
 				}
 				if(o[15]!=null){

@@ -229,7 +229,8 @@ class ShortNoticeController {
 				model.addAttribute("role", i.getType());
 				break;
 			}
-			else if(i.getType().startsWith("QIS_")) {
+			else if(i.getType().startsWith("QIS_")
+					&& !(i.getType().equals(ApplicationConstants.QIS_GENERAL_CLERK))) {
 				model.addAttribute("role", i.getType());
 				break;
 			}

@@ -93,6 +93,18 @@ public class MotionDraft extends BaseDomain implements Serializable{
     /** The parent. */
 	@ManyToOne(fetch=FetchType.LAZY)
 	private Motion parent;
+
+	/**** Reply(Nivedan) ****/
+	@Column(length=30000)
+	private String reply;
+    
+    /**
+     * To keep the referring motion in order to preserve its all motion drafts details
+     */
+    private Long motionId;
+    
+    @Column(name="actual_edited_by_username")
+    private String actualEditedByUserName;
 	
     @ManyToMany(fetch=FetchType.LAZY)
     @JoinTable(name="motionsdrafts_clubbingentities", joinColumns={@JoinColumn(name="motiondraft_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="clubbed_entity_id", referencedColumnName="id")})
@@ -366,6 +378,22 @@ public class MotionDraft extends BaseDomain implements Serializable{
 		return parent;
 	}
 
+	public String getReply() {
+		return reply;
+	}
+
+	public void setReply(String reply) {
+		this.reply = reply;
+	}
+
+	public Long getMotionId() {
+		return motionId;
+	}
+
+	public void setMotionId(Long motionId) {
+		this.motionId = motionId;
+	}
+
 	public Boolean getTransferToDepartmentAccepted() {
 		return transferToDepartmentAccepted;
 	}
@@ -404,7 +432,14 @@ public class MotionDraft extends BaseDomain implements Serializable{
 
 	public void setAdvanceCopyActor(String advanceCopyActor) {
 		this.advanceCopyActor = advanceCopyActor;
-	}  
-	
+	}
+
+	public String getActualEditedByUserName() {
+		return actualEditedByUserName;
+	}
+
+	public void setActualEditedByUserName(String actualEditedByUserName) {
+		this.actualEditedByUserName = actualEditedByUserName;
+	}
 	
 }

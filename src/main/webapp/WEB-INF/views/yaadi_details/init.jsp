@@ -578,12 +578,12 @@
 		<security:authorize access="!hasAnyRole( 'QIS_GENERAL_CLERK')">
 		<a href="#" id="view_yaadi" class="butSim">
 			<spring:message code="yaadidetails.viewYaadi" text="Yaadi Report"/>
-		</a> |
-		 </security:authorize>
-		 
+		</a> |		 
 		<a href="#" id="view_suchi" class="butSim">
 			<spring:message code="yaadidetails.viewSuchi" text="Suchi Report"/>
 		</a>
+		</security:authorize>
+		
 		<c:if test="${deviceTypeType=='questions_stared'}">
 		<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 			<button type="button" id="publishButton1" class="publishButton" style="display: none;">Publish!</button>

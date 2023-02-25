@@ -59,14 +59,14 @@
 	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-common">
-					<fo:block text-align="center/left/start/right/end" font-family="{$font}">
+					<fo:block text-align="center" font-family="{$font}">
 					   	<!-- content for header for all pages -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-common">
-					<fo:block text-align="center/left/start/right/end" font-family="{$font}">
+					<fo:block text-align="center" font-family="{$font}">
 					   	<!-- content for footer for all pages -->
 					</fo:block>
 			    </fo:static-content>
@@ -137,7 +137,7 @@
 						<fo:block font-size="15px">&#160;</fo:block>
 						<fo:block font-weight="bold"><xsl:value-of select="element_4"/></fo:block>
 						<fo:block font-size="15px">&#160;</fo:block>
-						<fo:block>या प्रश्नावरील अनुपूरक प्रश्नांना उत्तरे देण्यास मदत व्हावी म्हणून या सदस्यांनी प्रश्नोक्त विषयावर दिलेल्या मूळ प्रश्नांच्या प्रती यासोबत पाठविल्या आहेत.</fo:block>
+						<fo:block>या प्रश्नावरील अनुपूरक प्रश्नांना उत्तरे देण्यास मदत व्हावी म्हणून या सदस्यांनी प्रश्नोक्त विषयावर दिलेल्या मूळ प्रश्नांच्या प्रती यासोबत पाठविल्या आहेत. तसेच मूळ प्रश्न क्रमांक <xsl:value-of select="element_1/element_1_1"/> आणि त्यास जोडण्यात आलेल्या इतर प्रश्नांचे मूळ प्रारूप देखील संदर्भाकरिता पाठविले आहेत.</fo:block>
 						<fo:block font-size="15px">&#160;</fo:block>
 						<fo:block text-align="right">
 							<fo:block margin-right="2cm">आपला</fo:block>
@@ -152,6 +152,30 @@
 								</fo:block>
 								<fo:block font-size="5px">&#160;</fo:block>
 								<fo:block>&#160;&#160;&#160;<xsl:apply-templates select="element_3_1_2"/></fo:block>
+								<xsl:if test="position()!=last()">
+									<fo:block font-size="15px">&#160;</fo:block>
+								</xsl:if>
+							</xsl:for-each>
+						</fo:block>
+						<fo:block break-before="page">
+							<fo:block font-weight="bold" text-align="center" font-size="18px">
+								मूळ प्रश्न क्रमांक <xsl:value-of select="element_1/element_1_1"/> आणि त्यास जोडण्यात आलेल्या इतर प्रश्नांचे मूळ प्रारूप
+							</fo:block>
+							<fo:block font-size="15px">&#160;</fo:block>
+							<fo:block font-weight="bold" text-align="center">
+								मूळ <xsl:value-of select="element_1/element_1_8"/> क्रमांक <xsl:value-of select="element_1/element_1_1"/>
+							</fo:block>
+							<fo:block font-size="5px">&#160;</fo:block>
+							<fo:block>&#160;&#160;&#160;<xsl:apply-templates select="element_1/element_1_9"/></fo:block>
+							
+							<fo:block font-size="15px">&#160;</fo:block>
+							
+							<xsl:for-each select="element_5/element_5_1">
+								<fo:block font-weight="bold" text-align="center">
+									<xsl:value-of select="element_5_1_3"/> क्रमांक <xsl:value-of select="element_5_1_1"/>
+								</fo:block>
+								<fo:block font-size="5px">&#160;</fo:block>
+								<fo:block>&#160;&#160;&#160;<xsl:apply-templates select="element_5_1_2"/></fo:block>
 								<xsl:if test="position()!=last()">
 									<fo:block font-size="15px">&#160;</fo:block>
 								</xsl:if>

@@ -573,6 +573,15 @@
 			    }
 			}
 		}
+		function updateDecisionForMotions() {
+			var parameters = "houseType=" + $("#selectedHouseType").val()
+			+ "&sessionYear=" + $("#selectedSessionYear").val()
+			+ "&sessionType=" + $("#selectedSessionType").val()
+			+ "&deviceType=" + $("#selectedMotionType").val()
+			+ "&locale="+$("#moduleLocale").val();
+			
+			showTabByIdAndUrl('details_tab','poster_activities/update_decision/init?'+parameters);
+		}
 		/**** reload grid ****/
 		function reloadMotionGrid(){
 				$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()

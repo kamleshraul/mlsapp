@@ -655,6 +655,8 @@
 		
 		<pattern>/admin</pattern>
 		<pattern>/admin/support_activities/module</pattern>
+		
+		<pattern>/poster_activities/update_decision/init</pattern>
 	</decorator>
 	<decorator name="mnu_form" page="mnu_form.jsp">
 		<pattern>/menu</pattern>

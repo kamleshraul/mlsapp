@@ -27,7 +27,7 @@
 			
 		<!-- Multiselect -->				
 
-		<script type="text/javascript" src="./resources/js/common.js?v=3050"></script>
+		<script type="text/javascript" src="./resources/js/common.js?v=3060"></script>
 		
 		<script type="text/javascript" src="./resources/js/ui.sexyselect.0.6.js?v=6"></script>
 		

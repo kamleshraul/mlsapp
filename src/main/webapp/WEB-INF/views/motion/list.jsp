@@ -42,6 +42,16 @@
 			$("#search").click(function() {
 				searchRecord();
 			});
+			/****updating decision for motions****/
+			$("#updateDecisionForMotions").click(function(event, isHighSecurityValidationRequired) {
+				//isHighSecurityValidationRequired = false;
+				if(isHighSecurityValidationRequired!=false) {
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+					return false;
+				}
+				$("#selectionDiv1").hide();
+				updateDecisionForMotions();
+			});
 			//---ADDED BY VIKAS------------------
 			$('#gridURLParams_ForNew').val($('#gridURLParams').val());		
 			
@@ -131,6 +141,11 @@
 			<security:authorize access="hasAnyRole('MOIS_ASSISTANT')">
 				<a href="#" id="discussionSelection" class="butSim">
 					<spring:message code="motion.discussionSelection" text="Discussion Selection"/>
+				</a> |			
+			</security:authorize>
+			<security:authorize access="hasAnyRole('MOIS_POSTER')">
+				<a href="#" id="updateDecisionForMotions" class="butSim">
+					<spring:message code="motion.updateDecision" text="Update Decision"/>
 				</a> |			
 			</security:authorize>
 			<p>&nbsp;</p>

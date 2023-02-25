@@ -27,6 +27,42 @@ jQuery.extend({
     }
 });
 
+function cleanFormatting(data){
+
+    var divEl = document.createElement('div');
+    divEl.innerHTML=data.trim();
+
+    return pullData(divEl);
+
+}
+
+function pullData(rootNode){
+
+    const TEXT_TYPE=3;
+    const ELEMENT_TYPE=1;
+    const ATTR_TYPE=2;
+    var cleanText='';
+
+    for(var i=0; i< rootNode.childNodes.length; i++){
+        var node = rootNode.childNodes[i];
+    	
+        if(node.nodeType===TEXT_TYPE) {
+            cleanText=cleanText.concat(node.textContent);
+        } else if(node.nodeType === ELEMENT_TYPE) { 
+            if(node.hasChildNodes()){
+                cleanText=cleanText.concat('<').concat(node.tagName.toLowerCase()).concat('>');
+                cleanText=cleanText.concat(pullData(node)).concat('</').concat(node.tagName.toLowerCase()).concat('>');
+            }
+            if(node.nodeName==='BR') {
+            	cleanText=cleanText.concat('<br/>');
+            };
+        }
+    }
+
+    return cleanText;
+
+}
+
 function initControls(){
 	/*$('select[multiple="multiple"]').sexyselect({width:250,showTitle: false, selectionMode: 'multiple', styleize: true});
 	$("input[class^='numeric']").autoNumeric();

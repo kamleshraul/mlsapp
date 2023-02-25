@@ -19,7 +19,7 @@
 							$.prompt("You did not enter the password!! Please try again...");
 						},200);
 					} else {
-						var parameters = "highSecurityPassword="+encodeURIComponent($("#highSecurityPassword").val());
+						var parameters = "securedItemId="+$('#secured_item_id').val()+"&highSecurityPassword="+encodeURIComponent($('#highSecurityPassword').val());
 						$.ajax({
 							url: 'high_security_validation_check',
 							data: parameters, 

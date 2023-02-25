@@ -258,7 +258,9 @@ public class MotionController extends GenericController<Motion>{
 						model.addAttribute("role", i.getType());
 						model.addAttribute("ugparam", this.getCurrentUser().getActualUsername());
 						break;
-					} else if (i.getType().startsWith("MOIS_")) {
+					} else if (i.getType().startsWith("MOIS_")
+								 && !i.getType().endsWith("_POSTER")
+							  ) {
 						model.addAttribute("role", i.getType());
 						model.addAttribute("ugparam", this.getCurrentUser().getActualUsername());
 						break;
@@ -884,6 +886,7 @@ public class MotionController extends GenericController<Motion>{
 		Status status=domain.getStatus();
 		Status internalStatus=domain.getInternalStatus();
 		Status recommendationStatus=domain.getRecommendationStatus();
+		Status discussionStatus=domain.getDiscussionStatus();
 		if(status!=null){
 			model.addAttribute("status",status.getId());
 			model.addAttribute("memberStatusType",status.getType());
@@ -920,13 +923,9 @@ public class MotionController extends GenericController<Motion>{
 		}	
 		/** Populate whether admitted motion is discussed or not  **/
 		if(internalStatus!=null && internalStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
-			if(recommendationStatus!=null && recommendationStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_PROCESSED_DISCUSSED)) {
-				model.addAttribute("discussionStatus",recommendationStatus.getName());
-			} else if(recommendationStatus!=null && recommendationStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_PROCESSED_UNDISCUSSED)) {
-				model.addAttribute("discussionStatus",recommendationStatus.getName());
-			} else {
-				//if there comes status which is post discussed, then need to check discussed on drafts here..
-				model.addAttribute("discussionStatus","");
+			if(discussionStatus!=null) {
+				model.addAttribute("discussionStatus",discussionStatus.getId());
+				model.addAttribute("formattedDiscussionStatus",discussionStatus.getName());
 			}
 			/** populate discussion details text if question is discussed **/
 			String discussionDetailsText = domain.findDiscussionDetailsText();
@@ -1705,20 +1704,19 @@ public class MotionController extends GenericController<Motion>{
 			}
 		}	
 		Status internalStatus=domain.getInternalStatus();
-		Status recommendationStatus=domain.getRecommendationStatus();
+		Status discussionStatus=domain.getDiscussionStatus();	
 		/** Populate whether admitted motion is discussed or not  **/
 		if(internalStatus!=null && internalStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
-			if(recommendationStatus!=null && recommendationStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_PROCESSED_DISCUSSED)) {
-				model.addAttribute("discussionStatus",recommendationStatus.getName());
-			} else if(recommendationStatus!=null && recommendationStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_PROCESSED_UNDISCUSSED)) {
-				model.addAttribute("discussionStatus",recommendationStatus.getName());
+			if(discussionStatus!=null) {
+				model.addAttribute("discussionStatus",discussionStatus.getId());
+				model.addAttribute("formattedDiscussionStatus",discussionStatus.getName());
 			} else {
 				//if there comes status which is post discussed, then need to check discussed on drafts here..
 				model.addAttribute("discussionStatus","");
 			}
 			/** populate discussion details text if question is discussed **/
 			String discussionDetailsText = domain.findDiscussionDetailsText();
-			model.addAttribute("discussionDetailsText", discussionDetailsText);			
+			model.addAttribute("discussionDetailsText", discussionDetailsText);
 		}
 		super.populateUpdateIfErrors(model, domain, request);
 	}
@@ -3863,17 +3861,21 @@ public class MotionController extends GenericController<Motion>{
 								Date replyReceivedDate = FormaterUtil.formatStringToDate(strDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 								motion.setReplyReceivedDate(replyReceivedDate);
 							}
+							motion.setRecommendationStatus(status);
 						}else{
 							if(strDate!= null && !strDate.isEmpty()){
 								Date discussionDate = FormaterUtil.formatStringToDate(strDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 								if(status.getType().equals(ApplicationConstants.MOTION_PROCESSED_DISCUSSED)) {
 									motion.setDiscussionDate(discussionDate);
+									motion.setDiscussionStatus(status);
+								} else if(status.getType().equals(ApplicationConstants.MOTION_PROCESSED_UNDISCUSSED)) {
+									motion.setDiscussionStatus(status);
 								} else {
-									motion.setAnsweringDate(discussionDate);
+									//motion.setAnsweringDate(discussionDate);
+									motion.setRecommendationStatus(status);
 								}
 							}
-						}
-						motion.setRecommendationStatus(status);
+						}						
 						
 						motion.simpleMerge();
 						updated = true;

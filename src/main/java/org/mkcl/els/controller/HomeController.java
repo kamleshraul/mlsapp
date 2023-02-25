@@ -516,12 +516,25 @@ public class HomeController extends BaseController {
 //			        	isHighSecurityValidated = true;
 //			        }
 //				}	
-				AuthUser user=this.getCurrentUser();
-		        Credential credential=Credential.findByFieldName(Credential.class, "username",user.getUsername(), "");	
-		        //TODO: create separate service method for validating high security password
-		        if(securityService.isAuthenticated(highSecurityPassword, credential.getHighSecurityPassword())) {
-		        	isHighSecurityValidated = true;
-		        }
+				
+				String securedItemId = request.getParameter("securedItemId");
+				String eventName = request.getParameter("eventName");
+				if(securedItemId!=null && securedItemId.equalsIgnoreCase("updateDecisionForMotions")) {
+					//System.out.println("eventName: " + eventName);
+					CustomParameter csptSecuredItemId = CustomParameter.findByName(CustomParameter.class, securedItemId.toUpperCase()+"_SECURITY_KEY", "");
+					if(csptSecuredItemId!=null && csptSecuredItemId.getValue()!=null) {
+						if(securityService.isAuthenticated(highSecurityPassword, csptSecuredItemId.getValue())) {
+				        	isHighSecurityValidated = true;
+				        }
+					}
+				} else {
+					AuthUser user=this.getCurrentUser();
+			        Credential credential=Credential.findByFieldName(Credential.class, "username",user.getUsername(), "");	
+			        //TODO: create separate service method for validating high security password
+			        if(securityService.isAuthenticated(highSecurityPassword, credential.getHighSecurityPassword())) {
+			        	isHighSecurityValidated = true;
+			        }					
+				}
 			} 
 //			catch (ELSException e) {
 //				return false;

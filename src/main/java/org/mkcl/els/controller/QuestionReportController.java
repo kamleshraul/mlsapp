@@ -2893,6 +2893,34 @@ public class QuestionReportController extends BaseController{
 						String lastMemberNameBeforeAddedQuestions = "";
 						StringBuffer previousQuestionsMemberNames = new StringBuffer();
 						String[] strClubbedQuestionsArr = strClubbedQuestions.split(",");
+						
+						List<Question> childQuestions = Question.findAllByFieldName(Question.class, "parent", question, "number", ApplicationConstants.ASC, question.getLocale());
+						List<String> strRemainingClubbedQuestionsList = new ArrayList<String>();
+                        
+                        for (Question cq : childQuestions)
+                        {
+                            if (cq.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
+                						|| cq.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_SYSTEM_CLUBBED)
+                						|| cq.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED)
+                						|| cq.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED)
+                						|| cq.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+                						|| cq.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+                						|| cq.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
+                						|| cq.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION))
+                            {
+                            	String cqIdStr = cq.getId().toString();
+                            	boolean isIncludedInCurrentSupplementaryFlow = false;
+                            	for(String strClubbedQuestion: strClubbedQuestionsArr) {
+                            		if(cqIdStr.equals(strClubbedQuestion)) {
+                            			isIncludedInCurrentSupplementaryFlow = true;
+                            			break;
+                            		}
+                            	}
+                            	if(!isIncludedInCurrentSupplementaryFlow) {
+                            		strRemainingClubbedQuestionsList.add(cqIdStr);
+                            	}
+                            }
+                        }
 						String firstAddedQuestionId = strClubbedQuestionsArr[strClubbedQuestionsArr.length-1];
 						Question firstAddedQuestion = Question.findById(Question.class, Long.parseLong(firstAddedQuestionId));
 						
@@ -2940,11 +2968,20 @@ public class QuestionReportController extends BaseController{
 										}								
 									}														
 								}
-							}							
+							}		
+							
+							/**** remaining clubbed questions data ****/
+							List<Object> remainingClubbedQuestionData = new ArrayList<Object>();
+							for(int r=0; r<strRemainingClubbedQuestionsList.size(); r++) {
+								Question remainingClubbedQuestion = Question.findById(Question.class, Long.parseLong(strRemainingClubbedQuestionsList.get(r)));
+								queryParameters.put("questionId", new String[]{remainingClubbedQuestion.getId().toString()});
+								queryParameters.put("locale", new String[]{remainingClubbedQuestion.getLocale()});
+								remainingClubbedQuestionData.add(Query.findReport("QIS_CLUBBEDINTIMATIONLETTER_CLUBBEDQUESTIONDATA", queryParameters));
+							}
 							
 							/**** generate report ****/
 							if(!isError) {
-								reportFile = generateReportUsingFOP(new Object[]{primaryQuestionData, lastMemberNameBeforeAddedQuestions, clubbedQuestionData, clubbedMemberNames.toString()}, "question_clubbedIntimationLetter", outputFormat, "question_clubbedIntimationLetter", locale.toString());
+								reportFile = generateReportUsingFOP(new Object[]{primaryQuestionData, lastMemberNameBeforeAddedQuestions, clubbedQuestionData, clubbedMemberNames.toString(), remainingClubbedQuestionData}, "question_clubbedIntimationLetter", outputFormat, "question_clubbedIntimationLetter", locale.toString());
 								if(reportFile!=null) {
 									System.out.println("Report generated successfully in " + outputFormat + " format!");
 									openOrSaveReportFileFromBrowser(response, reportFile, outputFormat);
