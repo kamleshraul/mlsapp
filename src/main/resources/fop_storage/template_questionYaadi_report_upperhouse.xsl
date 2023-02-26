@@ -823,9 +823,22 @@
 				     								</fo:block>
 				     							</fo:table-cell>
 				     							<fo:table-cell>
-				     								<fo:block text-align="center">
-				     									<xsl:value-of select="userName"/>
-				     								</fo:block>
+													<xsl:variable name="psName"
+														select="userName"/>
+													<xsl:variable name="psNameTitle"
+																select="'श्री.'"/>
+													<xsl:choose>
+														<xsl:when test="starts-with($psName,$psNameTitle)">
+															<fo:block text-align="center">
+																<xsl:value-of select="substring-after($psName,$psNameTitle)"/>
+															</fo:block>														
+														</xsl:when>
+														<xsl:otherwise>
+															<fo:block text-align="center">
+																<xsl:value-of select="userName"/>
+															</fo:block>
+														</xsl:otherwise>
+													</xsl:choose>				     								
 				     							</fo:table-cell>
 				                        	</fo:table-row>
 				                        	<fo:table-row border-collapse="collapse">
@@ -896,9 +909,22 @@
 				     								</fo:block>
 				     							</fo:table-cell>
 				     							<fo:table-cell>
-				     								<fo:block text-align="center">
-				     									<xsl:value-of select="userName"/>
-				     								</fo:block>
+				     								<xsl:variable name="psName"
+														select="userName"/>
+													<xsl:variable name="psNameTitle"
+																select="'श्री.'"/>
+													<xsl:choose>
+														<xsl:when test="starts-with($psName,$psNameTitle)">
+															<fo:block text-align="center">
+																<xsl:value-of select="substring-after($psName,$psNameTitle)"/>
+															</fo:block>														
+														</xsl:when>
+														<xsl:otherwise>
+															<fo:block text-align="center">
+																<xsl:value-of select="userName"/>
+															</fo:block>
+														</xsl:otherwise>
+													</xsl:choose>
 				     							</fo:table-cell>
 				                        	</fo:table-row>
 				                        	<fo:table-row border-collapse="collapse">

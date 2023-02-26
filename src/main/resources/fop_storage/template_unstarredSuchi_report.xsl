@@ -331,7 +331,16 @@
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;	                			                		                		
 			                		<fo:inline font-weight="bold">
-			                			<xsl:value-of select="element_8"/>
+											<xsl:variable name="psName" select="element_8"/>
+											<xsl:variable name="psNameTitle" select="'श्री.'"/>
+											<xsl:choose>
+												<xsl:when test="starts-with($psName,$psNameTitle)">
+													<xsl:value-of select="substring-after($psName,$psNameTitle)"/>
+												</xsl:when>
+												<xsl:otherwise>
+														<xsl:value-of select="element_8"/>
+												</xsl:otherwise>
+											</xsl:choose>
 			                		</fo:inline>
 			                		<fo:block font-size="0pt">&#160;</fo:block>
 			                		<xsl:value-of select="element_7"/>.
@@ -366,9 +375,20 @@
 				     								</fo:block>
 				     							</fo:table-cell>
 				     							<fo:table-cell>
-				     								<fo:block text-align="center">
-				     									<xsl:value-of select="element_8"/>
-				     								</fo:block>
+				     								<xsl:variable name="psName" select="element_8"/>
+													<xsl:variable name="psNameTitle" select="'श्री.'"/>
+													<xsl:choose>
+														<xsl:when test="starts-with($psName,$psNameTitle)">
+															<fo:block text-align="center">
+																<xsl:value-of select="substring-after($psName,$psNameTitle)"/>
+															</fo:block>
+														</xsl:when>
+														<xsl:otherwise>
+															<fo:block text-align="center">
+																<xsl:value-of select="element_8"/>
+															</fo:block>
+														</xsl:otherwise>
+													</xsl:choose>
 				     							</fo:table-cell>
 				                        	</fo:table-row>
 				                        	<fo:table-row border-collapse="collapse">
