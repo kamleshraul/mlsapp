@@ -242,7 +242,7 @@
 							
 						</fo:block>	   
 						<fo:block >
-							२) मा.<fo:inline font-weight="bold"><xsl:value-of select="./element_2/element_2_8"></xsl:value-of></fo:inline> वि.प.स.यांना माहितीसाठी सादर अग्रेषित.
+							२) मा.<fo:inline font-weight="bold"><xsl:value-of select="./element_2/element_2_7"></xsl:value-of></fo:inline> वि.प.स.यांना माहितीसाठी सादर अग्रेषित.
 							
 						</fo:block>	           			
 					
