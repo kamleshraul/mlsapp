@@ -89,7 +89,7 @@
 	            					
 	            					 
 	            					         						<fo:block font-weight="bold" text-align="justify">
-							&#160;&#160;&#160;&#160; <xsl:value-of select="./element_2/element_2_8"></xsl:value-of> वि.प.स यांनी दिलेली म.वि.प. नियम ९७ अन्वये अल्पकालीन चर्चेची सूचना क्रमांक  <xsl:value-of select="./element_2/element_2_2"></xsl:value-of> पुढीलप्रमाणे आहे:-
+							&#160;&#160;&#160;&#160; <xsl:value-of select="./element_2/element_2_7"></xsl:value-of> वि.प.स यांनी दिलेली म.वि.प. नियम ९७ अन्वये अल्पकालीन चर्चेची सूचना क्रमांक  <xsl:value-of select="./element_2/element_2_2"></xsl:value-of> पुढीलप्रमाणे आहे:-
 						</fo:block>	 					 
 	            					
 	            		
@@ -168,7 +168,7 @@
 						<fo:block>&#160;</fo:block>								
 						<fo:block>
 						<fo:inline font-weight="bold">
-							 सचिव महाराष्ट्र शासन,<xsl:value-of select="./element_2/element_2_9"></xsl:value-of>&#160;</fo:inline>यांच्याकडे पुढील आवश्यक कार्यवाहीसाठी अग्रेषित							
+							 सचिव, महाराष्ट्र शासन,<xsl:value-of select="./element_2/element_2_9"></xsl:value-of>&#160;</fo:inline>यांच्याकडे पुढील आवश्यक कार्यवाहीसाठी अग्रेषित							
 						</fo:block>
 						
 						<fo:block>&#160;</fo:block>
@@ -205,7 +205,7 @@
 													<fo:table-row>
 															<fo:table-cell width="200px" text-align="center">
 																<fo:block>																			
-																	<fo:block>आपली</fo:block>
+																	<fo:block>आपली / आपला </fo:block>
 																</fo:block>
 															</fo:table-cell>										
 														</fo:table-row>
@@ -238,11 +238,11 @@
 						</fo:block>
 						<fo:block>&#160;</fo:block>
 						<fo:block >
-							मा.<fo:inline font-weight="bold"><xsl:value-of select="./element_2/element_2_5"></xsl:value-of> </fo:inline> यांना माहितीसाठी सादर अग्रेषित.
+							१) मा.<fo:inline font-weight="bold"><xsl:value-of select="./element_2/element_2_5"></xsl:value-of> </fo:inline> यांना माहितीसाठी सादर अग्रेषित.
 							
 						</fo:block>	   
 						<fo:block >
-							मा.<fo:inline font-weight="bold"><xsl:value-of select="./element_2/element_2_8"></xsl:value-of></fo:inline> वि.प.स.यांना माहितीसाठी सादर अग्रेषित.
+							२) मा.<fo:inline font-weight="bold"><xsl:value-of select="./element_2/element_2_8"></xsl:value-of></fo:inline> वि.प.स.यांना माहितीसाठी सादर अग्रेषित.
 							
 						</fo:block>	           			
 					
