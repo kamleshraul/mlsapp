@@ -1958,6 +1958,15 @@
 						+ "&locale="+$("#authlocale").val() 
 						+ "&reportout=motion_department_statement_report"
 						+ "&report=MOIS_DEPARTMENT_STATEMENT_REPORT";
+					} else if(currentDevice.indexOf('notices_specialmention') == 0){
+						url = "specialmentionnotice/report/generalreport?sessionId=" + data.id
+						+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
+						+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
+						+ "&assignee=" + $("#authusername").val()
+						+ "&houseType="+$("#selectedHouseType").val() 
+						+ "&locale="+$("#authlocale").val() 
+						+ "&reportout=specialmentionnotice_department_statement_report"
+						+ "&report=SMIS_DEPARTMENT_STATEMENT_REPORT";
 					} else {
 						url = "question/report/generalreport?sessionId=" + data.id
 						+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()

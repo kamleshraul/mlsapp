@@ -530,8 +530,16 @@ public class SpecialMentionNoticeWorkflowController  extends BaseController {
 		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
 		requestMap.put("specialMentionNoticeId",new String[]{String.valueOf(domain.getId())});
 		requestMap.put("locale",new String[]{domain.getLocale()});
-		List result=Query.findReport("SMIS_LATEST_REVISIONS", requestMap);
-		model.addAttribute("latestRevisions",result);
+//		List result=Query.findReport("SMIS_LATEST_REVISIONS", requestMap);
+//		model.addAttribute("latestRevisions",result);
+		if(userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+				|| userGroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+			List result=Query.findReport("SMIS_LATEST_REVISION_FOR_DESKOFFICER", requestMap);
+			model.addAttribute("latestRevisions",result);
+		}else{
+			List result=Query.findReport("SMIS_LATEST_REVISIONS", requestMap);
+			model.addAttribute("latestRevisions",result);
+		}
 		model.addAttribute("startingActor", userGroupType.getName());
 	}
 	
