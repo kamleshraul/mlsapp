@@ -95,14 +95,16 @@
 
 <body>
 	
-	<div id="reportDiv">
+	<div id="reportDiv" align="center">
 		<c:choose>
 		
 			<c:when test="${report != null and not (empty report)}">
 				<div id="topHeader" style="text-align: center; width: 750px;">
 					<h3 style="color: black;">${topHeader[0]}</h3>			
 				</div>
-				<br><br>
+				<br>
+				<div style="text-align: right; width: 750px; font-size: 14px;"><b><spring:message code="generic.date" text="Date"/></b>:&nbsp;${report[0][15]}</div>
+				<br>
 				<div style="width: 750px;">
 					<table class="strippedTable" border="1" style="width: 750px;">
 						<thead>
@@ -138,7 +140,7 @@
 						<tbody>
 							<c:forEach items="${report}" var="r" varStatus="counter">
 								<c:choose>
-									<c:when test="${(counter.count mod 16)==0}">
+									<c:when test="${(counter.count mod 11)==0}">
 										<c:choose>
 											<c:when test="${counter.count > 1}">
 												<tr class="page-break-after-forced">
@@ -157,10 +159,16 @@
 														<td style="font-size: 12px;vertical-align: top;">
 															<c:choose>
 																<c:when test="${r[8]=='questions_starred' and r[9]=='question_final_admission' and (empty r[6])}">
-																	<p align="center">${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[5]}</p>
+																	<p align="center">
+																		${r[4]}
+																		<br/><br/><spring:message code="generic.date" text="Date"/>:&nbsp;${r[5]}
+																	</p>
 																</c:when>
 																<c:when test="${r[8]=='questions_starred' and r[9]=='question_final_admission' and (not empty r[6])}">
-																	<p align="center">${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[7]}</p>
+																	<p align="center">
+																		${r[4]}
+																		<br/><br/><spring:message code="generic.date" text="Date"/>:&nbsp;${r[7]}
+																	</p>
 																</c:when>
 																<c:when test="${r[9]=='question_final_rejection' and (not empty r[12])}">
 																	<p align="center">${r[4]}</p>
@@ -194,10 +202,16 @@
 														<td style="font-size: 12px;vertical-align: top;">
 															<c:choose>
 																<c:when test="${r[8]=='questions_starred' and r[9]=='question_final_admission' and (empty r[6])}">
-																	<p align="center">${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[5]}</p>
+																	<p align="center">
+																		${r[4]}
+																		<br/><br/><spring:message code="generic.date" text="Date"/>:&nbsp;${r[5]}
+																	</p>
 																</c:when>
 																<c:when test="${r[8]=='questions_starred' and r[9]=='question_final_admission' and (not empty r[6])}">
-																	<p align="center">${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[7]}</p>
+																	<p align="center">
+																		${r[4]}
+																		<br/><br/><spring:message code="generic.date" text="Date"/>:&nbsp;${r[7]}
+																	</p>
 																</c:when>
 																<c:when test="${r[9]=='question_final_rejection' and (not empty r[12])}">
 																	<p align="center">${r[4]}</p>
@@ -233,10 +247,16 @@
 												<td style="font-size: 12px;vertical-align: top;">
 													<c:choose>
 														<c:when test="${r[8]=='questions_starred' and r[9]=='question_final_admission' and (empty r[6])}">
-															<p align="center">${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[5]}</p>
+															<p align="center">
+																${r[4]}
+																<br/><br/><spring:message code="generic.date" text="Date"/>:&nbsp;${r[5]}
+															</p>
 														</c:when>
 														<c:when test="${r[8]=='questions_starred' and r[9]=='question_final_admission' and (not empty r[6])}">
-															<p align="center">${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[7]}</p>
+															<p align="center">
+																${r[4]}
+																<br/><br/><spring:message code="generic.date" text="Date"/>:&nbsp;${r[7]}
+															</p>
 														</c:when>
 														<c:when test="${r[9]=='question_final_rejection' and (not empty r[12])}">
 															<p align="center">${r[4]}</p>															
@@ -256,6 +276,10 @@
 							</c:forEach>
 						</tbody>
 					</table>
+					<c:if test="${not empty report[0][16]}">
+						<br/>
+						<div style="text-align: left; width: 750px; font-size: 18px;"><b>${report[0][16]}</b></div>
+					</c:if>
 				</div>
 			</c:when>
 			<c:otherwise>
