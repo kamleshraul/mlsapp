@@ -9,6 +9,21 @@
 	<script type="text/javascript">
 		var ids, counter, limit, dataSize;
 		$(document).ready(function(){
+			var ids, counter, limit, dataSize;
+			var DeptCondition = $("#ActiveMinistries").val()
+			var Status = $("#selectedStatus").val()
+			
+				if(DeptCondition != "-")
+					{
+					 $(".department").hide();
+					
+					 }
+				
+				if(DeptCondition == "-"){
+					 $(".DepartmentLabel").hide();
+				}
+				
+				
 						
 		});
 		
@@ -94,7 +109,7 @@
 						${report[0][2]}
 					</div>
 					<br>
-					<div style="font-weight: bold; width: 700px; margin: 0px 0px 10px 25px;">
+					<div class="DepartmentLabel"  style="font-weight: bold; width: 700px; margin: 0px 0px 10px 25px;">
 						${labels[2]} - ${report[3][5]}
 					</div>
 					<br>
@@ -104,7 +119,7 @@
 								<th style="width: 20px;">${topHeader[0]}</th>
 								<th style="width: 20px;">${topHeader[1]}</th>
 								<th style="width: 100px;">${topHeader[2]}</th>
-								<%-- <th style="width: 20px;">${topHeader[3]}</th> --%>
+								 <th class="department"  style="width: 20px;">${topHeader[3]}</th> 
 								<th style="width: 300px;">${topHeader[4]}</th>
 								<th style="width: 30px">${topHeader[5]}</th>
 								<th style="width: 50px;">${topHeader[6]}</th>
@@ -119,7 +134,7 @@
 									<td style="width: 20px; text-align: center;">${(counter.count)}</td>
 									<td style="width: 20px; text-align: center;">${r[3]}</td>
 									<td style="width: 100px; text-align: left;">${r[4]}</td>
-									<!--  <td style="width: 20px; text-align: center;">${r[5]}</td> -->
+									 <td class="department"  style="width: 20px; text-align: center;">${r[5]}</td> 
 									<td style="width: 300px; text-align: center;">${r[6]}</td>
 									<td style="width: 30px; text-align: center;">${r[7]}</td>
 									<td style="width: 50px; text-align: center;">${r[8]}</td>
