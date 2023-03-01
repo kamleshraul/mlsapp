@@ -387,6 +387,63 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		List<Question> questions = tQuery.getResultList();
 		return questions;
 	}
+	
+	public List<Question> getQuestionText(final Session session,
+			final Integer NoOfQuestions,
+			final Long deviceTypeId,
+			final Long houseId,
+			final Date houseStartDate  
+			){
+		
+		StringBuffer query = new StringBuffer(
+				"SELECT q  FROM Question q "+
+				"WHERE q.session.id IN (SELECT s FROM Session s WHERE s.id=:sessionId AND s.startDate>=:startDate) "+
+				" AND q.originalType.id IN (:deviceTypeId)"+
+				" AND q.number IN (  :qsnId  )");
+				
+		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		tQuery.setParameter("sessionId", session.getId());
+		tQuery.setParameter("deviceTypeId", deviceTypeId);
+		
+		tQuery.setParameter("qsnId", NoOfQuestions);
+		tQuery.setParameter("startDate", houseStartDate);
+		List<Question> questions = tQuery.getResultList();
+		return questions;
+	}
+	
+	public List<Question> getChildQuestionText(final Session session,
+			final Long parentQuestion,
+			final Long deviceTypeId,
+			final Long houseId,
+			final Date houseStartDate  
+			){
+		
+		StringBuffer query = new StringBuffer(
+						"SELECT q  FROM Question q "+ 
+						" , Status ss   "+
+						" WHERE q.session.id  IN (SELECT s FROM Session s WHERE s.id=:sessionId AND s.startDate>=:startDate) "+
+						" AND q.originalType.id IN (:deviceTypeId) "+
+						" AND ss.id = q.recommendationStatus "+
+						" AND q.parent.id IN (  :qsnId  ) "+
+						" AND ss.type NOT LIKE '%_clubbing%' ");
+		
+		
+		
+				
+		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		tQuery.setParameter("sessionId", session.getId());
+		tQuery.setParameter("deviceTypeId", deviceTypeId);
+//		Integer qsn = parentQuestion.intValue();
+		tQuery.setParameter("qsnId", parentQuestion);
+		tQuery.setParameter("startDate", houseStartDate);
+		List<Question> questions = tQuery.getResultList();
+		if(questions != null)
+		{
+			return questions;
+		}
+		return null;
+	}
+	
 
 	/**
 	 * Find dated questions.
