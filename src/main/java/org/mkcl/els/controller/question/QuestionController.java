@@ -5,6 +5,7 @@ import java.text.ParseException;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -29,6 +30,7 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
+import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MessageResource;
@@ -43,16 +45,24 @@ import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.WorkflowDetails;
+import org.mkcl.els.repository.QuestionRepository;
 import org.mkcl.els.service.IProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.util.HtmlUtils;
+
+import net.sf.cglib.core.Local;
 
 @Controller
 @RequestMapping("question")
@@ -1684,6 +1694,8 @@ public class QuestionController extends GenericController<Question> {
 		model.addAttribute("supportingMembers",supportingMembers);
 		return "question/supportingmember";
 	}
+	
+	
 
 	@RequestMapping(value="/citations/{deviceType}",method=RequestMethod.GET)
 	public String getCitations(final HttpServletRequest request, final Locale locale,@PathVariable("deviceType")  final Long type,
@@ -1826,12 +1838,85 @@ public class QuestionController extends GenericController<Question> {
 		return retVal;
 	}
 	
+	
+	/**** Yaadi to discuss update ****/
+	@RequestMapping(value="/yaadiQuestionContentUpdate/assistant/init", method=RequestMethod.GET)
+	public String getYaadiQuestionContentUpdateInit(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		/**** Request Params ****/
+		String retVal = "question/error";
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strDeviceType = request.getParameter("questionType");			
+		String strStatus = request.getParameter("status");
+		String strRole = request.getParameter("role");
+		String strUsergroup = request.getParameter("usergroup");
+		String strUsergroupType = request.getParameter("usergroupType");
+		String strGroup = request.getParameter("group");
+		String strAnsweringDate = request.getParameter("answeringDate");
+
+		/**** Locale ****/
+		String strLocale = locale.toString();
+
+		if(strHouseType != null && !(strHouseType.isEmpty())
+				&& strSessionType != null && !(strSessionType.isEmpty())
+				&& strSessionYear != null && !(strSessionYear.isEmpty())
+				&& strDeviceType != null && !(strDeviceType.isEmpty())
+				&& strGroup != null && !(strGroup.isEmpty())
+				&& strAnsweringDate != null && !(strAnsweringDate.isEmpty())
+				&& strStatus != null && !(strStatus.isEmpty())
+				&& strRole != null && !(strRole.isEmpty())
+				&& strUsergroupType != null && !(strUsergroupType.isEmpty())) {
+			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
+			DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+
+			/**** Decision Status Available To Assistant(At this stage) 
+			 * QUESTION_PUT_UP_OPTIONS_ + QUESTION_TYPE + HOUSE_TYPE + USERGROUP_TYPE ****/
+//			CustomParameter defaultStatus = CustomParameter.findByName(CustomParameter.class, "QUESTION_YAADI_UPDATE_" + deviceType.getType().toUpperCase() + "_" + houseType.getType().toUpperCase() + "_" + strUsergroupType.toUpperCase(), "");
+//
+//			List<Status> internalStatuses;
+//			try {
+//				internalStatuses = Status.findStatusContainedIn(defaultStatus.getValue(),locale.toString());
+//				model.addAttribute("internalStatuses", internalStatuses);
+//			} catch (ELSException e) {
+//				model.addAttribute("error", e.getParameter());
+//			}
+			/**** Request Params To Model Attribute ****/
+			model.addAttribute("houseType", strHouseType);
+			model.addAttribute("sessionType", strSessionType);
+			model.addAttribute("sessionYear", strSessionYear);
+			model.addAttribute("questionType", strDeviceType);
+			model.addAttribute("status", strStatus);
+			model.addAttribute("role", strRole);
+			model.addAttribute("usergroup", strUsergroup);
+			model.addAttribute("usergroupType", strUsergroupType);
+			model.addAttribute("group", strGroup);
+			model.addAttribute("answeringDate", strAnsweringDate);
+
+			retVal = "question/yaadiQuestionContentUpdateinit";
+		}else{
+			model.addAttribute("errorcode","CAN_NOT_INITIATE");
+		}
+
+		return retVal;
+	}
+	
 	@RequestMapping(value="/yaaditodiscussupdate/assistant/view", method=RequestMethod.GET)
 	public String getYaadiToDiscussUpdateAssistantView(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
 		this.getYaadiToDiscussUpdateQuestions(model, request, locale.toString());
 		return "question/yaaditodiscussupdateview";
+	}
+	
+	@RequestMapping(value="/yaaditoupdateContent/assistant/view", method=RequestMethod.GET)
+	public String getYaadiToUpdateContentAssistantView(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		this.getYaadiToDiscussUpdateQuestions(model, request, locale.toString());
+		return "question/yaaditoupdateContentview";
 	}
 	
 	@Transactional
@@ -1883,6 +1968,76 @@ public class QuestionController extends GenericController<Question> {
 			success.append(" updated successfully...");
 			model.addAttribute("success", success.toString());
 			page = "question/yaaditodiscussupdateview";
+		}else{
+			model.addAttribute("failure", "update failed.");
+		}
+		
+		return page;
+	}
+	
+	
+	@Transactional
+	@RequestMapping(value="/yaaditoUpdateQsnContent/assistant/update", method=RequestMethod.POST) 
+	
+	public String yaaditoUpdateQsnContent(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		
+		boolean updated = false;
+		String page = "question/error";
+		StringBuffer success = new StringBuffer();
+		
+		try{
+			
+			String selectedItemsLength = (String)request.getParameter("itemsLength");
+			int number  = Integer.parseInt(selectedItemsLength);
+			
+			ArrayList<HashMap<String,String>>  questionContent= new ArrayList<HashMap<String,String>>();
+			
+			for (int i=0;i<number;i++)
+			{
+				HashMap<String,String> ymap = new HashMap<String,String>();
+				String  questionId = request.getParameter("items["+i+"][questionId]");
+				ymap.put("questionId", questionId);
+				String subject  = request.getParameter("items["+i+"][subject]");
+				ymap.put("subject", subject);
+				String RevisedText  = request.getParameter("items["+i+"][revisedQuestionText]");
+				ymap.put("revisedQuestionText", RevisedText);
+				String answer = request.getParameter("items["+i+"][answer]");
+				ymap.put("answer", answer);
+				questionContent.add(ymap);
+			}
+			
+			if(questionContent != null )
+			{
+				for(HashMap<String,String>  i : questionContent)
+				{
+					Long id = Long.parseLong(i.get("questionId"));
+					Question question = Question.findById(Question.class, id);
+					
+					question.setSubject(i.get("subject"));
+					
+					question.setRevisedQuestionText(i.get("revisedQuestionText"));
+					question.setAnswer(i.get("answer"));
+					question.merge();
+					updated = true;
+					success.append(FormaterUtil.formatNumberNoGrouping(question.getNumber(), question.getLocale())+",");
+					
+				}
+			}
+			
+			
+
+		}catch(Exception e){
+			e.printStackTrace();
+			updated = false;
+		}
+		
+		if(updated){
+			this.getYaadiToDiscussUpdateQuestions(model, request, locale.toString());
+			success.append(" updated successfully...");
+			model.addAttribute("success", success.toString());
+			page = "question/yaaditoupdateContentview";
 		}else{
 			model.addAttribute("failure", "update failed.");
 		}
@@ -1972,5 +2127,155 @@ public class QuestionController extends GenericController<Question> {
 			final Locale locale) {
 		return "question/yaadidiscussiondate";
 	}
+	
+	@RequestMapping(value="/questionFormatEdit" , method=RequestMethod.GET)
+	public String getFormatEdit(final ModelMap model,final HttpServletRequest request, final Locale locale)
+	{
+		try {
+			List<HouseType> housetypes = HouseType.findAll(HouseType.class, "name", ApplicationConstants.ASC, locale.toString());
+			List<SessionType> sessionTypes = 
+					SessionType.findAll(SessionType.class, "sessionType", ApplicationConstants.ASC, locale.toString());
+			List<DeviceType> devices = DeviceType.findAll(DeviceType.class, "name", ApplicationConstants.ASC, locale.toString());
+			model.addAttribute("housetypes", housetypes);
+			model.addAttribute("sessionTypes", sessionTypes);
+			model.addAttribute("devices", devices);
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return "questionformat/formatEdit";
+	}
+	
+	@RequestMapping(value="/questionFormatView" , method=RequestMethod.GET)
+	public String getQsnView(final ModelMap model,final HttpServletRequest request, final Locale locale)
+	{
+		String strHouseType = request.getParameter("houseType");
+		String strDeviceType = request.getParameter("deviceType");
+		String strqsnId = request.getParameter("qsnId");
+		Integer qsnId =  Integer.parseInt(strqsnId);
+		
+		
+		if(strHouseType != null && !(strHouseType.isEmpty())
+			&& 	strDeviceType!= null && !(strDeviceType.isEmpty())
+			&&  qsnId != null 
+				) {
+			HouseType houseType = HouseType.findByName(strHouseType, locale.toString());
+			
+			DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+			
+			try {
+				Session latestSession = Session.findLatestSession(houseType);
+				House currentHouse = House.findCurrentHouse(locale.toString());
+				List<Question> qsnDetails = new ArrayList<Question>();
+				
+				qsnDetails = Question.getQuestionDetail(latestSession,qsnId,deviceType.getId(),houseType.getId(),currentHouse.getFirstDate());
+				String[] Pactor = new String[(qsnDetails.size())];
+				boolean parentSet=false;
+				
+				if(qsnDetails.get(0).getParent() == null)
+				{
+				List<Question> childQsnDetails =  Question.getChildQuestionDetail(latestSession, qsnDetails.get(0).getId(), deviceType.getId(), houseType.getId(),currentHouse.getFirstDate());
+				model.addAttribute("childQuestions", childQsnDetails);
+				}
+				else if(qsnDetails.get(0).getParent() != null)
+				{
+					
+					qsnDetails = Question.getQuestionDetail(latestSession,qsnDetails.get(0).getParent().getNumber(),deviceType.getId(),houseType.getId(),currentHouse.getFirstDate());
+					model.addAttribute("questions", qsnDetails);
+					List<Question> childQsnDetails =  Question.getChildQuestionDetail(latestSession, qsnDetails.get(0).getId(), deviceType.getId(), houseType.getId(),currentHouse.getFirstDate());
+					model.addAttribute("childQuestions", childQsnDetails);
+					for(int i=0 ;i<qsnDetails.size();i++) {
+						Pactor = qsnDetails.get(i).getActor().split("#");
+					}
+					model.addAttribute("actor", Pactor[0]);
+					parentSet =true;
+				}
+				
+				if(parentSet == false) {
+				for(int i=0 ;i<qsnDetails.size();i++) {
+				Pactor = qsnDetails.get(i).getActor().split("#");
+				}
+				model.addAttribute("actor", Pactor[0]);
+				model.addAttribute("questions", qsnDetails);
+				}
+			
+			} catch (ELSException e) {
+			
+				e.printStackTrace();
+			} 
+		}
+		return "questionformat/viewQuestion";
+	}
+	
+	@RequestMapping(value="/questionFormatUpdate" , method=RequestMethod.POST)
+	public String updateQsnAdmin(final ModelMap model,final HttpServletRequest request, final Locale locale)
+	{
+
+		boolean updated = false;
+		String page = "question/error";
+		StringBuffer success = new StringBuffer();
+		
+		try{
+			
+			String selectedItemsLength = (String)request.getParameter("itemsLength");
+			int number  = Integer.parseInt(selectedItemsLength);
+			
+			ArrayList<HashMap<String,String>>  questionContent= new ArrayList<HashMap<String,String>>();
+			
+			for (int i=0;i<number;i++)
+			{
+				HashMap<String,String> ymap = new HashMap<String,String>();
+				String  questionId = request.getParameter("items["+i+"][questionId]");
+				ymap.put("questionId", questionId);
+				String questionText  = request.getParameter("items["+i+"][questionText]");
+				ymap.put("questionText", questionText);
+				String RevisedText  = request.getParameter("items["+i+"][revisedQuestionText]");
+				ymap.put("revisedQuestionText", RevisedText);
+				String answer = request.getParameter("items["+i+"][answer]");
+				ymap.put("answer", answer);
+				questionContent.add(ymap);
+			}
+			
+			if(questionContent != null )
+			{
+				for(HashMap<String,String>  i : questionContent)
+				{
+					Long id = Long.parseLong(i.get("questionId"));
+					Question question = Question.findById(Question.class, id);
+					
+					question.setQuestionText(HtmlUtils.htmlUnescape(i.get("questionText")));					
+					question.setRevisedQuestionText(HtmlUtils.htmlUnescape(i.get("revisedQuestionText")));
+					question.setAnswer(HtmlUtils.htmlUnescape(i.get("answer")));
+					question.simpleMerge();
+					updated = true;
+					success.append(FormaterUtil.formatNumberNoGrouping(question.getNumber(), question.getLocale())+",");
+					WorkflowDetails workflowDetails = 
+							WorkflowDetails.findCurrentWorkflowDetail(question);
+					if(workflowDetails != null) {
+					workflowDetails.setText(i.get("questionText"));
+					workflowDetails.merge();
+					}
+				}
+			}
+			
+			
+
+		}catch(Exception e){
+			e.printStackTrace();
+			updated = false;
+		}
+		
+		if(updated){
+			this.getYaadiToDiscussUpdateQuestions(model, request, locale.toString());
+			success.append(" updated successfully...");
+			model.addAttribute("success", success.toString());
+			page = "questionformat/viewQuestion";
+		}else{
+			model.addAttribute("failure", "update failed.");
+		}
+		
+		return page;
+	}
+	
 }
 
