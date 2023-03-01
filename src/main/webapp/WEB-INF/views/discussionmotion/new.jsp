@@ -408,7 +408,30 @@
 	</security:authorize>		
 	</div>
 
-		<%-- <p>
+
+
+<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_shortduration'}">
+		<p>
+		<label class="centerlabel"><spring:message code="discussionmotion.supportingMembers" text="Supporting Members"/></label>
+		<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
+		<c:if test="${(selectedDiscussionMotionType=='motions_discussionmotion_shortduration')
+			 and (!(empty numberOfSupportingMembersComparator) and !(empty numberOfSupportingMembers))}">
+			<label style="display: inline; border: 1px double blue; padding: 5px; background-color: #DCE4EF; font-weight: bold;" class="centerlabel" id="supportingMemberMessage"><spring:message code="question.numberOfsupportingMembers" text="Number of Supporting Members"></spring:message>&nbsp;${numberOfSupportingMembersComparatorHTML}&nbsp;${numberOfSupportingMembers}</label>										
+		</c:if>
+		<c:if test="${!(empty supportingMembers)}">
+		<select  name="selectedSupportingMembers" multiple="multiple">
+		<c:forEach items="${supportingMembers}" var="i">
+		<option value="${i.id}" class="${i.getFullname()}" selected="selected"></option>
+		</c:forEach>		
+		</select>
+		</c:if>
+		<a href="#" id="viewStatus"><spring:message code="discussionmotion.viewstatus" text="View Status"></spring:message></a>
+		<form:errors path="supportingMembers" cssClass="validationError"/>	
+	</p>	
+	</c:if>	
+	
+	<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_lastweek' || selectedDiscussionMotionType=='motions_discussionmotion_publicimportance'}">
+	 <p>
 			<label ><spring:message code="question.supportingMembers" text="Supporting Members"/></label>
 	
 		</p>
@@ -422,9 +445,13 @@
 		
 		</select>
 		</c:if>
-		</div> --%>
+		</div> 
 		
 		<br>
+	</c:if>	
+	
+		
+		<%--
 		<p>
 		<label class="centerlabel"><spring:message code="discussionmotion.supportingMembers" text="Supporting Members"/></label>
 		<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
@@ -442,7 +469,7 @@
 		<a href="#" id="viewStatus"><spring:message code="discussionmotion.viewstatus" text="View Status"></spring:message></a>
 		<form:errors path="supportingMembers" cssClass="validationError"/>	
 	</p>
-	
+	--%>
 	<p>
 		<label class="centerlabel"><spring:message code="discussionmotion.subject" text="Subject"/>*</label>
 		<form:textarea path="subject" rows="2" cols="50"></form:textarea>
