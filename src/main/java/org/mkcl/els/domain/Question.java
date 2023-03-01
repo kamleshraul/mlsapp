@@ -9,6 +9,7 @@ l * See the file LICENSE for redistribution information.
  */
 package org.mkcl.els.domain;
 
+
 import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -2281,6 +2282,9 @@ public class Question extends Device implements Serializable {
     	Question question = findById(Question.class, questionId);
     	return question.getSupportingMembers();
     }
+    
+    
+    
 
     
     /**
@@ -14483,4 +14487,32 @@ public class Question extends Device implements Serializable {
 		
 		return workflowDetailsList!=null && deleteCount== workflowDetailsList.size();
 	}
+	
+	
+	public static List<Question> getQuestionDetail(final Session session,
+			final Integer NoOfQuestions,
+			final Long deviceTypeId,
+			final Long houseId,
+			final Date houseStartDate  )
+	{
+		List<Question> qsnDetails = new ArrayList<Question>();
+		qsnDetails=  getQuestionRepository().getQuestionText( session, NoOfQuestions, deviceTypeId, houseId, houseStartDate);
+		return qsnDetails;
+	
+	}
+	
+	public static List<Question> getChildQuestionDetail(final Session session,
+			final Long parentQuestion,
+			final Long deviceTypeId,
+			final Long houseId,
+			final Date houseStartDate  )
+	{
+		List<Question> childQsnDetails = new ArrayList<Question>();
+		childQsnDetails=  getQuestionRepository().getChildQuestionText( session, parentQuestion, deviceTypeId, houseId, houseStartDate);
+		return childQsnDetails;
+	
+	}
+	
+	
+	
 }
