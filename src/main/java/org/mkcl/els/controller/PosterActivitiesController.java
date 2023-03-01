@@ -122,57 +122,76 @@ public class PosterActivitiesController extends BaseController {
 		StringBuffer success = new StringBuffer();
 		
 		try{
+			String strDeviceType = request.getParameter("deviceType");
 			String[] selectedItems = request.getParameterValues("items[]");
 			String strDecisionStatus = request.getParameter("decisionStatus");
 			String remarks = request.getParameter("remarks");
 			
-			if(selectedItems != null && selectedItems.length > 0
+			if(strDeviceType!=null && !strDeviceType.isEmpty() 
+					&& selectedItems != null && selectedItems.length > 0
 					&& strDecisionStatus != null && !strDecisionStatus.isEmpty()) {
+				DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+				String finalAuthorityUsername = "";
 				for(String i : selectedItems) {
-					Long id = Long.parseLong(i);
-					Motion motion = Motion.findById(Motion.class, id);
-					if(motion.getParent()==null) {
-						Status status = Status.findById(Status.class, new Long(strDecisionStatus));
-						UserGroupType userGroupType = UserGroupType.findByType(ApplicationConstants.ASSISTANT, motion.getLocale());
+					try {
+						Long id = Long.parseLong(i);
+						Motion motion = Motion.findById(Motion.class, id);
+						if(motion.getParent()==null) {
+							Status status = Status.findById(Status.class, new Long(strDecisionStatus));
+							UserGroupType userGroupType = UserGroupType.findByType(ApplicationConstants.ASSISTANT, motion.getLocale());
+								
+							Device.startDeviceWorkflow(motion.getType().getDeviceName(), motion.getId(), status, userGroupType, 7, "", false, motion.getLocale());
 							
-						Device.startDeviceWorkflow(motion.getType().getDeviceName(), motion.getId(), status, userGroupType, 7, "", false, motion.getLocale());
-						
-						//motion.simpleMerge();
-						Motion updatedMotion = Motion.findById(Motion.class, motion.getId());
-						if(remarks!=null) {
-							updatedMotion.setRemarks(remarks);						
-						}
-						UserGroupType finalAuthorityUGT = null;
-						if(updatedMotion.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-							finalAuthorityUGT = UserGroupType.findByType(ApplicationConstants.SPEAKER, updatedMotion.getLocale());
-						}
-						else if(updatedMotion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-							finalAuthorityUGT = UserGroupType.findByType(ApplicationConstants.CHAIRMAN, updatedMotion.getLocale());
-						}
-						if(finalAuthorityUGT!=null) {
-							updatedMotion.setEditedAs(finalAuthorityUGT.getDisplayName());
-							updatedMotion.setEditedOn(new Date());
-							//later add new UserGroup.findActive for current devicetype as allowed devicetype parameter
-							UserGroup finalAuthorityUserGroup = UserGroup.findActive(finalAuthorityUGT.getType(), new Date(), updatedMotion.getLocale());
-							if(finalAuthorityUserGroup!=null) {
-								String finalAuthorityUsername = finalAuthorityUserGroup.getCredential().getUsername();
-								updatedMotion.setEditedBy(finalAuthorityUsername);
-							}							
-							//remove below code later once above code is proper
+							//motion.simpleMerge();
+							Motion updatedMotion = Motion.findById(Motion.class, motion.getId());
+							if(remarks!=null) {
+								updatedMotion.setRemarks(remarks);						
+							}
+							UserGroupType finalAuthorityUGT = null;
 							if(updatedMotion.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-								updatedMotion.setEditedBy("mois_speaker");
+								finalAuthorityUGT = UserGroupType.findByType(ApplicationConstants.SPEAKER, updatedMotion.getLocale());
 							}
 							else if(updatedMotion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-								updatedMotion.setEditedBy("mois_chairman");
+								finalAuthorityUGT = UserGroupType.findByType(ApplicationConstants.CHAIRMAN, updatedMotion.getLocale());
 							}
+							if(finalAuthorityUGT!=null) {
+								updatedMotion.setEditedAs(finalAuthorityUGT.getDisplayName());
+								updatedMotion.setEditedOn(new Date());
+								//later add new UserGroup.findActive for current devicetype as allowed devicetype parameter
+								UserGroup finalAuthorityUserGroup = UserGroup.findActive(finalAuthorityUGT.getType(), new Date(), updatedMotion.getLocale());
+								if(finalAuthorityUserGroup!=null) {
+									finalAuthorityUsername = finalAuthorityUserGroup.getCredential().getUsername();
+									updatedMotion.setEditedBy(finalAuthorityUsername);
+								}							
+								//remove below code later once above code is proper
+								if(updatedMotion.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+									updatedMotion.setEditedBy("mois_speaker");
+									finalAuthorityUsername = updatedMotion.getEditedBy();
+								}
+								else if(updatedMotion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+									updatedMotion.setEditedBy("mois_chairman");
+									finalAuthorityUsername = updatedMotion.getEditedBy();
+								}
+							}
+							
+							updatedMotion.addMotionDraft();
+							updatedMotion.simpleMerge();
+							updated = true;
+							success.append(FormaterUtil.formatNumberNoGrouping(updatedMotion.getNumber(), updatedMotion.getLocale())+",");
 						}
-						
-						updatedMotion.addMotionDraft();
-						updatedMotion.simpleMerge();
-						updated = true;
-						success.append(FormaterUtil.formatNumberNoGrouping(updatedMotion.getNumber(), updatedMotion.getLocale())+",");
-					}					
+					} catch(ELSException e) {
+						e.printStackTrace();
+						logger.error(e.getParameter());
+						logger.error("Problem in bulk update of workflow details task with " + deviceType.getDeviceName() + " ID = "+i);
+						continue;
+					} catch(Exception e) {
+						e.printStackTrace();
+						logger.error(e.getMessage());
+						logger.error("Problem in bulk update of workflow details task with " + deviceType.getDeviceName() + " ID = "+i);
+						continue;
+					}										
 				}
+				//Add Notification to finalAuthorityUsername
 			}
 		}catch(Exception e){
 			e.printStackTrace();

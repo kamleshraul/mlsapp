@@ -6120,11 +6120,13 @@ class QuestionReportHelper{
 		}		
 		memberName = member.findNameInGivenFormat(memberNameFormat);
 		if(memberName!=null && !memberName.isEmpty() && !previousQuestionsMemberNames.contains(memberName) && !allMemberNamesBuffer.toString().contains(memberName)) {
-			allMemberNamesBuffer.append(memberName);
-			if(isConstituencyIncluded) {
-				constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
-				if(!constituencyName.isEmpty()) {
-					allMemberNamesBuffer.append(" (" + constituencyName + ")");			
+			if(member.isSupportingOrClubbedMemberToBeAddedForDevice(clubbedQuestion)) {
+				allMemberNamesBuffer.append(memberName);
+				if(isConstituencyIncluded) {
+					constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+					if(!constituencyName.isEmpty()) {
+						allMemberNamesBuffer.append(" (" + constituencyName + ")");			
+					}
 				}
 			}			
 		} else {
@@ -6168,7 +6170,7 @@ class QuestionReportHelper{
 					if(member!=null) {
 						memberName = member.findNameInGivenFormat(memberNameFormat);
 						if(memberName!=null && !memberName.isEmpty() && !previousQuestionsMemberNames.contains(memberName) && !allMemberNamesBuffer.toString().contains(memberName)) {
-							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(clubbedQuestion)) {
+							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getQuestion())) {
 								allMemberNamesBuffer.append(", " + memberName);
 								if(isConstituencyIncluded) {
 									constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
@@ -6186,7 +6188,7 @@ class QuestionReportHelper{
 							if(member!=null) {
 								memberName = member.findNameInGivenFormat(memberNameFormat);
 								if(memberName!=null && !memberName.isEmpty() && !previousQuestionsMemberNames.contains(memberName) && !allMemberNamesBuffer.toString().contains(memberName)) {
-									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(clubbedQuestion)) {
+									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getQuestion())) {
 										allMemberNamesBuffer.append(", " + memberName);
 										if(isConstituencyIncluded) {
 											constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);

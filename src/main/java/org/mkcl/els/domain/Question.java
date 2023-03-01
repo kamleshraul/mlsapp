@@ -2936,7 +2936,7 @@ public class Question extends Device implements Serializable {
 					if(member!=null) {
 						memberName = member.findNameInGivenFormat(nameFormat);
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getQuestion())) {
 								if(!allMemberNamesBuffer.toString().isEmpty()){
 									allMemberNamesBuffer.append(", " + memberName);
 								}else{
@@ -2953,7 +2953,7 @@ public class Question extends Device implements Serializable {
 							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 								memberName = member.findNameInGivenFormat(nameFormat);
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getQuestion())) {
 										if(!allMemberNamesBuffer.toString().isEmpty()){
 											allMemberNamesBuffer.append(", " + memberName);
 										}else{
@@ -3028,7 +3028,7 @@ public class Question extends Device implements Serializable {
 					if(member!=null) {
 						memberName = member.findNameInGivenFormat(nameFormat);
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getQuestion())) {
 								if(allMemberNamesBuffer.length()>0) {
 									allMemberNamesBuffer.append(", " + memberName);
 								} else {
@@ -3045,7 +3045,7 @@ public class Question extends Device implements Serializable {
 							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 								memberName = member.findNameInGivenFormat(nameFormat);
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getQuestion())) {
 										if(allMemberNamesBuffer.length()>0) {
 											allMemberNamesBuffer.append(", " + memberName);
 										} else {
@@ -3135,7 +3135,7 @@ public class Question extends Device implements Serializable {
 					if(member!=null) {
 						memberName = member.findNameInGivenFormat(nameFormat);
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getQuestion())) {
 								if(allMemberNamesBuffer.length()>0) {
 									allMemberNamesBuffer.append(", " + memberName);
 								} else {
@@ -3156,7 +3156,7 @@ public class Question extends Device implements Serializable {
 							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 								memberName = member.findNameInGivenFormat(nameFormat);
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getQuestion())) {
 										if(allMemberNamesBuffer.length()>0) {
 											allMemberNamesBuffer.append(", " + memberName);
 										} else {

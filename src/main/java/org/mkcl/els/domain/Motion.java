@@ -470,6 +470,7 @@ import org.springframework.transaction.annotation.Transactional;
 				draft.setDetails(this.getDetails());
 				draft.setSubject(this.getSubject());
 			}
+			draft.setReply(this.getReply());
 			draft.setActualEditedByUserName(this.getCurrentUser().getActualUsername());
 			draft.setMotionId(this.getId());	            
 			if(this.getId() != null) {
@@ -2542,7 +2543,7 @@ import org.springframework.transaction.annotation.Transactional;
 					if(member!=null) {
 						memberName = member.findNameInGivenFormat(nameFormat);
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(motion)) {
+							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getMotion())) {
 								if(allMemberNamesBuffer.length()>0) {
 									allMemberNamesBuffer.append(", " + memberName);
 								} else {
@@ -2559,7 +2560,7 @@ import org.springframework.transaction.annotation.Transactional;
 							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 								memberName = member.findNameInGivenFormat(nameFormat);
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(motion)) {
+									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getMotion())) {
 										if(allMemberNamesBuffer.length()>0) {
 											allMemberNamesBuffer.append(", " + memberName);
 										} else {
