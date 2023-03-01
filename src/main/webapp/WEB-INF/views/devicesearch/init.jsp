@@ -522,13 +522,41 @@
 									if(deviceNumber==undefined || deviceNumber=='') {
 										deviceNumber = $('#billWithoutNumber').val();
 									}
+									if($("#strDeviceType").val().startsWith("notices_")){
 									textTemp=textTemp+"<tr>"+
 											"<td class='expand' style='width: 150px; max-width: 150px;'>"+
 											"<span id='number"+data[i].id+"'>"+
-												deviceNumber+"</span>"
+											"<a onclick='viewDetails("+data[i].id+");' style='margin:10px; text-decoration: underline;'>"+
+												deviceNumber+"</a></span>"
 											+"<br>";
 									textTemp+="<span id='operation"+data[i].id+"'></span></td>";
-								
+									}
+									else if($("#strDeviceType").val().startsWith("proprietypoint")){
+										textTemp=textTemp+"<tr>"+
+												"<td class='expand' style='width: 150px; max-width: 150px;'>"+
+												"<span id='number"+data[i].id+"'>"+
+												"<a onclick='viewDetails("+data[i].id+");' style='margin:10px; text-decoration: underline;'>"+
+													deviceNumber+"</a></span>"
+												+"<br>";
+										textTemp+="<span id='operation"+data[i].id+"'></span></td>";
+										}
+									else if($("#strDeviceType").val().startsWith("motions_adjournment")){
+										textTemp=textTemp+"<tr>"+
+												"<td class='expand' style='width: 150px; max-width: 150px;'>"+
+												"<span id='number"+data[i].id+"'>"+
+												"<a onclick='viewDetails("+data[i].id+");' style='margin:10px; text-decoration: underline;'>"+
+													deviceNumber+"</a></span>"
+												+"<br>";
+										textTemp+="<span id='operation"+data[i].id+"'></span></td>";
+										}
+									else {
+										textTemp=textTemp+"<tr>"+
+										"<td class='expand' style='width: 150px; max-width: 150px;'>"+
+										"<span id='number"+data[i].id+"'>"+
+											deviceNumber+"</span>"
+										+"<br>";
+										textTemp+="<span id='operation"+data[i].id+"'></span></td>";
+									}
 									textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+data[i].subject+"</td>";
 																		
 									textTemp+="<td class='expand' style='width: 420px; max-width: 420px;'>"+data[i].formattedPrimaryMember+" : "+data[i].noticeContent
@@ -605,7 +633,70 @@
 			search("NO");
 			$(".clearLoadMore").empty();
 		}		
-				
+	
+		/**** view device details in readonly mode ****/
+		function viewDetails(clubId){
+			var resourceURL="";
+			var deviceTypeParameterName = "";
+		     if($("#strDeviceType").val().startsWith("notices_")){
+				deviceTypeParameterName = "deviceType";
+			} 
+		     else if($("#strDeviceType").val().startsWith("proprietypoint")) {
+		    	 deviceTypeParameterName = "deviceType";			
+			} 
+		     else if($("#strDeviceType").val().startsWith("motions_adjournment")) {
+		    	 deviceTypeParameterName = "deviceType";			
+			} 
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var parameters="houseType="+$("#selectedHouseType").val()
+			+"&sessionYear="+$("#selectedSessionYear").val()
+			+"&sessionType="+$("#selectedSessionType").val()
+			+"&"+deviceTypeParameterName+"="+$("#refDeviceType").val()
+			+"&ugparam="+$("#ugparam").val()
+			+"&status="+$("#selectedStatus").val()
+			+"&role="+$("#srole").val()
+			+"&usergroup="+$("#currentusergroup").val()
+			+"&usergroupType="+$("#currentusergroupType").val()
+			+"&edit=false";
+					
+			 if($("#strDeviceType").val().startsWith("notices_")) {
+				resourceURL='specialmentionnotice/'+clubId+'/edit?'+parameters;				
+			}
+			 else if($("#strDeviceType").val().startsWith("proprietypoint")) {
+					resourceURL='proprietypoint/'+clubId+'/edit?'+parameters;				
+			}
+			 else if($("#strDeviceType").val().startsWith("motions_adjournment")) {
+					resourceURL='adjournmentmotion/'+clubId+'/edit?'+parameters;				
+			}
+			$.get(resourceURL,function(data){
+				$("#clubbingDiv").hide();
+				$("#viewQuestion").html(data);
+				$("#viewQuestionDiv").show();
+				$.unblockUI();				
+			},'html').fail(function(){
+				$.unblockUI();
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
+			$.unblockUI();						
+		}
+		
+		/**** Back To Search Page****/
+		$("#backToSearch").click(function(){
+				back();
+		});	
+		
+		/**** on clicking back ****/
+		function back(){
+			$("#clubbingDiv").show();		
+			$("#clubbingResult").empty();
+			$("#viewQuestion").empty();
+			$("#viewQuestionDiv").hide();
+		}
 		
 </script>
 
@@ -832,6 +923,10 @@ td>table{
 
 </div>
 
+<div id="viewQuestionDiv" style="display:none;">
+<br/>
+<a id="backToSearch" href="#" style="display:block;"><spring:message code="clubbing.back" text="Back to search page"></spring:message></a>
+<div id="viewQuestion">
 </div>
 </div>
 

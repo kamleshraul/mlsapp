@@ -270,16 +270,16 @@
 		<form:form action="specialmentionnotice" method="PUT" modelAttribute="domain">
 			<%@ include file="/common/info.jsp" %>
 			<div id="reportDiv">
-			<a href="#" id="new_record_ForNew" class="butSim soberFontSize">
+		<%-- 	<a href="#" id="new_record_ForNew" class="butSim soberFontSize">
 				<spring:message code="generic.new" text="New"/>
-			</a> 
+			</a>  --%>
 			<br />
 			<br />
 			<h2>
 				${formattedMotionType}
 				<c:choose>
 				<c:when test="${not empty formattedSpecialMentionNoticeDate and not empty formattedNumber}">
-					(${formattedSpecialMentionNoticeDate} - <spring:message code="generic.number" text="Number"/> ${formattedNumber})
+					(${formattedSpecialMentionNoticeDate} - <spring:message code="generic.number" text="Number"/>&nbsp;${formattedNumber})
 				</c:when>
 				<c:when test="${not empty formattedSpecialMentionNoticeDate and empty formattedNumber}">
 					(${formattedSpecialMentionNoticeDate})

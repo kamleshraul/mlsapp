@@ -270,9 +270,9 @@
 		<form:form action="specialmentionnotice" method="PUT" modelAttribute="domain">
 			<%@ include file="/common/info.jsp" %>
 			<div id="reportDiv">
-			<a href="#" id="new_record_ForNew" class="butSim soberFontSize">
+			<%-- <a href="#" id="new_record_ForNew" class="butSim soberFontSize">
 				<spring:message code="generic.new" text="New"/>
-			</a> 
+			</a>  --%>
 			<br />
 			<br />
 			<h2>
