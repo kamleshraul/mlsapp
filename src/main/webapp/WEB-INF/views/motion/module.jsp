@@ -204,11 +204,10 @@
 			
 			/* Edited By Shubham A  */
 			$("#ActiveMinistries").change(function(){
-				var val = $(this).val();
-				if(val!="" && val!='-'){
-					console.log("working");
+				var val = $("#ActiveMinistries").val();
+			
 					ActiveMinistryReport($(this).val());
-				}
+				
 			});
 			 
 			
@@ -922,6 +921,8 @@
 			 var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
 			+ "/" + $("#selectedSessionYear").val()
 			+ "/" + $("#selectedSessionType").val();
+			var statusCheck = $("#selectedStatus").val()
+			
 			$.get(url,function(data){
 				if(data){
 					
@@ -930,7 +931,9 @@
 							+"&housetype="+$("#selectedHouseType").val()
 							+"&deviceTypeId="+$("#selectedMotionType").val()
 							+"&ActiveMinistries="+ActiveMinistry 
-							+"&locale="+$("#moduleLocale").val()							
+							+"&locale="+$("#moduleLocale").val()
+							+"&statusId="+$("#selectedStatus").val()
+							+"&ClubStatus="+$("#selectedClubbingStatus").val()
 							+"&report=MOIS_MINISTRY_REPORT&reportout=motionMinistryReport");
 				}
 			}); 
