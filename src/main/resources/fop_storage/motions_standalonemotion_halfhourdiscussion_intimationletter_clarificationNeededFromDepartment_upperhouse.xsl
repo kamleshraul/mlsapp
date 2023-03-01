@@ -181,6 +181,22 @@
 						
 						<fo:block font-size="4px">&#160;</fo:block>	
 						
+						<fo:block>
+	            			&#160;&#160;&#160;&#160;
+	            			
+	            			<xsl:choose>
+
+	            				<xsl:when test="bExplanation!=''">
+	            				<xsl:apply-templates select="bExplanation"/>
+	            				</xsl:when>
+	            				
+	            				//	<xsl:when test="reason!='' and reason!='-' and reason!='--' and reason!='---' and reason!='----' and reason!='-----'">
+	            				//	<xsl:apply-templates select="reason"/>
+	            				//</xsl:when>	
+	            			
+	            			</xsl:choose>	            			
+	            		</fo:block> 
+							<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block>							
 							&#160;&#160;&#160;&#160;&#160;उपरोल्लिखित सूचनाधीन विषयाबाबत खाली नमूद केलेल्या क्रमांक (______) येथील माहिती या सचिवालयास त्वरित कळवावी अशी विनंती आहे :- 												
 						</fo:block>	
