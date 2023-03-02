@@ -13,10 +13,7 @@ $(document).ready(function(){
 		
 		}
 	});
-	
-	 console.log(qsnId);
-	 
-	
+
 		   for (var i=0; i<qsnId.length; i++) {
 			console.log(i+"here")
 	
@@ -37,10 +34,6 @@ $(document).ready(function(){
 			
 		} 
 
-	 
-		console.log(document.querySelector('.questionText_'+qsnId[0])); 
-	
-	
 	/* var continueLoop=true;
 	$(".action").each(function(){
 		if(continueLoop){
@@ -96,7 +89,7 @@ $(document).ready(function(){
 							
 							<td style="min-width:30px;" id="${i.id}">${i.formatNumber()}  </td>
 							
-							<td  style=" min-width:150px;">
+							<td  style=" min-width:100px;">
 							<spring:message code="question.actor" text="Actor"></spring:message> :-
 							${actor}
 							<br>
