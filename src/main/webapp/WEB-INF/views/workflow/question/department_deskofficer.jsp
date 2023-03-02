@@ -188,8 +188,11 @@
 					&& $("#lateAnswerFillingFlag").val()=="set"
 					&& $("#internalStatusType").val()=="question_final_admission") {
 				$('#submit').hide();
+			    $("#transferP").css("display","none");
+                $("#isTransferable").css("display","none");
 			}else{
 				$('#submit').show();
+				  $("#isTransferable").css("display","inline-block");
 			}
 			var params="question=" + $("#id").val()
 			+ "&status=" + valueToSend 
