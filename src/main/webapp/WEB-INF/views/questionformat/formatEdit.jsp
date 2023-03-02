@@ -47,14 +47,10 @@
 			var qsnId=new Array();
 			$(".action").each(function(){
 				if($(this).is(":checked")){
-				
 				qsnId.push($(this).attr("id").split("chk")[1]);
 				
 				}
 			});
-			
-			console.log(qsnId)
-			
 			if(qsnId.length<=0){
 				$.prompt($("#selectItemsMsg").val());
 				return false;	
@@ -66,20 +62,19 @@
 				console.log(i+"here")
 			    items.push({'questionId':qsnId[i],'questionText':$(".questionText_"+qsnId[i]).get(0).value ,'revisedQuestionText':$(".revisedQuestionText_"+qsnId[i]).get(0).value ,
 			    	'answer':$(".answer_"+qsnId[i]).get(0).value
-			})
-			         
-				;
+			});
 			}
-			console.log(items)
-			
+
 			 $.prompt($('#submissionMsg').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 					$.post('question//questionFormatUpdate?loadIt=yes',
 				        	{items:items,
-						    itemsLength:items.length
-				        						 	
+						    itemsLength:items.length,
+						    houseType:$("#selectedHouseType").val()
+							 ,deviceType:$("#selectedDeviceType").val()
+							 ,qsnId: $("#questionNumberField").val()			 	
 						 	},
 		    	            function(data){
 		       					$('html').animate({scrollTop:0}, 'slow');
@@ -212,6 +207,6 @@
 </div>
 </div>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
-	<input id="submissionMsg" value="<spring:message code='client.prompt.submitEn' text='Do you want to submit the motions.'></spring:message>" type="hidden">
+	<input id="submissionMsg" value="<spring:message code='client.prompt.submitEn' text='Do you want to submit the changes'></spring:message>" type="hidden">
 </body>
 </html>
