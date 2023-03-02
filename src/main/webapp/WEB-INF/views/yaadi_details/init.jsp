@@ -575,14 +575,26 @@
 		</c:if>
 		<%-- </security:authorize> --%>
 		
-		<security:authorize access="!hasAnyRole( 'QIS_GENERAL_CLERK')">
-		<a href="#" id="view_yaadi" class="butSim">
-			<spring:message code="yaadidetails.viewYaadi" text="Yaadi Report"/>
-		</a> |		 
-		<a href="#" id="view_suchi" class="butSim">
-			<spring:message code="yaadidetails.viewSuchi" text="Suchi Report"/>
-		</a>
-		</security:authorize>
+		<c:choose>
+			<c:when test="${deviceTypeType=='questions_starred'}">
+				<security:authorize access="!hasAnyRole( 'QIS_GENERAL_CLERK')">
+				<a href="#" id="view_yaadi" class="butSim">
+					<spring:message code="yaadidetails.viewYaadi" text="Yaadi Report"/>
+				</a> |		 
+				<a href="#" id="view_suchi" class="butSim">
+					<spring:message code="yaadidetails.viewSuchi" text="Suchi Report"/>
+				</a>
+				</security:authorize>
+			</c:when>
+			<c:otherwise>
+				<a href="#" id="view_yaadi" class="butSim">
+					<spring:message code="yaadidetails.viewYaadi" text="Yaadi Report"/>
+				</a> |		 
+				<a href="#" id="view_suchi" class="butSim">
+					<spring:message code="yaadidetails.viewSuchi" text="Suchi Report"/>
+				</a>
+			</c:otherwise>
+		</c:choose>
 		
 		<c:if test="${deviceTypeType=='questions_stared'}">
 		<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">

@@ -216,12 +216,12 @@
 										<xsl:value-of select="element_1_11"/><fo:inline font-weight="normal"> पुढील गोष्टींचा खुलासा करतील काय :-</fo:inline>
 									</xsl:when>
 									<xsl:when test="element_1_15='मुख्‍यमंत्री' or element_1_15='उप मुख्‍यमंत्री'">
-										<xsl:value-of select="element_1_11"/><fo:inline font-weight="normal"> पुढील गोष्टींचा खुलासा करतील काय :-</fo:inline>
+										<xsl:value-of select="element_1_15"/><fo:inline font-weight="normal"> पुढील गोष्टींचा खुलासा करतील काय :-</fo:inline>
 									</xsl:when>
 									<xsl:otherwise>
 										<xsl:value-of select="element_1_15"/> मंत्री <fo:inline font-weight="normal">पुढील गोष्टींचा खुलासा करतील काय :-</fo:inline>
 									</xsl:otherwise>
-								</xsl:choose>   				
+								</xsl:choose> 				
                 			</fo:block>
 	                		<fo:block font-size="0pt">&#160;</fo:block>
 	                		<fo:block font-weight="normal">

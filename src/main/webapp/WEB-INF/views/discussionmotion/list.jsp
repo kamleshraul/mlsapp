@@ -247,10 +247,10 @@
 					</c:choose>
 				</a>
 				|
-				 <%-- <a href="#" id="generateCurrentStatusReport" class="butSim">
+				 <a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="discussionmotion.generateCurrentStatusReport" text="Generate Current Status Report"/>
 				</a> 
-				| --%>
+				|
 						
 					
 								<a href="javascript:void(0);" id="houseitem_report" class="butSim" >
