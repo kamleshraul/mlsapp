@@ -21,7 +21,7 @@
 			var parameters = "houseType="+$("#selectedHouseType").val()
 			 +"&deviceType="+$("#selectedDeviceType").val()
 			 +"&qsnId="+$("#questionNumberField").val();
-			 console.log(parameters)
+			 
 			var resource='question/questionFormatView';
 			 var resourceURL=resource+"?"+parameters;
 			 $.get(resourceURL,function(data){
