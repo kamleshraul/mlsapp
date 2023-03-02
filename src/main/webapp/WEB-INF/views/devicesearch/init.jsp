@@ -549,6 +549,15 @@
 												+"<br>";
 										textTemp+="<span id='operation"+data[i].id+"'></span></td>";
 										}
+									else if($("#strDeviceType").val().startsWith("motions_calling_attention")){
+										textTemp=textTemp+"<tr>"+
+												"<td class='expand' style='width: 150px; max-width: 150px;'>"+
+												"<span id='number"+data[i].id+"'>"+
+												"<a onclick='viewDetails("+data[i].id+");' style='margin:10px; text-decoration: underline;'>"+
+													deviceNumber+"</a></span>"
+												+"<br>";
+										textTemp+="<span id='operation"+data[i].id+"'></span></td>";
+										}
 									else {
 										textTemp=textTemp+"<tr>"+
 										"<td class='expand' style='width: 150px; max-width: 150px;'>"+
@@ -567,16 +576,26 @@
 									} 
 										
 										
-									textTemp += data[i].sessionYear+","+data[i].sessionType+","+data[i].deviceType+"<br>"
+									textTemp += data[i].sessionYear+","+data[i].sessionType+","+data[i].deviceType+",<br>"
 									if($("#strDeviceType").val().startsWith("questions_")){
 										+"<strong>"+data[i].formattedGroup+"</span>,"	
 									}
 									+ data[i].ministry;
 									if(data[i].subDepartment==null||data[i].subdepartment==""){
-										textTemp+=","+data[i].status+"<br>";
-									   
-								    }else{						     
-								    	textTemp+=","+data[i].subDepartment+" "+$('#subdepartmentValue').val()+"<br>"+ data[i].status;
+										 if(data[i].status == data[i].internalStatus){
+											 textTemp+=data[i].internalStatus+"<br>"; 
+										  }
+										 else{
+											 textTemp+=data[i].internalStatus+" ("+data[i].status+")"+"<br>";
+										 }
+    							    }else{
+								      	 if(data[i].status == data[i].internalStatus){
+								    		textTemp+=data[i].subDepartment+" "+$('#subdepartmentValue').val()+"<br>"+ data[i].internalStatus;
+								    		console.log("test="+textTemp);
+								    	 }else{
+								    		textTemp+=data[i].subDepartment+" "+$('#subdepartmentValue').val()+"<br>"+ data[i].internalStatus+" ("+data[i].status+")";
+								    		console.log("test="+textTemp+" "+data[i].internalStatus);
+								    	 }
 								    }
 									if(data[i].chartAnsweringDate!=null && data[i].chartAnsweringDate!=''){
 										textTemp+=" ,"+data[i].chartAnsweringDate;
@@ -647,6 +666,9 @@
 		     else if($("#strDeviceType").val().startsWith("motions_adjournment")) {
 		    	 deviceTypeParameterName = "deviceType";			
 			} 
+		     else if($("#strDeviceType").val().startsWith("motions_calling_attention")) {
+		    	 deviceTypeParameterName = "deviceType";			
+			} 
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			var parameters="houseType="+$("#selectedHouseType").val()
 			+"&sessionYear="+$("#selectedSessionYear").val()
@@ -667,6 +689,9 @@
 			}
 			 else if($("#strDeviceType").val().startsWith("motions_adjournment")) {
 					resourceURL='adjournmentmotion/'+clubId+'/edit?'+parameters;				
+			}
+			 else if($("#strDeviceType").val().startsWith("motions_calling_attention")) {
+					resourceURL='motion/'+clubId+'/edit?'+parameters;				
 			}
 			$.get(resourceURL,function(data){
 				$("#clubbingDiv").hide();

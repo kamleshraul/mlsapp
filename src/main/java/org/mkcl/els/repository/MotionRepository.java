@@ -782,7 +782,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 				+"  mo.revised_subject as revisedSubject,"
 				+"  mo.details as motionDetails,"
 				+"  mo.revised_details as revisedMotionDetails,"
-				+"  st.name as status,dt.name as deviceType,s.session_year as sessionYear,"
+				+"  ist.name as internalStatus,st.name as status,dt.name as deviceType,s.session_year as sessionYear,"
 				+"  sety.session_type as sessionType,"
 				+"  mi.name as ministry,"
 				+"  sd.name as subdepartment,st.type as statustype," 
@@ -794,6 +794,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 				+"  LEFT JOIN sessions as s ON(mo.session_id=s.id) "
 				+"  LEFT JOIN sessiontypes as sety ON(s.sessiontype_id=sety.id) "
 				+"  LEFT JOIN status as st ON(mo.recommendationstatus_id=st.id) "
+				+"  LEFT JOIN status as ist ON(mo.internalstatus_id=ist.id) " 
 				+"  LEFT JOIN devicetypes as dt ON(mo.devicetype_id=dt.id) "
 				+"  LEFT JOIN members as m ON(mo.member_id=m.id) "
 				+"  LEFT JOIN titles as t ON(m.title_id=t.id) "
@@ -860,7 +861,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 		}
 		/**** Final Query ****/
 		String finalQuery = "SELECT rs.id,rs.number,rs.subject,rs.revisedSubject,rs.motionDetails, "+
-				" rs.revisedMotionDetails,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.ministry,rs.subdepartment,rs.statustype,rs.memberName,rs.discussionDate,rs.actor FROM (" + query + ") as rs LIMIT " + start + "," + noOfRecords;
+				" rs.revisedMotionDetails,rs.internalStatus,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.ministry,rs.subdepartment,rs.statustype,rs.memberName,rs.discussionDate,rs.actor FROM (" + query + ") as rs LIMIT " + start + "," + noOfRecords;
 
 		List results=this.em().createNativeQuery(finalQuery).getResultList();
 		List<SearchVO> motionSearchVOs=new ArrayList<SearchVO>();
@@ -901,36 +902,39 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 					}
 				}
 				if(o[6]!=null){
-					motionSearchVO.setStatus(o[6].toString());
-				}
+					motionSearchVO.setInternalStatus(o[6].toString());
+				}  				
 				if(o[7]!=null){
-					motionSearchVO.setDeviceType(o[7].toString());
+					motionSearchVO.setStatus(o[7].toString());
 				}
 				if(o[8]!=null){
-					motionSearchVO.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[8].toString())));
+					motionSearchVO.setDeviceType(o[8].toString());
 				}
 				if(o[9]!=null){
-					motionSearchVO.setSessionType(o[9].toString());
+					motionSearchVO.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[9].toString())));
 				}
-				
 				if(o[10]!=null){
-					motionSearchVO.setMinistry(o[10].toString());
+					motionSearchVO.setSessionType(o[10].toString());
 				}
 				
 				if(o[11]!=null){
-					motionSearchVO.setSubDepartment(o[11].toString());
+					motionSearchVO.setMinistry(o[11].toString());
 				}
+				
 				if(o[12]!=null){
-					motionSearchVO.setStatusType(o[12].toString());
+					motionSearchVO.setSubDepartment(o[12].toString());
 				}
 				if(o[13]!=null){
-					motionSearchVO.setFormattedPrimaryMember(o[13].toString());
+					motionSearchVO.setStatusType(o[13].toString());
 				}
-				if(o[14]!=null && !o[14].toString().isEmpty()){
-					motionSearchVO.setChartAnsweringDate(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[14].toString(), ApplicationConstants.DB_DATEFORMAT), ApplicationConstants.SERVER_DATEFORMAT, locale));
+				if(o[14]!=null){
+					motionSearchVO.setFormattedPrimaryMember(o[14].toString());
 				}
-				if(o[15]!=null){
-					motionSearchVO.setActor(o[15].toString());
+				if(o[15]!=null && !o[14].toString().isEmpty()){
+					motionSearchVO.setChartAnsweringDate(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[15].toString(), ApplicationConstants.DB_DATEFORMAT), ApplicationConstants.SERVER_DATEFORMAT, locale));
+				}
+				if(o[16]!=null){
+					motionSearchVO.setActor(o[16].toString());
 				}
 				motionSearchVOs.add(motionSearchVO);
 			}

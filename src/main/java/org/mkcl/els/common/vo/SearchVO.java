@@ -29,6 +29,9 @@ public class SearchVO {
 	/** The status. */
 	private String status;
 	
+	/** The Internal status. */
+	private String internalStatus;
+	
 	/** The device type. */
 	private String deviceType;	
 	
@@ -125,6 +128,14 @@ public class SearchVO {
 
 	public void setRevisedContent(String revisedContent) {
 		this.revisedContent = revisedContent;
+	}
+	
+	public String getInternalStatus() {
+		return internalStatus;
+	}
+
+	public void setInternalStatus(String internalStatus) {
+		this.internalStatus = internalStatus;
 	}
 
 	public String getStatus() {
