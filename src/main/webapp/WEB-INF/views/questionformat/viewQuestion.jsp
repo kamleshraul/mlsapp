@@ -30,7 +30,7 @@ $(document).ready(function(){
 		   var 	answer = $(".answer_"+qsnId[i]).get(0).value;
 		   answer = cleanFormatting(answer);
 		   $(".answer_"+qsnId[i]).get(0).value= answer;
-		         
+		       console.log("complete "+i+"cycle")
 			
 		} 
 
@@ -60,7 +60,7 @@ $(document).ready(function(){
 
 <style>
 .txt{
-	width:200px;
+	width:160px;
 	height:400px;
 }
 </style>
@@ -77,10 +77,10 @@ $(document).ready(function(){
 					<tr>
 						<th  style=" min-width:30px;"><input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>
 						<th style=" min-width:30px;"><spring:message code="question.number" text="Number"></spring:message></th>
-						<th style="min-width:100px;"><spring:message code="question.actor" text="Actor"></spring:message></th>
-						<th style=" min-width:150px;" ><spring:message code="question.QuestionText" text="Question Text"></spring:message></th>
-						<th style=" min-width:150px;" ><spring:message code="yaadidetails.revisedQuestionText" text="revisedText"></spring:message></th>
-						<th style=" min-width:30px;"><spring:message code="question.answer" text="SM"></spring:message></th>
+						<th style="min-width:60px;"><spring:message code="question.actor" text="Actor"></spring:message></th>
+						<th style=" min-width:110px;" ><spring:message code="question.QuestionText" text="Question Text"></spring:message></th>
+						<th style=" min-width:110px;" ><spring:message code="yaadidetails.revisedQuestionText" text="revisedText"></spring:message></th>
+						<th style=" min-width:100px;"><spring:message code="question.answer" text="SM"></spring:message></th>
 					</tr>			
 					<c:forEach items="${questions}" var="i">
 						<tr>
@@ -99,18 +99,18 @@ $(document).ready(function(){
 							</td>
 							
 							<%-- <td  style=" min-width:170px;"><textarea rows="7" cols="22">${i.subject}</textarea></td> --%>
-							<td style="min-width:200px;" >
+							<td style="min-width:110px;" >
 							
 								 <textarea  class=" questionText_${i.id} txt">${i.questionText}</textarea>
 							 
 							</td>
 							<%-- <td style=" min-width:170px;" ><textarea rows="7" cols="30">${i.revisedQuestionText}</textarea></td> --%>
-							<td style="text-align:justify;min-width:200px;" >
+							<td style="text-align:justify;min-width:110px;" >
 									
 								<textarea  class=" revisedQuestionText_${i.id} txt">${i.revisedQuestionText}</textarea>
 							</td>
 							<%-- <td style=" min-width:170px;" ><textarea rows="7" cols="22">${i.remarks}</textarea></td> --%>
-							<td style="text-align:justify;min-width:210px;">
+							<td style="text-align:justify;min-width:100px;">
 										<textarea class="answer_${i.id} txt" >${i.answer}</textarea>
 							</td>
 						</tr>
@@ -123,24 +123,24 @@ $(document).ready(function(){
 							
 							<td style="min-width:30px;" id="${i.id}">${i.formatNumber()}  </td>
 							
-							<td  style=" min-width:150px;">
+							<td  style=" min-width:60px;">
 							${i.actor } 
-							<div>
+							<br>
 							<b>${i.recommendationStatus.name }</b>
+							<br>
 							<b>${i.subDepartment.name }</b>
-							</div>
 							</td>
 							
 							<%-- <td  style=" min-width:170px;"><textarea rows="7" cols="22">${i.subject}</textarea></td> --%>
-							<td style="text-align:justify;min-width:200px;" class="questionText_${i.id}">
+							<td style="text-align:justify;min-width:110px;" >
 										<textarea class=" questionText_${i.id} txt">${i.questionText}</textarea>
 							</td>
 							<%-- <td style=" min-width:170px;" ><textarea rows="7" cols="30">${i.revisedQuestionText}</textarea></td> --%>
-							<td style="text-align:justify;min-width:200px;" class="revisedQuestionText_${i.id}">
+							<td style="text-align:justify;min-width:110px;" >
 										<textarea  class="revisedQuestionText_${i.id} txt">${i.revisedQuestionText}</textarea>
 							</td>
 							<%-- <td style=" min-width:170px;" ><textarea rows="7" cols="22">${i.remarks}</textarea></td> --%>
-							<td style="text-align:justify;min-width:210px;" class="answer_${i.id}">
+							<td style="text-align:justify;min-width:100px;" >
 										<textarea class="answer_${i.id} txt" >${i.answer}</textarea>
 							</td>
 						</tr>
