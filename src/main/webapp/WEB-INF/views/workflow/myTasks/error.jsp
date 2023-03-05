@@ -81,6 +81,15 @@
 		<p></p>
 	</div>
 </c:when>
+<c:when test="${errorcode eq 'answer_sent_post_last_date_of_answer_receiving'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="question.errorcode.answer_sent_post_last_date_of_answer_receiving" text="Answer cannot be sent post last date of answer receiving."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
 <c:otherwise>
 	<div class="toolTip tpRed clearfix">
 		<p>

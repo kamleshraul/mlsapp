@@ -1960,14 +1960,6 @@ public class QuestionWorkflowController  extends BaseController{
 							domain.setLastDateOfAnswerReceiving(lastDateOfAnswerReceiving);
 						}
 						
-						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
-								&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
-										|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION))
-								&& domain.getAnswer()!=null && !domain.getAnswer().isEmpty() && domain.getAnswerReceivedDate()==null) {					
-							domain.setAnswerReceivedDate(new Date());
-							domain.setAnswerReceivedMode(ApplicationConstants.ANSWER_RECEIVED_MODE_ONLINE);
-						}
-						
 						if(domain.getLastDateOfAnswerReceiving()==null) {
 							String strLastDateOfAnswerReceiving = request.getParameter("setLastDateOfAnswerReceiving");
 							if(strLastDateOfAnswerReceiving!=null && !strLastDateOfAnswerReceiving.isEmpty()) {
@@ -1975,6 +1967,31 @@ public class QuestionWorkflowController  extends BaseController{
 								//Added the above code as the following code was giving exception of unparseble date
 								//Date lastDateOfAnswerReceiving = FormaterUtil.formatStringToDate(strLastDateOfAnswerReceiving, ApplicationConstants.DB_DATEFORMAT, locale.toString());
 								domain.setLastDateOfAnswerReceiving(lastDateOfAnswerReceiving);
+							}
+						}
+						/** server side validation for starred question last date of answer receiving in upperhouse only (configurable) **/
+						boolean validationAppliedForLastAnswerReceivingDate = false;
+						CustomParameter csptSeverSideValidationForLastAnswerReceivingDate = CustomParameter.findByName(CustomParameter.class, domain.getType().getType()+"_LAST_DATE_OF_ANSWER_RECEIVING_VALIDATIION_ENABLED_"+domain.getHouseType().getType(), "");
+						if(csptSeverSideValidationForLastAnswerReceivingDate!=null
+								&& csptSeverSideValidationForLastAnswerReceivingDate.getValue()!=null) {
+							if(csptSeverSideValidationForLastAnswerReceivingDate.getValue().equals("YES")) {
+								if(DateUtil.compareDatePartOnly(new Date(), domain.getLastDateOfAnswerReceiving())>0) {
+									validationAppliedForLastAnswerReceivingDate = true;									
+								}
+							}
+						}						
+						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
+								&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+										|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION))
+								&& domain.getAnswer()!=null && !domain.getAnswer().isEmpty() && domain.getAnswerReceivedDate()==null) {							
+							
+							if(validationAppliedForLastAnswerReceivingDate) {
+								logger.error("Answer cannnot be sent post Last date of answer receiving is expired");
+								model.addAttribute("errorcode","answer_sent_post_last_date_of_answer_receiving");
+								return "workflow/myTasks/error";
+							} else {							
+								domain.setAnswerReceivedDate(new Date());
+								domain.setAnswerReceivedMode(ApplicationConstants.ANSWER_RECEIVED_MODE_ONLINE);								
 							}
 						}
 					}
