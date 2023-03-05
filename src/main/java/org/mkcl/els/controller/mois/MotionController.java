@@ -920,16 +920,25 @@ public class MotionController extends GenericController<Motion>{
 		if(recommendationStatus!=null){
 			model.addAttribute("recommendationStatus",recommendationStatus.getId());
 			model.addAttribute("recommendationStatusType",recommendationStatus.getType());
+		}
+		if(discussionStatus!=null) {
+			model.addAttribute("discussionStatus",discussionStatus.getId());
 		}	
-		/** Populate whether admitted motion is discussed or not  **/
-		if(internalStatus!=null && internalStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
-			if(discussionStatus!=null) {
-				model.addAttribute("discussionStatus",discussionStatus.getId());
-				model.addAttribute("formattedDiscussionStatus",discussionStatus.getName());
-			}
-			/** populate discussion details text if question is discussed **/
+		/** populate discussion details text if motion is discussed **/
+		if(internalStatus!=null && internalStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_FINAL_ADMISSION)) {			
 			String discussionDetailsText = domain.findDiscussionDetailsText();
 			model.addAttribute("discussionDetailsText", discussionDetailsText);
+		}
+		/** populate answering date and discussion date **/
+		if (domain.getAnsweringDate() != null) {
+			model.addAttribute("answeringDate", domain.getAnsweringDate());
+			model.addAttribute("formattedAnsweringDate", FormaterUtil.formatDateToString(domain.getAnsweringDate(),
+					ApplicationConstants.SERVER_DATEFORMAT, locale));
+		}
+		if (domain.getDiscussionDate() != null) {
+			model.addAttribute("discussionDate", domain.getDiscussionDate());
+			model.addAttribute("formattedDiscussionDate", FormaterUtil.formatDateToString(domain.getDiscussionDate(),
+					ApplicationConstants.SERVER_DATEFORMAT, locale));
 		}
 		
 		/**** Referenced Entities are collected in refentities****/		
@@ -1705,16 +1714,11 @@ public class MotionController extends GenericController<Motion>{
 		}	
 		Status internalStatus=domain.getInternalStatus();
 		Status discussionStatus=domain.getDiscussionStatus();	
-		/** Populate whether admitted motion is discussed or not  **/
-		if(internalStatus!=null && internalStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
-			if(discussionStatus!=null) {
-				model.addAttribute("discussionStatus",discussionStatus.getId());
-				model.addAttribute("formattedDiscussionStatus",discussionStatus.getName());
-			} else {
-				//if there comes status which is post discussed, then need to check discussed on drafts here..
-				model.addAttribute("discussionStatus","");
-			}
-			/** populate discussion details text if question is discussed **/
+		if(discussionStatus!=null) {
+			model.addAttribute("discussionStatus",discussionStatus.getId());
+		}	
+		/** populate discussion details text if motion is discussed **/
+		if(internalStatus!=null && internalStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_FINAL_ADMISSION)) {			
 			String discussionDetailsText = domain.findDiscussionDetailsText();
 			model.addAttribute("discussionDetailsText", discussionDetailsText);
 		}
@@ -2171,7 +2175,44 @@ public class MotionController extends GenericController<Motion>{
 			catch (ParseException e) {
 				e.printStackTrace();
 			}
-		}	
+		}
+		/**** updating answer related dates ****/
+		if (domain.getAnsweringDate() == null) {
+			String strAnsweringDate = request.getParameter("setAnsweringDate");
+			if (strAnsweringDate != null && !strAnsweringDate.isEmpty()) {
+				Date answeringDate = null;
+				try {
+					answeringDate = FormaterUtil.getDateFormatter("en_US").parse(strAnsweringDate);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				// Added the above code as the following code was giving
+				// exception of unparseble date
+				// Date answeringDate =
+				// FormaterUtil.formatStringToDate(strAnsweringDate,
+				// ApplicationConstants.DB_DATEFORMAT, locale.toString());
+				domain.setAnsweringDate(answeringDate);
+			}
+		}
+		if (domain.getDiscussionDate() == null) {
+			String strDiscussionDate = request.getParameter("setDiscussionDate");
+			if (strDiscussionDate != null && !strDiscussionDate.isEmpty()) {
+				Date discussionDate = null;
+				try {
+					discussionDate = FormaterUtil.getDateFormatter("en_US").parse(strDiscussionDate);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				// Added the above code as the following code was giving
+				// exception of unparseble date
+				// Date discussionDate =
+				// FormaterUtil.formatStringToDate(strDiscussionDate,
+				// ApplicationConstants.DB_DATEFORMAT, locale.toString());
+				domain.setDiscussionDate(discussionDate);
+			}
+		}
 		/**** add department ****/
 		if(domain.getSubDepartment()!=null){
 			domain.setDepartment(domain.getSubDepartment().getDepartment());

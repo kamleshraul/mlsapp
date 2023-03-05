@@ -609,7 +609,12 @@
 			<h2>${formattedMotionType}: ${formattedPostBallotNumber}</h2>
 		</c:when>
 		<c:otherwise>
-			<h2>${formattedMotionType}: ${formattedNumber}</h2>
+			<h2>
+				${formattedMotionType}: ${formattedNumber}
+				<c:if test="${not empty discussionDetailsText}">
+					&nbsp;&nbsp;(${discussionDetailsText})
+				</c:if>
+			</h2>
 		</c:otherwise>
 	</c:choose>
 	<form:errors path="version" cssClass="validationError"/>
@@ -935,6 +940,7 @@
 		<input type="hidden" id="answeringDate" name="setAnsweringDate" class="datemask sText" value="${formattedAnsweringDate}"/>
 	</c:otherwise>
 	</c:choose>
+	<input type="hidden" id="discussionDate" name="setDiscussionDate" class="datemask sText" value="${formattedDiscussionDate}"/>
 	
 	<c:if test="${!(empty domain.reply)}">
 	<p>
@@ -1008,6 +1014,7 @@
 	<input type="hidden" name="status" id="status" value="${status }">
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
+	<input type="hidden" id="discussionStatus"  name="discussionStatus" value="${discussionStatus}">
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
 	<input type="hidden" name="dataEnteredBy" id="dataEnteredBy" value="${dataEnteredBy }">
 	<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">

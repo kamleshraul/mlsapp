@@ -852,6 +852,7 @@
 	<input type="hidden" name="status" id="status" value="${status }">
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
+	<input type="hidden" id="discussionStatus"  name="discussionStatus" value="${discussionStatus}">
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
 	<input type="hidden" name="dataEnteredBy" id="dataEnteredBy" value="${dataEnteredBy }">
 	<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
@@ -860,7 +861,8 @@
 	<input type="hidden" name="taskReceivedOnDate" id="taskReceivedOnDate" value="${taskReceivedOnDate }">	
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
-	<input type="hidden" id="answeringDate" name="setAnsweringDate" class="datemask sText" value="${formattedAnsweringDate}"/>	
+	<input type="hidden" id="answeringDate" name="setAnsweringDate" class="datemask sText" value="${formattedAnsweringDate}"/>
+	<input type="hidden" id="discussionDate" name="setDiscussionDate" class="datemask sText" value="${formattedDiscussionDate}"/>	
 </form:form>
 <input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">

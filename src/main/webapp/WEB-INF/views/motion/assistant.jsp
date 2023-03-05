@@ -978,8 +978,7 @@
 	<c:if test="${empty parent}">
 	<c:choose>
 	<c:when test="${internalStatusType == 'motion_system_assistantprocessed' 
-					|| internalStatusType == 'motion_system_putup'
-					|| (internalStatusType == 'motion_final_admission' && (usergroupType == 'assistant' || usergroupType == 'clerk'))}">
+					|| internalStatusType == 'motion_system_putup'}">
 		<p>	
 			<label class="small"><spring:message code="motion.putupfor" text="Put up for"/></label>	
 			<select id="changeInternalStatus" class="sSelect">
@@ -1025,7 +1024,21 @@
 		<form:errors path="internalStatus" cssClass="validationError"/>	
 	</p>
 	
-	<c:if test="${domain.reply!=null || internalStatusType == 'motion_final_admission'}">
+	<c:choose>
+	<c:when test="${internalStatusType == 'motion_final_admission' and not empty formattedAnsweringDate}">
+		<p>
+		<label class="small"><spring:message code="motion.answeringDate" text="Answering Date"/></label>
+		<input id="formattedAnsweringDate" name="setAnsweringDate" class="datemask sText" value="${formattedAnsweringDate}" readonly="readonly"/>
+		<form:errors path="answeringDate" cssClass="validationError"/>
+		</p>
+	</c:when>
+	<c:otherwise>
+		<input type="hidden" id="answeringDate" name="setAnsweringDate" class="datemask sText" value="${formattedAnsweringDate}"/>
+	</c:otherwise>
+	</c:choose>
+	<input type="hidden" id="discussionDate" name="setDiscussionDate" class="datemask sText" value="${formattedDiscussionDate}"/>
+	
+	<c:if test="${internalStatusType == 'motion_final_admission' and not empty domain.reply}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="motion.nivedan" text="Nivedan"/></label>
 			<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
@@ -1119,6 +1132,7 @@
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 	<input type="hidden" id="internalStatusType"  name="internalStatusType" value="${internalStatusType}">
 	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
+	<input type="hidden" id="discussionStatus"  name="discussionStatus" value="${discussionStatus}">
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
 	<input type="hidden" name="dataEnteredBy" id="dataEnteredBy" value="${dataEnteredBy }">
 	<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">

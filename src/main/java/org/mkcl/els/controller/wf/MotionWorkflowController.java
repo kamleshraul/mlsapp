@@ -459,9 +459,15 @@ public class MotionWorkflowController extends BaseController {
 			}
 		}
 
+		/** populate answering date and discussion date **/
 		if (domain.getAnsweringDate() != null) {
 			model.addAttribute("answeringDate", domain.getAnsweringDate());
 			model.addAttribute("formattedAnsweringDate", FormaterUtil.formatDateToString(domain.getAnsweringDate(),
+					ApplicationConstants.SERVER_DATEFORMAT, locale));
+		}
+		if (domain.getDiscussionDate() != null) {
+			model.addAttribute("discussionDate", domain.getDiscussionDate());
+			model.addAttribute("formattedDiscussionDate", FormaterUtil.formatDateToString(domain.getDiscussionDate(),
 					ApplicationConstants.SERVER_DATEFORMAT, locale));
 		}
 
@@ -516,6 +522,16 @@ public class MotionWorkflowController extends BaseController {
 		if (recommendationStatus != null) {
 			model.addAttribute("recommendationStatus", recommendationStatus.getId());
 			model.addAttribute("recommendationStatusType", recommendationStatus.getType());
+		}
+		
+		Status discussionStatus=domain.getDiscussionStatus();	
+		if(discussionStatus!=null) {
+			model.addAttribute("discussionStatus",discussionStatus.getId());
+		}	
+		/** populate discussion details text if motion is discussed **/
+		if(internalStatus!=null && internalStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_FINAL_ADMISSION)) {			
+			String discussionDetailsText = domain.findDiscussionDetailsText();
+			model.addAttribute("discussionDetailsText", discussionDetailsText);
 		}
 
 		/**** Referenced Entities are collected in refentities ****/
@@ -811,7 +827,7 @@ public class MotionWorkflowController extends BaseController {
 			}
 		}
 
-		/**** answer related dates ****/
+		/**** updating answer related dates ****/
 		if (domain.getAnsweringDate() == null) {
 			String strAnsweringDate = request.getParameter("setAnsweringDate");
 			if (strAnsweringDate != null && !strAnsweringDate.isEmpty()) {
@@ -828,6 +844,24 @@ public class MotionWorkflowController extends BaseController {
 				// FormaterUtil.formatStringToDate(strAnsweringDate,
 				// ApplicationConstants.DB_DATEFORMAT, locale.toString());
 				domain.setAnsweringDate(answeringDate);
+			}
+		}
+		if (domain.getDiscussionDate() == null) {
+			String strDiscussionDate = request.getParameter("setDiscussionDate");
+			if (strDiscussionDate != null && !strDiscussionDate.isEmpty()) {
+				Date discussionDate = null;
+				try {
+					discussionDate = FormaterUtil.getDateFormatter("en_US").parse(strDiscussionDate);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				// Added the above code as the following code was giving
+				// exception of unparseble date
+				// Date discussionDate =
+				// FormaterUtil.formatStringToDate(strDiscussionDate,
+				// ApplicationConstants.DB_DATEFORMAT, locale.toString());
+				domain.setDiscussionDate(discussionDate);
 			}
 		}
 
