@@ -527,6 +527,7 @@ public class MotionWorkflowController extends BaseController {
 		Status discussionStatus=domain.getDiscussionStatus();	
 		if(discussionStatus!=null) {
 			model.addAttribute("discussionStatus",discussionStatus.getId());
+			model.addAttribute("discussionStatusType", discussionStatus.getType());
 		}	
 		/** populate discussion details text if motion is discussed **/
 		if(internalStatus!=null && internalStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_FINAL_ADMISSION)) {			
