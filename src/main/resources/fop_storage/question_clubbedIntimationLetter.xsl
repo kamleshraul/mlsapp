@@ -149,6 +149,7 @@
 							<xsl:for-each select="element_3/element_3_1">
 								<fo:block font-weight="bold" text-align="center">
 									<xsl:value-of select="element_3_1_3"/> क्रमांक <xsl:value-of select="element_3_1_1"/>
+									&#160;&#160;(<xsl:value-of select="element_3_1_4"/>)
 								</fo:block>
 								<fo:block font-size="5px">&#160;</fo:block>
 								<fo:block>&#160;&#160;&#160;<xsl:apply-templates select="element_3_1_2"/></fo:block>
@@ -164,6 +165,7 @@
 							<fo:block font-size="15px">&#160;</fo:block>
 							<fo:block font-weight="bold" text-align="center">
 								मूळ <xsl:value-of select="element_1/element_1_8"/> क्रमांक <xsl:value-of select="element_1/element_1_1"/>
+								&#160;&#160;(<xsl:value-of select="element_1/element_1_3"/>)
 							</fo:block>
 							<fo:block font-size="5px">&#160;</fo:block>
 							<fo:block>&#160;&#160;&#160;<xsl:apply-templates select="element_1/element_1_9"/></fo:block>
@@ -173,6 +175,7 @@
 							<xsl:for-each select="element_5/element_5_1">
 								<fo:block font-weight="bold" text-align="center">
 									<xsl:value-of select="element_5_1_3"/> क्रमांक <xsl:value-of select="element_5_1_1"/>
+									&#160;&#160;(<xsl:value-of select="element_5_1_4"/>)
 								</fo:block>
 								<fo:block font-size="5px">&#160;</fo:block>
 								<fo:block>&#160;&#160;&#160;<xsl:apply-templates select="element_5_1_2"/></fo:block>
