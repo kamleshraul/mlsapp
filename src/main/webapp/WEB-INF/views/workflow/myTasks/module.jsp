@@ -99,7 +99,7 @@
 							
 							if(device == 'motions_calling_attention'){
 								displayNewAdvanceCopyForMotion();
-								$("#advanceCopyDiv").css("display","inline");
+								//$("#advanceCopyDiv").css("display","inline"); commented as handled in above function itself
 							}else{
 								$("#advanceCopyDiv").hide();
 							}
@@ -265,7 +265,7 @@
 						
 						if(device == 'motions_calling_attention'){
 							displayNewAdvanceCopyForMotion();
-							$("#advanceCopyDiv").css("display","inline");
+							//$("#advanceCopyDiv").css("display","inline"); commented as handled in above function itself
 						}else{
 							$("#advanceCopyDiv").hide();
 						}
@@ -389,7 +389,7 @@
 						
 						if(device == 'motions_calling_attention'){
 							displayNewAdvanceCopyForMotion();
-							$("#advanceCopyDiv").css("display","inline");
+							//$("#advanceCopyDiv").css("display","inline"); commented as handled in above function itself
 						}else{
 							$("#advanceCopyDiv").hide();
 						}
@@ -579,7 +579,7 @@
 				
 				if(device == 'motions_calling_attention'){
 					displayNewAdvanceCopyForMotion();
-					$("#advanceCopyDiv").css("display","inline");
+					//$("#advanceCopyDiv").css("display","inline"); commented as handled in above function itself
 				}else{
 					$("#advanceCopyDiv").hide();
 				}
@@ -2048,18 +2048,27 @@
 		//to show new advance copy count for motion
 		 function displayNewAdvanceCopyForMotion(){
 			if($("#getNewTasks").val() != undefined && $("#getNewTasks").val() != ''){
-				var url = "ref/newpendingmotionadvancecopy?sessionYear=" + $("#selectedSessionYear").val() +
-							"&sessionType=" + $("#selectedSessionType").val() + 
-							"&houseType=" + $("#selectedHouseType").val() +
-							"&assignee="+ $("#assignee").val()
-				$.get(url, function(data){
-					if(data){
-						$("#advanceCopyNotificationDiv").html(data);
-						$("#advanceCopyNotificationDiv").css('display','inline-block');
-					}
-				}).fail(function(){
-					
-				});
+				if($("#currentusergroupType").val()=='department' 
+						|| $("#currentusergroupType").val()=='department_deskofficer'){
+					var url = "ref/newpendingmotionadvancecopy?sessionYear=" + $("#selectedSessionYear").val() +
+								"&sessionType=" + $("#selectedSessionType").val() + 
+								"&houseType=" + $("#selectedHouseType").val() +
+								"&assignee="+ $("#assignee").val();
+					$.get(url, function(data){
+						if(data!=undefined && data!=''){ //remove data!='' condition if applicable for both houses
+							$("#advanceCopyDiv").css("display","inline");
+							$("#advanceCopyNotificationDiv").html(data);
+							$("#advanceCopyNotificationDiv").css('display','inline-block');
+						} 
+						else {
+							$("#advanceCopyDiv").hide();
+						}
+					}).fail(function(){
+						
+					});
+				} else {
+					$("#advanceCopyDiv").hide();
+				}			
 			}			  
 		} 
 		

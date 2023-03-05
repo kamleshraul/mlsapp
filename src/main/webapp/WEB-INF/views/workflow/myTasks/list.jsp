@@ -9,8 +9,7 @@
 			var houseTypeType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
 			
 			if($("#deviceTypeType").val() == 'motions_calling_attention'){
-				displayNewAdvanceCopyForMotion();
-				//$("#advanceCopyDiv").css("display","inline");
+				displayNewAdvanceCopyForMotion();				
 			}else{
 				$("#advanceCopyDiv").hide();
 			}
