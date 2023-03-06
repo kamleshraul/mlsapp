@@ -76,7 +76,7 @@
 	<table style="width: 750px; font-weight: bold; border: 2px solid black; font-size: 16px;" class="uiTable">
 		#foreach($r in $data)
 			<tr class="page-break" style="font-weight: bold;">
-			<td style="width: 30px; padding: 2px; text-align: center;">&nbsp;</td>
+			
 				<td style="width: 180px; padding: 2px; text-align: center; min-height: 30px;">
 					#if($r.get(21)!='assistant' && $r.get(21)!='principal_secretary')
 						$r.get(1)<br>$r.get(0)
@@ -84,15 +84,19 @@
 						&nbsp;<br>$r.get(0)
 					#end
 				</td>
-			
-				<td style="width: 100px; padding: 2px; text-align: center;">&nbsp;</td>
-				
-				<td style="width: 100px; padding: 2px; text-align: center;">$r.get(23)	</td>
-				
-				
+
+				<td style="width: 100px; padding: 2px; text-align: center;" id="$r.get(23)">
+				#if($r.get(23))
+					$r.get(23)
+				#else
+					
+				#end
+				</td>
+
+				<td style="width: 30px; padding: 2px; text-align: center;">&nbsp;</td>
 				<td style="width: 110px; padding: 2px;">$r.get(6)</td>
 				<td style="width: 30px; padding: 2px; text-align: center;">&nbsp;</td>
-				<!--<td style="width: 120px; padding: 2px; text-align: center;">&nbsp;</td>-->
+				
 			</tr>
 		#end
 	</table>
