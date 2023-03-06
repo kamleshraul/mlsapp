@@ -566,7 +566,7 @@
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 		
-	<p>
+	<%-- <p>
 	<label class="small"><spring:message code="discussionmotion.putupfor" text="Put up for"/></label>	
 	<select id="changeInternalStatus" class="sSelect">
 	<c:forEach items="${internalStatuses}" var="i">
@@ -587,8 +587,116 @@
 	</c:forEach>
 	</select>	
 	<form:errors path="internalStatus" cssClass="validationError"/>	
-	</p>
-	
+	</p> --%>
+	<hr>
+	<table class="uiTable" style="margin-left:165px;">
+		<thead>
+			<tr>
+				<th>
+					<spring:message code="qis.latestrevisions.user" text="Usergroup"></spring:message>
+				</th>
+				<th>
+					<spring:message code="qis.latestrevisions.decision" text="Decision"></spring:message>
+				</th>
+				<th>
+					<spring:message code="qis.latestrevisions.remarks" text="Remarks"></spring:message>
+				</th>
+			</tr>
+		</thead>
+		<tbody>	
+			<c:set var="startingActor" value="${startingActor}"></c:set>
+			<c:set var="count" value="0"></c:set>
+			<c:set var="startingActorCount" value="0"></c:set>
+			<c:set var="currUserFound" value="no" />
+			<c:forEach items="${latestRevisions}" var="i">	
+				<c:choose>
+					<c:when test="${i[0]==startingActor}">	
+						<c:set var="startingActorCount" value="${count}"></c:set>
+						<c:set var="count" value="${count+1 }"></c:set>
+					</c:when>
+					<c:otherwise>
+						<c:set var="count" value="${count+1 }"></c:set>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+			
+			<c:set var="count" value="0"></c:set>
+			<c:forEach items="${latestRevisions }" var="i">
+				<c:choose>
+					<c:when test="${count>= startingActorCount}">
+						<tr>
+							<td>
+								${i[1]}<br>${i[0]}
+							</td>
+							<td>
+							<c:choose>
+								<c:when test="${fn:endsWith(i[12],'recommend_sendback')
+										|| fn:endsWith(i[12],'recommend_discuss')}">
+									${i[3]}
+								</c:when>
+								<c:otherwise>${i[2]}</c:otherwise>
+							</c:choose>							
+							</td>
+							<td style="max-width:400px;">
+								${i[4]}							
+							</td>
+						</tr>
+						<c:set var="count" value="${count+1 }"></c:set>
+					</c:when>
+					<c:otherwise>
+						<c:set var="count" value="${count+1 }"></c:set>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+			<c:if test="${workflowstatus=='PENDING' or (workflowstatus == 'COMPLETED' 
+						and (internalStatusType=='discussionmotion_final_admission' 
+						|| internalStatusType=='discussionmotion_final_clarificationNeededFromDepartment'
+						|| internalStatusType=='discussionmotion_final_rejection'
+						|| internalStatusType=='discussionmotion_recommend_admission'
+						|| internalStatusType=='discussionmotion_system_assistantprocessed'
+						 
+						))}">
+				<tr>
+					<td>
+						${userName}<br>
+						${userGroupName}
+					</td>
+					<td>
+						
+						<select id="changeInternalStatus" class="sSelect">
+							<c:forEach items="${internalStatuses}" var="i">
+								<c:choose>
+									<c:when test="${i.type=='discussionmotion_system_groupchanged' }">
+										<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
+									</c:when>
+									<c:when test="${i.id==internalStatus }">
+										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									</c:when>
+<%-- 									<c:when test="${(empty domain.factualPosition || empty domain.answer) && (i.type=='question_processed_sendToDepartment' ||  i.type=='question_unstarred_processed_sendToDepartment')}">
+										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									</c:when>
+									<c:when test="${!(empty domain.answer) && (i.type=='question_processed_answerReceived' || i.type=='question_unstarred_processed_answerReceived')}">
+										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									</c:when>
+									<c:when test="${!(empty domain.factualPosition) && (i.type=='question_processed_clarificationReceived' || i.type=='question_unstarred_processed_clarificationReceived')}">
+										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									</c:when> --%>
+									<c:otherwise>
+										<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	 
+									</c:otherwise>
+										
+								</c:choose>
+							</c:forEach>
+						</select>
+					</td>
+					<td>
+						<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
+					</td>
+				</tr>
+			</c:if>
+		</tbody>
+	</table>
+	<hr>
 <p id="actorDiv" >
 		<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
 		<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
@@ -609,10 +717,10 @@
 	</p>
 	</c:if>	
 	
-	<p>
+	<%-- <p>
 		<label class="wysiwyglabel"><spring:message code="discussionmotion.remarks" text="Remarks"/></label>
 		<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
-	</p>
+	</p> --%>
 
 	<c:if test="${workflowstatus!='COMPLETED' }">
 	<div class="fields">
