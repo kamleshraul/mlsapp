@@ -44,6 +44,7 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.QuestionDraft;
@@ -295,8 +296,8 @@ public class DiscussionMotionWorkflowController extends BaseController{
 
 			/**** Populate Model ****/		
 			populateModel(domain,model,request,workflowDetails);
-			/**** Find Latest Remarks ****//*
-			findLatestRemarksByUserGroup(domain,model,request,workflowDetails);*/
+			/**** Find Latest Remarks ****/
+			findLatestRemarksByUserGroup(domain,model,request,workflowDetails);
 		}catch (ELSException e1) {
 			model.addAttribute("error", e1.getParameter());
 		}catch (Exception e) {
@@ -950,6 +951,10 @@ public class DiscussionMotionWorkflowController extends BaseController{
 			}
 			model.addAttribute("type","success");
 			populateModel(domain, model, request, workflowDetails);
+			findLatestRemarksByUserGroup(domain, model, request, workflowDetails);
+			
+			/**** Find Latest Remarks ****/
+			//findLatestRemarksByUserGroup(previousVersionQuestion, model, request, workflowDetails);
 		}catch(Exception e){
 			model.addAttribute("error", e.getMessage());
 			logger.error("error", e);
@@ -1801,5 +1806,64 @@ public class DiscussionMotionWorkflowController extends BaseController{
 				model.addAttribute("motionId", bulkapprovals.get(0).getDeviceId());
 			}
 		}
+	}
+	
+	
+	
+	@SuppressWarnings("rawtypes")
+	private void findLatestRemarksByUserGroup(final DiscussionMotion domain, final ModelMap model,
+			final HttpServletRequest request,final WorkflowDetails workflowDetails)throws ELSException {
+		UserGroupType userGroupType = null;
+		String username = this.getCurrentUser().getUsername();
+		Credential credential = Credential.findByFieldName(Credential.class, "username", username, "");
+		List<UserGroup> ugroups = this.getCurrentUser().getUserGroups();
+		for(UserGroup ug : ugroups){
+			UserGroup usergroup = null;
+//			if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+				usergroup = UserGroup.findActive(credential, ug.getUserGroupType(), new Date(), domain.getLocale());
+//			} else {
+//				usergroup = UserGroup.findActive(credential, ug.getUserGroupType(), domain.getSubmissionDate(), domain.getLocale());
+//			}			
+			if(usergroup != null){
+				userGroupType = usergroup.getUserGroupType();
+				break;
+			}
+		}
+//		if(userGroupType == null
+//				|| (!userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+//				&& !userGroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))){
+//			CustomParameter customParameter = null;
+//			if(userGroupType!=null) {
+//				customParameter = CustomParameter.findByName(CustomParameter.class, "QIS_LATESTREVISION_STARTINGACTOR_"+userGroupType.getType().toUpperCase(), "");
+//				if(customParameter != null){
+//					String strUsergroupType = customParameter.getValue();
+//					userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+//				}else{
+//					CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "QIS_LATESTREVISION_STARTINGACTOR_DEFAULT", "");
+//					if(defaultCustomParameter != null){
+//						String strUsergroupType = defaultCustomParameter.getValue();
+//						userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+//					}
+//				}
+//			} else {
+//				CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "QIS_LATESTREVISION_STARTINGACTOR_DEFAULT", "");
+//				if(defaultCustomParameter != null){
+//					String strUsergroupType = defaultCustomParameter.getValue();
+//					userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+//				}
+//			}			
+//		}
+		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
+		requestMap.put("dmoisId",new String[]{String.valueOf(domain.getId())});
+		requestMap.put("locale",new String[]{domain.getLocale()});
+		if(userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+				|| userGroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+			List result=Query.findReport("QIS_LATEST_REVISION_FOR_DESKOFFICER", requestMap);
+			model.addAttribute("latestRevisions",result);
+		}else{
+			List result=Query.findReport("DMOIS_LATEST_REVISIONS", requestMap);
+			model.addAttribute("latestRevisions",result);
+		}
+		model.addAttribute("startingActor", userGroupType.getName());
 	}
 }
