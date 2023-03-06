@@ -397,12 +397,12 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		
 		StringBuffer query = new StringBuffer(
 				"SELECT q  FROM Question q "+
-				"WHERE q.session.id IN (SELECT s FROM Session s WHERE s.id=:sessionId AND s.startDate>=:startDate) "+
+				"WHERE q.session.id IN (SELECT s FROM Session s WHERE s.house.id=:houseId AND s.startDate>=:startDate) "+
 				" AND q.originalType.id IN (:deviceTypeId)"+
 				" AND q.number IN (  :qsnId  )");
 				
 		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
-		tQuery.setParameter("sessionId", session.getId());
+		tQuery.setParameter("houseId", houseId);
 		tQuery.setParameter("deviceTypeId", deviceTypeId);
 		
 		tQuery.setParameter("qsnId", NoOfQuestions);
@@ -421,7 +421,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		StringBuffer query = new StringBuffer(
 						"SELECT q  FROM Question q "+ 
 						" , Status ss   "+
-						" WHERE q.session.id  IN (SELECT s FROM Session s WHERE s.id=:sessionId AND s.startDate>=:startDate) "+
+						" WHERE q.session.id  IN (SELECT s FROM Session s WHERE s.house.id=:houseId  AND s.startDate>=:startDate) "+
 						" AND q.originalType.id IN (:deviceTypeId) "+
 						" AND ss.id = q.recommendationStatus "+
 						" AND q.parent.id IN (  :qsnId  ) "+
@@ -431,7 +431,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		
 				
 		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
-		tQuery.setParameter("sessionId", session.getId());
+		tQuery.setParameter("houseId", houseId);
 		tQuery.setParameter("deviceTypeId", deviceTypeId);
 //		Integer qsn = parentQuestion.intValue();
 		tQuery.setParameter("qsnId", parentQuestion);
