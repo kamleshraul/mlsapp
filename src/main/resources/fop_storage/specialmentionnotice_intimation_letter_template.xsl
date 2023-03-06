@@ -74,6 +74,9 @@
 	            <fo:flow flow-name="xsl-region-body">		            	
 	            	<fo:block font-family="Kokila" font-size="15px">
 	            		<fo:block>
+	            		<fo:block text-align="right" font-size="20" font-weight="bold">
+	            			<xsl:value-of select="./element_1/element_1_4"/>
+	            		</fo:block>
 	            		<fo:block text-align="center" font-weight="bold">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 	            		<fo:block text-align="left" font-weight="bold" text-decoration="underline">अतितात्काळ</fo:block>
 	            		<fo:block text-align="right">
@@ -206,7 +209,7 @@
 													<xsl:choose>
 														<xsl:when test="./element_1/element_1_10='upperhouse'">
 															<fo:inline  font-weight="bold" ><xsl:value-of select="./element_1/element_1_9"/>,</fo:inline>
-															<fo:inline font-weight="bold">वि.प.स.</fo:inline> यांनी विधानपरिषदमध्ये विशेष उल्लेख म्हणून उपस्थित केलेल्या बाबींवर त्वरित कार्यवाही करण्यासंदर्भात.
+															<fo:inline font-weight="bold">वि.प.स.</fo:inline> यांनी विधानपरिषदमध्ये विशेष उल्लेख म्हणून उपस्थित केलेल्या बाबींवर त्वरित कार्यवाही करण्यासंदर्भात (प्रत संलग्न).
 														</xsl:when>
 														<xsl:otherwise>
 															<xsl:value-of select="./element_1/element_1_9" font-weight="bold"/>
@@ -292,6 +295,17 @@
             			</fo:block>
             			
 	</fo:block>
+	
+						<fo:block break-before="page">
+							<fo:block font-weight="bold" text-align="center">
+								<xsl:value-of select="./element_1/element_1_9"/>, वि.प.स. यांनी विधानपरिषदमध्ये विशेष उल्लेख म्हणून उपस्थित केलेली सूचना क्रमांक - <xsl:value-of select="./element_1/element_1_4"/>
+							</fo:block>
+							<fo:block>&#160;</fo:block><fo:block>&#160;</fo:block>
+							<fo:block>
+								<xsl:apply-templates select="./element_1/element_1_5"/>
+							</fo:block>
+						</fo:block>
+	
 	</fo:block>
 											          
 	            </fo:flow>
