@@ -36,6 +36,10 @@
 			$("#delete_record").click(function() {
 				deleteDiscussionMotion();
 			});		
+			
+			$("#status_report").click(function(e){
+				statusWiseReport();
+			});
 			/****Searching Question****/
 			$("#search").click(function() {
 				searchRecord();
@@ -111,6 +115,30 @@
 			$("#cancelFn").val("rowDblClickHandler");
 			showTabByIdAndUrl('details_tab', 'discussionmotion/'+rowid+'/edit?'+$("#gridURLParams").val());
 		}
+		
+		/**** To Generate Status Wise Report ****/
+		function statusWiseReport(){
+			var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+			+ "/" + $("#selectedSessionYear").val()
+			+ "/" + $("#selectedSessionType").val();
+			$.get(url,function(data){
+				if(data){
+					
+					var selectedStatus = $("#selectedStatus").val();
+					var statusType = $("#statusMaster option[value='" + selectedStatus + "']").text().trim();
+					
+					showTabByIdAndUrl("details_tab","discussionmotion/report/generalreport?"
+							+"sessionId="+data.id
+							+"&deviceTypeId="+$("#selectedMotionType").val()
+							+"&statusId="+selectedStatus
+							+"&statusType="+statusType
+							+"&locale="+$("#moduleLocale").val()
+							+"&report=DMOIS_STATUSWISE_REPORT&reportout=DmoisStatusReport");
+				}
+			});
+		}
+		
+		
 		/**** record selection handler****/
 		function rowSelectHandler(rowid,status){			
 			if($('#key')){
@@ -250,8 +278,13 @@
 				 <a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="discussionmotion.generateCurrentStatusReport" text="Generate Current Status Report"/>
 				</a> 
+
 				|
-						
+				<a href="javascript:void(0);" id="status_report" class="butSim">
+							<spring:message code="discussionmotion.statusReport" text="Status-wise Report"/>
+				</a>
+				|
+	
 					
 								<a href="javascript:void(0);" id="houseitem_report" class="butSim" >
 							<c:choose>
