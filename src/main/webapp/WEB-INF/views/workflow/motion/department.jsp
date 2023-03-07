@@ -211,13 +211,14 @@
 										actCount++;
 									}
 								}
-							}else{
+							}
+							/* else{
 								text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
 								if(actCount == 1){
 									actor1=data[i].id;
 									actCount++;
 								}
-							}
+							} */
 						}					
 					}
 					//text+="<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>";
