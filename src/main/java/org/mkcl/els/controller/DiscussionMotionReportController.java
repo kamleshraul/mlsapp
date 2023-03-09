@@ -2264,13 +2264,16 @@ class DiscussionMotionReportHelper{
 									}
 								}
 							}
+							//below custom parameter should have either under_secretary or under_secretary_committee if only one of the officers is in the flow
 							CustomParameter onPaperSigningAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "DMOIS_CURRENTSTATUS_ONPAPER_SIGNING_AUTHORITY_"+qt.getHouseType().getType(), "");
 							if(onPaperSigningAuthorityParameter != null){
 								String signingAuthority = onPaperSigningAuthorityParameter.getValue();
 								String[] signingAuthorities = signingAuthority.split(",");
 								for(String str : signingAuthorities){
-									if(str.equals(ApplicationConstants.UNDER_SECRETARY) || str.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
+									if(str.equals(ApplicationConstants.UNDER_SECRETARY)){
 										str = ApplicationConstants.UNDER_SECRETARY;
+									} else if(str.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)) {
+										str = ApplicationConstants.UNDER_SECRETARY_COMMITTEE;
 									}
 									if(dataMap.get(str) == null){
 										UserGroupType userGroupType = UserGroupType.
