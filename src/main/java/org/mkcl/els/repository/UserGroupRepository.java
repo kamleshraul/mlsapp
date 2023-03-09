@@ -17,6 +17,7 @@ import org.mkcl.els.domain.AppropriationBillMotion;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.CutMotionDate;
+import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.DiscussionMotion;
 import org.mkcl.els.domain.EventMotion;
 import org.mkcl.els.domain.Group;
@@ -1205,6 +1206,26 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 		Query query = this.em().createQuery(strQuery);
 		query.setParameter("userGroupType", userGroupType);
 		query.setParameter("onDate", onDate);
+		List<UserGroup> userGroups = query.getResultList();
+		if(userGroups.size()>0){
+			return userGroups.get(0);
+		}else{
+			return null;
+		}
+	}
+	
+	public UserGroup findActive(final String userGroupType, final DeviceType deviceTypeEnabledForUserGroup,
+			final Date onDate, String locale) {
+		String strQuery = "SELECT ug FROM UserGroup ug" +
+				" WHERE ug.userGroupType.type=:userGroupType"+
+				" AND ug.activeFrom<=:onDate"+
+				" AND ug.activeTo>=:onDate"+
+				" AND ug.parameters[:deviceTypeParameterKey] LIKE :deviceTypeEnabledForUserGroup";
+		Query query = this.em().createQuery(strQuery);
+		query.setParameter("userGroupType", userGroupType);
+		query.setParameter("onDate", onDate);
+		query.setParameter("deviceTypeParameterKey", "DEVICETYPE_"+locale);
+		query.setParameter("deviceTypeEnabledForUserGroup", "%"+deviceTypeEnabledForUserGroup.getName()+"%");
 		List<UserGroup> userGroups = query.getResultList();
 		if(userGroups.size()>0){
 			return userGroups.get(0);

@@ -220,6 +220,10 @@ public class UserGroup extends BaseDomain implements Serializable {
 		return getUserGroupRepository().findActive(usergroupType, onDate, locale);
 	}
 	
+	public static UserGroup findActive(final String usergroupType, final DeviceType deviceTypeEnabledForUserGroup, final Date onDate, final String locale) {
+		return getUserGroupRepository().findActive(usergroupType, deviceTypeEnabledForUserGroup, onDate, locale);
+	}
+	
 	public static UserGroup findActive(Credential credential, Date onDate, String locale) {
 		return getUserGroupRepository().findActive(credential, onDate, locale);
 	}
