@@ -655,6 +655,17 @@ public class NotificationController extends GenericController<Notification> {
 		getNotificationService().sendNotificationWithTitleUsingTemplate("REPLY_RECEIVED_INTIMATION_TO_SUPPORTING_MEMBERS_OF_DEVICE", templateParameters, locale);
 	}
 	
+	public static void sendDecisionUpdateNotificationToFinalAuthorityOfUpdatedDevices(final Session session, final DeviceType deviceType, final String deviceNumbers, final String updatedDecision, final String finalAuthorityUsername, final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("sessionId", new String[]{session.getId().toString()});
+		templateParameters.put("deviceTypeName", new String[]{deviceType.getName()});
+		templateParameters.put("deviceNumbers", new String[]{deviceNumbers});
+		templateParameters.put("updatedDecision", new String[]{updatedDecision});
+		templateParameters.put("finalAuthorityUsername", new String[]{finalAuthorityUsername});
+		getNotificationService().sendNotificationWithTitleUsingTemplate("DECISION_UPDATE_NOTIFICATION_TO_FINAL_AUTHORITY_OF_UPDATED_DEVICES", templateParameters, locale);
+	}
+	
 	public static void sendNotificationFromAdminPage(final String notificationTitle, final String notificationMessage, final boolean isVolatile, final String receivers, final String locale) {
 		if(isVolatile) {
 			if(notificationTitle.equals(notificationMessage)) {

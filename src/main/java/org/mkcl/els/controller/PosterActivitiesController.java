@@ -119,35 +119,40 @@ public class PosterActivitiesController extends BaseController {
 		
 		boolean updated = false;
 		String page = "motion/error";
-		StringBuffer success = new StringBuffer();
+		StringBuffer updatedDeviceNumbers = new StringBuffer();
 		
 		try{
+			String strSession = request.getParameter("session");
 			String strDeviceType = request.getParameter("deviceType");
 			String[] selectedItems = request.getParameterValues("items[]");
 			String strDecisionStatus = request.getParameter("decisionStatus");
 			String remarks = request.getParameter("remarks");
 			
-			if(strDeviceType!=null && !strDeviceType.isEmpty() 
+			if(strSession!=null && !strSession.isEmpty() 
+					&& strDeviceType!=null && !strDeviceType.isEmpty()
 					&& selectedItems != null && selectedItems.length > 0
 					&& strDecisionStatus != null && !strDecisionStatus.isEmpty()) {
 				DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
 				String finalAuthorityUsername = "";
+				Status status = Status.findById(Status.class, new Long(strDecisionStatus));
+				Session session = Session.findById(Session.class, Long.parseLong(strSession));
 				for(String i : selectedItems) {
 					try {
 						Long id = Long.parseLong(i);
 						Motion motion = Motion.findById(Motion.class, id);
 						if(motion.getParent()==null) {
-							Status status = Status.findById(Status.class, new Long(strDecisionStatus));
+							if(session==null) {
+								session = motion.getSession();
+							}
 							UserGroupType userGroupType = UserGroupType.findByType(ApplicationConstants.ASSISTANT, motion.getLocale());
 								
 							Device.startDeviceWorkflow(motion.getType().getDeviceName(), motion.getId(), status, userGroupType, 7, "", false, motion.getLocale());
 							
-							//motion.simpleMerge();
 							Motion updatedMotion = Motion.findById(Motion.class, motion.getId());
 							if(remarks!=null) {
-								updatedMotion.setRemarks(remarks);						
+								updatedMotion.setRemarks(remarks);
 							}
-							UserGroupType finalAuthorityUGT = null;
+							UserGroupType finalAuthorityUGT = null; //can be set using final authority custom parameter if required for given devicetype
 							if(updatedMotion.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 								finalAuthorityUGT = UserGroupType.findByType(ApplicationConstants.SPEAKER, updatedMotion.getLocale());
 							}
@@ -158,26 +163,17 @@ public class PosterActivitiesController extends BaseController {
 								updatedMotion.setEditedAs(finalAuthorityUGT.getDisplayName());
 								updatedMotion.setEditedOn(new Date());
 								//later add new UserGroup.findActive for current devicetype as allowed devicetype parameter
-								UserGroup finalAuthorityUserGroup = UserGroup.findActive(finalAuthorityUGT.getType(), new Date(), updatedMotion.getLocale());
+								UserGroup finalAuthorityUserGroup = UserGroup.findActive(finalAuthorityUGT.getType(), deviceType, new Date(), updatedMotion.getLocale());
 								if(finalAuthorityUserGroup!=null) {
 									finalAuthorityUsername = finalAuthorityUserGroup.getCredential().getUsername();
 									updatedMotion.setEditedBy(finalAuthorityUsername);
-								}							
-								//remove below code later once above code is proper
-								if(updatedMotion.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-									updatedMotion.setEditedBy("mois_speaker");
-									finalAuthorityUsername = updatedMotion.getEditedBy();
-								}
-								else if(updatedMotion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-									updatedMotion.setEditedBy("mois_chairman");
-									finalAuthorityUsername = updatedMotion.getEditedBy();
 								}
 							}
 							
 							updatedMotion.addMotionDraft();
 							updatedMotion.simpleMerge();
 							updated = true;
-							success.append(FormaterUtil.formatNumberNoGrouping(updatedMotion.getNumber(), updatedMotion.getLocale())+",");
+							updatedDeviceNumbers.append(FormaterUtil.formatNumberNoGrouping(updatedMotion.getNumber(), updatedMotion.getLocale())+",");
 						}
 					} catch(ELSException e) {
 						e.printStackTrace();
@@ -191,7 +187,11 @@ public class PosterActivitiesController extends BaseController {
 						continue;
 					}										
 				}
-				//Add Notification to finalAuthorityUsername
+				if(updated && updatedDeviceNumbers.length()>0) {
+					updatedDeviceNumbers.deleteCharAt(updatedDeviceNumbers.length()-1);
+					//Add Notification of updated decisions to finalAuthorityUsername
+					NotificationController.sendDecisionUpdateNotificationToFinalAuthorityOfUpdatedDevices(session, deviceType, updatedDeviceNumbers.toString(), status.getName(), finalAuthorityUsername, locale.toString());
+				}				
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -200,8 +200,11 @@ public class PosterActivitiesController extends BaseController {
 		
 		if(updated){
 			this.viewDevicesForUpdateDecision(model, request, locale.toString());
-			success.append(" updated successfully...");
-			model.addAttribute("success", success.toString());
+			if(updatedDeviceNumbers.length()>0) {
+				StringBuffer success = new StringBuffer(updatedDeviceNumbers.toString());
+				success.append(" updated successfully...");
+				model.addAttribute("success", success.toString());				
+			}
 			page = "poster_activities/decisionupdate_viewresult";
 		}else{
 			model.addAttribute("failure", "update failed.");
