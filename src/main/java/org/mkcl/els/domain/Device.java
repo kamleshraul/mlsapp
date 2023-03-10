@@ -253,7 +253,11 @@ public abstract class Device extends BaseDomain {
 		
 		} else if(deviceName.split("_")[0].toUpperCase().equals("CUTMOTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
 			CutMotion cutMotion = CutMotion.findById(CutMotion.class, deviceId);
-			cutMotion.startWorkflow(cutMotion, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
+			if(assignee!=null && !assignee.isEmpty()) {
+				cutMotion.startWorkflowAtGivenAssignee(cutMotion, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, assignee, locale);
+			}else {
+				cutMotion.startWorkflow(cutMotion, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
+			}
 		
 		} else if(deviceName.split("_")[0].toUpperCase().equals("ADJOURNMENTMOTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
 			AdjournmentMotion aMotion = AdjournmentMotion.findById(AdjournmentMotion.class, deviceId);
