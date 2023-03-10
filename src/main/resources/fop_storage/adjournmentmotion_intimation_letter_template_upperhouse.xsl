@@ -309,9 +309,40 @@
 								<xsl:value-of select="./element_1/element_1_9"/>, वि.प.स. यांनी विधानपरिषद नियम ९३ अन्वये दिलेली सूचना क्रमांक - <xsl:value-of select="./element_1/element_1_4"/>
 							</fo:block>
 							<fo:block>&#160;</fo:block><fo:block>&#160;</fo:block>
-							<fo:block>
-								<xsl:apply-templates select="./element_1/element_1_5"/>
+							<fo:block>								
+								<xsl:apply-templates select="./element_1[1]/element_1_5"/>
 							</fo:block>
+							
+							<xsl:for-each select="element_1">
+									<xsl:if test="position()=2">
+											<fo:block font-weight="bold" text-align="center">
+												<fo:block>&#160;</fo:block><fo:block>&#160;</fo:block>
+												सदर सूचनेस जोडण्यात आलेल्या इतर  नियम ९३ अन्वये सूचनांचे  मूळ प्रारूप 
+											</fo:block>
+									</xsl:if>
+							</xsl:for-each>
+							
+														
+							<fo:block>
+								<xsl:for-each select="element_1">
+									<xsl:if test="position()!=1">										
+										
+										<xsl:variable name="childAdmittedNumber" select="element_1_4"/>
+										<xsl:variable name="memberName" select="element_1_9" />
+										
+										<fo:block>&#160;</fo:block>
+										<fo:block font-weight="bold" text-align="center">
+												सूचना क्रमांक  <xsl:value-of select="$childAdmittedNumber"/>											
+												(<xsl:value-of select="$memberName"/>)
+										</fo:block>
+										<fo:block>
+											<xsl:apply-templates select="element_1_5"/>
+										</fo:block>
+										
+									</xsl:if>
+								</xsl:for-each>	
+							</fo:block>
+							
 						</fo:block>
 					</fo:block>											          
 	            </fo:flow>
