@@ -2048,7 +2048,7 @@ public class CutMotion extends Device implements Serializable {
 		WorkflowDetails.startProcessAtGivenLevel(cutMotion, ApplicationConstants.APPROVAL_WORKFLOW, workflow, userGroupType, level, locale);
     }
 	
-	public void startWorkflowAtGivenAssignee(CutMotion cutMotion, Status status2, UserGroupType userGroupType,Integer level2, String workflowHouseType, Boolean isFlowOnRecomStatusAfterFinalDecision, String assignee,String locale) throws ELSException {
+	public void startWorkflowAtGivenAssignee(CutMotion cutMotion, Status status, UserGroupType userGroupType,Integer level2, String workflowHouseType, Boolean isFlowOnRecomStatusAfterFinalDecision, String assignee,String locale) throws ELSException {
 		//end current workflow if exists
 		cutMotion.endWorkflow(cutMotion, workflowHouseType, locale);
     	//update motion statuses as per the workflow status
@@ -2056,7 +2056,7 @@ public class CutMotion extends Device implements Serializable {
     	//find required workflow from the status
     	Workflow workflow = Workflow.findByStatus(status, locale);
     	//start required workflow
-		WorkflowDetails.startProcessAtGivenAssigneeForCutMotion(cutMotion, workflowHouseType, workflow, userGroupType, level2, assignee, locale);
+		WorkflowDetails.startProcessAtGivenAssigneeForCutMotion(cutMotion, ApplicationConstants.APPROVAL_WORKFLOW, workflow, userGroupType, level2, assignee, locale);
 		
 	}
 	
