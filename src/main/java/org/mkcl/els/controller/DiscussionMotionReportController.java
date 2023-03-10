@@ -2192,7 +2192,12 @@ class DiscussionMotionReportHelper{
 													}
 												}
 											}else {
-												dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
+												if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)) {
+													dataMap.put(ApplicationConstants.UNDER_SECRETARY_COMMITTEE, objx);
+												}										
+												else if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)) {
+													dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
+												}
 											}
 										}else{
 											if(dataMap.get(userGroupType.getType()) != null){
@@ -2264,7 +2269,6 @@ class DiscussionMotionReportHelper{
 									}
 								}
 							}
-							//below custom parameter should have either under_secretary or under_secretary_committee if only one of the officers is in the flow
 							CustomParameter onPaperSigningAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "DMOIS_CURRENTSTATUS_ONPAPER_SIGNING_AUTHORITY_"+qt.getHouseType().getType(), "");
 							if(onPaperSigningAuthorityParameter != null){
 								String signingAuthority = onPaperSigningAuthorityParameter.getValue();
