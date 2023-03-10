@@ -171,6 +171,13 @@
 	    var clarificationReceived=$("#internalStatusMaster option[value='motion_processed_clarificationReceived']").text();
 	    var clarificationNotReceived=$("#internalStatusMaster option[value='motion_processed_clarificationNotReceived']").text();
 	    var answerReceived=$("#internalStatusMaster option[value='motion_processed_answerReceived']").text();
+	    
+	    var recommendAdmission=$("#internalStatusMaster option[value='motion_recommend_admission']").text();			
+	    var recommendRejection=$("#internalStatusMaster option[value='motion_recommend_rejection']").text();
+	    var recommendClarificationFromDepartment=$("#internalStatusMaster option[value='motion_recommend_clarificationNeededFromDepartment']").text();
+	    var recommendClarificationFromMember=$("#internalStatusMaster option[value='motion_recommend_clarificationNeededFromMember']").text();
+	    var recommendClarificationFromMemberAndDepartment=$("#internalStatusMaster option[value='motion_recommend_clarificationNeededFromMemberAndDepartment']").text();
+	    
 	    var params = '';
 		
 	    var valueToSend = value;
@@ -188,11 +195,25 @@
 				return false;	    	
 	    }
 	  	//hack SectionOfficer
-	    if(sendToDepartment == value || value == resendToDepartment || value == sendback || value == discuss
+	    if(sendToDepartment == value || value == resendToDepartment //|| value == sendback || value == discuss
 	    		/*  || value == resendToDepartmentWhenPendingAtDeskOfficer */){
 			 params="motion="+$("#id").val()+"&status="+valueToSend+
 				"&usergroup="+$("#usergroup").val()+"&level=8";
-		}else{
+		} 
+	    else if( ($("#oldInternalStatus").val()==recommendAdmission || $("#oldInternalStatus").val()==recommendRejection || $("#oldInternalStatus").val()==recommendClarificationFromDepartment 
+	    				|| $("#oldInternalStatus").val()==recommendClarificationFromMember || $("#oldInternalStatus").val()==recommendClarificationFromMemberAndDepartment)
+					&& (value == sendback || value == discuss) )
+	    {
+	    	 $("#internalStatus").val($("#oldInternalStatus").val());
+	    	 
+			 params="motion="+$("#id").val()+"&status="+valueToSend+
+				"&usergroup="+$("#usergroup").val()+"&level=2";
+		}
+	    else if(value == sendback || value == discuss) {
+	    	params="motion="+$("#id").val()+"&status="+valueToSend+
+			"&usergroup="+$("#usergroup").val()+"&level=8";
+	    }
+	    else{
 			 params="motion="+$("#id").val()+"&status="+valueToSend+
 				"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
 		}
