@@ -115,6 +115,11 @@
 				generateYaadiReport();
 			});
 			
+			//---ADDED BY Shubham a ------------------
+			$("#updateYaadiDetails").click(function(){				
+				updateYaadiDetails();
+			});
+			
 			/**** Generate Reminder Letter ****/			
 			$("#generateReminderLetter").click(function(){
 				$(this).attr('href','#');
@@ -202,6 +207,9 @@
 				<a href="#" id="generateYaadiReport" class="butSim">
 					<spring:message code="cutmotion.generateYaadiReport" text="Yaadi Report"/>
 				</a> |
+				<a href="#" id="updateYaadiDetails" class="butSim">
+					<spring:message code="cutmotion.updateYaadiDetails" text="update Yaadi Details"/>
+				</a> 
 				<hr/>
 				<a href="#" id="generateReminderLetter" class="butSim">
 					<spring:message code="generic.mytask.device.ReminderLetter" text="Reminder Letter"/>
