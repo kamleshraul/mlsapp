@@ -28,6 +28,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.*;
+import java.text.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11009,6 +11011,23 @@ public class ReferenceController extends BaseController {
 		return clubbedRulesSuspensionMotionsVO;
 	}
 	
+	@RequestMapping(value="/getShortNoticeDate")
+	public @ResponseBody String isUnderBMCArea(final HttpServletRequest request, final Locale locale) throws ParseException{
+		String lastDateOfReplyReceiving = request.getParameter("lastDateOfAnswerReceiving");
+		boolean isOutsideBMC = Boolean.parseBoolean(request.getParameter("isOutsideBMC"));
+		Date revisedLastDateOfReplyReceiving;
+		if(lastDateOfReplyReceiving == null){
+			if(isOutsideBMC == false){
+				revisedLastDateOfReplyReceiving = Holiday.getNextWorkingDateFrom(new Date(),7, locale.toString());	
+			}else{
+				revisedLastDateOfReplyReceiving = Holiday.getNextWorkingDateFrom(new Date(),14, locale.toString());
+			}
+			return FormaterUtil.formatDateToString(revisedLastDateOfReplyReceiving, ApplicationConstants.SERVER_DATEFORMAT);
+		}
+		else{
+			return lastDateOfReplyReceiving;
+    	} 	
+	}
 	
 	@RequestMapping(value="/rulessuspensionmotion/duplicatenumber", method=RequestMethod.GET)
 	public @ResponseBody Boolean isDuplicateNumberedRulesSuspensionMotion(HttpServletRequest request, Locale locale) throws ParseException, UnsupportedEncodingException{

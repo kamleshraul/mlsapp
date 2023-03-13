@@ -2349,6 +2349,8 @@ public class ApplicationConstants {
 	public static final String QUESTION_UNSTARRED_PROCESSED_SENDTODESKOFFICER = "question_unstarred_processed_sendToDeskOfficer";
 	
 	/* For Short Notice Questions */
+	public static String QUESTION_SHORTNOTICE_PROCESSED_SENDTODESKOFFICER = "question_shortnotice_processed_sendToDeskOfficer";
+	
 	public static final String QUESTION_SHORTNOTICE_PUTUP_CLUBBING="question_shortnotice_putup_clubbing";
 	
 	public static final String QUESTION_SHORTNOTICE_RECOMMEND_CLUBBING="question_shortnotice_recommend_clubbing";

@@ -627,8 +627,43 @@ public class QuestionWorkflowController  extends BaseController{
 					model.addAttribute("lastDateOfAnswerReceiving", lastDateOfAnswerReceiving);
 					model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.formatDateToString(lastDateOfAnswerReceiving, ApplicationConstants.SERVER_DATEFORMAT, locale));
 				}				
+			}
 			
-			}			
+			if(domain.getType().getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+				/** Set Last Date of Answer Receiving from Department **/
+			/*	Date lastDateOfAnswerReceiving = null;
+				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
+						&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
+						&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_SENDTOSECTIONOFFICER)){
+					String daysCountForReceivingAnswerFromDepartment = "14";
+					CustomParameter csptDaysCountForReceivingAnswerFromDepartment = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+ApplicationConstants.DAYS_COUNT_FOR_RECEIVING_ANSWER_FROM_DEPARTMENT, "");
+					if(csptDaysCountForReceivingAnswerFromDepartment!=null
+							&& csptDaysCountForReceivingAnswerFromDepartment.getValue()!=null) {
+						daysCountForReceivingAnswerFromDepartment = csptDaysCountForReceivingAnswerFromDepartment.getValue();
+					}
+					if(domain.getAnswerRequestedDate()!=null) {
+						lastDateOfAnswerReceiving = Holiday.getNextWorkingDateFrom(domain.getAnswerRequestedDate(), Integer.parseInt(daysCountForReceivingAnswerFromDepartment), locale);
+					} else {
+						lastDateOfAnswerReceiving = Holiday.getNextWorkingDateFrom(new Date(), Integer.parseInt(daysCountForReceivingAnswerFromDepartment), locale);
+					}
+					domain.setLastDateOfAnswerReceiving(lastDateOfAnswerReceiving);	
+				}
+				else{
+					if(domain.getLastDateOfAnswerReceiving()!=null) {
+						lastDateOfAnswerReceiving = domain.getLastDateOfAnswerReceiving();
+					}
+				}
+				if(lastDateOfAnswerReceiving!=null) {
+					model.addAttribute("lastDateOfAnswerReceiving", lastDateOfAnswerReceiving);
+					model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.formatDateToString(lastDateOfAnswerReceiving, ApplicationConstants.SERVER_DATEFORMAT, locale));
+				}	*/
+				
+				if(domain.getLastDateOfAnswerReceiving() != null && Integer.parseInt(workflowDetails.getAssigneeLevel()) > 8){
+					model.addAttribute("lastDateOfAnswerReceiving", domain.getLastDateOfAnswerReceiving());
+					model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.formatDateToString(domain.getLastDateOfAnswerReceiving(), ApplicationConstants.SERVER_DATEFORMAT, locale));
+				}				
+			}
+			
 		}	
 		/**** Set Last Answer Receiving Date & Last Date of Changing Department for Starred Questions ****/
 		QuestionDates actualAnsweringDateForStarredQuestion = null;
@@ -1242,7 +1277,7 @@ public class QuestionWorkflowController  extends BaseController{
 			allowedDeviceTypesForAnswerRelatedDates = deviceTypesForAnswerRelatedDates.getValue();
 		} else {
 			allowedDeviceTypesForAnswerRelatedDates = 
-					ApplicationConstants.STARRED_QUESTION + ", " + ApplicationConstants.UNSTARRED_QUESTION;
+					ApplicationConstants.STARRED_QUESTION + ", " + ApplicationConstants.UNSTARRED_QUESTION + ", "+ ApplicationConstants.SHORT_NOTICE_QUESTION;
 		}
 		model.addAttribute("allowedDeviceTypesForAnswerRelatedDates", allowedDeviceTypesForAnswerRelatedDates);
 		if(domain.getAnswerRequestedDate() != null) {
@@ -1927,7 +1962,7 @@ public class QuestionWorkflowController  extends BaseController{
 						allowedDeviceTypes = deviceTypesForAnswerRelatedDates.getValue();
 					} else {
 						allowedDeviceTypes = 
-								ApplicationConstants.STARRED_QUESTION + ", " + ApplicationConstants.UNSTARRED_QUESTION;
+								ApplicationConstants.STARRED_QUESTION + ", " + ApplicationConstants.UNSTARRED_QUESTION + " , " + ApplicationConstants.SHORT_NOTICE_QUESTION;
 					}
 					if(allowedDeviceTypes.contains(domain.getType().getType())) {
 						SimpleDateFormat format = FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
@@ -1960,6 +1995,24 @@ public class QuestionWorkflowController  extends BaseController{
 							domain.setLastDateOfAnswerReceiving(lastDateOfAnswerReceiving);
 						}
 						
+						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER) 
+								&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
+								&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_SENDTODEPARTMENT) 
+								&& (domain.getAnswer()==null || domain.getAnswer().isEmpty())){							
+							domain.setAnswerRequestedDate(new Date());
+							String strLastDateOfAnswerReceiving = request.getParameter("setLastDateOfAnswerReceiving");
+							domain.setLastDateOfAnswerReceiving(FormaterUtil.formatStringToDate(strLastDateOfAnswerReceiving, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+						}
+						
+						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
+								&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+										|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION) 
+										|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION))
+								&& domain.getAnswer()!=null && !domain.getAnswer().isEmpty() && domain.getAnswerReceivedDate()==null) {					
+							domain.setAnswerReceivedDate(new Date());
+							domain.setAnswerReceivedMode(ApplicationConstants.ANSWER_RECEIVED_MODE_ONLINE);
+						}
+												
 						if(domain.getLastDateOfAnswerReceiving()==null) {
 							String strLastDateOfAnswerReceiving = request.getParameter("setLastDateOfAnswerReceiving");
 							if(strLastDateOfAnswerReceiving!=null && !strLastDateOfAnswerReceiving.isEmpty()) {

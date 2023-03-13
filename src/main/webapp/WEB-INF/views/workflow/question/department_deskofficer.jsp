@@ -1507,7 +1507,8 @@
 		</tbody>
 	</table>
 	</p>
-	<c:if test="${(workflowstatus!='COMPLETED' and (internalStatusType == 'question_final_admission' or internalStatusType =='question_unstarred_final_admission'
+	<c:if test="${(workflowstatus!='COMPLETED' and (internalStatusType == 'question_final_admission' or internalStatusType =='question_unstarred_final_admission' 
+												or internalStatusType =='question_shortnotice_final_admission'
 												or internalStatusType =='question_halfHourFromQuestion_final_admission'
 												or internalStatusType == 'question_final_clarificationNeededFromDepartment'
 												or internalStatusType =='question_unstarred_final_clarificationNeededFromDepartment'

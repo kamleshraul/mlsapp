@@ -622,6 +622,34 @@
 	    var isRevisedQuestionTextDisallowedToEdit = false;
 	    var revisedQuestionTextOriginal = $('#revisedQuestionText').val();
 	    var clubbedQuestionNumbers = "";
+	   	    
+	    // to check whether question is outside BMC area or not
+	    if($('#answer').val() == null){
+	    	$('#isQuestionUnderBMCArea').show();
+	    	$('#isQuestionUnderBMCAreaName').show();
+	    }else{
+	    	$('#isQuestionUnderBMCArea').hide();
+	    	$('#isQuestionUnderBMCAreaName').hide();
+	    } 
+	    
+	/*     if($('#lastDateOfAnswerReceiving').val() == null){
+   	     $.get('ref/getShortNoticeDate?'+'lastDateOfReplyReceiving='+$('#lastDateOfAnswerReceiving').val()+'&isOutsideBMC='+true,function(data){
+   	    		$('#lastDateOfAnswerReceiving').val(data);		
+   	  }); */
+	    $('#isQuestionUnderBMCArea').change(function() {
+	    if($('#isQuestionUnderBMCArea').is(':checked')){
+	    	$.get('ref/getShortNoticeDate?'+'lastDateOfReplyReceiving='+$('#lastDateOfAnswerReceiving').val()+'&isOutsideBMC='+false,function(data){
+	    		$('#lastDateOfAnswerReceiving').val(data);		
+	    	});
+	    }else{
+	    	$.get('ref/getShortNoticeDate?'+'lastDateOfReplyReceiving='+$('#lastDateOfAnswerReceiving').val()+'&isOutsideBMC='+true,function(data){
+	    		$('#lastDateOfAnswerReceiving').val(data);		
+	    	});
+	    }
+	    });
+	 
+	    
+	    
 		$('#revisedQuestionText').wysiwyg({ //registered here for keypress event handling
 			resizeOptions: {maxWidth: 600},
 			controls:{
@@ -1902,6 +1930,10 @@
 		<label class="small"><spring:message code="question.lastDateOfAnswerReceiving" text="Last date of receiving answer"/></label>
 		<%-- <form:input path="lastDateOfAnswerReceiving" cssClass="datemask sText" value='${formattedLastAnswerReceivingDate}'/> --%>
 		<input id="lastDateOfAnswerReceiving" name="setLastDateOfAnswerReceiving" class="datemask sText" value="${formattedLastAnswerReceivingDate}"/>
+		<c:if test="${selectedQuestionType=='questions_shortnotice'}">
+		 	<input type="checkbox" name="isQuestionUnderBMCArea" id="isQuestionUnderBMCArea" class="sCheck">
+			<label id="isQuestionUnderBMCAreaName" class="small"><spring:message code="question.isOutsideBMC" text="is question of Brihanmumbai Municipal Corporation area?"/></label>
+		</c:if>
 		<form:errors path="lastDateOfAnswerReceiving" cssClass="validationError"/>
 		</p>
 	</c:when>
