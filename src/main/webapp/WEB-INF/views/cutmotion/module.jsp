@@ -442,6 +442,29 @@
 		form_submit('cutmotion/report/yaadi_report', parameters, 'GET');
 	}
 	
+	function updateYaadiDetails(){
+		if($("#selectedSubDepartment").val()==undefined || $("#selectedSubDepartment").val()=='') {
+			$.prompt("Please select department for the yaadi !");
+			return false;
+		}
+		var parameters = 
+				"houseType="				+ $("#selectedHouseType").val()+
+				"&sessionYear="				+ $('#selectedSessionYear').val()+ 
+				"&sessionType="				+ $("#selectedSessionType").val()+ 
+				"&sessionId="				+ $("#loadedSession").val()+
+				"&subDepartment="			+ $("#selectedSubDepartment").val()+
+				"&cutMotionType="			+ $("#selectedCutMotionType").val()+
+				"&locale="					+ $("#moduleLocale").val()
+				//reportQuery				: "CMOIS_YAADI_REPORT"/* + "_" + $("#selectedHouseType").val().toUpperCase()*/,
+				//xsltFileName			: 'cmois_yaadi_report_template'/* + '_' + $("#selectedHouseType").val()*/,
+				//outputFormat			: 'WORD',
+				//reportFileName			: "cmois_yaadi_report"/* + "_" + $("#selectedCutMotionType").val()*/ 
+		
+		//form_submit('cutmotion/report/yaadi_report', parameters, 'GET');
+		//yaadiUpdateDetailsCM
+		showTabByIdAndUrl('details_tab', "cutmotion/yaadiUpdateDetailsCM?"+ parameters);
+	}
+	
 	/**** To Generate Reminder Letter ****/
 	function generateReminderLetter(isRequiredToSend) {
 		//var devicetype = $("#deviceTypeMaster option[value='" + $("#selectedCutMotionType").val() + "']").text();
