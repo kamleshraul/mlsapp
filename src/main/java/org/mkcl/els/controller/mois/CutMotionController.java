@@ -2883,4 +2883,114 @@ public class CutMotionController extends GenericController<CutMotion>{
 		
 		return subDepartments;
 	}
+	
+	/**** Yaadi details Shubham A ****/
+	@RequestMapping(value = "/yaadiUpdateDetailsCM", method = RequestMethod.GET)
+	public String YaadiDetailsPage(final HttpServletRequest request, final ModelMap model, final Locale locale) {
+
+		this.getYaadiDetails(request, model, locale);
+		return "cutmotion/yaadiCorrectionCM";
+	}
+
+	public void getYaadiDetails(final HttpServletRequest request, final ModelMap model, final Locale locale) {
+		String strSubDepartment = request.getParameter("subDepartment");
+		Integer subDepartment = Integer.parseInt(strSubDepartment);
+
+		String strsessionId = request.getParameter("sessionId");
+		Integer sessionId = Integer.parseInt(strsessionId);
+
+		String strcutMotionType = request.getParameter("cutMotionType");
+		Integer cutMotionType = Integer.parseInt(strcutMotionType);
+
+		if (subDepartment != null || sessionId != null || cutMotionType != null) {
+			List<Object> yaadiDetails = CutMotion.getYaadiDetailsforCorrection(subDepartment, sessionId, cutMotionType,
+					locale.toString());
+			model.addAttribute("cutmotions", yaadiDetails);
+		}
+
+	}
+
+	@RequestMapping(value = "/cutmotionFormatYaadi", method = RequestMethod.POST)
+	public String cutmotionFormatYaadi(final ModelMap model, final HttpServletRequest request, final Locale locale) {
+
+		boolean updated = true;
+		String page = "cutmotion/error";
+		StringBuffer success = new StringBuffer();
+
+		try {
+
+			String selectedItemsLength = (String) request.getParameter("itemsLength");
+			int number = Integer.parseInt(selectedItemsLength);
+
+			ArrayList<HashMap<String, String>> yaadiUpdatedContent = new ArrayList<HashMap<String, String>>();
+
+			for (int i = 0; i < number; i++) {
+				HashMap<String, String> ymap = new HashMap<String, String>();
+				String cutmotionId = request.getParameter("items[" + i + "][cutmotionId]");
+				ymap.put("cutmotionId", cutmotionId);
+				String amount_tab_deducted = request.getParameter("items[" + i + "][amount_tab_deducted]");
+				ymap.put("amount_tab_deducted", amount_tab_deducted);
+				String demand_number = request.getParameter("items[" + i + "][demand_number]");
+				ymap.put("demand_number", demand_number);
+				String main_title = request.getParameter("items[" + i + "][main_title]");
+				ymap.put("main_title", main_title);
+				String revised_sub_title = request.getParameter("items[" + i + "][revised_sub_title]");
+				ymap.put("revised_sub_title", revised_sub_title);
+				String item_number = request.getParameter("items[" + i + "][item_number]");
+				ymap.put("item_number", item_number);
+				String total_amount_demanded = request.getParameter("items[" + i + "][total_amount_demanded]");
+				ymap.put("total_amount_demanded", total_amount_demanded);
+				String noticeContent = request.getParameter("items[" + i + "][noticeContent]");
+				ymap.put("noticeContent", noticeContent);
+
+				yaadiUpdatedContent.add(ymap);
+			}
+
+			
+			if (yaadiUpdatedContent != null) {
+				for (HashMap<String, String> i : yaadiUpdatedContent) {
+					Long id = Long.parseLong(i.get("cutmotionId"));
+					CutMotion cmDetail = CutMotion.findById(CutMotion.class, id);
+					cmDetail.setAmountToBeDeducted(new BigDecimal(i.get("amount_tab_deducted")));
+					cmDetail.setDemandNumber(i.get("demand_number"));
+					cmDetail.setRevisedMainTitle(i.get("main_title"));
+					cmDetail.setRevisedSubTitle(i.get("revised_sub_title"));
+					cmDetail.setItemNumber(new Integer(i.get("item_number")));
+					cmDetail.setTotalAmoutDemanded(new BigDecimal(i.get("total_amount_demanded")));
+					cmDetail.setRevisedNoticeContent(i.get("noticeContent"));
+
+					cmDetail.simpleMerge();
+					updated = true;
+					success.append(
+							FormaterUtil.formatNumberNoGrouping(cmDetail.getNumber(), cmDetail.getLocale()) + ",");
+					
+					WorkflowDetails workflowDetails = WorkflowDetails.findCurrentWorkflowDetail(cmDetail);
+					if (workflowDetails != null && workflowDetails.getId() != null ) {
+						workflowDetails.setText(i.get("noticeContent"));
+						workflowDetails.merge();
+					}
+					 
+				}
+			}
+			 
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			updated = false;
+		}
+
+		if (updated) {
+			/* this.getYaadiDetails(request,model, locale); */
+			success.append(" updated successfully...");
+			model.addAttribute("success", success.toString());
+			page = "cutmotion/yaadiCorrectionCM";
+		} else {
+			model.addAttribute("failure", "update failed.");
+		}
+
+		return page;
+	}
+
+	/****  ****/
+	
 }
