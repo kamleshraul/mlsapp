@@ -2738,4 +2738,15 @@ public class CutMotion extends Device implements Serializable {
 		
 		return workflowDetailsList!=null && deleteCount== workflowDetailsList.size();
 	}
+	
+	public static List<Object> getYaadiDetailsforCorrection(final Integer subDepartment,final Integer sessionId,final Integer cutMotionType,final String Locale)
+	{
+		List<Object> yaadiDetails = new ArrayList<Object>();
+		if(subDepartment != null && sessionId !=null && cutMotionType!= null)
+		{
+			yaadiDetails = getCutMotionRepository().getYaadiDetailsforCorrection(subDepartment, sessionId, cutMotionType, Locale);
+		}
+		
+		return yaadiDetails;
+	}
 }
