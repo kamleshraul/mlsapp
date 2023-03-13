@@ -2194,15 +2194,18 @@ public class QuestionController extends GenericController<Question> {
 					List<Question> childQsnDetails =  Question.getChildQuestionDetail(latestSession, qsnDetails.get(0).getId(), deviceType.getId(), latestSession.getHouse().getId(),currentHouse.getFirstDate());
 					model.addAttribute("childQuestions", childQsnDetails);
 					for(int i=0 ;i<qsnDetails.size();i++) {
+						if(qsnDetails.get(i).getActor() != null) {
 						Pactor = qsnDetails.get(i).getActor().split("#");
-					}
+					}}
 					model.addAttribute("actor", Pactor[0]);
 					parentSet =true;
 				}
 				
 				if(parentSet == false) {
 				for(int i=0 ;i<qsnDetails.size();i++) {
+					if(qsnDetails.get(i).getActor() != null) {
 				Pactor = qsnDetails.get(i).getActor().split("#");
+				}
 				}
 				model.addAttribute("actor", Pactor[0]);
 				model.addAttribute("questions", qsnDetails);
@@ -2261,7 +2264,7 @@ public class QuestionController extends GenericController<Question> {
 					WorkflowDetails workflowDetails = 
 							WorkflowDetails.findCurrentWorkflowDetail(question);
 					if(workflowDetails != null) {
-					workflowDetails.setText(i.get("questionText"));
+					workflowDetails.setText(i.get("revisedQuestionText"));
 					workflowDetails.merge();
 					}
 				}
