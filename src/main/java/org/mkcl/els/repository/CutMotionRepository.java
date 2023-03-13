@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -63,6 +64,27 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 		query.setParameter("motionId", motion.getId());
 		return query.getResultList();
 	}
+	
+	
+	public List<Object> getYaadiDetailsforCorrection(final Integer subDepartment,final Integer sessionId,final Integer cutMotionType , final String locale)
+	{
+		List<Object> yaadiDetails = new ArrayList<Object>();
+		String queryString = "";
+		org.mkcl.els.domain.Query queryDB = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "CMOIS_YAADI_DETAILS_QUERY", locale);
+		
+			queryString = queryDB.getQuery();
+			Query tQuery =  this.em().createNativeQuery(queryString);	
+			tQuery.setParameter("sessionId", sessionId);
+			tQuery.setParameter("cutMotionType", cutMotionType);
+			tQuery.setParameter("subDepartment", subDepartment);
+			//tQuery.setParameter("internalStatusId", status.getId());
+			tQuery.setParameter("locale", locale);
+			
+			 yaadiDetails =  tQuery.getResultList();
+			 return yaadiDetails;
+		 
+	}
+	
 
 	public Integer assignCutMotionNo(final HouseType houseType,final Session session,
 			final DeviceType type,final String locale) throws ELSException {
