@@ -1858,7 +1858,7 @@ public class DiscussionMotionWorkflowController extends BaseController{
 		requestMap.put("locale",new String[]{domain.getLocale()});
 		if(userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)
 				|| userGroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
-			List result=Query.findReport("QIS_LATEST_REVISION_FOR_DESKOFFICER", requestMap);
+			List result=Query.findReport("DMOIS_LATEST_REVISION_FOR_DESKOFFICER", requestMap);
 			model.addAttribute("latestRevisions",result);
 		}else{
 			List result=Query.findReport("DMOIS_LATEST_REVISIONS", requestMap);
