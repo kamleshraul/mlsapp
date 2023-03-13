@@ -1142,10 +1142,10 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 	public Roster findByPart(Part part, String locale) {
 		Roster roster = null;
 		String strQuery = "SELECT r FROM Part p"
-				+ "JOIN p.proceeding proc"
-				+ "JOIN proc.slot s"
-				+ "JOIN s.roster r"
-				+ "WHERE p.id=:partId ";
+				+ " JOIN p.proceeding proc "
+				+ " JOIN proc.slot s "
+				+ " JOIN s.roster r "
+				+ " WHERE p.id=:partId ";
 		Query query = this.em().createQuery(strQuery);
 		query.setParameter("partId",part.getId());
 		List<Roster> rosters = query.getResultList();
