@@ -56,6 +56,8 @@ import org.mkcl.els.domain.Workflow;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
@@ -73,6 +75,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/workflow/motion")
 public class MotionWorkflowController extends BaseController {
+	
+	/** The logger. */
+    static Logger classLogger = LoggerFactory.getLogger(MotionWorkflowController.class);
 
 	/** The process service. */
 	@Autowired
@@ -1497,7 +1502,7 @@ public class MotionWorkflowController extends BaseController {
 		return "workflow/motion/" + userGroupType;
 	}
 
-	private void performAction(final Motion domain) {
+	public static void performAction(final Motion domain) {
 		try {
 			String internalStatus = domain.getInternalStatus().getType();
 			String recommendationStatus = domain.getRecommendationStatus().getType();
@@ -1593,11 +1598,11 @@ public class MotionWorkflowController extends BaseController {
 				performActionOnUnclubbingRejection(domain);
 			}
 		} catch (Exception e) {
-			logger.error("error", e);
+			classLogger.error("error", e);
 		}
 	}
 
-	private void performActionOnAdmission(final Motion domain) {
+	private static void performActionOnAdmission(final Motion domain) {
 		CustomParameter csptClubbingMode = CustomParameter.findByName(CustomParameter.class,
 				ApplicationConstants.MOTION_CLUBBING_MODE, "");
 
@@ -1678,7 +1683,7 @@ public class MotionWorkflowController extends BaseController {
 		}
 	}
 
-	private void performActionOnRejection(Motion domain) throws ELSException {
+	private static void performActionOnRejection(Motion domain) throws ELSException {
 		domain.setStatus(domain.getInternalStatus());
 		if (domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()) {
 			domain.setRevisedSubject(domain.getSubject());
@@ -1715,7 +1720,7 @@ public class MotionWorkflowController extends BaseController {
 
 	}
 
-	private void performActionOnClarificationNeededFromDepartment(Motion domain) {
+	private static void performActionOnClarificationNeededFromDepartment(Motion domain) {
 
 		if (domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()) {
 			domain.setRevisedSubject(domain.getSubject());
@@ -1725,7 +1730,7 @@ public class MotionWorkflowController extends BaseController {
 		}
 	}
 
-	private void performActionOnClarificationNeededFromMember(Motion domain) {
+	private static void performActionOnClarificationNeededFromMember(Motion domain) {
 		if (domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()) {
 			domain.setRevisedSubject(domain.getSubject());
 		}
@@ -1735,7 +1740,7 @@ public class MotionWorkflowController extends BaseController {
 		}
 	}
 
-	private void performActionOnClarificationNeededFromMemberAndDepartment(Motion domain) {
+	private static void performActionOnClarificationNeededFromMemberAndDepartment(Motion domain) {
 		if (domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()) {
 			domain.setRevisedSubject(domain.getSubject());
 		}
@@ -1746,7 +1751,7 @@ public class MotionWorkflowController extends BaseController {
 
 	}
 
-	private void performActionOnClarificationReceived(Motion domain) {
+	private static void performActionOnClarificationReceived(Motion domain) {
 		Status newStatus = Status.findByType(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP, domain.getLocale());
 		domain.setInternalStatus(newStatus);
 		domain.setActor(null);
@@ -1756,7 +1761,7 @@ public class MotionWorkflowController extends BaseController {
 		domain.setWorkflowStarted("NO");
 	}
 
-	private void performActionOnClubbing(Motion domain) throws ELSException {
+	private static void performActionOnClubbing(Motion domain) throws ELSException {
 
 		Motion.updateClubbing(domain);
 
@@ -1772,7 +1777,7 @@ public class MotionWorkflowController extends BaseController {
 		domain.setEndFlag(null);
 	}
 
-	private void performActionOnClubbingRejection(Motion domain) throws ELSException {
+	private static void performActionOnClubbingRejection(Motion domain) throws ELSException {
 		/****
 		 * remove clubbing (status is changed accordingly in unclub method
 		 * itself)
@@ -1791,7 +1796,7 @@ public class MotionWorkflowController extends BaseController {
 		domain.setEndFlag(null);
 	}
 
-	private void performActionOnNameClubbing(Motion domain) throws ELSException {
+	private static void performActionOnNameClubbing(Motion domain) throws ELSException {
 
 		Motion.updateClubbing(domain);
 
@@ -1807,7 +1812,7 @@ public class MotionWorkflowController extends BaseController {
 		domain.setEndFlag(null);
 	}
 
-	private void performActionOnNameClubbingRejection(Motion domain) throws ELSException {
+	private static void performActionOnNameClubbingRejection(Motion domain) throws ELSException {
 		/****
 		 * remove clubbing (status is changed accordingly in unclub method
 		 * itself)
@@ -1826,7 +1831,7 @@ public class MotionWorkflowController extends BaseController {
 		domain.setEndFlag(null);
 	}
 
-	private void performActionOnClubbingPostAdmission(Motion domain) throws ELSException {
+	private static void performActionOnClubbingPostAdmission(Motion domain) throws ELSException {
 
 		Motion.updateClubbing(domain);
 
@@ -1842,7 +1847,7 @@ public class MotionWorkflowController extends BaseController {
 		domain.setEndFlag(null);
 	}
 
-	private void performActionOnClubbingRejectionPostAdmission(Motion domain) throws ELSException {
+	private static void performActionOnClubbingRejectionPostAdmission(Motion domain) throws ELSException {
 		/****
 		 * remove clubbing (status is changed accordingly in unclub method
 		 * itself)
@@ -1861,7 +1866,7 @@ public class MotionWorkflowController extends BaseController {
 		domain.setEndFlag(null);
 	}
 
-	private void performActionOnUnclubbing(Motion domain) throws ELSException {
+	private static void performActionOnUnclubbing(Motion domain) throws ELSException {
 		/****
 		 * remove clubbing (status is changed accordingly in unclub method
 		 * itself)
@@ -1880,7 +1885,7 @@ public class MotionWorkflowController extends BaseController {
 		domain.setEndFlag(null);
 	}
 
-	private void performActionOnUnclubbingRejection(Motion domain) throws ELSException {
+	private static void performActionOnUnclubbingRejection(Motion domain) throws ELSException {
 		/** Back to clubbed state as it was before sending for unclubbing **/
 		domain.setInternalStatus(domain.getParent().getInternalStatus());
 		domain.setRecommendationStatus(domain.getParent().getInternalStatus());
@@ -2043,7 +2048,7 @@ public class MotionWorkflowController extends BaseController {
 		return "workflow/info";
 	}
 
-	private void performActionOnClarificationNotReceived(Motion domain) {
+	private static void performActionOnClarificationNotReceived(Motion domain) {
 		Status newStatus = Status.findByType(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP,
 				domain.getLocale());
 		domain.setInternalStatus(newStatus);

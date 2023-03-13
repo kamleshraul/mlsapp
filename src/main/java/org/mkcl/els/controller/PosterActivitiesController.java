@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.controller.wf.MotionWorkflowController;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
@@ -169,7 +170,7 @@ public class PosterActivitiesController extends BaseController {
 									updatedMotion.setEditedBy(finalAuthorityUsername);
 								}
 							}
-							
+							MotionWorkflowController.performAction(updatedMotion);
 							updatedMotion.addMotionDraft();
 							updatedMotion.simpleMerge();
 							updated = true;
