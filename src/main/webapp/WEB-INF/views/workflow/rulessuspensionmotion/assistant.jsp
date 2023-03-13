@@ -545,7 +545,7 @@
 	</c:if>
 	<div class="fields clearfix watermark">
 	<div id="assistantDiv">
-		<form:form action="workflow/rulesuspensionmotion" method="PUT" modelAttribute="domain">
+		<form:form action="workflow/rulessuspensionmotion" method="PUT" modelAttribute="domain">
 			<%@ include file="/common/info.jsp" %>
 			<div id="reportDiv">
 			<h2>
