@@ -227,17 +227,17 @@
 						<fo:block>&#160;&#160;&#160;<xsl:apply-templates select="questionText"/></fo:block>						
 					</fo:block>
 					
-					<fo:block font-family="Kokila" font-size="10.5px" break-after="page">	            					
+					<fo:block font-family="Kokila" font-size="15px" break-after="page">	            					
 						<fo:block text-align="right">
-							<fo:block margin-right="1.45cm">क्रमांक - _____&#160;/&#160;
+							<fo:block margin-right="1.50cm">क्रमांक - _____&#160;/&#160;
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">ब-१</xsl:when>
 								<xsl:when test="houseType='upperhouse'">ई-१</xsl:when>
 							</xsl:choose>
 							</fo:block>						
 							<fo:block margin-right="0.40cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
-							<fo:block margin-right="1.21cm">विधान भवन, मुंबई/नागपूर</fo:block>
-							<fo:block margin-right="1.82cm">दिनांक - &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
+							<fo:block margin-right="1.30cm">विधान भवन, मुंबई/नागपूर</fo:block>
+							<fo:block margin-right="2.50cm">दिनांक - &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
 						</fo:block>			
 						
 						<!-- <fo:block font-size="8px">&#160;</fo:block> -->					
@@ -272,7 +272,8 @@
 							</xsl:choose>	
 							</fo:block>							
 							<fo:block margin-left="0.40cm">महाराष्ट्र शासन मंत्रालय, मुंबई - ४०० ०३२</fo:block>	
-						</fo:block>		
+						</fo:block>
+						<fo:block>&#160;&#160;&#160;</fo:block>						
 						<fo:block margin-left="1.4cm">
 							विषय : 
 							<xsl:choose>
