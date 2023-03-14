@@ -2901,11 +2901,24 @@ public class CutMotionController extends GenericController<CutMotion>{
 
 		String strcutMotionType = request.getParameter("cutMotionType");
 		Integer cutMotionType = Integer.parseInt(strcutMotionType);
+		
+		DeviceType  chkMotiontype = DeviceType.findById(DeviceType.class, Long.parseLong(strcutMotionType));
+		
+		if(chkMotiontype.getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY))
+		{
+			model.addAttribute("ItemNumberHide","YES");
+		}
+		else
+		{
+			model.addAttribute("ItemNumberHide","NO");
+		}
+		
 
 		if (subDepartment != null || sessionId != null || cutMotionType != null) {
 			List<Object> yaadiDetails = CutMotion.getYaadiDetailsforCorrection(subDepartment, sessionId, cutMotionType,
 					locale.toString());
 			model.addAttribute("cutmotions", yaadiDetails);
+			
 		}
 
 	}
@@ -2921,6 +2934,9 @@ public class CutMotionController extends GenericController<CutMotion>{
 
 			String selectedItemsLength = (String) request.getParameter("itemsLength");
 			int number = Integer.parseInt(selectedItemsLength);
+			
+			String strcutMotionType = (String) request.getParameter("deviceType");
+			DeviceType  chkMotiontype = DeviceType.findById(DeviceType.class, Long.parseLong(strcutMotionType));
 
 			ArrayList<HashMap<String, String>> yaadiUpdatedContent = new ArrayList<HashMap<String, String>>();
 
@@ -2955,7 +2971,9 @@ public class CutMotionController extends GenericController<CutMotion>{
 					cmDetail.setDemandNumber(i.get("demand_number"));
 					cmDetail.setRevisedMainTitle(i.get("main_title"));
 					cmDetail.setRevisedSubTitle(i.get("revised_sub_title"));
+					if(chkMotiontype.getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY) ) {
 					cmDetail.setItemNumber(new Integer(i.get("item_number")));
+					}
 					cmDetail.setTotalAmoutDemanded(new BigDecimal(i.get("total_amount_demanded")));
 					cmDetail.setRevisedNoticeContent(i.get("noticeContent"));
 
