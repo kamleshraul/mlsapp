@@ -2004,15 +2004,6 @@ public class QuestionWorkflowController  extends BaseController{
 							domain.setLastDateOfAnswerReceiving(FormaterUtil.formatStringToDate(strLastDateOfAnswerReceiving, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 						}
 						
-						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
-								&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
-										|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION) 
-										|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION))
-								&& domain.getAnswer()!=null && !domain.getAnswer().isEmpty() && domain.getAnswerReceivedDate()==null) {					
-							domain.setAnswerReceivedDate(new Date());
-							domain.setAnswerReceivedMode(ApplicationConstants.ANSWER_RECEIVED_MODE_ONLINE);
-						}
-												
 						if(domain.getLastDateOfAnswerReceiving()==null) {
 							String strLastDateOfAnswerReceiving = request.getParameter("setLastDateOfAnswerReceiving");
 							if(strLastDateOfAnswerReceiving!=null && !strLastDateOfAnswerReceiving.isEmpty()) {
@@ -2035,7 +2026,8 @@ public class QuestionWorkflowController  extends BaseController{
 						}						
 						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
 								&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
-										|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION))
+										|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+										|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION))
 								&& domain.getAnswer()!=null && !domain.getAnswer().isEmpty() && domain.getAnswerReceivedDate()==null) {							
 							
 							if(validationAppliedForLastAnswerReceivingDate) {
