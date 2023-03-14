@@ -1,8 +1,7 @@
 <%@ include file="/common/taglibs.jsp"%>
 <script type="text/javascript">
 $(document).ready(function(){
-	
-	
+
 	
 	$("#chkall").change(function(){
 		if($(this).is(":checked")){
@@ -56,19 +55,31 @@ $(document).ready(function(){
 		
 		var items =new Array();
 		for (var i=0; i<cutmotionId.length; i++) {
-			console.log(i+"here")
-		    items.push({
+
+				if($("#ItemNumberHide").val() == 'YES')
+				{
+					var item_number = '';
+				}
+				else
+				{
+					var item_number =$(".item_number_"+cutmotionId[i]).get(0).innerText;
+				}
+				
+				
+			
+		     items.push({
 		    	'cutmotionId':cutmotionId[i],
 		    	'amount_tab_deducted':$(".amount_tab_deducted_"+cutmotionId[i]).get(0).innerText ,
 		    	'demand_number':$(".demand_number_"+cutmotionId[i]).get(0).innerText ,
 		    	'main_title':$(".main_title_"+cutmotionId[i]).get(0).innerText,
 		    	'revised_sub_title':$(".revised_sub_title_"+cutmotionId[i]).get(0).innerText,
-		    	'item_number':$(".item_number_"+cutmotionId[i]).get(0).innerText,
+		    	'item_number':item_number,
 		    	'total_amount_demanded':$(".total_amount_demanded_"+cutmotionId[i]).get(0).innerText,
 		    	'noticeContent':$(".noticeContent_"+cutmotionId[i]).get(0).value
 		    	
-		});
+		}); 
 		}
+		
 		console.log(items); 
 		
 		 $.prompt($('#submissionMsg').val(),{
@@ -80,7 +91,7 @@ $(document).ready(function(){
 					    itemsLength:items.length,
 					    cutmotionId:cutmotionId,
 					    houseType:$("#selectedHouseType").val()
-						 ,deviceType:$("#selectedDeviceType").val()
+						 ,deviceType:$("#selectedCutMotionType").val()
 						 		 	
 					 	},
 	    	            function(data){
@@ -99,7 +110,7 @@ $(document).ready(function(){
 	    					}
 	    					scrollTop();
 	    				});
-	        	}}}); 
+	        	}}});  
 		
 		
 	});
@@ -187,23 +198,49 @@ if(this.disabled){
 						<label class="small"><b><spring:message code="yaadiDetails.maintitle" text="प"/> </b></label>
 						
 						<div class="editable  main_title_${i[0]}" >
-						${i[29] }
+						<%-- <c:out value="${i[29] == '' }  "></c:out> --%>
+						<c:if test="${i[29] == '' }">
+						${i[22]} 
+						</c:if>
+						<c:if test="${i[29] != '' }">
+						${i[29]} 
+						</c:if>
 						</div>
 						<br>
 						
 						<label class="small"><b><spring:message code="yaadiDetails.revisedSubTitle" text="प"/> </b></label>
 						
 						<div class="editable  revised_sub_title_${i[0]}"  >
-						${i[32] }
+						
+						<c:if test="${i[32] == ''  }">
+						${i[34]} 
+						</c:if>
+						<c:if test="${i[32] != '' }">
+						${i[32]} 
+						</c:if>
+						<c:if test="${i[32] == '' && i[34] == '' }">
+						<p></p>
+						</c:if>
+						</div>
+						
+						
+						
+						<c:if test="${ItemNumberHide != 'YES' }">
+						<br>
+						<label class="small" ><b><spring:message code="yaadiDetails.itemNumber" text="प"/> </b></label>
+						<div class="editable  item_number_${i[0]} " >
+						<c:if test="${i[19] == NULL  }">
+						<p></p>
+						</c:if>
+						<c:if test="${i[19] != NULL  }">
+						${i[19]} 
+						</c:if>
 						</div>
 						<br>
+						</c:if>
 						
-						<label class="small"><b><spring:message code="yaadiDetails.itemNumber" text="प"/> </b></label>
 						
-						<div class="editable  item_number_${i[0]}" >
-						${i[19] }
-						</div><br>
-						
+						<br>
 						<label class="small"><b><spring:message code="yaadiDetails.totalAmountDemanded" text="प"/> </b></label>
 						
 						<div class="editable total_amount_demanded_${i[0]}">
@@ -217,7 +254,14 @@ if(this.disabled){
 						<fmt:formatNumber type="number" maxIntegerDigits="12" value="${i[37]}"  />
 						</div></td> --%>
 						
-						<td style="min-width:200px;" id="${i[0]}"><textarea class="noticeContent_${i[0]}  txt" >${i[30]}</textarea></td>
+						<td style="min-width:200px;" id="${i[0]}">
+						<c:if test="${i[30] != ''}">
+						<textarea class="noticeContent_${i[0]}  txt" >${i[30]}</textarea>
+						</c:if>
+						<c:if test="${i[30] == ''}">
+						<textarea class="noticeContent_${i[0]}  txt" >${i[23]}</textarea>
+						</c:if>
+						</td>
 						</tr>
 						
 						
@@ -229,5 +273,7 @@ if(this.disabled){
 		</c:otherwise>
 	</c:choose>
 	
-			<input id="selectItemsMsg" value="<spring:message code='' text='Please select a cutmotion number'></spring:message>" type="hidden">
-			<input id="submissionMsg" value="<spring:message code='' text='Do you want to update selected motions'></spring:message>" type="hidden">
+
+<input type="hidden" id="ItemNumberHide" name="ItemNumberHide" value="${ItemNumberHide}">
+<input id="selectItemsMsg" value="<spring:message code='' text='Please select a cutmotion number'></spring:message>" type="hidden">
+<input id="submissionMsg" value="<spring:message code='' text='Do you want to update selected motions'></spring:message>" type="hidden">
