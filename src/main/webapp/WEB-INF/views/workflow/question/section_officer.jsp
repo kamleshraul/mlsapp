@@ -1958,6 +1958,8 @@
 					|| internalStatusType=='question_unstarred_final_clarificationNeededFromDepartment'
 					|| internalStatusType=='question_unstarred_final_clarificationNeededFromMember'
 					|| internalStatusType=='question_unstarred_final_clarificationNeededFromMemberAndDepartment'
+					|| internalStatusType=='question_shortnotice_final_clarificationNeededFromDepartment'
+					|| internalStatusType=='question_shortnotice_final_admission'
 					|| internalStatusType=='question_halfHourFromQuestion_final_admission'))}">	
 	<p>
 	<select id="internalStatusMaster" style="display:none;">

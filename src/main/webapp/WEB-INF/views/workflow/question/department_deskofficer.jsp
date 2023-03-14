@@ -1513,6 +1513,7 @@
 												or internalStatusType == 'question_final_clarificationNeededFromDepartment'
 												or internalStatusType =='question_unstarred_final_clarificationNeededFromDepartment'
 												or internalStatusType =='question_halfHourFromQuestion_final_clarificationNeededFromDepartment'
+												or internalStatusType =='question_shortnotice_final_clarificationNeededFromDepartment'
 												or internalStatusType =='question_final_clarificationNeededFromMemberAndDepartment'
 												or internalStatusType =='question_unstarred_final_clarificationNeededFromMemberAndDepartment'
 												or internalStatusType =='question_halfHourFromQuestion_final_clarificationNeededFromMemberAndDepartment')) 
