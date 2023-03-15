@@ -2977,7 +2977,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 					cmDetail.setTotalAmoutDemanded(new BigDecimal(i.get("total_amount_demanded")));
 					cmDetail.setRevisedNoticeContent(i.get("noticeContent"));
 
-					cmDetail.simpleMerge();
+					cmDetail.merge();
 					updated = true;
 					success.append(
 							FormaterUtil.formatNumberNoGrouping(cmDetail.getNumber(), cmDetail.getLocale()) + ",");
@@ -2998,7 +2998,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 		}
 
 		if (updated) {
-			/* this.getYaadiDetails(request,model, locale); */
+			// this.getYaadiDetails(request,model, locale); 
 			success.append(" updated successfully...");
 			model.addAttribute("success", success.toString());
 			page = "cutmotion/yaadiCorrectionCM";
