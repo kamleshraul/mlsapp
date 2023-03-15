@@ -2,6 +2,7 @@ package org.mkcl.els.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -771,6 +772,64 @@ public class StandaloneReportController extends BaseController{
 		
 		return "standalonemotion/reports/"+request.getParameter("reportout");		
 	}
+	
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	@RequestMapping(value="/summaryreport", method=RequestMethod.GET)
+	public String getSummaryReport(HttpServletRequest request, Model model, Locale locale){
+		
+		Map<String, String[]> requestMap = request.getParameterMap();	
+		//List report = Query.findReport(request.getParameter("report"), requestMap);
+		Boolean havingIN = Boolean.parseBoolean(request.getParameter("havingIN")); //optionally for selective parameter with IN query
+		List report = Query.findReport(request.getParameter("report"), requestMap, havingIN);
+		if(report != null && !report.isEmpty()){
+			Object[] obj = (Object[])report.get(0);
+			if(obj != null){
+				
+				model.addAttribute("topHeader", obj[0].toString().split(";"));
+			}
+			List<String> serialNumbers = populateSerialNumbers(report, locale);
+			model.addAttribute("serialNumbers", serialNumbers);
+		}
+		model.addAttribute("formater", new FormaterUtil());
+		model.addAttribute("locale", locale.toString());
+		model.addAttribute("report", report);
+		String strhouseType = request.getParameter("houseType");
+		if(strhouseType!=null) {
+			if(strhouseType.equals(ApplicationConstants.LOWER_HOUSE) ||strhouseType.equals(ApplicationConstants.UPPER_HOUSE))
+			{
+				model.addAttribute("houseType", strhouseType);
+			}
+			else
+			{
+				try {
+					strhouseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				HouseType houseType = HouseType.findByName(strhouseType, locale.toString());
+				if(houseType!=null) {
+					model.addAttribute("houseType", houseType.getType());
+				} else {
+					model.addAttribute("houseType", "");
+				}					
+			}
+		} else {
+			model.addAttribute("houseType", "");
+		}
+	
+		Set<Role> roles = this.getCurrentUser().getRoles();
+		Role psRole = Role.findByType("QIS_PRINCIPAL_SECRETARY", locale.toString());
+		for(Role r :roles){
+			if(r.getId().equals(psRole.getId())){
+				model.addAttribute("userRole", r.getType());
+				break;
+			}
+		}
+		
+		return "standalonemotion/reports/"+request.getParameter("reportout");		
+	}
+	
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@RequestMapping(value="/smois/generalreport", method=RequestMethod.GET)
 	public String getSMOISReport(HttpServletRequest request, Model model, Locale locale){

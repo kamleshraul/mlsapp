@@ -177,6 +177,40 @@
 		var device = $("#deviceTypeMaster option[value='"+$("#selectedQuestionType").val()+"']").text().split("_")[0];
 		showTabByIdAndUrl('details_tab', "standalonemotion/report/currentstatusreport?device="+ device +"&reportType="+val+"&qId="+qId);
 	}
+	
+	function showStandaloneMotionSummaryReport(smId){
+		$.get('ref/sessionbyhousetype/'+$("#selectedHouseType").val() +
+				'/' + $("#selectedSessionYear").val() + 
+				'/' + $("#selectedSessionType").val(),function(data){
+			
+			if(data){
+				
+				var url = "standalonemotion/report/summaryreport?sessionId=" + data.id
+				+ "&deviceTypeId=" + $("#selectedQuestionType").val()
+				+ "&latestAssemblyHouseFormationDate=" + $("#latestAssemblyHouseFormationDate").val()
+				+ "&locale=" + $("#moduleLocale").val()
+				+ "&houseType=" + $("#selectedHouseType").val()
+				+ "&statusId=" + $("#selectedStatus").val() 
+				+ "&groupId=" + $("#selectedGroup").val()
+				+ "&reportout=standalone_motion_summary_report"
+				+ "&departmentId=" +$("#selectedSubDepartment").val()
+				+ "&answeringDate="+$("#selectedModuleAsweringDate").val()
+				+ "&smId="+smId
+				+ "&fromDate=" + ($("#sumRepFromDate").val()==''?'0':$("#sumRepFromDate").val())
+				+ "&toDate=" + ($("#sumRepToDate").val()==''?'0':$("#sumRepToDate").val())
+				+ "&report=STANDALONE_MOTION_SUMMARY_REPORT";
+							
+				if(smId.length>0) {
+					url += "&havingIN=TRUE";
+				} else {
+					url += "&havingIN=FALSE";
+				}
+				
+				showTabByIdAndUrl('details_tab', url);
+			}
+		});
+	}
+	
 	function showAdmissionReport(){
 		params = "houseType=" + $('#selectedHouseType').val()
 		+ '&sessionYear=' + $("#selectedSessionYear").val()

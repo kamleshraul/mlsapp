@@ -225,7 +225,33 @@
 				generateOnlineOfflineSubmissionCountReport();
 			});
 			
+			$("#standaloneMotionSummary").click(function(e){
+				if($("#sumRepDiv").css('display')=='none'){
+					$("#sumRepDiv").show();
+					$("#sumRepFromDate").val('');
+					$("#sumRepToDate").val('');
+				}else if($("#sumRepDiv").css('display')=='inline'){
+					$("#sumRepDiv").hide();
+				}
+			});
+			
+			$("#goSumRep").click(function(e){
+				$("#sumRepDiv").hide();
+				
+				var selectedMotionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				if(selectedMotionId.length>=1){
+					showStandaloneMotionSummaryReport(selectedMotionId);
+				}else{
+					showStandaloneMotionSummaryReport('');
+				}				
+			});
+			
+			$("#sumRepDiv").hide();
+			//------stats reports as html-----------------------ends----------------
+
+			
 		});
+
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			currentSelectedRow=$('#key').val();
@@ -299,6 +325,14 @@
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
 				</a> |
+				<a href="#" id="standaloneMotionSummary" class="butSim link">
+					<spring:message code="standalone.standaloneMOtionSummary" text="Standalone Motion Summary Report"/>
+				</a> 
+				<div id="sumRepDiv" style="display: inline;">
+					<input type="text" class="sText datetimemask" id="sumRepFromDate" style="display: inline;">
+					&nbsp; &nbsp;<input type="text" class="sText datetimemask" id="sumRepToDate" style="display: inline;">
+					<div id="goSumRep" style="display: inline; border: 2px solid black; width: 10px; height: 10px;">Go</div>
+				 </div> |
 			</security:authorize>	
 			<security:authorize access="hasAnyRole('SMOIS_PRINCIPAL_SECRETARY')">	 
 				<a href="#" id="generateAdmissionReport" class="butSim">
