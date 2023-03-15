@@ -908,24 +908,26 @@ public class QuestionWorkflowController  extends BaseController{
 				reference.setState("yes");
 			}
 			references.add(reference);
-			String tempPrimary = ce.getQuestion().getPrimaryMember().getFullname();
-			if(!buffer1.toString().contains(tempPrimary)){
-				buffer1.append(ce.getQuestion().getPrimaryMember().getFullname() + ",");
-			}
-			List<SupportingMember> clubbedSupportingMember = ce.getQuestion().getSupportingMembers();
-			if(clubbedSupportingMember != null && !clubbedSupportingMember.isEmpty()){
-				for(SupportingMember l : clubbedSupportingMember){
-					if(l.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
-						Member supportingMember = l.getMember();
-						if(supportingMember.isActiveMemberOn(new Date(), locale)){
-							String tempSupporting=supportingMember.getFullname();
-							if(!buffer1.toString().contains(tempSupporting)){
-								buffer1.append(tempSupporting+",");
+			if(!ce.getQuestion().getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_LAPSED)) {
+				String tempPrimary = ce.getQuestion().getPrimaryMember().getFullname();
+				if(!buffer1.toString().contains(tempPrimary)){
+					buffer1.append(ce.getQuestion().getPrimaryMember().getFullname() + ",");
+				}
+				List<SupportingMember> clubbedSupportingMember = ce.getQuestion().getSupportingMembers();
+				if(clubbedSupportingMember != null && !clubbedSupportingMember.isEmpty()){
+					for(SupportingMember l : clubbedSupportingMember){
+						if(l.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+							Member supportingMember = l.getMember();
+							if(supportingMember.isActiveMemberOn(new Date(), locale)){
+								String tempSupporting=supportingMember.getFullname();
+								if(!buffer1.toString().contains(tempSupporting)){
+									buffer1.append(tempSupporting+",");
+								}
 							}
 						}
 					}
 				}
-			}
+			}			
 		}
 		
 		if(!buffer1.toString().isEmpty()){

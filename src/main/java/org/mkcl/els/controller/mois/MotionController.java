@@ -660,7 +660,9 @@ public class MotionController extends GenericController<Motion>{
 			else if(assistantPage != null && assistantPage.getValue().contains(i.getType())) {
 				return newUrlPattern.replace("edit", "assistant");
 			}
-			else if(i.getType().startsWith("MOIS_")) {
+			else if (i.getType().startsWith("MOIS_")
+						 && !i.getType().endsWith("_POSTER")
+					  ) {
 				return newUrlPattern.replace("edit", "editreadonly");
 			}
 		}		
