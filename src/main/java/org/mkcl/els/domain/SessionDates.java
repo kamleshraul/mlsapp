@@ -2,12 +2,16 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.repository.SessionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 @Configurable
@@ -68,4 +72,28 @@ public class SessionDates extends BaseDomain implements Serializable {
 		this.endTime = endTime;
 	}
 
+	
+	   /** The session repository. */
+    @Autowired
+    private transient SessionRepository sessionRepository;
+
+    /**
+     * Gets the session repository.
+     *
+     * @return the session repository
+     */
+    public static SessionRepository getSessionRepository() {
+        SessionRepository sessionRepository = new SessionDates().sessionRepository;
+        if (sessionRepository == null) {
+            throw new IllegalStateException(
+                    "SessionRepository has not been injected in Session Domain");
+        }
+        return sessionRepository;
+    }
+    
+    
+    public static List<SessionDates> findSessionDates(final Session session,final String sessionDates) throws ELSException {
+        return getSessionRepository().findSessionDates(session,sessionDates);
+    }
+	
 }
