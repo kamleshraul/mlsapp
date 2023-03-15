@@ -1,5 +1,6 @@
 package org.mkcl.els.repository;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -10,6 +11,7 @@ import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 
+import org.joda.time.LocalDate;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -18,10 +20,13 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.SessionDates;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.User;
 import org.springframework.stereotype.Repository;
 
+import com.ibm.icu.text.SimpleDateFormat;
+import com.ibm.icu.util.Calendar;
 import com.trg.search.Search;
 
 @Repository
@@ -258,6 +263,47 @@ public class SessionRepository extends BaseRepository<Session, Long>{
     	try{
 			 Session session=(Session) query.getSingleResult();
 		     return session;
+		 }catch(NoResultException e){
+			logger.warn(e.getMessage());
+			return null;
+		 }catch(EntityNotFoundException e){
+			logger.error(e.getMessage());
+			return null;
+		 }catch(Exception e){
+				e.printStackTrace();
+				logger.error(e.getMessage());
+				ELSException elsException=new ELSException();
+				elsException.setParameter("SessionRepository_Session_find", "Session  Not found");
+				throw elsException;
+			}
+    }
+    
+    public List<SessionDates> findSessionDates(final Session session,final String sessionDate) throws ELSException {
+    	String strQuery=
+	    		   "   SELECT s FROM Session s "
+    			   +"  INNER JOIN FETCH s.sessionDates sd "
+	    		   +"  WHERE s.id =:sessionId "
+	    		   +"  AND sd.sessionDate =:sessionDate ";
+	    		   
+    	Query query=this.em().createQuery(strQuery);
+    	query.setParameter("sessionId",session.getId());
+    	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+    	String dateInString =sessionDate ;
+    	Date date=null;
+		try {
+			date = formatter.parse(dateInString);
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+    	query.setParameter("sessionDate", date);
+    	
+    	try{
+    		Session  sessionD= (Session)query.getSingleResult();
+    		List<SessionDates> sessionDates = sessionD.getSessionDates();
+
+		     return sessionDates;
 		 }catch(NoResultException e){
 			logger.warn(e.getMessage());
 			return null;
