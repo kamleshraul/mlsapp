@@ -1,6 +1,7 @@
 package org.mkcl.els.controller.mois;
 
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.BulkApprovalVO;
@@ -54,6 +56,7 @@ import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.ReferenceUnit;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.SessionDates;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
@@ -4370,6 +4373,298 @@ public class MotionController extends GenericController<Motion>{
 		}else {
 			model.addAttribute("maxAllowedTextSize",-1);
 		}
+	}
+	
+	
+	/**** Set Submission Window  ****/
+	@RequestMapping(value="/submissionwindow", method=RequestMethod.GET)
+	public String getSubmissionWindow(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strDeviceType = request.getParameter("motionType");
+		//String strsessionDate = request.getParameter("adjourningDate");
+		String strLocale = locale.toString();		
+
+		if(strHouseType != null && !(strHouseType.isEmpty())
+				&& strSessionType != null && !(strSessionType.isEmpty())
+				&& strSessionYear != null && !(strSessionYear.isEmpty())
+				&& strDeviceType != null && !(strDeviceType.isEmpty())
+				) {
+			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			Integer sessionYear = Integer.parseInt(strSessionYear);
+			Session session;
+			try {
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType,sessionType, sessionYear);
+				model.addAttribute("sessionForSubmissionWindow", session.getId());
+				
+				DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+				model.addAttribute("motionTypeForSubmissionWindow", deviceType.getId());
+
+
+				//session = Session.find(sessionYear,session.getType().toString(), strHouseType);
+				if(session!=null && session.getId()!=null) {
+					List<Date> sessionDates = session.findAllSessionDatesHavingNoHoliday();
+					model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "CALLINGATTENTIONMOTION_CALLINGATTENTIONDATEFORMAT", locale.toString()));
+				} else {
+					model.addAttribute("errorcode", "nosessionentriesfound");
+				}
+				
+				DateFormat dform = new SimpleDateFormat("dd/MM/yyyy");
+				Date obj = new Date();
+				model.addAttribute("CurrDate",dform.format(obj));
+
+					
+				
+				String userGroupType = request.getParameter("usergroupType");
+				model.addAttribute("usergroupTypeForSubmissionWindow", userGroupType);
+			}catch (ELSException e) {
+				model.addAttribute("error", e.getParameter());
+			}catch (Exception e) {
+				e.printStackTrace();
+				model.addAttribute("error", "SOME_ERROR");
+			}
+		} else {
+			model.addAttribute("error", "REQUEST_PARAM_EMPTY");
+		}
+
+		return "motion/submissionwindow";
+	}
+	
+	
+	@RequestMapping(value="/timeslotwindow", method=RequestMethod.GET)
+	public String getTimeSlot(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		
+		String strHouseType = request.getParameter("houseType");
+		String strselectedDate = request.getParameter("selectedDate");
+		String strSessionType = request.getParameter("sessionType");
+		String strDeviceType = request.getParameter("motionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strLocale = locale.toString();	
+		
+		if(strHouseType != null && !(strHouseType.isEmpty())
+				&& strSessionType != null && !(strSessionType.isEmpty())
+				&& strSessionYear != null && !(strSessionYear.isEmpty())
+				&& strDeviceType != null && !(strDeviceType.isEmpty())
+				) {
+			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			Integer sessionYear = Integer.parseInt(strSessionYear);
+			Session session;
+			try {
+				
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType,sessionType, sessionYear);
+				DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+				
+				String[] dates = strselectedDate.split("/");
+				
+					
+				List<SessionDates> sessionTimeParameter = SessionDates.findSessionDates(session,dates[2]+"-"+dates[1]+"-"+dates[0]);
+				if(sessionTimeParameter!=null ) {
+					
+					String startTimeHour1 = sessionTimeParameter.get(0).getStartTime().toString().split(":")[0];
+					model.addAttribute("startTimeHour", FormaterUtil.formatNumbersInGivenText(startTimeHour1, strLocale));
+					String startTimeMinute = sessionTimeParameter.get(0).getStartTime().toString().split(":")[1];
+					model.addAttribute("startTimeMinute", FormaterUtil.formatNumbersInGivenText(startTimeMinute, strLocale));
+				} else {
+					String submissionStartTimeDefaultSessionParameter = session.getParameter(deviceType.getType()+"_submissionStartTime");
+					if(submissionStartTimeDefaultSessionParameter!=null && !submissionStartTimeDefaultSessionParameter.isEmpty()
+							&& submissionStartTimeDefaultSessionParameter.contains(":")) {
+						String startTimeHour = submissionStartTimeDefaultSessionParameter.split(":")[0].split(" ")[1];
+						model.addAttribute("startTimeHour", FormaterUtil.formatNumbersInGivenText(startTimeHour, strLocale));
+						String startTimeMinute = submissionStartTimeDefaultSessionParameter.split(":")[1];
+						model.addAttribute("startTimeMinute", FormaterUtil.formatNumbersInGivenText(startTimeMinute, strLocale));
+					} else {
+						CustomParameter csptsubmissionStartTime = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_SUBMISSIONSTARTTIME_"+houseType.getType().toUpperCase(), "");
+						if(csptsubmissionStartTime!=null) {
+							String submissionStartTimeDefaultCustomParameter = csptsubmissionStartTime.getValue();
+							if(submissionStartTimeDefaultCustomParameter!=null && !submissionStartTimeDefaultCustomParameter.isEmpty()
+									&& submissionStartTimeDefaultCustomParameter.contains(":")) {
+								String startTimeHour = submissionStartTimeDefaultCustomParameter.split(":")[0];
+								model.addAttribute("startTimeHour", FormaterUtil.formatNumbersInGivenText(startTimeHour, strLocale));
+								String startTimeMinute = submissionStartTimeDefaultCustomParameter.split(":")[1];
+								model.addAttribute("startTimeMinute", FormaterUtil.formatNumbersInGivenText(startTimeMinute, strLocale));
+							}
+						}						
+					}
+				}
+				
+				/** Submission end time parameter **/
+				
+				if(sessionTimeParameter !=null  ) {
+					String endTimeHour = sessionTimeParameter.get(0).getEndTime().toString().split(":")[0];
+					model.addAttribute("endTimeHour", FormaterUtil.formatNumbersInGivenText(endTimeHour, strLocale));
+					String endTimeMinute = sessionTimeParameter.get(0).getEndTime().toString().split(":")[1];
+					model.addAttribute("endTimeMinute", FormaterUtil.formatNumbersInGivenText(endTimeMinute, strLocale));
+				} else {
+					String submissionEndTimeDefaultSessionParameter = session.getParameter(deviceType.getType()+"_submissionEndTime");
+					if(submissionEndTimeDefaultSessionParameter!=null && !submissionEndTimeDefaultSessionParameter.isEmpty()
+							&& submissionEndTimeDefaultSessionParameter.contains(":")) {
+						String endTimeHour = submissionEndTimeDefaultSessionParameter.split(":")[0].split(" ")[1];
+						model.addAttribute("endTimeHour", FormaterUtil.formatNumbersInGivenText(endTimeHour, strLocale));
+						String endTimeMinute = submissionEndTimeDefaultSessionParameter.split(":")[1];
+						model.addAttribute("endTimeMinute", FormaterUtil.formatNumbersInGivenText(endTimeMinute, strLocale));
+					} else {
+						CustomParameter csptsubmissionEndTime = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_SUBMISSIONENDTIME_"+houseType.getType().toUpperCase(), "");
+						if(csptsubmissionEndTime!=null) {
+							String submissionEndTimeDefaultCustomParameter = csptsubmissionEndTime.getValue();
+							if(submissionEndTimeDefaultCustomParameter!=null && !submissionEndTimeDefaultCustomParameter.isEmpty()
+									&& submissionEndTimeDefaultCustomParameter.contains(":")) {
+								String endTimeHour = submissionEndTimeDefaultCustomParameter.split(":")[0];
+								model.addAttribute("endTimeHour", FormaterUtil.formatNumbersInGivenText(endTimeHour, strLocale));
+								String endTimeMinute = submissionEndTimeDefaultCustomParameter.split(":")[1];
+								model.addAttribute("endTimeMinute", FormaterUtil.formatNumbersInGivenText(endTimeMinute, strLocale));
+							}
+						}						
+					}
+				}		
+				
+			}
+			catch (ELSException e) {
+				model.addAttribute("error", e.getParameter());
+			}catch (Exception e) {
+				e.printStackTrace();
+				model.addAttribute("error", "SOME_ERROR");
+			}
+		} else {
+			model.addAttribute("error", "REQUEST_PARAM_EMPTY");
+		}
+		
+		
+		
+		return "motion/startandendtimeform";
+	}
+
+	
+	
+	
+	
+	@Transactional
+	@RequestMapping(value="/submissionwindow", method=RequestMethod.POST)
+	public @ResponseBody String updateSubmissionWindow(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		String updateStatus = "error";
+		
+		String strSession = request.getParameter("session");
+		String strDeviceType = request.getParameter("motionType");
+		String strsessionDate = request.getParameter("sessionDate");
+		String strStartTimeHour = request.getParameter("startTimeHour");
+		String strStartTimeMinute = request.getParameter("startTimeMinute");
+		String strEndTimeHour = request.getParameter("endTimeHour");
+		String strEndTimeMinute = request.getParameter("endTimeMinute");
+		String usergroupType = request.getParameter("usergroupTypeForSubmissionWindow");
+		String strLocale = locale.toString();	
+		
+		/** restrict update for member **/
+		boolean isAllowedToUpdate = true;
+		if(usergroupType!=null && usergroupType.equals(ApplicationConstants.MEMBER)) {
+			isAllowedToUpdate = false;
+		}		
+		if(isAllowedToUpdate==false) {
+			return "error";
+		}
+		
+		
+		
+		
+
+		if(strSession != null && !(strSession.isEmpty())		
+				&& strDeviceType != null && !(strDeviceType.isEmpty())
+				&& strStartTimeHour != null && !(strStartTimeHour.isEmpty())
+				&& strStartTimeMinute != null && !(strStartTimeMinute.isEmpty())
+				&& strEndTimeHour != null && !(strEndTimeHour.isEmpty())
+				&& strEndTimeMinute != null && !(strEndTimeMinute.isEmpty())
+				) {
+			
+			
+					SimpleDateFormat sdformat = new SimpleDateFormat("dd/MM/yyyy");
+					Date d1 = null;
+					Date CurrDate = new Date();
+					try {
+						d1 = sdformat.parse(strsessionDate);
+						CurrDate = sdformat.parse(sdformat.format(CurrDate));
+					} catch (ParseException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
+					if (d1.compareTo(CurrDate) < 0) {
+						return "error";
+					} 
+			
+			try {
+				Session session = Session.findById(Session.class, Long.parseLong(strSession));				
+				DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));				
+				//Date adjourningDate = FormaterUtil.formatStringToDate(strsessionDate, ApplicationConstants.SERVER_DATEFORMAT, strLocale);
+				
+				
+				Integer startTimeHour = Integer.parseInt(strStartTimeHour);
+				Integer startTimeMinute = Integer.parseInt(strStartTimeMinute);		
+				Integer endTimeHour = Integer.parseInt(strEndTimeHour);
+				Integer endTimeMinute = Integer.parseInt(strEndTimeMinute);
+				
+				if(startTimeHour.toString().length()==1) {
+					strStartTimeHour = "0" + startTimeHour;
+				} else {
+					strStartTimeHour = startTimeHour.toString();
+				}
+				
+				if(startTimeMinute.toString().length()==1) {
+					strStartTimeMinute = "0" + startTimeMinute;
+				} else {
+					strStartTimeMinute = startTimeMinute.toString();
+				}
+				
+				if(endTimeHour.toString().length()==1) {
+					strEndTimeHour = "0" + endTimeHour;
+				} else {
+					strEndTimeHour = endTimeHour.toString();
+				}
+				
+				if(endTimeMinute.toString().length()==1) {
+					strEndTimeMinute = "0" + endTimeMinute;
+				} else {
+					strEndTimeMinute = endTimeMinute.toString();
+				}				
+				String[] dates = strsessionDate.split("/");
+				List<SessionDates> specificsessionDates = SessionDates.findSessionDates(session,dates[2]+"-"+dates[1]+"-"+dates[0]);
+				
+				
+				
+				/** time parameter **/
+				String sessionStartTime = strStartTimeHour + ":" + strStartTimeMinute;
+				String sessionEndTime = strEndTimeHour + ":" + strEndTimeMinute;
+				SimpleDateFormat sf = new SimpleDateFormat("HH:mm");
+				Date convsessionStartTime = null;
+				Date convsessionEndTime = null;
+				try {
+				       convsessionStartTime = sf.parse(sessionStartTime);
+				       convsessionEndTime = sf.parse(sessionEndTime);
+				    
+				} catch (ParseException e) {
+				    e.printStackTrace();
+				}
+				if(convsessionStartTime != null && convsessionEndTime != null ) {
+					specificsessionDates.get(0).setStartTime(convsessionStartTime);
+					specificsessionDates.get(0).setEndTime(convsessionEndTime);
+				}
+				
+				specificsessionDates.get(0).merge();	
+				
+				updateStatus = "success";
+			} catch (Exception e) {
+				e.printStackTrace();
+				updateStatus = "error";
+			}
+		}
+
+		return updateStatus;
 	}
 
 }
