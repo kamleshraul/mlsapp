@@ -209,6 +209,17 @@
 					ActiveMinistryReport($(this).val());
 				
 			});
+			
+			
+			/**** Submission Time Window ****/
+			$("#session_time_window").click(function(event, isHighSecurityValidationRequired){			
+				/* if(isHighSecurityValidationRequired!=false) {
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+					return false;
+				} */
+				$(this).attr('href','#');
+				setsessionTimeWindow();
+			});
 			 
 			
 			/*  */
@@ -939,8 +950,39 @@
 			}); 
 		}
 		
+		//Set Submission Time Window 
+		function setsessionTimeWindow() {
+			
+			
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
+				var parameters="houseType="+$("#selectedHouseType").val()
+				+"&sessionYear="+$("#selectedSessionYear").val()
+				+"&sessionType="+$("#selectedSessionType").val()
+				+"&motionType="+$("#selectedMotionType").val()
+				//+"&adjourningDate="+$("#selectedAdjourningDate").val()
+				//+"&formattedAdjourningDate="+$("#selectedAdjourningDate").text()
+				+"&ugparam="+$("#ugparam").val()
+				+"&status="+$("#selectedStatus").val()
+				+"&role="+$("#srole").val()
+				+"&usergroup="+$("#currentusergroup").val()
+				+"&usergroupType="+$("#currentusergroupType").val();
+				var resourceURL='motion/submissionwindow?'+parameters;
+				$.get(resourceURL,function(data){
+					$.unblockUI();
+					$.fancybox.open(data,{autoSize:false,width:360,height:270});
+				},'html').fail(function(){
+					$.unblockUI();
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				});
+					
+		}
 		
-		
+		/**** -------------------- ****/
 		
 		function  motionDiscussionReport(){
 			 var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
@@ -1197,6 +1239,13 @@
 					</select>|
 				</div>	 
 			</security:authorize>
+			
+			<security:authorize access="hasAnyRole('MOIS_SECTION_OFFICER')">
+			<a href="#" id="session_time_window" class="butSim">
+				<spring:message code="session.session_time_window" text="Session Time Window"/>
+			</a> |
+			</security:authorize>	
+			
 			
 			<security:authorize
 				access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','MOIS_TYPIST')">
