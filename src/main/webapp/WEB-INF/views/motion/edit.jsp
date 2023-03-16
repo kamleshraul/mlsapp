@@ -183,7 +183,8 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});				
+			});
+			removeFormattingFromDetails(function(){/*blank function*/});
 			$.prompt($('#sendForApprovalMsg').val()+$("#selectedSupportingMembers").val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
@@ -220,6 +221,9 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
+				
+				removeFormattingFromDetails(function(){/*blank function*/});
+				
 			});			
 			$.prompt($('#submissionMsg').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
@@ -351,7 +355,8 @@
 			}else{ return -1;}
 		}
 		
-		function checkBeforeSubmit() {
+		function checkBeforeSubmit() {		
+			
 			
 			var maxTextSize=getMaxAllowedTextSize();
 			if(maxTextSize>0){
@@ -370,6 +375,26 @@
 			checkMaxAllowedTextSize($(inputBoxText).val());
 		}
 		
+		function removeFormattingFromDetails(callBack){		
+			var detailsBox=$('textarea#wysiwygBox');
+			if(detailsBox!==undefined && detailsBox!==null){				
+				var motionDetailText=$.wysiwyg.getContent(detailsBox);
+				if(motionDetailText!==undefined && motionDetailText!==null && motionDetailText!==''){
+					cleanText=cleanFormatting(motionDetailText);
+					$.wysiwyg.setContent(detailsBox,cleanText);
+				}
+			}
+			
+			callBack();
+		}
+		
+		$('#submit').click(function(e){
+			e.preventDefault();
+			removeFormattingFromDetails(function(){
+				$("#submit").unbind('click').click(); 
+			});		
+			
+		});
 	});	
 	</script>
 </head>
