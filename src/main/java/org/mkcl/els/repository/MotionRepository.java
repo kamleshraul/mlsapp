@@ -420,6 +420,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 					" AND m.type=:motionType" +
 					" AND m.locale=:locale" +
 					" AND m.internalStatus=:internalStatus" + 
+					" AND m.parent is NULL "+
 					/*" AND (m.discussionStatus!=:recommendationStatusDiscussed AND m.discussionStatus!=:recommendationStatusUndiscussed)" +*/
 					" ORDER BY m.number "+ ApplicationConstants.ASC;
 			TypedQuery<Motion> query = this.em().createQuery(strQuery, Motion.class);
