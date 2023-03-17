@@ -65,16 +65,15 @@ $(document).ready(function(){
 					var item_number =$(".item_number_"+cutmotionId[i]).get(0).innerText;
 				}
 				
-				
-			
+
 		     items.push({
 		    	'cutmotionId':cutmotionId[i],
-		    	'amount_tab_deducted':$(".amount_tab_deducted_"+cutmotionId[i]).get(0).innerText ,
+		    	'amount_tab_deducted':$(".amount_tab_deducted_"+cutmotionId[i]).val() ,
 		    	'demand_number':$(".demand_number_"+cutmotionId[i]).get(0).innerText ,
 		    	'main_title':$(".main_title_"+cutmotionId[i]).get(0).innerText,
 		    	'revised_sub_title':$(".revised_sub_title_"+cutmotionId[i]).get(0).innerText,
 		    	'item_number':item_number,
-		    	'total_amount_demanded':$(".total_amount_demanded_"+cutmotionId[i]).get(0).innerText,
+		    	'total_amount_demanded':$(".total_amount_demanded_"+cutmotionId[i]).val(),
 		    	'noticeContent':$(".noticeContent_"+cutmotionId[i]).get(0).value
 		    	
 		}); 
@@ -92,10 +91,10 @@ $(document).ready(function(){
 					    cutmotionId:cutmotionId,
 					    houseType:$("#selectedHouseType").val()
 						 ,deviceType:$("#selectedCutMotionType").val()
+						 ,subDepartment:$("#selectedSubDepartment").val()
 						 		 	
 					 	},
 	    	            function(data){
-	       					console.log(data)
 	    					$.unblockUI();	
 	    					$("#bulkResultDiv").empty();	
 	    					$("#bulkResultDiv").html(data);
@@ -144,6 +143,11 @@ if(this.disabled){
 	width:340px;
 	height:300px;
 }
+
+input[type=number]
+{
+-moz-appearance:textfield;
+}
 </style>
 
 	<p id="error_p" style="display: none;">&nbsp;</p>
@@ -181,10 +185,17 @@ if(this.disabled){
 						<td style="min-width:30px;" id="${i[0]}">${i[24]}</td>
 						<td style="min-width:90px;" >${i[64] }</td>
 						
-						<td style="min-width:90px;" >
-						<div class="editable amount_tab_deducted_${i[0]}">
+						<td style="max-width:60px;" >
+						<%-- <div class="editable amount_tab_deducted_${i[0]}">
 						<fmt:formatNumber type="number" groupingUsed="false"  maxIntegerDigits="12" value="${i[4]}"  />
 						</div>
+						 --%>
+						<c:if test="${i[4] == NULL  }">
+						<input type= "number" style="max-width:60px;" class="editable amount_tab_deducted_${i[0]}" >
+						</c:if>
+						<c:if test="${i[4] != NULL  }">
+						<input type= "number" style="max-width:60px;" class="editable amount_tab_deducted_${i[0]}"  value="${i[4]}" >
+						</c:if>
 						</td>
 						
 						<td style="min-width:200px;" >
@@ -243,9 +254,13 @@ if(this.disabled){
 						<br>
 						<label class="small"><b><spring:message code="yaadiDetails.totalAmountDemanded" text="प"/> </b></label>
 						
-						<div class="editable total_amount_demanded_${i[0]}">
-						<fmt:formatNumber type="number" groupingUsed="false" maxIntegerDigits="12" value="${i[37]}"  />
-						</div>
+						<c:if test="${i[37] == NULL  }">
+						<input type= "number" class="editable total_amount_demanded_${i[0]}" >
+						</c:if>
+						<c:if test="${i[37] != NULL  }">
+						<input type= "number" class="editable total_amount_demanded_${i[0]}"  value="${i[37]}" >
+						<%-- <fmt:formatNumber type="number" groupingUsed="false" maxIntegerDigits="12" value="${i[37]}"  />  --%>
+						</c:if>
 						</td>
 						
 					<%-- 	<td style="min-width:100px;" id="${i[0]}">
