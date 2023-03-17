@@ -15,22 +15,21 @@ $(document).ready(function(){
 	});
 
 		   for (var i=0; i<qsnId.length; i++) {
-			console.log(i+"here")
-	
-			var questionText = $(".questionText_"+qsnId[i]).get(0).value ;
+
+			 var questionText = $(".questionText_"+qsnId[i]).get(0).value ;
 			questionText = cleanFormatting(questionText);
 			$(".questionText_"+qsnId[i]).get(0).value = questionText;
-			console.log(questionText);
+			
 			
 		   var revisedQuestionText = $(".revisedQuestionText_"+qsnId[i]).get(0).value  ;
 			revisedQuestionText = cleanFormatting(revisedQuestionText);
 			$(".revisedQuestionText_"+qsnId[i]).get(0).value  = revisedQuestionText;
-			console.log(revisedQuestionText);
+			
 			
 		   var 	answer = $(".answer_"+qsnId[i]).get(0).value;
 		   answer = cleanFormatting(answer);
 		   $(".answer_"+qsnId[i]).get(0).value= answer;
-		       console.log("complete "+i+"cycle")
+		    
 			
 		} 
 
