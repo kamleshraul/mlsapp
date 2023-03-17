@@ -2854,4 +2854,19 @@ import org.springframework.transaction.annotation.Transactional;
 		
 		return workflowDetailsList!=null && deleteCount== workflowDetailsList.size();
 	}
+	
+	
+	public static List<Motion> getChildMotions(	Session session,  Long pId)
+	{
+		return getMotionRepository().getChildMotions(session, pId);  
+	}
+	
+	public static Motion getMotionByParent(Long sessionId, Long deviceTypeId, Long Pid,
+			String locale)
+	{
+		return getMotionRepository().getMotionByParent( sessionId,  deviceTypeId, Pid, locale);  
+	}
+	
+	
+	
 }
