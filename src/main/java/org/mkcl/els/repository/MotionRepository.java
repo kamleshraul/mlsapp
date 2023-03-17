@@ -105,6 +105,28 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 		return draftsCount;
 	}
 	
+	
+	public List<Motion> getChildMotions(
+			Session session,  Long pId
+			)
+	{
+		String queryString = "SELECT m FROM Motion m "
+				+ " WHERE m.parent.id =:pId"
+				+ "  AND  m.session.id =:sessionId ";
+		List<Motion> motions = new ArrayList<Motion>();
+		try {	
+		TypedQuery<Motion> query=this.em().createQuery(queryString, Motion.class);
+		query.setParameter("sessionId", session.getId());
+		query.setParameter("pId",pId );
+		
+		 motions = query.getResultList();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return motions;
+	}
+	
 	public List<Motion> findReadyToSubmitMotions(final Session session,
 			final Member primaryMember,
 			final DeviceType deviceType,
@@ -691,7 +713,34 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 		query.setParameter("dNumber", dNumber);
 		query.setParameter("locale", locale);
 		Motion motion=(Motion) query.getSingleResult();
+	
 		return motion;
+	}
+	
+	public Motion getMotionByParent(Long sessionId, Long deviceTypeId, Long Pid,
+			String locale)
+	{
+		String strQuery="SELECT m FROM Motion m WHERE" +
+				" m.session.id=:sessionId" +
+				" AND m.type.id=:deviceTypeId" +
+				" AND m.id=:id" +
+				" AND m.locale=:locale";
+		Motion motion = null;
+		try {	
+					
+		TypedQuery<Motion> query=this.em().createQuery(strQuery,Motion.class);
+		query.setParameter("sessionId", sessionId);
+		query.setParameter("deviceTypeId", deviceTypeId);
+		query.setParameter("id",Pid );
+		query.setParameter("locale", locale);
+		 motion= query.getSingleResult();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return motion;
+		
 	}
 	
 	@SuppressWarnings("unchecked")
