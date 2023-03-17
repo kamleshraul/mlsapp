@@ -255,10 +255,10 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 						}else{
 							workflowDetails.setText(question.getQuestionText());
 						}
-						if(question.getFactualPosition() != null && !question.getFactualPosition().isEmpty()){
+						if(question.getFactualPosition() != null && !question.getFactualPosition().isEmpty()  &&  question.getInternalStatus().getType().contains("clarification")){
 							workflowDetails.setReply(question.getFactualPosition());
 						}
-						if(question.getFactualPositionFromMember() != null && !question.getFactualPositionFromMember().isEmpty()){
+						if(question.getFactualPositionFromMember() != null && !question.getFactualPositionFromMember().isEmpty() &&  question.getInternalStatus().getType().contains("clarification")){
 							workflowDetails.setReply(question.getFactualPositionFromMember());
 						}
 						if(question.getAnswer() != null && !question.getAnswer().isEmpty()){
@@ -415,10 +415,10 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 							}else{
 								workflowDetails.setText(question.getQuestionText());
 							}
-							if(question.getFactualPosition() != null && !question.getFactualPosition().isEmpty()){
+							if(question.getFactualPosition() != null && !question.getFactualPosition().isEmpty() && question.getInternalStatus().getType().contains("clarification")){
 								workflowDetails.setReply(question.getFactualPosition());
 							}
-							if(question.getFactualPositionFromMember() != null && !question.getFactualPositionFromMember().isEmpty()){
+							if(question.getFactualPositionFromMember() != null && !question.getFactualPositionFromMember().isEmpty() &&  question.getInternalStatus().getType().contains("clarification")){
 								workflowDetails.setReply(question.getFactualPositionFromMember());
 							}
 							if(question.getAnswer() != null && !question.getAnswer().isEmpty()){
@@ -555,10 +555,10 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 									}else{
 										workflowDetails.setText(question.getQuestionText());
 									}
-									if(question.getFactualPosition() != null && !question.getFactualPosition().isEmpty()){
+									if(question.getFactualPosition() != null && !question.getFactualPosition().isEmpty()  &&  question.getInternalStatus().getType().contains("clarification")){
 										workflowDetails.setReply(question.getFactualPosition());
 									}
-									if(question.getFactualPositionFromMember() != null && !question.getFactualPositionFromMember().isEmpty()){
+									if(question.getFactualPositionFromMember() != null && !question.getFactualPositionFromMember().isEmpty()  &&  question.getInternalStatus().getType().contains("clarification")){
 										workflowDetails.setReply(question.getFactualPositionFromMember());
 									}
 									if(question.getAnswer() != null && !question.getAnswer().isEmpty()){
@@ -932,7 +932,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							workflowDetails.setText(resolution.getNoticeContent());
 						}	
 						
-						if(resolution.getFactualPosition() != null && !resolution.getFactualPosition().isEmpty()){
+						if(resolution.getFactualPosition() != null && !resolution.getFactualPosition().isEmpty() && resolution.getInternalStatusLowerHouse().getType().contains("clarification") && resolution.getInternalStatusUpperHouse().getType().contains("clarification")){
 							workflowDetails.setReply(resolution.getFactualPosition());
 						}
 						if(resolution.getMinistry() != null){
@@ -2811,10 +2811,10 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							if(motion.getSubDepartment() != null){
 								workflowDetails.setSubdepartment(motion.getSubDepartment().getName());
 							}
-							if(motion.getFactualPositionFromDepartment() != null && !motion.getFactualPositionFromDepartment().isEmpty()){
+							if(motion.getFactualPositionFromDepartment() != null && !motion.getFactualPositionFromDepartment().isEmpty() && motion.getInternalStatus().getType().contains("clarification")){
 								workflowDetails.setReply(motion.getFactualPositionFromDepartment());
 							}
-							if(motion.getFactualPositionFromMember() != null && !motion.getFactualPositionFromMember().isEmpty()){
+							if(motion.getFactualPositionFromMember() != null && !motion.getFactualPositionFromMember().isEmpty() && motion.getInternalStatus().getType().contains("clarification")){
 								workflowDetails.setReply(motion.getFactualPositionFromMember());
 							}
 							if(motion.getReply() != null && !motion.getReply().isEmpty()){
@@ -2947,10 +2947,10 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							if(motion.getSubDepartment() != null){
 								workflowDetails.setSubdepartment(motion.getSubDepartment().getName());
 							}
-							if(motion.getFactualPositionFromDepartment() != null && !motion.getFactualPositionFromDepartment().isEmpty()){
+							if(motion.getFactualPositionFromDepartment() != null && !motion.getFactualPositionFromDepartment().isEmpty() && motion.getInternalStatus().getType().contains("clarification")){
 								workflowDetails.setReply(motion.getFactualPositionFromDepartment());
 							}
-							if(motion.getFactualPositionFromMember() != null && !motion.getFactualPositionFromMember().isEmpty()){
+							if(motion.getFactualPositionFromMember() != null && !motion.getFactualPositionFromMember().isEmpty() && motion.getInternalStatus().getType().contains("clarification")){
 								workflowDetails.setReply(motion.getFactualPositionFromMember());
 							}
 							if(motion.getReply() != null && !motion.getReply().isEmpty()){
@@ -3211,10 +3211,10 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 						if(domain.getFile()!=null){
 							workflowDetails.setFile(String.valueOf(domain.getFile()));
 						}
-						if(domain.getFactualPositionFromDepartment() != null && !domain.getFactualPositionFromDepartment().isEmpty()){
+						if(domain.getFactualPositionFromDepartment() != null && !domain.getFactualPositionFromDepartment().isEmpty() && domain.getInternalStatus().getType().contains("clarification")){
 							workflowDetails.setReply(domain.getFactualPositionFromDepartment());
 						}
-						if(domain.getFactualPositionFromMember() != null && !domain.getFactualPositionFromMember().isEmpty()){
+						if(domain.getFactualPositionFromMember() != null && !domain.getFactualPositionFromMember().isEmpty() && domain.getInternalStatus().getType().contains("clarification")){
 							workflowDetails.setReply(domain.getFactualPositionFromMember());
 						}
 						if(domain.getReply() != null && !domain.getReply().isEmpty()){
@@ -3536,7 +3536,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							if(motion.getMinistry() != null){
 								workflowDetails.setMinistry(motion.getMinistry().getName());
 							}
-							if(motion.getFactualPosition() != null && !motion.getFactualPosition().isEmpty()){
+							if(motion.getFactualPosition() != null && !motion.getFactualPosition().isEmpty() && motion.getInternalStatus().getType().contains("clarification")){
 								workflowDetails.setReply(motion.getFactualPosition());
 							}
 							
@@ -3680,7 +3680,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 						if(motion.getMinistry() != null){
 							workflowDetails.setMinistry(motion.getMinistry().getName());
 						}
-						if(motion.getFactualPosition() != null && !motion.getFactualPosition().isEmpty()){
+						if(motion.getFactualPosition() != null && !motion.getFactualPosition().isEmpty() && motion.getInternalStatus().getType().contains("clarification")){
 							workflowDetails.setReply(motion.getFactualPosition());
 						}
 					}
@@ -3832,7 +3832,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 								if(motion.getMinistry() != null){
 									workflowDetails.setMinistry(motion.getMinistry().getName());
 								}
-								if(motion.getFactualPosition() != null && !motion.getFactualPosition().isEmpty()){
+								if(motion.getFactualPosition() != null && !motion.getFactualPosition().isEmpty() && motion.getInternalStatus().getType().contains("clarification")){
 									workflowDetails.setReply(motion.getFactualPosition());
 								}
 							}
