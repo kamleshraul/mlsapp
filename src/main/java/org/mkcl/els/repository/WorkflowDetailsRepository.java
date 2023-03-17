@@ -932,7 +932,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							workflowDetails.setText(resolution.getNoticeContent());
 						}	
 						
-						if(resolution.getFactualPosition() != null && !resolution.getFactualPosition().isEmpty() && resolution.getInternalStatusLowerHouse().getType().contains("clarification") && resolution.getInternalStatusUpperHouse().getType().contains("clarification")){
+						if(resolution.getFactualPosition() != null && !resolution.getFactualPosition().isEmpty()){
 							workflowDetails.setReply(resolution.getFactualPosition());
 						}
 						if(resolution.getMinistry() != null){
