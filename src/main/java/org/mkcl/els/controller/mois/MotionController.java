@@ -44,6 +44,7 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.DiscussionDateDevice;
 import org.mkcl.els.domain.Holiday;
+import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallot;
@@ -53,6 +54,7 @@ import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.ReferenceUnit;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
@@ -82,6 +84,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.HtmlUtils;
 
 @Controller
 @RequestMapping("motion")
@@ -4668,5 +4671,149 @@ public class MotionController extends GenericController<Motion>{
 
 		return updateStatus;
 	}
+	
+	
+
+	@RequestMapping(value="/motionFormatView" , method=RequestMethod.GET)
+	public String getQsnViewPage(final ModelMap model,final HttpServletRequest request, final Locale locale)
+	{
+		this.getMotionView(model, request, locale);
+		return "motion/viewMotionForFormatting";
+	}
+	
+	
+	public void getMotionView(final ModelMap model,final HttpServletRequest request, final Locale locale)
+	{
+		String strHouseType = request.getParameter("houseType");
+		String strDeviceType = request.getParameter("deviceType");
+		String strmotionId = request.getParameter("qsnId");
+		Integer motionId =  Integer.parseInt(strmotionId);
+		
+		
+		if(strHouseType != null && !(strHouseType.isEmpty())
+			&& 	strDeviceType!= null && !(strDeviceType.isEmpty())
+			&&  motionId != null 
+				) {
+			HouseType houseType = HouseType.findByName(strHouseType, locale.toString());
+			
+			DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+			
+			try {
+				
+				Session latestSession = Session.findLatestSession(houseType);
+				House currentHouse = House.findCurrentHouse(locale.toString());
+				
+				//List<Motion> qsnDetails = Motion.findAllByFieldNames(Motion.class, param, "id",ApplicationConstants.ASC,locale.toString());
+				Motion qsnDetails = Motion.getMotion(latestSession.getId(),deviceType.getId(),motionId,locale.toString());
+				
+		
+				boolean parentSet=false;
+				
+				if(qsnDetails.getParent().getId() ==  null)
+				{
+					List<Motion> childQsnDetails = Motion.getChildMotions(latestSession, qsnDetails.getId());
+					model.addAttribute("childMotions", childQsnDetails);
+				}
+				else if(qsnDetails.getParent().getId() != null) 
+				  { 
+					 qsnDetails = Motion.getMotionByParent(latestSession.getId(),deviceType.getId(),qsnDetails.getParent().getId(),locale.toString());
+					 model.addAttribute("motions", qsnDetails); 
+					 
+					 List<Motion> childQsnDetails = Motion.getChildMotions(latestSession, qsnDetails.getId());
+					model.addAttribute("childMotions", childQsnDetails);
+					 
+					 parentSet =true; 
+				  
+				  }
+				if(parentSet == false) { 
+					
+					model.addAttribute("motions", qsnDetails); 
+					
+				}
+		
+				 
+			
+			} catch (ELSException e) {
+			
+				e.printStackTrace();
+			} 
+		}
+		
+	}
+	
+	@RequestMapping(value="/motionFormatUpdate" , method=RequestMethod.POST)
+	public String updateQsnAdmin(final ModelMap model,final HttpServletRequest request, final Locale locale)
+	{
+
+		boolean updated = false;
+		String page = "motion/error";
+		StringBuffer success = new StringBuffer();
+		
+		try{
+			
+			String selectedItemsLength = (String)request.getParameter("itemsLength");
+			int number  = Integer.parseInt(selectedItemsLength);
+			
+			ArrayList<HashMap<String,String>>  motionContent= new ArrayList<HashMap<String,String>>();
+			
+			for (int i=0;i<number;i++)
+			{
+				HashMap<String,String> ymap = new HashMap<String,String>();
+				String  motionId = request.getParameter("items["+i+"][motionId]");
+				ymap.put("motionId", motionId);
+				String revisedSubject  = request.getParameter("items["+i+"][revisedSubject]");
+				ymap.put("revisedSubject", revisedSubject);
+				String revisedDetails  = request.getParameter("items["+i+"][revisedDetails]");
+				ymap.put("revisedDetails", revisedDetails);
+				String subject = request.getParameter("items["+i+"][subject]");
+				ymap.put("subject", subject);
+				motionContent.add(ymap);
+			}
+			
+			if(motionContent != null )
+			{
+				for(HashMap<String,String>  i : motionContent)
+				{
+					Long id = Long.parseLong(i.get("motionId"));
+					Motion motion =Motion.findById(Motion.class, id);
+				
+					
+					motion.setRevisedSubject(HtmlUtils.htmlUnescape(i.get("revisedSubject")));
+					motion.setRevisedDetails(HtmlUtils.htmlUnescape(i.get("revisedDetails")));
+					//motion.setSubject(HtmlUtils.htmlUnescape(i.get("subject")));
+				
+					motion.simpleMerge();
+					updated = true;
+					success.append(FormaterUtil.formatNumberNoGrouping(motion.getNumber(), motion.getLocale())+",");
+					WorkflowDetails workflowDetails = 
+							WorkflowDetails.findCurrentWorkflowDetail(motion);
+					if(workflowDetails != null) {
+					workflowDetails.setText(i.get("revisedDetails"));
+					workflowDetails.merge();
+					}
+				}
+			}
+			
+			
+
+		}catch(Exception e){
+			e.printStackTrace();
+			updated = false;
+		}
+		
+		if(updated){
+			this.getMotionView(model, request, locale);
+			success.append(" updated successfully...");
+			model.addAttribute("success", success.toString());
+			page = "motion/viewMotionForFormatting";
+		}else{
+			model.addAttribute("failure", "update failed.");
+		}
+		
+		return page;
+	}
+	
+	
+	
 
 }
