@@ -15,20 +15,32 @@
 		
 		
 		$("#submit").click(function(){
-			console.log($("#questionNumberField").val());
-			
+
 			
 			var parameters = "houseType="+$("#selectedHouseType").val()
 			 +"&deviceType="+$("#selectedDeviceType").val()
 			 +"&qsnId="+$("#questionNumberField").val();
 			 
-			var resource='question/questionFormatView';
+			var resource = ''
+			if( $("#selectedDeviceType").val() == 4 ||  $("#selectedDeviceType").val() == 5){
+			resource='question/questionFormatView';
+			}
+			else if($("#selectedDeviceType").val() == 101 )
+			{
+				resource='motion/motionFormatView';
+				$("#qsnUpdateButton").show();
+			}
+			
+			
+			
 			 var resourceURL=resource+"?"+parameters;
+			
 			 $.get(resourceURL,function(data){
 				
 				 $("#bulkResultDiv").empty();
 				
 				 $("#bulkResultDiv").html(data);
+				
 				 $("#qsnUpdateButton").show();
 			 },'html').fail(function(){
 					if($("#ErrorMsg").val()!=''){
@@ -51,6 +63,8 @@
 				
 				}
 			});
+			
+			
 			if(qsnId.length<=0){
 				$.prompt($("#selectItemsMsg").val());
 				return false;	
@@ -58,18 +72,44 @@
 			
 			 
 			var items =new Array();
-			for (var i=0; i<qsnId.length; i++) {
-				console.log(i+"here")
-			    items.push({'questionId':qsnId[i],'questionText':$(".questionText_"+qsnId[i]).get(0).value ,'revisedQuestionText':$(".revisedQuestionText_"+qsnId[i]).get(0).value ,
-			    	'answer':$(".answer_"+qsnId[i]).get(0).value
-			});
-			}
+			var formaturl = '';
+			if( $("#selectedDeviceType").val() == 4  ){
+				for (var i=0; i<qsnId.length; i++) {
+					console.log(i+"here")
+				    items.push({'questionId':qsnId[i],'questionText':$(".questionText_"+qsnId[i]).get(0).value ,'revisedQuestionText':$(".revisedQuestionText_"+qsnId[i]).get(0).value ,
+				    	'answer':$(".answer_"+qsnId[i]).get(0).value
+				});
+				}
+				formaturl ='question/questionFormatUpdate';
+				}
+			
+			else if( $("#selectedDeviceType").val() == 5  ){
+				for (var i=0; i<qsnId.length; i++) {
+					
+				    items.push({'questionId':qsnId[i],'questionText':$(".questionText_"+qsnId[i]).get(0).value ,'revisedQuestionText':$(".revisedQuestionText_"+qsnId[i]).get(0).value ,
+				    	'answer':$(".answer_"+qsnId[i]).get(0).value
+				});
+				}
+				formaturl ='question/questionFormatUpdate';
+				}
 
-			 $.prompt($('#submissionMsg').val(),{
+				else if($("#selectedDeviceType").val() == 101 )
+				{
+					for (var i=0; i<qsnId.length; i++) {
+						console.log(i+"here")
+					    items.push({'motionId':qsnId[i],'revisedSubject':$(".revisedSubject_"+qsnId[i]).val() ,'revisedDetails':$(".revisedDetails_"+qsnId[i]).val() ,
+					    	'subject':$(".subject_"+qsnId[i]).val()
+					});
+					} 
+					formaturl ='motion/motionFormatUpdate';
+				} 
+		
+
+			  $.prompt($('#submissionMsg').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-					$.post('question//questionFormatUpdate?loadIt=yes',
+					$.post(''+formaturl+'?loadIt=yes',
 				        	{items:items,
 						    itemsLength:items.length,
 						    houseType:$("#selectedHouseType").val()
