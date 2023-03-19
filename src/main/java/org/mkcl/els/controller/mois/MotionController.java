@@ -4709,7 +4709,7 @@ public class MotionController extends GenericController<Motion>{
 		
 				boolean parentSet=false;
 				
-				if(qsnDetails.getParent().getId() ==  null)
+				if(qsnDetails.getParent() ==  null)
 				{
 					List<Motion> childQsnDetails = Motion.getChildMotions(latestSession, qsnDetails.getId());
 					model.addAttribute("childMotions", childQsnDetails);
