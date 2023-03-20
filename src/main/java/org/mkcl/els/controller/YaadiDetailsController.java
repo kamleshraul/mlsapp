@@ -271,6 +271,299 @@ public class YaadiDetailsController extends BaseController {
 		return retVal;
 	}
 	
+	
+	
+	
+	@Transactional
+	@RequestMapping(value="/save_edited_yaadi" ,method=RequestMethod.POST)
+	public void saveEditedYaadi(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+
+		String houseTypeId = request.getParameter("houseType");
+		String deviceTypeId = request.getParameter("deviceType");
+		String sessionId = request.getParameter("sessionId");
+		String yaadiDetailsId = request.getParameter("yaadiDetailsId");		
+		String strYaadiNumber = request.getParameter("yaadiNumber");
+		String strYaadiLayingDate = request.getParameter("yaadiLayingDate");
+		String strChangedYaadiNumber = request.getParameter("changedYaadiNumber");
+		String strChangedYaadiLayingDate = request.getParameter("changedYaadiLayingDate");
+		String selectedDeviceIds = request.getParameter("selectedDeviceIds");
+		String deSelectedDeviceIds = request.getParameter("deSelectedDeviceIds");
+		String yaadiLayingStatusId = request.getParameter("yaadiLayingStatus");
+		
+		if(houseTypeId!=null && deviceTypeId!=null && sessionId!=null 
+				&& strYaadiNumber!=null	&& strYaadiLayingDate!=null) {
+			if(!houseTypeId.isEmpty() && !deviceTypeId.isEmpty() && !sessionId.isEmpty()
+					&& !strYaadiNumber.isEmpty() && !strYaadiLayingDate.isEmpty() && !strYaadiLayingDate.equals("-")) {
+				
+				try {
+					HouseType houseType = null;
+					DeviceType deviceType = null;
+					String device = null;
+					Session session = null;				
+					YaadiDetails yaadiDetails = null;
+					Status existingLayingStatus = null;
+					
+					CustomParameter manuallyEnteringAllowedCP = CustomParameter.findByName(CustomParameter.class, "QIS_UNSTARRED_YAADI_MANUALLY_ENTERING_ALLOWED", "");
+					boolean isManualEnteringAllowed = false;
+					if(manuallyEnteringAllowedCP!=null && manuallyEnteringAllowedCP.getValue()!=null && manuallyEnteringAllowedCP.getValue().equalsIgnoreCase("true")) {
+						isManualEnteringAllowed = true;
+					}
+					
+					if(yaadiDetailsId!=null && !yaadiDetailsId.isEmpty()) {
+						yaadiDetails = YaadiDetails.findById(YaadiDetails.class, Long.parseLong(yaadiDetailsId));
+						if(yaadiDetails==null) {
+							isError = true;
+							logger.error("**** Check request parameters yaadiDetailsId for invalid value ****");
+							errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.yaadiDetailsId.invalid", locale.toString());
+						} else {
+							houseType = yaadiDetails.getHouseType();
+							deviceType = yaadiDetails.getDeviceType();
+							device = yaadiDetails.getDevice();
+							session = yaadiDetails.getSession();
+							existingLayingStatus = yaadiDetails.getLayingStatus();
+						}					
+					} else {
+						yaadiDetails = new YaadiDetails();
+						yaadiDetails.setLocale(locale.toString());
+						houseType = HouseType.findById(HouseType.class, Long.parseLong(houseTypeId));
+						yaadiDetails.setHouseType(houseType);
+						deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(deviceTypeId));
+						yaadiDetails.setDeviceType(deviceType);
+						if(deviceType!=null) {
+							device = deviceType.getDevice();
+						} else {
+							device = "question_unstarred";						
+						}
+						yaadiDetails.setDevice(device);
+						session = Session.findById(Session.class, Long.parseLong(sessionId));
+						yaadiDetails.setSession(session);
+					}
+					
+					if(!isError) {
+						
+						if(existingLayingStatus==null || !existingLayingStatus.getType().equals(ApplicationConstants.YAADISTATUS_LAID)) {
+							Status layingStatus = null;
+							if(yaadiLayingStatusId!=null && !yaadiLayingStatusId.isEmpty()) {
+								layingStatus = Status.findById(Status.class, Long.parseLong(yaadiLayingStatusId));
+								if(layingStatus==null) {
+									isError = true;
+									logger.error("**** Check request parameters yaadiLayingStatusId for invalid value ****");
+									errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.yaadiLayingStatusId.invalid", locale.toString());
+								} else {
+									yaadiDetails.setLayingStatus(layingStatus);
+								}
+							} else {
+								layingStatus = Status.findByType(ApplicationConstants.YAADISTATUS_DRAFTED, locale.toString());
+								if(layingStatus==null) {
+									isError = true;
+									logger.error("**** Status with type '" + ApplicationConstants.YAADISTATUS_DRAFTED + "' in locale " + locale.toString() + " not found****");
+									errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.statusnotfound", locale.toString());
+								} else {
+									yaadiDetails.setLayingStatus(layingStatus);
+								}
+							}
+						}						
+						if(!isError) {							
+//							CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+//							if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+//								if(csptServer.getValue().equals("TOMCAT")){
+//									strYaadiNumber = new String(strYaadiNumber.getBytes("ISO-8859-1"), "UTF-8");
+//									strYaadiLayingDate = new String(strYaadiLayingDate.getBytes("ISO-8859-1"), "UTF-8");							
+//									if(strChangedYaadiNumber!=null && !strChangedYaadiNumber.isEmpty()) {
+//										strChangedYaadiNumber = new String(strChangedYaadiNumber.getBytes("ISO-8859-1"), "UTF-8");
+//									}
+//									if(strChangedYaadiLayingDate!=null && !strChangedYaadiLayingDate.isEmpty()) {
+//										strChangedYaadiLayingDate = new String(strChangedYaadiLayingDate.getBytes("ISO-8859-1"), "UTF-8");
+//									}							
+//								}
+//							}
+							/** yaadi number **/
+							Integer yaadiNumber = null;
+							if(existingLayingStatus!=null 
+									&& 
+									( 
+									  existingLayingStatus.getType().equals(ApplicationConstants.YAADISTATUS_READY)
+											||
+									  existingLayingStatus.getType().equals(ApplicationConstants.YAADISTATUS_LAID)
+									)
+							) {
+								yaadiNumber = Integer.parseInt(strYaadiNumber);
+							} else {
+								if(strChangedYaadiNumber!=null && !strChangedYaadiNumber.isEmpty()) {
+									yaadiNumber = Integer.parseInt(strChangedYaadiNumber);
+								} else {
+									yaadiNumber = Integer.parseInt(strYaadiNumber);
+								}
+							}							
+							yaadiDetails.setNumber(yaadiNumber);
+							/** yaadi laying date **/
+							Date yaadiLayingDate = null;
+							if(existingLayingStatus!=null && existingLayingStatus.getType().equals(ApplicationConstants.YAADISTATUS_LAID)) {
+								yaadiLayingDate = FormaterUtil.formatStringToDate(strYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+							} else {
+								if(strChangedYaadiLayingDate!=null && !strChangedYaadiLayingDate.isEmpty()
+										&& !strChangedYaadiLayingDate.equals("-")) {
+									yaadiLayingDate = FormaterUtil.formatStringToDate(strChangedYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+								} else {
+									yaadiLayingDate = FormaterUtil.formatStringToDate(strYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+								}
+							}							
+							yaadiDetails.setLayingDate(yaadiLayingDate);
+							/** yaadi devices **/
+							List<Device> totalDevicesInYaadi = new ArrayList<Device>();
+							if(existingLayingStatus==null || !existingLayingStatus.getType().equals(ApplicationConstants.YAADISTATUS_LAID)) {
+								if(yaadiDetails.getLayingStatus().getType().equals(ApplicationConstants.YAADISTATUS_DRAFTED)) {
+									/** yaadi removed devices **/
+									List<Device> totalRemovedDevicesInYaadi = new ArrayList<Device>();	
+									List<Device> existingRemovedDevicesInYaadi = yaadiDetails.getRemovedDevices();
+									if(existingRemovedDevicesInYaadi!=null && !existingRemovedDevicesInYaadi.isEmpty()) {
+										totalRemovedDevicesInYaadi.addAll(existingRemovedDevicesInYaadi);
+									}		
+									/** remove deselected devices **/
+									if(deSelectedDeviceIds!=null && !deSelectedDeviceIds.isEmpty()) {
+										List<Device> deSelectedDevicesInYaadi = new ArrayList<Device>();
+										deSelectedDeviceIds = deSelectedDeviceIds.substring(0, deSelectedDeviceIds.length()-1);
+										for(String deSelectedDeviceId: deSelectedDeviceIds.split(",")) {
+											if(yaadiDetails.getDevice()!=null && yaadiDetails.getDevice().startsWith("question")) {
+												Question q = Question.findById(Question.class, Long.parseLong(deSelectedDeviceId));
+												if(q!=null) {
+													q.setYaadiNumber(null);
+													q.setYaadiLayingDate(null);		
+													q.simpleMerge();
+													if(!isManualEnteringAllowed) {
+														deSelectedDevicesInYaadi.add(q);
+													}													
+												}
+											}							
+										}
+										totalRemovedDevicesInYaadi.addAll(deSelectedDevicesInYaadi);			
+									}
+									yaadiDetails.setRemovedDevices(totalRemovedDevicesInYaadi);
+									/** yaadi selected devices **/					
+									if(selectedDeviceIds!=null && !selectedDeviceIds.isEmpty()) {
+										List<Device> selectedDevicesInYaadi = new ArrayList<Device>();
+										selectedDeviceIds = selectedDeviceIds.substring(0, selectedDeviceIds.length()-1);
+										for(String selectedDeviceId: selectedDeviceIds.split(",")) {
+											if(yaadiDetails.getDevice()!=null && yaadiDetails.getDevice().startsWith("question")) {
+												Question q = Question.findById(Question.class, Long.parseLong(selectedDeviceId));
+												if(q!=null) {
+													q.setYaadiNumber(yaadiDetails.getNumber());
+													q.setYaadiLayingDate(yaadiDetails.getLayingDate());
+													q.simpleMerge();
+													selectedDevicesInYaadi.add(q);
+												}
+											}							
+										}
+										totalDevicesInYaadi.addAll(selectedDevicesInYaadi);				
+									}
+									yaadiDetails.setDevices(totalDevicesInYaadi);									
+								} else {
+									List<Device> existingDevicesInYaadi = yaadiDetails.getDevices();
+									for(Device d: existingDevicesInYaadi) {
+										if(yaadiDetails.getDevice()!=null && yaadiDetails.getDevice().startsWith("question")) {
+											Question q = (Question) d;
+											q.setYaadiNumber(yaadiDetails.getNumber());
+											q.setYaadiLayingDate(yaadiDetails.getLayingDate());
+											if(yaadiDetails.getLayingStatus().getType().equals(ApplicationConstants.YAADISTATUS_LAID)) {
+												Status yaadiLaidStatus = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_YAADILAID, locale.toString());
+												Status yaadiLaidStatusForGivenDeviceType = Question.findCorrespondingStatusForGivenQuestionType(yaadiLaidStatus, yaadiDetails.getDeviceType());
+												q.setRecommendationStatus(yaadiLaidStatusForGivenDeviceType);
+											}											
+											q.simpleMerge();
+										}
+									}
+								}
+								/** save/update yaadi details **/
+								if(yaadiDetails.getId()!=null) {
+									yaadiDetails.merge();
+								} else {
+									yaadiDetails.persist();
+								}
+							}							
+							if(yaadiDetails.getLayingStatus().getType().equals(ApplicationConstants.YAADISTATUS_DRAFTED)) {
+								/** regeneration only when 'manually entering questions' is not allowed **/
+								if(!isManualEnteringAllowed) {
+									Boolean isYaadiFilledWithSelectedDevices = yaadiDetails.isNumberedYaadiFilled();
+									if(isYaadiFilledWithSelectedDevices!=null && isYaadiFilledWithSelectedDevices.equals(false)) {
+										yaadiDetails = yaadiDetails.regenerate(totalDevicesInYaadi.size());
+									}
+								}	
+							 	
+							}
+							/** gather report data**/
+//							if(yaadiDetails.getDevice()!=null && yaadiDetails.getDevice().startsWith("question")) {
+//								List<Question> totalQuestionsInYaadi = new ArrayList<Question>();
+//								for(Device d: yaadiDetails.getDevices()) {
+//									Question q = (Question) d;
+//									totalQuestionsInYaadi.add(q);								
+//								}
+//								totalQuestionsInYaadi = Question.sort(totalQuestionsInYaadi, "number", ApplicationConstants.ASC);
+//								Object[] reportData = QuestionReportHelper.prepareUnstarredYaadiData(session, totalQuestionsInYaadi, locale.toString());
+//								/**** generate report ****/
+//								if(!isError) {
+//									reportFile = generateReportUsingFOP(reportData, "template_unstarredYaadi_report_"+houseType.getType(), "WORD", "unstarred_question_yaadi", locale.toString());
+//									if(reportFile!=null) {
+//										System.out.println("Report generated successfully in word format!");
+//										openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+//										//response.
+//									}
+//								}
+//							}
+						}
+						
+					}									
+				} catch(ELSException e) {
+					if(e.getParameter("error")!=null && e.getParameter("error").equalsIgnoreCase("question.numberOfQuestionsInYaadiParameterNotSet")) {
+						isError = true;					
+						errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.numberOfQuestionsInYaadiParameterNotSet", locale.toString());				
+					} else {
+						e.printStackTrace();
+						isError = true;					
+						errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.exception_occured", locale.toString());
+					}						
+				} catch(Exception e) {
+					e.printStackTrace();
+					isError = true;					
+					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.exception_occured", locale.toString());
+				}				
+			} else {
+				isError = true;
+				logger.error("**** Check request parameters houseTypeId, deviceTypeId, sessionId, yaadiNumber, yaadiLayingDate for empty values ****");
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.reqparam.empty", locale.toString());
+			}
+		} else {
+			isError = true;
+			logger.error("**** Check request parameters houseTypeId, deviceTypeId, sessionId, yaadiNumber, yaadiLayingDate for null values ****");
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.reqparam.null", locale.toString());
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				
+			} catch (IOException e) {					
+				e.printStackTrace();
+			}
+		}
+		
+		
+		
+	}
+	
+		
+		
 	@Transactional
 	@RequestMapping(value="/generate_yaadi" ,method=RequestMethod.POST)
 	public @ResponseBody void generateYaadiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
@@ -338,7 +631,9 @@ public class YaadiDetailsController extends BaseController {
 						session = Session.findById(Session.class, Long.parseLong(sessionId));
 						yaadiDetails.setSession(session);
 					}
+					
 					if(!isError) {
+						
 						if(existingLayingStatus==null || !existingLayingStatus.getType().equals(ApplicationConstants.YAADISTATUS_LAID)) {
 							Status layingStatus = null;
 							if(yaadiLayingStatusId!=null && !yaadiLayingStatusId.isEmpty()) {
