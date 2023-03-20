@@ -284,13 +284,13 @@
 					});
 				}			
 			});
-			
+
 			$(".update_devices_status").click(function(event, isHighSecurityValidationRequired) {
 				//isHighSecurityValidationRequired = false;
 				if(isHighSecurityValidationRequired!=false) {
 					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
 					return false;
-				}
+				}			
 				$("#resultDiv").empty();
 				var resourceURL="";
 				var parameters="";
@@ -316,6 +316,57 @@
 										+ "&answeringDate=" + $("#selectedAnsweringDate").val();
 
 					resourceURL = 'question/yaaditodiscussupdate/assistant/init?' + parameters;
+					
+					$.get(resourceURL,function(data){
+						$("#resultDiv").empty();
+						$("#resultDiv").html(data);
+						
+						$.unblockUI();					
+					},'html').fail(function(data){
+						$.unblockUI();
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.");
+						}
+						scrollTop();
+					});
+				}
+			});
+			
+			
+			
+			$(".update_devices_content").click(function(event, isHighSecurityValidationRequired) {
+				//isHighSecurityValidationRequired = false;
+				 if(isHighSecurityValidationRequired!=false) {
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+					return false;
+				} 
+				$("#resultDiv").empty();
+				var resourceURL="";
+				var parameters="";
+				if($("#deviceType").val()=='questions_starred'){
+					var selectedAnsweringDateId = $('#selectedAnsweringDate').val();
+					var selectedAnsweringDate = $("#answeringDateMaster option[value='"+selectedAnsweringDateId+"']").text();
+					//console.log("selectedAnsweringDate: " + selectedAnsweringDate);
+					//console.log("currentDate: " + new Date());
+					if(new Date() < new Date(selectedAnsweringDate)) {
+						alert("Selected yaadi date is yet to come...");
+						return false;
+					}					
+					parameters =  "houseType=" + $("#selectedHouseType").val()
+										+ "&sessionYear=" + $("#selectedSessionYear").val()
+										+ "&sessionType=" + $("#selectedSessionType").val()
+										+ "&questionType=" + $("#selectedQuestionType").val()
+										+ "&ugparam=" + $("#ugparam").val() 
+										+ "&status=" + $("#selectedStatus").val() 
+										+ "&role=" + $("#srole").val()
+										+ "&usergroup=" + $("#currentusergroup").val()
+										+ "&usergroupType=" + $("#currentusergroupType").val()
+										+"&group="+$("#selectedGroup").val()
+										+ "&answeringDate=" + $("#selectedAnsweringDate").val();
+
+					resourceURL = 'question/yaadiQuestionContentUpdate/assistant/init?' + parameters;
 					$.get(resourceURL,function(data){
 						$("#resultDiv").empty();
 						$("#resultDiv").html(data);
@@ -612,6 +663,9 @@
 		<a href="#" id="update_questions_status" class="butSim update_devices_status">
 			<spring:message code="yaadidetails.update_questions_status" text="Update Status of Yaadi Questions"/>				
 		</a> |
+	<%-- 	<a href="#" id="update_questions" class="butSim update_devices_content">
+			<spring:message code="yaadidetails.update_questions" text="Update  Yaadi Questions"/>				
+		</a> | --%>
 		</security:authorize>
 		</c:if>
 		<hr/>
