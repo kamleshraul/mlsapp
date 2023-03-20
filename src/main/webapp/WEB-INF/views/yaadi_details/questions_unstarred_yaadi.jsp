@@ -33,7 +33,8 @@
 				});
 			    return false;
 			}
-			$(document).ready(function() {				
+			$(document).ready(function() {	
+				
 				if($('#yaadiLayingDate').val()!='-') {
 					$("#yaadiLayingDate option[value='-']").hide();		
 					if($('#isYaadiLayingDateSet').val()=='yes') {
@@ -237,7 +238,7 @@
 						type: 'GET',
 				        async: false,
 				        beforeSend: function() {
-				        	$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				        	({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				        },
 				        success: function(data) {
 							$.unblockUI();
@@ -321,7 +322,74 @@
 					});					
 				});
 				
-				$('#linkForReport').click(function() {
+				
+				
+				$('#qsnGenerateYaadi').click(function(){
+						console.log("inside")
+						var yaadiLayingStatus = "";
+						if($('#yaadiLayingStatus').val()!=undefined && $('#yaadiLayingStatus').val()!="") {
+							yaadiLayingStatus = $('#yaadiLayingStatus').val();
+						}
+						console.log(yaadiLayingStatus);
+						
+						var selectedDeviceIds = "";
+						var deSelectedDeviceIds = "";
+						$('.action').each(function() {
+							if($(this).is(':checked')) {
+								var selectedDeviceId = $(this).attr('id').split("chk")[1];
+								selectedDeviceIds = selectedDeviceIds + selectedDeviceId + ",";
+							} else {
+								var deSelectedDeviceId = $(this).attr('id').split("chk")[1];
+								deSelectedDeviceIds = deSelectedDeviceIds + deSelectedDeviceId + ",";
+							}			
+						});	
+						/* $('#linkForReport').attr('href', 'question/report/generateUnstarredYaadiReport?houseType='+$('#houseTypeId').val()
+			        			+'&sessionId='+$('#sessionId').val()
+			        			+'&deviceType='+$('#deviceTypeId').val()
+			        			+'&yaadiDetailsId='+$('#yaadiDetailsId').val()
+								+'&yaadiNumber='+$('#yaadiNumber').val()
+								+'&yaadiLayingDate='+$('#yaadiLayingDate').val()
+								+'&changedYaadiLayingDate='+$('#changedYaadiLayingDate').val()
+								+'&changedYaadiNumber='+$('#changedYaadiNumber').val()
+								+'&selectedDeviceIds='+selectedDeviceIds
+								+'&deSelectedDeviceIds='+deSelectedDeviceIds
+								+'&yaadiLayingStatus='+yaadiLayingStatus
+								+'&outputFormat=WORD'); */
+						
+						 var param = {
+								houseType				: $("#houseTypeId").val(),
+								sessionId				: $('#sessionId').val(), 
+								deviceType				: $("#deviceTypeId").val(), 
+								yaadiDetailsId			: $("#yaadiDetailsId").val(),
+								yaadiNumber				: $("#yaadiNumber").val(),
+								yaadiLayingDate			: $('#yaadiLayingDate').val(), 
+								changedYaadiLayingDate	: $("#changedYaadiLayingDate").val(), 
+								changedYaadiNumber		: $("#changedYaadiNumber").val(),
+								selectedDeviceIds		: selectedDeviceIds,
+								deSelectedDeviceIds		: deSelectedDeviceIds, 
+								yaadiLayingStatus		: yaadiLayingStatus, 
+								outputFormat			: 'WORD'
+						}
+						
+					 form_submit('yaadi_details/generate_yaadi', param, 'POST');  
+						
+								
+								
+								
+						var ackMsg = "";
+						ackMsg += "<div class='toolTip tpGreen clearfix'>";
+						ackMsg += "<p>";
+						//ackMsg += "<img src='./resources/images/template/icons/light-bulb-off.png'>";
+						ackMsg += "<spring:message code='question.unstarred_yaadi_report.in_process' text='Unstarred Yaadi Report is being generated..'/>";
+						ackMsg += "</p>";
+						$("#resultDiv").empty();
+						$("#resultDiv").html(ackMsg);
+					});
+					
+			
+				
+				$('#qsnSaveYaadi').click(function() {
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 					var selectedDeviceIds = "";
 					var deSelectedDeviceIds = "";
 					$('.action').each(function() {
@@ -346,7 +414,7 @@
 						return false;
 					} else {
 						var isInvalidFormattingFoundInQuestions = false;
-						$.ajax({url: 'ref/yaadidetails/validateQuestionsFormattingForUnstarredYaadi', data: "selectedDeviceIds="+selectedDeviceIds, 
+						$.ajax({url: 'ref/yaadidetails/', data: "selectedDeviceIds="+selectedDeviceIds, 
 							type: 'GET',
 					        async: false,
 					        success: function(data) {
@@ -362,12 +430,14 @@
 						if(isInvalidFormattingFoundInQuestions==true) {
 							return false;
 						}
-					}					
-					var yaadiLayingStatus = "";
+					}		
+					
+					
+					/* var yaadiLayingStatus = "";
 					if($('#yaadiLayingStatus').val()!=undefined && $('#yaadiLayingStatus').val()!="") {
 						yaadiLayingStatus = $('#yaadiLayingStatus').val();
 					}
-					/* $('#linkForReport').attr('href', 'question/report/generateUnstarredYaadiReport?houseType='+$('#houseTypeId').val()
+					 $('#linkForReport').attr('href', 'question/report/generateUnstarredYaadiReport?houseType='+$('#houseTypeId').val()
 		        			+'&sessionId='+$('#sessionId').val()
 		        			+'&deviceType='+$('#deviceTypeId').val()
 		        			+'&yaadiDetailsId='+$('#yaadiDetailsId').val()
@@ -378,32 +448,46 @@
 							+'&selectedDeviceIds='+selectedDeviceIds
 							+'&deSelectedDeviceIds='+deSelectedDeviceIds
 							+'&yaadiLayingStatus='+yaadiLayingStatus
-							+'&outputFormat=WORD'); */
-					console.log("proper page!")
-					var parameters = {
-							houseType				: $("#houseTypeId").val(),
-							sessionId				: $('#sessionId').val(), 
-							deviceType				: $("#deviceTypeId").val(), 
-							yaadiDetailsId			: $("#yaadiDetailsId").val(),
-							yaadiNumber				: $("#yaadiNumber").val(),
-							yaadiLayingDate			: $('#yaadiLayingDate').val(), 
-							changedYaadiLayingDate	: $("#changedYaadiLayingDate").val(), 
-							changedYaadiNumber		: $("#changedYaadiNumber").val(),
-							selectedDeviceIds		: selectedDeviceIds,
-							deSelectedDeviceIds		: deSelectedDeviceIds, 
-							yaadiLayingStatus		: yaadiLayingStatus, 
-							outputFormat			: 'WORD'
-					}
-					form_submit('yaadi_details/generate_yaadi', parameters, 'POST');
+							+'&outputFormat=WORD'); 
+					console.log("proper page!") */
+					
+					
+					yaadiLayingStatus = $('#yaadiLayingStatus').val();
 					
 					var ackMsg = "";
-					ackMsg += "<div class='toolTip tpGreen clearfix'>";
-					ackMsg += "<p>";
-					//ackMsg += "<img src='./resources/images/template/icons/light-bulb-off.png'>";
-					ackMsg += "<spring:message code='question.unstarred_yaadi_report.in_process' text='Unstarred Yaadi Report is being generated..'/>";
-					ackMsg += "</p>";
-					$("#resultDiv").empty();
-					$("#resultDiv").html(ackMsg);
+						ackMsg += "<div class='toolTip tpGreen clearfix'>";
+						ackMsg += "<p>";
+						//ackMsg += "<img src='./resources/images/template/icons/light-bulb-off.png'>";
+						ackMsg += "<spring:message code='question.unstarred_yaadi_report.in_process' text='Unstarred Yaadi Report is saved..'/>";
+						ackMsg += "</p>";
+					$.post('yaadi_details/save_edited_yaadi',{
+						houseType				: $("#houseTypeId").val(),
+						sessionId				: $('#sessionId').val(), 
+						sessionYear             :$("#selectedSessionYear").val(),
+						sessionType             : $("#selectedSessionType").val(),
+						deviceType				: $("#deviceTypeId").val(), 
+						yaadiDetailsId			: $("#yaadiDetailsId").val(),
+						yaadiNumber				: $("#yaadiNumber").val(),
+						yaadiLayingDate			: $('#yaadiLayingDate').val(), 
+						changedYaadiLayingDate	: $("#changedYaadiLayingDate").val(), 
+						changedYaadiNumber		: $("#changedYaadiNumber").val(),
+						selectedDeviceIds		: selectedDeviceIds,
+						deSelectedDeviceIds		: deSelectedDeviceIds, 
+						yaadiLayingStatus		: yaadiLayingStatus, 
+					
+				},function(data){
+					$("#HeaderDiv").empty();
+					$("#HeaderDiv").html(ackMsg);
+					$.unblockUI();		
+					scrollTop();
+						
+						/* $.unblockUI(); */		
+						scrollTop();
+					});
+					 
+				
+						
+					
 				});
 			});
 		</script>		
@@ -450,6 +534,7 @@
 		<c:if test="${(error!='') && (error!=null)}">
 			<p style="color: #FF0000;"><spring:message code="${error}" text="Error Occured Contact For Support."/></p>
 		</c:if>
+		<div id="HeaderDiv" ></div>
 		<div class="fields clearfix watermark">
 		<h3><spring:message code='question.generateUnstarredYaadiReport.header' text='Unstarred Questions Yaadi'/>:</h3>
 		<p style="margin-top: 20px;">
@@ -633,8 +718,12 @@
 		<c:if test="${not empty yaadiDevicesCount}">
 			<div class="fields">
 				<h2></h2>
-				<p class="tright">
+				<%-- <p class="tright">
 					<a href="#" id="linkForReport"><spring:message code='question.unstarred_yaadi_report.generateReport' text='Generate Report'/></a>
+				</p> --%>
+				<p class="tright">
+							<input id="qsnSaveYaadi" type="button" value="<spring:message code='generic.submit' text='Save Report'/>" class="butDef">
+							<input id="qsnGenerateYaadi" type="button" value="<spring:message code='question.unstarred_yaadi_report.generateReport' text='Generate Report'/>" class="butDef">
 				</p>
 			</div>
 		</c:if>				
