@@ -245,8 +245,12 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 				/**** getting all active reporters(This has to be done from the 
 				 * reporters in memory rather than from database as the reporters 
 				 * at this point have not been committed to memory) ****/
+				int reporterPositionIndex=0;
 				for(Reporter i:roster.getReporters()){
 					if(i.getIsActive()){
+						if(i!=null)
+							i.setPosition(++reporterPositionIndex);
+						
 						reporters.add(i);
 					}
 				}
