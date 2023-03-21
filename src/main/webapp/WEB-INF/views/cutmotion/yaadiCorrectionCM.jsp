@@ -2,6 +2,11 @@
 <script type="text/javascript">
 $(document).ready(function(){
 
+	if($("#AllowEditing").val() == 'NO')
+		{
+		$("#qsnUpdateButton").hide()
+		}
+	
 	
 	$("#chkall").change(function(){
 		if($(this).is(":checked")){
@@ -92,13 +97,18 @@ $(document).ready(function(){
 					    houseType:$("#selectedHouseType").val()
 						 ,deviceType:$("#selectedCutMotionType").val()
 						 ,subDepartment:$("#selectedSubDepartment").val()
+						 ,sessionYear  : $("#selectedSessionYear").val()
+						,sessionType : $("#selectedSessionType").val()
+						,cutMotionType:$("#selectedCutMotionType").val()
+						,sessionId				: $("#loadedSession").val(),
+						
 						 		 	
 					 	},
 	    	            function(data){
 	    					$.unblockUI();	
 	    					$("#bulkResultDiv").empty();	
 	    					$("#bulkResultDiv").html(data);
-	    					$("#qsnUpdateButton").hide();
+	    					/* $("#qsnUpdateButton").hide(); */
 	    	            }
 	    	            ).fail(function(){
 	    					$.unblockUI();
@@ -149,15 +159,13 @@ input[type=number]
 -moz-appearance:textfield;
 }
 </style>
-
+<div id="bulkResultDiv">
 	<p id="error_p" style="display: none;">&nbsp;</p>
 	<c:if test="${(error!='') && (error!=null)}">
 		<h4 style="color: #FF0000;">${error}</h4>
 	</c:if>
-	<div id="bulkResultDiv">
-	<h3>${success} ${failure}</h3>
-	</div>
 	
+	<%-- <h3>${success} ${failure}</h3> --%>
 	<c:choose>
 		<c:when test="${!(empty cutmotions) }">
 			<h3>${success} ${failure}</h3>
@@ -167,6 +175,7 @@ input[type=number]
 							<input id="qsnSubmit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 						</p>
 				</div>
+				
 			<table class="uiTable">
 					<tr>
 						<th  style=" min-width:30px;"><input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>
@@ -287,8 +296,9 @@ input[type=number]
 			<spring:message code="" text=""></spring:message>
 		</c:otherwise>
 	</c:choose>
-	
+	</div>
 
 <input type="hidden" id="ItemNumberHide" name="ItemNumberHide" value="${ItemNumberHide}">
+<input type="hidden" id="AllowEditing" name="AllowEditing" value="${AllowEditing}">
 <input id="selectItemsMsg" value="<spring:message code='' text='Please select a cutmotion number'></spring:message>" type="hidden">
 <input id="submissionMsg" value="<spring:message code='' text='Do you want to update selected motions'></spring:message>" type="hidden">
