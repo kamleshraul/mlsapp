@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.MasterVO;
@@ -2912,6 +2913,16 @@ public class CutMotionController extends GenericController<CutMotion>{
 		{
 			model.addAttribute("ItemNumberHide","NO");
 		}
+		SubDepartment subd = SubDepartment.findById(SubDepartment.class, Long.parseLong(strSubDepartment));
+		Session sessionD = Session.findById(Session.class, Long.parseLong(strsessionId));
+		
+		Date discussionDateForDepartment = CutMotion.findDiscussionDateForDepartment(sessionD, chkMotiontype, subd, locale.toString());
+//		if(new Date().after(discussionDateForDepartment)  ) {
+//			model.addAttribute("AllowEditing","NO");
+//		}
+		if(DateUtil.compareDatePartOnly(discussionDateForDepartment, new Date())<0) {
+			model.addAttribute("AllowEditing","NO");
+		} 
 		
 
 		if (subDepartment != null || sessionId != null || cutMotionType != null) {
@@ -2929,6 +2940,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 		boolean updated = true;
 		String page = "cutmotion/error";
 		StringBuffer success = new StringBuffer();
+	
 
 		try {
 
@@ -2937,6 +2949,22 @@ public class CutMotionController extends GenericController<CutMotion>{
 			
 			String strcutMotionType = (String) request.getParameter("deviceType");
 			DeviceType  chkMotiontype = DeviceType.findById(DeviceType.class, Long.parseLong(strcutMotionType));
+			
+			String strSubDepartment = request.getParameter("subDepartment");
+			
+			String strsessionId = request.getParameter("sessionId");
+			Integer sessionId = Integer.parseInt(strsessionId);
+			
+			SubDepartment subd = SubDepartment.findById(SubDepartment.class, Long.parseLong(strSubDepartment));
+			Session sessionD = Session.findById(Session.class, Long.parseLong(strsessionId));
+			
+			Date discussionDateForDepartment = CutMotion.findDiscussionDateForDepartment(sessionD, chkMotiontype, subd, locale.toString());
+//			if(new Date().after(discussionDateForDepartment)  ) {
+//				model.addAttribute("AllowEditing","NO");
+//			}
+			if(DateUtil.compareDatePartOnly(discussionDateForDepartment, new Date())<0) {
+				return page;
+			}
 
 			ArrayList<HashMap<String, String>> yaadiUpdatedContent = new ArrayList<HashMap<String, String>>();
 
@@ -2978,7 +3006,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 					cmDetail.setRevisedNoticeContent(i.get("noticeContent"));
 
 					cmDetail.merge();
-					updated = true;
+					
 					success.append(
 							FormaterUtil.formatNumberNoGrouping(cmDetail.getNumber(), cmDetail.getLocale()) + ",");
 					
@@ -2987,6 +3015,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 						workflowDetails.setText(i.get("noticeContent"));
 						workflowDetails.merge();
 					}
+					updated = true;
 					 
 				}
 			}
@@ -2998,7 +3027,9 @@ public class CutMotionController extends GenericController<CutMotion>{
 		}
 
 		if (updated) {
-			// this.getYaadiDetails(request,model, locale); 
+			String assignedNumber = this.assignNumberAfterApproval(request, locale);
+			model.addAttribute("assignedNumber", assignedNumber);
+			this.getYaadiDetails(request,model, locale); 
 			success.append(" updated successfully...");
 			model.addAttribute("success", success.toString());
 			page = "cutmotion/yaadiCorrectionCM";
