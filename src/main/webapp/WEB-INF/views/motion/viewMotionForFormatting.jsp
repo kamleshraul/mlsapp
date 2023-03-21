@@ -19,17 +19,18 @@ $(document).ready(function(){
 	
 			 var revisedSubject = $(".revisedSubject_"+qsnId[i]).val() ;
 			revisedSubject = cleanFormatting(revisedSubject);
-			document.getElementsByClassName(".revisedSubject_"+qsnId[i]).value = revisedSubject;
+			$(".revisedSubject_"+qsnId[i]).get(0).value = revisedSubject;
 			//$(".revisedSubject_"+qsnId[i]).val() = revisedSubject;
+			
 			
 		  var revisedDetails = $(".revisedDetails_"+qsnId[i]).val()  ;
 		    revisedDetails = cleanFormatting(revisedDetails);
-		    document.getElementsByClassName(".revisedDetails_"+qsnId[i]).value = revisedDetails;
-			
+		    $(".revisedDetails_"+qsnId[i]).get(0).value = revisedDetails;
+		   
 			
 		 	var subject = $(".subject_"+qsnId[i]).get(0).value;
 		 	subject = cleanFormatting(subject);
-		   document.getElementsByClassName(".subject_"+qsnId[i]).value = subject;
+		   $(".subject_"+qsnId[i]).get(0).value = subject;
 		 
 		      
 			
