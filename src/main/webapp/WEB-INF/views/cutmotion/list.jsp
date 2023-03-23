@@ -120,6 +120,15 @@
 				updateYaadiDetails();
 			});
 			
+			$("#members").change(function(){
+				var val = $(this).val();
+				if(val!="" && val!='-'){
+				 	memberWiseReport($(this).val()); 
+				
+				}
+			});
+			
+			
 			/**** Generate Reminder Letter ****/			
 			$("#generateReminderLetter").click(function(){
 				$(this).attr('href','#');
@@ -209,7 +218,13 @@
 				</a> |
 				<a href="#" id="updateYaadiDetails" class="butSim">
 					<spring:message code="cutmotion.updateYaadiDetails" text="update Yaadi Details"/>
-				</a> 
+				</a> |
+				<br>
+				<a href="javascript:void(0);" id="member_report" class="butSim" >
+							<spring:message code="generic.memberWiseReport" text="Member-wise Report"/>
+				</a>
+				<select id="members" class="sSelect" style="display: inline; width:100px;">
+				</select>|
 				<hr/>
 				<a href="#" id="generateReminderLetter" class="butSim">
 					<spring:message code="generic.mytask.device.ReminderLetter" text="Reminder Letter"/>
