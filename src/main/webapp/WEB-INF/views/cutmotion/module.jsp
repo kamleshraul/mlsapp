@@ -13,9 +13,25 @@
 			function(data){
 				if(data){
 					$("#loadedSession").val(data.id);
+					loadMembers();
 					//alert($("#loadedSession").val());
 				}
 			});
+	}
+	
+	function loadMembers(){
+		memberArray = [];
+		$.get('ref/alleligiblemembers?session='+$("#loadedSession").val(), function(data){
+			if(data.length>0){
+				var text="<option value='-'>"+$("#pleaseSelect").val()+"</option>";
+				for(var i = 0; i < data.length; i++){
+					memberArray.push(data[i].name);
+					text+="<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+				}
+				$("#members").empty();
+				$("#members").html(text);
+			}
+		});
 	}
 	$(document).ready(function() {
 		/**** On Page Load ****/
@@ -464,6 +480,37 @@
 		//yaadiUpdateDetailsCM
 		showTabByIdAndUrl('details_tab', "cutmotion/yaadiUpdateDetailsCM?"+ parameters);
 	}
+	
+	
+	/************* Added By Shubham A  ****************/
+	
+	function memberWiseReport(memberId){
+			var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+			+ "/" + $("#selectedSessionYear").val()
+			+ "/" + $("#selectedSessionType").val();
+			$.get(url,function(data){
+				if(data){
+					
+					var selectedStatus = $("#selectedStatus").val();
+					var statusType = $("#statusMaster option[value='" + selectedStatus + "']").text().trim();
+					var report = 'CMOIS_MEMBER_WISE_REPORT';
+					/* <security:authorize access="(hasAnyRole('MOIS_CHAIRMAN'))">
+					var report = 'MOIS_MEMBER_WISE_REPORT';
+					</security:authorize> */
+					showTabByIdAndUrl("details_tab","cutmotion/report/genreport?"
+							+"sessionId="+data.id
+							+"&deviceTypeId="+$("#selectedCutMotionType").val()
+							+"&memberId="+memberId 
+							+"&locale="+$("#moduleLocale").val()
+							+"&statusId="+selectedStatus
+							+"&report="+report
+							+"&role="+$('#srole').val()
+							+"&reportout=cutMotionMemberReport");
+				}
+			});
+		}
+	
+	/***********************************************/
 	
 	/**** To Generate Reminder Letter ****/
 	function generateReminderLetter(isRequiredToSend) {
