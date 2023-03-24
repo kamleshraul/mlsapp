@@ -132,7 +132,7 @@ public class HalfHourStandaloneBallot {
 					}
 					
 					preBallotHDAssembly.setBallotEntries(null);*/
-					preBallotHDAssembly.remove();
+					preBallotHDAssembly.optimizedRemoveHDS();
 					
 					PreBallot newPreBallot = new PreBallot(session, deviceType, answeringDate, new Date(), locale);
 					List<StandaloneMotion> motions = 
