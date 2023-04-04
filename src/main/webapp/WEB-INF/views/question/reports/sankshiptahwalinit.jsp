@@ -38,7 +38,13 @@
 				$("#ahwal_hdq_condition_report").click(function(){				
 					$(this).attr('href','#');
 					ahwalHDQConditionReport();
-				});				
+				});		
+				
+				/**** Rules Suspension Report ****/
+				$("#ahwal_rules_suspension_report").click(function(){				
+					$(this).attr('href','#');
+					ahwalRulesSuspensionReport();
+				});
 			});
 		</script>		 
 	</head>	
@@ -105,7 +111,15 @@
 							<spring:message code="question.ahwal_hdq_condition_report" text="Half Hour Discussion From Question Report"/>
 						</a>
 					</td>
-				</tr>					
+				</tr>
+				<tr><td>&nbsp;</td></tr>
+				<tr>
+					<td>
+						<a href="#" id="ahwal_rules_suspension_report" class="butSim link">
+							<spring:message code="question.ahwal_rules_suspension_report" text="Rules Suspension Motion"/>
+						</a>
+					</td>
+				</tr>									
 			</tbody>
 		</table>			
 	</body>

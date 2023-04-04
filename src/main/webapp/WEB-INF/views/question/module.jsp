@@ -1636,6 +1636,14 @@
 		$('#ahwal_hdq_condition_report').attr('href', 'question/report/ahwalHDConditionReport?'+ parameters);
 	}
 	
+	function ahwalRulesSuspensionReport(){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()	
+		 + "&questionType=motions_rules_suspension";
+		$('#ahwal_rules_suspension_report').attr('href', 'question/report/ahwalRulesSuspensionReport?'+ parameters);
+	}
+	
 	function ahwalHDSConditionReport(){
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 		 + "&sessionYear=" + $("#selectedSessionYear").val()
