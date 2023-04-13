@@ -55,10 +55,12 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	private Date completionTime;
 	
 	/**** This will denote the kind of request received ****/
-	@Column(length=1000)
+	//@Column(length=1000) //this is generating column with unnecessary longtext data type
+	//@Column(columnDefinition="varchar(1000)") //this should be used for 1000 length without longtext
 	private String workflowType;
 	
-	@Column(length=1000)
+	//@Column(length=1000) //this is generating column with unnecessary longtext data type
+	//@Column(columnDefinition="varchar(1000)") //this should be used for 1000 length without longtext
 	private String workflowSubType;
 	
 	/**** This will have two status PENDING/COMPLETED ****/
