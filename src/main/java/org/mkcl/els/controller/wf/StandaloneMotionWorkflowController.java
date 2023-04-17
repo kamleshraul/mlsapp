@@ -533,6 +533,7 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 		Status status=domain.getStatus();
 		Status internalStatus=domain.getInternalStatus();
 		Status recommendationStatus=domain.getRecommendationStatus();
+		Status discussionStatus=domain.getDiscussionStatus();
 		if(status!=null){
 			model.addAttribute("status",status.getId());
 		}
@@ -553,6 +554,10 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 			model.addAttribute("recommendationStatusType",recommendationStatus.getType());
 			model.addAttribute("oldRecommendationStatus",recommendationStatus.getId());
 		}	
+		if(discussionStatus!=null) {
+			model.addAttribute("discussionStatus",discussionStatus.getId());
+			model.addAttribute("discussionStatusType", discussionStatus.getType());
+		}
 		/**** Referenced Questions are collected in refentities****/
 		List<Reference> refentities=new ArrayList<Reference>();
 		List<String> refentitiesSessionDevice = new ArrayList<String>();

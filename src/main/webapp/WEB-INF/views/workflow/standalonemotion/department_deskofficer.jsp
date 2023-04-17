@@ -1116,6 +1116,7 @@ function loadSubDepartments(ministry){
 		
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
+	<input type="hidden" id="discussionStatus"  name="discussionStatus" value="${discussionStatus}">
 		
 	<p style="display:none;">
 		<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	

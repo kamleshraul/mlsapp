@@ -1138,6 +1138,7 @@
 		
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
+	<input type="hidden" id="discussionStatus"  name="discussionStatus" value="${discussionStatus}">
 		
 	<c:if test="${internalStatusType == 'standalonemotion_recommend_rejection' or internalStatusType == 'standalonemotion_final_rejection'}">
 	<p>

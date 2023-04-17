@@ -57,7 +57,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @JsonIgnoreProperties(value={"houseType", "session", "type","creationDate",
 	"dataEnteredBy","editedOn","editedBy", "revisedSubject",
 	"questionText","revisedQuestionText","answer","priority",
-	"ballotStatus","remarks","rejectionReason", "supportingMembers",
+	"ballotStatus","discussionStatus","remarks","rejectionReason", "supportingMembers",
 	"group","department", "drafts", "parent", "clubbedEntities", "referencedEntities",
 	"referencedHDS","fileSent","fileIndex",
 	"file","workflowDetailsId","bulkSubmitted","taskReceivedOn","workflowStartedOn","level",
@@ -168,6 +168,11 @@ public class StandaloneMotion extends Device implements Serializable {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="ballotstatus_id")
     private Status ballotStatus;
+
+	/**** The Disucssion Status. ****/
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="discussionstatus_id")
+	private Status discussionStatus;
    
     /** The remarks. */
     @Column(length=30000)
@@ -2037,6 +2042,14 @@ public class StandaloneMotion extends Device implements Serializable {
 		this.ballotStatus = ballotStatus;
 	}	
 	
+	public Status getDiscussionStatus() {
+		return discussionStatus;
+	}
+
+	public void setDiscussionStatus(Status discussionStatus) {
+		this.discussionStatus = discussionStatus;
+	}
+
 	public String getRemarks() {
 		return remarks;
 	}	

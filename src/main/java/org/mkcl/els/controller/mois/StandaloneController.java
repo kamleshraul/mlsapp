@@ -954,6 +954,7 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 		Status status = domain.getStatus();
 		Status internalStatus = domain.getInternalStatus();
 		Status recommendationStatus = domain.getRecommendationStatus();
+		Status discussionStatus=domain.getDiscussionStatus();
 		if(status != null){
 			model.addAttribute("status", status.getId());
 			model.addAttribute("memberStatusType", status.getType());
@@ -992,6 +993,10 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 		if(recommendationStatus!=null){
 			model.addAttribute("recommendationStatus", recommendationStatus.getId());
 			model.addAttribute("recommendationStatusType", recommendationStatus.getType());
+		}
+		if(discussionStatus!=null) {
+			model.addAttribute("discussionStatus",discussionStatus.getId());
+			model.addAttribute("discussionStatusType", discussionStatus.getType());
 		}
 		/**** Status,Internal Status and Recommendation Status Starts ****/
 
@@ -1885,7 +1890,12 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 			catch (ParseException e) {
 				e.printStackTrace();
 			}
-		}			
+		}	
+		Status discussionStatus=domain.getDiscussionStatus();	
+		if(discussionStatus!=null) {
+			model.addAttribute("discussionStatus",discussionStatus.getId());
+			model.addAttribute("discussionStatusType", discussionStatus.getType());
+		}
 		super.populateUpdateIfErrors(model, domain, request);
 	}
 
