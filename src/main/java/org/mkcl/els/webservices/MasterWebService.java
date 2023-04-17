@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +40,7 @@ import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Gender;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.MaritalStatus;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
@@ -47,6 +49,8 @@ import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Roster;
+import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.State;
 import org.mkcl.els.domain.SubDepartment;
 import org.springframework.stereotype.Controller;
@@ -592,6 +596,41 @@ public class MasterWebService {
         
         return proceedingVOs;
     }
+    
+    @RequestMapping(value="/rosterdays",method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getRosterDaysFromSession(final HttpServletRequest request, final Locale locale){
+		String strhouseType=request.getParameter("houseType");
+		String stryear=request.getParameter("sessionYear");
+		String strsessionType=request.getParameter("sessionType");
+		String strlanguage=request.getParameter("language");
+		
+		//List<Integer> rosterDays=new ArrayList<Integer>();
+		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+		if(strhouseType!=null&&stryear!=null&&strsessionType!=null){
+			HouseType selectedHouseType=HouseType.findByFieldName(HouseType.class,"type",strhouseType,locale.toString());
+			SessionType selectedSessionType=SessionType.findById(SessionType.class, Long.parseLong(strsessionType));
+			Integer year=Integer.parseInt(stryear);
+			Language language=Language.findById(Language.class, Long.parseLong(strlanguage));
+			Session session = null;
+			try {
+				session = Session.findSessionByHouseTypeSessionTypeYear(selectedHouseType, selectedSessionType, year);
+			} catch (ELSException e) {
+				e.printStackTrace();
+			}
+			List<Roster> rosters=Roster.findAllRosterBySessionAndLanguage(session,language, locale.toString());
+			for(Roster r:rosters){
+				MasterVO masterVO = new MasterVO();
+				masterVO.setNumber(r.getDay());
+				masterVO.setValue(r.getId().toString());
+				masterVO.setName(FormaterUtil.formatDateToString(r.getStartTime(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+				masterVOs.add(masterVO);
+				//rosterDays.add(r.getDay());
+			}
+		}
+		return masterVOs;
+	}
+    
+   
 
   
     
