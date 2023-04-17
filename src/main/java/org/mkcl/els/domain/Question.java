@@ -68,7 +68,7 @@ import org.springframework.transaction.annotation.Transactional;
 @JsonIgnoreProperties(value={"houseType", "session", "originalType", "type","creationDate","createdBy",
 	"dataEnteredBy","editedOn","editedBy","answeringDate","originalAnsweringDate","chartAnsweringDate",
 	"subject","revisedSubject","questionText","revisedQuestionText","answer","priority",
-	"ballotStatus", "remarks","rejectionReason", "supportingMembers",
+	 "remarks","rejectionReason", "supportingMembers",
 	"group", "originalSubDepartment", "drafts", "parent", "clubbedEntities", "referencedEntities",
 	"halfHourDiscusionFromQuestionReference", "language", "referencedHDS","workflowDetailsId","bulkSubmitted","taskReceivedOn","workflowStartedOn","level",
 	"endFlag","actor","workflowStarted","answeringAttemptsByDepartment"
