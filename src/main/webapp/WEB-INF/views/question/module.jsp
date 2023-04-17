@@ -307,10 +307,13 @@
 		});
 		/**** answer received status changes then reload grid****/
 		$("#selectedAnswerReceivedStatus").change(function() {
+		
+			showConvertStarredQsn();
 			reloadQuestionGrid();
 		});
 		/**** status changes then reload grid****/
 		$("#selectedStatus").change(function() {
+			showConvertStarredQsn();
 			$('#selectedAnswerReceivedStatus').val("-");
 			var value = $(this).val();
 			if (value != "") {
@@ -337,6 +340,8 @@
 		
 		
 		$('#selectedModuleAsweringDate').change(function(){
+			
+			showConvertStarredQsn();
 			reloadQuestionGrid();
 			
 		});
@@ -359,7 +364,9 @@
 			var value = $(this).val();
 			if (value != "") {
 				reloadQuestionGrid();
-			}			
+				showConvertStarredQsn();
+			}		
+			
 		});
 		
 		/**** Chart Tab ****/
@@ -628,6 +635,18 @@
 	function setProcessMode(pMode) {
 		$('#processMode').val(pMode);
 	}*/
+	
+	function showConvertStarredQsn()
+	{
+		
+		if($("#selectedModuleAsweringDate").val() != 0 && $("#selectedStatus").val() == 33 && $("#selectedAnswerReceivedStatus").val() == "answerReceived" && $("#selectedClubbingStatus").val() == "parent")
+		{
+		$("#convertStarredToUnStarred").show();
+		}else{
+			$("#convertStarredToUnStarred").hide();
+		}
+		
+	}
 	
 	function showAdmissionReport(){
 		params = "houseType=" + $('#selectedHouseType').val()
