@@ -532,6 +532,8 @@ public class ApplicationConstants {
 	
 	public static final String STANDALONEED="standalonemotion_processed_discussed";
 	
+	public static final String STANDALONE_PROCESSED_ANSWER_RECEIVED="standalonemotion_processed_answerReceived";
+	
 	public static final String STANDALONE_PROCESSED_YAADILAID = "standalonemotion_processed_yaadilaid";
 
 	public static final String STANDALONE_FINAL_CLARIFICATION_NOT_RECEIVED_FROM_MEMBER="standalonemotion_final_clarificationNotReceivedFromMember";
