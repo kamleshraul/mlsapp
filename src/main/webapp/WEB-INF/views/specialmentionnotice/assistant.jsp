@@ -571,7 +571,19 @@
 			<p>
 				<label class="small"><spring:message code="specialmentionnotice.submissionDate" text="Submitted On"/></label>
 				<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
-				<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
+				<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">		
+				
+				<c:choose>
+				<c:when test="${internalStatusType=='specialmentionnotice_final_admission'}">
+					<label class="small"><spring:message code="specialmentionnotice.admissionNumber" text="Admission Number"/></label>
+					<input id="formattedAdmissionNumber" name="formattedAdmissionNumber" value="${formattedAdmissionNumber}" class="sText" readonly="readonly">		
+					<input id="admissionNumber" name="admissionNumber" value="${domain.admissionNumber}" type="hidden">
+					<form:errors path="admissionNumber" cssClass="validationError"/>	
+				</c:when>
+				<c:otherwise>
+					<input id="admissionNumber" name="admissionNumber" value="${domain.admissionNumber}" type="hidden">
+				</c:otherwise>
+				</c:choose>
 			</p>
 			</c:if>
 					
@@ -637,7 +649,7 @@
 			<p>
 				<c:if test="${bulkedit!='yes' and domain.internalStatus.type!='specialmentionnotice_system_clubbed'}">
 				<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="specialmentionnotice.clubbing" text="Clubbing"></spring:message></a>
-				<%-- <a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="adjournmentmotion.referencing" text="Referencing"></spring:message></a> --%>
+				<%-- <a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="specialmentionnotice.referencing" text="Referencing"></spring:message></a> --%>
 				<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="specialmentionnotice.refresh" text="Refresh"></spring:message></a>
 				</c:if>	
 			</p>
