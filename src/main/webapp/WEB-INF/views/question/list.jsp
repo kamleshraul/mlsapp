@@ -6,6 +6,9 @@
 	<script type="text/javascript">	
 		$(document).ready(function(){
 			$(".toolTip").hide();
+		
+			$("#convertStarredToUnStarred").hide();
+			
 			$(".datemask").mask("99-99-9999");
 			$('.datetimemask').mask("99-99-9999,99:99:99");	
 			$("#selectionDiv1").show();							
@@ -224,6 +227,7 @@
 				}
 			});
 			
+
 			$("#generateAdmissionReport").click(function(){
 				$("#selectionDiv1").hide();
 				showAdmissionReport();
@@ -257,6 +261,7 @@
 				$("#sumRepDiv").hide();
 				
 				var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				
 				if(selectedQuestionId.length>=1){
 					showStarredAdmitUnstarredReport(selectedQuestionId);
 				}else{
@@ -264,8 +269,84 @@
 				}				
 			});
 			
+			
 			$("#sumRepDiv").hide();
 			//------stats reports as html-----------------------ends----------------
+			
+			
+			
+			/*---Added By Shubham A---------*/
+			$("#convertStarredToUnStarred").click(function(){
+				
+				
+				
+				var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				
+				if(selectedQuestionId.length == 0)
+				{
+				$.prompt($('#selectQsnMsg').val());
+				} 
+				else{
+				
+				
+				var items =new Array();
+				var myArray = new Array();
+				for(var i = 0 ; i<selectedQuestionId.length;i++ ){
+					var BallotStatus = $("#grid").jqGrid ('getCell', selectedQuestionId[i], 'ballotStatus.type');
+				
+				if(BallotStatus == "question_processed_balloted")
+					{
+					var Qnumber = $("#grid").jqGrid ('getCell', selectedQuestionId[i], 'number');
+					if(Qnumber != ""){
+					if(Qnumber.indexOf("<") != -1)
+						{
+						 myArray = Qnumber.split("<");
+						 items.push(myArray[0]);}
+						}
+					
+					} 	
+				}
+				
+				if(items.length > 0)
+					{
+					var numbers ="";
+					for( var i=0 ;i< items.length;i++){
+						if( items[i] != ""){
+						numbers  = numbers + items[i]+",";}
+					}
+					if(numbers.charAt(numbers.length-1) == ",")
+						{
+						numbers = numbers.substring(0, numbers.length-1);
+						}
+					
+					$.prompt($('#submissionMsg').val()+numbers);
+					}
+				else{
+					
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+					$.post('question/questionStatusUpdate',
+				        	{selectedQuestionId:selectedQuestionId,
+							deviceType : '5'
+						 	},
+		    	            function(data){
+		       						
+		    					$.unblockUI();
+		    					if(data != 'Failed'){
+		    					$.prompt($('#UpdatedMsg').val()+data)
+		    					}
+		    					else{
+		    						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				    				
+		    					}
+		    	            }
+		    	            ); 
+					
+				}}
+				
+			});
+			/*---------------------------------*/
+			
+			
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -392,6 +473,10 @@
 						<spring:message code="question.deptSessionReport" text="Department-Session-wise Report"/>
 				</a> |
 			</security:authorize>	
+			<br>
+			<a href="#" id="convertStarredToUnStarred" class="butSim">
+			<spring:message code="question.convertStarredToUnStarred" text="convert Starred To UnStarred"/>
+			</a> 
 			<hr>
 			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','QIS_CLERK','HDS_CLERK','QIS_CHAIRMAN','HDS_ASSISTANT')">
 				<a href="#" id="generateIntimationLetter" class="butSim">
@@ -425,13 +510,17 @@
 					<spring:message code="question.admitted_departmentwise_report" text="Admitted Departmentwise Report"/>
 				</a> |
 				</span>				
-			</security:authorize>			
+			</security:authorize>	
+					
 			<p>&nbsp;</p>
 		</div>
 	</div>
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
 	<input type="hidden" id="gridURLParams" name="gridURLParams">
+	<input id="submissionMsg" value="<spring:message code='' text='Please Unselect the following questions :-'></spring:message>" type="hidden">
+	<input id="selectQsnMsg" value="<spring:message code='' text='Please Select  questions :-'></spring:message>" type="hidden">
+	<input id="UpdatedMsg" value="<spring:message code='' text=' following questions are converted to Unstarred :-'></spring:message>" type="hidden">
 	<input id="suchiAnsweringDateSelectionPromptMsg" value="<spring:message code='question.suchiAnsweringDateSelectionPromptMsg' text='Please select the suchi answering date!'/>" type="hidden">	
 	<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
