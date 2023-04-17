@@ -1862,7 +1862,7 @@ public class QuestionReportController extends BaseController{
 				CustomParameter csptYaadiNotificationAllowed=CustomParameter.findByName(CustomParameter.class,"VIEW_YAADI_NOTIFICATION_ALLOWED_"+houseType.getType().toUpperCase(), "");
 				if(csptYaadiNotificationAllowed!=null && csptYaadiNotificationAllowed.getValue()!=null
 						&& csptYaadiNotificationAllowed.getValue().equals("YES")) {
-					 String usergroupTypes = "clerk,assistant,section_officer,deputy_secretary";
+					 String usergroupTypes = "clerk,assistant,section_officer,deputy_secretary,principal_secretary";
 					 CustomParameter notificationAllowedUserGroupTypes=CustomParameter.findByName(CustomParameter.class,"VIEW_YAADI_NOTIFICATION_ALLOWED_USERGROUPTYPES_"+houseType.getType().toUpperCase(), "");
 					 if(notificationAllowedUserGroupTypes!=null && notificationAllowedUserGroupTypes.getValue()!=null
 							 && !notificationAllowedUserGroupTypes.getValue().isEmpty()) {
