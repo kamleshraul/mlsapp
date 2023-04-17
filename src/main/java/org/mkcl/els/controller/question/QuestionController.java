@@ -2289,5 +2289,65 @@ public class QuestionController extends GenericController<Question> {
 		return page;
 	}
 	
+	@RequestMapping(value="/questionStatusUpdate" , method=RequestMethod.POST)
+	@ResponseBody
+	public String updateStarredQsnStatus(final ModelMap model,final HttpServletRequest request, final Locale locale)
+	{
+		boolean updated = false;
+		//String page = "question/error";
+		StringBuffer success = new StringBuffer();
+		
+		try {
+			String[] selectedQsn = request.getParameterValues("selectedQuestionId[]");
+			String deviceType = (String)request.getParameter("deviceType");
+			Integer arrLength = selectedQsn.length;
+			DeviceType d = DeviceType.findById(DeviceType.class,Long.parseLong(deviceType));
+			if(arrLength != null)
+			{
+				for(String q: selectedQsn)
+				{
+					Long qId = Long.parseLong(q);
+					Question questiond = Question.findById(Question.class, qId);
+					if(questiond != null )
+					{
+						
+							List<Question> childQsns = Question.getChildQuestionDetail(questiond.getSession(), questiond.getId(),questiond.getType().getId(),questiond.getHouseType().getId(), questiond.getSession().getStartDate());
+							if(childQsns.size() > 0) {
+							for(Question qd : childQsns)
+							{
+								qd.setInternalStatus(Question.findCorrespondingStatusForGivenQuestionType(questiond.getInternalStatus(), d));			
+								qd.setStatus(Question.findCorrespondingStatusForGivenQuestionType(questiond.getStatus(), d));
+								qd.setRecommendationStatus(Question.findCorrespondingStatusForGivenQuestionType(questiond.getRecommendationStatus(), d));
+								qd.setType(d);
+							}}
+							questiond.setInternalStatus(Question.findCorrespondingStatusForGivenQuestionType(questiond.getInternalStatus(), d));			
+							questiond.setStatus(Question.findCorrespondingStatusForGivenQuestionType(questiond.getStatus(), d));
+							questiond.setRecommendationStatus(Question.findCorrespondingStatusForGivenQuestionType(questiond.getRecommendationStatus(), d));
+							questiond.setType(d);
+						
+						questiond.merge();
+						
+						success = success.append(questiond.getNumber().toString());
+						updated = true;
+						
+					}
+					
+				}
+			}
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			
+		}
+		
+		if(updated)
+		{
+			return success.toString() ;
+		}
+		
+		return "Failed" ;
+	}
+	
+	
 }
 
