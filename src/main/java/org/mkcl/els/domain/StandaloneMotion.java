@@ -4288,4 +4288,11 @@ public class StandaloneMotion extends Device implements Serializable {
 		return workflowDetailsList!=null && deleteCount== workflowDetailsList.size();
 	}
 	
+	public static List<StandaloneMotion> findAllAdmittedUndisccussed(final Session session,
+			final DeviceType motionType, 
+			final Status status,
+			final String locale){
+		return getStandaloneMotionRepository().findAllAdmittedUndisccussed(session, motionType, status, locale);
+	}
+	
 }
