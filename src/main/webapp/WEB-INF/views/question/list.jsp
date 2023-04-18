@@ -297,11 +297,16 @@
 				if(BallotStatus == "question_processed_balloted")
 					{
 					var Qnumber = $("#grid").jqGrid ('getCell', selectedQuestionId[i], 'number');
-					if(Qnumber != ""){
-					if(Qnumber.indexOf("<") != -1)
+						if(Qnumber != "")
 						{
-						 myArray = Qnumber.split("<");
-						 items.push(myArray[0]);}
+						if(Qnumber.indexOf("<") != -1)
+							{
+							 myArray = Qnumber.split("<");
+							 items.push(myArray[0]);
+							}
+							else{
+							items.push(Qnumber);
+							}
 						}
 					
 					} 	
@@ -310,14 +315,15 @@
 				if(items.length > 0)
 					{
 					var numbers ="";
-					for( var i=0 ;i< items.length;i++){
-						if( items[i] != ""){
-						numbers  = numbers + items[i]+",";}
-					}
-					if(numbers.charAt(numbers.length-1) == ",")
-						{
-						numbers = numbers.substring(0, numbers.length-1);
-						}
+						for( var i=0 ;i< items.length;i++)
+							{
+								if( items[i] != ""){
+								numbers  = numbers + items[i]+",";}
+							}
+						if(numbers.charAt(numbers.length-1) == ",")
+							{
+							numbers = numbers.substring(0, numbers.length-1);
+							}
 					
 					$.prompt($('#submissionMsg').val()+numbers);
 					}
