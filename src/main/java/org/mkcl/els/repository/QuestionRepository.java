@@ -399,7 +399,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				"SELECT q  FROM Question q "+
 				"WHERE q.session.id IN (SELECT s FROM Session s WHERE s.house.id=:houseId AND s.startDate>=:startDate) "+
 				" AND q.originalType.id IN (:deviceTypeId)"+
-				" AND q.number IN (  :qsnId  )");
+				" AND q.number IN (:qsnId)");
 				
 		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
 		tQuery.setParameter("houseId", houseId);
