@@ -23,6 +23,18 @@
 		} else {
 			$("#ballot_tab").hide();
 		} */	
+		
+		
+		
+		 
+		/**** Status Update -Added By shubham a ****/
+		$("#statusupdate_tab").click(function() {
+			$("#selectionDiv1").hide();
+			statusUpdate();
+		});
+		
+		/***********************/
+		
 		/*Tooltip*/
 		$(".toolTip").hide();
 		/**** here we are trying to add date mask in grid search when field names ends with date ****/
@@ -178,6 +190,28 @@
 		showTabByIdAndUrl('details_tab', "standalonemotion/report/currentstatusreport?device="+ device +"&reportType="+val+"&qId="+qId);
 	}
 	
+	/******* Added By shubham a *******/
+	function statusUpdate() {
+		
+		var selectedMotionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+		var temp = selectedMotionId.toString();
+		var parameters =  "houseType=" + $("#selectedHouseType").val()
+					+ "&sessionYear=" + $("#selectedSessionYear").val()
+					+ "&sessionType=" + $("#selectedSessionType").val()
+					+ "&motionType=" + $("#selectedQuestionType").val()
+					+ "&ugparam=" + $("#ugparam").val() 
+					+ "&status=" + $("#selectedStatus").val() 
+					+ "&role=" + $("#srole").val()
+					+ "&usergroup=" + $("#currentusergroup").val()
+					+ "&usergroupType=" + $("#currentusergroupType").val()
+					+"&selectedMotionId=" + temp;
+		
+  
+		var resourceURL = 'standalonemotion/statusupdate/assistant/init?' + parameters;
+		showTabByIdAndUrl('statusupdate_tab', resourceURL);
+	}
+	
+	/***************************************/
 	function showStandaloneMotionSummaryReport(smId){
 		$.get('ref/sessionbyhousetype/'+$("#selectedHouseType").val() +
 				'/' + $("#selectedSessionYear").val() + 
@@ -981,6 +1015,7 @@
 						</spring:message>
 				</a></li>
 			</security:authorize>
+		
 			<security:authorize
 				access="hasAnyRole('SMOIS_ASSISTANT')">
 				<li><a id="bulkputupassistant_tab" href="#" class="tab"> <spring:message
@@ -1017,6 +1052,15 @@
 				</a></li>
 
 			</security:authorize>
+			
+			<security:authorize
+				access="hasAnyRole('SMOIS_ASSISTANT','SMOIS_CLERK','SMOIS_SECTION_OFFICER')">
+				<li><a id="statusupdate_tab" href="#" class="tab"> <spring:message
+							code="generic.motion.statusupdate" text="Update Motion">
+						</spring:message>
+				</a></li>
+			</security:authorize>
+			
 			<security:authorize access="hasAnyRole('SMOIS_CLERK','SMOIS_ASSISTANT', 'SMOIS_UNDER_SECRETARY',
 				'SMOIS_DEPUTY_SECRETARY','SMOIS_PRINCIPAL_SECRETARY','SMOIS_SPEAKER', 'SMOIS_JOINT_SECRETARY',
 				'SMOIS_SECRETARY', 'SMOIS_OFFICER_ON_SPECIAL_DUTY', 'SMOIS_DEPUTY_SPEAKER', 'SMOIS_CHAIRMAN',
