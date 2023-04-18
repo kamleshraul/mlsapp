@@ -116,11 +116,12 @@
 				<tr>
 					<td>
 						<a href="#" id="ahwal_rules_suspension_report" class="butSim link">
-							<spring:message code="question.ahwal_rules_suspension_report" text="Rules Suspension Motion"/>
+							<spring:message code="rulessuspensionmotion.${selectedHouseType}.ahwal_rules_suspension_report" text="Rules Suspension Motion"/>
 						</a>
 					</td>
 				</tr>									
 			</tbody>
-		</table>			
+		</table>	
+		<input id="selectedHouseType" type="hidden" value="${selectedHouseType}">
 	</body>
 </html>

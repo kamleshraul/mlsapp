@@ -150,6 +150,63 @@
 						        			</fo:block>
 						        		</fo:table-cell>						        		
 						        	</fo:table-row>
+						        	<fo:table-row>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[5]"/>
+						        			</fo:block>
+						        		</fo:table-cell>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[7]"/>
+						        			</fo:block>
+						        		</fo:table-cell>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[9]"/>
+						        			</fo:block>
+						        		</fo:table-cell>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[11]"/>
+						        			</fo:block>
+						        		</fo:table-cell>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[13]"/>
+						        			</fo:block>
+						        		</fo:table-cell>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[15]"/>
+						        			</fo:block>
+						        		</fo:table-cell>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[17]"/>
+						        			</fo:block>
+						        		</fo:table-cell>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[19]"/>
+						        			</fo:block>
+						        		</fo:table-cell>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[21]"/>
+						        			</fo:block>
+						        		</fo:table-cell>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[23]"/>
+						        			</fo:block>
+						        		</fo:table-cell>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[25]"/>
+						        			</fo:block>
+						        		</fo:table-cell>
+						        	</fo:table-row>
 						        </fo:table-header>
 						        <fo:table-body>
 						        	<fo:table-row>				        	
@@ -264,8 +321,8 @@
 						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
 						        			<fo:block text-align="center">
 						        				<xsl:choose>
-													<xsl:when test="element_1/element_1_11!=''">											
-														<xsl:value-of select="element_1/element_1_11"/>
+													<xsl:when test="element_2!=''">											
+														<xsl:value-of select="element_2"/>%
 													</xsl:when>
 													<xsl:otherwise>
 														-
@@ -276,8 +333,8 @@
 						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
 						        			<fo:block text-align="center">
 						        				<xsl:choose>
-													<xsl:when test="element_2!=''">											
-														<xsl:value-of select="element_2"/>%
+													<xsl:when test="element_1/element_1_11!=''">											
+														<xsl:value-of select="element_1/element_1_11"/>
 													</xsl:when>
 													<xsl:otherwise>
 														-
