@@ -2736,4 +2736,42 @@ public class StandaloneMotionRepository extends BaseRepository<StandaloneMotion,
 		}
 		return highlightedText;
 	}
+	
+	
+
+	public List<StandaloneMotion> findAllAdmittedUndisccussed(final Session session,
+			final DeviceType motionType, 
+			final Status status,
+			final String locale) {
+		
+		List<StandaloneMotion> motions = new ArrayList<StandaloneMotion>();
+		
+		try {
+			Status recommendDiscussed = Status.findByType(ApplicationConstants.STANDALONEED, locale);
+			
+			
+			String strQuery="SELECT m FROM StandaloneMotion m" +
+					" WHERE m.session=:session" +
+					" AND m.type=:motionType" +
+					" AND m.locale=:locale" +
+					" AND m.internalStatus=:internalStatus " + 
+					"  AND m.ballotStatus.type =:type " + 
+					" AND m.parent is NULL "+
+					/*" AND (m.discussionStatus!=:recommendationStatusDiscussed AND m.discussionStatus!=:recommendationStatusUndiscussed)" +*/
+					" ORDER BY m.number "+ ApplicationConstants.ASC;
+			TypedQuery<StandaloneMotion> query = this.em().createQuery(strQuery, StandaloneMotion.class);
+			query.setParameter("session", session);
+			query.setParameter("motionType", motionType);
+			query.setParameter("locale", locale);
+			query.setParameter("internalStatus", status);
+			query.setParameter("type", "standalonemotion_processed_balloted");
+			/*query.setParameter("recommendationStatusDiscussed", recommendDiscussed);
+			query.setParameter("recommendationStatusUndiscussed", recommendUndiscussed);*/
+			motions = query.getResultList();
+		} catch (Exception e) {
+			logger.error("error", e);
+		} 
+		
+		return motions;
+	}
 }
