@@ -85,8 +85,8 @@ public class SecurityServiceImpl implements UserDetailsService, ISecurityService
 	                for (Role role : allRoles) {
 	                    roles.add(new GrantedAuthorityImpl(role.getName()));
 	                }
-	                credential.setLastLoginTime(new Date());
-	                credential.merge();
+//	                credential.setLastLoginTime(new Date());
+//	                credential.merge();
 	                List<UserGroup> userGroups=UserGroup.findAllByFieldName(UserGroup.class,"credential",credential,"locale",ApplicationConstants.DESC,"");
 	                return new AuthUser(credential.getUsername(), credential.getPassword(),credential.getUsername(),credential.getEmail(),
 	                        credential.isEnabled(), credential.isAllowedForMultiLogin(), true, true, true, roles,credential.getRoles(),userGroups);
