@@ -204,7 +204,11 @@ public class HomeController extends BaseController {
             		|| request.getSession().getAttribute("logged_in_active_user").toString().isEmpty()) {
             	request.getSession().setAttribute("logged_in_active_user", user.getActualUsername());
             }
-        } else {     
+        } else {    
+        	 credential.setLastLoginTime(new Date());
+            credential.merge();
+        	
+        	
         	/** Send Multilogin Realtime Notification to Existing User Session (Configurable) **/
             if(request.getSession().getAttribute("logged_in_active_user")==null 
             		|| request.getSession().getAttribute("logged_in_active_user").toString().isEmpty()) {
