@@ -1,13 +1,20 @@
 package org.mkcl.els.common.interceptor;
 
+import java.util.Date;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joda.time.Days;
+import org.joda.time.LocalDateTime;
 import org.mkcl.els.controller.HomeController;
 import org.mkcl.els.domain.Credential;
+import org.mkcl.els.domain.CustomParameter;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+import com.ibm.icu.text.SimpleDateFormat;
 
 
 public class ResetPasswordInterceptor extends HandlerInterceptorAdapter {
@@ -53,9 +60,24 @@ public class ResetPasswordInterceptor extends HandlerInterceptorAdapter {
 
     private boolean isPasswordChangeRequired(String currentUser) {
     	Credential credential=Credential.getBaseRepository().findByFieldName(Credential.class, "username", currentUser, null);
-    	if(credential.getPasswordChangeCount()<=1)
+    	
+    	CustomParameter cp = CustomParameter.findByName(CustomParameter.class, "PASSWORD_EXPIRY_CONFIGURATION", "");
+    	if(cp.getValue().equals("YES"))
+    	{
+    		LocalDateTime d1 = new LocalDateTime(credential.getPasswordChangeDateTime().getTime());
+    		Integer days = Days.daysBetween(d1, new LocalDateTime()).getDays();
+    		CustomParameter dayLimitString = CustomParameter.findByName(CustomParameter.class, "PASSWORD_EXPIRY_DAYS_LIMIT", "");
+    		if(days > Integer.parseInt(dayLimitString.getValue()))
+    		{
+    			credential.setPasswordChangeCount(1);
+    		}
+    		
+    	}
+    	 if(credential.getPasswordChangeCount()<=1)
+    	{
     		return true;
-    	else
-    		return false;
+    	}
+
+    	return false;
     }
 }
