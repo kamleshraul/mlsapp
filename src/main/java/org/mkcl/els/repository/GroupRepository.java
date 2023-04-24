@@ -439,6 +439,32 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 		
 		return ministries;
 	}
+	
+	public List<SubDepartment> findSubdepartmentsByName(final Long groupid) throws ELSException {
+		String query="SELECT m FROM Group g" +
+				" JOIN g.subdepartments m" +
+				" WHERE g.id=:groupid ORDER BY m.name " + ApplicationConstants.ASC;
+		
+		List<SubDepartment> ministries = new ArrayList<SubDepartment>();
+		try{
+			TypedQuery<SubDepartment> jpQuery = this.em().createQuery(query, SubDepartment.class);
+			jpQuery.setParameter("groupid", groupid);
+			
+			List<SubDepartment> mX = jpQuery.getResultList();
+			if(mX != null){
+				ministries = null;
+				ministries = mX;
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("GroupRepository_List<SubDepartment>_findSubdepartmentsByName", "No SubDepartment found.");
+			throw elsException;
+		}
+		
+		return ministries;
+	}
 
 	public Group find(final Session session, 
 			final Date answeringDate,
