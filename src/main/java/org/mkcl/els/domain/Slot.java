@@ -250,5 +250,8 @@ public class Slot extends BaseDomain implements Serializable{
 			return "";
 		}
 	}
+	public static Slot lastActiveSlotAfterAdjournemnt(Roster roster, Date endTime) {
+		return getSlotRepository().lastActiveSlotAfterAdjournemnt(roster,endTime);
+	}
 	
 }
