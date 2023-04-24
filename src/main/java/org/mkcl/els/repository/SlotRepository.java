@@ -325,4 +325,23 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 		return null;
 	}
 
+	public Slot lastActiveSlotAfterAdjournemnt(Roster roster, Date endTime) {
+		String strQuery="SELECT s.* FROM slots s "
+				+ " WHERE s.roster=:roster "				 
+				+ " AND s.end_time>=:endTime "
+				+ " AND s.bln_deleted=false ORDER BY s.end_time " +
+				 ApplicationConstants.DESC + ",s.id DESC " ;
+		Query query=this.em().createNativeQuery(strQuery, Slot.class);
+		query.setParameter("roster",roster.getId());
+		query.setParameter("endTime",endTime);
+		query.setFirstResult(0);
+		query.setMaxResults(1);
+		List<Slot> slots=query.getResultList();
+		
+		if(slots!=null&&!slots.isEmpty()){
+			return slots.get(0);
+		}
+		return null;
+	}
+
 }
