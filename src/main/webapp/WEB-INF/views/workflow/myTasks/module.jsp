@@ -22,6 +22,11 @@
 				$("#nextTaskDiv").hide();
 				showList();
 			});	
+			
+			$('#admitted_admission_number').click(function(){
+				admittedAdmissionNumberChange();
+			});
+			
 			/**** Bulk Approval ****/
 			$("#bulkapproval_tab").click(function(){
 				if($('#selectedSubWorkflow').val().indexOf('clubbing')>=0) {
@@ -2092,6 +2097,37 @@
 		    return false;
 		}
 		
+		function admittedAdmissionNumberChange(){
+			 var resourceURL="workflow/specialmentionnotice/bulkview/admissionnumber";
+			 var file=$("#selectedFileCount").val();	
+			$.post(resourceURL,{houseType:$("#selectedHouseType").val(),
+				sessionYear:$("#selectedSessionYear").val(),
+				sessionType:$("#selectedSessionType").val(),
+				deviceType:$("#selectedDeviceType").val(),
+				status:$("#selectedStatus").val(),
+				workflowSubType:$("#selectedSubWorkflow").val(),//departmentwise bulk for cutmotion and other department based devices
+				usergroup:$("#currentusergroup").val(),
+				usergroupType:$("#currentusergroupType").val(),
+				itemsCount:$("#selectedItemsCount").val(),
+				file:file,
+				group:$('#selectedGroup').val(),
+				answeringDate:$('#selectedAnsweringDate').val()
+				},function(data){
+				$('#selectionDiv').hide();	
+				$('a').removeClass('selected');
+				$('#details_tab').addClass('selected');
+				$('.tabContent').html(data);
+				scrollTop();
+			},'html').fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
+		}
+		
 	</script>
 	
 	<style type="text/css">
@@ -2403,7 +2439,12 @@
 					<option value="5">05</option>		
 				</select> |
 			</c:if>	
-			</div>	
+			<c:if test="${usergroupType=='assistant' && selectedDeviceType == 'notices_specialmention'}">
+         	<a href="javascript:void(0);" id="admitted_admission_number" class="butSim" >
+						<spring:message code="generic.admittedAdmissionNumber" text="Special Actions on Pending Devices(Special Mention Notice)"/>
+				</a>|
+			</c:if>	
+	    	</div>	
 		</div>
 		<div id="nextTaskDiv" style="display: none;">
 			<a href="#" id="next_task" class="butSim" style="text-decoration: none;">	

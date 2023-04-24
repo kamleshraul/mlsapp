@@ -2790,6 +2790,8 @@ public class ApplicationConstants {
 	
 	public static final String PROPRIETYPOINT_PROCESSED_SENDTODESKOFFICER = "proprietypoint_processed_sendToDeskOfficer";
 	
+	public static final String PROPRIETYPOINT_PROCESSED_SENDTOSECTIONOFFICER = "proprietypoint_processed_sendToSectionOfficer";
+		
 	/**** Put Up ****/
 	public static final String PROPRIETYPOINT_PUTUP_REJECTION="proprietypoint_putup_rejection";
 	

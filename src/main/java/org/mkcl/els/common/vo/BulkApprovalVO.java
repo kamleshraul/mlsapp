@@ -10,6 +10,10 @@ public class BulkApprovalVO {
 	
 	private String deviceNumber;
 	
+	private String deviceAdmissionNumber;
+	
+	private String deviceDate;
+	
 	private String deviceType;
 	
 	private String member;
@@ -116,6 +120,22 @@ public class BulkApprovalVO {
 
 	public void setDeviceNumber(final String deviceNumber) {
 		this.deviceNumber = deviceNumber;
+	}
+	
+	public String getDeviceAdmissionNumber() {
+		return deviceAdmissionNumber;
+	}
+
+	public void setDeviceAdmissionNumber(String deviceAdmissionNumber) {
+		this.deviceAdmissionNumber = deviceAdmissionNumber;
+	}
+	
+	public String getDeviceDate() {
+		return deviceDate;
+	}
+
+	public void setDeviceDate(String deviceDate) {
+		this.deviceDate = deviceDate;
 	}
 
 	public String getMember() {

@@ -776,20 +776,21 @@ public class SpecialMentionNoticeWorkflowController  extends BaseController {
 						UserGroupType nextUserGroupTypeObj = UserGroupType.findByType(nextUserGroupType, locale.toString());
 						try {
 							WorkflowDetails.create(domain, newtask, nextUserGroupTypeObj, currentDeviceTypeWorkflowType, level);
-							if(domain.getInternalStatus().getType().equals(ApplicationConstants.SPECIALMENTIONNOTICE_FINAL_ADMISSION)
-									&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.SPECIALMENTIONNOTICE_PROCESSED_SENDTODEPARTMENT)){
-									
-									User user = User.find(domain.getPrimaryMember());
-									Credential credential = user.getCredential();
-									properties.put("pv_user",credential.getUsername());
-									ProcessDefinition processDefinition1 =processService.
-											findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
-									ProcessInstance processInstance1 = processService.
-											createProcessInstance(processDefinition1, properties);
-									Task newMembertask = processService.getCurrentTask(processInstance1);
-									UserGroupType memberUGT = UserGroupType.findByType(ApplicationConstants.MEMBER, locale.toString());
-									WorkflowDetails.create(domain,newMembertask,memberUGT,currentDeviceTypeWorkflowType,level);													
-								}
+//							Following code was requried for intimation letter generation  
+//							if(domain.getInternalStatus().getType().equals(ApplicationConstants.SPECIALMENTIONNOTICE_FINAL_ADMISSION)
+//									&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.SPECIALMENTIONNOTICE_PROCESSED_SENDTODEPARTMENT)){
+//									
+//									User user = User.find(domain.getPrimaryMember());
+//									Credential credential = user.getCredential();
+//									properties.put("pv_user",credential.getUsername());
+//									ProcessDefinition processDefinition1 =processService.
+//											findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
+//									ProcessInstance processInstance1 = processService.
+//											createProcessInstance(processDefinition1, properties);
+//									Task newMembertask = processService.getCurrentTask(processInstance1);
+//									UserGroupType memberUGT = UserGroupType.findByType(ApplicationConstants.MEMBER, locale.toString());
+//									WorkflowDetails.create(domain,newMembertask,memberUGT,currentDeviceTypeWorkflowType,level);													
+//								}
 						} catch (ELSException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -2006,12 +2007,23 @@ public class SpecialMentionNoticeWorkflowController  extends BaseController {
 						}else{
 							bulkApprovalVO.setDeviceNumber("-");
 						}
+						if(specialMentionNotice.getAdmissionNumber() != null) {
+							bulkApprovalVO.setDeviceAdmissionNumber(format.format(specialMentionNotice.getAdmissionNumber()));
+						}else {
+							bulkApprovalVO.setDeviceAdmissionNumber("-");
+						}
+						if(specialMentionNotice.getFormattedSpecialMentionNoticeDate() != null) {
+							bulkApprovalVO.setDeviceDate(specialMentionNotice.getFormattedSpecialMentionNoticeDate());
+						}
+						else {
+							bulkApprovalVO.setDeviceDate("-");
+						}
 						bulkApprovalVO.setDeviceType(specialMentionNotice.getType().getName());
 						bulkApprovalVO.setMember(specialMentionNotice.getPrimaryMember().getFullname());
-						if(specialMentionNotice.getRevisedNoticeContent() != null && !specialMentionNotice.getRevisedNoticeContent().isEmpty()){
-							bulkApprovalVO.setSubject(specialMentionNotice.getRevisedNoticeContent());
+						if(specialMentionNotice.getRevisedSubject() != null && !specialMentionNotice.getRevisedSubject().isEmpty()){
+							bulkApprovalVO.setSubject(specialMentionNotice.getRevisedSubject());
 						}else{
-							bulkApprovalVO.setSubject(specialMentionNotice.getNoticeContent());
+							bulkApprovalVO.setSubject(specialMentionNotice.getSubject());
 						}
 						if(specialMentionNotice.getRemarks()!=null&&!specialMentionNotice.getRemarks().isEmpty()){
 							bulkApprovalVO.setLastRemark(specialMentionNotice.getRemarks());
@@ -2036,4 +2048,228 @@ public class SpecialMentionNoticeWorkflowController  extends BaseController {
 		}
 	}
 
+	@RequestMapping(value="/bulkview/admissionnumber",method=RequestMethod.POST)
+	public String getBulkView(final HttpServletRequest request,final Locale locale,
+			final Model model){
+		populateBulkView(model,request,request.getParameter("status"),locale.toString());
+		return "workflow/specialmentionnotice/bulkview";		
+	}	
+	
+	private void populateBulkView(final Model model,
+			final HttpServletRequest request,final String workflowStatus,final String locale){
+		/**** Request Params ****/
+		String strHouseType=request.getParameter("houseType");
+		String strSessionType=request.getParameter("sessionType");
+		String strSessionYear=request.getParameter("sessionYear");
+		String strDeviceType=request.getParameter("deviceType");			
+		String strStatus=workflowStatus;
+		/* String strRole=request.getParameter("role"); */
+		String strUsergroup=request.getParameter("usergroup");
+		String strUsergroupType=request.getParameter("usergroupType");
+		String strItemsCount=request.getParameter("itemsCount");
+		String strWorkflowSubType=request.getParameter("workflowSubType");
+		String strLocale=locale.toString();	
+		String assignee=this.getCurrentUser().getActualUsername();
+		
+		Set<Role> roles=this.getCurrentUser().getRoles();
+		String strRole=null;
+		for(Role i:roles){
+			if(i.getType().startsWith("MEMBER_")){
+				strRole=i.getType();
+				break;
+			}else if(i.getType().contains("SMIS_CLERK")){
+				strRole=i.getType();
+				break;
+			}else if(i.getType().startsWith("SMIS_")){
+				strRole=i.getType();
+				break;
+			}
+		}	
+				
+		if(strHouseType!=null&&!(strHouseType.isEmpty())
+				&&strSessionType!=null&&!(strSessionType.isEmpty())
+				&&strSessionYear!=null&&!(strSessionYear.isEmpty())
+				&&strDeviceType!=null&&!(strDeviceType.isEmpty())
+				&&strStatus!=null&&!(strStatus.isEmpty())
+				&&strRole!=null&&!(strRole.isEmpty())
+				&&strUsergroup!=null&&!(strUsergroup.isEmpty())
+				&&strUsergroupType!=null&&!(strUsergroupType.isEmpty())
+				&&strItemsCount!=null&&!(strItemsCount.isEmpty())
+				&&strWorkflowSubType!=null&&!(strWorkflowSubType.isEmpty())){	
+			model.addAttribute("workflowSubType", strWorkflowSubType);
+			/**** Workflow Details ****/
+			List<WorkflowDetails> workflowDetails = null;
+			try {
+				workflowDetails = WorkflowDetails.
+				findAll(strHouseType,strSessionType,strSessionYear,
+						strDeviceType,strStatus,strWorkflowSubType,
+						assignee,strItemsCount,strLocale);
+			} catch (ELSException e) {
+				model.addAttribute("error", e.getParameter());
+				e.printStackTrace();
+			}
+			/**** Populating Bulk Approval VOs ****/
+			List<BulkApprovalVO> bulkapprovals=new ArrayList<BulkApprovalVO>();
+			NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
+			for(WorkflowDetails i:workflowDetails){
+				BulkApprovalVO bulkApprovalVO=new BulkApprovalVO();				
+				SpecialMentionNotice specialMentionNotice=SpecialMentionNotice.findById(SpecialMentionNotice.class,Long.parseLong(i.getDeviceId()));
+				/**** Bulk Submission For Workflows ****/
+					/**** Status Wise Bulk Submission ****/
+					
+						bulkApprovalVO.setId(String.valueOf(i.getId()));
+						bulkApprovalVO.setDeviceId(String.valueOf(specialMentionNotice.getId()));				
+						if(specialMentionNotice.getNumber()!=null){
+							bulkApprovalVO.setDeviceNumber(format.format(specialMentionNotice.getNumber()));
+						}else{
+							bulkApprovalVO.setDeviceNumber("-");
+						}
+						if(specialMentionNotice.getAdmissionNumber() != null) {
+							bulkApprovalVO.setDeviceAdmissionNumber(specialMentionNotice.getAdmissionNumber().toString());
+						}else {
+							bulkApprovalVO.setDeviceAdmissionNumber("-");
+						}
+						if(specialMentionNotice.getFormattedSpecialMentionNoticeDate() != null) {
+							bulkApprovalVO.setDeviceDate(specialMentionNotice.getFormattedSpecialMentionNoticeDate());
+						}
+						else {
+							bulkApprovalVO.setDeviceDate("-");
+						}
+						bulkApprovalVO.setDeviceType(specialMentionNotice.getType().getName());
+						bulkApprovalVO.setMember(specialMentionNotice.getPrimaryMember().getFullname());
+						if(specialMentionNotice.getRevisedSubject() != null && !specialMentionNotice.getRevisedSubject().isEmpty()){
+							bulkApprovalVO.setSubject(specialMentionNotice.getRevisedSubject());
+						}else{
+							bulkApprovalVO.setSubject(specialMentionNotice.getSubject());
+						}
+						if(specialMentionNotice.getRemarks()!=null&&!specialMentionNotice.getRemarks().isEmpty()){
+							bulkApprovalVO.setLastRemark(specialMentionNotice.getRemarks());
+						}else{
+							bulkApprovalVO.setLastRemark("-");
+						}
+						bulkApprovalVO.setLastDecision(specialMentionNotice.getInternalStatus().getName());	
+						Map<String, String[]> requestMap=new HashMap<String, String[]>();			
+						requestMap.put("resolutionId",new String[]{String.valueOf(specialMentionNotice.getId())});
+						requestMap.put("locale",new String[]{specialMentionNotice.getLocale()});
+						List result=Query.findReport("SMIS_GET_REVISION", requestMap);
+						bulkApprovalVO.setRevisions(result);
+						bulkApprovalVO.setLastRemarkBy(specialMentionNotice.getEditedAs());	
+						bulkApprovalVO.setCurrentStatus(i.getStatus());
+						bulkapprovals.add(bulkApprovalVO);
+					
+				}		
+			model.addAttribute("bulkapprovals", bulkapprovals);
+			if(bulkapprovals!=null&&!bulkapprovals.isEmpty()){
+				model.addAttribute("resolutionId",bulkapprovals.get(0).getDeviceId());
+			}
+		}
+	}
+	
+	@Transactional
+	@RequestMapping(value="/bulkadmissionapproval/update",method=RequestMethod.POST)
+	public String bulkApprovalAdmissionDate(final HttpServletRequest request,final Locale locale,
+			final Model model,
+			final RedirectAttributes redirectAttributes) {
+		
+		String length = request.getParameter("itemLength");
+		boolean updated = false;	
+	  
+		ArrayList<HashMap<String,String>>  noticeContent= new ArrayList<HashMap<String,String>>();
+		
+		for (int i=0;i<Integer.parseInt(length);i++)
+		{
+			HashMap<String,String> ymap = new HashMap<String,String>();
+			String  id = request.getParameter("items["+i+"][id]");
+			ymap.put("id", id);
+			String admissionNumber  = request.getParameter("items["+i+"][admissionNumber]");
+			ymap.put("admissionNumber", admissionNumber);
+			noticeContent.add(ymap);
+		}
+		
+		
+		if(noticeContent != null )
+		{
+			for(HashMap<String,String>  i : noticeContent)
+			{
+				Long id = Long.parseLong(i.get("id"));
+				WorkflowDetails wfDetails=WorkflowDetails.findById(WorkflowDetails.class,id);
+				
+				SpecialMentionNotice specialMentionNotice = SpecialMentionNotice.findById(SpecialMentionNotice.class,Long.parseLong(wfDetails.getDeviceId()));
+				specialMentionNotice.setAdmissionNumber(Integer.parseInt(i.get("admissionNumber")));			
+				specialMentionNotice.merge();
+				updated = true;
+			}
+		}
+		
+		if(updated) {
+			String status = request.getParameter("status");
+			this.populateBulkView(model,request,status,locale.toString());
+			model.addAttribute("type","taskcompleted");
+		}
+		else {
+			model.addAttribute("error","Some error occured");
+		}
+		
+		return "workflow/specialmentionnotice/bulkview";
+	}
+	
+	@Transactional
+	@RequestMapping(value="/bulklapse/update",method=RequestMethod.POST)
+	public String bulkLapse(final HttpServletRequest request,final Locale locale,
+			final Model model,
+			final RedirectAttributes redirectAttributes) {
+		
+		String length = request.getParameter("itemLength");
+		boolean updated = false;	
+	  
+		ArrayList<HashMap<String,String>>  noticeContent= new ArrayList<HashMap<String,String>>();
+		
+		for (int i=0;i<Integer.parseInt(length);i++)
+		{
+			HashMap<String,String> ymap = new HashMap<String,String>();
+			String  id = request.getParameter("items["+i+"][id]");
+			ymap.put("id", id);
+			noticeContent.add(ymap);
+		}	
+		
+        Status s = Status.findByType("specialmentionnotice_processed_lapsed","mr_IN");
+		
+		if(noticeContent != null )
+		{
+			for(HashMap<String,String>  i : noticeContent)
+			{
+				Long id = Long.parseLong(i.get("id"));
+				WorkflowDetails wfDetails=WorkflowDetails.findById(WorkflowDetails.class,id);
+				
+				SpecialMentionNotice specialMentionNotice = SpecialMentionNotice.findById(SpecialMentionNotice.class,Long.parseLong(wfDetails.getDeviceId()));
+				specialMentionNotice.setInternalStatus(s);
+				specialMentionNotice.setRecommendationStatus(s);
+				specialMentionNotice.setStatus(s);
+				specialMentionNotice.merge();
+				
+				System.out.print("Checking status");
+				System.out.println(wfDetails.getId()+" "+wfDetails.getStatus());
+				
+				if(wfDetails.getStatus().equals("PENDING")) {
+					wfDetails.setStatus("LAPSED");
+					wfDetails.merge();
+				}				
+								
+				updated = true;
+			}
+		}
+		
+		if(updated) {
+			String status = request.getParameter("status");
+			this.populateBulkView(model,request,status,locale.toString());
+			model.addAttribute("type","taskcompleted");
+		}
+		else {
+			model.addAttribute("error","Some error occured");
+		}
+		 
+		
+		return "workflow/specialmentionnotice/bulkview";
+	}	
+	
 }
