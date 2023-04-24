@@ -4,9 +4,14 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.persistence.Query;
 
@@ -149,7 +154,26 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 			/**** End Time is postponded ****/
 			else if(roster.getEndTime().after(savedRoster.getEndTime())){
 				if(roster.getAction().equals("create_new_slots")){
-					return generateNewSlots(roster,savedRoster.getEndTime(),roster.getEndTime(),"LAST_ASSIGNED_USER");
+					//check adjournment time
+					List<Adjournment> adjourments=findAdjournmentForRosterAfterTime(roster,savedRoster.getEndTime());
+					Slot lastGeneratedSlot=Slot.lastGeneratedSlot(roster);
+					List<List<Date>> slotStartEndTimeList=calculateNewStartEndTimeForSlotsAccordingToAdjournments(adjourments,savedRoster,roster,lastGeneratedSlot);
+					if(adjourments!=null && adjourments.size()>0) {
+						boolean isSlotGenerated=false;
+						for(List<Date> lstSlotBlock: slotStartEndTimeList) {
+							
+							if(lstSlotBlock!=null && lstSlotBlock.size()>1) {
+								List<List<Date>> adjustedSlotTimmings=adjustSlotTimingsForSlotDuration(lstSlotBlock,roster.getSlotDuration(),roster.getEndTime());
+								for( List<Date> adjustedSlotTimming:adjustedSlotTimmings)
+									isSlotGenerated= generateNewSlots(roster,adjustedSlotTimming.get(0),adjustedSlotTimming.get(1),"LAST_ASSIGNED_USER");
+							}
+							
+						}
+						return isSlotGenerated;
+					}
+					else {
+						return generateNewSlots(roster,savedRoster.getEndTime(),roster.getEndTime(),"LAST_ASSIGNED_USER");
+					}
 				}
 			}
 			/**** Slot Duration is changed ****/
@@ -583,6 +607,15 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 				}else if(reportersToBeTakenFrom.equals("LAST_ASSIGNED_USER")){
 					Slot lastAdjournedSlot=Slot.lastAdjournedSlot(roster,adjournment);
 					Slot firstAdjournedSlot=Slot.firstAdjournedSlot(roster, adjournment);
+					
+					Adjournment previousAdjournment=findPreviousAdjournment(roster,adjournment.getStartTime());
+					Slot lastActiveSlotAfterPreviousAdjournment=null;
+					if(previousAdjournment!=null && previousAdjournment.getEndTime()!=null)
+						lastActiveSlotAfterPreviousAdjournment=Slot.lastActiveSlotAfterAdjournemnt(roster,previousAdjournment.getEndTime());
+					
+					boolean prevSlotDeleted=deleteSlotsInAdjournmetTimeSlots(lastActiveSlotAfterPreviousAdjournment,roster,adjournment,previousAdjournment);
+					if(prevSlotDeleted)
+						lastActiveSlotAfterPreviousAdjournment=null;
 					//Following Code is required as We are not getting the expected value of First Adjourned Slot
 					// Slot Previous to Adjourned Slot
 					Slot slotPreviousToAdjournedSlot = Slot.slotPreviousToAdjournedSlot(roster, adjournment);
@@ -633,6 +666,19 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 							if(roster.getCommitteeMeeting() != null){
 								slotStartTime = startTime;
 							}else{
+								if(previousAdjournment!=null 
+										&& previousAdjournment.getEndTime()!=null
+										&& previousAdjournment.getEndTime().compareTo(adjournment.getStartTime())==0
+										&& (lastActiveSlotAfterPreviousAdjournment==null 
+										|| lastActiveSlotAfterPreviousAdjournment.getEndTime().equals(adjournment.getStartTime())) ) {
+									slotStartTime=adjournment.getEndTime();
+									slotStartTime = adjustDateTimeForSlotAccordingToSlotDuration(roster, slotStartTime);
+								}else if(lastActiveSlotAfterPreviousAdjournment!=null 
+										&& lastActiveSlotAfterPreviousAdjournment.getEndTime().compareTo(adjournment.getStartTime())>0) {
+									slotStartTime=adjournment.getEndTime();
+									slotStartTime = adjustDateTimeForSlotAccordingToSlotDuration(roster, slotStartTime);
+								}
+								else
 								slotStartTime = lastAdjournedSlot.getEndTime();
 							}
 							// slotStartTime=startTime;//lastAdjournedSlot.getEndTime();
@@ -669,6 +715,20 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 							if(roster.getCommitteeMeeting() != null){
 								newSlotTime = startTime;
 							}else{
+								if(previousAdjournment!=null 
+										&& previousAdjournment.getEndTime()!=null
+										&& previousAdjournment.getEndTime().compareTo(adjournment.getStartTime())==0
+										&& (lastActiveSlotAfterPreviousAdjournment==null 
+										|| lastActiveSlotAfterPreviousAdjournment.getEndTime().equals(adjournment.getStartTime())) ) {
+									newSlotTime=adjournment.getEndTime();
+									newSlotTime = adjustDateTimeForSlotAccordingToSlotDuration(roster, newSlotTime);
+								}else if(lastActiveSlotAfterPreviousAdjournment!=null 
+										&& lastActiveSlotAfterPreviousAdjournment.getEndTime().compareTo(adjournment.getStartTime())>0) {
+									newSlotTime=adjournment.getEndTime();
+									newSlotTime = adjustDateTimeForSlotAccordingToSlotDuration(roster, newSlotTime);
+								}
+								
+								else
 								newSlotTime = newSlot.getEndTime();
 							}
 							if(lastGeneratedSlot.getName()!=null&&!lastGeneratedSlot.getName().isEmpty()){
@@ -1161,5 +1221,278 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 		return roster;
 	}
 	
+	public List<Adjournment> findAdjournmentForRosterAfterTime(Roster roster, Date afterTime) {
+		List<Adjournment> listAdjournment=null;
+		if(roster!=null && roster.getId()>0 && afterTime!=null) {
+			String strQuery="SELECT a FROM Adjournment a WHERE a.roster.id=:rosterId AND a.startTime >=:afterTime";
+			Query query=this.em().createQuery(strQuery);
+			query.setParameter("rosterId", roster.getId());
+			query.setParameter("afterTime",afterTime);
+			listAdjournment=query.getResultList();
+		}
+		return listAdjournment;
+	}
+	
+	
+	private List<List<Date>> calculateNewStartEndTimeForSlotsAccordingToAdjournments(List<Adjournment> adjourments,
+			Roster savedRoster, Roster roster,Slot lastGeneratedSlot) {
+		List<List<Date>> slotTimingBlocks=new ArrayList<List<Date>>();
+		if (adjourments != null && adjourments.size() > 0 && savedRoster != null && savedRoster.getEndTime() != null
+				&& roster != null && roster.getStartTime() != null && roster.getEndTime() != null
+				&& lastGeneratedSlot != null && lastGeneratedSlot.getEndTime() != null) {
+			Adjournment prevAdjournment=null;
+			int totalAdjournment=adjourments.size()-1;
+			int currentAdjournmentCount=0;
+			for (Adjournment adjournment : adjourments) {
+				
+				if (adjournment != null && adjournment.getId() > 0
+						&& adjournment.getRoster().getId() == roster.getId()) {
+					
+					int adjournmentTimeInMinutes = calculateAdjournmentTime(adjournment, Calendar.MINUTE);
+					int diffBetweenLastSlotEndTimeAndSavedRosterTimeInMinutes = calculateDifferenceInTime(
+							savedRoster.getEndTime(), lastGeneratedSlot.getEndTime(), Calendar.MINUTE);
+					
+					if(prevAdjournment!=null ) {
+						int diffBetweenPreviousAdjournmentAndCurrentAdjournment=calculateDifferenceInTime
+								(adjournment.getStartTime(), prevAdjournment.getEndTime(), Calendar.MINUTE);
+						//slot between two consecutive adjournments
+						if(diffBetweenPreviousAdjournmentAndCurrentAdjournment>0) {
+							slotTimingBlocks.add(Arrays.asList(prevAdjournment.getEndTime(),adjournment.getStartTime()));
+						}
+					}
+					
+					if (adjournment.getStartTime().after(lastGeneratedSlot.getEndTime())) {
+					
+						if(prevAdjournment==null)
+							slotTimingBlocks.add(Arrays.asList(lastGeneratedSlot.getEndTime(), adjournment.getStartTime()));
+						/*
+						 * else if(adjournment.getStartTime().after(prevAdjournment.getEndTime()))
+						 * slotTimingBlocks.add(Arrays.asList(prevAdjournment.getEndTime(),
+						 * adjournment.getStartTime()));
+						 */
+						else if(adjournment.getStartTime().equals(prevAdjournment.getEndTime()) 
+								&& currentAdjournmentCount==totalAdjournment)
+							slotTimingBlocks.add(Arrays.asList(adjournment.getEndTime(), roster.getEndTime()));
+					
+					} else if(adjournment.getStartTime().equals(lastGeneratedSlot.getEndTime())){
+						if(prevAdjournment==null && currentAdjournmentCount==totalAdjournment)
+							slotTimingBlocks.add(Arrays.asList(adjournment.getEndTime(),roster.getEndTime()));
+						else if(adjournment.getStartTime().equals(prevAdjournment.getEndTime()) 
+								&& currentAdjournmentCount==totalAdjournment)
+							slotTimingBlocks.add(Arrays.asList(prevAdjournment.getEndTime(),roster.getEndTime()));
+					} if (adjournment.getStartTime().after(lastGeneratedSlot.getStartTime())
+							&& adjournment.getEndTime().after(lastGeneratedSlot.getEndTime())) {
+						// do nothing as not need to generate slots
+					} else if (adjournment.getEndTime().after(savedRoster.getEndTime())
+							&& currentAdjournmentCount==totalAdjournment) {
+						slotTimingBlocks.add(Arrays.asList(adjournment.getEndTime(), roster.getEndTime()));
+					}
+					
+					if(currentAdjournmentCount==totalAdjournment) {
+						if(adjournment.getEndTime().before(roster.getEndTime())) {
+							slotTimingBlocks.add(Arrays.asList(adjournment.getEndTime(),roster.getEndTime()));
+						}
+					}
+					
+					prevAdjournment=adjournment;
+					currentAdjournmentCount++;
+				}
+			}
+		}
+		
+		
+		slotTimingBlocks=correctTimingContinuation(slotTimingBlocks);
+		
+		/*
+		 * if(slotTimingBlocks!=null && slotTimingBlocks.size()>0) { List<Date>
+		 * lastElement=slotTimingBlocks.get(slotTimingBlocks.size()-1);
+		 * if(lastElement!=null && lastElement.size()==2) { Date
+		 * adjEndTime=lastElement.get(1); Date endTimeForSlot=roster.getEndTime();
+		 * lastElement.add(0,adjEndTime); lastElement.add(1,endTimeForSlot);
+		 * slotTimingBlocks.add(slotTimingBlocks.size()-1,lastElement); } }
+		 */
+		
+		
+		return slotTimingBlocks;
+	}	
+
+	private int calculateAdjournmentTime(Adjournment adjournment, int TimeUnitTypeInCalendar) {
+		if(adjournment!=null && adjournment.getStartTime()!=null && adjournment.getEndTime()!=null) {			
+			int adjournmentTimeInSpecifiedType = calculateDifferenceInTime(adjournment.getEndTime()
+																				,adjournment.getStartTime()
+																				,TimeUnitTypeInCalendar);
+			return adjournmentTimeInSpecifiedType;
+		}
+		return -1;
+	}
+	
+	private int calculateDifferenceInTime(Date endTime, Date startTime, int TimeUnitTypeInCalendar) {
+		if(endTime!=null && startTime!=null) {
+			Calendar calendar=Calendar.getInstance();
+			long diffTimeInMillis=(endTime.getTime())- (startTime.getTime());
+			
+			calendar.setTimeInMillis(diffTimeInMillis);
+			calendar.getTime();
+			int diffTimeInSpecifiedType = Long.valueOf(TimeUnit.MILLISECONDS.toMinutes(diffTimeInMillis)).intValue();
+			return diffTimeInSpecifiedType;
+		}
+		return -1;
+	}
+	
+	
+	private List<List<Date>> correctTimingContinuation(List<List<Date>> slotTimingBlocks) {
+
+		//sort dates
+		Collections.sort(slotTimingBlocks, new Comparator<List<Date>>() {
+			@Override
+			public int compare(List<Date> o1, List<Date> o2) {
+				Date endTime1 = o1.get(1);
+				Date endTime2 = o2.get(1);
+				return endTime1.compareTo(endTime2);
+			}
+		});
+
+		List<List<Date>> continuationList = new ArrayList<List<Date>>();
+		if (slotTimingBlocks != null && slotTimingBlocks.size() > 0) {
+			for (int i = 0; i < slotTimingBlocks.size(); i++) {
+				List<Date> currentDates = slotTimingBlocks.get(i);
+				List<Date> nextDates = new ArrayList<Date>();
+				if (slotTimingBlocks.size() > i + 1) {
+					nextDates = slotTimingBlocks.get(i + 1);
+				}
+
+				if (nextDates != null && nextDates.size() > 1) {
+
+					if (currentDates.get(0).equals(nextDates.get(0)) 
+							&& currentDates.get(1).equals(nextDates.get(1))) {
+						//don't add duplicates
+					} else {
+						Date currentEndDate = currentDates.get(1);
+						Date nextStartDate = nextDates.get(0);
+
+						if (currentEndDate.equals(nextStartDate)) {
+							continuationList.add(Arrays.asList(currentDates.get(0), nextDates.get(1)));
+						} else {
+							continuationList.add(currentDates);
+						}
+					}
+
+				} else {
+					continuationList.add(currentDates);
+				}
+			}
+		}
+		return continuationList;
+	}
+	
+	private List<List<Date>> adjustSlotTimingsForSlotDuration(List<Date> lstSlotBlock,int slotDuration,Date rosterEndTime) {
+		if(lstSlotBlock!=null && lstSlotBlock.size()>1 ) {
+			
+			List<List<Date>> listOfDates=new ArrayList<List<Date>>();
+			int availableTimeBlock=calculateDifferenceInTime(lstSlotBlock.get(1), lstSlotBlock.get(0), Calendar.MINUTE);
+			int numberOfSlotAllowed=availableTimeBlock/slotDuration;
+			double actualSlotsAllowed=Double.valueOf(availableTimeBlock)/Double.valueOf(slotDuration);
+			
+			if(actualSlotsAllowed>numberOfSlotAllowed) {
+				numberOfSlotAllowed++;
+			}
+			
+			int actualSlotBlockEndTimeInMinutes=numberOfSlotAllowed*slotDuration;
+			
+			Calendar calendar = Calendar.getInstance();
+			
+			//start time of slot
+			calendar.setTime(lstSlotBlock.get(0));
+			
+			int startTimeMinutes=calendar.get(Calendar.MINUTE);
+			if(startTimeMinutes%slotDuration!=0) {
+				calendar.add(Calendar.MINUTE,-(startTimeMinutes%slotDuration));
+			}
+			Date newStartTime=calendar.getTime();
+			calendar.add(Calendar.MINUTE,actualSlotBlockEndTimeInMinutes);
+			Date newEndTime=calendar.getTime();
+			listOfDates.add(Arrays.asList(newStartTime,newEndTime));
+			/*
+			 * if(newEndTime.after(rosterEndTime)) { calendar.setTime(rosterEndTime);
+			 * calendar.add(Calendar.MINUTE, -(actualSlotBlockEndTimeInMinutes)); return
+			 * Arrays.asList(calendar.getTime(),rosterEndTime); }
+			 */
+			
+			// end time adjustment
+			if(newEndTime.before(lstSlotBlock.get(1))) {
+				calendar.setTime(lstSlotBlock.get(1));
+				int actualEndTimeMinutes=calendar.get(Calendar.MINUTE);
+				if(actualEndTimeMinutes%slotDuration!=0) {
+					calendar.add(Calendar.MINUTE, -(actualEndTimeMinutes%slotDuration));
+					newStartTime=calendar.getTime();
+					if(actualSlotBlockEndTimeInMinutes>slotDuration)
+						calendar.add(Calendar.MINUTE, (slotDuration));
+					else
+						calendar.add(Calendar.MINUTE, (actualSlotBlockEndTimeInMinutes));
+					
+					newEndTime=calendar.getTime();
+					listOfDates.add(Arrays.asList(newStartTime,newEndTime));
+				}
+			}
+			
+			return listOfDates;
+			
+			
+		}
+		return null;
+	}
+	
+	
+	public Adjournment findPreviousAdjournment(Roster roster, Date startTime) {
+		if(roster!=null && roster.getId()>0 && startTime!=null) {
+			String strQuery="SELECT a FROM Adjournment a WHERE a.roster.id=:rosterId "
+					+ " AND a.endTime<=:endTime"
+					+ " ORDER BY a.endTime desc";
+			Query query=this.em().createQuery(strQuery);
+			query.setParameter("rosterId", roster.getId());
+			query.setParameter("endTime",startTime);
+			List<Adjournment> listAdjournment = query.getResultList();
+			if(listAdjournment!=null && listAdjournment.size()>0)
+				return listAdjournment.get(0);
+		}
+		return null;
+	}
+	
+	private Date adjustDateTimeForSlotAccordingToSlotDuration(final Roster roster, Date slotStartTime) {
+		Calendar calendar=Calendar.getInstance();
+		calendar.setTime(slotStartTime);
+		int minutesParts = calendar.get(Calendar.MINUTE);
+		if(minutesParts%roster.getSlotDuration()>0) {
+			calendar.add(Calendar.MINUTE,-(minutesParts%roster.getSlotDuration()));
+			slotStartTime=calendar.getTime();
+		}
+		return slotStartTime;
+	}
+	
+	private boolean deleteSlotsInAdjournmetTimeSlots(Slot slot, Roster roster,
+			Adjournment adjournment,Adjournment previousAdjournment) {
+		if(slot!=null && slot.getStartTime()!=null && slot.getEndTime()!=null
+				&& adjournment!=null && adjournment.getStartTime()!=null && adjournment.getEndTime()!=null) {
+			//if slot happens to be withing adjournment dates delete it
+			if((slot.getStartTime().compareTo(adjournment.getStartTime())>=0)			
+			&& (slot.getEndTime().compareTo(adjournment.getEndTime())<=0)) {
+				slot.setBlnDeleted(true);
+				slot.setBlnDeleted(true);
+				Slot.getSlotRepository().merge(slot);
+				return true;
+			}else if(adjournment.getEndTime().compareTo(previousAdjournment.getStartTime())>=0
+					&& adjournment.getEndTime().compareTo(previousAdjournment.getEndTime())>=0
+					&& previousAdjournment.getEndTime().compareTo(adjournment.getStartTime())==0
+					&& slot.getStartTime().compareTo(adjournment.getEndTime())<=0
+					&& slot.getEndTime().compareTo(adjournment.getEndTime())<=0) {
+				slot.setBlnDeleted(true);
+				slot.setBlnDeleted(true);
+				Slot.getSlotRepository().merge(slot);
+				return true;
+			}
+		}
+		return false;
+		
+	}
 	
 }
