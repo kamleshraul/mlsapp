@@ -397,6 +397,11 @@ public class Group extends BaseDomain implements Serializable {
     		final Long groupid) throws ELSException {
 		return Group.getRepository().findMinistriesByName(groupid);
 	}
+    
+    public static List<SubDepartment> findSubdepartmentsByName(
+    		final Long groupid) throws ELSException {
+		return Group.getRepository().findSubdepartmentsByName(groupid);
+	}
 	
 	public static List<Ministry> findMinistriesByPriority(
 			final Long groupid) throws ELSException {
