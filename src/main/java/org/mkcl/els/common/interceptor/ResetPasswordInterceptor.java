@@ -67,10 +67,11 @@ public class ResetPasswordInterceptor extends HandlerInterceptorAdapter {
     		LocalDateTime d1 = new LocalDateTime(credential.getPasswordChangeDateTime().getTime());
     		Integer days = Days.daysBetween(d1, new LocalDateTime()).getDays();
     		CustomParameter dayLimitString = CustomParameter.findByName(CustomParameter.class, "PASSWORD_EXPIRY_DAYS_LIMIT", "");
+    		if(dayLimitString != null){
     		if(days > Integer.parseInt(dayLimitString.getValue()))
     		{
     			credential.setPasswordChangeCount(1);
-    		}
+    		}}
     		
     	}
     	 if(credential.getPasswordChangeCount()<=1)
