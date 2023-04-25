@@ -445,15 +445,15 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 				" JOIN g.subdepartments m" +
 				" WHERE g.id=:groupid ORDER BY m.name " + ApplicationConstants.ASC;
 		
-		List<SubDepartment> ministries = new ArrayList<SubDepartment>();
+		List<SubDepartment> Subdepartments = new ArrayList<SubDepartment>();
 		try{
 			TypedQuery<SubDepartment> jpQuery = this.em().createQuery(query, SubDepartment.class);
 			jpQuery.setParameter("groupid", groupid);
 			
 			List<SubDepartment> mX = jpQuery.getResultList();
 			if(mX != null){
-				ministries = null;
-				ministries = mX;
+				Subdepartments = null;
+				Subdepartments = mX;
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -463,7 +463,7 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 			throw elsException;
 		}
 		
-		return ministries;
+		return Subdepartments;
 	}
 
 	public Group find(final Session session, 
