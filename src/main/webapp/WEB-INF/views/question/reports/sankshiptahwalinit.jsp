@@ -45,6 +45,12 @@
 					$(this).attr('href','#');
 					ahwalRulesSuspensionReport();
 				});
+				
+				/**** questions unstarred departmentwise yaadi report ****/
+				$("#questions_unstarred_departmentwise_yaadi_report").click(function(){				
+					$(this).attr('href','#');
+					questionsUnstarredDepartmentwiseYaadi();
+				});
 			});
 		</script>		 
 	</head>	
@@ -119,7 +125,15 @@
 							<spring:message code="rulessuspensionmotion.${selectedHouseType}.ahwal_rules_suspension_report" text="Rules Suspension Motion"/>
 						</a>
 					</td>
-				</tr>									
+				</tr>
+				<tr><td>&nbsp;</td></tr>
+				<tr>
+					<td>
+						<a href="#" id="questions_unstarred_departmentwise_yaadi_report" class="butSim link">
+							<spring:message code="question.${selectedHouseType}.question_unstarred_departmentwise_yaadi_report" text="Unstarred Questions Depatment wise Yaadi"/>
+						</a>
+					</td>
+				</tr>											
 			</tbody>
 		</table>	
 		<input id="selectedHouseType" type="hidden" value="${selectedHouseType}">

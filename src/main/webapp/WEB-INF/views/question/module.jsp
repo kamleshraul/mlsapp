@@ -1663,6 +1663,14 @@
 		$('#ahwal_rules_suspension_report').attr('href', 'question/report/ahwalRulesSuspensionReport?'+ parameters);
 	}
 	
+	function questionsUnstarredDepartmentwiseYaadi(){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()	
+		 + "&questionType=questions_unstarred";
+		$('#questions_unstarred_departmentwise_yaadi_report').attr('href', 'question/report/questionUnstarredDepartmentSideYaadi?'+ parameters);
+	}
+	
 	function ahwalHDSConditionReport(){
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 		 + "&sessionYear=" + $("#selectedSessionYear").val()

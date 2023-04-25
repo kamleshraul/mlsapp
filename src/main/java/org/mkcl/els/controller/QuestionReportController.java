@@ -5051,6 +5051,115 @@ public class QuestionReportController extends BaseController{
 		}
 	}
 	
+	@RequestMapping(value="/questionUnstarredDepartmentSideYaadi" ,method=RequestMethod.GET)
+	public @ResponseBody void generateQuestionUnstarredDepartmentSideYaadit(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String questionType = request.getParameter("questionType");
+		
+		if(strHouseType!=null && strSessionType!=null && strSessionYear!=null && questionType!=null){
+			if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty() && !questionType.isEmpty()){
+				try {
+					HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+					if(houseType==null) {
+						houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
+					}					
+					SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+					Integer sessionYear = Integer.parseInt(strSessionYear);
+					if(houseType==null || sessionType==null) {
+						logger.error("**** HouseType or SessionType Not Found ****");
+						model.addAttribute("type", "HOUSETYPE_NOTFOUND_OR_SESSIONTYPE_NOTFOUND");					
+					} else {
+						Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+						if(session==null) {								
+							logger.error("**** Session Not Found ****");
+							model.addAttribute("type", "SESSION_NOTFOUND");					
+						} else {
+							/**** find report data ****/
+							Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+							queryParameters.put("houseType", new String[]{houseType.getType()});
+							queryParameters.put("sessionId", new String[]{session.getId().toString()});
+							queryParameters.put("questionType", new String[]{questionType});
+							queryParameters.put("locale", new String[]{locale.toString()});
+							String queryName= "QIS_UNSTARRED_DEPARTMENTWISE_YAADI_UPPERHOUSE_REPORT";													
+							List reportData = Query.findReport(queryName, queryParameters);
+							if(reportData!=null && !reportData.isEmpty()) {
+								List<String> serialNumbers = new ArrayList<String>();
+								for(int i=1; i<=reportData.size(); i++) {
+									serialNumbers.add(FormaterUtil.formatNumberNoGrouping(i, locale.toString()));
+								}
+								List<String> localisedContent = new ArrayList<String>();
+								if(reportData.get(0)!=null) {
+									Object[] obj = (Object[]) reportData.get(0);
+									for(String i: obj[0].toString().split("~#")) {
+										localisedContent.add(i);
+									}							
+								}
+								/**** generate report ****/
+								if(!isError) {			
+									if(questionType.equals(ApplicationConstants.DEVICE_QUESTIONS+"unstarred")) {
+										reportFile = generateReportUsingFOP(new Object[]{reportData,serialNumbers,localisedContent,questionType}, "qis_unstarred_departmentwise_yaadi_"+houseType.getType()+"_report", "WORD", "qis_unstarred_departmentwise_yaadi_report", locale.toString());
+									} else {
+										reportFile = generateReportUsingFOP(new Object[]{reportData,serialNumbers,localisedContent,questionType}, "qis_unstarred_departmentwise_yaadi_"+houseType.getType()+"_report", "WORD", "qis_unstarred_departmentwise_yaadi_report", locale.toString());
+									}									
+									if(reportFile!=null) {
+										System.out.println("Report generated successfully in WORD format!");
+										openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+									}
+								}
+							} else {
+								//error
+							}												
+						}						
+					}					
+				} catch(Exception e) {
+					e.printStackTrace();
+					isError = true;					
+					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.exception_occured", locale.toString());
+				}
+			}else{
+				isError = true;
+				logger.error("**** Check request parameters houseType, sessionType, sessionYear for empty values ****");
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.bulleteinReport.reqparam.empty", locale.toString());				
+			}
+		} else {			
+			isError = true;
+			logger.error("**** Check request parameters houseType, sessionType, sessionYear for null values ****");
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.bulleteinReport.reqparam.null", locale.toString());
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {						
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@RequestMapping(value="/departmentwisequestions", method=RequestMethod.GET)
 	public String getDepartmentwiseQuestionReport(HttpServletRequest request, Model model, Locale locale){
