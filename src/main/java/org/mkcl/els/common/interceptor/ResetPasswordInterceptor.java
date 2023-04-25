@@ -62,7 +62,7 @@ public class ResetPasswordInterceptor extends HandlerInterceptorAdapter {
     	Credential credential=Credential.getBaseRepository().findByFieldName(Credential.class, "username", currentUser, null);
     	
     	CustomParameter cp = CustomParameter.findByName(CustomParameter.class, "PASSWORD_EXPIRY_CONFIGURATION", "");
-    	if(cp.getValue().equals("YES") && cp.getValue() != null  && cp != null )
+    	if( cp != null && cp.getValue().equals("YES") )
     	{
     		LocalDateTime d1 = new LocalDateTime(credential.getPasswordChangeDateTime().getTime());
     		Integer days = Days.daysBetween(d1, new LocalDateTime()).getDays();
