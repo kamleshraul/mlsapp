@@ -40,10 +40,12 @@ import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
+import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionPlace;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.UserGroupType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -355,6 +357,16 @@ public class SessionController extends GenericController<Session> {
 		Device.isCurrentNumberForDevicesUpdateRequired(true);
         Device.updateCurrentNumberForDevices();
         
+        /**** Create Groups  After  successful session creation ****/
+        String groupCreationCheck = request.getParameter("groupCreation");
+       // String AUTOMATIC_GROUP_GENERATION_ALLOWED = ((CustomParameter) CustomParameter.findByName(CustomParameter.class, "AUTOMATIC_GROUP_GENERATION_ALLOWED", "")).getValue();
+		//if(AUTOMATIC_GROUP_GENERATION_ALLOWED.equals("YES")) {
+        
+        if(groupCreationCheck != null) {
+        if(groupCreationCheck.equals("on") ) {
+        createGroups(model, domain, request);
+        }}
+        // }
 	}
 
     /**
@@ -904,6 +916,64 @@ public class SessionController extends GenericController<Session> {
 		}
 		
 		return returnValue;
+	}
+	
+	/*
+	 * Created By Shubham A
+	 * 
+	 * This Method is call After Creating Session to Automatically Create Groups 
+	 * 
+	 * 
+	 */
+	protected void createGroups(ModelMap model, Session domain,
+			HttpServletRequest request) throws ELSException {
+		
+		
+		String groupNumberLimitParameter = ((CustomParameter) CustomParameter.findByName(CustomParameter.class, "DEFAULT_GROUP_NUMBER", "")).getValue();
+		CustomParameter cp = null;
+		Group newGroup = new Group();
+		List<Ministry> ministries = null;
+		List<SubDepartment> subD = null;
+		if(groupNumberLimitParameter != null) {
+			if(!groupNumberLimitParameter.isEmpty()) {
+				Session	prevS = Session.findPreviousSession(domain);
+				Integer groupNumberLimit=Integer.parseInt(groupNumberLimitParameter);
+				
+				for(int i=1;i<=groupNumberLimit;i++)
+				{
+					newGroup.setLocale(domain.getLocale());
+					newGroup.setHouseType(domain.getHouse().getType());
+					newGroup.setSession(domain);
+					newGroup.setYear(domain.getYear());
+					newGroup.setSessionType(domain.getType());
+					newGroup.setNumber((Integer)i);
+					
+					cp = CustomParameter.findByName(CustomParameter.class, "PREVIOUS_NUMBER_FOR_GROUP_"+i+"_"+domain.getHouse().getType().getType().toUpperCase(), "");
+
+					List<Group> PrevGroup = Group.findByHouseTypeSessionTypeYear(prevS.getHouse().getType(),prevS.getType(),prevS.getYear());
+					
+					for(int j= 0 ;j<PrevGroup.size();j++)
+					{
+						if(PrevGroup.get(j).getNumber().equals(Integer.parseInt(cp.getValue())))
+						{
+							ministries= Group.findMinistriesByName(PrevGroup.get(j).getId());
+							newGroup.setMinistries(ministries);
+							
+							subD = Group.findSubdepartmentsByName(PrevGroup.get(j).getId());
+							newGroup.setSubdepartments(subD);
+							
+							
+						}
+					}
+					
+					newGroup.merge();
+				}
+				
+				
+			}}
+		
+	
+		
 	}
 }
 
