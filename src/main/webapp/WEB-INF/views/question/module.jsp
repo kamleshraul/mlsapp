@@ -1668,7 +1668,7 @@
 		 + "&sessionYear=" + $("#selectedSessionYear").val()
 		 + "&sessionType=" + $("#selectedSessionType").val()	
 		 + "&questionType=questions_unstarred";
-		$('#questions_unstarred_departmentwise_yaadi_report').attr('href', 'question/report/questionUnstarredDepartmentSideYaadi?'+ parameters);
+		$('#questions_unstarred_departmentwise_yaadi_report').attr('href', 'question/report/questionUnstarredDepartmentwiseYaadi?'+ parameters);
 	}
 	
 	function ahwalHDSConditionReport(){

@@ -5051,7 +5051,7 @@ public class QuestionReportController extends BaseController{
 		}
 	}
 	
-	@RequestMapping(value="/questionUnstarredDepartmentSideYaadi" ,method=RequestMethod.GET)
+	@RequestMapping(value="/questionUnstarredDepartmentwiseYaadi" ,method=RequestMethod.GET)
 	public @ResponseBody void generateQuestionUnstarredDepartmentSideYaadit(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
 		
 		try{
