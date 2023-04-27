@@ -33,7 +33,29 @@
 			$('.council').hide();
 			$('.assembly').show();
 		}
-	});		
+	});	
+	$("#deviceTypesEnabled").multiSelect();		
+
+	$("#span_roles").attr('style', 'width: 300px !important; height: 140px !important;');
+	var multiSelectMaxHeight = $('.multiSelectSpan').css('max-height');	
+	
+	$('.expansionMultiSelect').click(function() {
+		var selectedId = this.id;
+		
+		if($(this).text()=='Expand') {
+			if(selectedId=='expandRole') {
+				$("#span_roles").attr('style', 'width: 300px !important; max-height: initial !important;');
+			}				
+			$(this).text('Collapse');
+		} else {
+			if(selectedId=='expandRole') {
+				$("#span_roles").attr('style', 'width: 300px !important; height: 140px !important; max-height: ' + multiSelectMaxHeight + ' !important;');
+			}				
+			$(this).text('Expand');
+		}
+	});
+	
+	
 	});
 	function populateHouse(houseType) {
 		$.get('ref/' + houseType + '/houses', function(data) {
@@ -203,6 +225,8 @@
 						<option value="${i.type}" ><c:out value="${i.name}"></c:out></option>
 					</c:forEach>											
 				</select>
+				<a id="expandRole" class="expansionMultiSelect" href="javascript:void(0);" style="float: right;">Expand</a>		
+			
 				<form:errors path="deviceTypesEnabled" cssClass="validationError" />
 
 		</p>	
@@ -227,7 +251,14 @@
 				<form:textarea cssClass="sTextarea" path="remarks" />
 				<form:errors path="remarks" cssClass="validationError" />
 
-		</p>			
+		</p>
+		
+		<p>
+				<label class="small"><spring:message code="session.groupCreation"
+						text="groupCreation" /></label>
+				
+				<input type="checkbox" name="groupCreation" />
+		</p>				
 		
 			<div class="fields">
 				<h2></h2>
