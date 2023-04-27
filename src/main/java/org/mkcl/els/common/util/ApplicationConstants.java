@@ -2788,6 +2788,8 @@ public class ApplicationConstants {
 	
 	public static final String PROPRIETYPOINT_PROCESSED_REPLY_RECEIVED = "proprietypoint_processed_replyReceived";
 	
+	public static final String PROPRIETYPOINT_PROCESSED_SENDTODEPARTMENT = "proprietypoint_processed_sendToDepartment";
+	
 	public static final String PROPRIETYPOINT_PROCESSED_SENDTODESKOFFICER = "proprietypoint_processed_sendToDeskOfficer";
 	
 	public static final String PROPRIETYPOINT_PROCESSED_SENDTOSECTIONOFFICER = "proprietypoint_processed_sendToSectionOfficer";

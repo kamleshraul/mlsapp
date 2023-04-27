@@ -111,7 +111,7 @@ public class ProprietyPointRepository extends BaseRepository<ProprietyPoint, Ser
 				" ORDER BY m.admissionNumber DESC";
 		TypedQuery<ProprietyPoint> query = this.em().createQuery(strQuery, ProprietyPoint.class);
 		query.setParameter("sessionId", session.getId());
-		query.setParameter("admissionStatusType", ApplicationConstants.ADJOURNMENTMOTION_FINAL_ADMISSION);
+		query.setParameter("admissionStatusType", ApplicationConstants.PROPRIETYPOINT_FINAL_ADMISSION);
 		query.setParameter("locale", locale);
 		query.setMaxResults(1);
 		List<ProprietyPoint> proprietyPoints = query.getResultList();

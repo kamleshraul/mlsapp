@@ -546,6 +546,43 @@
 			<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus}">
 			<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
 					
+			<c:choose>
+				<c:when test="${internalStatusType == 'proprietypoint_final_admission'}">
+					<p>
+					<label class="small"><spring:message code="specialmentionnotice.lastDateOfReplyReceiving" text="Last date of receiving reply"/></label>
+					<%-- <form:input path="lastDateOfReplyReceiving" cssClass="datemask sText" value='${formattedLastReplyReceivingDate}'/> --%>
+					<input id="lastDateOfReplyReceiving" name="setLastDateOfReplyReceiving" class="datemask sText" value="${formattedLastReplyReceivingDate}"/>
+					<form:errors path="lastDateOfReplyReceiving" cssClass="validationError"/>
+					</p>
+				</c:when>
+				<c:otherwise>
+					<input type="hidden" id="lastDateOfReplyReceiving" name="setLastDateOfReplyReceiving" class="datemask sText" value="${formattedLastReplyReceivingDate}"/>
+				</c:otherwise>
+			</c:choose>
+			
+			<c:choose>
+				<c:when test="${internalStatusType == 'proprietypoint_final_admission'}">
+					<p>
+						<label class="small"><spring:message code="specialmentionnotice.replyRequestedDate" text="Reply Requested Date"/></label>
+						<input id="replyRequestedDate" name="setReplyRequestedDate" class="datetimemask sText" value="${formattedReplyRequestedDate}"/>
+					</p>
+					<c:if test="${not empty formattedReplyReceivedDate}">
+					<p>
+						<label class="small"><spring:message code="specialmentionnotice.replyReceivedDate" text="Reply Received Date"/></label>
+						<input id="replyReceivedDate" name="setReplyReceivedDate" class="datetimemask sText" value="${formattedReplyReceivedDate}" readonly="readonly"/>
+					</p>
+					</c:if>
+				</c:when>
+				<c:otherwise>
+					<c:if test="${not empty formattedReplyRequestedDate}">
+						<input type="hidden" id="replyRequestedDate" name="setReplyRequestedDate" class="datetimemask sText" value="${formattedReplyRequestedDate}"/>
+					</c:if>
+					<c:if test="${not empty formattedReplyReceivedDate}">
+						<input type="hidden" id="replyReceivedDate" name="setReplyReceivedDate" class="datetimemask sText" value="${formattedReplyReceivedDate}"/>
+					</c:if>
+				</c:otherwise>
+			</c:choose>			
+					
 			<p>
 				<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="proprietypoint.viewcitation" text="View Citations"></spring:message></a>	
 			</p>
@@ -575,6 +612,14 @@
 			</p>
 			</c:if>
 			</div>
+				
+			<c:if test="${not empty domain.reasonForLateReply}">
+			<p>
+				<label class="wysiwyglabel"><spring:message code="specialmentionnotice.reasonForLateReply" text="Reason for Late Reply"/></label>
+				<form:textarea path="reasonForLateReply" cssClass="wysiwyg" readonly="true"></form:textarea>
+				<form:errors path="reasonForLateReply" cssClass="validationError"></form:errors>
+			</p>
+			</c:if>
 				
 			<c:if test="${workflowstatus!='COMPLETED' }">
 			<div class="fields">
