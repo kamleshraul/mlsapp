@@ -299,8 +299,7 @@
  		});
 		/**** Citations ****/
 	   $("#viewCitation").click(function(){
-		   console.log("Hello World");
-			$.get("proprietypoint/citations/"+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){
+		   	$.get("proprietypoint/citations/"+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
 		    },'html');
 		    return false;

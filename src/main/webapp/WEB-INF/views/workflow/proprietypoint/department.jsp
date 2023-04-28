@@ -340,12 +340,12 @@
 			$("#subdepartmentValue").text($("#subDepartment option:selected").text() +"  "+ $("#subdepartmentValue").text());
  		});
 		/**** Citations ****/
-	/* 	$("#viewCitation").click(function(){
-			$.get('proprietypoint/citations/'+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){
+		$("#viewCitation").click(function(){
+		   	$.get("proprietypoint/citations/"+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
 		    },'html');
 		    return false;
-		});	 */
+		});  
 		/**** Revise subject and text****/
 		$("#reviseSubject").click(function(){
 			$(".revise1").toggle();
@@ -712,7 +712,7 @@
 			<p style="display:none;">
 				<label class="small"><spring:message code="proprietypoint.type" text="Type"/>*</label>
 				<input id="formattedDeviceType" name="formattedDeviceType" value="${formattedDeviceType}" class="sText" readonly="readonly">
-				<%-- <input id="type" name="type" value="${deviceType}" type="hidden"> --%>
+				 <input id="type" name="type" value="${deviceType}" type="hidden"> 
 				<%-- <form:errors path="type" cssClass="validationError"/>	 --%>	
 			</p>
 			
