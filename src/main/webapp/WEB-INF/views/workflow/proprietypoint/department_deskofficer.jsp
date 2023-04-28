@@ -13,7 +13,7 @@
 		var parameters="houseType="+$("#selectedHouseType").val()
 		+"&sessionYear="+$("#selectedSessionYear").val()
 		+"&sessionType="+$("#selectedSessionType").val()
-		+"&motionType="+$("#selectedMotionType").val()
+		+"&deviceType="+$("#selectedDeviceType").val()
 		+"&ugparam="+$("#ugparam").val()
 		+"&status="+$("#selectedStatus").val()
 		+"&role="+$("#srole").val()
@@ -64,7 +64,7 @@
 		var params="id="+id
 		+"&usergroup="+$("#currentusergroup").val()
         +"&usergroupType="+$("#currentusergroupType").val()
-        +"&deviceType="+$("#motionType").val()
+       +"&deviceType="+$("#selectedDeviceType").val()
         +"&houseType="+$("#houseType").val();
 		$.get('refentity/init?'+params,function(data){
 			$.unblockUI();			
@@ -90,7 +90,7 @@
 		var parameters="houseType="+$("#selectedHouseType").val()
 		+"&sessionYear="+$("#selectedSessionYear").val()
 		+"&sessionType="+$("#selectedSessionType").val()
-		+"&motionType="+$("#selectedMotionType").val()
+		+"&deviceType="+$("#selectedDeviceType").val()
 		+"&ugparam="+$("#ugparam").val()
 		+"&status="+$("#selectedStatus").val()
 		+"&role="+$("#srole").val()
@@ -891,7 +891,7 @@
 			<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 			<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
 			<input type="hidden" name="houseTypeType" id="houseTypeType" value="${houseTypeType}">
-			<input id="motionType" name= "motionType" type="hidden" value="${motionType}" />
+			<%-- <input id="motionType" name= "motionType" type="hidden" value="${motionType}" /> --%>
 			<input id="deviceType" name= "deviceType" type="hidden" value="${deviceType}" />
 			<input id="oldInternalStatus" value="${internalStatus}" type="hidden">
 			<input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
@@ -911,7 +911,8 @@
 		<input id="ministrySelected" value="${ministrySelected }" type="hidden">
 		<input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 		<input id="originalLevel" value="${ domain.level}" type="hidden">		
-		<input id="motionTypeType" value="${selectedMotionType}" type="hidden"/>
+		<%-- <input id="motionTypeType" value="${selectedMotionType}" type="hidden"/> --%>
+		<input id="deviceTypeType" value="${selectedDeviceType}" type="hidden"/>
 		<input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 		<input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 		<input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
