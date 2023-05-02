@@ -40,7 +40,6 @@ $(document).ready(function(){
 				$('#errorDiv').hide();
 				$('#successDiv').hide();
 				$('#ResultDiv').empty();
-				console.log(data)
 				$('#ResultDiv').html(data);					
 			} else {
 				$('#errorDiv').show();
