@@ -106,6 +106,49 @@
 			}
 		});
 		
+		$('#session_devicetype_config_tab').click(function(){
+		
+			if(row == null || row == ''){
+				$.prompt($('#selectRowFirstMessage').val());		
+				return;
+			}
+			else{
+				showTabByIdAndUrl('session_devicetype_config_tab','session/'+row +'/devicetypeconfig');
+			}
+		});
+		
+		$('#question_discussed').click(function(){
+			
+			
+			
+			showTabByIdAndUrl('question_discussed','session/getsessiondates/'+$("#key").val());
+			
+			
+		});
+		
+		
+		//Set Question Discussed Window 
+		function setQuestionDiscussedWindow() {
+			
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
+			var parameters="SessionId="+$("#key").val();
+			
+			var resourceURL='session/getsessiondates?'+parameters;
+			$.get(resourceURL,function(data){
+				$.unblockUI();
+				$.fancybox.open(data,{autoSize:false,width:360,height:270});
+			},'html').fail(function(){
+				$.unblockUI();
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
+					
+		}
+		
 			
 	</script>
 </head>
@@ -128,6 +171,12 @@
 				   <spring:message code="session.module.sessiondevicetypeconfig" text="Session Config"></spring:message>
 				</a>
 			</li>
+			<li>
+				<a id="question_discussed" href="#" class="tab">
+				   <spring:message code="session.module.question_discussed" text="Question discussed"></spring:message>
+				</a>
+			</li>
+			
 		</ul>
 		<div class="tabContent clearfix">
 			<c:if test="${(error!='') && (error!=null)}">
