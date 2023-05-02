@@ -35,6 +35,10 @@ public class SessionDates extends BaseDomain implements Serializable {
     @Temporal(TemporalType.TIME)
     private Date endTime;
     
+    /** Question Hour Included On that Day */
+    private boolean isQuestionHourIncluded ;
+    
+    
     
     //============= Constructors =============//    
     public SessionDates() {
@@ -68,12 +72,20 @@ public class SessionDates extends BaseDomain implements Serializable {
 		return endTime;
 	}
 
+	
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
 	}
 
-	
-	   /** The session repository. */
+	public boolean getIsQuestionHourIncluded() {
+		return isQuestionHourIncluded;
+	}
+
+	public void setQuestionHourIncluded(boolean isQuestionHourIncluded) {
+		this.isQuestionHourIncluded = isQuestionHourIncluded;
+	}
+
+	/** The session repository. */
     @Autowired
     private transient SessionRepository sessionRepository;
 
