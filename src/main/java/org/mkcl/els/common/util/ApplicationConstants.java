@@ -3190,6 +3190,12 @@ public class ApplicationConstants {
 	public static final String ALLOWED_DEVICETYPES_FOR_VIEWING_PAST_PENDING_TASKS_COUNTS = "ALLOWED_DEVICETYPES_FOR_VIEWING_PAST_PENDING_TASKS_COUNTS";
 	
 	public static final String STARTING_DATE_FOR_FULLY_ONLINE_DEPARTMENT_PROCESSING_OF_DEVICES = "2016-05-01";
+	
+	public static final String SPECIAL_SESSION = "special";
+	
+	public static final String SPECIAL_SESSION_1 = "special1";
+	
+	public static final String SPECIAL_SESSION_2 = "special2";
 
 	
 	public void setEnvironmentInstance(Environment environment) {
