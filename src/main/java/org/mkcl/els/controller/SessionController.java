@@ -9,6 +9,7 @@
  */
 package org.mkcl.els.controller;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -24,11 +26,13 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.xalan.xsltc.compiler.sym;
 import org.hibernate.mapping.Array;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.BallotEvent;
 import org.mkcl.els.domain.BallotType;
 import org.mkcl.els.domain.BillKind;
@@ -43,6 +47,7 @@ import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.SessionDates;
 import org.mkcl.els.domain.SessionPlace;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.SubDepartment;
@@ -54,6 +59,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -938,7 +944,8 @@ public class SessionController extends GenericController<Session> {
 			if(!groupNumberLimitParameter.isEmpty()) {
 				Session	prevS = Session.findPreviousSession(domain);
 				Integer groupNumberLimit=Integer.parseInt(groupNumberLimitParameter);
-				
+				if(!prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION) && !prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION_1) && !prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION_2) ) 
+				{
 				for(int i=1;i<=groupNumberLimit;i++)
 				{
 					newGroup.setLocale(domain.getLocale());
@@ -966,14 +973,113 @@ public class SessionController extends GenericController<Session> {
 						}
 					}
 					
-					newGroup.merge();
+					newGroup.persist();
+				}
+				
+				}
+			}}
+		
+	}
+	
+	
+	@RequestMapping(value = "/getsessiondates/{id}", method = RequestMethod.GET)
+	public String getSessionDates(@PathVariable("id") final Long id,final ModelMap model, final HttpServletRequest request, final Locale locale) {
+		
+		this.SessDatesById(id, model, request, locale);
+		return "session/QuestionhourDiscussion";
+	}
+	
+	
+	public void  SessDatesById(final Long id,final ModelMap model, final HttpServletRequest request, final Locale locale)
+	{
+
+		Session s= null;
+		if (id != null ) {
+			try {
+
+				s = Session.findById(Session.class, id);
+				
+				if(s!=null && s.getId()!=null) {
+//					List<Date> sessionDates = s.findAllSessionDatesHavingNoHoliday();
+//					model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "CALLINGATTENTIONMOTION_CALLINGATTENTIONDATEFORMAT", locale.toString()));
+					model.addAttribute("SessionDates",s.getSessionDates());
+					model.addAttribute("SessionId", s.getId());
+				} else {
+					model.addAttribute("errorcode", "nosessionentriesfound");
 				}
 				
 				
-			}}
+			} catch (Exception e) {
+				e.printStackTrace();
+				model.addAttribute("error", "SOME_ERROR");
+			}
+		}
+	}
+	
+	
+	@RequestMapping(value="/updateQuestionHourDiscussed" , method=RequestMethod.POST)
+	public String updateQuestionHourDiscussed(final ModelMap model,final HttpServletRequest request, final Locale locale)
+	{
 		
+		boolean updated = false;
+		String page = "session/error";
+		StringBuffer success = new StringBuffer();
+		
+		
+		String selectedItemsLength = (String)request.getParameter("itemsLength");
+		int number  = Integer.parseInt(selectedItemsLength);
+		String SessionId = request.getParameter("sessionId");
+		
+		if(SessionId !=null && !SessionId.isEmpty())
+		{
+		Session S = Session.findById(Session.class, Long.parseLong(SessionId));
+		
+		
+		List<HashMap<String,String>>  qhdContent= new ArrayList<HashMap<String,String>>();
+		
+		for (int i=0;i<number;i++)
+		{
+			HashMap<String,String> ymap = new HashMap<String,String>();
+			String  SDate = request.getParameter("items["+i+"][Date]");
+			ymap.put("SDate", SDate);
+			String bValue  = request.getParameter("items["+i+"][Status]");
+			ymap.put("bValue", bValue);
+			
+			qhdContent.add(ymap);
+		}
 	
 		
+		
+		 List<SessionDates> sessionD = S.getSessionDates(); 
+		  for (SessionDates sd :sessionD) {
+				for(HashMap<String,String>  i : qhdContent)
+				{
+				  if(i.get("SDate").equals(sd.getSessionDate().toString()))
+				  {
+					  sd.setQuestionHourIncluded( Boolean.parseBoolean( i.get("bValue")));
+					  success.append(FormaterUtil.formatDateToString(sd.getSessionDate(),  ApplicationConstants.DB_DATEFORMAT)+",");
+				  }
+				}
+		  }
+		 
+		 S.setSessionDates(sessionD);
+		 S.merge();
+		 
+		 updated = true;
+		}
+		
+		
+		if(updated){
+			this.SessDatesById( Long.parseLong(SessionId)   ,model, request, locale);
+			success.append(" updated successfully...");
+			model.addAttribute("success", success.toString());
+			page = "session/QuestionhourDiscussion";
+		}else{
+			model.addAttribute("failure", "update failed.");
+		}
+		
+		return page;
+	
 	}
 }
 
