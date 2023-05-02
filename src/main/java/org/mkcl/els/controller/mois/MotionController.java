@@ -4772,10 +4772,11 @@ public class MotionController extends GenericController<Motion>{
 			
 			if(motionContent != null )
 			{
+				Motion motion = null;
 				for(HashMap<String,String>  i : motionContent)
 				{
 					Long id = Long.parseLong(i.get("motionId"));
-					Motion motion =Motion.findById(Motion.class, id);
+					 motion =Motion.findById(Motion.class, id);
 				
 					
 					motion.setRevisedSubject(HtmlUtils.htmlUnescape(i.get("revisedSubject")));
