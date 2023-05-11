@@ -9,7 +9,14 @@
 	function loadSubDepartments(){
 		var locale=$("#locale").val();		
 		//var departments=$("#param_DEPARTMENT_"+locale).val();
-		var ministries=$("#param_MINISTRY_"+locale).val();
+		var ministries=[];
+				
+		for(var m=0; m< $(".checkbox_param_MINISTRY_"+locale).length;m++){
+			if($(".checkbox_param_MINISTRY_"+locale).eq(m).is(':checked')){
+				 ministries.push($(".checkbox_param_MINISTRY_"+locale).eq(m).val());
+			}
+		}		
+
 		if(ministries!=''){
 			$.post('ref/subdepartments/byministriesname',{'ministries':ministries},function(data){
 				var text="";
@@ -29,17 +36,195 @@
 					}
 					$("#param_SUBDEPARTMENT_"+locale).empty();
 					$("#param_SUBDEPARTMENT_"+locale).html(text);
+					$("#param_SUBDEPARTMENT_"+locale).multiSelect();
 					$.unblockUI();				
 				}else{
+					$("#param_SUBDEPARTMENT_"+locale).empty();
+					$("#span_param_SUBDEPARTMENT_"+locale).empty();
 					$.unblockUI();				
 				}
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
 			});	
 		}else{
 			$("#param_SUBDEPARTMENT_"+locale).empty();
+			$("#span_param_SUBDEPARTMENT_"+locale).empty();
 			$.unblockUI();			
 		}
 	}
+	
+	function loadGroups(){
+		var locale=$("#locale").val();		
+		var devices=$("#param_DEVICETYPE_"+locale).val();
+		if(devices != null){
+			$.post('ref/devices/groups',{'devices':devices,'houseType':$("#houseTypeTypes").val()},function(data){
+				var text="";
+				if(data.length>0){
+					for(var i=0;i<data.length;i++){
+						var flag = false;
+						$("#param_GROUPSALLOWED_"+locale+" option").each(function(){
+							if($(this).attr("selected")=="selected" && $(this).val()==data[i].name){
+								flag=true;
+							}
+						 });
+						if(flag){
+							text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].number+"</option>";
+						}else{
+							text+="<option value='"+data[i].id+"'>"+data[i].number+"</option>";
+						}
+					}
+					$("#param_GROUPSALLOWED_"+locale).empty();
+					$("#param_GROUPSALLOWED_"+locale).html(text);
+					$("#param_GROUPSALLOWED_"+locale).multiSelect();
+					$.unblockUI();				
+				}else{
+					$("#param_GROUPSALLOWED_"+locale).empty();
+					$("#span_param_GROUPSALLOWED_"+locale).empty();
+					$.unblockUI();				
+				}
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});	
+		}
+		else{
+			$("#param_GROUPSALLOWED_"+locale).empty();
+			$("#span_param_GROUPSALLOWED_"+locale).empty();
+			$.unblockUI();			
+		}
+	}
+	
+	function loadandSelectSubDepartments(ministriesText){
+		var locale=$("#locale").val();
+		if(ministriesText!=''){
+			$.post('ref/subdepartments/byministriesname',{'ministries':ministriesText},function(data){
+				var text="";
+				if(data.length>0){
+					for(var i=0;i<data.length;i++){
+						text+="<option value='"+data[i].name+"' selected='selected'>"+data[i].name+"</option>";
+					}
+				    $("#param_SUBDEPARTMENT_"+locale).empty();
+					$("#param_SUBDEPARTMENT_"+locale).html(text);
+					$("#param_SUBDEPARTMENT_"+locale).multiSelect();
+					$.unblockUI();				
+				}
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});	
+		}
+	}
+	
+	function unloadandunSelectSubDepartments(ministriesText){
+		var locale=$("#locale").val();
+		if(ministriesText!=''){
+			$.post('ref/subdepartments/byministriesname',{'ministries':ministriesText},function(data){
+				var text="";
+				if(data.length>0){
+					for(var i=0;i<data.length;i++){
+					   for(var j=0;j<$(".checkbox_param_SUBDEPARTMENT_"+locale).length;j++)
+						  if(data[i].name == $(".checkbox_param_SUBDEPARTMENT_"+locale).eq(j).val()){
+							  	$("#param_SUBDEPARTMENT_"+locale).empty();
+								$("#param_SUBDEPARTMENT_"+locale).html(text);
+								$("#param_SUBDEPARTMENT_"+locale).multiSelect();
+								$.unblockUI();				
+					  }		
+					}			    
+				}
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});	
+		}
+	}
+	
 
+	function selectMinistriesAndSubDepartments(groupsChecked){
+		var locale=$("#locale").val();
+		if(groupsChecked != null){
+			var ministriesText=[];
+			$.get('ref/group/ministriesname',{'groupLists':groupsChecked},function(data){
+				if(data.length>0){
+					var text="";
+					/* var text1=""; */
+					for(var i=0;i<data.length;i++){
+						ministriesText.push(data[i].name);
+					}
+				    $.each(ministriesText, function(i,e){
+						for(var j=0; j< $(".checkbox_param_MINISTRY_"+locale).length;j++){
+							if($(".checkbox_param_MINISTRY_"+locale).eq(j).val() == e){
+								 $(".checkbox_param_MINISTRY_"+locale).eq(j).prop("checked", true);
+								 text+="<option value='"+e+"' selected='selected'>"+e+"</option>";
+							}
+							text+="<option value='"+e+"'>"+e+"</option>";
+						}	
+						
+					});
+					 $("#param_MINISTRY_"+locale).html(text);
+					 /* $("#param_MINISTRY_"+locale).append(text1); */
+				     loadandSelectSubDepartments(ministriesText);
+				}
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+			});	
+		
+		}
+	}
+	
+	function unselectMinistriesAndSubDepartments(groupsUnChecked){
+		var locale=$("#locale").val();
+		if(groupsUnChecked != null){
+			var ministriesText=[];
+    		$.get('ref/group/ministriesname',{'groupLists':groupsUnChecked},function(data){
+				if(data.length>0){
+   					for(var i=0;i<data.length;i++){
+						ministriesText.push(data[i].name);
+					}
+					$.each(ministriesText, function(i,e){
+						for(var j=0; j< $(".checkbox_param_MINISTRY_"+locale).length;j++){
+							if($(".checkbox_param_MINISTRY_"+locale).eq(j).val() == e){
+								 $(".checkbox_param_MINISTRY_"+locale).eq(j).prop("checked", false);
+							}
+						}					    
+					});	
+					
+					if(($('input.checkbox_param_MINISTRY_mr_IN').length - $('input.checkbox_param_MINISTRY_mr_IN:checked').length) == $('input.checkbox_param_MINISTRY_mr_IN').length){
+						$("#param_MINISTRY_"+locale).html("");
+					}
+					
+					unloadandunSelectSubDepartments(ministriesText);
+				}
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+			});	
+		}
+	}
+	
 	/* function loadDepartments(){
 		var locale=$("#locale").val();		
 		var ministries=$("#param_MINISTRY_"+locale).val();
@@ -102,11 +287,42 @@
 	$('document').ready(function(){	
 		initControls();
 		$('#key').val('');
+		var locale = $("#locale").val();
+		var idMinistry="param_MINISTRY_" + locale;
+		var idSubdepartment="param_SUBDEPARTMENT_"+ locale;
+		var idDeviceTypes="param_DEVICETYPE_"+locale;
+		var idCommitteeName="param_COMMITTEENAME_"+locale;
+		
+		$("#" + idMinistry).multiSelect();
+		$("#" + idSubdepartment).multiSelect();
+		$("#" + idDeviceTypes).multiSelect();
+		$("#" + idCommitteeName).multiSelect();
+		
 		$("select[multiple='multiple']").css("width","300px");	
-		var locale=$("#locale").val();		
+	//	var locale=$("#locale").val();		
 		$("#param_MINISTRY_"+locale).change(function(event){
-		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
-		loadSubDepartments();
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 
+			/* if($('input.checkbox_param_GROUP_mr_IN:checked').length > 0 && $('input.checkbox_param_MINISTRY_mr_IN:checked').length > 0){
+				var arr = $("#param_MINISTRY_"+locale).val();
+				var arr1 = [];
+				var text = "";
+				for(var i=0; i<$('input.checkbox_param_MINISTRY_mr_IN:checked').length; i++){
+					arr1.push($('input.checkbox_param_MINISTRY_mr_IN:checked').eq(i).val());
+				}
+				var difference = [];
+			    for( var i = 0; i < arr1.length; i++ ) {
+			        if( $.inArray( arr1[i], arr ) == -1 ) {
+			                    difference.push(arr1[i]);
+			        }
+			    }
+			    
+			    for(var j=0; j<difference.length;j++){
+			       text+="<option value='"+difference[j]+"' selected='selected'>"+difference[j]+"</option>";
+			    }
+			    
+			    $("#param_MINISTRY_"+locale).append(text);
+			} */
+			loadSubDepartments();	
 		});		
 
 		/* $("#param_DEPARTMENT_"+locale).change(function(){
@@ -117,6 +333,27 @@
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			loadCommitteeNames();
 		});	
+		$('#param_DEVICETYPE_' + locale).change(function(){
+			/* $.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); */
+			loadGroups();
+		});
+		$('#param_GROUPSALLOWED_' + locale).change(function(){
+			/* $.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); */
+		    var groupsChecked = [];
+		    var groupsUnChecked = [];
+			for(var k=0;k<$(".checkbox_param_GROUPSALLOWED_"+locale).length;k++){
+				if($(".checkbox_param_GROUPSALLOWED_"+locale).eq(k).is(':checked')){
+					groupsChecked.push($(".checkbox_param_GROUPSALLOWED_"+locale).eq(k).val());
+				}else{
+					groupsUnChecked.push($(".checkbox_param_GROUPSALLOWED_"+locale).eq(k).val());
+				}
+			}
+			
+			selectMinistriesAndSubDepartments(groupsChecked);
+			unselectMinistriesAndSubDepartments(groupsUnChecked);
+			
+		});
+		
 	});		
 </script>
 </head>
@@ -205,6 +442,21 @@
 		<form:input cssClass="datemask sText" path="activeTo"/>
 		<form:errors path="activeTo" cssClass="validationError"/>	
 	</p>
+	<p>	
+		<label class="small"><spring:message code="usergroup.groups" text="Groups" /></label>
+		<select  id="param_GROUPSALLOWED_${locale}" name="param_GROUPSALLOWED_${locale}" multiple="multiple" size="5">
+			<%-- <c:forEach items="${subdepartments}" var="i">				
+			<c:choose>
+			<c:when test="${fn:contains(selectedSubDepartment,i.name) }">
+			<option value="${i.name}" selected="selected">${i.name}</option>
+			</c:when>
+			<c:otherwise>
+			<option value="${i.name}">${i.name}</option>			
+			</c:otherwise>
+			</c:choose>							
+			</c:forEach> --%>
+		</select>
+	</p>
 	<p>
 		<label class="small"><spring:message code="usergroup.ministry" text="Ministry" /></label>			
 		<select  id="param_MINISTRY_${locale}" name="param_MINISTRY_${locale}" multiple="multiple" size="5">
@@ -254,10 +506,7 @@
 		</select>
 		
 	</p>
-	<p>	
-	<label class="small"><spring:message code="usergroup.groupsAllowed" text="Groups Allowed" /></label>
-	<input type="text" id="param_GROUPSALLOWED_${locale}" name="param_GROUPSALLOWED_${locale}" value="${groupsAllowed}"/>
-	</p>
+	
 	
 	<p>	
 		<label class="small"><spring:message code="usergroup.state" text="Current State of Actor" /></label>

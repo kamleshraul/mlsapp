@@ -5,6 +5,33 @@
 </title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
+	
+var btsearch = {
+		init: function(search_field) {
+			$(search_field).keyup(function(e){
+				e.preventDefault();
+				var query = $(this).val().toLowerCase();
+				if(query){
+					var roles = [];
+					for(var i=0;i<$('.searchableRole').length;i++){
+						roles.push($('.searchableRole').eq(i).text().toLowerCase());
+					}
+					
+					for(var j=0;j<roles.length;j++){
+						if(roles[j].indexOf(query) == -1){
+							$('.searchableRole').eq(j).hide();
+						} else {
+							$('.searchableRole').eq(j).show();
+						}
+					}
+					
+				} else {
+					$('.searchableRole').show();
+				}
+			});
+		}
+	}
+	
 	$(document).ready(function(){	
 		initControls();
 		$('#key').val('');	
@@ -17,6 +44,7 @@
 			};
 		});
 
+		btsearch.init('#searchRole');
 		
 		$("#username").change(function(){
 			var reportURL = "question/report/generalreport?username="+$("#username").val()+ "&houseType="+$("#selectedHouseType").val() +"&report=USER_AVAILABLE&reportout=useravailable&locale="+$('#authlocale').val();
@@ -118,11 +146,16 @@
 			</p>	
 			
 			<p>
+				<label class="small"></label>
+				<input type="text" id="searchRole" class="searchRole" placeholder="<spring:message code='generic.search' text='Search'/>" />
+			</p>
+			
+			<p>
 			<label class="small"><spring:message
 								code="user.role" text="Roles" /></label>
 								<select id="roles" name="roles" multiple="multiple" size="5" style="width:188px;">
 								<c:forEach items="${roles}" var="i">
-								<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+								<option class="searchableRole" value="${i.id}"><c:out value="${i.name}"></c:out></option>
 								</c:forEach>
 								</select>
 								

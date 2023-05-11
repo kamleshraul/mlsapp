@@ -162,10 +162,14 @@
 		var idMinistry="param_MINISTRY_" + locale;
 		//var idDepartment="param_DEPARTMENT_"+ locale;
 		var idSubdepartment="param_SUBDEPARTMENT_"+ locale;
+		var idDeviceTypes="param_DEVICETYPE_"+locale;
+		var idCommitteeName="param_COMMITTEENAME_"+locale;
 		
 		$("#" + idMinistry).multiSelect();
 		//$("#" + idDepartment).multiSelect();
 		$("#" + idSubdepartment).multiSelect();
+		$("#" + idDeviceTypes).multiSelect();
+		$("#" + idCommitteeName).multiSelect();
 		
 		var multiSelectMaxHeight = $('.multiSelectSpan').css('max-height');
 				
@@ -178,6 +182,10 @@
 					$("#span_param_MINISTRY_"+$('#authlocale').val()).attr('style', 'max-height: initial !important;');
 				} else if(selectedId=='expandSubDepartment') {
 					$("#span_param_SUBDEPARTMENT_"+$('#authlocale').val()).attr('style', 'max-height: initial !important;');
+				}  else if(selectedId=='expandDevicetype') {
+					$("#span_param_DEVICETYPE_"+$('#authlocale').val()).attr('style', 'max-height: initial !important;');
+				}  else if(selectedId=='expandCommittee') {
+					$("#span_param_COMMITTEENAME_"+$('#authlocale').val()).attr('style', 'max-height: initial !important;');
 				}				
 				$(this).text('Collapse');
 			} else {
@@ -185,8 +193,11 @@
 					$("#span_param_MINISTRY_"+$('#authlocale').val()).attr('style', 'max-height: ' + multiSelectMaxHeight + ' !important;');
 				} else if(selectedId=='expandSubDepartment') {
 					$("#span_param_SUBDEPARTMENT_"+$('#authlocale').val()).attr('style', 'max-height: ' + multiSelectMaxHeight + ' !important;');
-				}
-				
+				} else if(selectedId=='expandDevicetype') {
+					$("#span_param_DEVICETYPE_"+$('#authlocale').val()).attr('style', 'max-height: ' + multiSelectMaxHeight + ' !important;');
+				} else if(selectedId=='expandCommittee') {
+					$("#span_param_COMMITTEENAME_"+$('#authlocale').val()).attr('style', 'max-height: ' + multiSelectMaxHeight + ' !important;');
+				}							
 				$(this).text('Expand');
 			}
 		});
@@ -266,6 +277,7 @@
 				<option value="${i.name}">${i.name}</option>
 			</c:forEach>
 		</select>
+		<a id="expandDevicetype" class="expansionMultiSelect" href="javascript:void(0);" style="float: right;">Expand</a>
 	</p>	
 	
 	<p>
@@ -282,6 +294,7 @@
 				</c:choose>
 			</c:forEach>
 		</select>
+		<a id="expandCommittee" class="expansionMultiSelect" href="javascript:void(0);" style="float: right;">Expand</a>
 	</p>
 	
 	<p> 

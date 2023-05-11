@@ -9,6 +9,7 @@
  */
 package org.mkcl.els.repository;
 
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -111,6 +113,34 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 		}
 		
 		return group;		 		
+	}
+	
+	public List<Group> findGroupsBySessionId(final String sessionId) throws ELSException{
+		
+		String strQuery = "SELECT g FROM Group g" +
+				" WHERE g.session.id=:sessionId ORDER BY g.id asc";
+		
+		List<Group> groups = new ArrayList<Group>();
+		
+		try{
+			TypedQuery<Group> jpQuery = this.em().createQuery(strQuery, Group.class);
+			jpQuery.setParameter("sessionId", Long.parseLong(sessionId));
+			List<Group> gX = jpQuery.getResultList();
+			if(gX != null){
+				groups = gX;
+			}
+		}catch(NoResultException nre) {
+			return null;
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("GroupRepository_List<Group>_findByHouseTypeSessionTypeYear", "Group is unavailable.");
+			throw elsException;
+		}
+		
+		return groups;	
+		
 	}
 	
 	/**
@@ -439,6 +469,65 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 		
 		return ministries;
 	}
+	
+	public List<Ministry> findMinistriesByNameGroupList(final String[] groupids) throws ELSException {
+		String initialQuery="SELECT m FROM Group g" +
+				" JOIN g.ministries m" +
+				" WHERE ";	
+				
+		List<Ministry> ministries = new ArrayList<Ministry>();
+		try{
+			
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(" g.id IN(");
+			for(String j : groupids){
+				buffer.append("'" + j + "',");
+			}
+			buffer.deleteCharAt(buffer.length()-1);
+			String finalQuery = initialQuery + buffer.toString() + ") ORDER BY m.name "+ ApplicationConstants.ASC;
+			
+			ministries = this.em().createQuery(finalQuery).getResultList();
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("GroupRepository_List<Ministry>findMinistriesByNameGroupList", "No ministry found.");
+			throw elsException;
+		}
+		
+		return ministries;
+	}
+	
+	public List<String> findGroupNumberByGroupId(final String[] groupids) throws ELSException {
+		String initialQuery="SELECT cast(g.number as string) FROM Group g" +
+				" WHERE ";	
+				
+		List<String> groupNumbers;
+			
+		try{
+			
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(" g.id IN(");
+			for(String j : groupids){
+				buffer.append("'" + j + "',");
+			}
+			buffer.deleteCharAt(buffer.length()-1);
+			String finalQuery = initialQuery + buffer.toString() + ") ORDER BY g.number "+ ApplicationConstants.ASC;
+						
+			groupNumbers = this.em().createQuery(finalQuery).getResultList();
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("GroupRepository_List<String>findGroupNumberByGroupId", "No Groups found.");
+			throw elsException;
+		}
+		
+		return groupNumbers;
+	}
+	
 	
 	public List<SubDepartment> findSubdepartmentsByName(final Long groupid) throws ELSException {
 		String query="SELECT m FROM Group g" +

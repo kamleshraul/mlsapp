@@ -11,6 +11,7 @@ package org.mkcl.els.domain;
 
 import java.io.FileNotFoundException;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -393,9 +394,18 @@ public class Group extends BaseDomain implements Serializable {
 				houseType, sessionType, sessionYear);
 	} 
     
+    public static List<Group> findGroupsBySessionId(final String sessionId) throws ELSException{
+    	return Group.getRepository().findGroupsBySessionId(sessionId);
+    }
+    
     public static List<Ministry> findMinistriesByName(
     		final Long groupid) throws ELSException {
 		return Group.getRepository().findMinistriesByName(groupid);
+	}
+    
+    public static List<Ministry> findMinistriesByNameGroupList(
+    		final String[] groupids) throws ELSException {
+		return Group.getRepository().findMinistriesByNameGroupList(groupids);
 	}
     
     public static List<SubDepartment> findSubdepartmentsByName(
@@ -453,6 +463,10 @@ public class Group extends BaseDomain implements Serializable {
 			.findGroupNumbersForSessionExcludingGivenGroup(houseType,
 					sessionType, sessionYear, groupNumber, locale);
     }
+    
+    public static List<String> findGroupNumberByGroupId(final String[] groupIds) throws ELSException{
+    	return Group.getRepository().findGroupNumberByGroupId(groupIds);
+    }
 	
 	public static List<Integer> findGroupNumbersForSession(
 			final HouseType houseType, 
@@ -490,6 +504,7 @@ public class Group extends BaseDomain implements Serializable {
 	public static Group findByAnsweringDateInHouseType(final Date answeringDate, final HouseType houseType) throws ELSException {
 		return Group.getRepository().findByAnsweringDateInHouseType(answeringDate, houseType);
 	}
+	
 	
 	
 	//===============================================

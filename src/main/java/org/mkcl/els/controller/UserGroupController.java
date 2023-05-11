@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -18,6 +19,7 @@ import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 
 @Controller
@@ -231,7 +234,20 @@ public class UserGroupController extends GenericController<UserGroup>{
 		}
 	}
 
-
+	/*
+	 * @RequestMapping(value="/createusergroup",method=RequestMethod.POST) public
+	 * String createUsergroup(final HttpServletRequest request,final Locale locale,
+	 * final ModelMap model) throws ELSException{ try {
+	 * 
+	 * 
+	 * 
+	 * return "user/usergroup/edit"; }catch (Exception e) { e.printStackTrace();
+	 * model.addAttribute("error",
+	 * "Cannot Create Usergroup please try after sometime.");
+	 * model.addAttribute("type", "error"); return "user/usergroup/list"; } }
+	 */
+	
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void populateCreateIfNoErrors(final ModelMap model, final UserGroup domain,
@@ -247,14 +263,33 @@ public class UserGroupController extends GenericController<UserGroup>{
 			for(Entry<String,String[]> i:params.entrySet()){
 				String key=i.getKey();
 				if(key.startsWith("param_")){
-					String[] values=params.get(key);
+					String[] values;
+					 if(key.equals("param_GROUPSALLOWED_mr_IN")) {
+						String[] values1 = params.get(key);
+						List<String> values2 =  Group.findGroupNumberByGroupId(values1);
+						values = values2.toArray(new String[0]);
+						System.out.println(values);
+					}else {
+						values = params.get(key);
+					}
 					if(values.length==1){
 						deviceTypeParams.put(key.split("param_")[1],values[0]);
 					}else{
 						StringBuffer buffer=new StringBuffer();
-						for(String j:values){
-							buffer.append(j+"##");
-						}
+						if(key.equals("param_GROUPSALLOWED_mr_IN")) {
+							for(int l=0;l<values.length;l++){
+								if(l == values.length-1) {
+									buffer.append(values[l]);
+								}
+								else {
+									buffer.append(values[l]+",");
+								}
+							}
+						}else {
+							for(String j:values){
+								buffer.append(j+"##");
+							}
+       					}
 						deviceTypeParams.put(key.split("param_")[1],buffer.toString());
 					}
 				}

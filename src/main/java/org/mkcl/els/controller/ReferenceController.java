@@ -854,6 +854,55 @@ public class ReferenceController extends BaseController {
 		}
 		return subDepartmentVOs;
 	}
+	
+	@RequestMapping(value="/devices/groups", method=RequestMethod.POST)
+	public @ResponseBody List<MasterVO> getGroups(
+			final HttpServletRequest request,
+			final Locale locale) throws ELSException{
+		String[] devices=request.getParameterValues("devices[]");
+		String houseType=request.getParameter("houseType");
+		HouseType houseTypeId;
+		boolean flag = false;
+		List<Group> groupsList = new ArrayList<Group>();
+		List<MasterVO> groupVOs=new ArrayList<MasterVO>();
+		if(houseType.equals("दोन्ही सभागृह")) {
+		  houseTypeId = HouseType.findByName("विधानसभा", locale.toString());
+		}else {
+		  houseTypeId = HouseType.findByName(houseType, locale.toString());
+		}
+		if(devices != null){
+	      CustomParameter csptDevices = CustomParameter.findByName(CustomParameter.class, "ENABLE_GROUPS_ACCORDING_TO_DEVICES_"+houseTypeId.getType().toUpperCase(), "");
+	      if(csptDevices != null) {
+		    	if(csptDevices.getValue() != null && !csptDevices.getValue().isEmpty()) {
+		    		String[] cDevices = csptDevices.getValue().split("##");
+		    		for(String d : devices) {  
+		    		  for(String cd : cDevices) {
+		    			 if(d.equals(cd)) {
+		    				 flag = true;
+		    				 break;
+		    			 }
+		    		  }
+		    		}  
+		    	}		    	
+		    }
+		    
+		    if(flag == true) {
+		        DeviceType devicesType = DeviceType.findByType("questions_starred", locale.toString());
+		    	Session latestSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(houseTypeId, devicesType);
+		    	groupsList = Group.findGroupsBySessionId(latestSession.getId().toString());
+		    }
+		    
+			for(Group i:groupsList){
+				MasterVO masterVO=new MasterVO();
+				masterVO.setId(i.getId());
+				masterVO.setNumber(i.getNumber());
+				groupVOs.add(masterVO);
+			}
+		    
+		}
+	
+		return groupVOs;
+	}
 
 	/**
 	 * Gets the sub departments by ministry department names.
@@ -2108,6 +2157,27 @@ public class ReferenceController extends BaseController {
 		for(Ministry i:ministries){
 			MasterVO masterVO=new MasterVO(i.getId(),i.getDropdownDisplayName());
 			masterVOs.add(masterVO);
+		}
+		return masterVOs;
+	}
+	
+	@RequestMapping(value="/group/ministriesname",method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getMinistriesDisplayNameByGroup(
+			final HttpServletRequest request,
+			final Locale locale){
+		String[] groupids = request.getParameterValues("groupLists[]");
+		List<Ministry> ministries;
+		List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+		try {
+			ministries = Group.findMinistriesByNameGroupList(groupids);
+		} catch (ELSException e) {
+			e.printStackTrace();
+			return masterVOs;
+		}
+		
+		for(Ministry i:ministries){
+			MasterVO masterVO=new MasterVO(i.getId(),i.getName());
+					masterVOs.add(masterVO);
 		}
 		return masterVOs;
 	}
