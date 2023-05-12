@@ -264,11 +264,10 @@ public class UserGroupController extends GenericController<UserGroup>{
 				String key=i.getKey();
 				if(key.startsWith("param_")){
 					String[] values;
-					 if(key.equals("param_GROUPSALLOWED_mr_IN")) {
+					 if(key.equals("param_GROUPSALLOWED_"+domain.getLocale())) {
 						String[] values1 = params.get(key);
 						List<String> values2 =  Group.findGroupNumberByGroupId(values1);
 						values = values2.toArray(new String[0]);
-						System.out.println(values);
 					}else {
 						values = params.get(key);
 					}
@@ -276,7 +275,7 @@ public class UserGroupController extends GenericController<UserGroup>{
 						deviceTypeParams.put(key.split("param_")[1],values[0]);
 					}else{
 						StringBuffer buffer=new StringBuffer();
-						if(key.equals("param_GROUPSALLOWED_mr_IN")) {
+						if(key.equals("param_GROUPSALLOWED_"+domain.getLocale())) {
 							for(int l=0;l<values.length;l++){
 								if(l == values.length-1) {
 									buffer.append(values[l]);

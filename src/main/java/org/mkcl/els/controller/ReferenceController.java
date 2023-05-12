@@ -865,8 +865,9 @@ public class ReferenceController extends BaseController {
 		boolean flag = false;
 		List<Group> groupsList = new ArrayList<Group>();
 		List<MasterVO> groupVOs=new ArrayList<MasterVO>();
-		if(houseType.equals("दोन्ही सभागृह")) {
-		  houseTypeId = HouseType.findByName("विधानसभा", locale.toString());
+		MessageResource bothHouseTypeResource = MessageResource.findByFieldName(MessageResource.class, "code", "generic.both_house_label", locale.toString());
+		if(houseType.equals(bothHouseTypeResource.getValue())) {
+		  houseTypeId = HouseType.findByType("lowerhouse", locale.toString());
 		}else {
 		  houseTypeId = HouseType.findByName(houseType, locale.toString());
 		}
