@@ -3239,7 +3239,7 @@ public class QuestionWorkflowController  extends BaseController{
 		}
 		/**** Clarification not received From Member ****/
 		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
-				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED_FROM_MEMBER)){
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)){
 			performActionOnStarredClarificationNotReceived(domain);
 		}
 		/**** Clarification received FROM Member ****/
