@@ -940,44 +940,50 @@ public class SessionController extends GenericController<Session> {
 		Group newGroup = new Group();
 		List<Ministry> ministries = null;
 		List<SubDepartment> subD = null;
-		if(groupNumberLimitParameter != null) {
-			if(!groupNumberLimitParameter.isEmpty()) {
-				Session	prevS = Session.findPreviousSession(domain);
-				Integer groupNumberLimit=Integer.parseInt(groupNumberLimitParameter);
-				if(!prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION) && !prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION_1) && !prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION_2) ) 
-				{
-				for(int i=1;i<=groupNumberLimit;i++)
-				{
-					newGroup.setLocale(domain.getLocale());
-					newGroup.setHouseType(domain.getHouse().getType());
-					newGroup.setSession(domain);
-					newGroup.setYear(domain.getYear());
-					newGroup.setSessionType(domain.getType());
-					newGroup.setNumber((Integer)i);
-					
-					cp = CustomParameter.findByName(CustomParameter.class, "PREVIOUS_NUMBER_FOR_GROUP_"+i+"_"+domain.getHouse().getType().getType().toUpperCase(), "");
+		if (groupNumberLimitParameter != null) {
+			if (!groupNumberLimitParameter.isEmpty()) {
+				// Session prevS = Session.findPreviousSession(domain);
+				Session prevS = Session.findPreviousSessionInSameHouseForGivenDeviceTypeEnabled(domain,
+						DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, domain.getLocale()));
 
-					List<Group> PrevGroup = Group.findByHouseTypeSessionTypeYear(prevS.getHouse().getType(),prevS.getType(),prevS.getYear());
-					
-					for(int j= 0 ;j<PrevGroup.size();j++)
-					{
-						if(PrevGroup.get(j).getNumber().equals(Integer.parseInt(cp.getValue())))
-						{
-							ministries= Group.findMinistriesByName(PrevGroup.get(j).getId());
-							newGroup.setMinistries(ministries);
-							
-							subD = Group.findSubdepartmentsByName(PrevGroup.get(j).getId());
-							newGroup.setSubdepartments(subD);
-							
-							
+				Integer groupNumberLimit = Integer.parseInt(groupNumberLimitParameter);
+				if (prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION)
+						&& prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION_1)
+						&& prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION_2)) {
+
+					//System.out.println(prevS.getId());
+					for (int i = 1; i <= groupNumberLimit; i++) {
+						newGroup.setLocale(domain.getLocale());
+						newGroup.setHouseType(domain.getHouse().getType());
+						newGroup.setSession(domain);
+						newGroup.setYear(domain.getYear());
+						newGroup.setSessionType(domain.getType());
+						newGroup.setNumber((Integer) i);
+
+						cp = CustomParameter.findByName(CustomParameter.class, "PREVIOUS_NUMBER_FOR_GROUP_" + i + "_"
+								+ domain.getHouse().getType().getType().toUpperCase(), "");
+
+						List<Group> PrevGroup = Group.findByHouseTypeSessionTypeYear(prevS.getHouse().getType(),
+								prevS.getType(), prevS.getYear());
+
+						for (int j = 0; j < PrevGroup.size(); j++) {
+							if (PrevGroup.get(j).getNumber().equals(Integer.parseInt(cp.getValue()))) {
+								ministries = Group.findMinistriesByName(PrevGroup.get(j).getId());
+								newGroup.setMinistries(ministries);
+
+								subD = Group.findSubdepartmentsByName(PrevGroup.get(j).getId());
+								newGroup.setSubdepartments(subD);
+
+							}
 						}
+
+						newGroup.persist();
+						domain.setIsGroupCreatedUsingChkbox(true);
 					}
-					
-					newGroup.persist();
+
 				}
-				
-				}
-			}}
+			}
+		}
 		
 	}
 	
@@ -1056,7 +1062,7 @@ public class SessionController extends GenericController<Session> {
 				{
 				  if(i.get("SDate").equals(sd.getSessionDate().toString()))
 				  {
-					  sd.setQuestionHourIncluded( Boolean.parseBoolean( i.get("bValue")));
+					  sd.setIsQuestionHourIncluded(Boolean.parseBoolean( i.get("bValue")));
 					  success.append(FormaterUtil.formatDateToString(sd.getSessionDate(),  ApplicationConstants.DB_DATEFORMAT)+",");
 				  }
 				}
