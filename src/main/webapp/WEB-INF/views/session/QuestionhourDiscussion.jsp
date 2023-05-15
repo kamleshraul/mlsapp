@@ -157,7 +157,7 @@ input[type=number]
 			</table>
 		</c:when>
 		<c:otherwise>
-			<spring:message code="" text=""></spring:message>
+			<h2>No Dates</h2>
 		</c:otherwise>
 	</c:choose>
 	</div>
