@@ -917,13 +917,24 @@
 			$.get(url,function(data){
 				if(data){
 					
-					showTabByIdAndUrl("details_tab","motion/report/motion/genreport?"
+					
+					showTabByIdAndUrl("details_tab","motion/report/selectPartyWisePage?"
 							+"sessionId="+data.id
 							+"&deviceTypeId="+$("#selectedMotionType").val()
 							+"&partyId="+party 
 							+"&locale="+$("#moduleLocale").val()
 							+"&statusId="+$("#selectedStatus").val()
-							+"&report=MOIS_PARTY_WISE_REPORT&reportout=motionPartyReport");
+							//+"&report=MOIS_PARTY_WISE_REPORT&reportout=motionPartyReport"
+							);
+					
+					/*showTabByIdAndUrl("details_tab","motion/report/motion/genreport?"
+							+"sessionId="+data.id
+							+"&deviceTypeId="+$("#selectedMotionType").val()
+							+"&partyId="+party 
+							+"&locale="+$("#moduleLocale").val()
+							+"&statusId="+$("#selectedStatus").val()
+							+"&report=MOIS_PARTY_WISE_REPORT&reportout=motionPartyReport"
+							);*/
 				}
 			});
 		}
