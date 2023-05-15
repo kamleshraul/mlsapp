@@ -18,6 +18,7 @@ import java.util.Set;
 import javax.servlet.http.HttpSession;
 
 import org.mkcl.els.domain.Credential;
+import org.mkcl.els.domain.ApiToken;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.service.IJwtService;
 import org.springframework.security.core.GrantedAuthority;
@@ -141,4 +142,47 @@ public class JwtServiceImpl implements IJwtService {
 		}
 		return null;
 	}
+	
+	public String generateToken(ApiToken JTDetails) {
+		if(JTDetails !=null) {
+			
+			Map<String,Object> tokenData=new HashMap<String, Object>();
+			tokenData.put("clientName", JTDetails.getClientName());
+			tokenData.put("tokenID", JTDetails.getId());
+			tokenData.put("fromDate", JTDetails.getFromDate());
+			tokenData.put("toDate", JTDetails.getToDate());
+			JWTSigner jwtSigner=new JWTSigner(secret);
+			return jwtSigner.sign(tokenData);
+			
+		}
+		
+		return null;
+	}
+	
+	public boolean verifyJwtToken(String jwtToken) {
+		JWTVerifier jwtVerified = new JWTVerifier(secret);
+		try {
+
+			Map<String, Object> tokenData = jwtVerified.verify(jwtToken);
+			if (tokenData != null) {
+				String tokenClientName = (String) tokenData.get("clientName");
+				// Todo Change To Token ID
+				String tokenId = tokenData.get("tokenID").toString();
+				Date fromDate = new Date((Long) tokenData.get("fromDate"));
+				Date toDate = new Date((Long) tokenData.get("toDate"));
+
+				ApiToken exToken = ApiToken.findById(ApiToken.class, Long.parseLong(tokenId));
+
+				if (toDate.compareTo(exToken.getToDate()) >= 0) {
+					return true;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+	
+	
 }
