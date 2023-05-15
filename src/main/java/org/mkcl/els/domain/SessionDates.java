@@ -81,7 +81,9 @@ public class SessionDates extends BaseDomain implements Serializable {
 		return isQuestionHourIncluded;
 	}
 
-	public void setQuestionHourIncluded(boolean isQuestionHourIncluded) {
+	
+	
+	public void setIsQuestionHourIncluded(boolean isQuestionHourIncluded) {
 		this.isQuestionHourIncluded = isQuestionHourIncluded;
 	}
 
