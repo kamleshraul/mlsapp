@@ -1351,6 +1351,32 @@ public class MotionReportController extends BaseController{
 			}
 			openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);
 		}
+		
+		
+		@RequestMapping(value="/selectPartyWisePage", method=RequestMethod.GET)
+		public String getSelectPartyWisePageReport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		
+			String page = "motion/reports/PWtoggleReport";
+			String strsessionId = request.getParameter("sessionId");
+			model.addAttribute("sessionId", strsessionId);
+			String strdeviceTypeId = request.getParameter("deviceTypeId");
+			model.addAttribute("deviceTypeId", strdeviceTypeId);
+			String strpartyId = request.getParameter("partyId");
+			model.addAttribute("partyId", strpartyId);
+			String strlocale= locale.toString();
+			model.addAttribute("locale", strlocale);
+			String strstatusId= request.getParameter("statusId");
+			model.addAttribute("statusId", strstatusId);
+			
+			
+			
+			return page;
+		
+		}
+		
+		
+		
+		
 }
 
 
