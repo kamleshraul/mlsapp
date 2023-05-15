@@ -1,5 +1,7 @@
 package org.mkcl.els.common.vo;
 
+import javax.persistence.Column;
+
 public class ReferenceLinkVO {
 	
 	// ---------------------------------Attributes-------------------------------------------------
@@ -8,6 +10,11 @@ public class ReferenceLinkVO {
 	private String date;
 	
 	private String link;
+	
+    /** The locale. */
+    private String locale;
+
+
 
 	public String getName() {
 		return name;
@@ -31,6 +38,14 @@ public class ReferenceLinkVO {
 
 	public void setLink(String link) {
 		this.link = link;
+	}
+	
+	public String getLocale() {
+		return locale;
+	}
+
+	public void setLocale(String locale) {
+		this.locale = locale;
 	}
     		
 }
