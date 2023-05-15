@@ -11537,4 +11537,63 @@ public class ReferenceController extends BaseController {
 		return statusesForSupportActivitiesOfDeviceType;
 	}
 	
+	
+	@RequestMapping(value = "{houseType}/getFixedDevices", method = RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getFixedDevicesforHouseByType(@PathVariable("houseType") final String houseType,
+			final Locale locale) throws ELSException {
+
+		List<MasterVO> selectedDevices = new ArrayList<MasterVO>();
+		List<DeviceType> deviceTypesEnabled = new ArrayList<DeviceType>();
+		List<DeviceType> allDevices = new ArrayList<DeviceType>();
+		HouseType selectedHouseType = HouseType.findByFieldName(HouseType.class, "type", houseType, locale.toString());
+		Session latestSession = Session.findLatestSession(selectedHouseType);
+		MasterVO ref = null;
+
+		logger.debug(latestSession.getId().toString());
+		if (latestSession.getId() != null) {
+			if (latestSession.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION)
+					|| latestSession.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION_1)
+					|| latestSession.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION_2)) {
+				logger.debug(latestSession.getId().toString());
+				latestSession = Session.findPreviousSession(latestSession);
+				logger.debug(latestSession.getId().toString());
+			}
+
+			DeviceType deviceTypeEnabled = null;
+			String deviceTypesEnabledStr = latestSession.getDeviceTypesEnabled();
+			if (deviceTypesEnabledStr != null && !deviceTypesEnabledStr.isEmpty()) {
+				for (String deviceTypeEnabledStr : deviceTypesEnabledStr.split(",")) {
+					deviceTypeEnabled = DeviceType.findByType(deviceTypeEnabledStr, latestSession.getLocale());
+					if (deviceTypeEnabled != null) {
+						deviceTypesEnabled.add(deviceTypeEnabled);
+					}
+				}
+			}
+
+			/*
+			 * populating device types
+			 */
+			allDevices = DeviceType.findAll(DeviceType.class, "type", ApplicationConstants.ASC, locale.toString());
+
+			for (int i = 0; i < allDevices.size(); i++) {
+
+				ref = new MasterVO();
+				ref.setDisplayName(allDevices.get(i).getName());
+				ref.setName(allDevices.get(i).getType());
+				for (DeviceType ED : deviceTypesEnabled) {
+					if (allDevices.get(i).getType().equals(ED.getType())) {
+						ref.setIsSelected(true);
+						logger.info("Fixed Device :- " + ED.getType());
+					}
+				}
+				selectedDevices.add(ref);
+
+			}
+
+		}
+
+		return selectedDevices;
+	}
+	
+	
 }
