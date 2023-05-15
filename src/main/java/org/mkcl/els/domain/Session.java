@@ -175,7 +175,11 @@ public class Session extends BaseDomain implements Serializable {
     /** Financial Year  **/
     @Column(length=1000)
     private String financialYear;
-   
+
+    
+    /** created Group Using Chkbox **/
+    
+    private boolean groupCreatedUsingChkbox;
 
     // -------------------------------Constructors----------------------------------------------
 
@@ -901,6 +905,16 @@ public class Session extends BaseDomain implements Serializable {
 	 */
 	public void setFinancialYear(String financialYear) {
 		this.financialYear = financialYear;
+	}
+	
+	
+	public boolean isGroupCreatedUsingChkbox() {
+		return groupCreatedUsingChkbox;
+	}
+
+
+	public void setIsGroupCreatedUsingChkbox(boolean groupCreatedUsingChkbox) {
+		this.groupCreatedUsingChkbox = groupCreatedUsingChkbox;
 	}
 
 
