@@ -656,6 +656,10 @@
 		<pattern>/admin</pattern>
 		<pattern>/admin/support_activities/module</pattern>
 		
+		<pattern>/apitoken</pattern>
+		<pattern>/apitoken/new</pattern>
+		<pattern>/apitoken/edit</pattern>
+		
 		<pattern>/poster_activities/update_decision/init</pattern>
 	</decorator>
 	<decorator name="mnu_form" page="mnu_form.jsp">
