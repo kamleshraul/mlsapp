@@ -9,15 +9,21 @@
  */
 package org.mkcl.els.common.interceptor;
 
+import java.net.URL;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.xalan.xsltc.compiler.sym;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.ActivityLog;
 import org.mkcl.els.domain.ApplicationLocale;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.service.impl.JwtServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -31,11 +37,38 @@ public class RequestProcessingTimeInterceptor extends HandlerInterceptorAdapter 
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(RequestProcessingTimeInterceptor.class);
+	
+	@Autowired
+	JwtServiceImpl jwtService;
 
 	@Override
 	public boolean preHandle(HttpServletRequest request,
 			HttpServletResponse response, Object handler) throws Exception {
 		String url = request.getRequestURL().toString();
+		URL aURL = new URL(url);
+		
+		boolean checkingForApiWS = aURL.getPath().toString().contains("/ws/");
+		if(checkingForApiWS)
+		{
+			String token = request.getHeader("bearer");
+			System.out.println(request.getHeader("bearer"));
+			if( token == null ||  token.isEmpty() )
+			{
+				response.setStatus(HttpStatus.UNAUTHORIZED.value());
+				return false;
+			}
+			else {
+				boolean check =  jwtService.verifyJwtToken(token);
+				System.out.println(check);
+				if(!check)
+				{
+					response.setStatus(HttpStatus.UNAUTHORIZED.value());
+					return false;
+				}
+			}
+		}
+	
+		
 		CustomParameter csptURLSToLog = CustomParameter.findByName(CustomParameter.class, "LOG_URLS", "");
 		
 		if(csptURLSToLog != null && csptURLSToLog.getValue() != null 
