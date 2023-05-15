@@ -6,6 +6,9 @@
 <script type="text/javascript">
 	$('document').ready(function() {
 		initControls();
+		
+		loadFixedDeviceType($('#houseType').val());
+		
 		$('#key').val('');
 		$('.council').hide();
 		if($('#houseType').val()=="upperhouse"){
@@ -24,7 +27,9 @@
 		$('#endDate').val($('#tentativeEndDate').val());
 	});
 	$('#houseType').change(function(){
+		
 		populateHouse($('#houseType').val());
+		loadFixedDeviceType($('#houseType').val());
 		if($('#houseType').val()=="upperhouse"){
 			$('.council').show();
 			$('.assembly').hide();
@@ -33,8 +38,7 @@
 			$('.council').hide();
 			$('.assembly').show();
 		}
-	});	
-	$("#deviceTypesEnabled").multiSelect();		
+	});
 
 	$("#span_roles").attr('style', 'width: 300px !important; height: 140px !important;');
 	var multiSelectMaxHeight = $('.multiSelectSpan').css('max-height');	
@@ -59,14 +63,14 @@
 	});
 	function populateHouse(houseType) {
 		$.get('ref/' + houseType + '/houses', function(data) {
-			$('#house option').empty();
+			$('#house ').empty();
 			var options = "";
 			for ( var i = 0; i < data.length; i++) {
-				options += "<option value='"+data[i].id+"'>" + data[i].displayName
+				options =options+ "<option value='"+data[i].id+"'>" + data[i].name
 						+ "</option>";
 			}
 			$('#house').html(options);
-			
+		
 		}).fail(function(){
 			if($("#ErrorMsg").val()!=''){
 				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -76,6 +80,41 @@
 			scrollTop();
 		});
 	}
+	
+	
+	 function loadFixedDeviceType(houseType)
+	{
+		$("#deviceTypesEnabled").empty();
+		$.get('ref/' +houseType+ '/getFixedDevices', function(data) {
+			//console.log(data)
+			var text="";
+			for(var i=0;i<data.length;i++)
+					{
+						if(data[i].isSelected == true)
+							{
+							 							
+							 $('.checkbox_deviceTypesEnabled').eq(i).prop("checked", true);
+							 text+="<option value='"+data[i].name+"' selected='selected'>"+data[i].displayName+"</option>";
+							}
+						else{
+							text+="<option value='"+data[i].name+"' >"+data[i].displayName+"</option>";
+							}
+					}
+				//console.log(text)
+				$("#deviceTypesEnabled").html(text);
+				$("#deviceTypesEnabled").multiSelect();	
+						
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+			
+			});
+	}
+	
+	
 	
 	</script>
 </head>
@@ -126,11 +165,11 @@
 			<p>
 				<label class="small"><spring:message code="session.house" text="House" /></label>
 					<form:select cssClass="sSelect" path="house" items="${houses}"
-							itemValue="id" itemLabel="displayName" id="house" size="1">
+							itemValue="id" itemLabel="name" id="house" size="1">
 					</form:select>
 				<form:errors path="house" cssClass="validationError" />			
 			</p>
-			
+						
 			<p>
 				<label class="small"><spring:message code="session.year" text="Session Year"/>&nbsp;*</label>
 				<form:select path="year" items="${years}" cssClass="sSelect"></form:select>
@@ -221,9 +260,7 @@
 				<label class="small"><spring:message code="session.deviceTypesEnabled"
 						text="Device Types Enabled" /></label>
 				<select class="sSelectMultiple" name="deviceTypesEnabled" id="deviceTypesEnabled" multiple="multiple">
-					<c:forEach items="${deviceTypes}" var="i">
-						<option value="${i.type}" ><c:out value="${i.name}"></c:out></option>
-					</c:forEach>											
+																
 				</select>
 				<a id="expandRole" class="expansionMultiSelect" href="javascript:void(0);" style="float: right;">Expand</a>		
 			
