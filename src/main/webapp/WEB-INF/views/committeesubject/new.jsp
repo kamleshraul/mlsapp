@@ -27,9 +27,9 @@
 		<input type="text" id="committeeDisplayName" name="committeeDisplayName" value="${committeeDisplayName}" readonly="readonly" class="sText" />
 		<form:hidden path="committeeName" value="${committeName}"/>
 	</p>
-	<p> 
-		<label class="small"><spring:message code="committeesubject" text="Name"/>*</label>
-		<form:textarea path="name" cssClass="wysiwyg"/>
+	<p style="margin-top: 20px;"> 
+		<label class="small labeltop"><spring:message code="committeesubject.name" text="Subject"/>*</label>
+		<form:textarea path="name" cssClass="sTextArea" rows="5" cols="50"/>
 		<form:errors path="name" cssClass="validationError"/>	
 	</p>
 	
