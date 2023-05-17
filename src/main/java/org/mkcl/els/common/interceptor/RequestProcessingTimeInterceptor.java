@@ -10,13 +10,16 @@
 package org.mkcl.els.common.interceptor;
 
 import java.net.URL;
+import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.xalan.xsltc.compiler.sym;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.ActivityLog;
+import org.mkcl.els.domain.ApiToken;
 import org.mkcl.els.domain.ApplicationLocale;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.service.impl.JwtServiceImpl;
@@ -47,25 +50,35 @@ public class RequestProcessingTimeInterceptor extends HandlerInterceptorAdapter 
 		String url = request.getRequestURL().toString();
 		URL aURL = new URL(url);
 		
-		boolean checkingForApiWS = aURL.getPath().toString().contains("/ws/");
-		if(checkingForApiWS)
-		{
-			String token = request.getHeader("bearer");
-			//System.out.println(request.getHeader("bearer"));
-			if( token == null ||  token.isEmpty() )
+		ServletContext servletContext = request.getSession().getServletContext();
+		Object attribute = servletContext.getAttribute("webApiSubUrl");		
+		if(attribute == null) {
+			List<ApiToken> apiTokens = ApiToken.findAll(ApiToken.class, "id", ApplicationConstants.ASC,"mr_IN");
+			 servletContext.setAttribute("webApiSubUrl", apiTokens);
+		}
+		List<ApiToken> tokensToCheck =  (List<ApiToken>)servletContext.getAttribute("webApiSubUrl");
+		//System.out.println(tokensToCheck.toString());		
+		for(ApiToken ap:tokensToCheck) {
+			if(aURL.getPath().toString().contains(ap.getSubUrl()))
 			{
-				response.setStatus(HttpStatus.UNAUTHORIZED.value());
-				return false;
-			}
-			else {
-				boolean check =  jwtService.verifyJwtToken(token);
-				//System.out.println(check);
-				logger.debug(check+"");
-				if(!check)
+				String token = request.getHeader("bearer");
+				//System.out.println(request.getHeader("bearer"));
+				if( token == null ||  token.isEmpty() )
 				{
 					response.setStatus(HttpStatus.UNAUTHORIZED.value());
 					return false;
 				}
+				else {
+					boolean check =  jwtService.verifyJwtToken(token);
+					//System.out.println(check);
+					logger.debug(check+"");
+					if(!check)
+					{
+						response.setStatus(HttpStatus.UNAUTHORIZED.value());
+						return false;
+					}
+				}
+				break;
 			}
 		}
 	
