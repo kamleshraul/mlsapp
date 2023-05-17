@@ -947,9 +947,9 @@ public class SessionController extends GenericController<Session> {
 						DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, domain.getLocale()));
 
 				Integer groupNumberLimit = Integer.parseInt(groupNumberLimitParameter);
-				if (prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION)
-						&& prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION_1)
-						&& prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION_2)) {
+				if (!prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION)
+						&& !prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION_1)
+						&& !prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION_2)) {
 
 					//System.out.println(prevS.getId());
 					for (int i = 1; i <= groupNumberLimit; i++) {
@@ -977,7 +977,7 @@ public class SessionController extends GenericController<Session> {
 							}
 						}
 
-						newGroup.persist();
+						newGroup.merge();
 						domain.setIsGroupCreatedUsingChkbox(true);
 					}
 
