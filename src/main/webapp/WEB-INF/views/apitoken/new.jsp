@@ -34,8 +34,8 @@
 			<p>
 				<label class="small"><spring:message code="jwtTokens.ClientName"
 						text="Code" />&nbsp;*</label>
-				<form:input cssClass="sText medium" path="clientName" />
-				<span><form:errors path="clientName" /></span>
+				<form:input cssClass="sText medium" path="subUrl" />
+				<span><form:errors path="subUrl" /></span>
 			</p>
 			
 			
