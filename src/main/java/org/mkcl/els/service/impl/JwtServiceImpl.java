@@ -147,7 +147,7 @@ public class JwtServiceImpl implements IJwtService {
 		if(JTDetails !=null) {
 			
 			Map<String,Object> tokenData=new HashMap<String, Object>();
-			tokenData.put("clientName", JTDetails.getClientName());
+			tokenData.put("clientName", JTDetails.getSubUrl());
 			tokenData.put("tokenID", JTDetails.getId());
 			tokenData.put("fromDate", JTDetails.getFromDate());
 			tokenData.put("toDate", JTDetails.getToDate());
