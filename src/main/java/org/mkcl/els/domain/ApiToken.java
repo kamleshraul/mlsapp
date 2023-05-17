@@ -9,6 +9,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.mkcl.els.repository.ApiTokenRepositry;
+import org.mkcl.els.repository.SessionRepository;
 import org.springframework.beans.factory.annotation.Configurable;
 
 
@@ -34,7 +36,7 @@ public class ApiToken extends BaseDomain implements Serializable {
     
     /** The name. */
     @Column(length = 600)
-    private String clientName;
+    private String subUrl;
     
     
     /**  From date. */
@@ -50,6 +52,7 @@ public class ApiToken extends BaseDomain implements Serializable {
     private String token;
 
 
+    
     
     
      //-----------------------------------------------------------------------------------------------
@@ -68,31 +71,45 @@ public class ApiToken extends BaseDomain implements Serializable {
 
 
 
-	public ApiToken(String clientName, Date fromDate, Date toDate, String token) {
+	public ApiToken(String subUrl, Date fromDate, Date toDate, String token) {
 		super();
-		this.clientName = clientName;
+		this.subUrl = subUrl;
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 		this.token = token;
 	}
 
 
+	   public static ApiTokenRepositry getApiTokenRepository() {
+			
+		   ApiTokenRepositry apiRepository = new ApiToken().getApiTokenRepository();
+	        if (apiRepository == null) {
+	            throw new IllegalStateException(
+	                    "SessionRepository has not been injected in Session Domain");
+	        }
+	        return apiRepository;
+			 
+	    }
+	    
+	
+	
 
 
 	 // ------------------------------------------Getters/Setters-----------------------------------
 	
+	   
+	   public String getSubUrl() {
+			return subUrl;
+		}
+
+
+
+
+		public void setSubUrl(String subUrl) {
+			this.subUrl = subUrl;
+		}
+
 	
-
-	public String getClientName() {
-		return clientName;
-	}
-
-
-
-
-	public void setClientName(String clientName) {
-		this.clientName = clientName;
-	}
 
 
 
@@ -100,8 +117,6 @@ public class ApiToken extends BaseDomain implements Serializable {
 	public Date getFromDate() {
 		return fromDate;
 	}
-
-
 
 
 	public void setFromDate(Date fromDate) {
@@ -135,6 +150,9 @@ public class ApiToken extends BaseDomain implements Serializable {
 	public void setToken(String token) {
 		this.token = token;
 	}
+	
+	
+
 
 	
 
