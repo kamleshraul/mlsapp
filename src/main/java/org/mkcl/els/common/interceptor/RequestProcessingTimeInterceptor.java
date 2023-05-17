@@ -51,7 +51,7 @@ public class RequestProcessingTimeInterceptor extends HandlerInterceptorAdapter 
 		if(checkingForApiWS)
 		{
 			String token = request.getHeader("bearer");
-			System.out.println(request.getHeader("bearer"));
+			//System.out.println(request.getHeader("bearer"));
 			if( token == null ||  token.isEmpty() )
 			{
 				response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -59,7 +59,8 @@ public class RequestProcessingTimeInterceptor extends HandlerInterceptorAdapter 
 			}
 			else {
 				boolean check =  jwtService.verifyJwtToken(token);
-				System.out.println(check);
+				//System.out.println(check);
+				logger.debug(check+"");
 				if(!check)
 				{
 					response.setStatus(HttpStatus.UNAUTHORIZED.value());
