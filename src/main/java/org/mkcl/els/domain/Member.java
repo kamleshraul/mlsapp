@@ -43,6 +43,7 @@ import org.mkcl.els.common.vo.MemberContactVO;
 import org.mkcl.els.common.vo.MemberDetailsForAccountingVO;
 import org.mkcl.els.common.vo.MemberIdentityVO;
 import org.mkcl.els.common.vo.MemberInfo;
+import org.mkcl.els.common.vo.MemberMobileVO;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.mkcl.els.repository.MemberRepository;
@@ -2350,6 +2351,23 @@ import org.springframework.beans.factory.annotation.Configurable;
 	}
 	public boolean isSuspendedMember() {
 		return getMemberRepository().isMemberSuspendedOnDate(this.getId(),new Date());	
+	}
+	
+	
+	/**
+	 * For Mobile Api.
+	 *
+	 * @param id the id
+	 * @param locale the locale
+	 * @return the member Mobile  vo
+	 * @author Shubham A
+	 * @param data
+	 * @since v1.0.0
+	 */
+	
+	public static MemberMobileVO getMemberDataForMobileVo(final long id, final String locale) {
+		return getMemberRepository().getMemberDataForMobileVo(id,locale);
+		
 	}
 	
 }
