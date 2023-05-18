@@ -173,7 +173,7 @@ public class JwtServiceImpl implements IJwtService {
 
 				ApiToken exToken = ApiToken.findById(ApiToken.class, Long.parseLong(tokenId));
 
-				if (toDate.compareTo(exToken.getToDate()) >= 0) {
+				if (toDate.compareTo(exToken.getToDate()) == 0) {
 					return true;
 				}
 			}
