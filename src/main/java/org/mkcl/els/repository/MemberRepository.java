@@ -38,6 +38,7 @@ import org.mkcl.els.common.vo.MemberDetailsForAccountingVO;
 import org.mkcl.els.common.vo.MemberIdentityVO;
 import org.mkcl.els.common.vo.MemberInfo;
 import org.mkcl.els.common.vo.MemberMinisterVO;
+import org.mkcl.els.common.vo.MemberMobileVO;
 import org.mkcl.els.common.vo.PositionHeldVO;
 import org.mkcl.els.common.vo.RivalMemberVO;
 import org.mkcl.els.domain.Address;
@@ -5331,5 +5332,103 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		
 		List<Long> resultList = namedQuery.getResultList();
 		return resultList;
+	}
+	
+	
+	
+	public MemberMobileVO getMemberDataForMobileVo(final long id, final String locale) {
+		CustomParameter parameter = CustomParameter.findByName(
+				CustomParameter.class, "SERVER_DATEFORMAT_DDMMMYYYY", "");
+		Member m=Member.findById(Member.class, id);
+		MemberMobileVO mmVO=new MemberMobileVO();
+		
+		
+		mmVO.setId(m.getId());
+		
+		if(m.getPhoto()!=null){
+			mmVO.setPhoto(m.getPhoto());
+		}else{
+			mmVO.setPhoto("-");
+		}
+				
+		
+		Party party=findParty(m.getId());
+		if(party!=null){
+			mmVO.setParty(party.getName());
+		}else{
+			mmVO.setParty("-");
+		}
+		
+		Constituency constituency=findConstituency(m.getId());
+		if(constituency!=null){
+			mmVO.setConstituency(constituency.getDisplayName());
+		}else{
+			mmVO.setConstituency("-");
+		}
+		
+		if(m.getTitle()==null){
+			mmVO.setTitle("-");
+		}else{
+			mmVO.setTitle(m.getTitle().getName());
+		}
+		
+		if(m.getFirstName() ==null){
+			mmVO.setFirstName("-");
+		}else{
+			mmVO.setFirstName(m.getFirstName());
+		}
+		
+		if(m.getMiddleName() ==null){
+			mmVO.setMiddleName("-");
+		}else{
+			mmVO.setMiddleName(m.getMiddleName());
+		}
+		
+		if(m.getLastName() ==null){
+			mmVO.setLastName("-");
+		}else{
+			mmVO.setLastName(m.getLastName());
+		}
+		
+		
+		if(m.getAlias().isEmpty()){
+			mmVO.setAlias("-");
+		}else{
+			mmVO.setAlias(m.getAlias());
+		}
+		
+		if(m.getFirstNameEnglish() == null) {
+			mmVO.setEnglishFirstName("-");
+		}else {
+			mmVO.setEnglishFirstName(m.getFirstNameEnglish());
+		}
+		
+		if(m.getMiddleNameEnglish() == null) {
+			mmVO.setEnglishMiddleName("-");
+		}else {
+			mmVO.setEnglishMiddleName(m.getMiddleNameEnglish());
+		}
+		
+		if(m.getLastNameEnglish() == null) {
+			mmVO.setEnglishLastName("-");
+		}else {
+			mmVO.setEnglishLastName(m.getLastNameEnglish());
+		}
+		
+		Contact contact=m.getContact();
+		
+		if(contact == null) {
+			mmVO.setMobile("-");
+			mmVO.setEmail("-");
+		}else {
+			mmVO.setMobile(contact.getMobile1());
+			mmVO.setEmail(contact.getEmail1());
+		}
+		
+		
+		
+		
+		return mmVO;
+		
 	}
 }
