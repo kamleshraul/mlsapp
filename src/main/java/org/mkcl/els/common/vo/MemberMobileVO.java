@@ -35,33 +35,42 @@ public class MemberMobileVO {
 
 		/** The first name. */
 		private String firstName;
+		
+		/** The first name. */
+		private String englishFirstName;
 
 		/** The middle name. */
 		private String middleName;
+		
+		/** The middle name. */
+		private String englishMiddleName;
 
 		/** The last name. */
 		private String lastName;
+		
+		/** The last name. */
+		private String englishLastName;
 
 		/** The alias. */
 		private String alias;
 
 		/** The birth date. */
-		private String birthDate;
+		//private String birthDate;
 		
 		/** The gender. */
-		private String gender;
+		//private String gender;
 		
 		/** The caste. */
-		private String caste;
+		//private String caste;
 		
 		/** The pa contact no. */
-		private String paContactNo;
+		//private String paContactNo;
 		
 		/** The mobile1. */
-	    private String mobile1;
+	    private String mobile;
 	    
 	    /** The email1. */
-	    private String email1;
+	    private String email;
 	    
 	    
 	    public MemberMobileVO() {
@@ -239,108 +248,118 @@ public class MemberMobileVO {
 		 *
 		 * @return the Member BirthDate
 		 */
-		public String getBirthDate() {
-			return birthDate;
-		}
+//		public String getBirthDate() {
+//			return birthDate;
+//		}
 		
 		/**
 		 * Sets the Member BirthDate.
 		 *
 		 * @param Member BirthDate. the new Member BirthDate.
 		 */
-		public void setBirthDate(String birthDate) {
-			this.birthDate = birthDate;
-		}
+//		public void setBirthDate(String birthDate) {
+//			this.birthDate = birthDate;
+//		}
 		
 		/**
 		 * Gets the Member Gender.
 		 *
 		 * @return the Member Gender
 		 */
-		public String getGender() {
-			return gender;
-		}
-		
-		/**
-		 * Sets the Member Gender.
-		 *
-		 * @param Member Gender. the new Member Gender.
-		 */
-		public void setGender(String gender) {
-			this.gender = gender;
-		}
+//		public String getGender() {
+//			return gender;
+//		}
+//		
+//		/**
+//		 * Sets the Member Gender.
+//		 *
+//		 * @param Member Gender. the new Member Gender.
+//		 */
+//		public void setGender(String gender) {
+//			this.gender = gender;
+//		}
 		
 		/**
 		 * Gets the Member Caste.
 		 *
 		 * @return the Member Caste
 		 */
-		public String getCaste() {
-			return caste;
-		}
-		
-		/**
-		 * Sets the Member Caste.
-		 *
-		 * @param Member Caste. the new Member Caste.
-		 */
-		public void setCaste(String caste) {
-			this.caste = caste;
-		}
+//		public String getCaste() {
+//			return caste;
+//		}
+//		
+//		/**
+//		 * Sets the Member Caste.
+//		 *
+//		 * @param Member Caste. the new Member Caste.
+//		 */
+//		public void setCaste(String caste) {
+//			this.caste = caste;
+//		}
 		
 		/**
 		 * Gets the Member ContactNo.
 		 *
 		 * @return the Member ContactNo
 		 */
-		public String getPaContactNo() {
-			return paContactNo;
+//		public String getPaContactNo() {
+//			return paContactNo;
+//		}
+//		
+//		/**
+//		 * Sets the Member ContactNo.
+//		 *
+//		 * @param Member ContactNo. the new Member ContactNo.
+//		 */
+//		public void setPaContactNo(String paContactNo) {
+//			this.paContactNo = paContactNo;
+//		}
+		
+	
+
+		public String getEnglishFirstName() {
+			return englishFirstName;
+		}
+
+		public String getMobile() {
+			return mobile;
+		}
+
+		public void setMobile(String mobile) {
+			this.mobile = mobile;
+		}
+
+		public String getEmail() {
+			return email;
+		}
+
+		public void setEmail(String email) {
+			this.email = email;
+		}
+
+		public void setEnglishFirstName(String englishFirstName) {
+			this.englishFirstName = englishFirstName;
+		}
+
+		public String getEnglishMiddleName() {
+			return englishMiddleName;
+		}
+
+		public void setEnglishMiddleName(String englishMiddleName) {
+			this.englishMiddleName = englishMiddleName;
+		}
+
+		public String getEnglishLastName() {
+			return englishLastName;
+		}
+
+		public void setEnglishLastName(String englishLastName) {
+			this.englishLastName = englishLastName;
 		}
 		
-		/**
-		 * Sets the Member ContactNo.
-		 *
-		 * @param Member ContactNo. the new Member ContactNo.
-		 */
-		public void setPaContactNo(String paContactNo) {
-			this.paContactNo = paContactNo;
-		}
 		
-		/**
-		 * Gets the Member Mobile.
-		 *
-		 * @return the Member Mobile
-		 */
-		public String getMobile1() {
-			return mobile1;
-		}
 		
-		/**
-		 * Sets the Member Mobile.
-		 *
-		 * @param Member Mobile. the new Member Mobile.
-		 */
-		public void setMobile1(String mobile1) {
-			this.mobile1 = mobile1;
-		}
 		
-		/**
-		 * Gets the Member Email.
-		 *
-		 * @return the Member Email
-		 */
-		public String getEmail1() {
-			return email1;
-		}
-		
-		/**
-		 * Sets the Member Email.
-		 *
-		 * @param Member Email. the new Member Email.
-		 */
-		public void setEmail1(String email1) {
-			this.email1 = email1;
-		}
 	    
 	    
 	    
