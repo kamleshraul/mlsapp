@@ -48,6 +48,9 @@ public class SessionCheckInterceptor extends HandlerInterceptorAdapter {
         if (request.getRequestURI().contains("/ws/")) {
             return true;
         }
+        if (request.getRequestURI().contains("/mobileApiService/")) {
+            return true;
+        }
         if(request.getRequestURI().contains("/ref/") && request.getRequestURI().endsWith("/isMemberActiveInSession")) {
         	return true;
         }
