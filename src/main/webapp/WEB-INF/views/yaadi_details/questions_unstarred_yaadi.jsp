@@ -722,7 +722,7 @@
 					<a href="#" id="linkForReport"><spring:message code='question.unstarred_yaadi_report.generateReport' text='Generate Report'/></a>
 				</p> --%>
 				<p class="tright">
-							<input id="qsnSaveYaadi" type="button" value="<spring:message code='generic.submit' text='Save Report'/>" class="butDef">
+							<%-- <input id="qsnSaveYaadi" type="button" value="<spring:message code='generic.submit' text='Save Report'/>" class="butDef"> --%>
 							<input id="qsnGenerateYaadi" type="button" value="<spring:message code='question.unstarred_yaadi_report.generateReport' text='Generate Report'/>" class="butDef">
 				</p>
 			</div>
