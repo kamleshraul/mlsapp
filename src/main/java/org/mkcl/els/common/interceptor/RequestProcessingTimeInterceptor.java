@@ -58,6 +58,7 @@ public class RequestProcessingTimeInterceptor extends HandlerInterceptorAdapter 
 		}
 		List<ApiToken> tokensToCheck =  (List<ApiToken>)servletContext.getAttribute("webApiSubUrl");
 		//System.out.println(tokensToCheck.toString());		
+		if(tokensToCheck != null) {
 		for(ApiToken ap:tokensToCheck) {
 			if(aURL.getPath().toString().contains(ap.getSubUrl()))
 			{
@@ -81,7 +82,7 @@ public class RequestProcessingTimeInterceptor extends HandlerInterceptorAdapter 
 				break;
 			}
 		}
-	
+		}
 		
 		CustomParameter csptURLSToLog = CustomParameter.findByName(CustomParameter.class, "LOG_URLS", "");
 		
