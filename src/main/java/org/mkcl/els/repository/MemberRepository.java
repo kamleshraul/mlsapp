@@ -5368,8 +5368,10 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		
 		if(m.getTitle()==null){
 			mmVO.setTitle("-");
+			mmVO.setEnglishtitle("-");
 		}else{
 			mmVO.setTitle(m.getTitle().getName());
+			mmVO.setEnglishtitle(m.getTitle().getType());
 		}
 		
 		if(m.getFirstName() ==null){
