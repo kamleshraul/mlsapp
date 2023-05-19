@@ -32,6 +32,10 @@ public class MemberMobileVO {
 		
 		/** The title. */
 		private String title;
+		
+		/** The Eng title. */
+		private String englishtitle;
+		
 
 		/** The first name. */
 		private String firstName;
@@ -161,7 +165,15 @@ public class MemberMobileVO {
 		public String getTitle() {
 			return title;
 		}
-		
+
+		public String getEnglishtitle() {
+			return englishtitle;
+		}
+
+		public void setEnglishtitle(String englishtitle) {
+			this.englishtitle = englishtitle;
+		}
+
 		/**
 		 * Sets the Member Title.
 		 *
