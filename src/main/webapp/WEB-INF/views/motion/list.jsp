@@ -23,6 +23,14 @@
 					+"&clubbingStatus=" + $("#selectedClubbingStatus").val()
 					);
 			$("#gridURLParams_ForNew").val($("#gridURLParams").val());
+			
+			if($('#member_admitted_motions_view_flag').val()=="admitted_visible") {
+				$('#member_admitted_motions_view_span').show();
+			}
+			if($('#member_rejected_motions_view_flag').val()=="rejected_visible") {
+				$('#member_rejected_motions_view_span').show();
+			}
+			
 			/**** new motion ****/
 			$('#new_record').click(function(){
 				$("#selectionDiv1").hide();	
@@ -71,6 +79,18 @@
 			$("#generateMotion").click(function(){
 				$("#selectionDiv1").hide();
 				memberMotionsView($("#selectedDisplayContent").val());
+			});
+			
+			/****Member's Rejected Motions View ****/
+			$("#member_rejected_motions_view").click(function() {
+				$("#selectionDiv1").hide();
+				memberMotionsViewForStatus("rejected");
+			});
+			
+			/****Member's Admitted Motions View ****/
+			$("#member_admitted_motions_view").click(function() {
+				$("#selectionDiv1").hide();
+				memberMotionsViewForStatus("admitted");
 			});
 			
 		});
@@ -137,13 +157,24 @@
 				<a href="#" id="generateMotion" class="butSim">
 					Go
 				</a>|
+				<hr/>				
+				<span id="member_admitted_motions_view_span" style="display: none;">
+				<a href="#" id="member_admitted_motions_view" class="butSim">
+					<spring:message code="motion.member_admitted_motions_view" text="Member's Admitted Motions Detail View"/>
+				</a> |
+				</span>
+				<span id="member_rejected_motions_view_span" style="display: none;">
+				<a href="#" id="member_rejected_motions_view" class="butSim">
+					<spring:message code="motion.member_rejected_motions_view" text="Member's Rejected Motions Detail View"/>
+				</a> |		
+				</span>
 			</security:authorize>
 			<security:authorize access="hasAnyRole('MOIS_ASSISTANT')">
 				<a href="#" id="discussionSelection" class="butSim">
 					<spring:message code="motion.discussionSelection" text="Discussion Selection"/>
 				</a> |			
 			</security:authorize>
-			<security:authorize access="hasAnyRole('MOIS_POSTER')">
+			<security:authorize access="hasAnyRole('MOIS_POSTER', 'MOIS_SPEAKER', 'MOIS_CHAIRMAN')">
 				<a href="#" id="updateDecisionForMotions" class="butSim">
 					<spring:message code="motion.updateDecision" text="Update Decision"/>
 				</a> |			

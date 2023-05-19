@@ -10694,6 +10694,85 @@ public class ReferenceController extends BaseController {
 		return visibilityFlags;
 	}
 	
+	@RequestMapping(value = "/loadVisibilityFlagsForMemberMotionsView", method = RequestMethod.GET)
+	public @ResponseBody List<MasterVO> populateVisibilityFlagsForMemberMotionsView(HttpServletRequest request, Locale locale){
+		List<MasterVO> visibilityFlags = new ArrayList<MasterVO>();
+		try {
+			String strHouseType = request.getParameter("houseType");
+			String strYear = request.getParameter("sessionYear");
+			String strSessionType = request.getParameter("sessionType");
+			String strlocale = locale.toString();
+			
+			if(strHouseType != null && !strHouseType.isEmpty()
+				&& strSessionType != null && !strSessionType.isEmpty()
+				&& strYear != null && !strYear.isEmpty()){
+				
+				HouseType houseType = HouseType.findByType(strHouseType, strlocale);
+				SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+				Session session = Session.
+						findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strYear));
+				
+				/****Member's Motions Views Visibility Parameters****/
+				Boolean sessionEndDateFlag = false;
+				Date sessionEndDate = session.getEndDate();
+				if(sessionEndDate!=null) {
+					String sessionEndDateTimeStr = FormaterUtil.formatDateToString(sessionEndDate, ApplicationConstants.DB_DATEFORMAT);
+					CustomParameter visibilityStartTimeCP = CustomParameter.findByName(CustomParameter.class, "VISIBILITY_START_TIME_FOR_MEMBER_MOTIONS_VIEW_"+houseType.getType().toUpperCase(), "");
+					if(visibilityStartTimeCP!=null && visibilityStartTimeCP.getValue()!=null) {
+						sessionEndDateTimeStr = sessionEndDateTimeStr + " " + visibilityStartTimeCP.getValue();
+						Date sessionEndDateTime = FormaterUtil.formatStringToDate(sessionEndDateTimeStr, ApplicationConstants.DB_DATETIME_FORMAT);
+						if(new Date().compareTo(sessionEndDateTime)>=0) {
+							sessionEndDateFlag = true;
+						}
+					}
+				}
+				
+				Boolean statusFlag = false;		
+				CustomParameter statusFlagForMemberMotionsView = CustomParameter.findByName(CustomParameter.class, "STATUS_FLAG_FOR_MEMBER_MOTIONS_VIEW_"+houseType.getType().toUpperCase(), "");
+				if(statusFlagForMemberMotionsView!=null && statusFlagForMemberMotionsView.getValue()!=null
+						&& statusFlagForMemberMotionsView.getValue().equals("visible")) {
+					statusFlag = true; 
+				}
+				if(statusFlag.equals(true) && sessionEndDateFlag.equals(true)) {
+					MasterVO visibilityFlagForStatus = new MasterVO();
+					visibilityFlagForStatus.setName("member_motions_view_status_flag");
+					visibilityFlagForStatus.setValue("status_visible");
+					visibilityFlags.add(visibilityFlagForStatus);
+				}
+				
+				Boolean visibilityFlagForAdmitted = false;
+				CustomParameter visibilityFlagForMemberAdmittedMotionsView = CustomParameter.findByName(CustomParameter.class, "VISIBILITY_FLAG_FOR_MEMBER_ADMITTED_MOTIONS_VIEW_"+houseType.getType().toUpperCase(), "");
+				if(visibilityFlagForMemberAdmittedMotionsView!=null && visibilityFlagForMemberAdmittedMotionsView.getValue()!=null
+						&& visibilityFlagForMemberAdmittedMotionsView.getValue().equals("visible")) {
+					visibilityFlagForAdmitted = true; 
+				}
+				if(visibilityFlagForAdmitted.equals(true) && sessionEndDateFlag.equals(true)) {
+					MasterVO visibilityFlagForAdmittedMotions = new MasterVO();
+					visibilityFlagForAdmittedMotions.setName("member_admitted_motions_view_flag");
+					visibilityFlagForAdmittedMotions.setValue("admitted_visible");
+					visibilityFlags.add(visibilityFlagForAdmittedMotions);
+				}
+				
+				Boolean visibilityFlagForRejected = false;
+				CustomParameter visibilityFlagForMemberRejectedMotionsView = CustomParameter.findByName(CustomParameter.class, "VISIBILITY_FLAG_FOR_MEMBER_REJECTED_MOTIONS_VIEW_"+houseType.getType().toUpperCase(), "");
+				if(visibilityFlagForMemberRejectedMotionsView!=null && visibilityFlagForMemberRejectedMotionsView.getValue()!=null
+						&& visibilityFlagForMemberRejectedMotionsView.getValue().equals("visible")) {
+					visibilityFlagForRejected = true; 
+				}
+				if(visibilityFlagForRejected.equals(true) && sessionEndDateFlag.equals(true)) {
+					MasterVO visibilityFlagForRejectedMotions = new MasterVO();
+					visibilityFlagForRejectedMotions.setName("member_rejected_motions_view_flag");
+					visibilityFlagForRejectedMotions.setValue("rejected_visible");
+					visibilityFlags.add(visibilityFlagForRejectedMotions);
+				}
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+			return new ArrayList<MasterVO>();
+		}
+		return visibilityFlags;
+	}
+	
 	@RequestMapping(value = "/loadVisibilityFlagsForMemberStandaloneMotionsView", method = RequestMethod.GET)
 	public @ResponseBody List<MasterVO> populateVisibilityFlagsForMemberStandaloneMotionsView(HttpServletRequest request, Locale locale){
 		List<MasterVO> visibilityFlags = new ArrayList<MasterVO>();

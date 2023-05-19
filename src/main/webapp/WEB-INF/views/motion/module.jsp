@@ -37,13 +37,19 @@
 			$("#selectedHouseType").change(function(){
 				var value=$(this).val();
 				if(value!=""){	
+					if($("#currentusergroupType").val()=='member') {
+						updateVisibilityForMemberMotionsViewLinks();
+					}
 					reloadMotionGrid();	
 				}	
 			});	
 			/**** session year changes then reload grid****/			
 			$("#selectedSessionYear").change(function(){
 				var value=$(this).val();
-				if(value!=""){		
+				if(value!=""){	
+					if($("#currentusergroupType").val()=='member') {
+						updateVisibilityForMemberMotionsViewLinks();
+					}	
 					reloadMotionGrid();
 				}			
 			});
@@ -57,7 +63,10 @@
 			/**** session type changes then reload grid****/
 			$("#selectedSessionType").change(function(){
 				var value=$(this).val();
-				if(value!=""){			
+				if(value!=""){		
+					if($("#currentusergroupType").val()=='member') {
+						updateVisibilityForMemberMotionsViewLinks();
+					}	
 					reloadMotionGrid();
 				}			
 			});
@@ -67,8 +76,7 @@
 				var text = $("#deviceTypeMaster option[value='"+value+"']").text();				
 				if(value != ""){				
 					reloadMotionGrid();
-				}
-				
+				}				
 			});	
 			/**** status changes then reload grid****/			
 			$("#selectedStatus").change(function(){
@@ -389,6 +397,67 @@
 			});
 		});
 		
+		function updateVisibilityForMemberMotionsViewLinks() {
+			//reset visibility related flags and links
+			$('#member_motions_view_status_flag').val("");
+			$('#member_admitted_motions_view_flag').val("");
+			$('#member_admitted_motions_view_span').hide();
+			$('#member_rejected_motions_view_flag').val("");
+			$('#member_rejected_motions_view_span').hide();
+			
+			params = "houseType=" + $('#selectedHouseType').val()
+			+ '&sessionYear=' + $("#selectedSessionYear").val()
+			+ '&sessionType=' + $("#selectedSessionType").val();
+			
+			$.get('ref/loadVisibilityFlagsForMemberMotionsView?' + params, function(data) {
+				if (data.length > 0) {
+					var text = "";
+					for ( var i = 0; i < data.length; i++) {
+						text += "<option value='"+data[i].id+"'>"
+								+ data[i].name + "</option>";
+						if(data[i].name=='member_motions_view_status_flag') {
+							if(data[i].value=='status_visible') {
+								$('#member_motions_view_status_flag').val('status_visible');
+							}
+							
+						} else if(data[i].name=='member_admitted_motions_view_flag') {
+							if(data[i].value=='admitted_visible') {
+								$('#member_admitted_motions_view_flag').val('admitted_visible');
+								$('#member_admitted_motions_view_span').show();
+							}
+							
+						} else if(data[i].name=='member_rejected_motions_view_flag') {
+							if(data[i].value=='rejected_visible') {
+								$('#member_rejected_motions_view_flag').val('rejected_visible');
+								$('#member_rejected_motions_view_span').show();
+							}
+							
+						}
+					}
+				}
+			}).fail(function() {
+				//reset visibility related flags and links
+				$('#member_motions_view_status_flag').val("");
+				$('#member_admitted_motions_view_flag').val("");
+				$('#member_admitted_motions_view_span').hide();
+				$('#member_rejected_motions_view_flag').val("");
+				$('#member_rejected_motions_view_span').hide();
+				
+				if ($("#ErrorMsg").val() != '') {
+					$("#error_p").html($("#ErrorMsg").val()).css({
+						'color' : 'red',
+						'display' : 'block'
+					});
+				} else {
+					$("#error_p").html("Error occured contact for support.").css({
+						'color' : 'red',
+						'display' : 'block'
+					});
+				}
+				scrollTop();
+			});
+		}
+		
 		function loadSession(){
 			$.get("ref/sessionbyhousetype/" + $("#selectedHouseType").val()
 				+ "/" + $("#selectedSessionYear").val() + "/" + $("#selectedSessionType").val(),
@@ -514,17 +583,43 @@
 			showTabByIdAndUrl('details_tab','motion/determine_ordering_for_submission?'+parameters);
 		}
 		
-		function memberMotionsView(displayContent) {
+		function memberMotionsView(displayContent) { //includes all submitted motions
 			var parameters = "houseType=" + $("#selectedHouseType").val()
 			+ "&sessionYear=" + $("#selectedSessionYear").val()
 			+ "&sessionType=" + $("#selectedSessionType").val()
 			+ "&motionType=" + $("#selectedMotionType").val()
+			+ "&statusFilter=all"
 			+ "&createdBy=" + $("#ugparam").val()
 			+ "&displayContent=" + displayContent 
-			+"&locale="+$("#moduleLocale").val()
+			+ "&locale="+$("#moduleLocale").val()
 			+ "&report=MEMBER_MOTIONS_VIEW"
 			+ "&reportout=member_motions_view";
 			showTabByIdAndUrl('details_tab','motion/report/motion/genreport?'+parameters);
+		}
+		
+		function memberMotionsViewForStatus(status_filter) { //includes submitted motions having given status (admitted / rejected)
+			var viewMode = "";
+			if(status_filter=='rejected' && $('#member_motions_view_status_flag').val()=='status_visible') { //in case to show statuses for lowerhouse
+				viewMode = "_with_status";
+			} else if(status_filter=='admitted' && $('#member_admitted_motions_view_flag').val()=='admitted_visible') { //in case to show statuses for lowerhouse
+				viewMode = "_with_status";
+			}
+			//$.get('/ref/status_visibility_for_member_in_session?')
+			var parameters = "houseType=" + $("#selectedHouseType").val()
+			+ "&sessionYear=" + $("#selectedSessionYear").val()
+			+ "&sessionType=" + $("#selectedSessionType").val()
+			+ "&motionType=" + $("#selectedMotionType").val()
+			+ "&statusFilter=" + status_filter
+			+ "&createdBy=" + $("#ugparam").val()
+			+ "&displayContent=subject"
+			+ "&locale="+$("#moduleLocale").val()
+			+ "&report=MEMBER_MOTIONS_VIEW"
+			+ "&reportout=member_motions_view"+viewMode;
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			showTabByIdAndUrl('details_tab','motion/report/motion/genreport?'+parameters);
+			setTimeout(function(){
+				$.unblockUI();
+			},2000);
 		}
 		
 		/**** new motion ****/
@@ -1520,7 +1615,10 @@
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
 		<input type="hidden" id="allowedGroups" name="allowedGroups" value="${allowedGroups }">
 		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" /> 
-		<input type="hidden" id="usersAllowedForDepartmentFilter" value="${usersAllowedForDepartmentFilter}" />
+		<input type="hidden" id="usersAllowedForDepartmentFilter" value="${usersAllowedForDepartmentFilter}" />		
+		<input type="hidden" id="member_motions_view_status_flag" value="${member_motions_view_status_flag}" />
+		<input type="hidden" id="member_admitted_motions_view_flag" value="${member_admitted_motions_view_flag}" />
+		<input type="hidden" id="member_rejected_motions_view_flag" value="${member_rejected_motions_view_flag}" />
 		</div> 	
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 		<input type="hidden" id="moduleLocale" value="${moduleLocale}" />	

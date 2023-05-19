@@ -279,7 +279,50 @@ public class MotionController extends GenericController<Motion>{
 					model.addAttribute("highestFileNo", highestFileNo);
 				}
 				
+				/****Member's Motions Views Visibility Parameters****/
+				Boolean sessionEndDateFlag = false;
+				Date sessionEndDate = lastSessionCreated.getEndDate();
+				if(sessionEndDate!=null) {
+					String sessionEndDateTimeStr = FormaterUtil.formatDateToString(sessionEndDate, ApplicationConstants.DB_DATEFORMAT);
+					CustomParameter visibilityStartTimeCP = CustomParameter.findByName(CustomParameter.class, "VISIBILITY_START_TIME_FOR_MEMBER_MOTIONS_VIEW_"+houseType.toUpperCase(), "");
+					if(visibilityStartTimeCP!=null && visibilityStartTimeCP.getValue()!=null) {
+						sessionEndDateTimeStr = sessionEndDateTimeStr + " " + visibilityStartTimeCP.getValue();
+						Date sessionEndDateTime = FormaterUtil.formatStringToDate(sessionEndDateTimeStr, ApplicationConstants.DB_DATETIME_FORMAT);
+						if(new Date().compareTo(sessionEndDateTime)>=0) {
+							sessionEndDateFlag = true;
+						}
+					}
+				}
 				
+				Boolean statusFlag = false;		
+				CustomParameter statusFlagForMemberMotionsView = CustomParameter.findByName(CustomParameter.class, "STATUS_FLAG_FOR_MEMBER_MOTIONS_VIEW_"+houseType.toUpperCase(), "");
+				if(statusFlagForMemberMotionsView!=null && statusFlagForMemberMotionsView.getValue()!=null
+						&& statusFlagForMemberMotionsView.getValue().equals("visible")) {
+					statusFlag = true; 
+				}
+				if(statusFlag.equals(true) && sessionEndDateFlag.equals(true)) {
+					model.addAttribute("member_motions_view_status_flag", "status_visible");
+				}
+				
+				Boolean visibilityFlagForAdmitted = false;
+				CustomParameter visibilityFlagForMemberAdmittedMotionsView = CustomParameter.findByName(CustomParameter.class, "VISIBILITY_FLAG_FOR_MEMBER_ADMITTED_MOTIONS_VIEW_"+houseType.toUpperCase(), "");
+				if(visibilityFlagForMemberAdmittedMotionsView!=null && visibilityFlagForMemberAdmittedMotionsView.getValue()!=null
+						&& visibilityFlagForMemberAdmittedMotionsView.getValue().equals("visible")) {
+					visibilityFlagForAdmitted = true; 
+				}
+				if(visibilityFlagForAdmitted.equals(true)/* && sessionEndDateFlag.equals(true)*/) {
+					model.addAttribute("member_admitted_motions_view_flag", "admitted_visible");
+				}
+				
+				Boolean visibilityFlagForRejected = false;
+				CustomParameter visibilityFlagForMemberRejectedMotionsView = CustomParameter.findByName(CustomParameter.class, "VISIBILITY_FLAG_FOR_MEMBER_REJECTED_MOTIONS_VIEW_"+houseType.toUpperCase(), "");
+				if(visibilityFlagForMemberRejectedMotionsView!=null && visibilityFlagForMemberRejectedMotionsView.getValue()!=null
+						&& visibilityFlagForMemberRejectedMotionsView.getValue().equals("visible")) {
+					visibilityFlagForRejected = true; 
+				}
+				if(visibilityFlagForRejected.equals(true) && sessionEndDateFlag.equals(true)) {
+					model.addAttribute("member_rejected_motions_view_flag", "rejected_visible");
+				}
 				
 			} catch (ELSException e) {
 				model.addAttribute("MotionController", e.getParameter());
