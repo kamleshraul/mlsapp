@@ -84,8 +84,11 @@
 			<c:set var="total" value="0" />
 			<c:set var="labels" value="${fn:split(report[0][1],';')}" />
 			<div id="reportDiv">
-				<div style="width: 750px; text-align: center; font-size: 20px; font-weight: bold;">
+				<div  id ="normalHeading" style="width: 750px; text-align: center; font-size: 20px; font-weight: bold;">
 					${labels[0]}	
+				</div>	
+				<div id="bracketHeading" style="width: 750px; text-align: center; font-size: 20px; font-weight: bold;">
+					${labels[0]}	(${topHeader[8] })
 				</div>				
 				<br>
 				 <div style="width: 750px;">
@@ -107,7 +110,7 @@
 								<th style="width: 90px;">${topHeader[4]}</th>
 								<th style="width: 30px">${topHeader[5]}</th>
 								<th style="width: 50px;">${topHeader[6]}</th>
-								<th style="width: 50px;">${topHeader[8]}</th>
+								<th class ="SentToDept" style="width: 50px;">${topHeader[8]}</th>
 							</tr>						
 						</thead>
 						<tbody>
@@ -121,7 +124,7 @@
 									<td style="width: 90px; text-align: center;">${r[9]}</td>
 									<td style="width: 30px; text-align: center;">${r[10]}</td>
 									<td style="width: 50px; text-align: center;">${r[7]}</td>
-									<td style="width: 50px; text-align: center;">${r[21]}</td>
+									<td class="SentToDept" style="width: 50px; text-align: center;">${r[21]}</td>
 								</tr>	
 								<c:set var="total" value="${counter.count}" />
 							</c:forEach>
