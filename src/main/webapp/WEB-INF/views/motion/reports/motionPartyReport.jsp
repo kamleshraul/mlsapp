@@ -107,6 +107,7 @@
 								<th style="width: 90px;">${topHeader[4]}</th>
 								<th style="width: 30px">${topHeader[5]}</th>
 								<th style="width: 50px;">${topHeader[6]}</th>
+								<th style="width: 50px;">${topHeader[8]}</th>
 							</tr>						
 						</thead>
 						<tbody>
@@ -120,6 +121,7 @@
 									<td style="width: 90px; text-align: center;">${r[9]}</td>
 									<td style="width: 30px; text-align: center;">${r[10]}</td>
 									<td style="width: 50px; text-align: center;">${r[7]}</td>
+									<td style="width: 50px; text-align: center;">${r[21]}</td>
 								</tr>	
 								<c:set var="total" value="${counter.count}" />
 							</c:forEach>
