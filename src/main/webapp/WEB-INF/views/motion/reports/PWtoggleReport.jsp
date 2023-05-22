@@ -9,11 +9,8 @@
 	<script type="text/javascript">
 		var ids, counter, limit, dataSize;
 		$(document).ready(function(){
-		
-			
-			
-			loadPartyReport()
-			
+	
+			loadPartyReport()			
 			  $("#filter").change(function(){
 			    	    
 			    	    if($("#filter").val() == "1")
@@ -28,6 +25,10 @@
 			    			$.get('motion/report/motion/genreport?'+ params,function(data1){			    					
 			    					$('#reportWindow1').empty();
 			    					$('#reportWindow1').html(data1);
+			    					$("#normalHeading").hide();
+			    					$("#bracketHeading").show();
+			    					$(".SentToDept").hide();
+			    					
 			    		 	}).fail(function()
 			    		 		{				 
 			    		 		});
@@ -55,6 +56,9 @@
 					
 					$('#reportWindow1').empty();
 					$('#reportWindow1').html(data1);
+					$("#normalHeading").show();
+					$("#bracketHeading").hide();
+					$(".SentToDept").show();
 		 }).fail(function(){				 
 		 });
 		}
