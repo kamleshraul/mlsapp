@@ -14513,6 +14513,13 @@ public class Question extends Device implements Serializable {
 	
 	}
 	
+	public static List<Integer> getQuestionNumberRange(final Session session , final DeviceType deviceType){
+		
+		List<Integer> qNRange = new ArrayList<Integer>();
+		return qNRange = getQuestionRepository().getQuestionNumberRange(session, deviceType);
+	
+	}
+	
 	
 	
 }
