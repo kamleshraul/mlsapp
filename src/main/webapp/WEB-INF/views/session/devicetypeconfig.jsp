@@ -1084,8 +1084,8 @@
 					<input type="text" class="datetimemask sText" name="motions_discussionmotion_lastweek_submissionEndDate" id="motions_discussionmotion_lastweek_submissionEndDate" value="${motions_discussionmotion_lastweek_submissionenddate}" />
 				</p>
 				
-				<p style="display: inline;">
-					<%-- <label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label> --%>
+				<%-- <p style="display: inline;">
+					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label>
 					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Number of Supporting Members" /></label>
 					<select class="sSelect" name="motions_discussionmotion_lastweek_numberOfSupportingMembersComparator" id="motions_discussionmotion_lastweek_numberOfSupportingMembersComparator" style="width: 100px; height: 22px; border: solid 1px #8d8e8d;">
 						<option value="">---<spring:message code='client.prompt.select' text='Please Select'/>---</option>
@@ -1096,10 +1096,61 @@
 						<option value="ge">&ge;</option>
 					</select>
 					<label id="motions_discussionmotion_lastweek_numberOfSupportingMembersComparator_hidden" title="${motions_discussionmotion_lastweek_numberofsupportingmemberscomparator}"></label>
-				</p>
-				<p style="display: inline;">		
+				</p> --%>
+				
+				
+								<p>
+					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Supporting Members" /></label>
+					<select class="sSelect" name="motions_discussionmotion_lastweek_numberOfSupportingMembersComparator" id="motions_discussionmotion_lastweek_numberOfSupportingMembersComparator">
+						<option value="">---<spring:message code='client.prompt.select' text='Please Select'/>---</option>
+						<c:choose>      
+						<c:when test="${motions_discussionmotion_lastweek_numberofsupportingmemberscomparator =='equal'}">
+						<option value="equal" selected="selected">&#61;</option>
+						</c:when>
+						<c:otherwise>
+						<option value="equal">&#61;</option>
+						</c:otherwise>
+						</c:choose>
+						<c:choose>
+						<c:when test="${motions_discussionmotion_lastweek_numberofsupportingmemberscomparator =='lessthan'}">
+						<option value="lessthan" selected="selected">&lt;</option>
+						</c:when>
+						<c:otherwise>
+						<option value="lessthan">&lt;</option>
+						</c:otherwise>
+						</c:choose>		
+						<c:choose>
+						<c:when test="${motions_discussionmotion_lastweek_numberofsupportingmemberscomparator =='lessthanequal'}">
+						<option value="lessthanequal" selected="selected">&le;</option>						
+						</c:when>
+						<c:otherwise>
+						<option value="lessthanequal">&le;</option>						
+						</c:otherwise>
+						</c:choose>		
+						<c:choose>
+						<c:when test="${motions_discussionmotion_lastweek_numberofsupportingmemberscomparator =='greaterthan'}">
+						<option value="greaterthan" selected="selected">&gt;</option>
+						</c:when>
+						<c:otherwise>
+						<option value="greaterthan">&gt;</option>
+						</c:otherwise>
+						</c:choose>		
+						<c:choose>       																		
+						<c:when test="${motions_discussionmotion_lastweek_numberofsupportingmemberscomparator =='greaterthanequal'}">
+						<option value="greaterthanequal" selected="selected">&ge;</option>
+						</c:when>
+						<c:otherwise>
+						<option value="greaterthanequal">&ge;</option>
+						</c:otherwise>
+						</c:choose>								
+					</select>
+							
 					<input type="text" class="sText" name="motions_discussionmotion_lastweek_numberOfSupportingMembers" id="motions_discussionmotion_lastweek_numberOfSupportingMembers" value="${motions_discussionmotion_lastweek_numberofsupportingmembers}" style="width: 62px" />
-				</p>				
+			
+					
+				</p>
+				
+								
 			</div>
 		</c:if>
 		
@@ -2593,6 +2644,7 @@
 	</div>
 	<input type="hidden" id="invalidNumber" value="<spring:message code='client.NAN' text='Not a proper number.' />" />
 	<input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
+	
 	<input type="hidden" id="invalidDaysBetweenSubmissionEndDateAndLastDiscussionDateOfSession" value="<spring:message code='resolutions.invalidDaysBetweenSubmissionEndDateAndLastDiscussionDateOfSession' text='Please Enter Days Between SubmissionEndDate And LastDiscussionDateOfSession' />" />
 	<input type="hidden" id="noDiscussionDateSelected" value="<spring:message code='resolutions.noDiscussionDateSelected' text='Please set discussion date/s' />" />
 	<input type="hidden" id="ajaxErrorOccured" value="<spring:message code='ajaxErrorOccured' text='Some Error Occured' />" />
