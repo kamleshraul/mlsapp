@@ -8987,12 +8987,14 @@ public class ReferenceController extends BaseController {
 									if(yaadiDetails==null) {
 										/** populate Data for New Yaadi which is either first or latest **/
 										model.addAttribute("yaadiDetailsId", "");
+										model.addAttribute("showSaveButton","NO" );
 										model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(yaadiNumber, locale.toString()));
 										model.addAttribute("yaadiLayingDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 										totalDevicesInYaadi = YaadiDetails.findDevicesEligibleForNumberedYaadi(deviceType, session, 0, locale.toString());
 									} else {
 										/** populate Data for Given Yaadi which is not yet filled **/
 										model.addAttribute("yaadiDetailsId", yaadiDetails.getId());
+										model.addAttribute("showSaveButton","YES" );
 										model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(yaadiDetails.getNumber(), locale.toString()));
 										Date yaadiLayingDate = yaadiDetails.getLayingDate();
 										if(yaadiLayingDate!=null) {
@@ -11673,6 +11675,35 @@ public class ReferenceController extends BaseController {
 
 		return selectedDevices;
 	}
+	
+	
+	
+	@RequestMapping(value = "/getQuestionNumberRange", method = RequestMethod.GET)
+	public @ResponseBody MasterVO getQuestionNumberRange(HttpServletRequest request ,  Locale locale ) throws ELSException {
+		
+		
+		String strSessionId = request.getParameter("sessionId");
+		String strDeviceType = request.getParameter("deviceType");
+		Long sessionId = Long.parseLong(strSessionId);
+		DeviceType dt = DeviceType.findByType(strDeviceType, locale.toString());
+		
+		Session s = Session.findById(Session.class, sessionId);
+		//Poplute QUestion Number Range - Shubham A
+				List<Integer> qNRange = Question.getQuestionNumberRange(s,dt);
+				if(qNRange != null && qNRange.size()>0) {
+					MasterVO mQR = new MasterVO();
+					mQR.setFormattedOrder(qNRange.get(0).toString());
+					mQR.setFormattedNumber(qNRange.get(1).toString());
+					return mQR;
+				}
+		
+		return null;
+	}
+	
+	
+	
+	
+	
 	
 	
 }
