@@ -3794,4 +3794,31 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		}
 		return questionIds;
 	}
+	
+	public List<Integer> getQuestionNumberRange(final Session session,final DeviceType deviceType ){
+		List<Integer> qNRange = new ArrayList<Integer>();
+		String queryString =
+				" (SELECT q.`number` FROM questions q WHERE q.`session_id` =:sessionId  AND q.`devicetype_id` =:deviceType AND DATE(q.`submission_date`)=:fsDate AND q.`number`IS NOT NULL    ORDER BY q.number LIMIT 1 )"
+				+ " UNION "
+				+ " (SELECT q.`number` FROM questions q WHERE q.`session_id` =:sessionId  AND q.`devicetype_id` =:deviceType AND DATE(q.`submission_date`) =:fsDate AND q.`number`IS NOT NULL     ORDER BY q.number DESC  LIMIT 1 )" ;
+		Query query = this.em().createNativeQuery(queryString);
+		query.setParameter("sessionId", session.getId());	
+		query.setParameter("deviceType", deviceType.getId());
+		
+		Map<String, String> parameters = session.getParametersWithoutFormatting();
+		String[] arr = parameters.get("questions_starred_submissionFirstBatchStartDate").split(" ");
+		query.setParameter("fsDate", arr[0]);
+		
+		try {
+		qNRange = (List<Integer>) query.getResultList();
+		return qNRange;
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		
+		return null;
+	}
+	
+	
 }
