@@ -563,6 +563,16 @@
 			showBallotChoiceOptionReport();
 		});
 		
+		
+		
+		/* Shubham */
+		$("#QuestionNumberRange").hide();
+		
+		$("#QuestionNumberRangeDivViewer").click(function(){
+			loadQuestionNumberRange()
+	    		$("#QuestionNumberRange").toggle();
+	    	});
+		
 		var selectedDeviceType = $("#deviceTypeMaster option[value='" 
 		                                                     + $("#selectedQuestionType").val() + "']").text();
 		if(selectedDeviceType.indexOf("questions_halfhourdiscussion_")==-1){
@@ -1043,6 +1053,25 @@
 		});
 		$("#grid").trigger("reloadGrid");
 	}
+	
+	
+	/*******-- Shubham   ---**************/
+	function loadQuestionNumberRange(){
+		
+		$.get('ref/getQuestionNumberRange?'
+				+ 'sessionId='+$('#loadedSession').val()
+				+'&deviceType='+$('#currentDeviceType').val()
+				
+				,function(data) {
+					$("#qsnRange").empty();
+					var text = " ("+data.formattedOrder + - +data.formattedNumber +")";
+					if(text != ' (undefinedNaN)'){
+						$("#qsnRange").html(text);
+					}
+			
+		})
+	}
+
 	/**** Chart Tab ****/
 	function viewChart() {
 		var parameters = $("#gridURLParams").val();
@@ -2067,6 +2096,20 @@
 		});
 	}
 </script>
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css">
+<style>
+#QuestionNumberRangeDivViewer{
+			
+			width: 50px;
+			height: 50px;
+			z-index: 5000;
+			bottom: 50px;
+			right: 50px;			
+			position: fixed;
+			cursor: pointer;
+		}
+
+</style>
 </head>
 <body>
 	<div class="clearfix tabbar">
@@ -2556,6 +2599,29 @@
 		</div>
 
 		<div class="tabContent"></div>
+
+		
+		<c:if test="${houseType=='upperhouse'}">
+		<c:if test="${questionTypeType=='questions_starred'}">
+			<div id="QuestionNumberRangeDivViewer" title="View Question Number Range Viewer">
+				<b><i class="fas fa-info-circle fa-3x" style="color: #0652e0;"></i></b>
+			</div>
+			
+			<div id="QuestionNumberRange"
+			style="position: fixed; z-index: 999; background: scroll; right: 25px; bottom: 70px; width: 300px; overflow: auto; height: 480px;">
+			<%-- <c:forEach items="${departmentwiseCounts}" var="i"> --%>
+				<div
+					style="color: black; border: 1px solid black; background: #80dfff; width: 200px; height: 30px; padding: 2px; font-weight: bold; vertical-align: middle; display: inline-block; font-size: 12px;">
+					<spring:message code='generic.QuestionNumberRange' text='Start And End Question Number '></spring:message></div>
+				<div id="qsnRange"
+					style="color: black; border: 1px solid black; background: #80dfff; width: 80px; height: 30px; padding: 2px; font-weight: bold; vertical-align: middle; display: inline-block; text-align: center; font-size: 12px;">
+					<%-- ${startNumber} - ${lastNumber} --%>
+				</div>
+				<div style="height: 1px;"></div>
+			<%-- </c:forEach> --%>
+		</div>
+		</c:if>
+		</c:if>
 
 		<input type="hidden" id="key" name="key"> 
 		<input type="hidden" id="loadedSession" value="" />
