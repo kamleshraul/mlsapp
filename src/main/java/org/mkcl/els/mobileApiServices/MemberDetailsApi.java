@@ -1,15 +1,20 @@
 package org.mkcl.els.mobileApiServices;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.exception.ELSException;
-
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberMobileVO;
+import org.mkcl.els.domain.House;
+import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.Party;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,8 +46,30 @@ public class MemberDetailsApi {
 				}
 	    	}
 	    	//System.out.println(mmolist.size());    	
-	   		response.setHeader("Access-Control-Allow-Origin", "*");
+	   		
 	    	   return mmolist;
 	  }
+	   
+	   @RequestMapping(value="/PartWiseMemberCount/{houseType}/{locale}")
+	    public @ResponseBody List<MasterVO> getCountOfAllMembersByHouseType(@PathVariable("houseType") final String houseType, 
+	    		@PathVariable("locale") final String locale,	
+	    		HttpServletRequest request, HttpServletResponse response) throws ELSException{
+
+			List<MasterVO> partyWiseCount = new ArrayList<MasterVO>();
+			// List<House> listOfht = House.findByHouseType(houseType, locale);
+			HouseType ht = HouseType.findByType(houseType, locale);
+			if (ht != null && ht.getId() != null) {
+				House h = House.find(ht, new Date(), locale);
+				if (h != null && h.getId() != null) {
+					partyWiseCount = Party.getPartyWiseCountOfMemberForMobile(h);
+					if (partyWiseCount != null && partyWiseCount.size() > 0) {
+						response.setHeader("Access-Control-Allow-Origin", "*");
+						return partyWiseCount;
+					}
+				}
+			}
+			return null;
+	   }
+	   
 	    
 }
