@@ -26,6 +26,7 @@ import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.mkcl.els.repository.DeviceTypeRepository;
 import org.mkcl.els.repository.PartyRepository;
@@ -333,6 +334,12 @@ public class Party extends BaseDomain implements Serializable {
 	public void setPartyType(PartyType partyType) {
 		this.partyType = partyType;
 	}
+	
+	
+	public static List<MasterVO> getPartyWiseCountOfMemberForMobile(final House house){
+		return getPartyRepository().getPartyWiseCountOfMemberForMobile(house);
+	}
+	
 
 //	public String getType() {
 //		return type;
