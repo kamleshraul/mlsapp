@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -5432,5 +5433,62 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		
 		return mmVO;
 		
+	}
+	
+	
+	
+	public List<MasterVO> getMemberWithUpcomingBday(final House house,
+			final Date date, final int IntervalCount , final String locale){
+		List<MasterVO> members = new ArrayList<MasterVO>();
+		
+		 CustomParameter parameter =
+					CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+		 CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"SERVER_DATEFORMAT_HYPHEN","");
+		 SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(), locale);
+		 String strDate = FormaterUtil.formatDateToString(date, parameter.getValue());
+	
+		 
+		 try {
+			 List<Object> m  = new ArrayList<Object>();
+			String strQuery =" SELECT CONCAT(t.`name`,' ',m.`first_name`,'  ',m.`last_name`) AS 'Fname',m.`birth_date` AS 'Bday' ,YEAR('"+strDate+"')-YEAR(m.`birth_date`) AS 'Age',CONCAT( t.type ,' ',m.`first_name_english`,'  ',m.`last_name_english`) AS 'Ename' FROM members m "
+					+ "  LEFT JOIN `titles` t ON (t.`id` = m.`title_id`)"
+					+ "  INNER JOIN `members_houses_roles` mhr ON (mhr.`member` = m.`id`)"
+					+ "  WHERE mhr.`house_id` =:houseId"
+					+ "  AND mhr.`from_date` <= '"+strDate +"'"
+					+ "  AND mhr.`to_date` >= '"+strDate +"'"
+					+ "  AND DATE_ADD(m.`birth_date`,"
+					+ "  INTERVAL YEAR('"+ strDate+"')-YEAR(m.`birth_date`)"
+					+ "  + IF(DAYOFYEAR('"+ strDate+"') > DAYOFYEAR(m.`birth_date`),1,0)"
+					+ "  YEAR)  "
+					+ "  BETWEEN '"+strDate+"' AND DATE_ADD('"+strDate+"', INTERVAL :intervalCount DAY)";
+			
+			javax.persistence.Query query = this.em().createNativeQuery(strQuery);
+			query.setParameter("houseId", house.getId());
+			query.setParameter("intervalCount", IntervalCount);
+			
+			//System.out.println(query.toString());
+			m = query.getResultList();	
+			 MasterVO arr = null;
+			 if(m != null && m.size()>0) {				
+				 for(Object i : m) {
+					 arr =new MasterVO();
+					 Object[] o=(Object[]) i;
+					 arr.setName(o[0].toString());
+					 //arr.setFormattedNumber(o[1].toString());					 
+					 arr.setFormattedNumber(format.format((Date)o[1]));
+					 arr.setFormattedOrder(((Date)o[1]).toString());
+					 arr.setNumber(Integer.parseInt(o[2].toString()));
+					 arr.setDisplayName(o[3].toString());
+					 arr.setValue(FormaterUtil.formatNumberNoGrouping(o[2], locale));
+					 members.add(arr);
+					 
+				 }
+			 }
+			 
+		 }catch(Exception e) {
+			 e.printStackTrace();
+		 }
+		 
+		 return members;
 	}
 }
