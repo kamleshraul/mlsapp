@@ -2370,4 +2370,9 @@ import org.springframework.beans.factory.annotation.Configurable;
 		
 	}
 	
+	public static List<MasterVO> getMemberWithUpcomingBday(final House house,
+			final Date date, final int IntervalCount , final String locale){
+		return getMemberRepository().getMemberWithUpcomingBday(house, date, IntervalCount, locale);
+	}
+	
 }
