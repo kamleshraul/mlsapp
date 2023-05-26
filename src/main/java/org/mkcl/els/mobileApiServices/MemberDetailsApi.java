@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberMobileVO;
+import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
@@ -69,6 +70,33 @@ public class MemberDetailsApi {
 				}
 			}
 			return null;
+	   }
+	   
+	   @RequestMapping(value="/MemberBday/{houseType}/{isBdayRange}/{locale}")
+	   public @ResponseBody List<MasterVO> getMemberWithUpcomingBday(@PathVariable("houseType") final String houseType,
+			   	@PathVariable("isBdayRange") final Boolean isBdayRange,@PathVariable("locale") final String locale){
+		   
+		   
+			List<MasterVO> memberBdayDetails = new ArrayList<MasterVO>();
+			
+			if (isBdayRange != null) {
+				HouseType ht = HouseType.findByType(houseType, locale);
+				if (ht != null && ht.getId() != null) {
+					House h = House.find(ht, new Date(), locale);
+					if (h != null && h.getId() != null) {
+						if (isBdayRange) {
+							CustomParameter parameter =
+									CustomParameter.findByName(CustomParameter.class, "Birthday_Range_for_Mobile", "");
+							memberBdayDetails = Member.getMemberWithUpcomingBday(h, new Date(),Integer.parseInt( parameter.getValue()), locale);
+						} else {
+							memberBdayDetails = Member.getMemberWithUpcomingBday(h, new Date(), 0, locale);
+						}
+					}
+				}
+			}
+		   
+		   return  memberBdayDetails;
+		   
 	   }
 	   
 	    
