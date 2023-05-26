@@ -1783,6 +1783,7 @@
 	<form:hidden path="transferToDepartmentAccepted"/>
 	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<form:hidden path="reasonForLateReply"/>
+	<form:hidden path="submittedInBatch1"/>
 	<input type="hidden" id="resendQuestionTextStatus" name="resendQuestionTextStatus" value="${resendQuestionTextStatus}" />
 	<input type="hidden" id="sendHalfHourForDiscussionDate" name="sendHalfHourForDiscussionDate" value="${sendHalfHourForDiscussionDate}" />
 	<c:if test="${domain.ballotStatus!=null}">

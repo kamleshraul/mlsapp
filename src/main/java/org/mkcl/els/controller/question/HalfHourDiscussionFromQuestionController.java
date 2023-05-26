@@ -94,25 +94,8 @@ class HalfHourDiscussionFromQuestionController {
 		List<SessionType> sessionTypes = QuestionController.getSessionTypes(locale);
 		model.addAttribute("sessionTypes", sessionTypes);
 		
-		// Populate latest Session type
-		Session latestSession = Session.findLatestSession(houseType);
-		if(latestSession != null) {
-			model.addAttribute("sessionType", latestSession.getType().getId());
-		}
-		else {
-			model.addAttribute("errorcode", "nosessionentriesfound");
-		}
-		
-		// Populate latest Session year
-		Integer latestYear = new GregorianCalendar().get(Calendar.YEAR);
-		if(latestSession != null) {
-			latestYear = latestSession.getYear();
-		}
-		model.addAttribute("sessionYear", latestYear);
-		
-		// Populate Session years
-		List<Integer> sessionYears = QuestionController.getSessionYears(latestYear);
-		model.addAttribute("years", sessionYears);
+		// Populate latest Session
+		Session latestSessionForUser = Session.findLatestSession(houseType);
 		
 		// Populate User group & User Group type
 		/**
@@ -136,23 +119,48 @@ class HalfHourDiscussionFromQuestionController {
 				List<UserGroupType> configuredUserGroupTypes = 
 						QuestionController.delimitedStringToUGTList(cp.getValue(), ",", locale);
 				
-				userGroup = QuestionController.getUserGroup(userGroups, configuredUserGroupTypes, latestSession, locale);
+				userGroup = QuestionController.getUserGroup(userGroups, configuredUserGroupTypes, latestSessionForUser, locale);
+				if(userGroup==null) {
+					latestSessionForUser = Session.findPreviousSessionInSameHouseForGivenDeviceTypeEnabled(latestSessionForUser, deviceType);
+					if(latestSessionForUser!=null) {
+						userGroup = QuestionController.getUserGroup(userGroups, configuredUserGroupTypes, latestSessionForUser, locale);
+					}
+				}
 				userGroupType = userGroup.getUserGroupType();
 				
 				model.addAttribute("usergroup", userGroup.getId());
 				model.addAttribute("usergroupType", userGroupType.getType());
 			}
 			else {
-				throw new ELSException("HalfHourDiscussionFromQuestionController.populateModule/4", 
+				throw new ELSException("StarredQuestionController.populateModule/4", 
 						"QIS_ALLOWED_USERGROUPTYPES key is not set as CustomParameter");
 			}
 		}
 		if(userGroup == null || userGroupType == null) {
-//			throw new ELSException("StarredQuestionController.populateModule/4", 
-//			"User group or User group type is not set for Username: " + currentUser.getUsername());
-	
+//									throw new ELSException("StarredQuestionController.populateModule/4", 
+//											"User group or User group type is not set for Username: " + currentUser.getUsername());
+			
 			model.addAttribute("errorcode","current_user_has_no_usergroups");
 		}
+		
+		// Populate latest Session type
+		if(latestSessionForUser != null) {
+			model.addAttribute("sessionType", latestSessionForUser.getType().getId());
+		}
+		else {
+			model.addAttribute("errorcode", "nosessionentriesfound");
+		}
+		
+		// Populate latest Session year
+		Integer latestYear = new GregorianCalendar().get(Calendar.YEAR);
+		if(latestSessionForUser != null) {
+			latestYear = latestSessionForUser.getYear();
+		}
+		model.addAttribute("sessionYear", latestYear);
+		
+		// Populate Session years
+		List<Integer> sessionYears = QuestionController.getSessionYears(latestYear);
+		model.addAttribute("years", sessionYears);
 		
 		// Populate Sub Departments configured for this User's user group type
 		Map<String, String> parameters = UserGroup.findParametersByUserGroup(userGroup);
@@ -251,7 +259,7 @@ class HalfHourDiscussionFromQuestionController {
 			List<Group> groups = new ArrayList<Group>();
 			for(Integer groupNumber : groupNumbers) {
 				Group group = Group.findByNumberHouseTypeSessionTypeYear(groupNumber,  
-						houseType, latestSession.getType(), latestYear);
+						houseType, latestSessionForUser.getType(), latestYear);
 				groups.add(group);
 			}
 			model.addAttribute("groups", groups);

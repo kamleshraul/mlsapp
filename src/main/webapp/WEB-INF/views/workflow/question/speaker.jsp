@@ -1516,6 +1516,7 @@
 	<form:hidden path="reasonForLateReply"/>
 	<form:hidden path="questionsAskedInFactualPositionForMember"/>
 	<form:hidden path="processed"/>
+	<form:hidden path="submittedInBatch1"/>
 	<c:if test="${domain.ballotStatus!=null}">
 		<input type="hidden" name="ballotStatus" id="ballotStatusId" value="${ballotStatusId}"/>		
 	</c:if>

@@ -32,6 +32,7 @@ import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.repository.UserGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -236,7 +237,9 @@ public class UserGroup extends BaseDomain implements Serializable {
 //		if(userGroup.getActiveFrom().before(session.getEndDate())
 //				&& userGroup.getActiveTo().after(session.getEndDate())){
 		if(userGroup.getActiveFrom().compareTo(session.getEndDate())<=0
-				&& userGroup.getActiveTo().compareTo(session.getEndDate())>=0) {
+				&& userGroup.getActiveTo().compareTo(session.getEndDate())>=0
+				&& DateUtil.compareDatePartOnly(new Date(), userGroup.getActiveTo())<=0 //added this condition to make sure that user is actually active in the system in addition to the session
+		) {
 			
 			retVal = true;
 			

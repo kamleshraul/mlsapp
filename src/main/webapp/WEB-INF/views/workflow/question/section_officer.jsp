@@ -2093,6 +2093,7 @@
 	<form:hidden path="transferToDepartmentAccepted"/>
 	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<form:hidden path="processed"/>
+	<form:hidden path="submittedInBatch1"/>
 	<input type="hidden" id="resendQuestionTextStatus" name="resendQuestionTextStatus" value="${resendQuestionTextStatus}"/>
 	<input type="hidden" id="sendHalfHourForDiscussionDate" name="sendHalfHourForDiscussionDate" value="${sendHalfHourForDiscussionDate}" />
 	<input type="hidden" id="clarificationStatus" name="clarificationStatus" value="${clarificationStatus}"/>

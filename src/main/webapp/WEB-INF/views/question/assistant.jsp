@@ -1837,6 +1837,7 @@
 		<form:hidden path="workflowDetailsId"/>
 		<form:hidden path="reasonForLateReply"/>
 		<form:hidden path="questionsAskedInFactualPositionForMember"/>
+		<form:hidden path="submittedInBatch1"/>
 		<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 		<input type="hidden" name="status" id="status" value="${status }">
 		<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">

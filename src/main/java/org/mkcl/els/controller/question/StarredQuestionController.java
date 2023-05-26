@@ -102,25 +102,8 @@ class StarredQuestionController {
 		List<SessionType> sessionTypes = QuestionController.getSessionTypes(locale);
 		model.addAttribute("sessionTypes", sessionTypes);
 		
-		// Populate latest Session type
-		Session latestSession = Session.findLatestSession(houseType);
-		if(latestSession != null) {
-			model.addAttribute("sessionType", latestSession.getType().getId());
-		}
-		else {
-			model.addAttribute("errorcode", "nosessionentriesfound");
-		}
-		
-		// Populate latest Session year
-		Integer latestYear = new GregorianCalendar().get(Calendar.YEAR);
-		if(latestSession != null) {
-			latestYear = latestSession.getYear();
-		}
-		model.addAttribute("sessionYear", latestYear);
-		
-		// Populate Session years
-		List<Integer> sessionYears = QuestionController.getSessionYears(latestYear);
-		model.addAttribute("years", sessionYears);
+		// Populate latest Session
+		Session latestSessionForUser = Session.findLatestSession(houseType);
 		
 		// Populate User group & User Group type
 		/**
@@ -144,7 +127,13 @@ class StarredQuestionController {
 				List<UserGroupType> configuredUserGroupTypes = 
 						QuestionController.delimitedStringToUGTList(cp.getValue(), ",", locale);
 				
-				userGroup = QuestionController.getUserGroup(userGroups, configuredUserGroupTypes, latestSession, locale);
+				userGroup = QuestionController.getUserGroup(userGroups, configuredUserGroupTypes, latestSessionForUser, locale);
+				if(userGroup==null) {
+					latestSessionForUser = Session.findPreviousSessionInSameHouseForGivenDeviceTypeEnabled(latestSessionForUser, deviceType);
+					if(latestSessionForUser!=null) {
+						userGroup = QuestionController.getUserGroup(userGroups, configuredUserGroupTypes, latestSessionForUser, locale);
+					}
+				}
 				userGroupType = userGroup.getUserGroupType();
 				
 				model.addAttribute("usergroup", userGroup.getId());
@@ -156,11 +145,30 @@ class StarredQuestionController {
 			}
 		}
 		if(userGroup == null || userGroupType == null) {
-//			throw new ELSException("StarredQuestionController.populateModule/4", 
-//					"User group or User group type is not set for Username: " + currentUser.getUsername());
+//					throw new ELSException("StarredQuestionController.populateModule/4", 
+//							"User group or User group type is not set for Username: " + currentUser.getUsername());
 			
 			model.addAttribute("errorcode","current_user_has_no_usergroups");
 		}
+		
+		// Populate latest Session type
+		if(latestSessionForUser != null) {
+			model.addAttribute("sessionType", latestSessionForUser.getType().getId());
+		}
+		else {
+			model.addAttribute("errorcode", "nosessionentriesfound");
+		}
+		
+		// Populate latest Session year
+		Integer latestYear = new GregorianCalendar().get(Calendar.YEAR);
+		if(latestSessionForUser != null) {
+			latestYear = latestSessionForUser.getYear();
+		}
+		model.addAttribute("sessionYear", latestYear);
+		
+		// Populate Session years
+		List<Integer> sessionYears = QuestionController.getSessionYears(latestYear);
+		model.addAttribute("years", sessionYears);
 		
 		// Populate Sub Departments configured for this User's user group type
 		Map<String, String> parameters = UserGroup.findParametersByUserGroup(userGroup);
@@ -266,7 +274,7 @@ class StarredQuestionController {
 			List<Group> groups = new ArrayList<Group>();
 			for(Integer groupNumber : groupNumbers) {
 				Group group = Group.findByNumberHouseTypeSessionTypeYear(groupNumber,  
-						houseType, latestSession.getType(), latestYear);
+						houseType, latestSessionForUser.getType(), latestYear);
 				groups.add(group);
 			}
 			model.addAttribute("groups", groups);
@@ -277,14 +285,14 @@ class StarredQuestionController {
 		}
 		
 		/****Session Parameter for Mode****/
-		String mode = latestSession.getParameter(ApplicationConstants.QUESTION_STARRED_PROCESSINGMODE);
+		String mode = latestSessionForUser.getParameter(ApplicationConstants.QUESTION_STARRED_PROCESSINGMODE);
 		if(mode !=null && !mode.isEmpty()){
 			model.addAttribute("processMode",mode);
 		}
 		
 		/****Member's Questions Views Visibility Parameters****/
 		Boolean sessionEndDateFlag = false;
-		Date sessionEndDate = latestSession.getEndDate();
+		Date sessionEndDate = latestSessionForUser.getEndDate();
 		if(sessionEndDate!=null) {
 			String sessionEndDateTimeStr = FormaterUtil.formatDateToString(sessionEndDate, ApplicationConstants.DB_DATEFORMAT);
 			CustomParameter visibilityStartTimeCP = CustomParameter.findByName(CustomParameter.class, "VISIBILITY_START_TIME_FOR_MEMBER_QUESTIONS_VIEW_"+houseType.getType().toUpperCase(), "");
@@ -777,9 +785,11 @@ class StarredQuestionController {
 											result.rejectValue("version","SubmissionNotAllowedPostFirstBatchMaxCountPerMember","Question cannot be submitted as " + strSubmissionFirstBatchMaxCountPerMember + " questions are already submitted by the member for the first batch");
 											break;
 										}
+										domain.setSubmittedInBatch1(true);
 									}
 									
 									if(batch.equals(2)){
+										domain.setSubmittedInBatch1(false);
 										if(!Question.allowedInSecondBatch(domain, new Date())){
 											strSubDate = domain.getSession().getParameter(domain.getType().getType() + "_" + "submissionSecondBatchStartDate");
 											result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate_before","Question cannot be submitted before " + strSubDate);
@@ -788,6 +798,7 @@ class StarredQuestionController {
 									}
 									
 									if(batch.equals(0)){
+										domain.setSubmittedInBatch1(false);
 										result.rejectValue("version","SubmissionNotAllowed_batch","Question cannot be submitted.");
 										break;
 									}
@@ -1942,9 +1953,11 @@ class StarredQuestionController {
 											result.rejectValue("version","SubmissionNotAllowedPostFirstBatchMaxCountPerMember","Question cannot be submitted as " + strSubmissionFirstBatchMaxCountPerMember + " questions are already submitted by the member for the first batch");
 											break;
 										}
+										domain.setSubmittedInBatch1(true);
 									}
 									
 									if(batch.equals(2)){
+										domain.setSubmittedInBatch1(false);
 										if(!Question.allowedInSecondBatch(domain, new Date())){
 											strSubDate = domain.getSession().getParameter(domain.getType().getType() + "_" + "submissionSecondBatchStartDate");
 											result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate_before","Question cannot be submitted before " + strSubDate);
@@ -1953,6 +1966,7 @@ class StarredQuestionController {
 									}
 									
 									if(batch.equals(0)){
+										domain.setSubmittedInBatch1(false);
 										result.rejectValue("version","SubmissionNotAllowed_batch","Question cannot be submitted.");
 										break;
 									}
@@ -3494,6 +3508,10 @@ class StarredQuestionController {
 							if(!Question.allowedInFirstBatchForMaxCountPerMember(question)) {
 								break;
 							}
+							question.setSubmittedInBatch1(true);
+						}
+						else {
+							question.setSubmittedInBatch1(false);
 						}
 						
 						/**** Update Timed Out Supporting Members (can be disabled for starting hour of submission start time using custom parameter) ****/						
