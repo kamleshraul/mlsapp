@@ -483,6 +483,16 @@ public abstract class BaseController {
 		return serialNumbers;
     }
     
+    protected List<String> populateSerialNumbers(@SuppressWarnings("rawtypes") List dataList, String locale) {
+    	List<String> serialNumbers = new ArrayList<String>();
+    	if(dataList!=null && !dataList.isEmpty()) {
+    		for(int i=1; i<=dataList.size(); i++) {
+    			serialNumbers.add(FormaterUtil.formatNumberNoGrouping(i, locale));
+    		}
+    	}    	
+		return serialNumbers;
+    }
+    
     @SuppressWarnings("unchecked")
 	protected void generateTabularFOPReport(HttpServletRequest request, HttpServletResponse response, Locale locale) {
 		this.generateTabularFOPReport(request, response, request.getParameterMap(), locale);

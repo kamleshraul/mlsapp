@@ -27,8 +27,10 @@ public class ReferenceLinkRepository extends BaseRepository<ReferenceLinks, Seri
 					+" WHERE rk.devicetype_id = "+devicetype+" AND rk.housetype_id = "+housetype+" AND rk.documenttype_id = "+documenttype+" ORDER BY rk.id ASC";
 		}
 		else {
-			query = "SELECT rk.name,rk.date,rk.link,ss.session_year FROM reference_links rk "+
-					"JOIN sessions ss ON (rk.session_id = ss.id)"
+			query = "SELECT rk.name,rk.date,rk.link,rk.locale,rt.display_name,rk.date,ss.session_year FROM reference_links rk "
+					+"JOIN sessions ss ON (rk.session_id = ss.id)"
+					+" JOIN sessiontypes st ON (ss.sessiontype_id = st.id)"
+					+" JOIN referencetypes rt ON (rk.documenttype_id = rt.id)"
 					+"where rk.devicetype_id ='"+devicetype+"' and rk.housetype_id = '"+housetype+"' and rk.documenttype_id = '"+documenttype+"' ORDER BY rk.id ASC";	
 		}
 		
@@ -55,6 +57,9 @@ public class ReferenceLinkRepository extends BaseRepository<ReferenceLinks, Seri
 				referenceInfo.setDate("-");
 			}
 			referenceInfo.setLink(o[2]!=null?o[2].toString().trim():"-");
+			referenceInfo.setLocale(o[3]!=null?o[3].toString().trim():"-");
+			referenceInfo.setLocalizedname(o[4]!=null?o[4].toString().trim():"-");
+			referenceInfo.setEnglishFormatDate(o[5]!=null?o[5].toString().trim():"-");
 			referenceLinkVOs.add(referenceInfo);
 		}
 				
