@@ -12,6 +12,7 @@ package org.mkcl.els.domain;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -336,8 +337,8 @@ public class Party extends BaseDomain implements Serializable {
 	}
 	
 	
-	public static List<MasterVO> getPartyWiseCountOfMemberForMobile(final House house){
-		return getPartyRepository().getPartyWiseCountOfMemberForMobile(house);
+	public static List<MasterVO> getPartyWiseCountOfMemberForMobile(final House house , final String locale){
+		return getPartyRepository().getPartyWiseCountOfMemberForMobile(house,locale);
 	}
 	
 
