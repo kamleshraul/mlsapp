@@ -62,7 +62,7 @@ public class MemberDetailsApi {
 			if (ht != null && ht.getId() != null) {
 				House h = House.find(ht, new Date(), locale);
 				if (h != null && h.getId() != null) {
-					partyWiseCount = Party.getPartyWiseCountOfMemberForMobile(h);
+					partyWiseCount = Party.getPartyWiseCountOfMemberForMobile(h,locale);
 					if (partyWiseCount != null && partyWiseCount.size() > 0) {
 						response.setHeader("Access-Control-Allow-Origin", "*");
 						return partyWiseCount;
