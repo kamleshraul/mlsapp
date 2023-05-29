@@ -366,6 +366,20 @@
 			scrollTop();
 		});
 	}
+	
+	function removeFormattingFromDetails(callBack){		
+		var detailsBox=$('textarea#questionText');
+		if(detailsBox!==undefined && detailsBox!==null){				
+			var motionDetailText=$.wysiwyg.getContent(detailsBox);			
+			if(motionDetailText!==undefined && motionDetailText!==null && motionDetailText!==''){
+				cleanText=cleanFormatting(motionDetailText);
+				$.wysiwyg.setContent(detailsBox,cleanText);				
+			}
+		}
+		
+		callBack();
+	}
+	
 	$(document).ready(function(){
 		/** Warn if revised question text of parent is changed while its child pending for clubbing approval has some modifications in the same **/
 		var isPendingClubbedQuestionSearched = false;
@@ -583,6 +597,7 @@
 						return false;
 						
 					} else {
+						removeFormattingFromDetails(function() {});
 						$("#revisedQuestionText").wysiwyg("setContent",$("#questionText").val()); //as question text is valid formatted
 						
 					}					
