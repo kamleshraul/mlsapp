@@ -65,7 +65,7 @@ public class PartyRepository extends BaseRepository<Party, Serializable> {
 		}
 	}
 	
-	public List<MasterVO> getPartyWiseCountOfMemberForMobile(final House house){
+	public List<MasterVO> getPartyWiseCountOfMemberForMobile(final House house,final String locale){
 		
 		List<MasterVO> partyWiseCount = new ArrayList<MasterVO>();
 		Date CurrDate = new Date();
@@ -102,6 +102,7 @@ public class PartyRepository extends BaseRepository<Party, Serializable> {
 					 arr.setId(Long.parseLong(o[0].toString()));
 					 arr.setDisplayName(o[1].toString());
 					 arr.setNumber(Integer.parseInt(o[2].toString()));
+					 arr.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(o[2],locale));
 					partyWiseCount.add(arr);
 				 }
 			 }
