@@ -2600,11 +2600,11 @@
 
 		<div class="tabContent"></div>
 
-		
+		<security:authorize access="!hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 		<c:if test="${houseType=='upperhouse'}">
 		<c:if test="${questionTypeType=='questions_starred'}">
 			<div id="QuestionNumberRangeDivViewer" title="View Question Number Range Viewer">
-				<b><i class="fas fa-info-circle fa-3x" style="color: #0652e0;"></i></b>
+			<b><img src="./resources/images/Crystal_Project_Documentinfo.png"  width="45" height="45"></b>
 			</div>
 			
 			<div id="QuestionNumberRange"
@@ -2622,7 +2622,7 @@
 		</div>
 		</c:if>
 		</c:if>
-
+			</security:authorize>
 		<input type="hidden" id="key" name="key"> 
 		<input type="hidden" id="loadedSession" value="" />
 		<input type="hidden" name="ugparam" id="ugparam" value="${ugparam }">
