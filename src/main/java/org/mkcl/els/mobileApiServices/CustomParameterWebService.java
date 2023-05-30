@@ -1,8 +1,6 @@
 package org.mkcl.els.mobileApiServices;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
