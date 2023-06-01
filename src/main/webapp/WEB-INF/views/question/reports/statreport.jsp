@@ -104,20 +104,21 @@
 <p id="error_p" style="display: none;">&nbsp;</p>
 <div id="reportDiv">
 	<div id="statHeaderDiv">
-		<h2 style="color: black !important; margin-left: 50px;">
-			${day}, <spring:message code="generic.date" text="date" /> 
-			${currDate} <spring:message code="qis.report.stat.tilldate" text="till date" />
-				<c:choose>
-					<c:when test="${statsHouseType=='lowerhouse'}">
-			 			<spring:message code="qis.report.stat.branch.lowerhouse" text="branch" />
-			 		</c:when>
-			 		<c:when test="${statsHouseType=='upperhouse'}">
-			 			<spring:message code="qis.report.stat.branch.upperhouse" text="branch" />
-			 		</c:when>
-			 	</c:choose> 
-			<spring:message code="qis.report.stat.head1" text="stat header"/>
+		<h2 align="center" style="color: black !important; margin-left: 50px;">
+			${day}, <spring:message code="generic.date" text="date"/>&nbsp;${currDate}&nbsp;<spring:message code="qis.report.stat.tilldate" text="till date"/>
+			<c:choose>
+				<c:when test="${statsHouseType=='lowerhouse'}">&nbsp;<spring:message code="qis.report.stat.branch.lowerhouse" text="branch"/>&nbsp;</c:when>
+		 		<c:when test="${statsHouseType=='upperhouse'}">&nbsp;<spring:message code="qis.report.stat.branch.upperhouse" text="branch"/>&nbsp;</c:when>
+		 	</c:choose>
+		 	<spring:message code="qis.report.stat.head1" text="stat header1"/>
 		</h2>
-		<h2 style="color: black !important; margin-left: 20px;"><spring:message code="qis.report.stat.head2" text="stat header"/></h2>
+		<h2 align="center" style="color: black !important; margin-left: 20px;">
+			<c:choose>
+				<c:when test="${statsHouseType=='upperhouse' and submissionBatch=='batch-1'}">&nbsp;<spring:message code="qis.report.stat.head2.batch1" text="stat header2"/>&nbsp;</c:when>
+		 		<c:when test="${statsHouseType=='upperhouse' and submissionBatch=='batch-2'}">&nbsp;<spring:message code="qis.report.stat.head2.batch2" text="stat header2"/>&nbsp;</c:when>
+		 		<c:otherwise>&nbsp;<spring:message code="qis.report.stat.head2" text="stat header2"/></c:otherwise>
+		 	</c:choose>
+		</h2>
 		<br />	
 	</div>
 	<div id="statsReportDiv">

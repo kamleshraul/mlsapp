@@ -108,6 +108,13 @@ public class QuestionReportController extends BaseController{
 			String strHouseType = request.getParameter("houseType");
 			String strDeviceType = request.getParameter("deviceType");
 			
+			String submissionBatch = request.getParameter("submissionBatch");
+			if(submissionBatch==null) {
+				submissionBatch = "-";
+			} else if(submissionBatch.isEmpty()) {
+				submissionBatch = "-";
+			}
+			
 			if(strSessionYear != null && !strSessionYear.isEmpty()
 					&& strSessionType != null && !strSessionType.isEmpty()
 					&& strHouseType != null && !strHouseType.isEmpty()
@@ -128,6 +135,7 @@ public class QuestionReportController extends BaseController{
 				model.addAttribute("day", FormaterUtil.getDayInLocaleLanguage(FormaterUtil.formatDateToString(new Date(), "EEEE", locale.toString()), locale.toString()));
 				model.addAttribute("currDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));								
 				model.addAttribute("statsHouseType", houseType.getType());
+				model.addAttribute("submissionBatch", submissionBatch);
 				
 				//stat report
 				Map<String, String[]> parameters = new HashMap<String, String[]>();
@@ -139,6 +147,7 @@ public class QuestionReportController extends BaseController{
 				parameters.put("sessionYear", new String[]{strSessionYear});
 				parameters.put("wfStatusPending", new String[]{"PENDING"});
 				parameters.put("wfStatusCompleted", new String[]{"COMPLETED"});
+				parameters.put("submissionBatch", new String[]{submissionBatch});
 								
 				for(String numUg : strUsergroups){
 					

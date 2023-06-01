@@ -155,7 +155,22 @@
 			});
 			
 			$("#statreport").click(function(){
-				statReport();
+				if($('#processMode').val()=="lowerhouse") {
+					statReport();
+				} 
+				else if($('#processMode').val()=="upperhouse") {
+					if($("#statRepDiv").css('display')=='none'){
+						$("#statRepDiv").show();
+						$("#submissionBatchForStatReport").val('-');
+					}else if($("#statRepDiv").css('display')=='inline'){
+						$("#statRepDiv").hide();
+					}
+				}
+			});
+			
+			$("#goStatRep").click(function(e){
+				$("#statRepDiv").hide();				
+				statReport();				
 			});
 			
 			//---ADDED BY VIKAS------------------
@@ -269,7 +284,7 @@
 				}				
 			});
 			
-			
+			$("#statRepDiv").hide();
 			$("#sumRepDiv").hide();
 			//------stats reports as html-----------------------ends----------------
 			
@@ -451,8 +466,16 @@
 			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER', 'QIS_CHAIRMAN','QIS_DEPUTY_SECRETARY')">
 				<a href="#" id="statreport" class="butSim">
 					<spring:message code="question.statreport" text="Generate Statistics Report"/>
-				</a> |
-			</security:authorize>
+				</a>
+				<div id="statRepDiv" style="display: inline;">
+					<select name="submissionBatch" id="submissionBatchForStatReport" style="height: 25px;">
+						<option value="batch-1" selected="selected"><spring:message code="question.submission_batch1" text="Batch 1"/></option>
+						<option value="batch-2"><spring:message code="question.submission_batch2" text="Batch 2"/></option>
+						<option value="both"><spring:message code="question.submission_batch.all" text="All"/></option>
+					</select>
+					<div id="goStatRep" style="display: inline; border: 2px solid black; width: 10px; height: 10px;">Go</div>
+				</div>
+			</security:authorize> |
 			 <security:authorize access="!hasAnyRole('QIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>

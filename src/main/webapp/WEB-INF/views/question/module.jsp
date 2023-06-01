@@ -1752,7 +1752,8 @@
 		var url = "question/report/statreport?sessionYear=" + $("#selectedSessionYear").val()
 				+ "&sessionType=" + $("#selectedSessionType").val()
 				+ "&houseType=" + $("#selectedHouseType").val()
-				+ "&deviceType=" + $("#selectedQuestionType").val();
+				+ "&deviceType=" + $("#selectedQuestionType").val()
+				+ "&submissionBatch=" + $("#submissionBatchForStatReport").val();
 		
 			if($("#selectedHouseType").val() == 'lowerhouse'){
 				var items = new Array();
