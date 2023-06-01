@@ -2348,6 +2348,13 @@ public class QuestionController extends GenericController<Question> {
 		return "Failed" ;
 	}
 	
+	/**** Used in bulk approval of supporting members to fetch question details ****/
+	@RequestMapping(value="/{id}/details", method=RequestMethod.GET)
+	public String getDetails(@PathVariable("id")final Long id,
+			final ModelMap model){
+		Question question = Question.findById(Question.class, id);
+		model.addAttribute("details", question.getQuestionText());
+		return "question/details";
+	}	
 	
 }
-
