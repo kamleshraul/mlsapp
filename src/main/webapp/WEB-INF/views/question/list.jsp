@@ -112,6 +112,18 @@
 				}
 			});
 			
+			$('#member_firstbatch_questions_report').click(function() {
+				$("#selectionDiv1").hide();
+				//$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });		
+				var parameters="member=0&session="+$("#loadedSession").val()
+							  +"&questionType="+$("#selectedQuestionType").val();
+				var resource='ballot/memberballot/member/questions?'+parameters;
+				showTabByIdAndUrl('details_tab',resource);
+				/* setTimeout(function(){
+					$.unblockUI();
+				},2000); */
+			});
+			
 			/****Member's Questions View ****/
 			$("#member_questions_view").click(function() {
 				$("#selectionDiv1").hide();
@@ -421,6 +433,9 @@
 				<span id="memberballotchoice_span">
 				<a href="#" id="memberballotchoice" class="butSim link">
 					<spring:message code="memberballot.memberballotchoice" text="Question Choices"/>
+				</a> |
+				<a href="#" id="member_firstbatch_questions_report" class="butSim link">
+					<spring:message code="member_firstbatch_questions_report" text="First Batch Questions Report"/>
 				</a> |
 				</span>
 				<hr/>

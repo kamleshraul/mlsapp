@@ -15,9 +15,17 @@
 			});
 			
 			$('#memberwisequestions_word').click(function() {
-				var parameters = "session="+$("#session").val()
-				 +"&questionType="+$("#questionType").val()
-				 +"&member="+$("#member").val()
+				var session = $("#session").val();
+				var questionType = $("#questionType").val();
+				var member = $("#member").val();
+				if($('#viewer').val()=='member') {
+					session = $("#loadedSession").val();
+					questionType = $("#selectedQuestionType").val();
+					member = $("#loggedInMemberId").val();
+				}
+				var parameters = "session="+session
+				 +"&questionType="+questionType
+				 +"&member="+member
 				 +"&outputFormat=WORD";
 				var resourceURL = 'ballot/memberballot/member/questionsreport?'+ parameters;			
 				$(this).attr('href', resourceURL);
@@ -319,6 +327,8 @@ margin-left: 30px;
 </c:otherwise>
 
 </c:choose>
+<input type="hidden" id="viewer" value="${viewer}">
+<input type="hidden" id="loggedInMemberId" value="${loggedInMemberId}">
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </body>
 </html>
