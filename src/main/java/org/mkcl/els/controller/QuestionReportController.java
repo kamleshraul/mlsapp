@@ -161,9 +161,15 @@ public class QuestionReportController extends BaseController{
 							parameters.put("ugUSC", new String[]{ugNum[1]});
 						}break;
 						case 3:{
-							parameters.put("ugPS", new String[]{ugNum[1]});
+							parameters.put("ugDS", new String[]{ugNum[1]});
 						}break;
 						case 4:{
+							parameters.put("ugS", new String[]{ugNum[1]});
+						}break;
+						case 5:{
+							parameters.put("ugPS", new String[]{ugNum[1]});
+						}break;
+						case 6:{
 							parameters.put("ugSPCM", new String[]{ugNum[1]});
 						}break;
 					}

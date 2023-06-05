@@ -132,14 +132,16 @@
 					<th style="width: 80px; padding: 2px;"><spring:message code="qis.report.stat.col5" text="Column 5"/></th>
 					<th style="width: 90px; padding: 2px;"><spring:message code="qis.report.stat.col6" text="Column 6"/></th>
 					<th style="width: 95px; padding: 2px;"><spring:message code="qis.report.stat.col7" text="Column 7"/></th>
+					<th style="width: 90px; padding: 2px;"><spring:message code="qis.report.stat.col8" text="Column 8"/></th>
+					<th style="width: 95px; padding: 2px;"><spring:message code="qis.report.stat.col9" text="Column 9"/></th>
 					<c:choose>
 						<c:when test="${statsHouseType=='lowerhouse'}">
-							<th style="width: 95px; padding: 2px;"><spring:message code="qis.report.stat.col8.lowerhouse" text="Column 8"/></th>
-							<th style="width: 95px; padding: 2px;"><spring:message code="qis.report.stat.col9.lowerhouse" text="Column 9"/></th>
+							<th style="width: 95px; padding: 2px;"><spring:message code="qis.report.stat.col10.lowerhouse" text="Column 10"/></th>
+							<th style="width: 95px; padding: 2px;"><spring:message code="qis.report.stat.col11.lowerhouse" text="Column 11"/></th>
 						</c:when>
 						<c:when test="${statsHouseType=='upperhouse'}">
-							<th style="width: 95px; padding: 2px;"><spring:message code="qis.report.stat.col8.upperhouse" text="Column 8"/></th>
-							<th style="width: 95px; padding: 2px;"><spring:message code="qis.report.stat.col9.upperhouse" text="Column 9"/></th>
+							<th style="width: 95px; padding: 2px;"><spring:message code="qis.report.stat.col10.upperhouse" text="Column 10"/></th>
+							<th style="width: 95px; padding: 2px;"><spring:message code="qis.report.stat.col11.upperhouse" text="Column 11"/></th>
 						</c:when>
 					</c:choose>
 				</tr>
@@ -237,6 +239,26 @@
 								</c:otherwise>
 							</c:choose>
 						</td>
+						<td>
+							<c:choose>
+								<c:when test="${empty r[10]}">
+									-
+								</c:when>
+								<c:otherwise>
+									${r[10]}
+								</c:otherwise>
+							</c:choose>
+						</td>
+						<td>
+							<c:choose>
+								<c:when test="${empty r[11]}">
+									-
+								</c:when>
+								<c:otherwise>
+									${r[11]}
+								</c:otherwise>
+							</c:choose>
+						</td>
 					</tr>
 				</c:forEach>
 				<tr>
@@ -245,26 +267,6 @@
 					</td>
 					<td class="finalTotal">
 						<c:choose>
-							<c:when test="${empty report[0][10]}">
-								-
-							</c:when>
-							<c:otherwise>
-								${report[0][10]}
-							</c:otherwise>
-						</c:choose>
-					</td>
-					<td class="finalTotal">
-						<c:choose>
-							<c:when test="${empty report[0][11]}">
-								-
-							</c:when>
-							<c:otherwise>
-								${report[0][11]}
-							</c:otherwise>
-						</c:choose>
-					</td>
-					<%-- <td class="finalTotal">
-						<c:choose>
 							<c:when test="${empty report[0][12]}">
 								-
 							</c:when>
@@ -272,7 +274,7 @@
 								${report[0][12]}
 							</c:otherwise>
 						</c:choose>
-					</td> --%>
+					</td>
 					<td class="finalTotal">
 						<c:choose>
 							<c:when test="${empty report[0][13]}">
@@ -283,7 +285,7 @@
 							</c:otherwise>
 						</c:choose>
 					</td>
-					<td class="finalTotal">
+					<%-- <td class="finalTotal">
 						<c:choose>
 							<c:when test="${empty report[0][14]}">
 								-
@@ -292,7 +294,7 @@
 								${report[0][14]}
 							</c:otherwise>
 						</c:choose>
-					</td>
+					</td> --%>
 					<td class="finalTotal">
 						<c:choose>
 							<c:when test="${empty report[0][15]}">
@@ -320,6 +322,46 @@
 							</c:when>
 							<c:otherwise>
 								${report[0][17]}
+							</c:otherwise>
+						</c:choose>
+					</td>
+					<td class="finalTotal">
+						<c:choose>
+							<c:when test="${empty report[0][18]}">
+								-
+							</c:when>
+							<c:otherwise>
+								${report[0][18]}
+							</c:otherwise>
+						</c:choose>
+					</td>
+					<td class="finalTotal">
+						<c:choose>
+							<c:when test="${empty report[0][19]}">
+								-
+							</c:when>
+							<c:otherwise>
+								${report[0][19]}
+							</c:otherwise>
+						</c:choose>
+					</td>
+					<td class="finalTotal">
+						<c:choose>
+							<c:when test="${empty report[0][20]}">
+								-
+							</c:when>
+							<c:otherwise>
+								${report[0][20]}
+							</c:otherwise>
+						</c:choose>
+					</td>
+					<td class="finalTotal">
+						<c:choose>
+							<c:when test="${empty report[0][21]}">
+								-
+							</c:when>
+							<c:otherwise>
+								${report[0][21]}
 							</c:otherwise>
 						</c:choose>
 					</td>
