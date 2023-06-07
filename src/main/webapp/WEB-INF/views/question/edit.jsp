@@ -109,7 +109,22 @@
 			}
 			scrollTop();
 		});
-	}	
+	}
+	
+	function removeFormattingFromDetails(callBack){		
+		var detailsBox=$('textarea#questionText');
+		if(detailsBox!==undefined && detailsBox!==null){				
+			var motionDetailText=$.wysiwyg.getContent(detailsBox);
+			console.log("Before Clearing ",motionDetailText);
+			if(motionDetailText!==undefined && motionDetailText!==null && motionDetailText!==''){
+				cleanText=cleanFormatting(motionDetailText);
+				$.wysiwyg.setContent(detailsBox,cleanText);
+				console.log("After Clearing ",cleanText);
+			}
+		}
+		
+		callBack();
+	}
 		
 	$(document).ready(function(){	
 		if($("#subDepartmentSelected").val()==''){
@@ -225,6 +240,11 @@
 		
 		$("#submit").click(function(e){	
 			var deviceTypeTemp='${selectedQuestionType}';
+			console.log('Submitting queestion');
+			event.preventDefault();
+			removeFormattingFromDetails(function() {
+				$("#submit").unbind('click').click();
+			});
 			if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
 				$('#questionText').val($('#copyOfquestionText').val());
 				//added to validate quetion number for half hour discussion--
@@ -270,7 +290,10 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});				
+			});
+			removeFormattingFromDetails(function() {
+				$("#sendforapproval").unbind('click').click();
+			});
 			$.prompt($('#sendForApprovalMsg').val() + $("#selectedSupportingMembers").val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
@@ -305,6 +328,9 @@
 				if(wysiwygVal == "<p></p>" || wysiwygVal=="<p><br></p>" || wysiwygVal == "<br><p></p>"){
 					$(this).val("");
 				}
+			});
+			removeFormattingFromDetails(function() {
+				$("#submitquestion").unbind('click').click();
 			});
 			//$('#originalSubDepartment').val($('#subDepartment').val());
 			//$('#originalAnsweringDate').val($('#answeringDate').val());
