@@ -163,6 +163,18 @@
 		});
 	}
 	
+	function removeFormattingFromDetails(callBack){		
+		var detailsBox=$('textarea#questionText');
+		if(detailsBox!==undefined && detailsBox!==null){				
+			var motionDetailText=$.wysiwyg.getContent(detailsBox);console.log('Befoer: ',motionDetailText);
+			if(motionDetailText!==undefined && motionDetailText!==null && motionDetailText!==''){
+				cleanText=cleanFormatting(motionDetailText);console.log('After: ',cleanText);
+				$.wysiwyg.setContent(detailsBox,cleanText);
+			}
+		}			
+		callBack();
+	}
+	
 	$(document).ready(function(){
 		
 		$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
@@ -261,7 +273,10 @@
 		//--------vikas dhananjay-----------------------------		
 		//submit(draft) 
 		$("#submit").click(function(e){	
-			
+			e.preventDefault();
+			removeFormattingFromDetails(function() {
+				$("#submit").unbind('click').click();
+			});
 			var deviceTypeTemp='${selectedQuestionType}';
 			if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'
 					&& $("#copyOfquestionText").val()!=undefined){
@@ -320,7 +335,8 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});	
+			});
+			removeFormattingFromDetails(function(){/*blank function*/});
 			//-------------------------------
 			$.prompt($('#sendForSaveMsg').val()+$("#selectedSupportingMembers").val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
@@ -398,7 +414,8 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});	
+			});
+			removeFormattingFromDetails(function(){/*blank function*/});
 			//-------------------------------
 			$.prompt($('#sendForApprovalMsg').val()+$("#selectedSupportingMembers").val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
@@ -448,7 +465,10 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});		
+			});
+			removeFormattingFromDetails(function() {
+				$("#submitquestion").unbind('click').click();
+			});
 			//$('#originalSubDepartment').val($('#subDepartment').val());
 			//$('#originalAnsweringDate').val($('#answeringDate').val());
 			
@@ -740,7 +760,7 @@
 				$(this).val("");
 			}
 		});		
-		
+		removeFormattingFromDetails(function(){/*blank function*/});
 		//---------------------vikas dhananjay---------------------
 		var deviceTypeTemp='${selectedQuestionType}';
 		
