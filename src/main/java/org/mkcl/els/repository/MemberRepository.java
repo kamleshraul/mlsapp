@@ -5450,7 +5450,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		 
 		 try {
 			 List<Object> m  = new ArrayList<Object>();
-			String strQuery =" SELECT CONCAT(t.`name`,' ',m.`first_name`,'  ',m.`last_name`) AS 'Fname',m.`birth_date` AS 'Bday' ,YEAR('"+strDate+"')-YEAR(m.`birth_date`) AS 'Age',CONCAT( t.type ,' ',m.`first_name_english`,'  ',m.`last_name_english`) AS 'Ename' FROM members m "
+			String strQuery =" SELECT   CONCAT(t.`name`,' ',m.`first_name`,'  ',m.`last_name`) AS 'Fname',m.`birth_date` AS 'Bday' ,YEAR('"+strDate+"')-YEAR(m.`birth_date`) AS 'Age',CONCAT( t.type ,' ',m.`first_name_english`,'  ',m.`last_name_english`) AS 'Ename',m.id , m.photo FROM members m "
 					+ "  LEFT JOIN `titles` t ON (t.`id` = m.`title_id`)"
 					+ "  INNER JOIN `members_houses_roles` mhr ON (mhr.`member` = m.`id`)"
 					+ "  WHERE mhr.`house_id` =:houseId"
@@ -5473,6 +5473,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 				 for(Object i : m) {
 					 arr =new MasterVO();
 					 Object[] o=(Object[]) i;
+					 arr.setId(Long.parseLong(o[4].toString()));
 					 arr.setName(o[0].toString());
 					 //arr.setFormattedNumber(o[1].toString());					 
 					 arr.setFormattedNumber(format.format((Date)o[1]));
@@ -5480,6 +5481,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 					 arr.setNumber(Integer.parseInt(o[2].toString()));
 					 arr.setDisplayName(o[3].toString());
 					 arr.setValue(FormaterUtil.formatNumberNoGrouping(o[2], locale));
+					 arr.setType(o[5].toString());
 					 members.add(arr);
 					 
 				 }
