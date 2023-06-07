@@ -86,7 +86,7 @@ public class MemberDetailsApi {
 					if (h != null && h.getId() != null) {
 						if (isBdayRange) {
 							CustomParameter parameter =
-									CustomParameter.findByName(CustomParameter.class, "Birthday_Range_for_Mobile", "");
+									CustomParameter.findByName(CustomParameter.class, "BIRTHDAY_RANGE_FOR_MOBILE", "");
 							memberBdayDetails = Member.getMemberWithUpcomingBday(h, new Date(),Integer.parseInt( parameter.getValue()), locale);
 						} else {
 							memberBdayDetails = Member.getMemberWithUpcomingBday(h, new Date(), 0, locale);
