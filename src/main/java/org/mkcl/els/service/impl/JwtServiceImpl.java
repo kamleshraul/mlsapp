@@ -18,9 +18,12 @@ import java.util.Set;
 import javax.servlet.http.HttpSession;
 
 import org.mkcl.els.domain.Credential;
+import org.mkcl.els.common.vo.AuthUser;
+import org.mkcl.els.common.vo.TestVO;
 import org.mkcl.els.domain.ApiToken;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.service.IJwtService;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.session.SessionInformation;
@@ -159,6 +162,19 @@ public class JwtServiceImpl implements IJwtService {
 		return null;
 	}
 	
+	public String generateToken(AuthUser auth ,HttpSession session ) {
+		
+		if(auth != null && session != null)
+		{
+			Map<String,Object> tokenData=new HashMap<String, Object>();
+			tokenData.put("sessionId", session.getId());
+			tokenData.put("username", auth.getUsername());
+			JWTSigner jwtSigner=new JWTSigner(secret);
+			return jwtSigner.sign(tokenData);
+		}
+		return null;
+	}
+	
 	public boolean verifyJwtToken(String jwtToken) {
 		JWTVerifier jwtVerified = new JWTVerifier(secret);
 		try {
@@ -166,7 +182,7 @@ public class JwtServiceImpl implements IJwtService {
 			Map<String, Object> tokenData = jwtVerified.verify(jwtToken);
 			if (tokenData != null) {
 				String tokenClientName = (String) tokenData.get("clientName");
-				// Todo Change To Token ID
+				
 				String tokenId = tokenData.get("tokenID").toString();
 				Date fromDate = new Date((Long) tokenData.get("fromDate"));
 				Date toDate = new Date((Long) tokenData.get("toDate"));
@@ -182,6 +198,21 @@ public class JwtServiceImpl implements IJwtService {
 		}
 
 		return false;
+	}
+	
+	public Map<String, Object> getLogOutDetailsFromToken(String logoutToken) {
+		
+		Map<String, Object> tokenData = null;
+		JWTVerifier jwtVerified = new JWTVerifier(secret);
+		try {
+		 tokenData = jwtVerified.verify(logoutToken);
+		 if(tokenData != null) {
+			 return tokenData;
+		 }
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	
