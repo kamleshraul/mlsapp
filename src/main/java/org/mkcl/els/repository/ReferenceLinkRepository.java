@@ -21,28 +21,29 @@ public class ReferenceLinkRepository extends BaseRepository<ReferenceLinks, Seri
 		String query = "";
 		if(devicetype.equals(5)){
 			
-			Query q = Query.findByName(Query.class, "REFERENCELINK_WS_QUERY_DEVICETYPE_5","mr_IN" );
+			Query q =  Query.findByFieldName(Query.class, "keyField", "REFERENCELINK_WS_QUERY_DEVICETYPE_5", "mr_IN");
+			
 			if(q != null)
 			{
 			 query= q.getKeyField();
 			}
 		}
 		else {
+			Query q =  Query.findByFieldName(Query.class, "keyField", "REFERENCELINK_WS_QUERY_DEVICETYPE_OTHER", "mr_IN");
 			
-			Query q = Query.findByName(Query.class, "REFERENCELINK_WS_QUERY_DEVICETYPE_OTHER","mr_IN" );
 			if(q != null)
 			{
-			 query= q.getKeyField();
+			 query= q.getQuery();
 			}
 		}
 		
 		if(!query.isEmpty() || query != "")
 		{
-			javax.persistence.Query q  =  this.em().createQuery(query); 
+			javax.persistence.Query q  =  this.em().createNativeQuery(query); 
 			q.setParameter("deviceType", devicetype);
 			q.setParameter("houseType", housetype);
 			q.setParameter("documentType", documenttype);
-			List records= this.em().createNativeQuery(query).getResultList();
+			List records= q.getResultList();
 		
 			List<ReferenceLinkVO> referenceLinkVOs =new ArrayList<ReferenceLinkVO>();
 			
