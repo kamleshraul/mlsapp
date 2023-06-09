@@ -474,6 +474,11 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return getMemberRepository().findBiography(id,locale);
 	}
 	
+	public static MemberMobileVO findBiographyForMobile(final long id, final String locale) {
+		//return getMemberRepository().findBiography(id,locale);
+		return getMemberRepository().findBiographyApiForMobile(id, locale);
+	}
+	
 	public static MemberDetailsForAccountingVO findDetailsForAccounting(final String username, final String locale) {
 		return getMemberRepository().findDetailsForAccounting(username, locale);
 	}
