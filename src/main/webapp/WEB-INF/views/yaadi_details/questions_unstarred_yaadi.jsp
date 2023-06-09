@@ -33,7 +33,73 @@
 				});
 			    return false;
 			}
+			
+			function cleanFormattingData(){
+				
+				var selectedDeviceIds = "";
+				var deSelectedDeviceIds ="";
+				
+				$('.action').each(function() {
+					if($(this).is(':checked')) {
+						var selectedDeviceId = $(this).attr('id').split("chk")[1];
+						selectedDeviceIds = selectedDeviceIds + selectedDeviceId + ",";
+					} else {
+						var deSelectedDeviceId = $(this).attr('id').split("chk")[1];
+						deSelectedDeviceIds = deSelectedDeviceIds + deSelectedDeviceId + ",";
+					}			
+				});	
+				
+				
+				var myarray = selectedDeviceIds.split(",")
+				myarray.pop();
+				
+				$.unblockUI();
+			 		for (var i=0; i<myarray.length; i++) {
+							 
+			 			
+			 			if(tinyMCE.get("subject_"+myarray[i]) != null){
+						 var subject = tinyMCE.get("subject_"+myarray[i]).getContent(); 
+						 subject = cleanFormatting(subject);
+						 $("#subject_"+myarray[i]).html(subject) ;
+			 			} 
+						
+			 			if(tinyMCE.get("content_"+myarray[i]) != null){
+						 var content = tinyMCE.get("content_"+myarray[i]).getContent(); 
+						 content = cleanFormatting(content);
+						$("#content_"+myarray[i]).html(content) ;
+			 			}	
+							
+						
+					}  
+			}
+			
+			
+			
 			$(document).ready(function() {	
+				
+				tinymce.remove();
+				
+				tinymce.init({
+					  selector: 'div.editable',
+					  
+					  inline: true,
+					  theme: 'inlite',
+					  force_br_newlines : true,
+			    	  force_p_newlines : false,
+			    	  forced_root_block : "",
+			    	  //nonbreaking_force_tab: true,
+			    	  max_width: 250
+			    	 
+					});
+				
+				if($("#showSaveButton").val() == 'YES')
+					{
+					$("#qsnSaveYaadi").show();
+					}
+				else{
+					$("#qsnSaveYaadi").hide();
+				}
+				
 				
 				if($('#yaadiLayingDate').val()!='-') {
 					$("#yaadiLayingDate option[value='-']").hide();		
@@ -330,7 +396,6 @@
 						if($('#yaadiLayingStatus').val()!=undefined && $('#yaadiLayingStatus').val()!="") {
 							yaadiLayingStatus = $('#yaadiLayingStatus').val();
 						}
-						console.log(yaadiLayingStatus);
 						
 						var selectedDeviceIds = "";
 						var deSelectedDeviceIds = "";
@@ -413,7 +478,9 @@
 						$.prompt("Please select atleast one question in the yaadi!");
 						return false;
 					} else {
+						
 						var isInvalidFormattingFoundInQuestions = false;
+						
 						$.ajax({url: 'ref/yaadidetails/', data: "selectedDeviceIds="+selectedDeviceIds, 
 							type: 'GET',
 					        async: false,
@@ -427,6 +494,7 @@
 					        	}
 					        }
 						});
+						
 						if(isInvalidFormattingFoundInQuestions==true) {
 							return false;
 						}
@@ -451,6 +519,20 @@
 							+'&outputFormat=WORD'); 
 					console.log("proper page!") */
 					
+					 
+					var items =new Array();
+					var myarray = selectedDeviceIds.split(",")
+					myarray.pop();
+					
+					for (var i=0; i<myarray.length; i++) {
+							
+						    items.push({'subject':tinyMCE.get("subject_"+myarray[i]).getContent()
+						    	,'content':tinyMCE.get("content_"+myarray[i]).getContent()
+						    	,'answer':tinyMCE.get("answer_"+myarray[i]).getContent()
+						    	,'questionId':myarray[i]
+								});
+							}
+						
 					
 					yaadiLayingStatus = $('#yaadiLayingStatus').val();
 					
@@ -460,7 +542,7 @@
 						//ackMsg += "<img src='./resources/images/template/icons/light-bulb-off.png'>";
 						ackMsg += "<spring:message code='question.unstarred_yaadi_report.in_process' text='Unstarred Yaadi Report is saved..'/>";
 						ackMsg += "</p>";
-					$.post('yaadi_details/save_edited_yaadi',{
+					 $.post('yaadi_details/save_edited_yaadi',{
 						houseType				: $("#houseTypeId").val(),
 						sessionId				: $('#sessionId').val(), 
 						sessionYear             :$("#selectedSessionYear").val(),
@@ -474,6 +556,8 @@
 						selectedDeviceIds		: selectedDeviceIds,
 						deSelectedDeviceIds		: deSelectedDeviceIds, 
 						yaadiLayingStatus		: yaadiLayingStatus, 
+						itemsLength				:myarray.length,
+						items					:items
 					
 				},function(data){
 					$("#HeaderDiv").empty();
@@ -481,14 +565,13 @@
 					$.unblockUI();		
 					scrollTop();
 						
-						/* $.unblockUI(); */		
+						// $.unblockUI(); 		
 						scrollTop();
-					});
+					}); 
 					 
-				
-						
-					
 				});
+				//setTimeout(cleanFormattingData, 2000000);
+				
 			});
 		</script>		
 		<style type="text/css">
@@ -692,14 +775,23 @@
 										</c:otherwise>
 									</c:choose>
 								</td>
-								<td width="250px" id="manual_subject${i.id}">
-									${i.subject}	
+								<td width="250px"   id="manual_subject${i.id}">
+									
+									<div  class="editable" width="250px"  id="subject_${i.id}">
+									${i.subject}
+									</div>
 									<br/><br/>		
 									${i.shortDetails}												
 								</td>
-								<td width="250px" id="manual_content${i.id}">${i.content}</td>
-								<td width="250px" id="manual_answer${i.id}">
+								<td width="250px"  id="manual_content${i.id}">
+									<div class="editable" width="250px"  id="content_${i.id}">
+									${i.content}
+									</div>
+								</td>
+								<td width="250px"   id="manual_answer${i.id}">
+									<div class="editable" style="max-width: 250px;"  id="answer_${i.id}">
 									${i.answer}
+									</div>
 									<br/><br/>
 									<div align="right">
 									  <a href="#yaadiDevicesCountPara">goto top</a>
@@ -722,7 +814,7 @@
 					<a href="#" id="linkForReport"><spring:message code='question.unstarred_yaadi_report.generateReport' text='Generate Report'/></a>
 				</p> --%>
 				<p class="tright">
-							<%-- <input id="qsnSaveYaadi" type="button" value="<spring:message code='generic.submit' text='Save Report'/>" class="butDef"> --%>
+							<input id="qsnSaveYaadi" type="button" value="<spring:message code='generic.submit' text='Save Report'/>" class="butDef">							 
 							<input id="qsnGenerateYaadi" type="button" value="<spring:message code='question.unstarred_yaadi_report.generateReport' text='Generate Report'/>" class="butDef">
 				</p>
 			</div>
@@ -730,11 +822,15 @@
 		</div>
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 		<input type="hidden" id="sessionId" name="sessionId" value="${sessionId}"/>
+		<input type="hidden" id="showSaveButton" name="showSaveButton" value="${showSaveButton}"/>
 		<input type="hidden" id="houseTypeId" name="houseTypeId" value="${houseTypeId}"/>	
 		<input type="hidden" id="deviceTypeId" name="deviceTypeId" value="${deviceTypeId}"/>	
 		<input type="hidden" id="yaadiDetailsId" name="yaadiDetailsId" value="${yaadiDetailsId}"/>
 		<input type="hidden" id="iconLabelOnClick" value="<spring:message code='question.unstarred_yaadi_report.undoChangeField' text='Undo'/>">
 		<input type="hidden" id="iconLabelOnUndo" value="<spring:message code='question.unstarred_yaadi_report.changeField' text='Change'/>">		
 		<input type="hidden" id="isYaadiLayingDateSet" value="${isYaadiLayingDateSet}"/>	
-	</body>
+	<script>
+	setTimeout(cleanFormattingData, 2000);
+	</script>
+	</body>	
 </html>
