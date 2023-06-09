@@ -174,11 +174,13 @@ public class YaadiDetailsController extends BaseController {
 										yaadiDetails=null;
 										model.addAttribute("yaadiDetailsId", "");
 										model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(highestYaadiNumber+1, locale.toString()));
+										model.addAttribute("showSaveButton","NO" );
 										model.addAttribute("yaadiLayingDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 										totalDevicesInYaadi = YaadiDetails.findDevicesEligibleForNumberedYaadi(deviceType, session, 0, locale.toString());
 									} else {
 										/** populate Data for Highest Yaadi which is not yet filled **/
 										model.addAttribute("yaadiDetailsId", yaadiDetails.getId());
+										model.addAttribute("showSaveButton","YES" );
 										model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(yaadiDetails.getNumber(), locale.toString()));
 										Date yaadiLayingDate = yaadiDetails.getLayingDate();
 										if(yaadiLayingDate!=null) {
@@ -292,6 +294,29 @@ public class YaadiDetailsController extends BaseController {
 		String selectedDeviceIds = request.getParameter("selectedDeviceIds");
 		String deSelectedDeviceIds = request.getParameter("deSelectedDeviceIds");
 		String yaadiLayingStatusId = request.getParameter("yaadiLayingStatus");
+		String selectedItemsLength = (String)request.getParameter("itemsLength");
+		
+		ArrayList<HashMap<String, String>> questionContent =null;
+		if (!selectedItemsLength.isEmpty()) {
+			int number = Integer.parseInt(selectedItemsLength);
+
+			 questionContent = new ArrayList<HashMap<String, String>>();
+
+			for (int i = 0; i < number; i++) {
+				HashMap<String, String> ymap = new HashMap<String, String>();
+				
+				String questionId = request.getParameter("items[" + i + "][questionId]");
+				ymap.put("questionId", questionId);
+				String subject = request.getParameter("items[" + i + "][subject]");
+				ymap.put("subject", subject);
+				String content = request.getParameter("items[" + i + "][content]");
+				ymap.put("content", content);
+				String answer = request.getParameter("items[" + i + "][answer]");
+				ymap.put("answer", answer);
+				questionContent.add(ymap);
+			}
+
+		}
 		
 		if(houseTypeId!=null && deviceTypeId!=null && sessionId!=null 
 				&& strYaadiNumber!=null	&& strYaadiLayingDate!=null) {
@@ -446,13 +471,25 @@ public class YaadiDetailsController extends BaseController {
 									if(selectedDeviceIds!=null && !selectedDeviceIds.isEmpty()) {
 										List<Device> selectedDevicesInYaadi = new ArrayList<Device>();
 										selectedDeviceIds = selectedDeviceIds.substring(0, selectedDeviceIds.length()-1);
+										
 										for(String selectedDeviceId: selectedDeviceIds.split(",")) {
 											if(yaadiDetails.getDevice()!=null && yaadiDetails.getDevice().startsWith("question")) {
 												Question q = Question.findById(Question.class, Long.parseLong(selectedDeviceId));
+												HashMap<String,String> questiondetails = questionContent.get(0);
 												if(q!=null) {
 													q.setYaadiNumber(yaadiDetails.getNumber());
 													q.setYaadiLayingDate(yaadiDetails.getLayingDate());
+													
+													if (questiondetails.get("questionId")
+															.equals(q.getId().toString())) {
+														
+														q.setRevisedSubject((questiondetails.get("subject")));
+														q.setRevisedQuestionText(questiondetails.get("content"));
+														q.setAnswer(questiondetails.get("answer"));
+													}
+													
 													q.simpleMerge();
+													questionContent.remove(0);
 													selectedDevicesInYaadi.add(q);
 												}
 											}							
