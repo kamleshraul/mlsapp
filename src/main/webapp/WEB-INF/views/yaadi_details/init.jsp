@@ -663,9 +663,9 @@
 		<a href="#" id="update_questions_status" class="butSim update_devices_status">
 			<spring:message code="yaadidetails.update_questions_status" text="Update Status of Yaadi Questions"/>				
 		</a> |
-	 	<a href="#" id="update_questions" class="butSim update_devices_content">
+	 	<%-- <a href="#" id="update_questions" class="butSim update_devices_content">
 			<spring:message code="yaadidetails.update_questions" text="Update  Yaadi Questions"/>				
-		</a> | 
+		</a> |  --%>
 		</security:authorize>
 		</c:if>
 		<hr/>
