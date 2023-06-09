@@ -15,10 +15,10 @@ import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Party;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
@@ -99,5 +99,14 @@ public class MemberDetailsApi {
 		   
 	   }
 	   
+	   
+	   @RequestMapping(value = "/{id}/{locale}",method=RequestMethod.GET)
+	    public @ResponseBody MemberMobileVO getBiography(@PathVariable("id") final long id ,
+	            @PathVariable("locale") final String locale,
+	           HttpServletRequest request, HttpServletResponse response){
+	    	response.setHeader("Access-Control-Allow-Origin", "*");
+	    	//return Member.findBiography(id , locale);
+	    	return Member.findBiographyForMobile(id, locale);
+	   }
 	    
 }
