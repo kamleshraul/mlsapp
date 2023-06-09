@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/ws/yaadi")
 public class ReferenceLinkWebService {
 
-	@RequestMapping(value = "/{devicetype}/{housetype}/{documenttype}",method=RequestMethod.GET)
+	@RequestMapping(value = "/{housetype}/{devicetype}/{documenttype}",method=RequestMethod.GET)
     public @ResponseBody List<ReferenceLinkVO> getReference(@PathVariable("devicetype") final Integer devicetype ,
             @PathVariable("housetype") final Integer housetype, @PathVariable("documenttype") final Integer documenttype,
            HttpServletRequest request, HttpServletResponse response){
