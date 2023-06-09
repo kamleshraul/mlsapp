@@ -34,6 +34,7 @@ import javax.persistence.OptimisticLockException;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
@@ -429,8 +430,16 @@ public class Question extends Device implements Serializable {
     
     /** The flag for whether starred question is submitted in batch 1 submission. */
     private Boolean submittedInBatch1 = false;
-    	       
-    private static transient volatile Integer STARRED_CUR_NUM_LOWER_HOUSE = 0;
+    
+    /* for Grid Icon */
+    @Transient
+    private Boolean isChild;
+        	       
+    @Transient
+    private Boolean isReferenced;
+
+
+	private static transient volatile Integer STARRED_CUR_NUM_LOWER_HOUSE = 0;
     private static transient volatile Integer STARRED_CUR_NUM_UPPER_HOUSE = 0;
     
     private static transient volatile Integer UNSTARRED_CUR_NUM_LOWER_HOUSE = 0;
@@ -488,6 +497,27 @@ public class Question extends Device implements Serializable {
 			return "";
 		}
 	}	
+    
+    public Boolean getIsChild() {
+    	if(this.getParent() != null) {
+    		isChild = true;
+    	}else {
+    		isChild = false;
+    	}
+		return isChild;
+	}
+    
+    public Boolean getIsReferenced() {
+    	if(this.getReferencedEntities() != null 
+    			&& !this.getReferencedEntities().isEmpty())
+    	{
+  	  		isReferenced = true;
+    	}else {
+    		isReferenced = false;
+    	}
+		return isReferenced;
+	}
+
     
     @Override
     public Question persist() {
