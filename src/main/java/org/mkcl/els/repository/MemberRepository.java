@@ -5493,4 +5493,110 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		 
 		 return members;
 	}
+	
+	public MemberMobileVO findBiographyApiForMobile(final long id, final String locale) {
+		CustomParameter parameter = CustomParameter.findByName(
+				CustomParameter.class, "SERVER_DATEFORMAT_DDMMMYYYY", "");
+		SimpleDateFormat dateFormat=FormaterUtil.getDateFormatter(parameter.getValue(), locale);
+		NumberFormat formatWithGrouping=FormaterUtil.getNumberFormatterGrouping(locale);
+		NumberFormat formatWithoutGrouping=FormaterUtil.getNumberFormatterNoGrouping(locale);
+		Member m=Member.findById(Member.class, id);
+		MemberMobileVO mmv = new MemberMobileVO();
+		
+		
+		mmv.setId(m.getId());
+		
+		if(m.findFirstLastName()!= null )
+		{
+			mmv.setFirstName(m.getFirstName());
+		}
+		else {
+			mmv.setFirstName("-");
+		}
+		
+		
+		if(m.getMiddleName()!= null ) {
+			mmv.setMiddleName(m.getMiddleName());
+		}
+		else {
+			mmv.setMiddleName("-");
+		}
+		
+		if(m.getLastName()!= null)
+		{
+			mmv.setLastName(m.getLastName());
+		}
+		else {
+			mmv.setLastName("-");
+		}
+		
+		if(m.getTitle()==null){
+			mmv.setTitle("-");
+			mmv.setEnglishtitle("-");
+		}else{
+			mmv.setTitle(m.getTitle().getName());
+			mmv.setEnglishtitle(m.getTitle().getType());
+		}
+		
+		
+		if(m.getBirthPlace()!= null)
+		{
+			mmv.setAlias(m.getBirthPlace());
+		}
+		else {
+			mmv.setAlias("-");
+		}
+		
+		Constituency constituency=findConstituency(m.getId());
+		if(constituency!=null){
+			mmv.setConstituency(constituency.getDisplayName());
+		}else{
+			mmv.setConstituency("-");
+		}
+		
+		Party party=findParty(m.getId());
+		if(party!=null){
+		mmv.setParty(party.getName());
+		}else{
+			mmv.setParty("-");
+		}
+		
+		if( m.getPhoto()!=null)
+		{
+			mmv.setPhoto(m.getPhoto());
+		}else {
+			mmv.setPhoto("-");
+		}
+		
+		if(m.getBirthDate()==null){
+			mmv.setMobile("-");
+		}else{
+			mmv.setMobile(FormaterUtil.formatMonthsForLocaleLanguage(dateFormat.format(m.getBirthDate()), locale));
+		}
+		
+		if(m.getFirstNameEnglish()!=null) {
+			mmv.setEnglishFirstName(m.getFirstNameEnglish());
+		}else {
+			mmv.setEnglishFirstName("-");
+		}
+		
+		if(m.getMiddleNameEnglish()!=null) {
+			mmv.setEnglishMiddleName(m.getMiddleNameEnglish());
+		}
+		else {
+			mmv.setEnglishMiddleName("-");
+		}
+		
+		if(m.getLastNameEnglish()!=null) {
+			mmv.setEnglishLastName(m.getLastNameEnglish());
+		}
+		else {
+			mmv.setEnglishLastName("-");
+		}
+		
+		
+		return mmv;
+	}
+	
+	
 }
