@@ -6,9 +6,17 @@
 <script type="text/javascript">
 		$(document).ready(function() {
 			$('#memberwisequestions_pdf').click(function() {
-				var parameters = "session="+$("#session").val()
-				 +"&questionType="+$("#questionType").val()
-				 +"&member="+$("#member").val()				 
+				var session = $("#session").val();
+				var questionType = $("#questionType").val();
+				var member = $("#member").val();
+				if($('#viewer').val()=='member') {
+					session = $("#loadedSession").val();
+					questionType = $("#selectedQuestionType").val();
+					member = $("#loggedInMemberId").val();
+				}
+				var parameters = "session="+session
+				 +"&questionType="+questionType
+				 +"&member="+member
 				 +"&outputFormat=PDF";
 				var resourceURL = 'ballot/memberballot/member/questionsreport?'+ parameters;			
 				$(this).attr('href', resourceURL);
@@ -61,10 +69,12 @@ margin-left: 30px;
 	<a id="memberwisequestions_pdf" href="#" style="text-decoration: none;">
 	<img src="./resources/images/pdf_icon.jpg" alt="Export to PDF" width="32" height="32">
 	</a>
-	&nbsp;
-	<a id="memberwisequestions_word" href="#" style="text-decoration: none;">
-		<img src="./resources/images/word_icon.jpg" alt="Export to WORD" width="32" height="32">
-	</a>
+	<c:if test="${empty viewer or viewer ne 'member'}">
+		&nbsp;
+		<a id="memberwisequestions_word" href="#" style="text-decoration: none;">
+			<img src="./resources/images/word_icon.jpg" alt="Export to WORD" width="32" height="32">
+		</a>	
+	</c:if>
 </div>
 <div id="reportDiv">		
 		<c:if test="${!(empty report.memberBallotMemberWiseCountVOs)}">
