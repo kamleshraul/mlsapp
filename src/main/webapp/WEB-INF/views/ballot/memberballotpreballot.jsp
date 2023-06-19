@@ -142,6 +142,8 @@
 					<spring:message code="memberballot.footer.under_secretary_label" text="Under Secretary"></spring:message>
 					<br/><br/><br/>
 					<spring:message code="memberballot.footer.deputy_secretary_label" text="Deputy Secretary"></spring:message>
+					<br/><br/><br/>
+					<spring:message code="memberballot.footer.secretary_label" text="Secretary"></spring:message>
 				</p>
 			</td>
 			
