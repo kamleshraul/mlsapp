@@ -345,7 +345,7 @@
 		     							</fo:table-cell>
 		     							<fo:table-cell>
 		     								<fo:block text-align="center">
-		     									प्रधान सचिव,
+		     									सचिव-१ (कार्यभार),
 		     								</fo:block>
 		     							</fo:table-cell>
 		                        	</fo:table-row>

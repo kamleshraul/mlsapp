@@ -132,7 +132,7 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block font-weight="bold">
-																							प्रधान सचिव,
+																							सचिव-१ (कार्यभार),
 																						</fo:block>
 																						<fo:block>महाराष्ट्र विधानमंडळ सचिवालय.</fo:block>
 																					</fo:table-cell>										

@@ -150,7 +150,7 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block font-weight="bold">
-																							प्रधान सचिव
+																							सचिव-१ (कार्यभार)
 																						</fo:block>
 																					</fo:table-cell>										
 																				</fo:table-row>

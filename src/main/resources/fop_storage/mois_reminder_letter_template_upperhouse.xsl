@@ -132,13 +132,7 @@
 						<fo:block font-size="6px">&#160;</fo:block>
 						
 						<fo:block text-align="center" font-weight="bold">
-							<fo:inline>विषय</fo:inline>
-							: आपल्या विभागाकडे पाठविलेल्या
-							<xsl:choose>
-								<xsl:when test="element_1[1]/element_1_2='questions_starred'">तारांकित</xsl:when>
-								<xsl:when test="element_1[1]/element_1_2='questions_unstarred'">अतारांकित</xsl:when>
-							</xsl:choose>
-							स्वीकृत प्रश्नांची उत्तरे त्वरीत पाठविण्याबाबत.
+							विषय : लक्षवेधी सूचनांची उत्तरे त्वरीत पाठविण्याबाबत
 						</fo:block>	
 						
 						<fo:block font-size="6px">&#160;</fo:block>
@@ -148,12 +142,8 @@
 						<fo:block font-size="4px">&#160;</fo:block>
 						
 						<fo:block text-align="justify">							
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;उपरोक्त विषयाच्या अनुषंगाने निर्देशानुसार आपणांस कळविण्यात येते की, आपल्या विभागाकडे खालील
-							<xsl:choose>
-								<xsl:when test="element_1[1]/element_1_2='questions_starred'">तारांकित</xsl:when>
-								<xsl:when test="element_1[1]/element_1_2='questions_unstarred'">अतारांकित</xsl:when>
-							</xsl:choose>
-							स्वीकृत प्रश्न पाठविण्यात आले आहेत.
+							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+							उपरोक्त विषयाच्या अनुषंगाने निर्देशानुसार आपणांस कळविण्यात येते की, आपल्या विभागाकडे खालील लक्षवेधी सूचना पाठविण्यात आलेल्या आहेत.
 								
 							<fo:block font-size="6px">&#160;</fo:block>	
 							
@@ -183,13 +173,13 @@
 			                        			<fo:block font-weight="bold">विषय</fo:block>
 			                        		</fo:table-cell>
 			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
-			                        			<fo:block font-weight="bold">विभागास प्रश्न</fo:block>
+			                        			<fo:block font-weight="bold">विभागास लक्षवेधी</fo:block>
 			                        			<fo:block font-weight="bold">पाठविल्याचा दिनांक</fo:block>
 			                        		</fo:table-cell>
-			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
+			                        		<!-- <fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
 			                        			<fo:block font-weight="bold">या सचिवालयास</fo:block>
 			                        			<fo:block font-weight="bold">उत्तर पाठविण्याचा दिनांक</fo:block>
-			                        		</fo:table-cell>
+			                        		</fo:table-cell> -->
 			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
 			                        			<fo:block font-weight="bold">पाठविलेल्या</fo:block>
 			                        			<fo:block font-weight="bold">स्मरणपत्राचा दिनांक</fo:block>
@@ -217,9 +207,9 @@
 				                        				<fo:block><xsl:value-of select="element_1_13"/></fo:block>
 				                        			</xsl:if>
 				                        		</fo:table-cell>
-				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.4cm">
+				                        		<!-- <fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.4cm">
 				                        			<fo:block><xsl:value-of select="../element_2[$rowCount]"/></fo:block>				                        							                        			
-				                        		</fo:table-cell>
+				                        		</fo:table-cell> -->
 				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.4cm">
 				                        			<fo:block><xsl:apply-templates select="element_1_12"/></fo:block>
 				                        			<!-- <fo:block><xsl:value-of select="element_1_12"/></fo:block> -->

@@ -200,7 +200,7 @@
 														
 														<fo:table-row>
 															<fo:table-cell width="200px" text-align="center">
-																<fo:block font-weight="bold">प्रधान सचिव</fo:block>
+																<fo:block font-weight="bold">सचिव-१ (कार्यभार)</fo:block>
 															</fo:table-cell>
 														</fo:table-row>
 														

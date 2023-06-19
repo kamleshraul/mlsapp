@@ -121,7 +121,7 @@
 						<fo:block font-size="6px">&#160;</fo:block>
 						
 						<fo:block>							
-							प्रधान सचिव, 
+							सचिव-१ (कार्यभार), 
 							<fo:inline font-weight="bold">
 							<xsl:choose>
 								<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true'">

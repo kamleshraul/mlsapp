@@ -113,7 +113,7 @@
 						<fo:block text-align="left">
 							<fo:block>प्रति : </fo:block>	
 							<fo:block margin-left="1cm">					
-							<fo:block>प्रधान सचिव,</fo:block>
+							<fo:block>सचिव-१ (कार्यभार),</fo:block>
 							<xsl:choose>
 								<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true'">
 									<fo:block><xsl:value-of select="department"/></fo:block>
