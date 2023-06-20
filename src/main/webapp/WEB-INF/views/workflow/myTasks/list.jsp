@@ -46,7 +46,8 @@
 			}
 			if($("#deviceTypeType").val() == 'questions_unstarred'
 					|| $("#deviceTypeType").val() == 'motions_cutmotion_budgetary'
-					|| $("#deviceTypeType").val() == 'motions_cutmotion_supplementary'){
+					|| $("#deviceTypeType").val() == 'motions_cutmotion_supplementary'
+					|| $("#deviceTypeType").val() == 'motions_calling_attention'){
 				if($("#currentusergroupType").val()=='section_officer'
 					|| $("#currentusergroupType").val()=='department'
 					||$("#currentusergroupType").val()=='department_deskofficer' ){
@@ -442,7 +443,7 @@
 				 </a> |
 				 </span>
 			 </security:authorize>
-			 <security:authorize access="hasAnyRole('QIS_DEPARTMENT_USER', 'CMOIS_SECTION_OFFICER', 'CMOIS_DEPARTMENT_USER')">
+			 <security:authorize access="hasAnyRole('QIS_DEPARTMENT_USER', 'CMOIS_SECTION_OFFICER', 'CMOIS_DEPARTMENT_USER', 'MOIS_SECTION_OFFICER', 'MOIS_DEPARTMENT_USER')">
 			 	 |
 			 	 <span id="reminderLetterSpan" style="display: none;">
 			 	 <a href="#" id="generateReminderLetter" class="butSim">

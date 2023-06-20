@@ -90,7 +90,8 @@
 									$("#reminderLetterSpan").hide();
 								}
 							} else if(device == 'motions_cutmotion_budgetary'
-								|| device == 'motions_cutmotion_supplementary') {
+								|| device == 'motions_cutmotion_supplementary'
+								|| device == 'motions_calling_attention') {
 								if($("#currentusergroupType").val()=='section_officer'
 									|| $("#currentusergroupType").val()=='department' 
 									||$("#currentusergroupType").val()=='department_deskofficer' ){
@@ -570,7 +571,8 @@
 						$("#reminderLetterSpan").hide();
 					}
 				} else if(device == 'motions_cutmotion_budgetary'
-					|| device == 'motions_cutmotion_supplementary') {
+						|| device == 'motions_cutmotion_supplementary'
+						|| device == 'motions_calling_attention') {
 					if($("#currentusergroupType").val()=='section_officer'
 						|| $("#currentusergroupType").val()=='department' 
 						||$("#currentusergroupType").val()=='department_deskofficer' ){
@@ -1598,6 +1600,59 @@
 						);
 					} else {
 						$.prompt('No cutmotions found to be reminded for reply currently!');
+						return false;
+					}					
+				}).fail(function(){
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				});				
+			} else if(currentDevice.indexOf('motions_calling_attention')==0){
+				if($("#selectedDepartment").val()==undefined 
+						|| $("#selectedDepartment").val()=='' 
+						|| $("#selectedDepartment").val()==null
+						|| $("#selectedDepartment").val()=='null') {
+					$.prompt('Please select a department for reminder letter of concerned calling attention motions!');
+					return false;
+				}
+				var selectedMotionIds = '';
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				$.get('ref/workflow/findDevicesForReminderOfReply?'
+						+ 'houseType=' + $('#selectedHouseType').val()
+						+ '&sessionYear=' + $('#selectedSessionYear').val()
+						+ '&sessionType=' + $('#selectedSessionType').val()
+						+ '&deviceType=' + $('#selectedDeviceType').val()
+						+ '&department=' + $('#selectedDepartment').val()
+						+ '&userGroupType='+$("#currentusergroupType").val(),function(data){
+					$.unblockUI();
+					selectedMotionIds = data;
+				}).done(function(){
+					if(selectedMotionIds!=undefined && selectedMotionIds.length>=1) {
+						var outputFormat = 'WORD';
+						if($('#currentusergroupType').val()=='department' || $('#currentusergroupType').val()=='department_deskofficer') {
+							outputFormat = 'PDF';
+						}
+						form_submit(
+								'motion/report/generateReminderLetter', 
+								{
+									motionIds: selectedMotionIds,
+									houseType: $('#selectedHouseType').val(),  
+									//sessionYear: $('#selectedSessionYear').val(),  
+									//sessionType: $('#selectedSessionType').val(), 
+									usergroupType: $("#currentusergroupType").val(),
+									locale: $('#moduleLocale').val(), 
+									reportQuery: 'MOIS_REMINDER_LETTER', 
+									outputFormat: outputFormat,
+									isDepartmentLogin: $("#isDepartmentLogin").val(),
+									isRequiredToSend: isRequiredToSend
+								}, 
+								'GET'
+						);
+					} else {
+						$.prompt('No calling atttention motions found to be reminded for reply currently!');
 						return false;
 					}					
 				}).fail(function(){
