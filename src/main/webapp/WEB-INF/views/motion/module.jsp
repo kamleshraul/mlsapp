@@ -16,6 +16,8 @@
 			
 			$("#bulkputup_tab").show();
 			
+			$("#reminderLetterFilterDiv").hide();
+			
 			/*Tooltip*/
 			$(".toolTip").hide();					
 			/**** here we are trying to add date mask in grid search when field names ends with date ****/
@@ -177,6 +179,20 @@
 			/* Motion Discussion */
 			$("#motion_discussion_report").click(function(){		
 				motionDiscussionReport();
+			});
+			
+			$("#reminderLetterReport").click(function(){
+				if($("#reminderLetterFilterDiv").css('display')=='none'){
+					$("#reminderLetterFilterDiv").show();
+					$("#reminderLetterFilter").val('preview');
+				}else if($("#reminderLetterFilterDiv").css('display')=='inline'){
+					$("#reminderLetterFilterDiv").hide();
+				}
+			});
+			
+			$("#goRLRep").click(function(e){
+				$("#reminderLetterFilterDiv").hide();				
+				reminderLetterReport();				
 			});
 			
 		/* 	$("#member_report").click(function(){
@@ -492,6 +508,77 @@
 									+ '&houseType=' + $("#selectedHouseType").val()
 									+ '&reportName=intimationLetter');
 				
+		}
+		
+		function reminderLetterReport() {
+			if($("#reminderLetterFilter").val()=='preview') { //for reminder letter report only
+				generateReminderLetter(false);
+			} else if($("#reminderLetterFilter").val()=='generate') { //for reminder letter generation to be saved as entry
+				$.prompt("Do you really want to send reminder letter to department now?",{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){
+						generateReminderLetter(true);
+	    	        }
+				}});			
+			}
+		}
+		
+		/**** To Generate Reminder Letter ****/
+		function generateReminderLetter(isRequiredToSend) {
+			//var devicetype = $("#deviceTypeMaster option[value='" + $("#selectedMotionType").val() + "']").text();
+			if($("#selectedSubDepartment").val()==undefined 
+					|| $("#selectedSubDepartment").val()=='' 
+					|| $("#selectedSubDepartment").val()=='0') {
+				$.prompt('Please select a department for reminder letter of concerned motions!');
+				return false;
+			}
+			var selectedMotionIds = '';
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			$.get('ref/device/findDevicesForReminderOfReply?'
+					+ 'houseType=' + $('#selectedHouseType').val()
+					+ '&sessionYear=' + $('#selectedSessionYear').val()
+					+ '&sessionType=' + $('#selectedSessionType').val()
+					+ '&deviceType=' + $('#selectedMotionType').val()
+					+ '&department=' + $('#selectedSubDepartment').val(),function(data){
+				$.unblockUI();
+				selectedMotionIds = data;
+			}).done(function(){
+				if(selectedMotionIds!=undefined && selectedMotionIds.length>=1) {
+					var outputFormat = 'WORD';
+					if(isRequiredToSend==false) {
+						outputFormat = 'PDF';
+					}
+					if($('#currentusergroupType').val()=='department' || $('#currentusergroupType').val()=='department_deskofficer') {
+						outputFormat = 'PDF';
+					}
+					form_submit(
+							'motion/report/generateReminderLetter', 
+							{
+								motionIds: selectedMotionIds,
+								houseType: $('#selectedHouseType').val(),  
+								//sessionYear: $('#selectedSessionYear').val(),  
+								//sessionType: $('#selectedSessionType').val(), 
+								usergroupType: $("#currentusergroupType").val(),
+								locale: $('#moduleLocale').val(), 
+								reportQuery: 'MOIS_REMINDER_LETTER', 
+								outputFormat: outputFormat,
+								isDepartmentLogin: $("#isDepartmentLogin").val(),
+								isRequiredToSend: isRequiredToSend
+							}, 
+							'GET'
+					);
+				} else {
+					$.prompt('No calling attention motions found to be reminded for reply currently!');
+					return false;
+				}					
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
 		}
 		
 		function showAdvanceStatusReport(qId){
@@ -1465,7 +1552,16 @@
 						<a href="javascript:void(0);" id="motion_discussion_report" class="butSim" >
 							<spring:message code="motion.discussionReport" text="Discussion Motion Report"/>
 						</a>|
-						
+						<a href="javascript:void(0);" id="reminderLetterReport" class="butSim" >
+							<spring:message code="generic.reminder_letter_report" text="Reminder Letter Report"/>
+						</a>
+						<div id="reminderLetterFilterDiv" style="display: inline;">
+							<select id="reminderLetterFilter" class="sSelect" style="display: inline; width:100px;">
+								<option value="preview"><spring:message code="reminder_letter.preview" text="Preview"/></option>
+								<option value="generate"><spring:message code="reminder_letter.generate" text="Send to Department"/></option>
+							</select>
+							<div id="goRLRep" style="display: inline; border: 2px solid black; width: 10px; height: 10px;">Go</div>
+						</div>|
 						<!--  -->
 						<hr>
 						<a href="javascript:void(0);" id="entry_register" class="butSim" >
