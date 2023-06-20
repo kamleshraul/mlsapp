@@ -329,6 +329,10 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 		return getWorkflowConfigRepository().findActorVOAtFirstLevel(motion, processWorkflow, locale);
 	}
 	
+	public static Reference findActorVOAtGivenLevel(final Motion motion, final Status status, final String usergroupType, final int level, final String locale) throws ELSException {
+		return getWorkflowConfigRepository().findActorVOAtGivenLevel(motion, status, usergroupType, level, locale);
+	}
+	
 	public static Reference findActorVOAtGivenLevel(final Motion motion, final Workflow processWorkflow, final UserGroupType userGroupType, final int level, final String locale) {
 		return getWorkflowConfigRepository().findActorVOAtGivenLevel(motion, processWorkflow, userGroupType, level, locale);
 	}

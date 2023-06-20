@@ -11379,6 +11379,53 @@ public class ReferenceController extends BaseController {
 						devicesForReminderOfReply = null;
 						devicesForReminderOfReply = cutmotionIds;
 					}
+				} else if(deviceType!=null && deviceType.getType().equals(ApplicationConstants.MOTION_CALLING_ATTENTION)) {
+					
+					SubDepartment subDepartment = SubDepartment.findByName(SubDepartment.class, strDepartment, locale.toString());
+					List<Long> motionIds = new ArrayList<Long>();
+					String userGroupType = request.getParameter("userGroupType");
+					if(userGroupType!=null 
+							&& (userGroupType.equalsIgnoreCase(ApplicationConstants.DEPARTMENT) || userGroupType.equalsIgnoreCase(ApplicationConstants.DEPARTMENT_DESKOFFICER))) {
+						
+			    		String reminderNumberStartLimitingDate = "";
+			    		String reminderNumberEndLimitingDate = "";
+						if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+		    				House correspondingAssemblyHouse = Session.findCorrespondingAssemblyHouseForCouncilSession(session);
+		    				Date houseStartDate = correspondingAssemblyHouse.getFirstDate();
+		    				reminderNumberStartLimitingDate = FormaterUtil.formatDateToString(houseStartDate, ApplicationConstants.DB_DATEFORMAT);
+		    				Date houseEndDate = correspondingAssemblyHouse.getLastDate();
+		    				reminderNumberEndLimitingDate = FormaterUtil.formatDateToString(houseEndDate, ApplicationConstants.DB_DATEFORMAT);
+		    			} else {
+		    				Date houseStartDate = session.getHouse().getFirstDate();
+		    				reminderNumberStartLimitingDate = FormaterUtil.formatDateToString(houseStartDate, ApplicationConstants.DB_DATEFORMAT);
+		    				Date houseEndDate = session.getHouse().getLastDate();
+		    				reminderNumberEndLimitingDate = FormaterUtil.formatDateToString(houseEndDate, ApplicationConstants.DB_DATEFORMAT);
+		    			}
+						Map<String, String> reminderLetterIdentifiers = new HashMap<String, String>();
+			    		reminderLetterIdentifiers.put("houseType", houseType.getType());
+			    		reminderLetterIdentifiers.put("deviceType", deviceType.getType());
+			    		reminderLetterIdentifiers.put("reminderFor", ApplicationConstants.REMINDER_FOR_REPLY_FROM_DEPARTMENT);
+			    		reminderLetterIdentifiers.put("reminderTo", subDepartment.getId().toString());
+			    		reminderLetterIdentifiers.put("reminderNumberStartLimitingDate", reminderNumberStartLimitingDate);
+			    		reminderLetterIdentifiers.put("reminderNumberEndLimitingDate", reminderNumberEndLimitingDate);
+			    		reminderLetterIdentifiers.put("locale", locale.toString());
+			    		ReminderLetter latestReminderLetter = ReminderLetter.findLatestByFieldNames(reminderLetterIdentifiers, locale.toString());
+			    		
+			    		if(latestReminderLetter!=null) {
+			    			String devices = latestReminderLetter.getDeviceIds();
+			    			if(devices!=null) {
+			    				for(String qid: devices.split(",")) {
+			    					motionIds.add(Long.parseLong(qid));
+			    				}
+			    			}
+			    		}
+					} else {
+						motionIds = Motion.findMotionIDsHavingPendingReplyPostLastDateOfReplyReceiving(houseType, deviceType, subDepartment, locale.toString());
+					}
+					if(motionIds!=null && !motionIds.isEmpty()) {
+						devicesForReminderOfReply = null;
+						devicesForReminderOfReply = motionIds;
+					}
 				}
 
 			} catch (ParseException e) {
@@ -11428,6 +11475,12 @@ public class ReferenceController extends BaseController {
 					List<Long> cutmotionIds = CutMotion.findCutMotionIDsHavingPendingReplyPostLastDateOfReplyReceiving(houseType, deviceType, subDepartment, locale.toString());
 					if(cutmotionIds!=null && !cutmotionIds.isEmpty()) {
 						devicesForReminderOfReply = cutmotionIds;
+					}
+				} else if(deviceType!=null && deviceType.getType().equals(ApplicationConstants.MOTION_CALLING_ATTENTION)) {
+					SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strDepartment));
+					List<Long> motionIds = Motion.findMotionIDsHavingPendingReplyPostLastDateOfReplyReceiving(houseType, deviceType, subDepartment, locale.toString());
+					if(motionIds!=null && !motionIds.isEmpty()) {
+						devicesForReminderOfReply = motionIds;
 					}
 				}
 			}

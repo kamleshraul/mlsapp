@@ -17,21 +17,26 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.xmlvo.DeviceXmlVO;
 import org.mkcl.els.domain.ActivityLog;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.ReferenceLetter;
+import org.mkcl.els.domain.ReminderLetter;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,6 +222,181 @@ public class MotionReportController extends BaseController{
 		}catch (Exception e) {
 			logger.error("error", e);		
 		}
+	}	
+	
+	@RequestMapping(value="/generateReminderLetter", method=RequestMethod.GET)
+	public @ResponseBody void generateReminderLetter(HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		File reportFile = null;
+		
+		HouseType houseType = null;
+		String strHouseType = request.getParameter("houseType");
+		if(strHouseType!=null && !strHouseType.isEmpty()) {
+			houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+			if(houseType==null || houseType.getId()==null) {
+				CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+					if(csptServer.getValue().equals("TOMCAT")){
+						strHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");					
+					}
+				}
+				houseType=HouseType.findByFieldName(HouseType.class,"name",strHouseType, locale.toString());
+			}
+			if(houseType==null || houseType.getId()==null) {
+				houseType=HouseType.findById(HouseType.class,Long.parseLong(strHouseType));
+			}
+		}
+		
+		@SuppressWarnings("unchecked")
+		Map<String, String[]> requestMap = request.getParameterMap();
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = Query.findReport(request.getParameter("reportQuery"), requestMap, true);
+		
+    	if(resultList!=null && !resultList.isEmpty()) {
+    		String isDepartmentLogin = request.getParameter("isDepartmentLogin");
+    		if(isDepartmentLogin==null || isDepartmentLogin.isEmpty()) {
+    			isDepartmentLogin = "NO";
+    		}
+    		Motion latestMotion = null;
+    		DeviceType deviceType = null;
+    		SubDepartment subDepartment = null;
+    		String departmentName = ""; 
+    		String reminderNumberStartLimitingDate = "";
+    		String reminderNumberEndLimitingDate = "";
+    		
+    		Object[] latestResultUnit = resultList.get(resultList.size()-1);
+    		latestMotion = Motion.findById(Motion.class, Long.parseLong(latestResultUnit[10].toString()));
+    		deviceType = latestMotion.getType();
+			subDepartment = latestMotion.getSubDepartment();
+			departmentName = latestMotion.getSubDepartment().getMinistryDisplayName();
+			Session moSession = latestMotion.getSession();
+			
+			if(deviceType.getType().equals(ApplicationConstants.MOTION_CALLING_ATTENTION)) {
+				if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+    				House correspondingAssemblyHouse = Session.findCorrespondingAssemblyHouseForCouncilSession(moSession);
+    				Date houseStartDate = correspondingAssemblyHouse.getFirstDate();
+    				reminderNumberStartLimitingDate = FormaterUtil.formatDateToString(houseStartDate, ApplicationConstants.DB_DATEFORMAT);
+    				Date houseEndDate = correspondingAssemblyHouse.getLastDate();
+    				reminderNumberEndLimitingDate = FormaterUtil.formatDateToString(houseEndDate, ApplicationConstants.DB_DATEFORMAT);
+    			} else {
+    				Date houseStartDate = moSession.getHouse().getFirstDate();
+    				reminderNumberStartLimitingDate = FormaterUtil.formatDateToString(houseStartDate, ApplicationConstants.DB_DATEFORMAT);
+    				Date houseEndDate = moSession.getHouse().getLastDate();
+    				reminderNumberEndLimitingDate = FormaterUtil.formatDateToString(houseEndDate, ApplicationConstants.DB_DATEFORMAT);
+    			}
+			} else {
+				reminderNumberStartLimitingDate = FormaterUtil.formatDateToString(moSession.getStartDate(), ApplicationConstants.DB_DATEFORMAT);
+				reminderNumberEndLimitingDate = FormaterUtil.formatDateToString(moSession.getEndDate(), ApplicationConstants.DB_DATEFORMAT);
+			}
+    		
+    		StringBuffer deviceIds = new StringBuffer("");
+    		List<String> serialNumbers = populateSerialNumbers(resultList, locale);
+    		List<String> replyRequestedDatesForCurrentDepartment = new ArrayList<String>();
+    		for(int i=0; i<resultList.size(); i++) {
+    			//include each motion id in 'deviceIds' to be saved in domain of this reminder letter
+    			Object[] resultUnit = resultList.get(i);
+    			deviceIds.append(resultUnit[10].toString());
+    			if(i!=resultList.size()-1) {
+    				deviceIds.append(",");
+    			}      
+    			
+    			if(resultUnit[7]!=null && !resultUnit[7].toString().isEmpty()) {    				
+    				Date replyRequestedDate = FormaterUtil.formatStringToDate(resultUnit[7].toString(), ApplicationConstants.DB_DATETIME_FORMAT);
+					replyRequestedDatesForCurrentDepartment.add(FormaterUtil.formatDateToString(replyRequestedDate, ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_3, locale.toString()));
+    			} else {
+    				replyRequestedDatesForCurrentDepartment.add("");
+    			}
+    		}    
+    		
+    		Date reminderLetterDate = new Date();
+    		String reminderLetterNumber = "";
+    		Map<String, String> reminderLetterIdentifiers = new HashMap<String, String>();
+    		reminderLetterIdentifiers.put("houseType", houseType.getType());
+    		reminderLetterIdentifiers.put("deviceType", deviceType.getType());
+    		reminderLetterIdentifiers.put("reminderFor", ApplicationConstants.REMINDER_FOR_REPLY_FROM_DEPARTMENT);
+    		reminderLetterIdentifiers.put("reminderTo", subDepartment.getId().toString());
+    		reminderLetterIdentifiers.put("reminderNumberStartLimitingDate", reminderNumberStartLimitingDate);
+    		reminderLetterIdentifiers.put("reminderNumberEndLimitingDate", reminderNumberEndLimitingDate);
+    		reminderLetterIdentifiers.put("locale", locale.toString());
+    		ReminderLetter latestReminderLetter = ReminderLetter.findLatestByFieldNames(reminderLetterIdentifiers, locale.toString());
+    		//boolean isReminderLetterAlreadyGenerated = false;
+    		boolean isRequiredToSend = false;
+    		String isRequiredToSendStr = request.getParameter("isRequiredToSend");
+    		if(isRequiredToSendStr!=null) {
+    			isRequiredToSend = Boolean.parseBoolean(isRequiredToSendStr);
+    		}
+    		if(latestReminderLetter!=null) {
+    			if(!isDepartmentLogin.equals("YES")) {
+    				if(isRequiredToSend) {
+    					reminderLetterNumber = FormaterUtil.formatNumberNoGrouping((Integer.parseInt(latestReminderLetter.getReminderNumber())+1), locale.toString());
+    				} else {
+    					reminderLetterNumber = latestReminderLetter.getReminderNumber();
+    					reminderLetterDate = latestReminderLetter.getReminderDate();
+    				}    				
+    			} else {
+    				reminderLetterNumber = latestReminderLetter.getReminderNumber();
+    				reminderLetterDate = latestReminderLetter.getReminderDate();
+    			}    			
+    		} else {
+    			reminderLetterNumber = FormaterUtil.formatNumberNoGrouping(1, locale.toString());
+    		}
+    		String formattedReminderLetterDate = FormaterUtil.formatDateToString(reminderLetterDate, ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_3, locale.toString());
+    		reportFile = generateReportUsingFOP(new Object[] {resultList, replyRequestedDatesForCurrentDepartment, serialNumbers, reminderLetterNumber, isDepartmentLogin, isRequiredToSendStr, formattedReminderLetterDate}, "mois_reminder_letter_template_"+houseType.getType().toLowerCase().trim(), request.getParameter("outputFormat"), "mois_reminder_letter", locale.toString()); 		
+    		if(reportFile!=null) {
+    			System.out.println("Report generated successfully in " + request.getParameter("outputFormat") + " format!");
+    			openOrSaveReportFileFromBrowser(response, reportFile, request.getParameter("outputFormat"));  
+    			
+    			ReminderLetter currentReminderLetter = null;
+    			if(!isDepartmentLogin.equals("YES")) {
+    				if(isRequiredToSend) {
+    					/** SAVE CURRENT REMINDER LETTER ENTRY **/
+        				currentReminderLetter = new ReminderLetter();
+            			currentReminderLetter.setHouseType(houseType.getType());
+            			currentReminderLetter.setDeviceType(deviceType.getType());
+            			currentReminderLetter.setDeviceIds(deviceIds.toString());
+            			currentReminderLetter.setReminderFor(ApplicationConstants.REMINDER_FOR_REPLY_FROM_DEPARTMENT);
+            			currentReminderLetter.setReminderTo(subDepartment.getId().toString());
+            			currentReminderLetter.setReminderNumberStartLimitingDate(reminderNumberStartLimitingDate);
+            			currentReminderLetter.setReminderNumberEndLimitingDate(reminderNumberEndLimitingDate);
+            			currentReminderLetter.setReminderNumber(reminderLetterNumber);
+            			currentReminderLetter.setReminderDate(new Date());
+            			currentReminderLetter.setStatus(ApplicationConstants.REMINDER_LETTER_DISPATCHED_STATUS);
+            			currentReminderLetter.setGeneratedBy(this.getCurrentUser().getActualUsername());
+            			currentReminderLetter.setLocale(locale.toString());
+            			currentReminderLetter.persist();
+    				}  			
+    			} else {
+    				if(latestReminderLetter!=null && latestReminderLetter.getId()!=null
+    						&& latestReminderLetter.getStatus().equals(ApplicationConstants.REMINDER_LETTER_DISPATCHED_STATUS)) {
+    					/** ACKNOWLEDGE CURRENT REMINDER LETTER ENTRY **/
+    					latestReminderLetter.setStatus(ApplicationConstants.REMINDER_LETTER_ACKNOWLEDGED_STATUS);
+    					if(latestReminderLetter.getReminderAcknowledgementDate()==null) {
+    						latestReminderLetter.setReminderAcknowledgementDate(new Date());
+    					}    					
+    					latestReminderLetter.merge();
+    				} 				
+    			}
+    			
+    			/**** SEND NOTIFICATION TO DEPARTMENT USERS AS WELL AS BRANCH USERS IF REMINDER LETTER IS GENERATED FROM MOTIONS BRANCH AT VIDHAN BHAVAN ****/
+    			if(deviceType.getType().equals(ApplicationConstants.MOTION_CALLING_ATTENTION)) { //currently required only for unstarred motions
+    				if(!isDepartmentLogin.equals("YES")) {
+    					if(isRequiredToSend) {
+    						/** find co-ordination department user for sending notification **/
+            				String departmentCoordinationUsername = "";
+        	    			Reference actorAtDepartmentLevel = WorkflowConfig.findActorVOAtGivenLevel(latestMotion, latestMotion.getStatus(), ApplicationConstants.DEPARTMENT, 9, locale.toString());
+        					if(actorAtDepartmentLevel!=null) {
+        						String userAtDepartmentLevel = actorAtDepartmentLevel.getId();
+            					departmentCoordinationUsername = userAtDepartmentLevel.split("#")[0];
+                				NotificationController.sendReminderLetterForReplyNotReceivedFromDepartmentUsers(houseType, deviceType, departmentCoordinationUsername, latestMotion.getSubDepartment().getName(), departmentName, locale.toString());
+                				
+                				/** UPDATE RECEIVERS IN CURRENT REMINDER LETTER ENTRY **/
+                				currentReminderLetter.setReceivers(departmentCoordinationUsername);
+                    			currentReminderLetter.merge();
+        					}       					
+    					}        				    					
+        			}
+    			}    			
+    		}
+    	}		
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })

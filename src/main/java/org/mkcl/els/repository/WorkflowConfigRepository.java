@@ -2201,6 +2201,16 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		}	
 	}
 	
+	public Reference findActorVOAtGivenLevel(final Motion motion, final Status status, 
+			final String usergroupType, final int level, final String locale) throws ELSException {
+		Reference actorAtGivenLevel = null;
+		WorkflowConfig workflowConfig = getLatest(motion, status.getType(), locale.toString());
+		UserGroupType userGroupType = UserGroupType.findByType(usergroupType, locale);
+		WorkflowActor workflowActorAtGivenLevel = getWorkflowActor(workflowConfig,userGroupType,level);
+		actorAtGivenLevel = findActorDetails(motion, workflowActorAtGivenLevel, locale);
+		return actorAtGivenLevel;
+	}
+	
 	public Reference findActorVOAtGivenLevel(final Motion motion, final Workflow processWorkflow,
 			final UserGroupType userGroupType, final int level, final String locale) {
 		Reference actorAtGivenLevel = null;

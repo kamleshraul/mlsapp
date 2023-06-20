@@ -14,10 +14,9 @@ import javax.persistence.TypedQuery;
 import name.fraser.neil.plaintext.diff_match_patch;
 import name.fraser.neil.plaintext.diff_match_patch.Diff;
 
-import org.hibernate.mapping.Array;
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
-import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.SearchVO;
@@ -27,9 +26,9 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Motion;
-import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.UserGroupType;
 import org.springframework.stereotype.Repository;
 
@@ -1123,5 +1122,23 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 		} else {
 			return 0;
 		}		
+	}
+	
+	public List<Long> findMotionIDsHavingPendingReplyPostLastDateOfReplyReceiving(final HouseType houseType, final DeviceType deviceType, final SubDepartment subDepartment, final String locale) throws ELSException {
+		List<Long> motionIds = new ArrayList<Long>();
+		org.mkcl.els.domain.Query nativeQuery=org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", ApplicationConstants.QUERYNAME_MOIS_PENDING_FOR_REPLY_POST_LAST_ANSWERING_DATE, "");
+		String strquery = nativeQuery.getQuery();
+		Query query=this.em().createNativeQuery(strquery);
+		query.setParameter("houseTypeId",houseType.getId());
+		query.setParameter("deviceTypeId",deviceType.getId());
+		Status admittedStatus = Status.findByType(ApplicationConstants.MOTION_FINAL_ADMISSION, locale);
+		query.setParameter("admittedStatusIdForDeviceType",admittedStatus.getId());
+		query.setParameter("subDepartmentId",subDepartment.getId());
+		List result =query.getResultList();
+		for(Object i : result) {
+			Long motionId = Long.parseLong(i.toString());
+			motionIds.add(motionId);
+		}
+		return motionIds;
 	}
 }

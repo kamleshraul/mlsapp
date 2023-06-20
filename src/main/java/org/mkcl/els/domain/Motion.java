@@ -859,6 +859,11 @@ import org.springframework.transaction.annotation.Transactional;
 		
 		return referenceLetter;
 	}
+    
+    public static List<Long> findMotionIDsHavingPendingReplyPostLastDateOfReplyReceiving(final HouseType houseType, final DeviceType deviceType, final SubDepartment subDepartment, final String locale) throws ELSException {
+    	return getMotionRepository().findMotionIDsHavingPendingReplyPostLastDateOfReplyReceiving(houseType, deviceType, subDepartment, locale);
+    }
+    
 	
 	/**** Getters and Setters ****/
 	public HouseType getHouseType() {
