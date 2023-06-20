@@ -434,9 +434,9 @@
 				<a href="#" id="memberballotchoice" class="butSim link">
 					<spring:message code="memberballot.memberballotchoice" text="Question Choices"/>
 				</a> |
-				<a href="#" id="member_firstbatch_questions_report" class="butSim link">
-					<spring:message code="member_firstbatch_questions_report" text="First Batch Questions Report"/>
-				</a> |
+				<a href="#" id="member_firstbatch_questions_report" class="butSim link" style="display: none;">
+					<spring:message code="member_firstbatch_questions_report" text="First Batch Questions Report"/> |
+				</a>
 				</span>
 				<hr/>
 				<a href="#" id="member_questions_view" class="butSim">

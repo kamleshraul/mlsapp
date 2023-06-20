@@ -1766,6 +1766,8 @@
 				var items = new Array();
 				items.push('under_secretary');
 				items.push('under_secretary_committee');
+				items.push('deputy_secretary');
+				items.push('secretary');
 				items.push('principal_secretary');
 				items.push('chairman');
 				url += "&userGroups=" + items;
