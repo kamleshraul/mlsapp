@@ -438,6 +438,30 @@ public class NotificationController extends GenericController<Notification> {
 		getNotificationService().sendNotificationWithTitleUsingTemplate("ANSWER_RECEIVED_ONLINE_FROM_DEPARTMENT_INTIMATION", templateParameters, locale);
 	}
 	
+	
+	public static void sendClarificationReceivedFromDepartmentNotification(final String deviceNumber,
+			final DeviceType deviceType,
+			final HouseType houseType,
+			final String currentSubDepartment,
+			final String usergroupTypes,
+			final String locale) {
+			
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("deviceNumber", new String[]{deviceNumber});
+		templateParameters.put("deviceTypeType", new String[]{deviceType.getType()});
+		templateParameters.put("deviceTypeName", new String[]{deviceType.getName()});
+		templateParameters.put("deviceTypeNameLike", new String[]{"%"+deviceType.getName()+"%"});
+		templateParameters.put("houseTypeType", new String[]{houseType.getType()});
+		templateParameters.put("houseTypeName", new String[]{houseType.getName()});
+		templateParameters.put("houseTypeNameLike", new String[]{"%"+houseType.getName()+"%"});
+		templateParameters.put("currentSubDepartment", new String[]{currentSubDepartment});
+		templateParameters.put("currentSubDepartmentLike", new String[]{"%"+currentSubDepartment+"%"});
+		templateParameters.put("usergroupTypes", new String[]{usergroupTypes});		
+		
+		getNotificationService().sendNotificationWithTitleUsingTemplate("CLARIFICATION_RECEIVED_FROM_DEPARTMENT", templateParameters, locale);
+	}
+	
 	public static void sendReverseClubbingNotification(final String houseTypeName, final String parentDeviceNumber, final String childDeviceNumber, final String parentDeviceTypeName, final String childDeviceTypeName, final String parentSubdepartmentName, final String locale) {
 		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
 		templateParameters.put("locale", new String[]{locale});
