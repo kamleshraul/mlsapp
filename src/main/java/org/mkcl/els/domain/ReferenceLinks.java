@@ -16,6 +16,8 @@ import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.vo.ReferenceLinkVO;
+import org.mkcl.els.common.vo.TemplateVO;
+import org.mkcl.els.common.vo.TestVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.mkcl.els.domain.BaseDomain;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -62,6 +64,13 @@ public class ReferenceLinks extends BaseDomain implements Serializable{
 	@JoinColumn(name = "documenttype_id")
 	private Referencetypes referenceType;
 	
+	
+	/**  Yaadi Pdf Number  Number  */ 
+	@Column(length = 50) 
+	private Integer number;
+	
+	
+
 	/** The member repository. */
 	 @Autowired
 	private transient ReferenceLinkRepository referenceLinkRepository;
@@ -126,6 +135,14 @@ public class ReferenceLinks extends BaseDomain implements Serializable{
 	public void setReferenceType(Referencetypes referenceType) {
 		this.referenceType = referenceType;
 	}
+	
+	public Integer getNumber() {
+		return number;
+	}
+
+	public void setNumber(Integer number) {
+		this.number = number;
+	}
 
 	public static ReferenceLinkRepository getReferenceLinkRepository() {
 		ReferenceLinkRepository referenceLinkRepository = new ReferenceLinks().referenceLinkRepository;
@@ -137,6 +154,14 @@ public class ReferenceLinks extends BaseDomain implements Serializable{
 	
 	public static List<ReferenceLinkVO> findReferences(final Integer housetype, final Integer devicetype, final Integer documenttype) {
 		return getReferenceLinkRepository().findReferences(housetype,devicetype,documenttype);
+	}
+	
+	public static List<TestVO> getSessionAndReferenceNumber(final Integer houseType,final String locale ) {
+		return getReferenceLinkRepository().getSessionAndReferenceNumber(houseType,locale);
+	}
+	
+	public static List<TemplateVO> getYaadiLinkAndNumber(final Integer sessionId,final Integer documentTypeId) {
+		return getReferenceLinkRepository().getYaadiLinkAndNumber(sessionId, documentTypeId);
 	}
 	
 }
