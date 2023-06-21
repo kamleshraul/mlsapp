@@ -70,6 +70,7 @@ import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.YaadiDetails;
 import org.mkcl.els.service.IProcessService;
+import org.mkcl.els.service.impl.NotificationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
@@ -3257,7 +3258,7 @@ public class QuestionWorkflowController  extends BaseController{
 				&& recommendationStatus.equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATIONRECEIVED)){
 			performActionOnStarredClarificationReceived(domain);
 		}
-		/**** Clarification received FROM Member & Department ****/
+		/**** Clarification not  received FROM Member & Department ****/
 		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
 				&& recommendationStatus.equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)){
 			performActionOnStarredClarificationNotReceived(domain);
@@ -3600,6 +3601,8 @@ public class QuestionWorkflowController  extends BaseController{
 //				}
 //			}
 //		}
+		String usergroupTypes = "clerk,assistant,section_officer";
+		NotificationController.sendClarificationReceivedFromDepartmentNotification(domain.getId().toString(), domain.getType(), domain.getHouseType(), domain.getSubDepartment().getName(), usergroupTypes, domain.getLocale().toString());
 		
 	}
 
