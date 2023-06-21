@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.ReferenceLinkVO;
+import org.mkcl.els.common.vo.TemplateVO;
+import org.mkcl.els.common.vo.TestVO;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.ReferenceLinks;
 import org.springframework.stereotype.Repository;
@@ -76,4 +78,60 @@ public class ReferenceLinkRepository extends BaseRepository<ReferenceLinks, Seri
 		}
 		return null;
 	}
+	
+	
+	public List<TestVO> getSessionAndReferenceNumber(final Integer houseType,final String locale ) {
+		Query q = Query.findByFieldName(Query.class, "keyField", "GET_SESSION_YAADI_NUMBER_REFERENCE_LINK", "mr_IN");
+		if (q != null) {
+			List<TestVO> yaadiSessionDetails = new ArrayList<TestVO>();
+			String query = q.getQuery();
+			javax.persistence.Query nativeq = this.em().createNativeQuery(query);
+			nativeq.setParameter("houseType", houseType);
+			nativeq.setParameter("locale", locale);
+			List<Object> details = nativeq.getResultList();
+			if (details != null) {
+				for (Object i : details) {
+					Object[] o = (Object[]) i;
+					TestVO t = new TestVO();
+					t.setId(Long.parseLong(o[1].toString()));
+					t.setName(o[0].toString());
+					if (o[2] != null && !o[2].toString().isEmpty()) {
+						t.setValue(o[2].toString());
+					}
+					if (o[3] != null && !o[3].toString().isEmpty()) {
+						t.setFormattedOrder(o[3].toString());
+					}
+					yaadiSessionDetails.add(t);
+				}
+				return yaadiSessionDetails;
+			}
+		}
+		return null;
+	}
+	
+	public List<TemplateVO> getYaadiLinkAndNumber(final Integer sessionId,final Integer documentTypeId){
+		Query q = Query.findByFieldName(Query.class, "keyField", "GET_REFERENCE_LINK_AND_YAADI_NUMBER", "mr_IN");
+		
+		if(q != null) {
+			List<TemplateVO> ydlinks = new ArrayList<>();
+			String query = q.getQuery();
+			javax.persistence.Query nativeq = this.em().createNativeQuery(query);
+			nativeq.setParameter("sessionId", sessionId);
+			nativeq.setParameter("documentTypeId", documentTypeId);
+			List<Object> details = nativeq.getResultList();
+			if(details != null) {
+				for (Object i : details) {
+					Object[] o = (Object[]) i;
+					TemplateVO t = new TemplateVO();
+					t.setTitle(o[0].toString());
+					t.setContent(o[1].toString());
+					ydlinks.add(t);
+				}
+				return ydlinks;
+			}
+		}
+		
+		return null;
+	}
+	
 }
