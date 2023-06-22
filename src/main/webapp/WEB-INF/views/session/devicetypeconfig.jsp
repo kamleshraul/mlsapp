@@ -921,7 +921,15 @@
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.questions_unstarred_numberOfQuestionsInYaadi" text="Number of Questions in Yaadi" /></label>
-					<input type="text" class="sInteger" name="questions_unstarred_numberOfQuestionsInYaadi" id="questions_unstarred_numberOfQuestionsInYaadi" value="${questions_unstarred_numberofquestionsinyaadi}" />
+					<c:choose>
+					  <c:when test="${houseType eq 'upperhouse'}"> 																																				
+					    <input type="text" class="sInteger" name="questions_unstarred_numberOfQuestionsInYaadi" id="questions_unstarred_numberOfQuestionsInYaadi" value="${questions_unstarred_numberofquestionsinyaadi_uh}" />
+					  </c:when>
+					  <c:otherwise>																				
+					    <input type="text" class="sInteger" name="questions_unstarred_numberOfQuestionsInYaadi" id="questions_unstarred_numberOfQuestionsInYaadi" value="${questions_unstarred_numberofquestionsinyaadi_lh}" />
+					  </c:otherwise>
+					</c:choose>
+					<%-- <input type="text" class="sInteger" name="questions_unstarred_numberOfQuestionsInYaadi" id="questions_unstarred_numberOfQuestionsInYaadi" value="${questions_unstarred_numberofquestionsinyaadi}" /> --%>
 				</p>
 			</div>
 		</c:if>
