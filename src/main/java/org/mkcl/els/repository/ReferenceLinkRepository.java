@@ -113,7 +113,7 @@ public class ReferenceLinkRepository extends BaseRepository<ReferenceLinks, Seri
 		Query q = Query.findByFieldName(Query.class, "keyField", "GET_REFERENCE_LINK_AND_YAADI_NUMBER", "mr_IN");
 		
 		if(q != null) {
-			List<TemplateVO> ydlinks = new ArrayList<>();
+			List<TemplateVO> ydlinks = new ArrayList<TemplateVO>();
 			String query = q.getQuery();
 			javax.persistence.Query nativeq = this.em().createNativeQuery(query);
 			nativeq.setParameter("sessionId", sessionId);
