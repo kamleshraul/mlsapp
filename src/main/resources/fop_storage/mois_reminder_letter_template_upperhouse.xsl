@@ -87,10 +87,19 @@
 		            				<fo:table-row>
 		            					<fo:table-cell>
 		            						<fo:block-container>
-			            						<fo:block text-decoration="underline">तात्काळ</fo:block>
 			            						<fo:block>
-			            							स्मरणपत्र क्रमांक : <xsl:value-of select="element_4"></xsl:value-of>&#160;<xsl:if test="element_6='false' and element_5='NO'">(PREVIEW COPY)</xsl:if>
+			            							<xsl:choose>
+			            								<xsl:when test=" element_5='YES'">
+			            									<fo:inline text-decoration="underline" font-weight="bold" font-size="17px">स्मरणपत्र</fo:inline>
+			            								</xsl:when>
+			            								<xsl:otherwise>
+			            									<fo:inline text-decoration="underline" font-weight="bold" font-size="17px">स्मरणपत्र क्रमांक : <xsl:value-of select="element_4"></xsl:value-of></fo:inline>
+			            								</xsl:otherwise>
+			            							</xsl:choose>			            							
+			            							<xsl:if test="element_5='NO' and element_6='false'">&#160;(PREVIEW COPY)</xsl:if>
 			            						</fo:block>
+			            						<fo:block font-weight="bold">महाराष्ट्र विधानपरिषद नियम १०१ अन्वये लक्षवेधी सूचना</fo:block>
+			            						<fo:block font-weight="bold" font-size="16px">अति-तात्काळ</fo:block>
 		            						</fo:block-container>
 		            					</fo:table-cell>	            					
 		            					<fo:table-cell>
@@ -98,13 +107,12 @@
 			            						<fo:block>
 			            							क्रमांक : _______&#160;/
 													<xsl:choose>
-														<xsl:when test="element_1[1]/element_1_4='lowerhouse'">ब-१</xsl:when>
-														<xsl:when test="element_1[1]/element_1_4='upperhouse'">ई-१ कक्ष</xsl:when>
+														<xsl:when test="element_1[1]/element_1_4='lowerhouse'">म.वि.स./फ</xsl:when>
+														<xsl:when test="element_1[1]/element_1_4='upperhouse'">म.वि.स./ई-२</xsl:when>
 													</xsl:choose>
 												</fo:block>						
 												<fo:block>महाराष्ट्र विधानमंडळ सचिवालय,</fo:block>
-												<fo:block>विधान भवन,</fo:block>
-												<fo:block>मुंबई/नागपूर</fo:block>
+												<fo:block>विधान भवन, मुंबई/नागपूर</fo:block>
 												<!-- <fo:block>दिनांक : <xsl:value-of select="element_1[1]/element_1_14"/></fo:block> -->
 												<fo:block>दिनांक : <xsl:value-of select="element_7"/></fo:block>
 											</fo:block-container>
@@ -113,7 +121,7 @@
 	            				</fo:table-body>
 	            			</fo:table>
 	            		</fo:block>       		
-						<fo:block text-align="left">
+						<fo:block text-align="left" font-weight="bold">
 							<fo:block>प्रेषक :</fo:block>						
 							<fo:block margin-left="1.5cm">सचिव-१ (कार्यभार),</fo:block>
 							<fo:block margin-left="1.5cm">महाराष्ट्र विधानमंडळ सचिवालय.</fo:block>
@@ -121,52 +129,46 @@
 						
 						<fo:block font-size="4px">&#160;</fo:block>					
 						
-						<fo:block text-align="left">
+						<fo:block text-align="left" font-weight="bold">
 							<fo:block>प्रति :</fo:block>						
-							<fo:block margin-left="1.5cm">उप सचिव,</fo:block>
+							<fo:block margin-left="1.5cm">प्रधान  सचिव/सचिव,</fo:block>
 							<fo:block margin-left="1.5cm">महाराष्ट्र शासन,</fo:block>
 							<fo:block margin-left="1.5cm"><xsl:value-of select="element_1[1]/element_1_3"/>,</fo:block>							
-							<fo:block margin-left="1.5cm">मंत्रालय, मुंबई - ४०० ०३२.</fo:block>	
+							<fo:block margin-left="1.5cm">मंत्रालय, मुंबई - ४०० ०३२</fo:block>	
 						</fo:block>	
 						
 						<fo:block font-size="6px">&#160;</fo:block>
 						
 						<fo:block text-align="center" font-weight="bold">
-							विषय : लक्षवेधी सूचनांची उत्तरे त्वरीत पाठविण्याबाबत
+							विषय : लक्षवेधी सूचनांची निवेदने त्वरीत पाठविण्याबाबत
 						</fo:block>	
 						
 						<fo:block font-size="6px">&#160;</fo:block>
 						
-						<fo:block font-weight="bold">महोदय,</fo:block>	
+						<fo:block font-weight="bold">महोदय/महोदया,</fo:block>
 						
 						<fo:block font-size="4px">&#160;</fo:block>
 						
 						<fo:block text-align="justify">							
 							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-							उपरोक्त विषयाच्या अनुषंगाने निर्देशानुसार आपणांस कळविण्यात येते की, आपल्या विभागाकडे खालील लक्षवेधी सूचना पाठविण्यात आलेल्या आहेत.
+							उपरोक्त विषयाच्या अनुषंगाने आपणांस कळविण्यात येते की, आपल्या विभागाकडे खालील लक्षवेधी सूचना पाठविण्यात आलेल्या आहेत.
 								
 							<fo:block font-size="6px">&#160;</fo:block>	
 							
 							<fo:block>
 								<fo:table border="solid 0.2mm black" table-layout="fixed" width="100%">
 									<fo:table-column column-number="1" column-width="1.2cm" />
-									<fo:table-column column-number="2" column-width="3.2cm" />
-									<fo:table-column column-number="3" column-width="6.0cm" />
-									<fo:table-column column-number="4" column-width="2.6cm" />
-			                        <fo:table-column column-number="5" column-width="2.6cm" />
-			                        <fo:table-column column-number="6" column-width="2.6cm" />
+									<fo:table-column column-number="2" column-width="3.5cm" />
+									<fo:table-column column-number="3" column-width="7.0cm" />
+									<fo:table-column column-number="4" column-width="3.0cm" />
+			                        <fo:table-column column-number="5" column-width="3.0cm" />
 			                        <fo:table-header>
 			                        	<fo:table-row>
 			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
 			                        			<fo:block font-weight="bold">अ.क्र.</fo:block>
 			                        		</fo:table-cell>
 			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
-			                        			<fo:block font-weight="bold">
-			                        				<xsl:choose>
-														<xsl:when test="element_1[1]/element_1_2='questions_starred'">तारांकित प्रश्न क्र.</xsl:when>
-														<xsl:when test="element_1[1]/element_1_2='questions_unstarred'">प्रश्न क्रमांक,</xsl:when>
-													</xsl:choose>
-			                        			</fo:block>
+			                        			<fo:block font-weight="bold">लक्षवेधी सूचना क्र.</fo:block>
 			                        			<fo:block font-weight="bold">अधिवेशन</fo:block>
 			                        		</fo:table-cell>
 			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
@@ -174,15 +176,13 @@
 			                        		</fo:table-cell>
 			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
 			                        			<fo:block font-weight="bold">विभागास लक्षवेधी</fo:block>
-			                        			<fo:block font-weight="bold">पाठविल्याचा दिनांक</fo:block>
+			                        			<fo:block font-weight="bold">पाठविल्याचा</fo:block>
+			                        			<fo:block font-weight="bold">दिनांक</fo:block>
 			                        		</fo:table-cell>
-			                        		<!-- <fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
-			                        			<fo:block font-weight="bold">या सचिवालयास</fo:block>
-			                        			<fo:block font-weight="bold">उत्तर पाठविण्याचा दिनांक</fo:block>
-			                        		</fo:table-cell> -->
 			                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
 			                        			<fo:block font-weight="bold">पाठविलेल्या</fo:block>
-			                        			<fo:block font-weight="bold">स्मरणपत्राचा दिनांक</fo:block>
+			                        			<fo:block font-weight="bold">स्मरणपत्राचा</fo:block>
+			                        			<fo:block font-weight="bold">दिनांक</fo:block>
 			                        		</fo:table-cell>
 			                        	</fo:table-row>
 			                        </fo:table-header>
@@ -201,15 +201,12 @@
 				                        			<fo:block><xsl:value-of select="element_1_9"/></fo:block>
 				                        		</fo:table-cell>
 				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.4cm">
-				                        			<fo:block><xsl:value-of select="element_1_7"/></fo:block>
+				                        			<fo:block><xsl:value-of select="../element_2[$rowCount]"/></fo:block>
 				                        			<xsl:if test="../element_5='NO'">
 				                        				<fo:block font-size="4px">&#160;</fo:block>
 				                        				<fo:block><xsl:value-of select="element_1_13"/></fo:block>
 				                        			</xsl:if>
 				                        		</fo:table-cell>
-				                        		<!-- <fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.4cm">
-				                        			<fo:block><xsl:value-of select="../element_2[$rowCount]"/></fo:block>				                        							                        			
-				                        		</fo:table-cell> -->
 				                        		<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="left" margin-left="0.4cm">
 				                        			<fo:block><xsl:apply-templates select="element_1_12"/></fo:block>
 				                        			<!-- <fo:block><xsl:value-of select="element_1_12"/></fo:block> -->
@@ -223,28 +220,17 @@
 							<fo:block font-size="8px">&#160;</fo:block>	
 							
 							<fo:block>
-								&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;महाराष्ट्र विधानपरिषद नियम क्रमांक ७० (२) अन्वये वरील
-								<xsl:choose>
-									<xsl:when test="element_1[1]/element_1_2='questions_starred'">तारांकित</xsl:when>
-									<xsl:when test="element_1[1]/element_1_2='questions_unstarred'">अतारांकित</xsl:when>
-								</xsl:choose>
-								स्वीकृत प्रश्नांची उत्तरे ठरवून दिलेल्या
-								<xsl:choose>
-									<xsl:when test="element_1[1]/element_1_2='questions_unstarred'"><fo:inline font-weight="bold">"तीस दिवसाच्या आत"</fo:inline> या</xsl:when>
-								</xsl:choose>
-								कालावधीतच या सचिवालयास पाठविणे आवश्यक होते. तथापि आपल्या विभागाकडून उक्त प्रश्नांची उत्तरे अद्याप अप्राप्त आहेत.
+								&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;वरील उल्लेखित स्वीकृत लक्षवेधी सूचनांवरील मा.मंत्री महोदयांचे निवेदन महाराष्ट्र विधानपरिषद नियम १०१ (३) अन्वये या सचिवालयास पाठविणे आवश्यक होते. 
+								तथापि, आपल्या विभागाकडून उक्त लक्षवेधी सूचनांची निवेदने अद्याप अप्राप्त आहेत.
 							</fo:block>
 							<fo:block>
-								&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;अत: महाराष्ट्र विधानपरिषद नियम क्रमांक ७० (२) च्या तरतुदींच्या अधीन राहता प्रश्नांची उत्तरे पाठविण्यास झालेल्या विलंबाची कारणे मा.उप सभापती, महाराष्ट्र विधानपरिषद यांना अवगत करण्यात यावीत व प्रस्तुत
-								<xsl:choose>
-									<xsl:when test="element_1[1]/element_1_2='questions_starred'">तारांकित</xsl:when>
-									<xsl:when test="element_1[1]/element_1_2='questions_unstarred'">अतारांकित</xsl:when>
-								</xsl:choose>
-								प्रश्नांची उत्तरे त्वरीत पाठविण्यात यावीत, ही विनंती.
+								&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;अत: सत्र समाप्तीनंतरचा अद्यापपर्यंतचा कालावधी लक्षात घेतला असता सदरहू बाब गंभीर स्वरुपाची आहे. 
+								उपरोक्त अप्राप्त असलेल्या लक्षवेधी सूचनांच्या निवेदनांच्या प्रत्येकी २५० प्रती त्वरीत या सचिवालयाकडे पाठविण्याबाबत आपण सर्व संबंधितांना आपल्या स्तरावरून सूचना द्याव्यात, 
+								अशी  मा.उप सभापती, महाराष्ट्र विधानपरिषद यांच्या निदेशानुसार आपणास विनंती करण्यात येत आहे.
 							</fo:block>			
 						</fo:block>	
 						
-						<fo:block font-size="6px">&#160;</fo:block>		
+						<fo:block font-size="8px">&#160;</fo:block>		
 								
 						<fo:block text-align="right">
 							<fo:block margin-right="2.6cm">आपला/आपली,</fo:block>
@@ -253,13 +239,19 @@
 							<fo:block margin-right="1.4cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 						</fo:block>
 						
-						<fo:block font-size="6px">&#160;</fo:block>
+						<fo:block font-size="8px">&#160;</fo:block>
 						
-						<fo:block>
+						<fo:block font-size="16px">
 							<fo:block font-weight="bold">याची प्रत :</fo:block>
-							<fo:block margin-left="1.5cm">१) सचिव, महाराष्ट्र शासन, संसदीय कार्य विभाग, मंत्रालय, मुंबई - ४०० ०३२.</fo:block>
-							<fo:block margin-left="1.5cm">२) मा.उप सभापती, महाराष्ट्र विधानपरिषद यांचे खाजगी सचिव तथा जनसंपर्क अधिकारी, विधान भवन, मुंबई - ४०० ०३२.</fo:block>
-						</fo:block>										
+							<fo:block margin-left="1.5cm">सचिव, महाराष्ट्र शासन, संसदीय कार्य विभाग, मंत्रालय, मुंबई - ४०० ०३२</fo:block>
+						</fo:block>			
+						
+						<fo:block font-size="20px">&#160;</fo:block>
+						
+						<fo:block font-size="12px">
+							(टिप: लक्षवेधी सूचना अन्य विभागास हस्तांतरीत झाली असल्यास या सचिवालयास पत्राद्वारे कळविण्यात यावे. 
+							तसेच यापूर्वी लक्षवेधी सूचनांच्या निवेदनाच्या प्रती या सचिवालयास दिल्या असल्यास सदर पत्राची व ५ निवेदनाच्या छायांकित प्रती या सचिवालयास पाठविण्यात याव्यात.)
+						</fo:block>									
 					</fo:block>							          
 	            </fo:flow>
 	        </fo:page-sequence>        
