@@ -6745,7 +6745,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					Map<String, String[]> parameters = new HashMap<String, String[]>();
 					parameters.put("locale", new String[]{locale.toString()});
 					parameters.put("questionId", new String[]{o[0].toString()});
-					List clubbedNumbers = org.mkcl.els.domain.Query.findReport("QIS_GET_CLUBBEDNUMBERS", parameters);
+					List clubbedNumbers = org.mkcl.els.domain.Query.findReport("QIS_GET_CLUBBEDNUMBERS_WITH_THEIR_IDS", parameters);
 					if(clubbedNumbers != null && !clubbedNumbers.isEmpty() && clubbedNumbers.get(0) != null){
 						questionSearchVO.setFormattedClubbedNumbers(clubbedNumbers.get(0).toString());
 					}
