@@ -82,6 +82,8 @@
 	function loadActors(value){
 		if(value!='-'){
 		var valueToSend = "";
+		var recommendRepeatAdmission = $("#internalStatusMaster option[value='resolution_recommend_repeatadmission']").text();
+		var recommendRepeatRejection = $("#internalStatusMaster option[value='resolution_recommend_repeatrejection']").text();
 		var clarificationReceived=$("#internalStatusMaster option[value='resolution_processed_clarificationReceived']").text();
 		var clarificationNotReceived=$("#internalStatusMaster option[value='resolution_processed_clarificationNotReceived']").text();
 		var type=$("#internalStatusMaster option[value='resolution_processed_sendToDepartment']").text();
@@ -110,10 +112,16 @@
 	    }		
 		var params='';
 		if($('#houseTypeType').val()=='lowerhouse'){
-			 params="resolution="+$("#id").val()+"&status="+valueToSend+
+			if(value==recommendRepeatAdmission || value==recommendRepeatRejection){
+				$("#levelLowerHouse").val($("#originalLevel").val());
+			}
+			params="resolution="+$("#id").val()+"&status="+valueToSend+
 			"&usergroup="+$("#usergroup").val()+"&level="+$("#levelLowerHouse").val()+"&workflowHouseType="+$("#workflowHouseType").val();
 		}else if($('#houseTypeType').val()=='upperhouse'){
-			 params="resolution="+$("#id").val()+"&status="+valueToSend+
+			if(value==recommendRepeatAdmission || value==recommendRepeatRejection){
+				$("#levelUpperHouse").val($("#originalLevel").val());
+			}
+			params="resolution="+$("#id").val()+"&status="+valueToSend+
 			"&usergroup="+$("#usergroup").val()+"&level="+$("#levelUpperHouse").val()+"&workflowHouseType="+$("#workflowHouseType").val();
 		}
 		var resourceURL='ref/resolution/actors?'+params;	
@@ -1049,6 +1057,7 @@
 <input id="workflowHouseType" type="hidden" value="${workflowHouseType}" />
 <input id="houseTypeType" type="hidden" value="${houseTypeForStatus}"/>
 <input id="internalStatusType" type="hidden" value="${internalStatusType}"/>
+<input type="hidden" id="originalLevel" value="${level}" />
 <input id="pleaseSelectQuestionsForFactualPosition" value="<spring:message code='please.select.questionsForFactualPosition' text='Please select questions to be asked in this factual position'/>" type="hidden">
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </div>
