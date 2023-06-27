@@ -52,6 +52,18 @@
 					}
 					reloadWorkflowConfigGrid();
 				});
+				
+				$('#isLockedCheck').change(function(){
+					var isLocked = $(this).is(':checked');
+					//console.log("isLocked: " + isLocked);
+					if(isLocked){
+						$("#lockedConfig").val('YES');
+					} else {
+						$("#lockedConfig").val('');
+					}
+					//console.log("lockedConfig: " + $("#lockedConfig").val());
+					reloadWorkflowConfigGrid();
+				});
 			/**** listWorkflowConfig method is called by default.****/
 			listWorkflowConfig();	
 		});
@@ -134,7 +146,8 @@
 		function reloadWorkflowConfigGrid(){
 				$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+
 						"&deviceType="+$("#selectedDeviceType").val()+
-						"&module="+$("#selectedModule").val());
+						"&module="+$("#selectedModule").val()+
+						"&lockedConfig="+$("#lockedConfig").val());
 				var oldURL=$("#grid").getGridParam("url");
 				var baseURL=oldURL.split("?")[0];
 				newURL=baseURL+"?"+$("#gridURLParams").val();
@@ -145,6 +158,7 @@
 		function onPageLoad() {
 			prependOptionToSelectedDeviceType();
 			prependOptionToSelectedModule();
+			$('#isLockedCheck').attr('checked', 'checked');
 		}
 
 		function prependOptionToSelectedDeviceType() {
@@ -157,6 +171,12 @@
 			var optionValue = $('#pleaseSelectOption').val();
 			var option = "<option value='' selected>" + optionValue + "</option>";
 			$('#selectedModule').prepend(option);
+		}	
+		
+		function prependOptionToSelectedLockedStatus() {
+			var optionValue = $('#pleaseSelectOption').val();
+			var option = "<option value=''>" + optionValue + "</option>";
+			$('#selectedLockedStatus').prepend(option);
 		}
 	</script>
 </head>
@@ -213,7 +233,10 @@
 					<option value="COMMITTEE"><spring:message code="mytask.committee" text="Committee"></spring:message></option>			
 					<option value="REPORTING"><spring:message code="mytask.reporting" text="Reporting"></spring:message></option>
 					<option value="EDITING"><spring:message code="mytask.editing" text="Editing"></spring:message></option>				
-				</select> 	|						
+				</select> 	|
+			<a id="isLockedCheckLabel" class="butSim" href="#" style="padding-right: 3px;">Locked</a>
+			<input type="checkbox" id="isLockedCheck" class="sCheck" value="true">
+			<input type="hidden" id="lockedConfig" value="YES" />
 			<hr>	
 		</div>				
 		

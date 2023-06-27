@@ -8,8 +8,9 @@
 			/**** initially list is hidden ****/
 			$('#list_record').hide();
 			$('#gridURLParams').val("houseType="+$("#selectedHouseType").val()+
-			"&deviceType="+$("#selectedDeviceType").val()+
-			"&module="+$("#selectedModule").val());
+									"&deviceType="+$("#selectedDeviceType").val()+
+									"&module="+$("#selectedModule").val()+
+									"&lockedConfig="+$("#lockedConfig").val());
 			//initially edit,delete and search links will be visible
 			$('#editDeleteLinks').show();
 			//new record		
