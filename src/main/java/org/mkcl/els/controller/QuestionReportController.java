@@ -39,8 +39,6 @@ import org.mkcl.els.common.xmlvo.DeviceXmlVO;
 import org.mkcl.els.common.xmlvo.QuestionIntimationLetterXmlVO;
 import org.mkcl.els.common.xmlvo.QuestionYaadiSuchiXmlVO;
 import org.mkcl.els.controller.question.QuestionController;
-import org.mkcl.els.domain.ballot.Ballot;
-import org.mkcl.els.repository.QuestionRepository;
 import org.mkcl.els.domain.ActivityLog;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
@@ -77,6 +75,7 @@ import org.mkcl.els.domain.WorkflowActor;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.YaadiDetails;
+import org.mkcl.els.domain.ballot.Ballot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -91,6 +90,64 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("question/report")
 public class QuestionReportController extends BaseController{
+	
+	
+
+	@RequestMapping(value = "/statuswiseQuestionCountReport", method = RequestMethod.GET)
+	public String getStatusWiseQuestionCountReport(HttpServletRequest request, HttpServletResponse response,
+			Model model, Locale locale) {
+		String strSessionId = request.getParameter("sessionId");
+		String strAllowedGroups = request.getParameter("allowedGroups");
+		String strAllowedGroupsText = request.getParameter("allowedGroupsText");
+		String strDeviceType = request.getParameter("deviceType");
+
+		if (!strSessionId.isEmpty() && strSessionId != null 
+				&& !strDeviceType.isEmpty() && strDeviceType != null
+					&& !strAllowedGroups.isEmpty() && strAllowedGroups != null
+						&& !strAllowedGroupsText.isEmpty() && strAllowedGroupsText != null	) {
+			
+			DeviceType dt = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+			Session s = Session.findById(Session.class, Long.parseLong(strSessionId));
+			String[] groupsAllowed = strAllowedGroups.split(",");
+			String[] AllowedGroupsText = strAllowedGroupsText.split(",");
+			
+			if (groupsAllowed.length > 0) {
+				
+				model.addAttribute("AllowedGroupsText", AllowedGroupsText);
+
+				Map<String, String[]> parameters = new HashMap<String, String[]>();
+				parameters.put("locale", new String[] { locale.toString() });
+				parameters.put("sessionId", new String[] { s.getId().toString() });
+				parameters.put("deviceType", new String[] { dt.getId().toString() });
+				parameters.put("groupsAllowed", new String[] { strAllowedGroups });
+
+				List<Object> content = Query.findReport("STATUSWISE_QUESTION_COUNT_REPORT", parameters,true);
+
+				CustomParameter cp = CustomParameter.findByName(CustomParameter.class,
+						"STATUS_TO_SHOW_IN_STATUSWISE_QUESTION_COUNT_REPORT", "");
+
+				if (cp != null && content != null) {
+					String[] dNames = cp.getValue().split(",");
+					Map<String, List<String>> reportC = new LinkedHashMap<String, List<String>>();
+
+					for (int i = 0; i < groupsAllowed.length; i++) {
+						Object[] o = (Object[]) content.get(i);
+
+						for (int j = 0; j < dNames.length; j++) {
+							if (!reportC.containsKey(dNames[j])) {
+								reportC.put(dNames[j], new ArrayList<String>());
+							}
+							reportC.get(dNames[j]).add(o[j].toString());
+						}
+					}
+					model.addAttribute("report", reportC);
+				}
+			}
+		}
+
+		return "question/reports/statuswisequestion";
+	}
+	
 	
 	/**
 	 * To generate statistics report for section officer
@@ -6793,4 +6850,8 @@ class QuestionReportHelper{
 		
 		return countsUsingGroupByReportVOs;
 	}
+	
+	
+	
+	
 }
