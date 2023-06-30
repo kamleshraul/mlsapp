@@ -15,7 +15,12 @@
 			TestRevisionReport();
 			});	
 		
-		
+		$('#statuswise_questionsCount_report').click(function(){
+			
+			 statuswiseQuestionCountReport(); 
+			
+			});	
+					
 		
 		
 		//blink notice message per second interval
@@ -2098,6 +2103,41 @@
 			}
 		});
 	}
+	
+	
+	function statuswiseQuestionCountReport(){
+		 var allowedGroups = '';
+		 var allowedGroupsText = '';
+		
+		$("#selectedGroup option").each(function()
+				{
+					allowedGroups = allowedGroups +  $(this).val() +',';
+		});
+		
+		$("#selectedGroup option").each(function()
+				{
+			allowedGroupsText = allowedGroupsText + $(this).context.label +',';
+			
+		});
+		
+		allowedGroups =allowedGroups.substring(0,allowedGroups.length-1);
+		allowedGroupsText =allowedGroupsText.substring(0,allowedGroupsText.length-1);
+			
+		
+		 var url = "question/report/statuswiseQuestionCountReport?sessionId=" + $("#loadedSession").val()
+		+ "&deviceType=" + $("#selectedQuestionType").val()
+		+ "&allowedGroups=" + allowedGroups
+		+ "&allowedGroupsText=" + allowedGroupsText; 
+		
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		showTabByIdAndUrl('details_tab', url);
+		$.unblockUI(); 
+	}
+	
+	
+	
+	
+	
 </script>
 <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css">
 <style>
@@ -2558,6 +2598,9 @@
 						</security:authorize>						
 						<a href="#" id="ahwal_report" class="butSim link">
 							<spring:message code="question.ahwal_report" text="Sankshipt Ahwal Report"/>
+						</a> |
+						<a href="#" id="statuswise_questionsCount_report" class="butSim link">
+							<spring:message code="question.statuswiseQuestionCount" text="Status Wise Question Count Report"/>
 						</a> |
 						<hr>
 						<a href="#" id="departmentwise_report" class="butSim link">
