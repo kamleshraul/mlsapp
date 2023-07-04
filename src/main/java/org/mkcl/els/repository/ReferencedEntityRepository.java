@@ -1118,7 +1118,7 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 		}
 		
 		String orderByQuery=" ORDER BY dt.type "+ApplicationConstants.ASC+
-				" ,r.number "+ApplicationConstants.DESC + ", s.session_year "+ApplicationConstants.DESC;
+				" ,s.session_year "+ApplicationConstants.DESC + ", s.number "+ApplicationConstants.DESC + ", r.number "+ApplicationConstants.DESC;
 		/**** Final Query ****/
 		String query=null;
 		if(isAutomatic == true){
@@ -1934,7 +1934,7 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 		}
 		
 		String orderByQuery=" ORDER BY dt.type "+ApplicationConstants.ASC+
-				" ,q.number "+ApplicationConstants.DESC + ", s.session_year "+ApplicationConstants.DESC;
+				" ,s.session_year "+ApplicationConstants.DESC + ", s.number "+ApplicationConstants.DESC + ", q.number "+ApplicationConstants.DESC;
 		/**** Final Query ****/
 		String query=null;
 		if(isAutomatic == true){

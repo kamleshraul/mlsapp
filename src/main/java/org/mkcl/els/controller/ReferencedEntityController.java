@@ -729,7 +729,10 @@ public class ReferencedEntityController {
 			                		Resolution resolution=Resolution.findById(Resolution.class, Long.parseLong(resolutionId));
 				                    resolutionSearchVOs=ReferencedEntity.fullTextSearchReferencingResolution(param,resolution, false, Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
 			                	}
-	                		}
+	                		}else{
+		                		Resolution resolution=Resolution.findById(Resolution.class, Long.parseLong(resolutionId));
+			                    resolutionSearchVOs=ReferencedEntity.fullTextSearchReferencingResolution(param,resolution, false, Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
+		                	}
 	                	}else{
 	                		Resolution resolution=Resolution.findById(Resolution.class, Long.parseLong(resolutionId));
 		                    resolutionSearchVOs=ReferencedEntity.fullTextSearchReferencingResolution(param,resolution, false, Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
