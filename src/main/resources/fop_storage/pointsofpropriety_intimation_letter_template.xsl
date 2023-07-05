@@ -213,11 +213,11 @@
 													<xsl:choose>
 														<xsl:when test="./element_1/element_1_10='upperhouse'">
 															<fo:inline  font-weight="bold" ><xsl:value-of select="./element_1/element_1_9"/>,</fo:inline>
-															<fo:inline font-weight="bold">वि.प.स.</fo:inline> यांनी विधानपरिषदमध्ये <fo:inline font-weight="bold"> विशेष उल्लेखाद्वारे </fo:inline> उपस्थित केलेल्या सूचनेवर त्वरित कार्यवाही करण्यासंदर्भात.
+															<fo:inline font-weight="bold">वि.प.स.</fo:inline> यांनी विधानपरिषदमध्ये उपस्थित केलेल्या औचित्याचा मुदयावर  त्वरित कार्यवाही करण्यासंदर्भात.
 														</xsl:when>
 														<xsl:otherwise>
 															<xsl:value-of select="./element_1/element_1_9" font-weight="bold"/>
-															वि.स.स. यांनी विधानपरिषदमध्ये <fo:inline font-weight="bold"> विशेष उल्लेखाद्वारे</fo:inline> उपस्थित केलेल्या सूचनेवर त्वरित कार्यवाही करण्यासंदर्भात.
+															वि.स.स. यांनी विधानपरिषदमध्ये औचित्याचा मुदयावर  त्वरित कार्यवाही करण्यासंदर्भात.
 														</xsl:otherwise>
 													</xsl:choose> 
 													</fo:inline> 
@@ -225,41 +225,17 @@
 												<fo:block font-size="10px">
             										&#160;
             									</fo:block>
-												<fo:block text-align="left" font-weight="bold">महोदय/महोदया,</fo:block>
+												<fo:block text-align="left" font-weight="bold">महोदय,</fo:block>
             									<fo:block text-align="justify">
-													
-													<fo:block>
 													&#160;&#160;&#160;&#160;&#160;&#160;
-													<fo:inline>निदेशानुसार, 
-													  <fo:inline font-weight="bold">
-													  	<xsl:value-of select="./element_1/element_1_9"/> 
-													  </fo:inline>
-													  	, वि.प.स.यांनी  
-													  	<fo:inline ><xsl:value-of select="./element_1/element_1_3"/></fo:inline>
-													  	 दिनांक
-													  <fo:inline font-weight="bold">
-																<xsl:value-of select="./element_1/element_1_12" />
-													  </fo:inline>
-														 रोजी 
-														 <fo:inline font-weight="bold">"विशेष उल्लेखाद्वारे"</fo:inline> 
-														 या रूपाने उपस्थित केलेल्या विषयाच्या संदर्भातील कार्यवृत्ताची प्रत सोबत जोडली आहे.
-													</fo:inline>
-													</fo:block>
-													
-												  <fo:block>
-												  &#160;&#160;&#160;&#160;&#160;&#160;
-													 महाराष्ट्र विधानपरिषद नियम "१०१-फ" मधील  तरतुदीनुसार  सभागृहात सदर सूचना उपस्थित केल्याचा
-            										दिनांकापासून 
-            										<fo:inline font-weight="bold"> तीस दिवसांच्या </fo:inline>
-            										आत मंत्री महोदयानी त्या विषयीचे त्यांचे उतर संबंधित सदस्यांना परस्पर पठाविणे आवश्यक असून त्यासंबंधीची प्रत
-            										<!--</fo:block>
-            										<fo:block>-->
-            										या 
-            										 <fo:inline font-weight="bold"> सचिवालयाच्या पत्राच्या संदर्भासहित </fo:inline>
-            									 	 मा. सभापतींच्या  अवलोकनार्थ या सचिवालयाला पाठविण्यात यावी, अशी आपणास विनंती करण्यात येत आहे.
+													<fo:inline>निदेशानुसार, <fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_9"/></fo:inline>, वि.प.स.यांनी <fo:inline ><xsl:value-of select="./element_1/element_1_3"/></fo:inline>
+													  महाराष्ट्र विधानपरिषदेत दिनांक <fo:inline font-weight="bold"> <xsl:value-of select="./element_1/element_1_12" /></fo:inline>
+													  रोजी <fo:inline font-weight="bold">"औचित्याचा मुद्याद्वारे"</fo:inline> उपस्थित केलेल्या विषयाच्या संदर्भातील  कार्यवृत्ताची प्रत सोबत जोडली आहे.
+														</fo:inline>संबंधित विषयाबाबत केलेली कार्यवाही अथवा त्या संदर्भातील माहिती संबंधित सदस्यांना<fo:inline font-weight="bold"> पंधरा  दिवसांच्या आत </fo:inline> मंत्री महोदयानी परस्पर  पठाविणे आवश्यक असून त्याची  प्रत
+	            										<!--</fo:block>
+	            										<fo:block>-->
+	            										या <fo:inline font-weight="bold">सचिवालयाला पत्राच्या संदर्भासहित </fo:inline> मा . सभापतींच्या  अवलोकनार्थ या सचिवालयाला पाठविण्यात यावी, अशी आपणास विनंती करण्यात येत आहे.
             										
-            										
-            									  </fo:block>
 											</fo:block>	
 												<fo:block>
 													<fo:block text-align="right">
