@@ -514,14 +514,15 @@ public class SpecialMentionNoticeReportController extends BaseController{
 		
 		//String retVal = "motion/report";
 		try{
-			String strId = request.getParameter("motionId");;
+			//String strId = request.getParameter("motionId");;
+			String spmNumber = null;
 			String strWorkflowId = request.getParameter("workflowDetailId");
 			WorkflowDetails workflowDetails = null;
 			String strReportFormat = request.getParameter("outputFormat");
 			if(strWorkflowId != null && !strWorkflowId.isEmpty()){
 				workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
 				if(workflowDetails != null){
-					strId = workflowDetails.getDeviceId();
+					spmNumber = workflowDetails.getDeviceId();
 					if(strReportFormat==null || strReportFormat.isEmpty()) {
 						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
 								|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
@@ -541,10 +542,10 @@ public class SpecialMentionNoticeReportController extends BaseController{
 			String strCopyType = request.getParameter("copyType");
 			Long workflowDetailCount = (long) 0;
 			Boolean isResendRevisedMotionTextWorkflow = false;
-			if(strId != null && !strId.isEmpty()){
+			if(spmNumber != null && !spmNumber.isEmpty()){
 				Map<String, String[]> parameters = new HashMap<String, String[]>();
 				parameters.put("locale", new String[]{locale.toString()});
-				parameters.put("motionId", new String[]{strId});
+				parameters.put("motionId", new String[]{spmNumber});
 				
 				@SuppressWarnings("rawtypes")
 				List reportData = Query.findReport("SPECIALMENTIONNOTICE_INTIMATION_LETTER", parameters);	
@@ -553,7 +554,7 @@ public class SpecialMentionNoticeReportController extends BaseController{
 				
 				File reportFile = null;
 				
-				reportFile = generateReportUsingFOP(new Object[] {reportData}, templateName, strReportFormat, "motionNivedanTarikh",locale.toString());
+				reportFile = generateReportUsingFOP(new Object[] {reportData}, templateName, strReportFormat, "special_mention_notice_intimation_letter",locale.toString());
 				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
 				
 				model.addAttribute("info", "general_info");;
