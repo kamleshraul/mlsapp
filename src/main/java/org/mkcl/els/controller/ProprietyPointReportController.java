@@ -40,6 +40,68 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("proprietypoint/report")
 public class ProprietyPointReportController extends BaseController{
 	
+	
+	@RequestMapping(value ="/generateIntimationLetter", method = RequestMethod.GET)
+	private void generateIntimationLetter(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		
+		//String retVal = "motion/report";
+		try{
+			//String strId = request.getParameter("motionId");;
+			String ppNumber = null;
+			String strWorkflowId = request.getParameter("workflowDetailId");
+			WorkflowDetails workflowDetails = null;
+			String strReportFormat = request.getParameter("outputFormat");
+			if(strWorkflowId != null && !strWorkflowId.isEmpty()){
+				workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
+				if(workflowDetails != null){
+					ppNumber = workflowDetails.getDeviceId();
+					if(strReportFormat==null || strReportFormat.isEmpty()) {
+						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+								|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
+								|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.MEMBER)
+								) {
+							strReportFormat = "PDF";
+						} else {
+							strReportFormat = "WORD";
+						}
+					}
+				} else {
+					strReportFormat = "WORD";
+				}
+			} else {
+				strReportFormat = "WORD";
+			}	
+			String strCopyType = request.getParameter("copyType");
+			Long workflowDetailCount = (long) 0;
+			Boolean isResendRevisedMotionTextWorkflow = false;
+			if(ppNumber != null && !ppNumber.isEmpty()){
+				Map<String, String[]> parameters = new HashMap<String, String[]>();
+				parameters.put("locale", new String[]{locale.toString()});
+				parameters.put("motionId", new String[]{ppNumber});
+				
+				@SuppressWarnings("rawtypes")
+				List reportData = Query.findReport("POINTS_OF_PROPRIETY_INTIMATION_LETTER", parameters);	
+				String templateName = "pointsofpropriety_intimation_letter_template";
+				
+				
+				File reportFile = null;
+				
+				
+				
+				reportFile = generateReportUsingFOP(new Object[] {reportData}, templateName, strReportFormat, "pointsofpropriety_intimation_letter",locale.toString());
+				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
+				
+				model.addAttribute("info", "general_info");;
+				//retVal = "motion/info";
+			}			
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		//return retVal;
+	}
+	
+	
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@RequestMapping(value="/generalreport", method=RequestMethod.GET)
 	public String getReport(HttpServletRequest request, Model model, Locale locale){
@@ -635,5 +697,8 @@ class ProprietyPointReportHelper{
 
 		return list;  
 	}
+	
+
+	
 	
 }
