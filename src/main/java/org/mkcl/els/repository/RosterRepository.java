@@ -313,6 +313,8 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 					if(slotPreviousToReporterChangeTime!=null){
 						repeat = slotPreviousToReporterChangeTime.getName().length();
 						int reporterPreviousToReporterChangedSlotPosition = slotPreviousToReporterChangeTime.getReporter().getPosition();
+						if(!slotPreviousToReporterChangeTime.getReporter().getIsActive())
+							reporterPreviousToReporterChangedSlotPosition=0;
 						//Getting the Reporters Position of the Slot next to Reporter Change time
 						for(Reporter i:reporters){
 							int reporterPosition=i.getPosition();
@@ -339,6 +341,9 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 							}
 							
 							lastSlotReporterPosition = slotPreviousToReporterChangeTime.getReporter().getPosition();
+							if(!slotPreviousToReporterChangeTime.getReporter().getIsActive())
+								lastSlotReporterPosition=0;
+							
 							ch = nextSlotName.charAt(0);
 							repeat = nextSlotName.length();
 						}
