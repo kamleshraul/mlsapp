@@ -2225,7 +2225,7 @@ public class ReferenceController extends BaseController {
 				try {
 					if(strParam!=null && !strParam.isEmpty()) {
 						String param = new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
-						memberVOs = HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house, selectedSession, locale.toString(), param.trim(),primaryMemberId);
+						memberVOs = HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSessionUpdated(house, selectedSession, locale.toString(), strParam.trim(),primaryMemberId);
 					}					
 				}
 				catch (UnsupportedEncodingException e){
@@ -2234,7 +2234,7 @@ public class ReferenceController extends BaseController {
 			}else{
 				String param = request.getParameter("term");
 				if(param!=null && !param.isEmpty()) {
-					memberVOs = HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house,selectedSession, locale.toString(), param.trim(), primaryMemberId);
+					memberVOs = HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSessionUpdated(house,selectedSession, locale.toString(), param.trim(), primaryMemberId);
 				}
 			}
 		}
