@@ -1982,6 +1982,8 @@ public class ApplicationConstants {
 	public static final String DISCUSSIONMOTION_PROCESSED_SENDTODESKOFFICER = "discussionmotion_processed_sendToDeskOfficer";
 	public static final String DISCUSSIONMOTION_PROCESSED_ANSWERRECEIVED = "discussionmotion_processed_answerReceived";
 	public static final String DISCUSSIONMOTION_PROCESSED_REJECTIONWITHREASON ="discussionmotion_processed_rejectionWithReason";
+	public static final String DISCUSSIONMOTION_PROCESSED_DISCUSSED = "discussionmotion_processed_discussed";
+	public static final String DISCUSSIONMOTION_PROCESSED_UNDISCUSSED = "discussionmotion_processed_undiscussed";
 	
 	public static final String DISCUSSIONMOTION_PROCESSED_YAADILAID = "discussionmotion_processed_yaadilaid";
 	
@@ -2042,8 +2044,8 @@ public class ApplicationConstants {
 	public static final String DISCUSSIONMOTION_SHORTDURATION_NO_OF_SUPPORTING_MEMBERS="motions_discussionmotion_shortduration_numberOfSupportingMembers";
 
 	public static final String DISCUSSIONMOTION_SHORTDURATION_NO_OF_SUPPORTING_MEMBERS_COMPARATOR = "motions_discussionmotion_shortduration_numberOfSupportingMembersComparator";
-
 	
+
 	/**** EventMotion ****/
 	public static final String EVENTMOTION_CONDOLENCE = "motions_eventmotion_condolence";
 	public static final String EVENTMOTION_CONGRATULATORY = "motions_eventmotion_congratulatory";
