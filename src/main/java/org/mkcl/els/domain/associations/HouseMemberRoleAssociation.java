@@ -503,6 +503,16 @@ public class HouseMemberRoleAssociation implements Serializable {
                 session,locale,param,primaryMemberId);
     }
 	
+	
+	/**** Update By Shubham A ****/
+	
+	public static List<MasterVO> findAllActiveSupportingMemberVOSInSessionUpdated(final House house,
+            final Session session, final String locale,final String param,final Long primaryMemberId) {
+        return getMemberHouseRoleRepository().findAllActiveSupportingMemberVOSInSessionUpdated(house,
+        		session, locale, param, primaryMemberId);
+    }
+
+	
 	public static List<MemberRole> findAllActiveRolesOfMemberInSession(Member member, Session session, String locale) {
 		return getMemberHouseRoleRepository().findAllActiveRolesOfMemberInSession(member, session, locale);
 	}
