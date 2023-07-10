@@ -245,6 +245,11 @@ public class DiscussionMotion extends Device implements Serializable {
 	private Integer fileIndex;
 
 	private Boolean fileSent;
+	
+	/**** The Disucssion Status. ****/
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="discussionstatus_id")
+	private Status discussionStatus;
 
 	/**** Clarification Related Fields ****/
 	@Column(length = 30000)
@@ -1777,9 +1782,9 @@ public class DiscussionMotion extends Device implements Serializable {
 		String locale = motion.getLocale();
 		DiscussionMotion parentMotion = motion.getParent();
 
-		Status putupStatus = Status.findByType(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED,
+		Status putupStatus = Status.findByType(ApplicationConstants.DISCUSSIONMOTION_SYSTEM_ASSISTANT_PROCESSED,
 				motion.getLocale());
-		Status approvalStatus = Status.findByType(ApplicationConstants.CUTMOTION_FINAL_ADMISSION, motion.getLocale());
+		Status approvalStatus = Status.findByType(ApplicationConstants.DISCUSSIONMOTION_FINAL_ADMISSION, motion.getLocale());
 
 		// if(motion.isFromDifferentBatch(parentMotion)) {
 		//
@@ -1860,7 +1865,7 @@ public class DiscussionMotion extends Device implements Serializable {
 			updateDomainFieldsOnClubbingFinalisation(parentMotion, motion);
 
 			if (parentMotion.getInternalStatus().getPriority().compareTo(approvalStatus.getPriority()) < 0) {
-				Status clubbedStatus = Status.findByType(ApplicationConstants.CUTMOTION_SYSTEM_CLUBBED,
+				Status clubbedStatus = Status.findByType(ApplicationConstants.DISCUSSIONMOTION_SYSTEM_CLUBBED,
 						motion.getLocale());
 				motion.setInternalStatus(clubbedStatus);
 				motion.setRecommendationStatus(clubbedStatus);
@@ -2460,6 +2465,15 @@ public class DiscussionMotion extends Device implements Serializable {
 	public Date getLastDateOfClarificationReceiving() {
 		return lastDateOfClarificationReceiving;
 	}
+	
+	
+	public Status getDiscussionStatus() {
+		return discussionStatus;
+	}
+
+	public void setDiscussionStatus(Status discussionStatus) {
+		this.discussionStatus = discussionStatus;
+	}
 
 	public void setLastDateOfClarificationReceiving(Date lastDateOfClarificationReceiving) {
 		this.lastDateOfClarificationReceiving = lastDateOfClarificationReceiving;
@@ -2522,5 +2536,18 @@ public class DiscussionMotion extends Device implements Serializable {
 		}
 
 		return workflowDetailsList != null && deleteCount == workflowDetailsList.size();
+	}
+	
+	
+	public static List<DiscussionMotion> findAllAdmittedUndisccussed(final Session session,
+			final DeviceType motionType, 
+			final Status status,
+			final String locale){
+		return  getDiscussionMotionRepository().findAllAdmittedUndisccussed(session, motionType, status, locale);
+	}
+	
+	
+	public static List<Object> getDiscussionMotionDetailsMemberStatsReport(final Session session,final DeviceType deviceType,final Member memberId){
+		return getDiscussionMotionRepository().getDiscussionMotionDetailsMemberStatsReport(session, deviceType, memberId);
 	}
 }
