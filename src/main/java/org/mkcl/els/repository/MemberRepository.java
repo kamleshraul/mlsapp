@@ -3152,6 +3152,112 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 	}
 	
 	
+	public List<MasterVO> findMembersByIsRulingParty(final House house,
+			final Session session, final String locale,final MemberPartyAssociation mpa, final Long primaryMemberId) {
+		
+		
+		List<MasterVO> memberVOS=new ArrayList<MasterVO>();
+		
+		try {
+			Date sessionStartDate=session.getStartDate();
+			Date sessionEndDate=session.getEndDate();
+			String query=null;
+			if(sessionStartDate!=null && sessionEndDate!=null){
+				SimpleDateFormat format=new SimpleDateFormat(ApplicationConstants.DB_DATEFORMAT);
+				String strSessionStartDate=format.format(sessionStartDate);
+				String strSessionEndDate=format.format(sessionEndDate);
+				if(primaryMemberId!=null){
+					query="(SELECT"
+							+ " DISTINCT"
+							+ "  m.id,"
+							+ "  t.name,"
+							+ "  m.first_name,"
+							+ "  m.middle_name,"
+							+ "  m.last_name "
+							+ " FROM members_houses_roles mhr"
+							+ " INNER JOIN members m ON (m.id = mhr.member)"
+							+ " INNER JOIN members_parties mpa ON (mpa.member = m.id)"
+							+ " LEFT JOIN titles t ON (t.id = m.title_id)"
+							+ " WHERE mpa.house_id =" +house.getId() +" "
+							+ " AND ("
+							+ "    mhr.to_date >= '" + strSessionStartDate +"  '"
+							+ "    OR mhr.to_date >= ' "+strSessionEndDate +"  '"
+							+ "  )"
+							+ " AND m.id <> '"+primaryMemberId +"'"
+							+ " AND mpa.is_member_of_ruling_party IS "+mpa.getIsMemberOfRulingParty() +")"
+							+ " ORDER BY m.first_name ASC";
+				}else{
+					query="(SELECT"
+							+ " DISTINCT"
+							+ "  m.id,"
+							+ "  t.name,"
+							+ "  m.first_name,"
+							+ "  m.middle_name,"
+							+ "  m.last_name "
+							+ " FROM members_houses_roles mhr"
+							+ " INNER JOIN members m ON (m.id = mhr.member)"
+							+ " INNER JOIN members_parties mpa ON (mpa.member = m.id)"
+							+ " LEFT JOIN titles t ON (t.id = m.title_id)"
+							+ " WHERE mpa.house_id =" +house.getId() +" "
+							+ " AND ("
+							+ "    mhr.to_date >= '" + strSessionStartDate +"  '"
+							+ "    OR mhr.to_date >= ' "+strSessionEndDate +"  '"
+							+ "  )"
+							+ " AND mpa.is_member_of_ruling_party IS "+mpa.getIsMemberOfRulingParty() +")"
+							+ " ORDER BY m.first_name ASC";
+				}				
+				List members=this.em().createNativeQuery(query).getResultList();
+				List<Member> activeMinistersList = Member.findActiveMinisters(new Date(), locale);
+				String[] memberAsPresidingOfficerRoles = new String[] {"SPEAKER", "DEPUTY_SPEAKER", "CHAIRMAN", "DEPUTY_CHAIRMAN"};
+				for(Object i:members){
+					Object[] o=(Object[]) i;
+					Member member = Member.findById(Member.class, Long.parseLong(o[0].toString()));
+					boolean isMemberActiveMinister = false;
+					if(activeMinistersList!=null && member!=null) {
+						for(Member m: activeMinistersList) {
+							if(member.getId().equals(m.getId())) {
+								isMemberActiveMinister = true;
+								break;
+							}
+						}
+					}
+					//if(member.isActiveOnlyAsMember(new Date(), locale)) {
+					if(!isMemberActiveMinister && !member.isActiveMemberInAnyOfGivenRolesOn(memberAsPresidingOfficerRoles, new Date(), locale)) {
+						MasterVO masterVO=new MasterVO();
+						masterVO.setId(Long.parseLong(o[0].toString()));
+						if(o[3]!=null){
+							masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString()+" "+o[4].toString());
+						}else{
+							masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString());
+						}
+						memberVOS.add(masterVO);
+					}
+				}
+			}
+			
+			//suspended members should not allowed for supporting memebers
+			// filtering suspended members
+			if(memberVOS!=null && memberVOS.size()>0) { 
+				List<Long> suspendedMembersIds = Member.getMemberRepository().supspendedMembersIdsList(new Date());
+				if(suspendedMembersIds !=null && suspendedMembersIds.size()>0) {
+					for(MasterVO m: memberVOS) {
+						if(suspendedMembersIds.contains(m.getId()))
+							memberVOS.remove(m);						
+					}
+				}				
+			}
+			
+			return memberVOS;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return memberVOS;
+		}
+		
+	}
+	
+	
+	
+	
 	public List<Member> findActiveMembers(final House house, 
 			final MemberRole role,
 			final Date date, 
