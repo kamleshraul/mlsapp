@@ -1868,6 +1868,16 @@ public class ClubbedEntityController extends BaseController{
 					//status = ClubbedEntity.clubStandalone(primaryId, clubbingId, locale.toString());
 					boolean clubResult = false;
 					try {
+						
+						DiscussionMotion primaryQuestion = DiscussionMotion.findById(DiscussionMotion.class,Long.parseLong(strpId));
+						DiscussionMotion clubbingQuestion = DiscussionMotion.findById(DiscussionMotion.class,Long.parseLong(strcId));
+						
+						primaryQuestion.setEditedAs(editedAs);
+						primaryQuestion.setEditedBy(editedBy);
+						primaryQuestion.setEditedOn(new Date());
+						clubbingQuestion.setEditedAs(editedAs);
+						clubbingQuestion.setEditedBy(editedBy);
+						clubbingQuestion.setEditedOn(new Date());
 						clubResult = DiscussionMotion.club(primaryId, clubbingId, locale.toString());
 					} catch (ELSException e) {
 						status = e.getParameter("error");
