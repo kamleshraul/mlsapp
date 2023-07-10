@@ -1,11 +1,8 @@
 package org.mkcl.els.controller.question;
 
 import java.text.ParseException;
-
-
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -46,23 +43,17 @@ import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.WorkflowDetails;
-import org.mkcl.els.repository.QuestionRepository;
 import org.mkcl.els.service.IProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.HtmlUtils;
-
-import net.sf.cglib.core.Local;
 
 @Controller
 @RequestMapping("question")
@@ -2178,6 +2169,10 @@ public class QuestionController extends GenericController<Question> {
 				List<Question> qsnDetails = new ArrayList<Question>();
 				
 				qsnDetails = Question.getQuestionDetail(latestSession,qsnId,deviceType.getId(),latestSession.getHouse().getId(),currentHouse.getFirstDate());
+				if(qsnDetails.size() == 0)
+				{
+					throw new ELSException("Unable to Find Question Please Check the Number ",strqsnId); 
+				}
 				String[] Pactor = new String[(qsnDetails.size())];
 				boolean parentSet=false;
 				
@@ -2185,6 +2180,7 @@ public class QuestionController extends GenericController<Question> {
 				{
 				List<Question> childQsnDetails =  Question.getChildQuestionDetail(latestSession, qsnDetails.get(0).getId(), deviceType.getId(), latestSession.getHouse().getId(),currentHouse.getFirstDate());
 				model.addAttribute("childQuestions", childQsnDetails);
+				
 				}
 				else if(qsnDetails.get(0).getParent() != null)
 				{
@@ -2211,10 +2207,12 @@ public class QuestionController extends GenericController<Question> {
 				model.addAttribute("questions", qsnDetails);
 				}
 			
-			} catch (ELSException e) {
-			
-				e.printStackTrace();
-			} 
+			} catch(ELSException elsx) {
+				elsx.printStackTrace();
+			}
+			catch(Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 		
 	}
