@@ -560,8 +560,19 @@ public class CutMotionController extends GenericController<CutMotion>{
 								if (ministry != null) {
 									model.addAttribute("ministrySelected", ministry.getId());
 									/**** Sub Departments ****/
-									List<SubDepartment> subDepartments = MemberMinister.
-											findAssignedSubDepartments(ministry, selectedSession.getEndDate(), locale);
+									Date onDate = selectedSession.getEndDate();
+									if(onDate.before(new Date())) {
+										CustomParameter csptNewHouseFormationInProcess = CustomParameter.findByName(CustomParameter.class, "NEW_HOUSE_FORMATION_IN_PROCESS", "");
+										if(csptNewHouseFormationInProcess==null) {
+											onDate = new Date();
+										} else if(csptNewHouseFormationInProcess.getValue()==null) {
+											onDate = new Date();
+										} else if(!csptNewHouseFormationInProcess.getValue().equals("YES")) {
+											onDate = new Date();
+										}
+									}
+									List<SubDepartment> subDepartments = 
+											MemberMinister.findAssignedSubDepartments(ministry, onDate, locale);
 									model.addAttribute("subDepartments", subDepartments);
 									SubDepartment subDepartment = domain.getSubDepartment();
 									if (subDepartment != null) {
@@ -799,8 +810,19 @@ public class CutMotionController extends GenericController<CutMotion>{
 					if(ministry != null){
 						model.addAttribute("ministrySelected",ministry.getId());						
 						/**** Sub Departments ****/
-						List<SubDepartment> subDepartments=MemberMinister.
-								findAssignedSubDepartments(ministry,selectedSession.getEndDate(), locale);
+						Date onDate = selectedSession.getEndDate();
+						if(onDate.before(new Date())) {
+							CustomParameter csptNewHouseFormationInProcess = CustomParameter.findByName(CustomParameter.class, "NEW_HOUSE_FORMATION_IN_PROCESS", "");
+							if(csptNewHouseFormationInProcess==null) {
+								onDate = new Date();
+							} else if(csptNewHouseFormationInProcess.getValue()==null) {
+								onDate = new Date();
+							} else if(!csptNewHouseFormationInProcess.getValue().equals("YES")) {
+								onDate = new Date();
+							}
+						}
+						List<SubDepartment> subDepartments = 
+								MemberMinister.findAssignedSubDepartments(ministry, onDate, locale);
 						model.addAttribute("subDepartments",subDepartments);
 						SubDepartment subDepartment = domain.getSubDepartment();
 						if(subDepartment != null){
