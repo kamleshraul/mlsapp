@@ -148,6 +148,15 @@ $(document).ready(function(){
 			</table>
 		</c:when>
 		<c:otherwise>
-			<spring:message code="question.noquestions" text="No Questions Found"></spring:message>
+		<div>
+		</div>
+		<br>
+		<div style="margin: auto;
+  width: 50%;
+  border: 3px solid red;
+  padding-top: 15px;">
+  Can't Find Number Please Check Once Again the details entered
+		</div>
+			
 		</c:otherwise>
 	</c:choose>
