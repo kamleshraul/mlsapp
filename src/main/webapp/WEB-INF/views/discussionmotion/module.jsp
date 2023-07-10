@@ -14,6 +14,16 @@
 		
 		/*Tooltip*/
 		$(".toolTip").hide();
+		
+		
+		
+		/**** Status Update ****/
+		$("#statusupdate_tab").click(function() {
+			$("#selectionDiv1").hide();
+			statusUpdate();
+		});
+		
+		
 		/**** here we are trying to add date mask in grid search when field names ends with date ****/
 		$(".sf .field").change(function() {
 			var field = $(this).val();
@@ -33,6 +43,8 @@
 				reloadDiscussionMotionGrid();	
 			}
 		});
+		
+		
 		/**** session year changes then reload grid****/
 		$("#selectedSessionYear").change(function() {
 			var value = $(this).val();
@@ -259,6 +271,23 @@
 		showTabByIdAndUrl('bulkputupassistant_tab', resourceURL);
 	}
 	
+	/**** Bulk statusupdate(Assistant)****/
+	function statusUpdate() {
+		var parameters =  "houseType=" + $("#selectedHouseType").val()
+					+ "&sessionYear=" + $("#selectedSessionYear").val()
+					+ "&sessionType=" + $("#selectedSessionType").val()
+					+ "&motionType=" + $("#selectedDiscussionMotionType").val()
+					+ "&ugparam=" + $("#ugparam").val() 
+					+ "&status=" + $("#selectedStatus").val() 
+					+ "&role=" + $("#srole").val()
+					+ "&usergroup=" + $("#currentusergroup").val()
+					+ "&usergroupType=" + $("#currentusergroupType").val()
+		
+		console.log(parameters);
+		 var resourceURL = 'discussionmotion/statusupdate/assistant/init?' + parameters;
+		showTabByIdAndUrl('statusupdate_tab', resourceURL); 
+	}
+	
 </script>
 <style type="text/css">
 	.butSim:link{
@@ -278,7 +307,14 @@
 				<li>
 					<a id="bulkputupassistant_tab" href="#" class="tab"> <spring:message code="generic.bulkputup" text="Bulk Putup" /></a>
 				</li>
-			</security:authorize> --%>						
+			</security:authorize> --%>
+			<security:authorize
+				access="hasAnyRole('DMOIS_SECTION_OFFICER', 'DMOIS_ASSISTANT','DMOIS_CLERK')">
+				<li><a id="statusupdate_tab" href="#" class="tab"> <spring:message
+							code="generic.motion.statusupdate" text="Update Motion">
+						</spring:message>
+				</a></li>
+			</security:authorize>						
 			
 		</ul>
 		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv1">

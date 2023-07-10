@@ -32,7 +32,35 @@
 			}
 			scrollTop();
 		});	
-	}	
+	}
+	
+	function refreshEdit(id){
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		var parameters="houseType="+$("#selectedHouseType").val()
+		+"&sessionYear="+$("#selectedSessionYear").val()
+		+"&sessionType="+$("#selectedSessionType").val()
+		+"&motionType="+$("#selectedMotionType").val()
+		+"&ugparam="+$("#ugparam").val()
+		+"&status="+$("#selectedStatus").val()
+		+"&role="+$("#srole").val()
+		+"&usergroup="+$("#currentusergroup").val()
+        +"&usergroupType="+$("#currentusergroupType").val();
+		
+		var resourceURL='discussionmotion/'+id+'/edit?'+parameters;
+		$('a').removeClass('selected');
+		//id refers to the tab name and it is used just to highlight the selected tab
+		$('#'+ id).addClass('selected');
+		//tabcontent is the content area where result of the url load will be displayed
+		$('.tabContent').load(resourceURL,function(data){
+			scrollTop();
+			$.unblockUI();
+		});
+		$("#referencingResultDiv").hide();
+		$("#clubbingResultDiv").hide();
+		$("#assistantDiv").show();					
+	}
+	
+	
 	/**** load actors ****/
 	function loadActors(value){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
@@ -91,6 +119,7 @@
 		}
 	}
 	
+
 	
 
 	$(document).ready(function(){
@@ -136,6 +165,59 @@
 			}						
 			return false;			
 		});	
+		
+		
+		/**** Right Click Menu ****/
+		$(".clubbedRefMotions").contextMenu({
+	        menu: 'contextMenuItems'
+	    },
+	        function(action, el, pos) {
+			var id=$(el).attr("id");
+			if(action=='unclubbing'){
+				if(id.indexOf("cq")!=-1){
+				var motionId=$("#id").val();
+				var clubId=id.split("cq")[1];				
+				$.post('clubentity/unclubbing?pId='+motionId+"&cId="+clubId+"&whichDevice=motions_discussion_"+"&usergroupType="+$("#currentusergroupType").val(),function(data){
+					$.prompt(data,{callback: function(v){ 
+									refreshEdit(motionId);
+									}
+					});					
+				},'html').fail(function(){
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				});	
+				}else{
+					$.prompt("Unclubbing not allowed");
+				}			
+			}else if(action=='dereferencing'){
+				if(id.indexOf("rq")!=-1){					
+				var motionId=$("#id").val();
+				var refId=id.split("rq")[1];				
+				$.post('refentity/discussionmotion/dereferencing?pId='+motionId+"&rId="+refId,function(data){
+					if(data=='SUCCESS'){
+						$.prompt("Dereferencing Successful");				
+						}else{
+							$.prompt("Dereferencing Failed");
+						}							
+				},'html').fail(function(){
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				});	
+				}else{
+					$.prompt("De-Referencing not allowed");					
+				}			
+			}
+	    });
+		
+		
 		
 		$("#reviseNoticeContent").click(function(){
 			$(".revise2").toggle();		
@@ -523,7 +605,7 @@
 		<input type="text" readonly="readonly" value="${constituency}" class="sText">
 		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="./resources/images/contactus.jpg" width="40" height="25"></a>		
 	</p>
-	<!-- 
+	
 	<p>
 		<c:if test="${bulkedit!='yes'}">	
 			<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="generic.clubbing" text="Clubbing"></spring:message></a>
@@ -531,11 +613,11 @@
 			<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="generic.refresh" text="Refresh"></spring:message></a>
 		</c:if>	
 	</p>
-	-->
+	
 	<c:if test="${!(empty parent)}">	
 		<p>
 			<label class="small"><spring:message code="cutmotion.parentmotion" text="Clubbed To"></spring:message></label>
-			<a href="#" id="p${parent}" onclick="viewmotionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
+			<a href="#" id="p${parent}" onclick="viewDiscussionMotionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
 			<input type="hidden" id="parent" name="parent" value="${parent}">
 		</p>
 	</c:if>	
@@ -782,6 +864,12 @@
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
 	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
 	<input type="hidden" id="houseTypeType" value="${houseTypeType}" />
+	<ul id="contextMenuItems" >
+			<li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
+			<li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
+		</ul>
+	
+	
 	<c:if test="${domain.ballotStatus!=null}">
 		<input type="hidden" name="ballotStatus" id="ballotStatusId" value="${domain.ballotStatus.id}"/>		
 	</c:if>
