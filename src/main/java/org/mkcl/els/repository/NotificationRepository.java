@@ -39,7 +39,7 @@ public class NotificationRepository extends BaseRepository<Notification, Seriali
     					+ "WHERE n.receiver=:receiver "
     					+ "AND (n.clearedByReceiver IS NULL OR n.clearedByReceiver IS FALSE) "
     					+ "AND n.locale=:locale "
-    					+ "ORDER BY msg.sentOn DESC";
+    					+ "ORDER BY msg.id DESC";
     	
     	TypedQuery<Notification> query = this.em().createQuery(queryString, Notification.class);
     	query.setParameter("receiver", receiver);
@@ -64,7 +64,7 @@ public class NotificationRepository extends BaseRepository<Notification, Seriali
     					+ "WHERE n.receiver=:receiver "
     					+ "AND (n.clearedByReceiver IS NULL OR n.clearedByReceiver IS FALSE) "
     					+ "AND n.locale=:locale "
-    					+ "ORDER BY msg.sentOn DESC";
+    					+ "ORDER BY msg.id DESC";
     	
     	TypedQuery<Notification> query = this.em().createQuery(queryString, Notification.class);
     	query.setParameter("receiver", receiver);
