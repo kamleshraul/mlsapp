@@ -51,6 +51,7 @@ import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.Workflow;
 import org.mkcl.els.domain.WorkflowDetails;
+import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.mkcl.els.service.IProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -480,8 +481,20 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 						
 						//Session selectedSession = Session.findById(Session.class, session);
 						House house=House.find(houseType, new Date(), locale.toString());
-						PartyType partytype=Member.getMemberRepository().findPartyType(member.getId(), house.getId(), locale);
-						List<MasterVO> membersbyPartyType=Member.getMemberRepository().findActiveMembersByPartyType(house, selectedSession, locale.toString(), partytype,member.getId());
+						
+						MemberPartyAssociation mpa = null;
+						for(MemberPartyAssociation MPA : member.getMemberPartyAssociations())
+						{
+							if(MPA.getHouse().getId().equals(house.getId())) {
+								mpa = MPA;
+							}
+						}
+						
+						List<MasterVO> membersbyPartyType = Member.getMemberRepository().findMembersByIsRulingParty(house, selectedSession, locale, mpa, member.getId());
+						
+						//PartyType partytype=Member.getMemberRepository().findPartyType(member.getId(), house.getId(), locale);
+						//boolean mpa = member.getMemberPartyAssociations().get(0).getIsMemberOfRulingParty();
+						//List<MasterVO> membersbyPartyType=Member.getMemberRepository().findActiveMembersByPartyType(house, selectedSession, locale.toString(), ,member.getId());
 						//List<Member> supportingMembers=new ArrayList<Member>();
 						//membersbyPartyType.remove(member);
 						if(membersbyPartyType!=null){
@@ -681,6 +694,12 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 			primaryMemberName=member.getFullname();
 			memberNames=primaryMemberName;
 			model.addAttribute("formattedPrimaryMember",primaryMemberName);
+		}
+		
+		/*** Parent  ***/
+		if(domain.getParent()!=null){
+			model.addAttribute("formattedParentNumber",FormaterUtil.formatNumberNoGrouping(domain.getParent().getNumber(), locale));
+			model.addAttribute("parent",domain.getParent().getId());
 		}
 		/**** Constituency ****/
 		Long houseId=selectedSession.getHouse().getId();
@@ -2710,4 +2729,189 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 			return false;
 		}
 	}
+	
+	
+	/**** Yaadi to discuss update ****/
+	@RequestMapping(value="/statusupdate/assistant/init", method=RequestMethod.GET)
+	public String getStatusUpdateInit(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		/**** Request Params ****/
+		String retVal = "discussionmotion/error";
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strDeviceType = request.getParameter("motionType");			
+		String strStatus = request.getParameter("status");
+		String strRole = request.getParameter("role");
+		String strUsergroup = request.getParameter("usergroup");
+		String strUsergroupType = request.getParameter("usergroupType");
+
+		/**** Locale ****/
+		String strLocale = locale.toString();
+
+		if(strHouseType != null && !(strHouseType.isEmpty())
+				&& strSessionType != null && !(strSessionType.isEmpty())
+				&& strSessionYear != null && !(strSessionYear.isEmpty())
+				&& strDeviceType != null && !(strDeviceType.isEmpty())
+				&& strStatus != null && !(strStatus.isEmpty())
+				&& strRole != null && !(strRole.isEmpty())
+				&& strUsergroupType != null && !(strUsergroupType.isEmpty())) {
+			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
+			DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+			
+			CustomParameter defaultStatus = CustomParameter.findByName(CustomParameter.class, "MOTION_STATUS_UPDATE_" + deviceType.getType().toUpperCase() + "_" + houseType.getType().toUpperCase() + "_" + strUsergroupType.toUpperCase(), "");
+
+			List<Status> internalStatuses;
+			try {
+				internalStatuses = Status.findStatusContainedIn(defaultStatus.getValue(),locale.toString());
+				model.addAttribute("internalStatuses", internalStatuses);
+			} catch (ELSException e) {
+				model.addAttribute("error", e.getParameter());
+			}
+			/**** Request Params To Model Attribute ****/
+			model.addAttribute("houseType", strHouseType);
+			model.addAttribute("sessionType", strSessionType);
+			model.addAttribute("sessionYear", strSessionYear);
+			model.addAttribute("motionType", strDeviceType);
+			model.addAttribute("status", strStatus);
+			model.addAttribute("role", strRole);
+			model.addAttribute("usergroup", strUsergroup);
+			model.addAttribute("usergroupType", strUsergroupType);
+			
+			retVal = "discussionmotion/statusupdateinit";
+		}else{
+			model.addAttribute("errorcode","CAN_NOT_INITIATE");
+		}
+
+		return retVal;
+	}
+	
+	@RequestMapping(value="/statusupdate/assistant/view", method=RequestMethod.GET)
+	public String getStatusUpdateAssistantView(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		this.getStatusUpdateMotions(model, request, locale.toString());
+		return "discussionmotion/statusupdateassistantview";
+	}
+	
+	
+	private void getStatusUpdateMotions(final ModelMap model,
+			final HttpServletRequest request, 
+			final String locale) {
+				/**** Request Params ****/
+				String strHouseType = request.getParameter("houseType");
+				String strSessionType = request.getParameter("sessionType");
+				String strSessionYear = request.getParameter("sessionYear");
+				String strDeviceType = request.getParameter("motionType");			
+				String strStatus = request.getParameter("status");
+				String strRole = request.getParameter("role");
+				String strUsergroup = request.getParameter("usergroup");
+				String strUsergroupType = request.getParameter("usergroupType");
+				
+				if(strHouseType != null && !(strHouseType.isEmpty())
+						&& strSessionType != null && !(strSessionType.isEmpty())
+						&& strSessionYear != null && !(strSessionYear.isEmpty())
+						&& strDeviceType != null && !(strDeviceType.isEmpty())
+						&& strStatus != null && !(strStatus.isEmpty())
+						&& strRole != null && !(strRole.isEmpty())
+						&& strUsergroup != null && !(strUsergroup.isEmpty())
+						&& strUsergroupType != null && !(strUsergroupType.isEmpty())) {
+					List<DiscussionMotion> motions = new ArrayList<DiscussionMotion>();
+				
+					HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale);
+					SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+					Integer sessionYear = Integer.parseInt(strSessionYear);
+					Session session;
+					try {
+						session = Session.findSessionByHouseTypeSessionTypeYear(houseType,sessionType, sessionYear);
+				
+				
+						DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));				
+						
+						Status internalStatus = Status.findById(Status.class,Long.parseLong(strStatus));
+						motions = DiscussionMotion.findAllAdmittedUndisccussed(session, deviceType, internalStatus, locale);
+				
+						model.addAttribute("motions", motions);
+						if(motions != null && ! motions.isEmpty()) {
+							model.addAttribute("motionId", motions.get(0).getId());
+						}
+					} catch (ELSException e) {
+						model.addAttribute("error", e.getParameter());
+						e.printStackTrace();
+					}
+				}
+			}
+	
+	@Transactional
+	@RequestMapping(value="/statusupdate/assistant/update", method=RequestMethod.POST)
+	public String statusUpdateAssistant(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		
+		boolean updated = false;
+		String page = "discussionmotion/error";
+		StringBuffer success = new StringBuffer();
+		
+		try{
+			String[] selectedItems = request.getParameterValues("items[]");
+			String strDecisionStatus = request.getParameter("decisionStatus");
+			String strStatus = request.getParameter("status");
+			String strDate = request.getParameter("discussionDate");
+			
+			if(selectedItems != null && selectedItems.length > 0
+					&& strDecisionStatus != null && !strDecisionStatus.isEmpty()
+					&& strStatus != null && !strStatus.isEmpty()) {
+				/**** As It Is Condition ****/
+				if(!strStatus.equals("-")) {
+					for(String i : selectedItems) {
+						Long id = Long.parseLong(i);
+						DiscussionMotion motion = DiscussionMotion.findById(DiscussionMotion.class, id);
+						Status status = Status.findById(Status.class, new Long(strDecisionStatus));
+						if(status.getType().equals(ApplicationConstants.DISCUSSIONMOTION_PROCESSED_ANSWERRECEIVED)){
+						/*	if(strDate!= null && !strDate.isEmpty()){
+								Date replyReceivedDate = FormaterUtil.formatStringToDate(strDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+								motion.set
+								motion.setReplyReceivedDate(replyReceivedDate);
+							}
+							motion.setRecommendationStatus(status);*/
+						}else{
+							if(strDate!= null && !strDate.isEmpty()){
+								Date discussionDate = FormaterUtil.formatStringToDate(strDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+								if(status.getType().equals(ApplicationConstants.DISCUSSIONMOTION_PROCESSED_DISCUSSED)) {
+									motion.setDiscussionDate(discussionDate);
+									motion.setDiscussionStatus(status);
+								} else if(status.getType().equals(ApplicationConstants.DISCUSSIONMOTION_PROCESSED_UNDISCUSSED)) {
+									motion.setDiscussionStatus(status);
+								} else {
+									//motion.setAnsweringDate(discussionDate);
+									motion.setRecommendationStatus(status);
+								}
+							}
+						}						
+						
+						motion.simpleMerge();
+						updated = true;
+						success.append(FormaterUtil.formatNumberNoGrouping(motion.getNumber(), motion.getLocale())+",");
+					}
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			updated = false;
+		}
+		
+		if(updated){
+			this.getStatusUpdateMotions(model, request, locale.toString());
+			success.append(" updated successfully...");
+			model.addAttribute("success", success.toString());
+			page = "discussionmotion/statusupdateview";
+		}else{
+			model.addAttribute("failure", "update failed.");
+		}
+		
+		return page;
+	}
+	
+	
 }
