@@ -1915,7 +1915,7 @@ import org.springframework.transaction.annotation.Transactional;
 		child.setParent(parent);
 		child.setClubbedEntities(null);
 		child.setInternalStatus(newInternalStatus);
-		child.setRecommendationStatus(newRecommendationStatus);
+		child.setRecommendationStatus(newInternalStatus);
 		child.merge();
 
 		ClubbedEntity clubbedEntity = new ClubbedEntity();
@@ -1943,7 +1943,7 @@ import org.springframework.transaction.annotation.Transactional;
 							}
 							
 							motion.setInternalStatus(parent.getInternalStatus());
-							motion.setRecommendationStatus(parent.getRecommendationStatus());
+							motion.setRecommendationStatus(parent.getInternalStatus());
 							motion.setStatus(parent.getStatus());
 							motion.setParent(parent);
 							motion.merge();
