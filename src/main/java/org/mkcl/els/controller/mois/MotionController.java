@@ -4748,7 +4748,10 @@ public class MotionController extends GenericController<Motion>{
 				
 				//List<Motion> qsnDetails = Motion.findAllByFieldNames(Motion.class, param, "id",ApplicationConstants.ASC,locale.toString());
 				Motion qsnDetails = Motion.getMotion(latestSession.getId(),deviceType.getId(),motionId,locale.toString());
-				
+				if(qsnDetails == null )
+				{
+					throw new ELSException("Unable to Find Motion Please Check the Number ",strmotionId); 
+				}
 		
 				boolean parentSet=false;
 				
@@ -4776,10 +4779,12 @@ public class MotionController extends GenericController<Motion>{
 		
 				 
 			
-			} catch (ELSException e) {
-			
-				e.printStackTrace();
-			} 
+			}catch(ELSException elsx) {
+				elsx.printStackTrace();
+			}
+			catch(Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 		
 	}
