@@ -1194,6 +1194,7 @@
 	
 	/**** Bulk Timeout ****/
 	function bulkTimeout() {
+		var selectedQuestionIds = $("#grid").jqGrid ('getGridParam', 'selarrrow');
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 					+ "&sessionYear=" + $("#selectedSessionYear").val()
 					+ "&sessionType=" + $("#selectedSessionType").val()
@@ -1204,7 +1205,8 @@
 					+ "&usergroup=" + $("#currentusergroup").val()
 					+ "&usergroupType=" + $("#currentusergroupType").val()
 					+ "&group=" + $("#ugparam").val()
-					+ "&department="+$("#selectedSubDepartment").val();
+					+ "&department="+$("#selectedSubDepartment").val()
+					+ "&questionIds="+selectedQuestionIds;
 		var resourceURL = 'question/bulktimeout/init?' + parameters
 				+ "&itemscount=" + $("#selectedItemsCount").val();
 		showTabByIdAndUrl('bulktimeout_tab', resourceURL);

@@ -15,7 +15,9 @@
 		});		
 		/**** Load Actors On Changing Status ****/
 		$("#assiInternalStatus").change(function(){
-			if($(this).val()!='-' && $(this).val()!=''){
+			var clarificationNotReceived = $("#internalStatusMaster option[value='question_processed_clarificationNotReceived']").text();
+			if($(this).val()!='-' && $(this).val()!=''
+					&& $(this).val()!=clarificationNotReceived){
 				var value=parseInt($(this).val());
 				loadActors(value);
 			}else{
@@ -40,7 +42,8 @@
 		 +"&usergroupType="+$("#assiusergroupType").val()
 		 +"&itemscount="+$("#assiitemscount").val()
 		 +"&group="+$("#assigroup").val()
-		 +"&department="+$("#assidepartment").val();
+		 +"&department="+$("#assidepartment").val()
+		 +"&questionIds="+$("#selectedQuestionIds").val();
 	
 		var resource='question/bulktimeout/view';
 		 var resourceURL=resource+"?"+parameters;
@@ -174,6 +177,11 @@
 					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
 		</c:forEach>
 		</select>
+		<select id="internalStatusMaster" style="display:none;">
+			<c:forEach items="${internalStatuses}" var="i">
+				<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+			</c:forEach>
+		</select>
 		<span id="actorDiv" style="margin: 10px;display: none;">
 		<label class="small"><spring:message code="question.nextactor" text="Next Users"/></label>
 		<select id="assiactor" class="sSelect"></select>
@@ -193,6 +201,7 @@
 	<input type="hidden" id="assiitemscount" value="${itemscount }">
 	<input type="hidden" id="assigroup" value="${group}">
 	<input type="hidden" id="assidepartment" value="${department}">
+	<input type="hidden" id="selectedQuestionIds" value="${selectedQuestionIds}">
 	<input id="submissionMsg" value="<spring:message code='client.prompt.submit' text='Do you want to submit the motions.'></spring:message>" type="hidden">
 	<input id="selectActorMsg" value="<spring:message code='client.prompt.selectactor' text='Please select the actor.'></spring:message>" type="hidden">
 	<input id="pleaseSelectMessage" value="<spring:message code='client.prompt.pleaseselect' text='Please Select.'></spring:message>" type="hidden">		

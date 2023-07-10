@@ -993,7 +993,9 @@ public class QuestionController extends GenericController<Question> {
 			String strStatus = request.getParameter("status");
 			String strGroup = request.getParameter("group");
 			String strDepartment = request.getParameter("department");
-			if(strStatus != null && !(strStatus.isEmpty())) {
+			String selectedQuestionIds = request.getParameter("questionIds");
+			
+			if(selectedQuestionIds!=null && !selectedQuestionIds.isEmpty()) {
 				List<Question> questions = new ArrayList<Question>();
 				Group group=null;
 				if(strGroup!=null && strGroup !=""){
@@ -1004,13 +1006,41 @@ public class QuestionController extends GenericController<Question> {
 					subdepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strDepartment));
 				}
 	
-				Status internalStatus = Status.findById(Status.class,Long.parseLong(strStatus));
-				questions = Question.findAllForTimeoutByStatus(session, deviceType, internalStatus,group , subdepartment,
-						itemCount, locale);
+				Status internalStatus = Status.findById(Status.class,Long.parseLong(strStatus));				
+				for(String questionId: selectedQuestionIds.split(",")) {
+					Question question = Question.findById(Question.class, Long.parseLong(questionId));
+					if(question!=null && internalStatus!=null
+							&& question.getInternalStatus().getId().equals(internalStatus.getId())) 
+					{
+						questions.add(question);
+					}			
+				}
 				
 				model.addAttribute("questions", questions);
 				if(questions != null && ! questions.isEmpty()) {
 					model.addAttribute("questionId", questions.get(0).getId());
+				}
+			}
+			else {
+				if(strStatus != null && !(strStatus.isEmpty())) {
+					List<Question> questions = new ArrayList<Question>();
+					Group group=null;
+					if(strGroup!=null && strGroup !=""){
+						group=Group.findById(Group.class, Long.parseLong(strGroup));
+					}
+					SubDepartment subdepartment = null;
+					if(strDepartment != null && !strDepartment.equals("-")){
+						subdepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strDepartment));
+					}
+		
+					Status internalStatus = Status.findById(Status.class,Long.parseLong(strStatus));
+					questions = Question.findAllForTimeoutByStatus(session, deviceType, internalStatus,group , subdepartment,
+							itemCount, locale);
+					
+					model.addAttribute("questions", questions);
+					if(questions != null && ! questions.isEmpty()) {
+						model.addAttribute("questionId", questions.get(0).getId());
+					}
 				}
 			}
 		}	

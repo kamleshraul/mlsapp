@@ -4043,6 +4043,7 @@ class StarredQuestionController {
 		String strItemsCount = request.getParameter("itemscount");
 		String strGroup = request.getParameter("group");
 		String strDepartment = request.getParameter("department");
+		String selectedQuestionIds = request.getParameter("questionIds");
 
 		if( strSessionType != null && !(strSessionType.isEmpty())
 				&& strSessionYear != null && !(strSessionYear.isEmpty())
@@ -4089,6 +4090,10 @@ class StarredQuestionController {
 			model.addAttribute("itemscount", strItemsCount);
 			model.addAttribute("group", strGroup);
 			model.addAttribute("department", strDepartment);
+			
+			if(selectedQuestionIds!=null && !selectedQuestionIds.isEmpty()) {
+				model.addAttribute("selectedQuestionIds", selectedQuestionIds);
+			}
 
 			retVal = "question/bulk_timeout_init";
 		}else{
