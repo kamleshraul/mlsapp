@@ -1563,7 +1563,7 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 			}
 			
 			String orderByQuery=" ORDER BY dt.type "+ApplicationConstants.ASC+
-					" ,m.number "+ApplicationConstants.DESC + ", s.session_year "+ApplicationConstants.DESC;
+					" ,s.session_year "+ApplicationConstants.DESC + " ,s.number "+ApplicationConstants.DESC + ", m.number "+ApplicationConstants.DESC;
 			/**** Final Query ****/
 			String query = selectQuery+searchQuery+orderByQuery;
 			
