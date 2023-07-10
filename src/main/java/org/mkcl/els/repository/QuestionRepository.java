@@ -398,7 +398,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		StringBuffer query = new StringBuffer(
 				"SELECT q  FROM Question q "+
 				"WHERE q.session.id IN (SELECT s FROM Session s WHERE s.house.id=:houseId AND s.startDate>=:startDate) "+
-				" AND q.originalType.id IN (:deviceTypeId)"+
+				" AND q.type.id IN (:deviceTypeId)"+
 				" AND q.number IN (:qsnId)");
 				
 		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
@@ -422,7 +422,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 						"SELECT q  FROM Question q "+ 
 						" , Status ss   "+
 						" WHERE q.session.id  IN (SELECT s FROM Session s WHERE s.house.id=:houseId  AND s.startDate>=:startDate) "+
-						" AND q.originalType.id IN (:deviceTypeId) "+
+						" AND q.type.id IN (:deviceTypeId) "+
 						" AND ss.id = q.recommendationStatus "+
 						" AND q.parent.id IN (  :qsnId  ) "+
 						" AND ss.type NOT LIKE '%_clubbing%' ");
@@ -3798,16 +3798,18 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 	public List<Integer> getQuestionNumberRange(final Session session,final DeviceType deviceType ){
 		List<Integer> qNRange = new ArrayList<Integer>();
 		String queryString =
-				" (SELECT q.`number` FROM questions q WHERE q.`session_id` =:sessionId  AND q.`devicetype_id` =:deviceType AND DATE(q.`submission_date`)=:fsDate AND q.`number`IS NOT NULL    ORDER BY q.number LIMIT 1 )"
+				" (SELECT q.number FROM questions q WHERE q.session_id =:sessionId  AND q.devicetype_id =:deviceType AND DATE(q.submission_date)>=:fSDate AND q.number IS NOT NULL    ORDER BY q.number LIMIT 1 )"
 				+ " UNION "
-				+ " (SELECT q.`number` FROM questions q WHERE q.`session_id` =:sessionId  AND q.`devicetype_id` =:deviceType AND DATE(q.`submission_date`) =:fsDate AND q.`number`IS NOT NULL     ORDER BY q.number DESC  LIMIT 1 )" ;
+				+ " (SELECT q.number FROM questions q WHERE q.session_id =:sessionId  AND q.devicetype_id =:deviceType AND DATE(q.submission_date) <=:fEDate AND q.number  IS NOT NULL     ORDER BY q.number DESC  LIMIT 1 )" ;
 		Query query = this.em().createNativeQuery(queryString);
 		query.setParameter("sessionId", session.getId());	
 		query.setParameter("deviceType", deviceType.getId());
 		
 		Map<String, String> parameters = session.getParametersWithoutFormatting();
-		String[] arr = parameters.get("questions_starred_submissionFirstBatchStartDate").split(" ");
-		query.setParameter("fsDate", arr[0]);
+		String[] arr1 = parameters.get("questions_starred_submissionFirstBatchStartDate").split(" ");
+		String[] arr2 = parameters.get("questions_starred_submissionFirstBatchEndDate").split(" ");
+		query.setParameter("fSDate", arr1[0]);
+		query.setParameter("fEDate", arr2[0]);
 		
 		try {
 		qNRange = (List<Integer>) query.getResultList();
@@ -3819,6 +3821,38 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		
 		return null;
 	}
+	
+	public List<Object> getQuestionDetailsForMemberStatsReport(final Session session,final DeviceType deviceType,final Member member ){
+		List<Object> Qdetails = new ArrayList<Object>();
+		String queryString = "SELECT q.number, q.subject ,q.question_text, "
+				+ " CASE"
+				+ "  WHEN q.parent IS NOT NULL THEN qq.answer "
+				+ "  WHEN q.parent IS NULL THEN q.answer"
+				+ " END AS 'answer',"
+				+ " q.rejection_reason ,s.name ,s.type,sd.name as 'departmentName' ,q.parent "
+				+ " FROM questions q "
+				+ " LEFT JOIN questions qq ON (qq.id = q.parent)"
+				+ " INNER JOIN STATUS s ON (s.id = q.status_id)"
+				+ " INNER JOIN subdepartments sd ON (sd.id = q.subdepartment_id )"
+				+ " WHERE q.session_id =:sessionId"
+				+ " AND q.devicetype_id =:deviceType"
+				+ " AND q.member_id =:memberId";
+		Query query = this.em().createNativeQuery(queryString);
+		query.setParameter("sessionId", session.getId());
+		query.setParameter("deviceType", deviceType.getId());
+		query.setParameter("memberId", member.getId());
+		
+		try {
+			Qdetails =  query.getResultList();
+			
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		
+		return Qdetails;
+	}
+	
+	
 	
 	
 }
