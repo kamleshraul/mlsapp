@@ -26,6 +26,7 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDraft;
 import org.mkcl.els.domain.Session;
@@ -463,6 +464,72 @@ public class DiscussionMotionRepository extends BaseRepository<DiscussionMotion,
 			return null;
 		}
 		return memberMinister;
+	}
+	
+	public List<Object> getDiscussionMotionDetailsMemberStatsReport(final Session session,final DeviceType deviceType,final Member member ){
+		List<Object> Qdetails = new ArrayList<Object>();
+		String queryString = "SELECT q.number, q.subject ,q.`notice_content`,"
+				+ "				  CASE"
+				+ "				   WHEN q.parent IS NOT NULL THEN qq.`discussion_date` "
+				+ "				   WHEN q.parent IS NULL THEN q.discussion_date"
+				+ "				  END AS 'DD',"
+				+ "				  q.rejection_reason ,s.name ,dt.type,sd.name AS 'departmentName' ,q.parent "
+				+ "				  FROM `discussionmotion` q "
+				+ "				  LEFT JOIN `discussionmotion` qq ON (qq.id = q.parent)"
+				+ "				  INNER JOIN STATUS s ON (s.id = q.status_id)"
+				+ "				  INNER JOIN `discussionmotion_subdepartments` dsd ON (dsd.`discussionmotion_id` = q.`id`)"
+				+ "				  INNER JOIN `subdepartments` sd ON (sd.`id`=dsd.`subdepartment_id`)"
+				+ "				  INNER JOIN `devicetypes` dt ON (q.`devicetype_id` = dt.`id`) "
+				+ "				  WHERE q.session_id =:sessionId "
+				+ "				  AND q.devicetype_id =:deviceType "
+				+ "				  AND q.member_id =:memberId";
+		Query query = this.em().createNativeQuery(queryString);
+		query.setParameter("sessionId", session.getId());
+		query.setParameter("deviceType", deviceType.getId());
+		query.setParameter("memberId", member.getId());
+		
+		try {
+			Qdetails =  query.getResultList();
+			
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		
+		return Qdetails;
+	}
+	
+	public List<DiscussionMotion> findAllAdmittedUndisccussed(final Session session,
+			final DeviceType motionType, 
+			final Status status,
+			final String locale) {
+		
+		List<DiscussionMotion> motions = new ArrayList<DiscussionMotion>();
+		
+		try {
+			/*Status recommendDiscussed = Status.findByType(ApplicationConstants.MOTION_PROCESSED_DISCUSSED, locale);
+			Status recommendUndiscussed = Status.findByType(ApplicationConstants.MOTION_PROCESSED_UNDISCUSSED, locale);*/
+			
+			String strQuery="SELECT m FROM DiscussionMotion m" +
+					" WHERE m.session=:session" +
+					" AND m.type=:motionType" +
+					" AND m.locale=:locale" +
+					" AND m.internalStatus=:internalStatus" + 
+					" AND m.parent is NULL "+
+					/*" AND (m.discussionStatus!=:recommendationStatusDiscussed AND m.discussionStatus!=:recommendationStatusUndiscussed)" +*/
+					" ORDER BY m.number "+ ApplicationConstants.ASC;
+			TypedQuery<DiscussionMotion> query = this.em().createQuery(strQuery, DiscussionMotion.class);
+			query.setParameter("session", session);
+			query.setParameter("motionType", motionType);
+			query.setParameter("locale", locale);
+			query.setParameter("internalStatus", status);
+			/*query.setParameter("recommendationStatusDiscussed", recommendDiscussed);
+			query.setParameter("recommendationStatusUndiscussed", recommendUndiscussed);*/
+			motions = query.getResultList();
+		} catch (Exception e) {
+			logger.error("error", e);
+		} 
+		
+		return motions;
 	}
 	
 }
