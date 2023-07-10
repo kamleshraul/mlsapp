@@ -5704,8 +5704,9 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				"  LEFT JOIN members as m ON(q.member_id=m.id) "+
 				"  LEFT JOIN titles as t ON(m.title_id=t.id) "+
 				"  WHERE q.id<>"+motion.getId()+" AND q.parent is NULL " +
-				"  AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.DISCUSSIONMOTION_SYSTEM_ASSISTANT_PROCESSED+"')" +
-				"  AND s.id=" + motion.getSession().getId();
+				"  AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.DISCUSSIONMOTION_FINAL_ADMISSION +"')" +
+				"  AND s.id=" + motion.getSession().getId()+
+				" AND q.devicetype_id="+motion.getType().getId();
 
 		
 		String filter = addFilterDiscussionMotion(requestMap);
