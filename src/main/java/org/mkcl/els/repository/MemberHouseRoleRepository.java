@@ -28,6 +28,7 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
+import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.springframework.stereotype.Repository;
 
 import com.trg.search.Search;
@@ -334,6 +335,86 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
 					query="SELECT m.id,t.name,m.first_name,m.middle_name,m.last_name FROM members_houses_roles as mhr JOIN members as m JOIN memberroles as mr "+
 					" JOIN titles as t WHERE t.id=m.title_id and mr.id=mhr.role and mhr.member=m.id and  m.locale='"+locale+"' "+
 					" and (mhr.to_date>='"+strSessionStartDate+"' or mhr.to_date>='"+strSessionEndDate+"') and mr.priority=0 and mhr.house_id="+house.getId()+" and (m.first_name LIKE '%"+param+"%' OR m.middle_name LIKE '%"+param+"%' OR m.last_name LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.last_name) LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.last_name,', ',t.name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.middle_name,' ',m.last_name) LIKE '%"+param+"%') ORDER BY m.first_name asc";
+				}				
+				List members=this.em().createNativeQuery(query).getResultList();
+				List<Member> activeMinistersList = Member.findActiveMinisters(new Date(), locale);
+				String[] memberAsPresidingOfficerRoles = new String[] {"SPEAKER", "DEPUTY_SPEAKER", "CHAIRMAN", "DEPUTY_CHAIRMAN"};
+				for(Object i:members){
+					Object[] o=(Object[]) i;
+					Member member = Member.findById(Member.class, Long.parseLong(o[0].toString()));
+					boolean isMemberActiveMinister = false;
+					if(activeMinistersList!=null && member!=null) {
+						for(Member m: activeMinistersList) {
+							if(member.getId().equals(m.getId())) {
+								isMemberActiveMinister = true;
+								break;
+							}
+						}
+					}
+					//if(member.isActiveOnlyAsMember(new Date(), locale)) {
+					if(!isMemberActiveMinister && !member.isActiveMemberInAnyOfGivenRolesOn(memberAsPresidingOfficerRoles, new Date(), locale)) {
+						MasterVO masterVO=new MasterVO();
+						masterVO.setId(Long.parseLong(o[0].toString()));
+						if(o[3]!=null){
+							masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString()+" "+o[4].toString());
+						}else{
+							masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString());
+						}
+						memberVOS.add(masterVO);
+					}
+				}
+			}
+			
+			//suspended members should not allowed for supporting memebers
+			// filtering suspended members
+			if(memberVOS!=null && memberVOS.size()>0) { 
+				List<Long> suspendedMembersIds = Member.getMemberRepository().supspendedMembersIdsList(new Date());
+				if(suspendedMembersIds !=null && suspendedMembersIds.size()>0) {
+					for(MasterVO m: memberVOS) {
+						if(suspendedMembersIds.contains(m.getId()))
+							memberVOS.remove(m);						
+					}
+				}				
+			}
+			
+			return memberVOS;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return memberVOS;
+		}
+	}
+	
+	
+	public List<MasterVO> findAllActiveSupportingMemberVOSInSessionUpdated(final House house,
+			final Session session, final String locale,final String param, final Long primaryMemberId) {
+		List<MasterVO> memberVOS=new ArrayList<MasterVO>();
+		try {
+			
+			Member mem = Member.findById(Member.class, primaryMemberId);
+			
+			MemberPartyAssociation mpa = null;
+			for(MemberPartyAssociation MPA : mem.getMemberPartyAssociations())
+			{
+				if(MPA.getHouse().getId().equals(house.getId())) {
+					mpa = MPA;
+				}
+			}
+			mem = null;
+			Date sessionStartDate=session.getStartDate();
+			Date sessionEndDate=session.getEndDate();
+			String query=null;
+			if(sessionStartDate!=null && sessionEndDate!=null){
+				SimpleDateFormat format=new SimpleDateFormat(ApplicationConstants.DB_DATEFORMAT);
+				String strSessionStartDate=format.format(sessionStartDate);
+				String strSessionEndDate=format.format(sessionEndDate);
+				if(primaryMemberId!=null){
+					query="SELECT m.id,t.name,m.first_name,m.middle_name,m.last_name FROM members_houses_roles as mhr JOIN members as m JOIN members_parties as mpa JOIN memberroles as mr "+
+					" JOIN titles as t WHERE t.id=m.title_id and mr.id=mhr.role and m.id=mpa.member and mhr.member=m.id and m.id<>'"+ primaryMemberId+"' and m.locale='"+locale+"' "+
+					" and (mhr.to_date>='"+strSessionStartDate+"' or mhr.to_date>='"+strSessionEndDate+"') and mr.priority=0 and mpa.house_id="+house.getId()+" and mpa.is_member_of_ruling_party IS "+mpa.getIsMemberOfRulingParty() +"   and (m.first_name LIKE '%"+param+"%' OR m.middle_name LIKE '%"+param+"%' OR m.last_name LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.last_name) LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.last_name,', ',t.name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.middle_name,' ',m.last_name) LIKE '%"+param+"%') ORDER BY m.first_name asc";
+				}else{
+					query="SELECT m.id,t.name,m.first_name,m.middle_name,m.last_name FROM members_houses_roles as mhr JOIN members as m JOIN memberroles as mr  JOIN members_parties as mpa  "+
+					" JOIN titles as t WHERE t.id=m.title_id and m.id=mpa.member  and mr.id=mhr.role and mhr.member=m.id and  m.locale='"+locale+"' "+
+					" and (mhr.to_date>='"+strSessionStartDate+"' or mhr.to_date>='"+strSessionEndDate+"') and mr.priority=0 and mhr.house_id="+house.getId()+" and mpa.is_member_of_ruling_party IS "+mpa.getIsMemberOfRulingParty() +"   and (m.first_name LIKE '%"+param+"%' OR m.middle_name LIKE '%"+param+"%' OR m.last_name LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.last_name) LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.last_name,', ',t.name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.middle_name,' ',m.last_name) LIKE '%"+param+"%') ORDER BY m.first_name asc";
 				}				
 				List members=this.em().createNativeQuery(query).getResultList();
 				List<Member> activeMinistersList = Member.findActiveMinisters(new Date(), locale);
