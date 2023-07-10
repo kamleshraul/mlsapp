@@ -5724,4 +5724,28 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		return references;
 	}
 	
+	public List<WorkflowConfig> findLockedWorkflowConfigOfGivenWOrkflowTypeForGivenDeviceType(final HouseType houseType,
+			final DeviceType deviceType,
+			final String workflowName,
+			final String locale) {
+		StringBuffer query = new StringBuffer();
+		query.append("SELECT wc" +
+				" FROM WorkflowConfig wc" +
+				" JOIN wc.workflow wf" +
+				" JOIN wc.houseType ht" +
+				" JOIN wc.deviceType dt" +
+				" WHERE ht.id = " + houseType.getId() +
+				" AND dt.id = " + deviceType.getId() +
+				" AND wf.type = '" + workflowName + "'" +
+				" AND wc.isLocked IS TRUE" +
+				" AND wc.locale = '" + locale + "'" +
+				" ORDER BY wc.id " + ApplicationConstants.DESC);
+		
+		TypedQuery<WorkflowConfig> tQuery = this.em().createQuery(query.toString(), WorkflowConfig.class);
+		
+		List<WorkflowConfig> workflowConfigs = tQuery.getResultList();
+		
+		return workflowConfigs;
+	}
+	
 }

@@ -55,6 +55,15 @@ public class WorkflowConfigController extends GenericController<WorkflowConfig> 
 				houseType = "lowerhouse";
 			}
 			model.addAttribute("houseType", houseType);
+			String rootDir = request.getSession().getServletContext().getRealPath("/");
+			logger.error("Root Directory Path: " + rootDir); //for testing.. remove later
+			System.out.print("Root Directory Path: " + rootDir);
+//			if(rootDir!=null && rootDir.contains("\\")) {
+//				String[] rootDirArr = rootDir.split("\\");
+//				if(rootDirArr.length>1) {
+//					
+//				}
+//			}
 		}catch (Exception e) {
 			String message = null;
 			if(e instanceof ELSException){
@@ -261,6 +270,36 @@ public class WorkflowConfigController extends GenericController<WorkflowConfig> 
 			final BindingResult result, final HttpServletRequest request) {
 		populateWorkflowActors(domain, request, result);
 
+	}
+
+	@Override
+	protected void populateAfterCreate(ModelMap model, WorkflowConfig domain,
+			HttpServletRequest request) throws Exception {
+		if(domain.getDeviceType()!=null && domain.getIsLocked()) {
+			List<WorkflowConfig> lockedWorkflowConfigs 
+					= WorkflowConfig.findLockedWorkflowConfigOfGivenWOrkflowTypeForGivenDeviceType(domain.getHouseType(), domain.getDeviceType(), domain.getWorkflow().getType(), domain.getLocale());
+			for(WorkflowConfig wc: lockedWorkflowConfigs) {
+				if(!wc.getId().equals(domain.getId())) {
+					wc.setIsLocked(false);
+					wc.merge();
+				}
+			}
+		}
+	}
+
+	@Override
+	protected void populateAfterUpdate(ModelMap model, WorkflowConfig domain,
+			HttpServletRequest request) throws Exception {
+		if(domain.getDeviceType()!=null && domain.getIsLocked()) {
+			List<WorkflowConfig> lockedWorkflowConfigs 
+					= WorkflowConfig.findLockedWorkflowConfigOfGivenWOrkflowTypeForGivenDeviceType(domain.getHouseType(), domain.getDeviceType(), domain.getWorkflow().getType(), domain.getLocale());
+			for(WorkflowConfig wc: lockedWorkflowConfigs) {
+				if(!wc.getId().equals(domain.getId())) {
+					wc.setIsLocked(false);
+					wc.merge();
+				}
+			}
+		}
 	}
 
 	@Transactional

@@ -609,4 +609,12 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 	/***************************Appropriation Bill Motion********************************/
 
 
+	
+	public static List<WorkflowConfig> findLockedWorkflowConfigOfGivenWOrkflowTypeForGivenDeviceType(final HouseType houseType,
+			final DeviceType deviceType,
+			final String workflowName,
+			final String locale) {
+		return getWorkflowConfigRepository().findLockedWorkflowConfigOfGivenWOrkflowTypeForGivenDeviceType(houseType, deviceType, workflowName, locale);
+	}
+
 }
