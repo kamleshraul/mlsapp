@@ -59,8 +59,31 @@
 		</tr>		
 		<br>
 		<tr>
+			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				मूढा :-
+			</td>
 			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;text-align:justify;">
+				
 				$formatData.get(4)
+				
+			</td>
+		</tr>
+		
+		
+		<tr>
+			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				
+				टिपणी :-
+			</td>
+			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;text-align:justify;">
+				
+				
+				#if($r.get(26)!='')
+						-
+					#else
+						&nbsp;<br>$r.get(0)
+					#end
+				$formatData.get(26)
 			</td>
 		</tr>
 		<tr>
