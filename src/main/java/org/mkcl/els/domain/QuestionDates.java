@@ -92,7 +92,7 @@ public class QuestionDates extends BaseDomain implements Serializable {
     
     /** Yaadi Generation Allowed. */
     @Column(columnDefinition = "bit(1) default false")
-    private Boolean yaadiGenerationAllowed;
+    private boolean yaadiGenerationAllowed;
 
     /**** Constructors ****/
 
@@ -285,11 +285,11 @@ public class QuestionDates extends BaseDomain implements Serializable {
 	}
 	
 	
-	public Boolean getYaadiGenerationAllowed() {
+	public boolean getYaadiGenerationAllowed() {
 			return yaadiGenerationAllowed;
 	}
 
-	public void setYaadiGenerationAllowed(Boolean yaadiGenerationAllowed) {
+	public void setYaadiGenerationAllowed(boolean yaadiGenerationAllowed) {
 			this.yaadiGenerationAllowed = yaadiGenerationAllowed;
 	}
 	
