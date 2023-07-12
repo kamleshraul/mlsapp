@@ -1922,8 +1922,7 @@ public class QuestionReportController extends BaseController{
 				for(Role i : roles) {     
 					if(csptDirectViewYaadiAccess!=null && csptDirectViewYaadiAccess.getValue()!=null 
 				    		&& csptDirectViewYaadiAccess.getValue().contains(i.getType())) {
-						if(questionDates.getYaadiGenerationAllowed()!=null
-	                			  && !questionDates.getYaadiGenerationAllowed().booleanValue()) {
+						if( !questionDates.getYaadiGenerationAllowed()) {
 	                		questionDates.setYaadiGenerationAllowed(true);                	
 	                		questionDates.merge();
 	      				}
