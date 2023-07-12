@@ -78,12 +78,12 @@
 			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;text-align:justify;">
 				
 				
-				#if($r.get(26)!='')
-						-
+				#if( $r.get(26)!= '-' )
+						$formatData.get(26)
 					#else
-						&nbsp;<br>$r.get(0)
+						-
 					#end
-				$formatData.get(26)
+				
 			</td>
 		</tr>
 		<tr>
