@@ -70,7 +70,7 @@ $(document).ready(function(){
 			 	$('body').animate({scrollTop:0}, 'slow');
 			$.unblockUI();
 			window.location.reload(); */
-			console.log(data);
+		
 			if(data===true){
 			  $.post('feedback/success',function(data){
 				 $.fancybox(data);
