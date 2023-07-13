@@ -2218,23 +2218,60 @@ public class ReferenceController extends BaseController {
 		//		if(primaryMemberId==null){
 		//			return autoCompleteVOs;
 		//		}
-		if(customParameter != null){
+		if (customParameter != null) {
 			String server = customParameter.getValue();
-			if(server.equals("TOMCAT")){
+			if (server.equals("TOMCAT")) {
 				String strParam = request.getParameter("term");
 				try {
-					if(strParam!=null && !strParam.isEmpty()) {
-						String param = new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
-						memberVOs = HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSessionUpdated(house, selectedSession, locale.toString(), strParam.trim(),primaryMemberId);
-					}					
-				}
-				catch (UnsupportedEncodingException e){
+					if (strParam != null && !strParam.isEmpty()) {
+						String param = new String(strParam.getBytes("ISO-8859-1"), "UTF-8");
+						if (request.getParameter("deviceType") != null) {
+							DeviceType dt = DeviceType.findById(DeviceType.class,
+									Long.parseLong(request.getParameter("deviceType")));
+
+							CustomParameter cp = CustomParameter.findByName(CustomParameter.class,
+									"SPECIFIC_SUPPORTING_MEMBERS_FOR_DEVICE_TYPES", "");
+							String[] devicetypes = cp.getValue().split(",");
+							for (String s : devicetypes) {
+								if (dt.getType().contains(s)) {
+									memberVOs = HouseMemberRoleAssociation
+											.findAllActiveSupportingMemberVOSInSessionUpdated(house, selectedSession,
+													locale.toString(), strParam.trim(), primaryMemberId);
+									break;
+								}
+							}
+
+						} else {
+							memberVOs = HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house,
+									selectedSession, locale.toString(), strParam.trim(), primaryMemberId);
+						}
+					}
+				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 				}
-			}else{
+			} else {
 				String param = request.getParameter("term");
-				if(param!=null && !param.isEmpty()) {
-					memberVOs = HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSessionUpdated(house,selectedSession, locale.toString(), param.trim(), primaryMemberId);
+				if (param != null && !param.isEmpty()) {
+					
+					if (request.getParameter("deviceType") != null) {
+						DeviceType dt = DeviceType.findById(DeviceType.class,
+								Long.parseLong(request.getParameter("deviceType")));
+						CustomParameter cp = CustomParameter.findByName(CustomParameter.class,
+								"SPECIFIC_SUPPORTING_MEMBERS_FOR_DEVICE_TYPES", "");
+						String[] devicetypes = cp.getValue().split(",");
+
+						for (String s : devicetypes) {
+							if (dt.getType().contains(s)) {
+								memberVOs = HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSessionUpdated(
+										house, selectedSession, locale.toString(), param.trim(), primaryMemberId);
+								break;
+							}
+						}			
+					}else {
+						memberVOs = HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house,
+								selectedSession, locale.toString(), param.trim(), primaryMemberId);
+					}
+					
 				}
 			}
 		}
