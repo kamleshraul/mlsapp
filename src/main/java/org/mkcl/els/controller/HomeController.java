@@ -35,6 +35,7 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.DocumentLink;
+import org.mkcl.els.domain.Feedback;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
@@ -50,6 +51,7 @@ import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportLog;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
+import org.mkcl.els.repository.FeedbackRepository;
 import org.mkcl.els.service.ISecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,13 +93,14 @@ public class HomeController extends BaseController {
      * @param response the response
      * @param locale the locale
      * @return the string
+     * @throws ELSException 
      */
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String login(@RequestParam(required = false) final String lang,
             final ModelMap model, 
             final HttpServletRequest request,
             final HttpServletResponse response,
-            final Locale locale) {
+            final Locale locale) throws ELSException {
     	if(this.isAuthenticated()) {    		
     		Object loggedInUser = request.getSession().getAttribute("logged_in_active_user");
             if(loggedInUser!=null) {
@@ -180,11 +183,12 @@ public class HomeController extends BaseController {
      * @param request the request
      * @param locale the locale
      * @return the string
+     * @throws ELSException 
      */
     @RequestMapping(value = "/home", method = RequestMethod.GET)
     public String home(final ModelMap model, 
     		final HttpServletRequest request,
-            final Locale locale) {
+            final Locale locale) throws ELSException {
     	generateDefaultLocaleOnStartup(locale);	
         //here we will initialize authuser wih locale dependent data such as
         //firstname,middlename,lastname,title and housetype.
@@ -397,7 +401,10 @@ public class HomeController extends BaseController {
         model.addAttribute("notifications_visibleMaxCount", ApplicationConstants.NOTIFICATIONS_VISIBLE_MAXIMUM_COUNT);
         
         //update static current numbers for all devices on first successful login post deployment
-        Device.updateCurrentNumberForDevices();
+        if(ApplicationConstants.environment!=null && ApplicationConstants.environment.acceptsProfiles("prod")) {
+			
+			Device.updateCurrentNumberForDevices();
+		}
         
         //enable/disable push notifications
         CustomParameter csptPushNotificationsEnabled = CustomParameter.findByName(CustomParameter.class, "PUSH_NOTIFICATIONS_ENABLED", "");
@@ -418,7 +425,51 @@ public class HomeController extends BaseController {
         
         model.addAttribute("onlineDepartmentReplyBeginningDate", ApplicationConstants.STARTING_DATE_FOR_FULLY_ONLINE_DEPARTMENT_PROCESSING_OF_DEVICES);
         
-        //flag for checking if this request is redirection to home page
+		  model.addAttribute("credential",credential.getId());
+		  
+		  CustomParameter isFeedbackEnabled = CustomParameter.findByName(CustomParameter.class, "ENABLE_FEEDBACK_FORM","");
+		  CustomParameter rolesNotAllowedToViewFeedback = CustomParameter.findByName(CustomParameter.class, "ROLES_NOT_ALLOWED_TO_VIEW_FEEDBACK","");
+		  Session session1;
+		  HouseType houseType1;
+
+		  if(authenticatedUser.getHouseType().getType().equals("bothhouse")) {
+					houseType1 = HouseType.findByType("lowerhouse", locale.toString());
+					session1 = Session.findLatestSession(houseType1);
+				}else {
+					houseType1 = HouseType.findByType(authenticatedUser.getHouseType().getType(), locale.toString());
+					session1 = Session.findLatestSession(houseType1);
+			  }
+		
+		  Boolean feedbackSubmitted = Feedback.findFeedbackSubmitted(credential,session1);
+	      System.out.println(feedbackSubmitted);
+		  boolean roleFound = false;
+		
+     		  if(isFeedbackEnabled.getValue().equals("YES")) {
+     		 if(feedbackSubmitted.equals(false) ) { 
+			  if(rolesNotAllowedToViewFeedback!=null && rolesNotAllowedToViewFeedback.getValue()!=null
+  					&& !rolesNotAllowedToViewFeedback.getValue().isEmpty()) {
+				  for(Role i : roles) {
+					  for(String roleNotAllowedToViewFeedback :  rolesNotAllowedToViewFeedback.getValue().split(",")) {
+						  if(roleNotAllowedToViewFeedback.equals(i.getType().trim())) {
+							  roleFound = true;
+							  break;
+					     }
+					  }
+				  }
+				  if(roleFound == true) {
+					 model.addAttribute("isFeedbackEnabled","NO");
+				  }
+				  else {
+					 model.addAttribute("isFeedbackEnabled",isFeedbackEnabled.getValue()); 
+				  }
+			  }else {
+				  model.addAttribute("isFeedbackEnabled",isFeedbackEnabled.getValue()); 
+			  }
+				} else { model.addAttribute("isFeedbackEnabled","NO"); }
+			  }else {
+				  model.addAttribute("isFeedbackEnabled",isFeedbackEnabled.getValue());        
+			   }
+		 //flag for checking if this request is redirection to home page
         String redirectedToHomePage = request.getParameter("redirectedToHomePage");
         if(redirectedToHomePage==null || !redirectedToHomePage.equals("yes")) {
              if(isUserAllowedForMemberDashboardView) {
@@ -441,8 +492,13 @@ public class HomeController extends BaseController {
     @RequestMapping(value = "/home", method = RequestMethod.POST)
     public String redirectToHome(final ModelMap model, 
     		final HttpServletRequest request,
-            final Locale locale) {  
+            final Locale locale) throws ELSException {  
     	return home(model, request, locale);
+    }
+    
+    @RequestMapping(value = "/view/feedback", method = RequestMethod.GET)
+    public String redirectToFeedback(final ModelMap model, final HttpServletRequest request, final Locale locale) {
+      	return "feedback/view";
     }
     
  // for 403 access denied page

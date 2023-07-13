@@ -196,6 +196,10 @@
 				
 				setInterval(updateServerTime, 1000);
 				
+				if($('#isFeedbackEnabled').val()=="YES"){
+					viewFeedback();
+				}
+				
 				if($('#pushNotificationsEnabled').val()=="YES") {
 					$.getScript("./resources/js/atmosphere.js?v=1", function() {
 						$.getScript("./resources/js/atmosphere_notifications.js?v=7", function() {
@@ -228,7 +232,22 @@
 			    }).mouseout(function() {
 			         $(this).attr('scrollamount',5);
 			    });
-			});		
+	    	});	
+			
+			function viewFeedback(){
+				$.get('view/feedback',function(data){
+					$.fancybox(data);						
+					},'html').fail(function(){
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+						}
+						scrollTop();
+					});
+			}
+			
+
 		</script>
 	</head>
 		
@@ -248,6 +267,8 @@
             <input type="hidden" id="isMinisterLogin" name="isMinisterLogin" value="${isMinisterLogin}"/>
             <input type="hidden" id="isSpeakerOrChairmanLogin" name="isSpeakerOrChairmanLogin" value="${isSpeakerOrChairmanLogin}"/>
             <input type="hidden" id="isDepartmentLogin" name="isDepartmentLogin" value="${isDepartmentLogin}"/>
+            <input type="hidden" id="credential" name="credential" value="${credential}"/>
+            <input type="hidden" id="isFeedbackEnabled" name="isFeedbackEnabled" value="${isFeedbackEnabled}"/>
             
             <!-- uncomment in HomeController to use following parameter if needed --> 
             <input type="hidden" id="zeroDigitForLocale" name="zeroDigitForLocale" value="${zeroDigitForLocale}"/>
