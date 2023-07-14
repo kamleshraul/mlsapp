@@ -1969,6 +1969,7 @@ public class CutMotionWorkflowController extends BaseController {
 			/**** Populating Bulk Approval VOs ****/
 			List<BulkApprovalVO> bulkapprovals = new ArrayList<BulkApprovalVO>();
 			NumberFormat format = FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
+			int counter = 0;
 			for (WorkflowDetails i : workflowDetails) {
 				BulkApprovalVO bulkApprovalVO = new BulkApprovalVO();
 				CutMotion motion = CutMotion.findById(CutMotion.class, Long.parseLong(i.getDeviceId()));
@@ -2053,6 +2054,11 @@ public class CutMotionWorkflowController extends BaseController {
 						bulkApprovalVO.setCurrentStatus(i.getStatus());
 						bulkapprovals.add(bulkApprovalVO);
 					}
+				}	
+				
+				if(counter == 0){
+					model.addAttribute("apprLevel", motion.getLevel());
+					counter++;
 				}
 			}
 			model.addAttribute("bulkapprovals", bulkapprovals);

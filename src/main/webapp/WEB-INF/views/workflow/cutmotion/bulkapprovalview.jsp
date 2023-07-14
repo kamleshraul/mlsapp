@@ -167,4 +167,5 @@
 		</c:otherwise>
 	</c:choose>
 	<input type="hidden" id="motionId" value="${motionId}">
+	<input type="hidden" id="motionLevel" value="${apprLevel}" />
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>

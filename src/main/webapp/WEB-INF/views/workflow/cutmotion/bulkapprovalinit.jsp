@@ -69,7 +69,7 @@
 				params += $("#subWFMaster option[value='"+ $("#selectedSubWorkflow").val() +"']").text() + "&level=8";
 				
 			}else{
-				params += value+"&level="+$("#questionLevel").val();
+				params += value+"&level="+$("#motionLevel").val();
 			}
 			params +="&usergroup="+$("#apprusergroup").val() ;
 			var resourceURL='ref/cutmotion/actors?'+params;				
