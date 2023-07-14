@@ -87,6 +87,7 @@
 		if(currentDeviceType == 'questions_starred') {
 			if(($("#currentusergroupType").val()=='section_officer')
 					|| $("#currentusergroupType").val()=='deputy_secretary'
+					|| $("#currentusergroupType").val()=='joint_secretary'
 					|| $("#currentusergroupType").val()=='joint_secretary2'
 					|| $("#currentusergroupType").val()=='principal_secretary'
 							
