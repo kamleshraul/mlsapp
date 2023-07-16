@@ -267,7 +267,7 @@
             <input type="hidden" id="isMinisterLogin" name="isMinisterLogin" value="${isMinisterLogin}"/>
             <input type="hidden" id="isSpeakerOrChairmanLogin" name="isSpeakerOrChairmanLogin" value="${isSpeakerOrChairmanLogin}"/>
             <input type="hidden" id="isDepartmentLogin" name="isDepartmentLogin" value="${isDepartmentLogin}"/>
-            <input type="hidden" id="credential" name="credential" value="${credential}"/>
+           
             <input type="hidden" id="isFeedbackEnabled" name="isFeedbackEnabled" value="${isFeedbackEnabled}"/>
             
             <!-- uncomment in HomeController to use following parameter if needed --> 
