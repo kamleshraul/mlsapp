@@ -408,11 +408,11 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
 				String strSessionStartDate=format.format(sessionStartDate);
 				String strSessionEndDate=format.format(sessionEndDate);
 				if(primaryMemberId!=null){
-					query="SELECT m.id,t.name,m.first_name,m.middle_name,m.last_name FROM members_houses_roles as mhr JOIN members as m JOIN members_parties as mpa JOIN memberroles as mr "+
+					query="SELECT Distinct m.id,t.name,m.first_name,m.middle_name,m.last_name FROM members_houses_roles as mhr JOIN members as m JOIN members_parties as mpa JOIN memberroles as mr "+
 					" JOIN titles as t WHERE t.id=m.title_id and mr.id=mhr.role and m.id=mpa.member and mhr.member=m.id and m.id<>'"+ primaryMemberId+"' and m.locale='"+locale+"' "+
 					" and (mhr.to_date>='"+strSessionStartDate+"' or mhr.to_date>='"+strSessionEndDate+"') and mr.priority=0 and mpa.house_id="+house.getId()+" and mpa.is_member_of_ruling_party IS "+mpa.getIsMemberOfRulingParty() +"   and (m.first_name LIKE '%"+param+"%' OR m.middle_name LIKE '%"+param+"%' OR m.last_name LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.last_name) LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.last_name,', ',t.name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.middle_name,' ',m.last_name) LIKE '%"+param+"%') ORDER BY m.first_name asc";
 				}else{
-					query="SELECT m.id,t.name,m.first_name,m.middle_name,m.last_name FROM members_houses_roles as mhr JOIN members as m JOIN memberroles as mr  JOIN members_parties as mpa  "+
+					query="SELECT Distinct m.id,t.name,m.first_name,m.middle_name,m.last_name FROM members_houses_roles as mhr JOIN members as m JOIN memberroles as mr  JOIN members_parties as mpa  "+
 					" JOIN titles as t WHERE t.id=m.title_id and m.id=mpa.member  and mr.id=mhr.role and mhr.member=m.id and  m.locale='"+locale+"' "+
 					" and (mhr.to_date>='"+strSessionStartDate+"' or mhr.to_date>='"+strSessionEndDate+"') and mr.priority=0 and mhr.house_id="+house.getId()+" and mpa.is_member_of_ruling_party IS "+mpa.getIsMemberOfRulingParty() +"   and (m.first_name LIKE '%"+param+"%' OR m.middle_name LIKE '%"+param+"%' OR m.last_name LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.last_name) LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.last_name,', ',t.name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.middle_name,' ',m.last_name) LIKE '%"+param+"%') ORDER BY m.first_name asc";
 				}				
