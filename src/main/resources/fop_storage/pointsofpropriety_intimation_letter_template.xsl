@@ -135,7 +135,7 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block font-weight="bold">
-																							प्रधान सचिव,
+																							सचिव(१)(का.),
 																						</fo:block>
 																						<fo:block>महाराष्ट्र विधानमंडळ सचिवालय.</fo:block>
 																					</fo:table-cell>										
@@ -281,16 +281,12 @@
             							            	
             						</fo:table-row>
             					</fo:table-body>
-            				</fo:table>
-            			
- 	
-            			<fo:block font-size="10px">
-            				&#160;
-            			</fo:block>
-            			
-	</fo:block>
-	
-						<!-- <fo:block break-before="page">
+            				</fo:table>      
+            					
+            		   			
+					</fo:block>	
+					
+						<fo:block break-before="page">
 							<fo:block font-weight="bold" text-align="center">
 								<xsl:value-of select="./element_1/element_1_9"/>, वि.प.स. यांनी विधानपरिषदमध्ये विशेष उल्लेख म्हणून उपस्थित केलेली सूचना क्रमांक - <xsl:value-of select="./element_1/element_1_4"/>
 							</fo:block>
@@ -329,10 +325,9 @@
 									</xsl:if>
 								</xsl:for-each>	
 							</fo:block>
-						</fo:block> -->
-								
-	</fo:block>
-											          
+							
+						</fo:block>						
+				</fo:block>										          
 	            </fo:flow>
 	        </fo:page-sequence>        
 	    </fo:root>
