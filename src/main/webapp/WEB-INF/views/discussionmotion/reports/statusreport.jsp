@@ -21,7 +21,7 @@
 						ids = $("#dmIDs").val().split(",");
 						dataSize = ids.length;
 						limit = ids.length;
-						console.log("insidedreportTypr");
+						console.log("line 24");
 						addRemarkReport();
 					}
 				}
@@ -89,7 +89,7 @@
 		}
 		
 		function addRemarkReport(){
-			console.log("insideAddR3")
+			console.log("line 92")
 			if(ids.length > 0 && counter < ids.length){
 				var reportQuery = $("#device").val().toUpperCase()+ "_CURRENT_STATUS_REPORT";
 				var houseType = $("#selectedHouseType").val();
@@ -106,7 +106,11 @@
 					}
 				}
 				
-				 $.get('discussionmotion/report/'+ ids[counter] + '/currentstatusreportvm?device='+$("#device").val()+'&reportOut='+reportQuery,function(data1){
+				/****************************/
+				console.log('discussionmotion/report/'+ ids[counter] + '/currentstatusreportvm?device='+$("#device").val()+'&reportOut='+reportQuery)
+				/****************************/
+				
+				$.get('discussionmotion/report/'+ ids[counter] + '/currentstatusreportvm?device='+$("#device").val()+'&reportOut='+reportQuery,function(data1){
 						 								
 							if($('#reportWindow1').text().trim()=='v'){
 								$('#reportWindow1').empty();

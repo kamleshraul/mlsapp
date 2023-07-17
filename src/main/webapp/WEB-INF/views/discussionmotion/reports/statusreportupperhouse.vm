@@ -19,26 +19,26 @@
 	
 	<table>
 		<tr style="font-weight: bold;">
-			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">
+			<td style="font-size: 17px; word-wrap: break-word; width: 130px; padding-left: 5px; padding-bottom:5px;">
 				सदस्यांचे नाव
 			</td>
-			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px; padding-bottom:5px;">
 				 $formatData.get(10)
 			</td>
 		</tr>
 		<tr style="font-weight: bold;">													
-			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+			<td style="font-size: 17px; word-wrap: break-word; width: 130px; padding-left: 5px; padding-bottom:5px;">					
 				सूचना क्रमांक
 			</td>
-			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px; padding-bottom:5px;">
 				$formatData.get(7)
 			</td>
 		</tr>
 		<tr style="font-weight: bold;">
-			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+			<td style="font-size: 17px; word-wrap: break-word; width: 130px; padding-left: 5px; padding-bottom:5px;">					
 				विभाग
 			</td>
-			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px; padding-bottom:5px;">
 				#if($formatData.get(17))
 					$formatData.get(17)
 				#else
@@ -47,10 +47,10 @@
 			</td>	
 		</tr>
 		<tr>
-			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+			<td style="font-weight: bold; width: 130px; font-size: 17px; word-wrap: break-word; padding-left: 5px; padding-bottom:5px; ">
 				स्थिती 
 			</td>
-			<td colspan="2" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+			<td colspan="2" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px; padding-bottom:5px;">
 				$formatData.get(22)
 			</td>
 		</tr>
@@ -59,23 +59,24 @@
 		</tr>		
 		<br>
 		<tr>
-			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-				मूढा :-
+			<td style="font-weight: bold; width: 130px; font-size: 17px; word-wrap: break-word; padding-left: 5px;  ">
+				मुद्दे :-
 			</td>
 			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;text-align:justify;">
 				
 				$formatData.get(4)
-				
+				<hr>
 			</td>
 		</tr>
 		
 		
 		<tr>
-			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+			<td style="font-weight: bold; width: 130px; font-size: 17px; word-wrap: break-word; padding-left: 5px; ">
 				
-				टिपणी :-
+				स्पष्टीकरणात्मक<br>
+				 टिप्पणी :-
 			</td>
-			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;text-align:justify;">
+			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;text-align:justify; ">
 				
 				
 				#if( $r.get(26)!= '-' )
@@ -83,7 +84,24 @@
 					#else
 						-
 					#end
+				<hr>
+			</td>
+		</tr>
+		<tr>
+			<td style="font-weight: bold; width: 130px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				सुधारीत<br>
+				स्पष्टीकरणात्मक<br>
+				 टिप्पणी :-
+			</td>
+			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;text-align:justify;">
 				
+				
+				#if( $r.get(27)!= '-' )
+						$formatData.get(27)
+					#else
+						-
+					#end
+				<hr>
 			</td>
 		</tr>
 		<tr>
