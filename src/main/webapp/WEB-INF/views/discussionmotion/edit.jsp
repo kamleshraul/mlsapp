@@ -72,7 +72,7 @@ $('#ministries').change(function(){
 		$( ".autosuggestmultiple" ).autocomplete({
 			minLength:3,
 			source: function( request, response ) {
-				$.getJSON( 'ref/member/supportingmembers?session='+$("#session").val()+'&primaryMemberId='+$('#primaryMember').val(), {
+				$.getJSON( 'ref/member/supportingmembers?session='+$("#session").val()+'&primaryMemberId='+$('#primaryMember').val()+'&deviceType='+$('#selectedDiscussionMotionType').val(), {
 					term: extractLast( request.term )
 				}, response ).fail(function(){
 					$.unblockUI();

@@ -711,7 +711,7 @@
 		<form:textarea path="noticeContent" cssClass="wysiwyg" readonly="true"></form:textarea>
 		<form:errors path="noticeContent" cssClass="validationError"/>	
 	</p>
-	<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_shortduration'}">
+	<c:if test="${selectedDiscussionMotionType =='motions_discussionmotion_shortduration'}">
 	<p>
 		<label class="wysiwyglabel"><spring:message code="discussionmotion.briefExplanation" text="Brief Explanation"/></label>
 		<form:textarea path="briefExplanation" cssClass="wysiwyg" readonly="true"></form:textarea>
