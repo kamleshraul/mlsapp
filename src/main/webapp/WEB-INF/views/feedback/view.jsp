@@ -46,6 +46,29 @@ rating input[type=radio]:checked ~ input[type=radio]:not(:checked)::after{
   content: '\2606'; /* optional. hollow star */
 }
 
+
+.rating {
+  unicode-bidi: bidi-override;
+  direction: rtl;
+}
+.rating > span {
+  display: inline-block;
+  position: relative;
+  width: 1.1em;
+}
+.rating > span:hover:before,
+.rating > span:hover ~ span:before {
+   content: "\2605";
+   color: orange;
+   position: absolute;
+}
+
+.fill{
+	content: "\2605";
+   color: orange;
+   position: absolute;
+}
+
 #submit {
   border-radius: 25px;
    background-color: #007CC8;
@@ -57,11 +80,28 @@ rating input[type=radio]:checked ~ input[type=radio]:not(:checked)::after{
 </style>
 <script>
 $(document).ready(function(){
-	$('[type*="radio"]').change(function () {
+	/* $('[type*="radio"]').change(function () {
 	    var me = $(this);
 	    $('#ratingSystem').attr('value',me.attr('value'));
-	 });
+	 }); */
 });
+
+$('.star').click(function(){
+
+	  $('#ratingSystem').attr('value',$(this).attr('id'));
+	  var clickedcount = $(this).attr('id');
+	  for(var i=1;i<=5;i++){
+		  if(i<=clickedcount){
+			  $("#"+i).addClass("fill");
+			  $("#"+i).html("&#9733;")
+		  }else{
+			  $("#"+i).removeClass("fill");
+			  $("#"+i).html("&#9734;")
+		  }
+		  
+	  }
+	  
+})
  $('#submit').click(function(){
 	/*  $.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); */
 		$.post($('form').attr('action'), $("form").serialize(), function(data){
@@ -96,9 +136,22 @@ $(document).ready(function(){
   <form action="feedback/createfeedback" method="POST">
     <div align="center">
 	<fieldset>
-     <rating>
-       <input type="radio" name="rating" value="1" aria-label="1 star" required/><input type="radio" name="rating" value="2" aria-label="2 stars"/><input type="radio" name="rating" value="3" aria-label="3 stars"/><input type="radio" name="rating" value="4" aria-label="4 stars"/><input type="radio" name="rating" value="5" aria-label="5 stars"/>
-     </rating><br/><br/>
+	
+	<div class="rating" style="font-size:40px;">
+	<span id="5" class="star" > &#9734;</span>
+	<span id="4" class="star">&#9734;</span>
+	<span id="3" class="star" >&#9734;</span>
+	<span id="2" class="star">&#9734;</span>
+	<span id="1" class="star">&#9734;</span>
+	</div>
+
+     <!-- <rating>
+       <input type="radio" name="rating" value="1" aria-label="1 star" required/>
+       <input type="radio" name="rating" value="2" aria-label="2 stars"/>
+       <input type="radio" name="rating" value="3" aria-label="3 stars"/>
+       <input type="radio" name="rating" value="4" aria-label="4 stars"/>
+       <input type="radio" name="rating" value="5" aria-label="5 stars"/>
+     </rating><br/><br/> -->
      <br/>
      <textarea name="feedback_content" id="feedback_content" rows="10" cols="30" placeholder="Please provide your suggestion here" style="width: 350px;height: 200px;
                  padding: 10px; border:3px dashed black;
