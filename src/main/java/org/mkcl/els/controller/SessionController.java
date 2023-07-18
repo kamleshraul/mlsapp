@@ -372,6 +372,7 @@ public class SessionController extends GenericController<Session> {
         if(groupCreationCheck.equals("on") ) {
         createGroups(model, domain, request);
         }}
+        populateSessionDates(model, domain, request);
         // }
 	}
 
@@ -985,6 +986,46 @@ public class SessionController extends GenericController<Session> {
 			}
 		}
 		
+	}
+	
+	protected void populateSessionDates(ModelMap model, Session domain,
+			HttpServletRequest request) throws ELSException {
+		List<Date> datesToSet = domain.findAllSessionDatesHavingNoHoliday();
+		List<SessionDates> sessionDates = new ArrayList<SessionDates>();
+		CustomParameter starttime =  CustomParameter.findByName(CustomParameter.class, "SESSION_START_TIME_"+domain.getHouse().getType().getType().toUpperCase(), "en_US");
+		CustomParameter endtime =  CustomParameter.findByName(CustomParameter.class, "SESSION_END_TIME_"+domain.getHouse().getType().getType().toUpperCase(), "en_US");
+		String sessionStartTime = starttime.getValue();
+		String sessionEndTime = endtime.getValue();
+		SimpleDateFormat sf = new SimpleDateFormat("HH:mm");
+		Date convsessionStartTime = null;
+		Date convsessionEndTime = null;
+		if(starttime != null  && !starttime.getValue().isEmpty()
+				&& endtime !=null &&  !endtime.getValue().isEmpty()) {
+			try {
+			       convsessionStartTime = sf.parse(sessionStartTime);
+			       convsessionEndTime = sf.parse(sessionEndTime);
+			    
+			} catch (ParseException e) {
+			    e.printStackTrace();
+			}
+		}
+		
+		if(convsessionStartTime != null && convsessionEndTime != null) {
+			if(datesToSet !=null && datesToSet.size() != 0) {
+				for(int i=0;i<datesToSet.size();i++) {
+					SessionDates sd = new SessionDates();
+					sd.setSessionDate(datesToSet.get(i));	
+					sd.setStartTime(convsessionStartTime);
+					sd.setEndTime(convsessionEndTime);
+					sd.setIsQuestionHourIncluded(false);
+					sd.setLocale("mr_IN");
+					sessionDates.add(sd);
+				}
+				domain.setSessionDates(sessionDates);
+				
+			}			
+		}
+
 	}
 	
 	
