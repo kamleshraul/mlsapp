@@ -60,7 +60,17 @@
 		<br>
 		<tr>
 			<td style="font-weight: bold; width: 130px; font-size: 17px; word-wrap: break-word; padding-left: 5px;  ">
-				मुद्दे :-
+			   	मुद्दे :-
+			</td>
+			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;text-align:justify;">
+				
+				$formatData.get(28)
+				<hr>
+			</td>
+		</tr>
+		<tr>
+			<td style="font-weight: bold; width: 130px; font-size: 17px; word-wrap: break-word; padding-left: 5px;  ">
+				सुधारीत मुद्दे :-
 			</td>
 			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;text-align:justify;">
 				
@@ -113,7 +123,7 @@
 </div>
 <div style="width: 750px; border-top: 2px dotted black;">&nbsp;</div>
 <div style="width: 750px; margin-left:3%;">
-		
+#if($currentStatusReportAllowedBeforeApproval == 'NO')			
 	<table style="width: 750px; font-weight: bold; border: 2px solid black; font-size: 16px;" class="uiTable">
 		#foreach($r in $data)
 			<tr class="page-break" style="font-weight: bold;">
@@ -160,6 +170,9 @@
 			
 		</tr>
 	</table>
+#else
+#end
 </div>
+
 <span class='page-break-before-forced'>&nbsp;</span>
 <hr>
