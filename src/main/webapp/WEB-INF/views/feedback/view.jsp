@@ -2,107 +2,162 @@
 <html>
 <head>
 <style>
-body{
- overflow: hidden;
-}
-/* make the current radio visually hidden */
-input[type=radio]{ 
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  margin: 0;
-  box-shadow: none;
-  width: 35px; /* remove shadow on invalid submit */
-}
+		.rating input {
+			display: none;
+		}
+		.rating {
+			display: flex;
+	    }
+		.rating > label {
+			display: block;
+			width: 50px;
+			height: 50px;
+			font-size: 50px;
+			color: #F39F00; /* color browser dependent */
+			font-family: sans-serif;
+			opacity: 0.33;
+			transition: opacity .2s; /* OPTIONAL */
+		}
+		
+	/* .star:checked ~.r1,
+	.star:focus ~.r1,
+	.star:hover .star{
+	  opacity:1;
+	}
+	.r1:hover ~.r1{
+	  opacity:0.33;
+	} */
+		
+/* 	.rating:has(input[type='radio']:checked) label {
+    	opacity:1;
+	}	
+		
+     .rating input[type='radio']:checked ~ label {
+	   opacity: 0.33;
+	} 
 
-/* generated content is now supported on input. supporting older browsers? change button above to {position: absolute; opacity: 0;} and add a label, then style that, and change all selectors to reflect that change */
-input[type=radio]::after {
-  content: '\2605';
-  font-size: 32px;
-}
+	 .rating input[type='radio']:checked + label {
+	    opacity:1;
+	}    */
 
-/* by default, if no value is selected, all stars are grey */
-input[type=radio]:invalid::after {
-  color: #ddd;
-}
+/*      .rating input[type='radio']:not(checked) ~ label {
+	    opacity: 1;
+	} */
+	 
+/* 		
+	     div.rating:hover label
+	     {
+		  opacity: 1;
+		} 
+		
+		 
+		div.rating label:hover  ~ label{
+		  opacity: 0.33;
+		}  
+		
+		  div.rating input[type="radio"]:not(checked) label.r1 {
+		  opacity: 1;
+		}  */ 
+		 /* For loop of Css for checked and hover of each star */
+		 #star-1:checked ~ label[for="star-1"],
+		#star-1:hover ~ label[for="star-1"],
 
-/* if the rating has focus or is hovered, make all stars darker */
-rating:hover input[type=radio]:invalid::after,
-rating:focus-within input[type=radio]:invalid::after
-{color: #888;}
+		#star-2:checked ~ label[for="star-1"],
+		#star-2:checked ~ label[for="star-2"],
+		#star-2:hover ~ label[for="star-1"],
+		#star-2:hover ~ label[for="star-2"],
 
-/* make all the stars after the focused one back to ligh grey, until a value is selected */
-rating:hover input[type=radio]:hover ~ input[type=radio]:invalid::after,
-rating input[type=radio]:focus ~ input[type=radio]:invalid::after  {color: #ddd;}
+		#star-3:checked ~ label[for="star-1"],
+		#star-3:checked ~ label[for="star-2"],
+		#star-3:checked ~ label[for="star-3"],
+		#star-3:hover ~ label[for="star-1"],
+		#star-3:hover ~ label[for="star-2"],
+		#star-3:hover ~ label[for="star-3"],
 
+		#star-4:checked ~ label[for="star-1"],
+		#star-4:checked ~ label[for="star-2"],
+		#star-4:checked ~ label[for="star-3"],
+		#star-4:checked ~ label[for="star-4"],
+		#star-4:hover ~ label[for="star-1"],
+		#star-4:hover ~ label[for="star-2"],
+		#star-4:hover ~ label[for="star-3"],
+		#star-4:hover ~ label[for="star-4"],
 
-/* if a value is selected, make them all selected */
-rating input[type=radio]:valid {
-  color: orange;
-}
-/* then make the ones coming after the selected value look inactive */
-rating input[type=radio]:checked ~ input[type=radio]:not(:checked)::after{
-  color: #ccc;
-  content: '\2606'; /* optional. hollow star */
-}
+		#star-5:checked ~ label[for="star-1"],
+		#star-5:checked ~ label[for="star-2"],
+		#star-5:checked ~ label[for="star-3"],
+		#star-5:checked ~ label[for="star-4"],
+		#star-5:checked ~ label[for="star-5"],
+		#star-5:hover ~ label[for="star-1"],
+		#star-5:hover ~ label[for="star-2"],
+		#star-5:hover ~ label[for="star-3"],
+		#star-5:hover ~ label[for="star-4"],
+		#star-5:hover ~ label[for="star-5"] {
+			opacity: 1;
+		}  
 
-
-.rating {
-  unicode-bidi: bidi-override;
-  direction: rtl;
-}
-.rating > span {
-  display: inline-block;
-  position: relative;
-  width: 1.1em;
-}
-.rating > span:hover:before,
-.rating > span:hover ~ span:before {
-   content: "\2605";
-   color: orange;
-   position: absolute;
-}
-
-.fill{
-	content: "\2605";
-   color: orange;
-   position: absolute;
-}
-
-#submit {
-  border-radius: 25px;
-   background-color: #007CC8;
-  color: #efefef;
-  border: none;
-  text-align: center;
-  padding: 10px 20px;
-}
+		.center {
+			/* min-height: 100vh; */
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		
+		#submit {
+		  border-radius: 25px;
+		   background-color: #007CC8;
+		  color: #efefef;
+		  border: none;
+		  text-align: center;
+		  padding: 10px 20px;
+		  cursor: pointer;
+		}
 </style>
+
 <script>
 $(document).ready(function(){
-	/* $('[type*="radio"]').change(function () {
-	    var me = $(this);
-	    $('#ratingSystem').attr('value',me.attr('value'));
-	 }); */
-});
-
-$('.star').click(function(){
-
-	  $('#ratingSystem').attr('value',$(this).attr('id'));
-	  var clickedcount = $(this).attr('id');
-	  for(var i=1;i<=5;i++){
-		  if(i<=clickedcount){
-			  $("#"+i).addClass("fill");
-			  $("#"+i).html("&#9733;")
-		  }else{
-			  $("#"+i).removeClass("fill");
-			  $("#"+i).html("&#9734;")
+	
+ $('#feedback_content').keyup(function() {
+	    
+		  var characterCount = $(this).val().length,
+		      current = $('#current'),
+		      maximum = $('#maximum'),
+		      theCount = $('#the-count');
+		    
+		  current.text(characterCount);
+		 
+		  
+		  /*This isn't entirely necessary, just playin around*/
+		  if (characterCount < 70) {
+		    current.css('color', '#666');
+		  }
+		  if (characterCount > 70 && characterCount < 90) {
+		    current.css('color', '#6d5555');
+		  }
+		  if (characterCount > 90 && characterCount < 100) {
+		    current.css('color', '#793535');
+		  }
+		  if (characterCount > 100 && characterCount < 120) {
+		    current.css('color', '#841c1c');
+		  }
+		  if (characterCount > 120 && characterCount < 139) {
+		    current.css('color', '#8f0001');
 		  }
 		  
-	  }
-	  
-})
+		  if (characterCount >= 140) {
+		    maximum.css('color', '#8f0001');
+		    current.css('color', '#8f0001');
+		    theCount.css('font-weight','bold');
+		  } else {
+		    maximum.css('color','#666');
+		    theCount.css('font-weight','normal');
+		  }
+		  
+		      
+		});
+});
  $('#submit').click(function(){
+	 $('#ratingSystem').val($("input[name='star']:checked").val());
 	/*  $.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); */
 		$.post($('form').attr('action'), $("form").serialize(), function(data){
 			/* 	$('.tabbar').html(data);
@@ -123,39 +178,36 @@ $('.star').click(function(){
         });	 
  });
 </script>
-<style>
-#submit{
- cursor: pointer;
-}
-</style>
 </head>
 <body>
  <img src='./resources/images/feedback.jpg' width= '400' height= '200' >
 <br/>
-<h1 align="center" style="color:black">Please Rate MLS System</h1>
+<h2 align="center" style="color:black"><spring:message code='feedback.header' text='Please Rate MLS System'/></h2>
   <form action="feedback/createfeedback" method="POST">
     <div align="center">
 	<fieldset>
-	
-	<div class="rating" style="font-size:40px;">
-	<span id="5" class="star" > &#9734;</span>
-	<span id="4" class="star">&#9734;</span>
-	<span id="3" class="star" >&#9734;</span>
-	<span id="2" class="star">&#9734;</span>
-	<span id="1" class="star">&#9734;</span>
-	</div>
-
-     <!-- <rating>
-       <input type="radio" name="rating" value="1" aria-label="1 star" required/>
-       <input type="radio" name="rating" value="2" aria-label="2 stars"/>
-       <input type="radio" name="rating" value="3" aria-label="3 stars"/>
-       <input type="radio" name="rating" value="4" aria-label="4 stars"/>
-       <input type="radio" name="rating" value="5" aria-label="5 stars"/>
-     </rating><br/><br/> -->
-     <br/>
-     <textarea name="feedback_content" id="feedback_content" rows="10" cols="30" placeholder="Please provide your suggestion here" style="width: 350px;height: 200px;
+	<div class="center">
+     <div class="rating">
+     			<input type="radio" name="star" class="star" id="star-1" value="1">
+				<input type="radio" name="star" class="star" id="star-2" value="2">
+				<input type="radio" name="star" class="star" id="star-3" value="3">
+				<input type="radio" name="star" class="star" id="star-4" value="4">
+				<input type="radio" name="star" class="star" id="star-5" value="5">
+				<label class="r1" for="star-1">&#11088;</label>
+				<label class="r1" for="star-2">&#11088;</label>
+				<label class="r1" for="star-3">&#11088;</label>
+				<label class="r1" for="star-4">&#11088;</label>
+				<label class="r1" for="star-5">&#11088;</label>
+	</div></div><br/><br/>
+    <div class="wrapper">
+     <textarea name="feedback_content" id="feedback_content" rows="10" cols="30" maxlength="255" placeholder="<spring:message code='feedback.content' text='Please provide your suggestion here'/>" style="width: 350px;height: 200px;
                  padding: 10px; border:3px dashed black;
-                 background-color:aliceblue"></textarea>
+                 background-color:aliceblue"></textarea><br/><br/>
+                   <div id="the-count">
+    				<span id="current">0</span>
+    				<span id="maximum">/ 255</span>
+  				</div>
+      </div>           
      <br/> <br/>
      <input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>">
      </fieldset>
