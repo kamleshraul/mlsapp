@@ -1495,7 +1495,7 @@
 				</select>
 			</security:authorize>
 			
-			<security:authorize	access="hasAnyRole('MOIS_CLERK', 'MOIS_ASSISTANT', 'MOIS_PRINCIPAL_SECRETARY', 'MOIS_SPEAKER', 'MOIS_CHAIRMAN')">
+			<security:authorize	access="hasAnyRole('MOIS_CLERK', 'MOIS_ASSISTANT', 'MOIS_DEPUTY_SECRETARY' ,'MOIS_PRINCIPAL_SECRETARY', 'MOIS_SPEAKER', 'MOIS_CHAIRMAN')">
 				<a href="#" id="select_clubbingStatus" class="butSim"> 
 					<spring:message	code="generic.clubbingStatus" text="Clubbing Status"/>
 				</a>
@@ -1668,7 +1668,7 @@
 						</div>|	
 					</div>	
 				</security:authorize>
-				<security:authorize access="hasAnyRole('MOIS_UNDER_SECRETARY', 'MOIS_SECRETARY', 'MOIS_PRINCIPAL_SECRETARY')">
+				<security:authorize access="hasAnyRole('MOIS_UNDER_SECRETARY', 'MOIS_DEPUTY_SECRETARY', 'MOIS_SECRETARY', 'MOIS_PRINCIPAL_SECRETARY')">
 					
 					<a href="javascript:void(0);" id="reports_link" class="butSim" style="float: right;">
 						<spring:message code="motion.reports" text="Reports"/>
