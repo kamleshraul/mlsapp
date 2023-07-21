@@ -1387,7 +1387,10 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 				}
 				if(domain.getNoticeContent().isEmpty()){
 					result.rejectValue("noticeContent","NoticeContentEmpty");
-				}					
+				}	
+				if(domain.getBriefExplanation().isEmpty()){
+					result.rejectValue("briefExplanation","NoticeContentEmpty");
+				}	
 				if(domain.getSupportingMembers()==null){
 					result.rejectValue("supportingMembers","SupportingMembersEmpty");
 				} else if(domain.getSupportingMembers().isEmpty()){
@@ -1424,6 +1427,9 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 					if(domain.getNoticeContent().isEmpty()){
 						result.rejectValue("noticeContent","NoticeContentEmpty");
 					}
+					if(domain.getBriefExplanation().isEmpty()){
+						result.rejectValue("briefExplanation","NoticeContentEmpty");
+					}
 					if (result.getFieldErrorCount("supportingMembers") == 0) {
 						// check if request is already
 						// sent for approval
@@ -1431,14 +1437,17 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 						if (domain.getSupportingMembers() != null) {
 							if (domain.getSupportingMembers().size() > 0) {
 								for (SupportingMember i : domain.getSupportingMembers()) {
-									if (!i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+									if (i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 										count++;
 									}
 								}
-								if (count != 0) {
+								if (count < 2) {
 									result.rejectValue("supportingMembers","supportingMembersRequestNotSent");
 								}
 							}
+						}
+						if(domain.getSupportingMembers() == null) {
+							result.rejectValue("supportingMembers","supportingMembersRequestNotSent");
 						}
 					}
 					//submission date limit validations (configurable through custom parameters)
@@ -1517,6 +1526,9 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 						if(domain.getNoticeContent().isEmpty()){
 							result.rejectValue("noticeContent","NoticeContentEmpty");
 						}
+						if(domain.getBriefExplanation().isEmpty()){
+							result.rejectValue("briefExplanation","NoticeContentEmpty");
+						}
 						String internalStatusType=domain.getInternalStatus().getType();
 						if(internalStatusType.equals(ApplicationConstants.DISCUSSIONMOTION_SUBMIT)){
 							result.rejectValue("internalStatus","PutUpOptionEmpty");
@@ -1549,6 +1561,9 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 			}
 			if(domain.getNoticeContent().isEmpty()){
 				result.rejectValue("noticeContent","NoticeContentEmpty");
+			}
+			if(domain.getBriefExplanation().isEmpty()){
+				result.rejectValue("briefExplanation","NoticeContentEmpty");
 			}
 			String usergroupType=request.getParameter("usergroupType");
 			if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("assistant")){
@@ -2760,7 +2775,7 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
 			DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
 			
-			CustomParameter defaultStatus = CustomParameter.findByName(CustomParameter.class, "MOTION_STATUS_UPDATE_" + deviceType.getType().toUpperCase() + "_" + houseType.getType().toUpperCase() + "_" + strUsergroupType.toUpperCase(), "");
+			CustomParameter defaultStatus = CustomParameter.findByName(CustomParameter.class, "MOTION_STATUS_UPDATE_" + deviceType.getType().toUpperCase() + "_" + houseType.getType().toUpperCase() , "");
 
 			List<Status> internalStatuses;
 			try {
