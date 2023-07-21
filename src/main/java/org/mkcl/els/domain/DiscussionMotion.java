@@ -460,6 +460,8 @@ public class DiscussionMotion extends Device implements Serializable {
 		return getDiscussionMotionRepository().isExist(number, deviceType, session, locale);
 	}
 
+	
+	//Shubham
 	private void addDiscussionMotionDraft() {
 		if (!this.getStatus().getType().equals(ApplicationConstants.DISCUSSIONMOTION_INCOMPLETE)
 				&& !this.getStatus().getType().equals(ApplicationConstants.DISCUSSIONMOTION_COMPLETE)) {
@@ -475,21 +477,31 @@ public class DiscussionMotion extends Device implements Serializable {
 			draft.setMinistries(this.getMinistries());
 			draft.setDepartments(this.getDepartments());
 			draft.setSubDepartments(this.getSubDepartments());
+			draft.setType(this.getType());
+			draft.setDiscussionDate(this.getDiscussionDate());
 			draft.setStatus(this.getStatus());
 			draft.setInternalStatus(this.getInternalStatus());
 			draft.setRecommendationStatus(this.getRecommendationStatus());
-			if (this.getRevisedNoticeContent() != null && this.getRevisedSubject() != null) {
+			if (this.getRevisedNoticeContent() != null && this.getRevisedSubject() != null && this.getRevisedBriefExplanation() != null) {
 				draft.setNoticeContent(this.getRevisedNoticeContent());
 				draft.setSubject(this.getRevisedSubject());
+				draft.setBriefExplanation(this.getRevisedBriefExplanation());
 			} else if (this.getRevisedNoticeContent() != null) {
 				draft.setNoticeContent(this.getRevisedNoticeContent());
 				draft.setSubject(this.getSubject());
+				draft.setBriefExplanation(this.getRevisedBriefExplanation());
 			} else if (this.getRevisedSubject() != null) {
 				draft.setNoticeContent(this.getNoticeContent());
 				draft.setSubject(this.getRevisedSubject());
-			} else {
+				draft.setBriefExplanation(this.getRevisedBriefExplanation());
+			}
+			else if(this.getRevisedBriefExplanation() != null) {
+				draft.setBriefExplanation(this.getRevisedBriefExplanation());
+			}
+			else {
 				draft.setNoticeContent(this.getNoticeContent());
 				draft.setSubject(this.getSubject());
+				draft.setBriefExplanation(this.getBriefExplanation());
 			}
 			if (this.getId() != null) {
 				DiscussionMotion motion = DiscussionMotion.findById(DiscussionMotion.class, this.getId());
