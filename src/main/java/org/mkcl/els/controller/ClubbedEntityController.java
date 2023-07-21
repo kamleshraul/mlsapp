@@ -1296,6 +1296,7 @@ public class ClubbedEntityController extends BaseController{
 					// Council were manually updated and didn't go in the workflow.
 					// Hence, workflowDetails is going to be null.
 					if(recommendationStatusType.equals(ApplicationConstants.DISCUSSIONMOTION_RECOMMEND_DISCUSS)
+							|| recommendationStatusType.equals(ApplicationConstants.DISCUSSIONMOTION_RECOMMEND_ADMISSION)
 							|| recommendationStatusType.equals(ApplicationConstants.DISCUSSIONMOTION_RECOMMEND_SENDBACK)
 							|| internalStatusType.equals(ApplicationConstants.DISCUSSIONMOTION_FINAL_ADMISSION)){
 						if(usergroupType != null) {
