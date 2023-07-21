@@ -109,7 +109,31 @@ public class DiscussionMotionDraft extends BaseDomain implements Serializable{
     inverseJoinColumns={@JoinColumn(name="referenced_unit_id", referencedColumnName="id")})
     private List<ReferenceUnit> referencedEntities;
     
+    @Column(name="brief_explanation" ,length =1000)
+    private String briefExplanation;
     
+    @Temporal(TemporalType.DATE)
+	private Date discussionDate;
+    
+    
+
+	public String getBriefExplanation() {
+		return briefExplanation;
+	}
+
+	public void setBriefExplanation(String briefExplanation) {
+		this.briefExplanation = briefExplanation;
+	}
+	
+	
+
+	public Date getDiscussionDate() {
+		return discussionDate;
+	}
+
+	public void setDiscussionDate(Date discussionDate) {
+		this.discussionDate = discussionDate;
+	}
 
 	/**** Constructors and Domain Methods****/
     public DiscussionMotionDraft() {
