@@ -124,6 +124,13 @@
 	}
 				
 	$(document).ready(function(){
+		
+		
+		
+		$(".revise1").toggle();
+		$(".revise2").toggle();
+		$(".revise3").toggle();
+
 		/*******Actor changes*************/
 		$("#actor").change(function(){
 		    var actor=$(this).val();
@@ -185,6 +192,17 @@
 			}else{
 				$("#revisedNoticeContent").wysiwyg("setContent",$("#noticeContent").val());				
 			}				
+			return false;			
+		});	
+		
+$("#reviseBriefExplanation").click(function(){
+			
+			$(".revise3").toggle();		
+		/* 	if($("#revisedBriefExplanationDiv").css("display")=="none"){
+				$("#revisedBriefExplanation").wysiwyg("setContent","");
+			}else{
+				$("#revisedBriefExplanation").wysiwyg("setContent",$("#briefExplanation").val());				
+			}	 */			
 			return false;			
 		});	
 		
@@ -506,11 +524,25 @@
 		<form:textarea path="noticeContent" readonly="true" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="noticeContent" cssClass="validationError"/>	
 	</p>
+	
+	<c:if test="${selectedDiscussionMotionType =='motions_discussionmotion_shortduration'}">
+	<p>
+		<label class="wysiwyglabel"><spring:message code="discussionmotion.briefExplanation" text="Brief Explanation"/></label>
+		<form:textarea path="briefExplanation" cssClass="wysiwyg" readonly="true"></form:textarea>
+		<form:errors path="briefExplanation" cssClass="validationError"/>	
+	</p>
+	</c:if>	
+
+	
 
 	<p>
 		
 		<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="discussionmotion.reviseSubject" text="Revise Subject"></spring:message></a>
 		<a href="#" id="reviseNoticeContent" style="margin-right: 20px;"><spring:message code="discussionmotion.reviseNoticeContent" text="Revise Notice Content"></spring:message></a>
+		<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_shortduration'}">
+		<a href="#" id="reviseBriefExplanation" style="margin-right: 20px;"><spring:message code="discussionmotion.revisedBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
+		</c:if>		
+		
 		<a href="#" id="viewRevision"><spring:message code="device.viewrevisions" text="View Revisions"></spring:message></a>
 	</p>
 	
@@ -526,6 +558,15 @@
 	<form:textarea path="revisedNoticeContent" readonly="readonly" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedNoticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
+	
+	<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_shortduration'}">
+	<p style="display:none;" class="revise3" id="revisedBriefExplanationDiv">
+	<label class="wysiwyglabel"><spring:message code="discussionmotion.revisedBriefExplanation" text="Revised Brief Explanation"/></label>
+	<form:textarea path="revisedBriefExplanation" cssClass="wysiwyg"></form:textarea>
+	<form:errors path="revisedBriefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+	</p>
+	</c:if>	
+	
 	
 	<p id="internalStatusDiv">
 	<label class="small"><spring:message code="discussionmotion.currentStatus" text="Current Status"/></label>

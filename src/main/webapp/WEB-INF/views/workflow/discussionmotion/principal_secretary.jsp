@@ -565,10 +565,13 @@
 		
 		<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="discussionmotion.reviseSubject" text="Revise Subject"></spring:message></a>
 		<a href="#" id="reviseNoticeContent" style="margin-right: 20px;"><spring:message code="discussionmotion.reviseNoticeContent" text="Revise Notice Content"></spring:message></a>
-		<a href="#" id="viewRevision"><spring:message code="device.viewrevisions" text="View Revisions"></spring:message></a>
-			<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_shortduration'}">
+		<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_shortduration'}">
 		<a href="#" id="reviseBriefExplanation" style="margin-right: 20px;"><spring:message code="discussionmotion.revisedBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
 		</c:if>
+		
+		
+		<a href="#" id="viewRevision"><spring:message code="device.viewrevisions" text="View Revisions"></spring:message></a>
+
 	</p>
 	
 		

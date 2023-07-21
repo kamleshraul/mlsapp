@@ -108,6 +108,11 @@
 	}
 	
 	$(document).ready(function(){
+		
+		$(".revise1").toggle();
+		$(".revise2").toggle();
+		$(".revise3").toggle();
+		
 		/*******Actor changes*************/
 		$("#actor").change(function(){
 		    var actor=$(this).val();
@@ -138,11 +143,11 @@
 		$("#reviseBriefExplanation").click(function(){
 			
 			$(".revise3").toggle();		
-			if($("#revisedBriefExplanationDiv").css("display")=="none"){
+		/* 	if($("#revisedBriefExplanationDiv").css("display")=="none"){
 				$("#revisedBriefExplanation").wysiwyg("setContent","");
 			}else{
 				$("#revisedBriefExplanation").wysiwyg("setContent",$("#briefExplanation").val());				
-			}				
+			}	 */			
 			return false;			
 		});	
 		
@@ -402,15 +407,15 @@
 	<label class="small"><spring:message code="discussionmotion.submissionDate" text="Submitted On"/></label>
 	<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
-		
 	
-<c:if test="${(internalStatusType=='discussionmotion_final_admission')}">
-		<label class="small"><spring:message code="discussionmotion.discussionDate" text="Discussion Date"/></label>
-		
+	
+	<c:if test="${(internalStatusType=='discussionmotion_final_admission')}">
+		<label class="small"><spring:message code="discussionmotion.discussionDate" text="Discussion Date"/></label>	
 		<input id="formattedDiscussionDate" name="formattedDiscussionDate" value="${formattedDiscussionDate}" class="datemask sText" />
-		<input id="setDiscussionDate" name="discussionDate" value="${discussionDate}" class="sText" type="hidden" />
+		<input id="setDiscussionDate" name="discussionDate" value="${discussionDate}" class="sText" type="hidden" />	
+	</c:if>		
 	
-	</c:if>
+
 	</p>
 	
 		
@@ -573,7 +578,7 @@
 	</p>
 	
 	<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_shortduration'}">
-	<p  class="revise3" id="revisedBriefExplanationDiv">
+	<p  class="revise3"  style="display:none;"     id="revisedBriefExplanationDiv">
 	<label class="wysiwyglabel"><spring:message code="discussionmotion.revisedBriefExplanation" text="Revised Brief Explanation"/></label>
 	<form:textarea path="revisedBriefExplanation" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedBriefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>

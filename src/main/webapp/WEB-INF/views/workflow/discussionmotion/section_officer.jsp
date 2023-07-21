@@ -153,6 +153,14 @@
 	}
 			
 	$(document).ready(function(){
+		
+		
+		$(".revise1").toggle();
+		$(".revise2").toggle();
+		$(".revise3").toggle();
+		
+		
+		
 		/*******Actor changes*************/
 		$("#actor").change(function(){
 		    var actor=$(this).val();
@@ -579,7 +587,8 @@
 	</select>			
 	<form:errors path="subDepartments" cssClass="validationError"/>	
 	</p>
-		
+
+	<br>
 			
 	
 	<p>	
@@ -606,10 +615,12 @@
 		
 		<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="discussionmotion.reviseSubject" text="Revise Subject"></spring:message></a>
 		<a href="#" id="reviseNoticeContent" style="margin-right: 20px;"><spring:message code="discussionmotion.reviseNoticeContent" text="Revise Notice Content"></spring:message></a>
-		<a href="#" id="viewRevision"><spring:message code="device.viewrevisions" text="View Revisions"></spring:message></a>
 		<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_shortduration'}">
 		<a href="#" id="reviseBriefExplanation" style="margin-right: 20px;"><spring:message code="discussionmotion.revisedBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
 		</c:if>
+
+		<a href="#" id="viewRevision"><spring:message code="device.viewrevisions" text="View Revisions"></spring:message></a>
+
 	</p>
 	
 		
@@ -626,7 +637,7 @@
 	</p>
 	
 	<c:if test="${selectedDiscussionMotionType=='motions_discussionmotion_shortduration'}">
-	<p  class="revise3" id="revisedBriefExplanationDiv">
+	<p  class="revise3" style="display:none;" id="revisedBriefExplanationDiv">
 	<label class="wysiwyglabel"><spring:message code="discussionmotion.revisedBriefExplanation" text="Revised Brief Explanation"/></label>
 	<form:textarea path="revisedBriefExplanation" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedBriefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
