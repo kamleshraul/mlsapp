@@ -123,6 +123,13 @@
 	
 
 	$(document).ready(function(){
+		
+		
+		$(".revise1").toggle();
+		$(".revise2").toggle();
+		$(".revise3").toggle();
+		
+		
 		$("#actor").change(function(){
 		    var actor=$(this).val();
 		    var temp=actor.split("#");
@@ -575,9 +582,8 @@
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 		
 	
-		<c:if test="${(internalStatusType=='discussionmotion_final_admission')}">
-		<label class="small"><spring:message code="discussionmotion.discussionDate" text="Discussion Date"/></label>
-		
+	<c:if test="${(internalStatusType=='discussionmotion_final_admission')}">
+		<label class="small"><spring:message code="discussionmotion.discussionDate" text="Discussion Date"/></label>	
 		<input id="formattedDiscussionDate" name="formattedDiscussionDate" value="${formattedDiscussionDate}" class="datemask sText" />
 		<input id="setDiscussionDate" name="discussionDate" value="${discussionDate}" class="sText" type="hidden" />
 		
@@ -699,6 +705,10 @@
 	</select>			
 	<form:errors path="subDepartments" cssClass="validationError"/>	
 	</p>	
+	
+	<br>
+	
+
 		
 	<p>	
 		<label class="centerlabel"><spring:message code="discussionmotion.subject" text="Subject"/></label>
