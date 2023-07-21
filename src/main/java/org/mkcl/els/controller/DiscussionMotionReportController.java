@@ -2226,35 +2226,37 @@ class DiscussionMotionReportHelper{
 							
 							WorkflowConfig wfConfig = null;
 							CustomParameter csptCurrentStatusAllowedBeforeApproval = CustomParameter.findByName(CustomParameter.class, qt.getType().getType().toUpperCase()+"_"+qt.getHouseType().getType().toUpperCase()+"_CURRENT_STATUS_REPORT_ALLOWED_BEFORE_APPROVAL", "");
-//							if(csptCurrentStatusAllowedBeforeApproval!=null && csptCurrentStatusAllowedBeforeApproval.getValue()!=null
-//									&& csptCurrentStatusAllowedBeforeApproval.getValue().equals("YES")) {
-//								
-//								wfConfig = WorkflowConfig.getLatest(qt, ApplicationConstants.DISCUSSIONMOTION_RECOMMEND_ADMISSION, locale.toString());
-//								model.addAttribute("currentStatusReportAllowedBeforeApproval", "YES");
-//								
-//							} else {
-//								wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
-//								model.addAttribute("currentStatusReportAllowedBeforeApproval", "NO");
-//							}
-//							
-							
 							if(csptCurrentStatusAllowedBeforeApproval!=null && csptCurrentStatusAllowedBeforeApproval.getValue()!=null
 									&& csptCurrentStatusAllowedBeforeApproval.getValue().equals("YES")) {
 								
-							   if (qt.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_SUBMIT) || qt.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_SYSTEM_PUTUP ) || qt.getInternalStatus().getType().endsWith(ApplicationConstants.DISCUSSIONMOTION_SYSTEM_ASSISTANT_PROCESSED ) || qt.getParent() != null  ) {
-									
-									wfConfig = WorkflowConfig.getLatest(qt, ApplicationConstants.DISCUSSIONMOTION_RECOMMEND_ADMISSION, locale.toString());
-									model.addAttribute("currentStatusReportAllowedBeforeApproval", "YES");
-									}
-							   else {
-								   wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
-									model.addAttribute("currentStatusReportAllowedBeforeApproval", "NO");
-							   }
+								wfConfig = WorkflowConfig.getLatest(qt, ApplicationConstants.DISCUSSIONMOTION_RECOMMEND_ADMISSION, locale.toString());
+								model.addAttribute("currentStatusReportAllowedBeforeApproval", "YES");
 								
 							} else {
-								 wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
+								wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
 								model.addAttribute("currentStatusReportAllowedBeforeApproval", "NO");
 							}
+							
+							
+							
+							
+//							if(csptCurrentStatusAllowedBeforeApproval!=null && csptCurrentStatusAllowedBeforeApproval.getValue()!=null
+//									&& csptCurrentStatusAllowedBeforeApproval.getValue().equals("YES")) {
+//								
+//							   if (qt.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_SUBMIT) || qt.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_SYSTEM_PUTUP ) || qt.getInternalStatus().getType().endsWith(ApplicationConstants.DISCUSSIONMOTION_SYSTEM_ASSISTANT_PROCESSED ) || qt.getParent() != null  ) {
+//									
+//									wfConfig = WorkflowConfig.getLatest(qt, ApplicationConstants.DISCUSSIONMOTION_RECOMMEND_ADMISSION, locale.toString());
+//									model.addAttribute("currentStatusReportAllowedBeforeApproval", "YES");
+//									}
+//							   else {
+//								   wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
+//									model.addAttribute("currentStatusReportAllowedBeforeApproval", "NO");
+//							   }
+//								
+//							} else {
+//								 wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
+//								model.addAttribute("currentStatusReportAllowedBeforeApproval", "NO");
+//							}
 							
 							
 							List<WorkflowActor> wfActors = wfConfig.getWorkflowactors();
