@@ -6143,12 +6143,22 @@ public class ReferenceController extends BaseController {
 			Motion parent = Motion.findById(Motion.class, id);
 			
 			if(parent != null){
+				MasterVO mVO = new MasterVO();
+				mVO.setId(parent.getId());
+				mVO.setName(FormaterUtil.formatNumberNoGrouping(parent.getNumber(), locale.toString()));
+				mVO.setDisplayName(parent.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
+				if(parent.getDetails()!= null && !parent.getDetails().isEmpty()){
+					mVO.setValue(parent.getDetails());
+				}else{
+					mVO.setValue(parent.getRevisedDetails());
+				}
+				clubbedMotionsVO.add(mVO);
 				List<ClubbedEntity> clubbedMotions = parent.getClubbedEntities();
 				
 				for(ClubbedEntity ce : clubbedMotions){
 					Motion cMotion = ce.getMotion();
 					if(cMotion != null){
-						MasterVO mVO = new MasterVO();
+						mVO = new MasterVO();
 						mVO.setId(cMotion.getId());
 						mVO.setName(FormaterUtil.formatNumberNoGrouping(cMotion.getNumber(), locale.toString()));
 						mVO.setDisplayName(cMotion.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));

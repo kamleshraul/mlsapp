@@ -369,7 +369,11 @@ public class ProprietyPointWorkflowController  extends BaseController {
 		UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.parseLong(usergroup));
 		String usergroupType = workflowDetails.getAssigneeUserGroupType();
 		model.addAttribute("usergroupType",usergroupType);
+		model.addAttribute("userName",this.getCurrentUser().getActualUsername());
+		
 		UserGroupType userGroupType = UserGroupType.findByType(usergroupType, locale);
+		model.addAttribute("userGroupName",userGroupType.getName());
+		
 		/**** Ministries & SubDepartments ****/
 		Date currentDate = new Date();
 		if(currentDate.equals(rotationOrderPubDate) || currentDate.after(rotationOrderPubDate)) {
