@@ -1,0 +1,180 @@
+<div  style="width: 850px; margin-top: 0px !important; margin:0" >
+
+
+	<div style='text-align:right;'>
+		<div style="display:inline; padding-right:59px;">
+			क्रमांक - _____ / 
+			#if (${letterVO.houseType} == 'upperhouse')
+			ई-१
+			#else
+			ब-१
+			#end
+		</div><br>
+		महाराष्ट्र विधानमंडळ सचिवालय <br>
+		<div style="display:inline; padding-right:30px;">
+			विधान भवन, मुंबई/नागपूर
+		</div> <br>
+		<div style="display:inline;">
+			#if(! ${letterVO.inwardLetterDate})
+			<div style="display:inline; padding-right:30px;">
+				दिनांक : ________________
+			</div>
+			#else
+			<div style="display:inline; padding-right:53px;">
+			दिनांक :  ${letterVO.inwardLetterDate}
+			</div>
+			
+			#end
+		</div>
+	</div>
+	
+	<br>
+	
+	<div style='text-align:left;'>
+		<div style="display:inline; padding-right:59px;">
+			प्रति,
+		</div><br>
+		<b>सचिव</b>
+		<div style=" font-weight: bold;">
+		#if(${letterVO.isSubDepartmentNameSameAsDepartmentName})
+			${letterVO.department}
+		#else
+			#if( ${letterVO.subDepartment} == 'सार्वजनिक बांधकाम (सार्वजनिक उपक्रम)')
+				${letterVO.department}(सार्वजनिक उपक्रम)
+			#elseif(${letterVO.subDepartment} == 'सार्वजनिक बांधकाम (सार्वजनिक उपक्रम वगळून)')	
+				${letterVO.department}(सार्वजनिक उपक्रम वगळून)
+			#elseif(${letterVO.subDepartment} == 'सार्वजनिक बांधकाम (सार्वजनिक उपक्रमांसह)')
+				${letterVO.department}(सार्वजनिक उपक्रमांसह)
+			#else
+				${letterVO.department}(${letterVO.subDepartment})
+			#end
+		#end
+		</div>
+		<p>
+			महाराष्ट्र शासन मंत्रालय, मुंबई - ४०० ०३२
+		</p>
+		<br>
+		<p>
+			महोदय,
+		</p>
+	</div>
+		
+	<div>
+		<div>
+			<p style="padding-left:120px;">माननीय
+				#if(${letterVO.houseType} == 'lowerhouse') 
+					अध्यक्षांनी
+				#else
+					उप सभापतींनी
+				#end
+				खाली उदधृत केलेला  
+				${letterVO.houseTypeName}
+				तारांकित प्रश्न स्वीकृत केला आहे. त्या प्रश्नाचे उत्तर देण्यासंबंधी
+			</p>
+			<p style="padding-left:80px; margin:0;">
+			 	 माहिती पुढीलप्रमाणे आहे
+			</p>
+			<p style="padding-left:70px; font-weight: bold; ">प्रश्नाचा गट क्रमांक: ${letterVO.groupNumber} </p>
+			<p style="padding-left:70px; font-weight: bold; ">प्रश्नाच्या उत्तराचा दिनांक:  ${letterVO.answeringDate} </p>
+			<p style="padding-left:70px; font-weight: bold; ">प्रश्नोत्तराच्या तीन प्रती या सचिवालयाला मिळण्याचा शेवटचा दिनांक: ${letterVO.lastSendingDateToDepartment} </p>
+			  
+		</div>
+	</div>
+	<br>
+	
+	<div style='text-align:left;'>
+		<p style="font-weight: bold;">
+			प्रत माहितीसाठी सादर अग्रेषित --
+		</p>
+	</div>
+	
+	<div style= " padding-left:90px;" >
+		#if(${letterVO.primaryMemberDesignation} == 'मुख्‍यमंत्री')
+			(१) माननीय <br>
+			(२) सर्व संबंधित सदस्यांना
+		#elseif(${letterVO.ministryDisplayName} == 'मुख्‍यमंत्री')
+			(१) माननीय <br>
+			(२) सर्व संबंधित सदस्यांना
+		#elseif(${letterVO.primaryMemberDesignation}== 'उप मुख्‍यमंत्री')	
+			(१) माननीय <br>
+			(२) सर्व संबंधित सदस्यांना <br>
+			(३) सर्व संबंधित सदस्यांना	
+		#elseif(${letterVO.ministryDisplayName} == 'उप मुख्‍यमंत्री')
+			(१) माननीय <br>
+			(२) सर्व संबंधित सदस्यांना <br>
+			(३) सर्व संबंधित सदस्यांना	
+		#else
+			(१) माननीय मुख्‍यमंत्री <br>
+			(२) माननीय <b> ${letterVO.subDepartment} मंत्री  </b><br>
+			(३) सर्व संबंधित सदस्यांना
+		#end
+	</div>
+	
+	<div style='text-align:right; padding-right:59px;'>
+		 आपला <br><br>
+		 सचिव-१ (कार्यभार) <br>
+		 #if(${letterVO.houseType} == 'lowerhouse')
+			 महाराष्ट्र ${letterVO.houseTypeName}<br>
+		 #else
+			 महाराष्ट्र ${letterVO.houseTypeName}<br>
+		 #end
+	</div>
+	<br>
+	<div style="width: 850px; border-top: 2px dotted black;">&nbsp;</div>
+	
+	<div style=" width:700px; padding-left:20px; padding-right:20px; font-weight:bold; ">
+		${letterVO.subject}
+		<br>
+	</div>
+
+	<div style="padding-left:20px;">
+		<p style="font-weight:bold; ">
+			<br>
+			*${letterVO.number} 
+			<br>
+		</p>
+		<p style=" margin:0 padding-left:20px; font-weight:bold; ">
+			<br>
+			${letterVO.memberNames}
+			<br>
+		</p>
+	</div>
+	
+	<div>
+		#if(${letterVO.houseType} == 'upperhouse' )
+			#if(${letterVO.referredQuestionDeviceType} == 'questions_starred')
+				क्रमांक ${letterVO.referredQuestionNumber} ला दिनांक  ${letterVO.referredQuestionAnsweringDate}  रोजी दिलेल्‍या उत्‍तराच्‍या संदर्भात
+			#elseif(${letterVO.referredQuestionDeviceType} == 'questions_unstarred' )
+				दिनांक   ${letterVO.referredQuestionYaadiLayingDate} रोजी सभागृहाच्या पटलावर ठेवण्यात आलेल्या अतारांकित यादी क्रमांक ${letterVO.referredQuestionYaadiPosition} मधील प्रश्न क्रमांक  ${letterVO.referredQuestionNumber}  ला दिलेल्या उत्तराच्या संदर्भात    
+			#end
+		#end
+	</div>
+	
+	<br>
+	<br>
+	
+	<div style=" width:720px;">
+		सन्माननीय
+		#if(${letterVO.primaryMemberDesignation} == 'मुख्‍यमंत्री' || ${letterVO.primaryMemberDesignation} == 'उप मुख्‍यमंत्री' )
+			${letterVO.primaryMemberDesignation}
+		#elseif(${letterVo.ministryDisplayName} == 'मुख्‍यमंत्री' ||  ${letterVO.ministryDisplayName} == 'उप मुख्‍यमंत्री'  )
+			${letterVO.ministryDisplayName}
+		#else
+			#if(${letterVO.isSubDepartmentNameSameAsDepartmentName})
+				${letterVO.subDepartment} मंत्री
+			#else
+				${letterVO.subDepartment} मंत्री
+			#end
+		#end 
+		
+		पुढील गोष्टींचा खुलासा करतील काय :-
+	</div>	
+	<div style=" width:720px; padding-left:20px; padding-right:20px;  ">
+		${letterVO.questionText}
+	</div>
+	
+	
+</div>
+<hr>
+<span class='page-break-before-forced'>&nbsp;</span>
+
