@@ -596,6 +596,16 @@
 				"question/report/currentstatusreport?device="+ device +"&reportType="+val+"&qId="+qId);
 	}
 	
+	function showIntimationHtmlReport(val, qId){
+		$("#selectionDiv1").hide();
+		
+		var device = $("#deviceTypeMaster option[value='"
+		                                         +$("#selectedQuestionType").val()+"']").text().split("_")[0];
+		console.log(qId)
+		 showTabByIdAndUrl('details_tab', 
+				"question/report/intimationHtmlReport?device="+ device +"&reportType="+val+"&questionId="+qId + '&intimationLetterFilter=' + $("#intimationLetterFilter").val()); 
+	}
+	
 	function showMemberDraftReport(qId){
 		$("#selectionDiv1").hide();
 		var device = $("#deviceTypeMaster option[value='"

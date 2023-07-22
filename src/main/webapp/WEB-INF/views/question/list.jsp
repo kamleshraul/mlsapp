@@ -254,6 +254,16 @@
 				}
 			});
 			
+			$("#generateIntimationHtmlReport").click(function(){
+				var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				
+				if(selectedQuestionId.length>=1){
+					showIntimationHtmlReport('multiple',selectedQuestionId);
+				}else{
+					showIntimationHtmlReport('all','');
+				}
+			});
+			
 
 			$("#generateAdmissionReport").click(function(){
 				$("#selectionDiv1").hide();
@@ -495,6 +505,10 @@
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
 				</a> |
+				<a href="#" id="generateIntimationHtmlReport" class="butSim">
+					<spring:message code="question.generateIntimationHtmlReport" text="Generate Intimation Html  Report"/>
+				</a> |
+				<hr>
 				<%-- <a href="#" id="starredAdmitUnstarred" class="butSim link">
 					<spring:message code="question.starredAdmitUnstarred" text="Question Summary Report"/>
 				</a> | --%>
