@@ -9,6 +9,7 @@ import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -337,6 +338,38 @@ public class QuestionReportController extends BaseController{
 		response.setContentType("text/html; charset=utf-8");
 		return "question/reports/statusreport";
 	}
+	
+	@RequestMapping(value="/intimationHtmlReport", method=RequestMethod.GET)
+	public String getIntimationHtmlReport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+	
+		String strQuestionId = request.getParameter("questionId");	
+		String strDevice = request.getParameter("device");
+		String strWorkflowId = request.getParameter("workflowId");
+		String strReportType = request.getParameter("reportType");
+		String intimationLetterFilter=request.getParameter("intimationLetterFilter");
+		
+		WorkflowDetails wfd = null;
+		if(strWorkflowId != null && !strWorkflowId.isEmpty()){
+			wfd = WorkflowDetails.findById(WorkflowDetails.class, new Long(strWorkflowId));
+			if(wfd != null){
+				model.addAttribute("qId", wfd.getDeviceId());
+			}
+		}
+		
+		if(strQuestionId != null && !strQuestionId.isEmpty()){
+			model.addAttribute("qId", strQuestionId);
+		}
+		
+		if(strDevice != null && !strDevice.isEmpty()){		
+			model.addAttribute("device", strDevice);
+		}
+
+		model.addAttribute("intimationLetterFilter", intimationLetterFilter);
+		model.addAttribute("ReportType", strReportType);
+		
+		return "question/reports/intimationhtmlreport";
+	}
+	
 
 	@RequestMapping(value="/{qId}/currentstatusreportvm", method=RequestMethod.GET)
 	public String getCurrentStatusReportVM(@PathVariable("qId") Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
@@ -344,6 +377,1074 @@ public class QuestionReportController extends BaseController{
 		response.setContentType("text/html; charset=utf-8");		
 		return QuestionReportHelper.getCurrentStatusReportData(id, model, request, response, locale);
 	}
+	
+	/*
+	 * @RequestMapping(value="/{qId}/intimationhtmlreportvm",
+	 * method=RequestMethod.GET) public String
+	 * getIntimationHtmlReportVM(@PathVariable("qId") Long id, Model model,
+	 * HttpServletRequest request, HttpServletResponse response, Locale locale){
+	 * 
+	 * response.setContentType("text/html; charset=utf-8");
+	 * 
+	 * return ; //return QuestionReportHelper.getCurrentStatusReportData(id, model,
+	 * request, response, locale); }
+	 */
+	
+	
+	
+
+	@RequestMapping(value="/getIntimationLetterInHtmlFormat", method=RequestMethod.GET)
+	public String showIntimationLetterInHtmlFormat(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model) {
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+
+		String strQuestionId = request.getParameter("questionId");
+		String strWorkflowId = request.getParameter("workflowId");
+		String intimationLetterFilter = request.getParameter("intimationLetterFilter");
+		Boolean isResendRevisedQuestionTextWorkflow = false;
+		Status resendRevisedQuestionText = null;
+		WorkflowDetails workflowDetails = null;
+		Long workflowDetailCount = (long) 0;
+		// in case if request comes from workflow page, question id is retrived from
+		// workflow details
+		Date letterReceivedOn = null;
+		if (strWorkflowId != null && !strWorkflowId.isEmpty()) {
+			workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
+			if (workflowDetails != null) {
+				strQuestionId = workflowDetails.getDeviceId();
+				letterReceivedOn = workflowDetails.getCompletionTime();
+			}
+		}
+
+		if (strQuestionId != null && !strQuestionId.isEmpty()) {
+			Question question = Question.findById(Question.class, Long.parseLong(strQuestionId));
+			if (question != null) {
+				QuestionIntimationLetterXmlVO letterVO = new QuestionIntimationLetterXmlVO();
+				Status status = question.getInternalStatus();
+				String statusType = status.getType();
+				if (workflowDetails != null) {
+					statusType = workflowDetails.getWorkflowSubType();
+				}
+				DeviceType deviceType = question.getType();
+				if (deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+					resendRevisedQuestionText = Status.findByType(
+							ApplicationConstants.QUESTION_PROCESSED_RESENDREVISEDQUESTIONTEXTTODEPARTMENT,
+							locale.toString());
+				} else if (deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+					resendRevisedQuestionText = Status.findByType(
+							ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_RESENDREVISEDQUESTIONTEXTTODEPARTMENT,
+							locale.toString());
+				}
+				if (workflowDetails != null && resendRevisedQuestionText != null
+						&& question.getRecommendationStatus().getType().contains("resendRevisedQuestionText")) {
+					workflowDetailCount = WorkflowDetails.findRevisedQuestionTextWorkflowCount(question,
+							resendRevisedQuestionText, workflowDetails);
+					if (workflowDetails.getRecommendationStatus().equals(resendRevisedQuestionText.getName())
+							|| workflowDetailCount > 0) {
+						isResendRevisedQuestionTextWorkflow = true;
+					}
+
+				}
+
+				letterVO.setDeviceType(deviceType.getName());
+				if (question.getNumber() != null) {
+					letterVO.setNumber(FormaterUtil.formatNumberNoGrouping(question.getNumber(), question.getLocale()));
+				}
+				HouseType houseType = question.getHouseType();
+				if (houseType != null) {
+					letterVO.setHouseType(houseType.getType());
+					letterVO.setHouseTypeName(houseType.getName());
+				}
+				Session session = question.getSession();
+				if (session != null) {
+					letterVO.setSessionPlace(session.getPlace().getPlace());
+					if (session.getNumber() != null) {
+						letterVO.setSessionNumber(session.getNumber().toString());
+					}
+					if (session.getYear() != null) {
+						letterVO.setSessionYear(
+								FormaterUtil.formatNumberNoGrouping(session.getYear(), locale.toString()));
+					}
+				}
+				Group group = question.getGroup();
+				if (group != null) {
+					letterVO.setGroupNumber(
+							FormaterUtil.formatNumberNoGrouping(group.getNumber(), question.getLocale()));
+				}
+
+				String formattedText = "";
+				if (question.getRevisedSubject() != null && !question.getRevisedSubject().isEmpty()) {
+					formattedText = question.getRevisedSubject();
+				} else {
+					formattedText = question.getSubject();
+				}
+				// formattedText = FormaterUtil.formatNumbersInGivenText(formattedText,
+				// question.getLocale());
+				letterVO.setSubject(formattedText);
+				if (question.getParent() != null) {
+					formattedText = question.getQuestionText();
+				} else {
+					if (isResendRevisedQuestionTextWorkflow) {
+						formattedText = workflowDetails.getText();
+						letterVO.setIsRevisedQuestionTextWorkflow(isResendRevisedQuestionTextWorkflow);
+					} else if (question.getRevisedQuestionText() != null
+							&& !question.getRevisedQuestionText().isEmpty()) {
+						if (workflowDetails != null) {
+							formattedText = workflowDetails.getText();
+						} else {
+							formattedText = question.getRevisedQuestionText();
+						}
+						letterVO.setIsRevisedQuestionTextWorkflow(isResendRevisedQuestionTextWorkflow);
+					} else {
+						formattedText = question.getQuestionText();
+						letterVO.setIsRevisedQuestionTextWorkflow(isResendRevisedQuestionTextWorkflow);
+					}
+				}
+
+				// formattedText = FormaterUtil.formatNumbersInGivenText(formattedText,
+				// question.getLocale());
+				letterVO.setQuestionText(formattedText);
+
+				// -Till here Shubham A
+
+				/**** populating member names with customized formatting ****/
+				String memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;
+				CustomParameter memberNameFormatParameter = null;
+				if (question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+					memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class,
+							"INTIMATIONLETTER_MEMBERNAMEFORMAT_LOWERHOUSE", "");
+				} else if (question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+					memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class,
+							"INTIMATIONLETTER_MEMBERNAMEFORMAT_UPPERHOUSE", "");
+				}
+				if (memberNameFormatParameter != null && memberNameFormatParameter.getValue() != null
+						&& !memberNameFormatParameter.getValue().isEmpty()) {
+					memberNameFormat = memberNameFormatParameter.getValue();
+				}
+				Member primaryMember = Question.findDeviceOwner(question); // question.getPrimaryMember();
+				if (primaryMember != null) {
+					String primaryMemberName = primaryMember.findNameInGivenFormat(memberNameFormat);
+					if (primaryMemberName != null) {
+						letterVO.setPrimaryMemberName(primaryMemberName);
+					} else {
+						letterVO.setPrimaryMemberName("");
+					}
+				} else {
+					// error code: No Primary Member Found.
+				}
+				String allMemberNames = null;
+				if (question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+					allMemberNames = question.findAllMemberNamesWithConstituencies(memberNameFormat);
+				} else if (question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+					allMemberNames = question.findAllMemberNames(memberNameFormat);
+				}
+				if (allMemberNames != null && !allMemberNames.isEmpty()) {
+					letterVO.setMemberNames(allMemberNames);
+					if (allMemberNames.split(",").length > 1) {
+						letterVO.setHasMoreMembers("yes");
+					} else {
+						letterVO.setHasMoreMembers("no");
+					}
+				} else {
+					isError = true;
+					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code",
+							"question.intimationLetter.noMemberFound", locale.toString());
+				}
+				try {
+					MemberMinister memberMinister = Question.findMemberMinisterIfExists(question);
+					if (memberMinister != null) {
+						letterVO.setPrimaryMemberDesignation(memberMinister.getDesignation().getName());
+					} else {
+						letterVO.setPrimaryMemberDesignation("");
+					}
+				} catch (ELSException ex) {
+					letterVO.setPrimaryMemberDesignation("");
+				}
+				SubDepartment subDepartment = question.getSubDepartment();
+				if (subDepartment != null) {
+					letterVO.setSubDepartment(subDepartment.getDisplayName().trim());
+					letterVO.setMinistryDisplayName(subDepartment.getMinistryDisplayName().trim());
+				}
+				Department department = subDepartment.getDepartment();
+				if (department != null) {
+					letterVO.setDepartment(department.getName().trim());
+				}
+				letterVO.setIsSubDepartmentNameSameAsDepartmentName(false);
+				if (letterVO.getDepartment() != null && letterVO.getSubDepartment() != null) {
+					MessageResource departmentLabel = MessageResource.findByFieldName(MessageResource.class, "code",
+							"generic.department", locale.toString());
+					if (departmentLabel != null) {
+						String dept = letterVO.getDepartment();
+						if (letterVO.getDepartment().endsWith(departmentLabel.getValue())) {
+							dept = letterVO.getDepartment().split(departmentLabel.getValue())[0].trim();
+						}
+						String subDept = letterVO.getSubDepartment();
+						if (letterVO.getSubDepartment().endsWith(departmentLabel.getValue())) {
+							subDept = letterVO.getSubDepartment().split(departmentLabel.getValue())[0].trim();
+						}
+						if (dept.equals(subDept)) {
+							letterVO.setIsSubDepartmentNameSameAsDepartmentName(true);
+						}
+					}
+				}
+				/** previous related details of question **/
+				QuestionDraft questionDraftBeforeChange = null;
+				if (question.getRecommendationStatus().getType()
+						.equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED)
+						|| (intimationLetterFilter != null && (intimationLetterFilter.equals("groupchanged")
+								|| intimationLetterFilter.equals("groupChangedAfterBallot")))) {
+					questionDraftBeforeChange = question.findLatestPreviousGroupDraft();
+				} else {
+					questionDraftBeforeChange = question.findSecondPreviousDraft();
+				}
+				if (questionDraftBeforeChange != null) {
+					Ministry previousMinistry = questionDraftBeforeChange.getMinistry();
+					if (previousMinistry != null) {
+						try {
+							MemberMinister memberMinister = Question.findMemberMinisterIfExists(question,
+									previousMinistry);
+							if (memberMinister != null) {
+								letterVO.setPreviousMinistryDesignation(memberMinister.getDesignation().getName());
+							} else {
+								letterVO.setPreviousMinistryDesignation("");
+							}
+						} catch (ELSException ex) {
+							letterVO.setPreviousMinistryDesignation("");
+						}
+					}
+					SubDepartment previousSubDepartment = questionDraftBeforeChange.getSubDepartment();
+					if (previousSubDepartment != null) {
+						letterVO.setPreviousSubDepartment(previousSubDepartment.getName());
+						Department previousDepartment = previousSubDepartment.getDepartment();
+						if (previousDepartment != null) {
+							letterVO.setPreviousDepartment(previousDepartment.getName());
+						}
+						letterVO.setPreviousMinistryDisplayName(previousSubDepartment.getMinistryDisplayName());
+					}
+				} else {
+					isError = true;
+					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code",
+							"question.intimationLetter.noQuestionFound", locale.toString());
+				}
+				/** answering date for starred question **/
+				if (deviceType.getType().trim().equals(ApplicationConstants.STARRED_QUESTION)) {
+					QuestionDates questionDates = Question.findQuestionDatesForStarredQuestion(question);
+					if (questionDates != null) {
+						Date answeringDate = questionDates.findAnsweringDateForReport(); // questionDates.getAnsweringDate();
+						if (answeringDate != null) {
+							if (statusType.equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED)
+									|| (intimationLetterFilter != null
+											&& intimationLetterFilter.equals("groupChangedAfterBallot"))) {
+
+								String formattedAnsweringDate = FormaterUtil.formatDateToString(answeringDate,
+										"dd MMM,yyyy", question.getLocale());
+								formattedAnsweringDate = FormaterUtil
+										.formatMonthInLocaleLanguageDate(formattedAnsweringDate, locale.toString());
+								letterVO.setAnsweringDate(formattedAnsweringDate);
+
+							} else if (intimationLetterFilter != null
+									&& intimationLetterFilter.equals("answeringDateForwarded")) {
+								SimpleDateFormat dbFormat = null;
+								CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class,
+										"ROTATION_ORDER_DATE_FORMAT", "");
+								if (dbDateFormat != null) {
+									dbFormat = FormaterUtil.getDateFormatter(dbDateFormat.getValue(),
+											locale.toString());
+								}
+								// Added the following code to solve the marathi month and day issue
+								String[] strAnsweringDates = dbFormat.format(answeringDate).split(",");
+								String answeringDay = FormaterUtil.getDayInLocaleLanguage(strAnsweringDates[0],
+										locale.toString());
+								String dateLabel = "";
+								MessageResource dateLabelMessageResource = MessageResource.findByFieldName(
+										MessageResource.class, "code", "generic.date", locale.toString());
+								if (dateLabelMessageResource != null && dateLabelMessageResource.getValue() != null) {
+									dateLabel = dateLabelMessageResource.getValue();
+								}
+								String[] strAnsweringMonth = strAnsweringDates[1].split(" ");
+								String answeringMonth = FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1],
+										locale.toString());
+								String formattedAnsweringDate = answeringDay + ", " + dateLabel + " "
+										+ strAnsweringMonth[0] + " " + answeringMonth + ", " + strAnsweringDates[2];
+								letterVO.setAnsweringDate(formattedAnsweringDate);
+							} else {
+								letterVO.setAnsweringDate(FormaterUtil.formatDateToString(answeringDate, "dd-MM-yyyy",
+										question.getLocale()));
+							}
+						}
+						Date lastSendingDateToDepartment = questionDates.getLastReceivingDateFromDepartment();
+						if (lastSendingDateToDepartment != null) {
+							letterVO.setLastSendingDateToDepartment(FormaterUtil.formatDateToString(
+									lastSendingDateToDepartment, "dd-MM-yyyy", question.getLocale()));
+						}
+					}
+				} else if (deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)) {
+					if (question.getDateOfAnsweringByMinister() != null) {
+						SimpleDateFormat dbFormat = null;
+						CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class,
+								"ROTATION_ORDER_DATE_FORMAT", "");
+						if (dbDateFormat != null) {
+							dbFormat = FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+						}
+						// Added the following code to solve the marathi month and day issue
+						String[] strAnsweringDates = dbFormat.format(question.getDateOfAnsweringByMinister())
+								.split(",");
+						String answeringDay = FormaterUtil.getDayInLocaleLanguage(strAnsweringDates[0],
+								locale.toString());
+						String[] strAnsweringMonth = strAnsweringDates[1].split(" ");
+						String answeringMonth = FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1],
+								locale.toString());
+						String formattedAnsweringDate = answeringDay + "," + strAnsweringMonth[0] + " " + answeringMonth
+								+ " " + strAnsweringDates[2];
+						letterVO.setAnsweringDate(formattedAnsweringDate);
+					}
+				} else {
+					// answeringDate = question.getDiscussionDate();
+				}
+				/** next answering date for starred question **/
+				if (deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+					QuestionDates questionDates = question.findNextAnsweringDate();
+					if (questionDates != null) {
+						Date nextAnsweringDate = questionDates.findAnsweringDateForReport(); // questionDates.getAnsweringDate();
+						if (nextAnsweringDate != null) {
+							if (intimationLetterFilter != null
+									&& intimationLetterFilter.equals("answeringDateForwarded")) {
+
+								SimpleDateFormat dbFormat = null;
+								CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class,
+										"ROTATION_ORDER_DATE_FORMAT", "");
+								if (dbDateFormat != null) {
+									dbFormat = FormaterUtil.getDateFormatter(dbDateFormat.getValue(),
+											locale.toString());
+								}
+								// Added the following code to solve the marathi month and day issue
+								String[] strNextAnsweringDates = dbFormat.format(nextAnsweringDate).split(",");
+								String answeringDay = FormaterUtil.getDayInLocaleLanguage(strNextAnsweringDates[0],
+										locale.toString());
+								String dateLabel = "";
+								MessageResource dateLabelMessageResource = MessageResource.findByFieldName(
+										MessageResource.class, "code", "generic.date", locale.toString());
+								if (dateLabelMessageResource != null && dateLabelMessageResource.getValue() != null) {
+									dateLabel = dateLabelMessageResource.getValue();
+								}
+								String[] strAnsweringMonth = strNextAnsweringDates[1].split(" ");
+								String answeringMonth = FormaterUtil.getMonthInLocaleLanguage(strAnsweringMonth[1],
+										locale.toString());
+								String formattedNextAnsweringDate = answeringDay + ", " + dateLabel + " "
+										+ strAnsweringMonth[0] + " " + answeringMonth + ", " + strNextAnsweringDates[2];
+								letterVO.setNextAnsweringDate(formattedNextAnsweringDate);
+
+							} else {
+								letterVO.setNextAnsweringDate(FormaterUtil.formatDateToString(nextAnsweringDate,
+										"dd-MM-yyyy", question.getLocale()));
+							}
+						} else {
+							letterVO.setNextAnsweringDate("_________");
+						}
+					} else {
+						letterVO.setNextAnsweringDate("_________");
+					}
+				}
+				/** ballot date for starred question **/
+				if (deviceType.getType().trim().equals(ApplicationConstants.STARRED_QUESTION)
+						&& intimationLetterFilter != null && intimationLetterFilter.equals("groupChangedAfterBallot")) {
+					try {
+						Ballot ballotForQuestion = Ballot.find(question);
+						if (ballotForQuestion != null) {
+							String formattedBallotDate = FormaterUtil.formatDateToString(
+									ballotForQuestion.getBallotDate(), "dd MMM,yyyy", question.getLocale());
+							formattedBallotDate = FormaterUtil.formatMonthInLocaleLanguageDate(formattedBallotDate,
+									locale.toString());
+							letterVO.setBallotDate(formattedBallotDate);
+						}
+					} catch (Exception e) {
+						isError = true;
+						e.printStackTrace();
+					}
+				}
+				/**
+				 * referenced question details (later should come through referenced entities)
+				 **/
+				String questionReferenceText = question.findReferencingDetailsText();
+				if (questionReferenceText != null && !questionReferenceText.isEmpty()) {
+					formattedText = questionReferenceText;// FormaterUtil.formatNumbersInGivenText(questionReferenceText,
+															// question.getLocale());
+					letterVO.setQuestionReferenceText(formattedText);
+				} else {
+					if (question.getQuestionreferenceText() != null) {
+						formattedText = question.getQuestionreferenceText();// FormaterUtil.formatNumbersInGivenText(question.getQuestionreferenceText(),
+																			// question.getLocale());
+						letterVO.setQuestionReferenceText(formattedText);
+					} else {
+						letterVO.setQuestionReferenceText("");
+					}
+				}
+				List<ReferenceUnit> referenceUnits = question.getReferencedEntities();
+				if (!referenceUnits.isEmpty()) {
+					for (ReferenceUnit ru : referenceUnits) {
+						letterVO.setReferredQuestionDeviceType(ru.getDeviceType());
+						letterVO.setReferredQuestionDeviceName(ru.getDeviceName());
+						letterVO.setReferredQuestionAnsweringDate(ru.getYaadiDate());
+						letterVO.setReferredQuestionNumber(ru.formatNumber(ru.getNumber()));
+						letterVO.setReferredQuestionYaadiLayingDate(ru.getYaadiDate());
+						letterVO.setReferredQuestionYaadiNumber(ru.getYaadiNumber());
+						letterVO.setReferredQuestionYaadiPosition(ru.getPosition().toString());
+					}
+				}
+
+				if (statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
+						|| statusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)
+						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_REJECTION)
+						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)
+						|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_REJECTION)
+						|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_REJECTION)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)) {
+					if (question.getRejectionReason() != null && !question.getRejectionReason().isEmpty()) {
+						formattedText = question.getRejectionReason();// FormaterUtil.formatNumbersInGivenText(question.getRejectionReason(),
+																		// question.getLocale());
+						if (formattedText.endsWith("<br><p></p>")) {
+							formattedText = formattedText.substring(0, formattedText.length() - 11);
+						} else if (formattedText.endsWith("<p></p>")) {
+							formattedText = formattedText.substring(0, formattedText.length() - 7);
+						}
+						letterVO.setRejectionReason(formattedText);
+					} else {
+						letterVO.setRejectionReason("");
+					}
+
+					letterVO.setSubject(question.getSubject());
+					letterVO.setQuestionText(question.getQuestionText());
+				}
+
+				/** factual position (clarification) received from department **/
+				if (question.getFactualPosition() != null) {
+					formattedText = question.getFactualPosition();// FormaterUtil.formatNumbersInGivenText(question.getFactualPosition(),
+																	// question.getLocale());
+					if (formattedText.endsWith("<br><p></p>")) {
+						formattedText = formattedText.substring(0, formattedText.length() - 11);
+					} else if (formattedText.endsWith("<p></p>")) {
+						formattedText = formattedText.substring(0, formattedText.length() - 7);
+					}
+					letterVO.setFactualPosition(formattedText);
+				} else {
+					letterVO.setFactualPosition("");
+				}
+
+				/**** days counts for clarification/answer ****/
+				NumberInfo daysCount = null;
+				/** daysCountForReceivingClarificationFromDepartment **/
+				CustomParameter csptDaysCountForReceivingClarificationFromDepartment = CustomParameter
+						.findByName(CustomParameter.class,
+								deviceType.getType().toUpperCase() + "_" + houseType.getType().toUpperCase() + "_"
+										+ ApplicationConstants.DAYS_COUNT_FOR_RECEIVING_CLARIFICATION_FROM_DEPARTMENT,
+								"");
+				if (csptDaysCountForReceivingClarificationFromDepartment != null) {
+					String daysCountForReceivingClarificationFromDepartment = csptDaysCountForReceivingClarificationFromDepartment
+							.getValue();
+					if (daysCountForReceivingClarificationFromDepartment != null) {
+						daysCount = NumberInfo.findByFieldName(NumberInfo.class, "number",
+								Long.parseLong(daysCountForReceivingClarificationFromDepartment), locale.toString());
+						if (daysCount != null && daysCount.getId() != null) {
+							letterVO.setDaysCountForReceivingClarificationFromDepartment(daysCount.getNumberText());
+						}
+					}
+				}
+				/** daysCountForReceivingClarificationFromMember **/
+				CustomParameter csptDaysCountForReceivingClarificationFromMember = CustomParameter.findByName(
+						CustomParameter.class,
+						deviceType.getType().toUpperCase() + "_" + houseType.getType().toUpperCase() + "_"
+								+ ApplicationConstants.DAYS_COUNT_FOR_RECEIVING_CLARIFICATION_FROM_MEMBER,
+						"");
+				if (csptDaysCountForReceivingClarificationFromMember != null) {
+					String daysCountForReceivingClarificationFromMember = csptDaysCountForReceivingClarificationFromMember
+							.getValue();
+					if (daysCountForReceivingClarificationFromMember != null) {
+						daysCount = NumberInfo.findByFieldName(NumberInfo.class, "number",
+								Long.parseLong(daysCountForReceivingClarificationFromMember), locale.toString());
+						if (daysCount != null && daysCount.getId() != null) {
+							letterVO.setDaysCountForReceivingClarificationFromMember(daysCount.getNumberText());
+						}
+					}
+				}
+				/** daysCountForReceivingAnswerFromDepartment **/
+				CustomParameter csptDaysCountForReceivingAnswerFromDepartment = CustomParameter.findByName(
+						CustomParameter.class,
+						deviceType.getType().toUpperCase() + "_" + houseType.getType().toUpperCase() + "_"
+								+ ApplicationConstants.DAYS_COUNT_FOR_RECEIVING_ANSWER_FROM_DEPARTMENT,
+						"");
+				if (csptDaysCountForReceivingAnswerFromDepartment != null) {
+					String daysCountForReceivingAnswerFromDepartment = csptDaysCountForReceivingAnswerFromDepartment
+							.getValue();
+					if (daysCountForReceivingAnswerFromDepartment != null) {
+						daysCount = NumberInfo.findByFieldName(NumberInfo.class, "number",
+								Long.parseLong(daysCountForReceivingAnswerFromDepartment), locale.toString());
+						if (daysCount != null && daysCount.getId() != null) {
+							letterVO.setDaysCountForReceivingAnswerFromDepartment(daysCount.getNumberText());
+						}
+						Date lastDateOfAnswerReceiving = null;
+						if (question.getLastDateOfAnswerReceiving() != null) {
+							lastDateOfAnswerReceiving = question.getLastDateOfAnswerReceiving();
+						} else {
+							if (question.getAnswerRequestedDate() != null) {
+								lastDateOfAnswerReceiving = Holiday.getNextWorkingDateFrom(
+										question.getAnswerRequestedDate(),
+										Integer.parseInt(daysCountForReceivingAnswerFromDepartment), locale.toString());
+							}
+						}
+						if (lastDateOfAnswerReceiving != null) {
+							String lastReceivingDateFromDepartment = FormaterUtil.formatDateToString(
+									lastDateOfAnswerReceiving, ApplicationConstants.ROTATIONORDER_DATEFORMAT,
+									locale.toString());
+							letterVO.setLastReceivingDateFromDepartment(lastReceivingDateFromDepartment);
+						}
+					}
+				}
+
+				/**** populating fields for half-hour discussion from questions ****/
+				if (deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+					Question referredQuestion = question.getHalfHourDiscusionFromQuestionReference();
+					if (referredQuestion == null) {
+						Integer qNumber = null;
+						try {
+							qNumber = new Integer(FormaterUtil.getNumberFormatterNoGrouping(locale.toString())
+									.parse(question.getHalfHourDiscusionFromQuestionReferenceNumber()).intValue());
+						} catch (ParseException e) {
+							logger.error("Number parse exception.");
+						}
+						Map<String, String[]> params = new HashMap<String, String[]>();
+						params.put("locale", new String[] { locale.toString() });
+						params.put("sessionId", new String[] { question.getSession().getId().toString() });
+						params.put("qNumber", new String[] { qNumber.toString() });
+						List data = Query.findReport("HDQ_REFER_QUESTION", params);
+
+						if (data != null && !data.isEmpty()) {
+							String strId = null;
+							try {
+								strId = ((Object[]) data.get(0))[0].toString();
+
+								if (strId != null) {
+									referredQuestion = Question.findById(Question.class, new Long(strId));
+								}
+							} catch (Exception e) {
+								logger.error("error", e);
+							}
+						}
+					}
+					if (referredQuestion != null) {
+						if (referredQuestion.getNumber() != null) {
+							letterVO.setReferredQuestionNumber(FormaterUtil
+									.formatNumberNoGrouping(referredQuestion.getNumber(), locale.toString()));
+						}
+						DeviceType referredQuestionDeviceType = referredQuestion.getType();
+						if (referredQuestionDeviceType != null) {
+							letterVO.setReferredQuestionDeviceType(referredQuestionDeviceType.getName());
+						}
+						Member referredQuestionMember = referredQuestion.getPrimaryMember();
+						if (referredQuestionMember != null) {
+							letterVO.setReferredQuestionMemberName(
+									referredQuestionMember.findNameInGivenFormat(memberNameFormat));
+						}
+						if (referredQuestionDeviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+							Map<String, String[]> parameters = new HashMap<String, String[]>();
+							parameters.put("locale", new String[] { locale.toString() });
+							parameters.put("questionId", new String[] { referredQuestion.getId().toString() });
+							List ballotDate = org.mkcl.els.domain.Query.findReport("QIS_GET_BALLOTDATE", parameters);
+							if (ballotDate != null && !ballotDate.isEmpty()) {
+								letterVO.setReferredQuestionAnsweringDate(FormaterUtil.formatDateToString(
+										FormaterUtil.formatStringToDate(ballotDate.get(0).toString(),
+												ApplicationConstants.DB_DATEFORMAT),
+										ApplicationConstants.ROTATIONORDER_DATEFORMAT, locale.toString()));
+							}
+						} else if (referredQuestionDeviceType.getType()
+								.equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+							if (referredQuestion.getYaadiNumber() != null) {
+								letterVO.setReferredQuestionYaadiNumber(FormaterUtil
+										.formatNumberNoGrouping(referredQuestion.getYaadiNumber(), locale.toString()));
+							}
+							if (referredQuestion.getYaadiLayingDate() != null) {
+								letterVO.setReferredQuestionYaadiLayingDate(
+										FormaterUtil.formatDateToString(referredQuestion.getYaadiLayingDate(),
+												ApplicationConstants.ROTATIONORDER_DATEFORMAT, locale.toString()));
+							}
+						}
+					} else {
+						String referredQuestionNumber = question.getHalfHourDiscusionFromQuestionReferenceNumber();
+						if (referredQuestionNumber != null) {
+							letterVO.setReferredQuestionNumber(referredQuestionNumber);
+						}
+						if (question.getReferenceDeviceType() != null) {
+							letterVO.setReferredQuestionDeviceType(question.getReferenceDeviceType());
+						}
+						if (question.getReferenceDeviceMember() != null) {
+							letterVO.setReferredQuestionMemberName(question.getReferenceDeviceMember());
+						}
+						Date referrredQuestionAnsweringDate = question.getReferenceDeviceAnswerDate();
+						if (referrredQuestionAnsweringDate != null) {
+							letterVO.setReferredQuestionAnsweringDate(
+									FormaterUtil.formatDateToString(referrredQuestionAnsweringDate,
+											ApplicationConstants.ROTATIONORDER_DATEFORMAT, locale.toString()));
+						}
+					}
+				}
+
+				/****
+				 * populating fields for half-hour discussion (common for standalone & from
+				 * question)
+				 ****/
+				if (question.getRevisedReason() != null && !question.getRevisedReason().isEmpty()) {
+					formattedText = question.getRevisedReason();
+				} else if (question.getReason() != null) {
+					formattedText = question.getReason();
+				} else {
+					formattedText = "";
+				}
+				// formattedText = FormaterUtil.formatNumbersInGivenText(formattedText,
+				// locale.toString());
+				if (formattedText.endsWith("<br><p></p>")) {
+					formattedText = formattedText.substring(0, formattedText.length() - 11);
+				} else if (formattedText.endsWith("<p></p>")) {
+					formattedText = formattedText.substring(0, formattedText.length() - 7);
+				}
+				letterVO.setReason(formattedText);
+
+				if (question.getRevisedBriefExplanation() != null && !question.getRevisedBriefExplanation().isEmpty()) {
+					formattedText = question.getRevisedBriefExplanation();
+				} else if (question.getBriefExplanation() != null) {
+					formattedText = question.getBriefExplanation();
+				} else {
+					formattedText = "";
+				}
+				// formattedText = FormaterUtil.formatNumbersInGivenText(formattedText,
+				// locale.toString());
+				if (formattedText.endsWith("<br><p></p>")) {
+					formattedText = formattedText.substring(0, formattedText.length() - 11);
+				} else if (formattedText.endsWith("<p></p>")) {
+					formattedText = formattedText.substring(0, formattedText.length() - 7);
+				}
+				letterVO.setBriefExplanation(formattedText);
+
+				if (question.getDiscussionDate() != null) {
+					letterVO.setDiscussionDate(FormaterUtil.formatDateToString(question.getDiscussionDate(),
+							ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString()));
+				}
+
+				// ==================status as per filter for clarification
+				// cases==============//
+				// for starred
+				if (statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+						&& intimationLetterFilter != null && intimationLetterFilter.equals(ApplicationConstants.MEMBER)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+								&& intimationLetterFilter != null
+								&& intimationLetterFilter.equals(ApplicationConstants.MEMBER)) {
+					statusType = ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER;
+				} else if (statusType
+						.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+						&& intimationLetterFilter != null
+						&& intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+								&& intimationLetterFilter != null
+								&& intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)) {
+					statusType = ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT;
+				}
+				// for unstarred
+				if (statusType.equals(
+						ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+						&& intimationLetterFilter != null && intimationLetterFilter.equals(ApplicationConstants.MEMBER)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+								&& intimationLetterFilter != null
+								&& intimationLetterFilter.equals(ApplicationConstants.MEMBER)) {
+					statusType = ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER;
+				} else if (statusType.equals(
+						ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+						&& intimationLetterFilter != null
+						&& intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+								&& intimationLetterFilter != null
+								&& intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)) {
+					statusType = ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT;
+				}
+				// for short notice
+				if (statusType.equals(
+						ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+						&& intimationLetterFilter != null && intimationLetterFilter.equals(ApplicationConstants.MEMBER)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+								&& intimationLetterFilter != null
+								&& intimationLetterFilter.equals(ApplicationConstants.MEMBER)) {
+					statusType = ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER;
+				} else if (statusType.equals(
+						ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+						&& intimationLetterFilter != null
+						&& intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+								&& intimationLetterFilter != null
+								&& intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)) {
+					statusType = ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT;
+				}
+				// for half hour discussion from question
+				if (statusType.equals(
+						ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+						&& intimationLetterFilter != null && intimationLetterFilter.equals(ApplicationConstants.MEMBER)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+								&& intimationLetterFilter != null
+								&& intimationLetterFilter.equals(ApplicationConstants.MEMBER)) {
+					statusType = ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER;
+				} else if (statusType.equals(
+						ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+						&& intimationLetterFilter != null
+						&& intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+								&& intimationLetterFilter != null
+								&& intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)) {
+					statusType = ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT;
+				}
+				// ==================end of status as per filter for clarification
+				// cases==============//
+
+				if (statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType
+								.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+
+					String questionsAsked = null;
+					if (intimationLetterFilter != null
+							&& intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)) {
+						questionsAsked = question.getQuestionsAskedInFactualPosition();
+					} else {
+						questionsAsked = question.getQuestionsAskedInFactualPositionForMember();
+					}
+					if (questionsAsked == null || questionsAsked.isEmpty()) {
+						if (statusType
+								.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+
+							questionsAsked = session.getParameter(
+									deviceType.getType().trim() + "_clarificationFromDepartmentQuestions");
+
+						} else if (statusType
+								.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType
+										.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+
+							questionsAsked = session
+									.getParameter(deviceType.getType().trim() + "_clarificationFromMemberQuestions");
+						}
+					}
+
+					if (questionsAsked != null && !questionsAsked.isEmpty()) {
+						List<MasterVO> questionsAskedForClarification = new ArrayList<MasterVO>();
+						StringBuffer questionIndexesForClarification = new StringBuffer();
+						String allQuestions = "";
+						if (statusType
+								.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+
+							allQuestions = session.getParameter(
+									deviceType.getType().trim() + "_clarificationFromDepartmentQuestions");
+
+						} else if (statusType
+								.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType
+										.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(
+										ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+
+							allQuestions = session
+									.getParameter(deviceType.getType().trim() + "_clarificationFromMemberQuestions");
+						}
+						for (String questionAsked : questionsAsked.split("##")) {
+							MasterVO questionAskedForClarification = new MasterVO();
+							questionAskedForClarification.setValue(questionAsked);
+							questionsAskedForClarification.add(questionAskedForClarification);
+							int index = 1;
+							for (String allQuestion : allQuestions.split("##")) {
+								if (questionAsked.equals(allQuestion)) {
+									questionIndexesForClarification.append("(");
+									questionIndexesForClarification
+											.append(FormaterUtil.formatNumberNoGrouping(index, question.getLocale()));
+									questionIndexesForClarification.append("), ");
+									break;
+								} else {
+									index++;
+								}
+							}
+						}
+						if (!questionIndexesForClarification.toString().isEmpty()) {
+							questionIndexesForClarification.deleteCharAt(questionIndexesForClarification.length() - 1);
+							questionIndexesForClarification.deleteCharAt(questionIndexesForClarification.length() - 1);
+						}
+						letterVO.setQuestionIndexesForClarification(questionIndexesForClarification.toString());
+						letterVO.setQuestionsAskedForClarification(questionsAskedForClarification);
+					}
+				}
+				String statusTypeSplit = statusType.split("_")[statusType.split("_").length - 1];
+
+				// if(statusType.equals("admission")
+				// || statusType.equals("rejection")) {
+				// WorkflowActor putupActor = WorkflowConfig.findFirstActor(question, status,
+				// locale.toString());
+				// if(putupActor!=null) {
+				// String putupActorUsergroupName = putupActor.getUserGroupType().getName();
+				// QuestionDraft putupDraft = Question.findPutupDraft(question.getId(),
+				// "question_recommend_"+statusType, putupActorUsergroupName);
+				// if(putupDraft!=null) {
+				// letterVO.setRemarks(putupDraft.getRemarks());
+				// }
+				// }
+				// }
+
+				/**** In case username is required ****/
+				Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
+				List<User> users = User.findByRole(false, role.getName(), locale.toString());
+				// as principal secretary for starred question is only one, so user is obviously
+				// first element of the list.
+				letterVO.setUserName(users.get(0).findFirstLastName());
+
+				/**** inward letter details ****/
+				/** inward letter date **/
+				Date inwardDate = null;
+				String inwardDateQueryName = null;
+				if (statusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+						|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)) {
+
+					inwardDateQueryName = "ADMISSION_INWARD_DATE";
+
+				} else if (statusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)
+						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)
+						|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)) {
+
+					inwardDateQueryName = "REJECTION_INWARD_DATE";
+
+				} else if (statusType.equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
+						|| statusType
+								.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
+						|| statusType
+								.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
+
+					inwardDateQueryName = "CONVERT_TO_UNSTARRED_AND_ADMIT_INWARD_DATE";
+
+				} else if (statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+
+					inwardDateQueryName = "CLARIFICATION_FROM_DEPARTMENT_INWARD_DATE";
+
+				} else if (statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType
+								.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(
+								ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+
+					inwardDateQueryName = "CLARIFICATION_FROM_MEMBER_INWARD_DATE";
+
+				}
+				if (inwardDateQueryName != null) {
+					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+					parametersMap.put("locale", new String[] { locale.toString() });
+					parametersMap.put("deviceId", new String[] { question.getId().toString() });
+					if (letterReceivedOn != null) {
+						parametersMap.put("taskReceivedOn", new String[] { FormaterUtil
+								.formatDateToString(letterReceivedOn, ApplicationConstants.DB_DATEFORMAT) });
+					} else {
+						parametersMap.put("taskReceivedOn", new String[] { "" });
+					}
+					@SuppressWarnings("rawtypes")
+					List inwardDateList = org.mkcl.els.domain.Query.findReport(inwardDateQueryName, parametersMap);
+					if (inwardDateList != null && !inwardDateList.isEmpty()) {
+						if (inwardDateList.get(0) != null) {
+							inwardDate = FormaterUtil.formatStringToDate(inwardDateList.get(0).toString(),
+									ApplicationConstants.DB_DATEFORMAT);
+							// letterVO.setInwardLetterDate(FormaterUtil.formatDateToString(inwardDate,
+							// ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_2, locale.toString()));
+							letterVO.setInwardLetterDate(
+									FormaterUtil.formatDateToString(inwardDate, "dd-MM-yyyy", locale.toString()));
+						}
+					}
+				}
+
+				/**** remarks for clarification ****/
+				if (question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+					if (statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(
+									ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(
+									ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(
+									ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+
+							|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(
+									ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(
+									ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(
+									ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+
+						letterVO.setRemarksForClarification(question.getRemarks());
+					}
+				}
+				//System.out.println(letterVO.toString());
+				model.addAttribute("letterVO", letterVO);
+				boolean isLetterFormatDependentOnHouseType = false;
+				
+				if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+					isLetterFormatDependentOnHouseType = true;						
+				}
+				
+				
+				if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)
+						&& question.getDateOfAnsweringByMinister()!=null
+						&& question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_FINAL_DATEADMITTED)
+						&& intimationLetterFilter.equals(ApplicationConstants.MEMBER)){
+						
+						//reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_member", outputFormat, reportFileName, locale.toString());
+						return deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_member";
+					
+					}else if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)
+							&& question.getDateOfAnsweringByMinister()!=null 
+							&& question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_FINAL_DATEADMITTED)
+							&& intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)){
+							
+						//reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_department", outputFormat, reportFileName, locale.toString()); 
+						System.out.println(deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_department");
+						
+					}else if(intimationLetterFilter!=null && !intimationLetterFilter.isEmpty() && !intimationLetterFilter.equals("-")) {
+						
+						if(isLetterFormatDependentOnHouseType) {
+							//reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit+"_"+question.getHouseType().getType(), outputFormat, reportFileName, locale.toString());
+							System.out.println(deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit+"_"+question.getHouseType().getType());
+							
+						} else {
+							//reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit, outputFormat, reportFileName, locale.toString());
+							System.out.println(deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit);
+						}
+						
+					}else {
+						if(isLetterFormatDependentOnHouseType) {
+							//reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_"+question.getHouseType().getType(), outputFormat, reportFileName, locale.toString());
+							System.out.println(deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_"+question.getHouseType().getType());
+							
+						} else {
+							//reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit, outputFormat, reportFileName, locale.toString());
+							return "question/reports/"+deviceType.getType()+"_intimationletter_"+statusTypeSplit;
+								
+						}						
+					}
+				
+				
+				
+			//End bracket of question	
+			}
+			
+		}
+		
+		return null;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	@RequestMapping(value="/memberdraftreport", method=RequestMethod.GET)
 	public String getMemberDraftReport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
@@ -468,9 +1569,11 @@ public class QuestionReportController extends BaseController{
 						formattedText = question.getQuestionText();
 						letterVO.setIsRevisedQuestionTextWorkflow(isResendRevisedQuestionTextWorkflow);
 					}
-				}				
+				}	
+				
 				//formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, question.getLocale());
-				letterVO.setQuestionText(formattedText);	
+				letterVO.setQuestionText(formattedText);
+
 				/**** populating member names with customized formatting ****/
 				String memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;
 				CustomParameter memberNameFormatParameter = null;
@@ -1278,6 +2381,7 @@ public class QuestionReportController extends BaseController{
 		}	
 	}	
 	
+
 	@RequestMapping(value="/generateReminderLetter", method=RequestMethod.GET)
 	public @ResponseBody void generateReminderLetter(HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
 		File reportFile = null;
@@ -6200,6 +7304,7 @@ class QuestionReportHelper{
 		return page;
 	}
 	
+
 	@SuppressWarnings("rawtypes")
 	public static List generatetCurrentStatusReport(final Question question, final String device, final String locale){
 		CustomParameter memberNameFormatParameter = null;
@@ -6851,6 +7956,5 @@ class QuestionReportHelper{
 	}
 	
 	
-	
-	
+
 }
