@@ -26,7 +26,7 @@
 				<fo:simple-page-master master-name="first"
 	                  	page-height="29.7cm" page-width="21cm"
 	                  	margin-top="2.3cm" margin-bottom="1.5cm"
-	                  	margin-left="3cm" margin-right="1.5cm">
+	                  	margin-left="2.5cm" margin-right="2.5cm">
 			      	<fo:region-body margin-top="0cm"/>
 			      	<fo:region-before region-name="rb-first" extent="2cm"/>
 			      	<fo:region-after region-name="ra-first" extent="1.5cm"/>
