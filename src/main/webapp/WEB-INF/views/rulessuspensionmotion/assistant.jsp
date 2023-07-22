@@ -667,7 +667,7 @@
 			
 			<p>
 				<c:choose>
-					<c:when test="${usergroupType == 'section_officer' || usergroupType == 'deputy_secretary' || usergroupType == 'deputy_secretary2' || usergroupType == 'principal_secretary'}">
+					<c:when test="${usergroupType == 'section_officer' || usergroupType == 'deputy_secretary' || usergroupType == 'secretary' || usergroupType == 'principal_secretary'}">
 						<a href="#" id="viewRevision" style="margin-left: 162px;margin-right: 20px;"><spring:message code="rulessuspensionmotion.viewrevisions" text="View Revisions"></spring:message></a>
 					</c:when>
 					<c:otherwise>
@@ -683,7 +683,7 @@
 			<p style="display:none;" class="revise1" id="revisedSubjectDiv">
 				<label class="centerlabel"><spring:message code="rulessuspensionmotion.revisedSubject" text="Revised Subject"/></label>
 				<c:choose>
-					<c:when test="${usergroupType == 'section_officer' || usergroupType == 'deputy_secretary' || usergroupType == 'deputy_secretary2' || usergroupType == 'principal_secretary'}">
+					<c:when test="${usergroupType == 'section_officer' || usergroupType == 'deputy_secretary' || usergroupType == 'secretary' || usergroupType == 'principal_secretary'}">
 						<form:textarea path="revisedSubject" rows="4" cols="70" readonly="true"></form:textarea>
 					</c:when>
 					<c:otherwise>
@@ -696,7 +696,7 @@
 			<p style="display:none;" class="revise2" id="revisedNoticeContentDiv">
 				<label class="wysiwyglabel"><spring:message code="rulessuspensionmotion.revisedNoticeContent" text="Revised Notice Content"/></label>
 				<c:choose>
-					<c:when test="${usergroupType == 'section_officer' || usergroupType == 'deputy_secretary' || usergroupType == 'deputy_secretary2' || usergroupType == 'principal_secretary'}">
+					<c:when test="${usergroupType == 'section_officer' || usergroupType == 'deputy_secretary' || usergroupType == 'secretary' || usergroupType == 'principal_secretary'}">
 						<form:textarea path="revisedNoticeContent" cssClass="wysiwyg" readonly="true"></form:textarea>
 					</c:when>
 					<c:otherwise>
@@ -708,7 +708,7 @@
 			
 			<p>
 				<c:choose>
-					<c:when test="${usergroupType == 'section_officer' || usergroupType == 'deputy_secretary' || usergroupType == 'deputy_secretary2' || usergroupType == 'principal_secretary'}">
+					<c:when test="${usergroupType == 'section_officer' || usergroupType == 'deputy_secretary' || usergroupType == 'secretary' || usergroupType == 'principal_secretary'}">
 						<a href="#" id="addSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="rulessuspensionmotion.addSubject" text="Add Subject"></spring:message></a>
 						<a href="#" id="addNoticeContent" style="margin-right: 20px;"><spring:message code="rulessuspensionmotion.addNoticeContent" text="Add Notice Content"></spring:message></a>
 					</c:when>
@@ -719,7 +719,7 @@
 			</p>
 			
 			<c:choose>
-				<c:when test="${usergroupType == 'section_officer' || usergroupType == 'deputy_secretary' || usergroupType == 'deputy_secretary2' || usergroupType == 'principal_secretary'}">
+				<c:when test="${usergroupType == 'section_officer' || usergroupType == 'deputy_secretary' || usergroupType == 'secretary' || usergroupType == 'principal_secretary'}">
 						<p>
 							<label class="wysiwyglabel"><spring:message code="rulessuspensionmotion.authorityDraft" text="Authority Draft"/></label>
 							<form:textarea path="authorityDraft" cssClass="wysiwyg"></form:textarea>
@@ -774,7 +774,7 @@
 			</c:if>		
 			<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus}">
 			<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">			
-			<c:if test="${usergroupType == 'section_officer' || usergroupType == 'deputy_secretary' || usergroupType == 'deputy_secretary2' || usergroupType == 'principal_secretary'}">
+			<c:if test="${usergroupType == 'section_officer' || usergroupType == 'deputy_secretary' || usergroupType == 'secretary' || usergroupType == 'principal_secretary'}">
 				<form:hidden path="actor"/>
 			</c:if>
 			<c:if test="${fn:contains(internalStatusType, 'rulessuspensionmotion_final')}">
@@ -809,7 +809,7 @@
 			
 			<p>
 				<c:choose>
-					<c:when test="${usergroupType == 'section_officer' || usergroupType == 'deputy_secretary' || usergroupType == 'deputy_secretary2' || usergroupType == 'principal_secretary'}">
+					<c:when test="${usergroupType == 'section_officer' || usergroupType == 'deputy_secretary' || usergroupType == 'secretary' || usergroupType == 'principal_secretary'}">
 						<a href="#" id="viewUserCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="rulessuspensionmotion.viewcitation" text="View Citations"></spring:message></a>
 					</c:when>
 					<c:otherwise>
@@ -829,7 +829,7 @@
 				<h2></h2>
 				<p class="tright">
 					<c:choose>
-						<c:when test="${usergroupType == 'section_officer' || usergroupType == 'deputy_secretary' || usergroupType == 'deputy_secretary2' || usergroupType == 'principal_secretary'}">
+						<c:when test="${usergroupType == 'section_officer' || usergroupType == 'deputy_secretary' || usergroupType == 'secretary' || usergroupType == 'principal_secretary'}">
 							<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 						</c:when>
 						<c:otherwise>

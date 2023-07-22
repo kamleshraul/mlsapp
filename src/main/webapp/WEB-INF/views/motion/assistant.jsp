@@ -563,7 +563,48 @@
 					scrollTop();
 				});
 	        return false;  
-	    });  
+	    }); 		
+		
+		/**** To show/hide viewClubbedMotionTextDetailsDiv to view clubbed motions text starts****/
+		$("#clubbedMotionTextDetailsDiv").hide();
+		$("#hideClubDevicesDiv").hide();
+		$("#viewClubbedMotionTextDetailsDiv").click(function(){
+			var parent = $("#key").val();
+			if(parent==undefined || parent==''){
+				parent = ($("#id").val()!=undefined && $("#id").val()!='')? $("#id").val():"";
+			}
+			if(parent!=undefined && parent!=''){			
+				
+				if($("#clubbedMotionTextDetailsDiv").css('display')=='none'){
+					//$("#clubbedRevisedMotionTextDetailsDiv").hide();
+					//$("#hideClubRQTDiv").hide();
+					
+					$("#clubbedMotionTextDetailsDiv").empty();
+					$.get('ref/'+parent+'/clubbedmotiontext',function(data){
+						
+						var text="";
+						
+						text += "<p>Parent: "+data[0].name+" ("+data[0].displayName+")</p><p>"+data[0].value+"</p><hr />";
+						
+						for(var i = 1; i < data.length; i++){
+							text += "<p>Child "+(i+1)+":"+data[i].name+" ("+data[i].displayName+")</p><p>"+data[i].value+"</p><hr />";
+						}						
+						$("#clubbedMotionTextDetailsDiv").html(text);
+						
+					});	
+					$("#hideClubDevicesDiv").show();
+					$("#clubbedMotionTextDetailsDiv").show();
+				}else{
+					$("#clubbedMotionTextDetailsDiv").hide();
+					$("#hideClubDevicesDiv").hide();
+				}
+			}
+		});
+		$("#hideClubDevicesDiv").click(function(){
+			$(this).hide();
+			$('#clubbedMotionTextDetailsDiv').hide();
+		});
+		/**** To show/hide viewClubbedMotionTextDetailsDiv to view clubbed motions text end****/  
 		
 		
 	/*****AutoSuggest Multiple for supporting members******/
@@ -701,6 +742,19 @@
             display:none;
             }
         }
+        
+        #clubbedMotionTextDetailsDiv, #clubbedRevisedMotionTextDetailsDiv {
+        	background: none repeat-x scroll 0 0 #FFF;
+		    box-shadow: 0 2px 5px #888888;
+		    max-height: 260px;
+		    right: 0;
+		    position: fixed;
+		    top: 10px;
+		    width: 300px;
+		    z-index: 10000;
+		    overflow: auto;
+		    border-radius: 10px;
+	    }
     </style>
 </head> 
 
@@ -866,6 +920,7 @@
 					<c:forEach items="${clubbedEntities }" var="i">
 						<a href="#" id="cq${i.number}" class="clubbedRefMotions cbdevice${i.number}" onclick="viewMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
 					</c:forEach>
+					<a href="javascript:void(0);" id="viewClubbedMotionTextDetailsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="motion.clubbed.texts" text="C"></spring:message></a>
 				</c:when>
 				<c:otherwise>
 					<c:out value="-"></c:out>
@@ -1184,6 +1239,12 @@
 
 <div id="clubbingResultDiv" style="display:none;">
 </div>
+
+<!--To show the text details of the clubbed motions -->
+<div id="clubbedMotionTextDetailsDiv">
+	<h1>Motion text details of clubbed motions</h1>
+</div>
+<div id="hideClubDevicesDiv" style="background: #FF0000; color: #FFF; position: fixed; bottom: 0; right: 10px; width: 15px; border-radius: 10px; cursor: pointer;">&nbsp;X&nbsp;</div>
 
 <div id="referencingResultDiv" style="display:none;">
 </div>
