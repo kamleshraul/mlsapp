@@ -159,7 +159,7 @@
 		    	valueToSend = $("#internalStatus").val();	    	
 		    }
 		    
-		    var params="device=" + $("#id").val() + "&status=" + valueToSend +
+		    var params="proprietypoint=" + $("#id").val() + "&status=" + valueToSend +
 			"&usergroup=" + $("#usergroup").val() + "&level=" + $("#originalLevel").val();
 			var resourceURL = 'ref/proprietypoint/actors?' + params;
 		    
@@ -352,7 +352,7 @@
 			return false;			
 		});
 		/**** Revisions ****/
-	    $("#viewRevision").click(function(){
+	    $(".viewRevision").click(function(){
 	    	$.get('proprietypoint/revisions/'+$("#id").val(), function(data){
 	    		$.fancybox.open(data);			    	
 		    });
@@ -392,7 +392,7 @@
 		    var actor=$(this).val();
 		    var temp=actor.split("#");
 		    $("#level").val(temp[2]);		    
-		    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");	
+		    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");		
 		    $("#actorName").val(temp[4]);
 		    $("#actorName").css('display','inline');
 		});
@@ -640,8 +640,8 @@
 			<p style="display:none;">
 				<label class="small"><spring:message code="proprietypoint.type" text="Type"/>*</label>
 				<input id="formattedDeviceType" name="formattedDeviceType" value="${formattedDeviceType}" class="sText" readonly="readonly">
-				<input id="type" name="type" value="${deviceType}" type="hidden">
-				<form:errors path="type" cssClass="validationError"/>		
+				<input id="deviceType" name="deviceType" value="${deviceType}" type="hidden">
+				<form:errors path="deviceType" cssClass="validationError"/>		
 			</p>
 			
 			<p>
@@ -735,7 +735,7 @@
 			</p>
 			
 			
-			<p>
+			<p style="display:none;">
 				<label class="small"><spring:message code="proprietypoint.parentdevice" text="Clubbed To"></spring:message></label>
 				<c:choose>
 					<c:when test="${!(empty parent)}">	
@@ -748,7 +748,7 @@
 				<input type="hidden" id="parent" name="parent" value="${parent}">
 			</p>
 			
-			<p>
+			<p style="display:none;">
 				<label class="small"><spring:message code="proprietypoint.clubbeddevices" text="Clubbed Devices"></spring:message></label>
 				<c:choose>
 					<c:when test="${!(empty clubbedDevices) }">
@@ -768,7 +768,7 @@
 				</select>
 			</p>
 			
-			<p>
+			<p style="display:none;">
 				<label class="small"><spring:message code="proprietypoint.referenceddevice" text="Referenced Device"></spring:message></label>
 				<c:choose>
 					<c:when test="${!(empty referencedDevice) }">
@@ -797,7 +797,7 @@
 			<p>
 				<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="proprietypoint.reviseSubject" text="Revise Subject"></spring:message></a>
 				<a href="#" id="revisePointsOfPropriety" style="margin-right: 20px;"><spring:message code="proprietypoint.revisePointsOfPropriety" text="Revise Notice Content"></spring:message></a>
-				<a href="#" id="viewRevision"><spring:message code="proprietypoint.viewrevisions" text="View Revisions"></spring:message></a>
+				<a href="#" class="viewRevision"><spring:message code="proprietypoint.viewrevisions" text="View Revisions"></spring:message></a>
 			</p>	
 			
 			<p style="display:none;" class="revise1" id="revisedSubjectDiv">
@@ -817,47 +817,128 @@
 				<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 			</p>
 			
-			<p>	
-				<label class="small"><spring:message code="proprietypoint.putupfor" text="Put up for"/></label>	
-				<select id="changeInternalStatus" class="sSelect">
-				<option value="-"><spring:message code='please.select' text='Please Select'/></option>
-				<c:forEach items="${internalStatuses}" var="i">
-					<c:choose>
-							<c:when test="${i.id==internalStatusSelected }">
-								<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+			<p style="text-align: right; width: 720px;">
+				<a href="#" class="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
+			</p>
+			<table class="uiTable" style="margin-left:165px;">
+				<thead>
+					<tr>
+					<th>
+					<spring:message code="qis.latestrevisions.user" text="Usergroup"></spring:message>
+					</th>
+					<th>
+					<spring:message code="qis.latestrevisions.decision" text="Decision"></spring:message>
+					</th>
+					<th>
+					<spring:message code="qis.latestrevisions.remarks" text="Remarks"></spring:message>
+					</th>
+					</tr>
+				</thead>
+				<tbody>	
+					<c:set var="startingActor" value="${startingActor}"></c:set>
+					<c:set var="count" value="0"></c:set>
+					<c:set var="startingActorCount" value="0"></c:set>
+					<c:forEach items="${latestRevisions}" var="i">	
+						<c:choose>
+							<c:when test="${i[0]==startingActor}">	
+								<c:set var="startingActorCount" value="${count}"></c:set>
+								<c:set var="count" value="${count+1 }"></c:set>
 							</c:when>
 							<c:otherwise>
-							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+								<c:set var="count" value="${count+1 }"></c:set>
 							</c:otherwise>
-					</c:choose>
-				</c:forEach>
-				</select>
-								
-				<select id="internalStatusMaster" style="display:none;">
-				<c:forEach items="${internalStatuses}" var="i">
-				<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-				</c:forEach>
-				</select>	
-				<form:errors path="internalStatus" cssClass="validationError"/>
-			</p>				
-			<p id="actorDiv" style="display: none;">
-				<label class="small"><spring:message code="proprietypoint.nextactor" text="Next Users"/></label>
-				<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
-				<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
-			</p>	
+						</c:choose>
+					</c:forEach>
+					
+					<c:set var="count" value="0"></c:set>
+					<c:forEach items="${latestRevisions }" var="i">
+						<c:choose>
+							<c:when test="${count>= startingActorCount}">
+								<tr>
+									<td>
+									${i[0]}<br>${i[1]}
+									</td>
+									<td>
+									<c:choose>
+										<c:when test="${fn:endsWith(i[12],'recommend_sendback')
+												|| fn:endsWith(i[12],'recommend_discuss')}">
+											${i[3]}
+										</c:when>
+										<c:otherwise>${i[2]}</c:otherwise>
+									</c:choose>							
+									</td>
+									<td style="max-width:400px;">
+									${i[4]}
+									</td>
+								</tr>
+								<c:set var="count" value="${count+1 }"></c:set>
+							</c:when>
+							<c:otherwise>
+								<c:set var="count" value="${count+1 }"></c:set>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
+					<c:if test="${workflowstatus != 'COMPLETED'}">
+						<tr>
+							<td>
+								${userName}<br>
+								${userGroupName}
+							</td>
+							<td>
+								<select id="changeInternalStatus" class="sSelect">
+									<c:forEach items="${internalStatuses}" var="i">
+										<c:choose>
+											<c:when test="${i.type=='question_system_groupchanged' }">
+												<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
+											</c:when>
+											<c:otherwise>
+												<c:choose>
+													<c:when test="${i.id==internalStatus }">
+														<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+													</c:when>
+													<c:otherwise>
+														<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+													</c:otherwise>
+												</c:choose>
+											</c:otherwise>
+										</c:choose>
+									</c:forEach>
+								</select>
+							</td>
+							<td>
+								<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
+								<%-- <form:hidden path="remarksAboutDecision"/> --%>
+							</td>
+						</tr>
+					</c:if>	
+				</tbody>
+			</table>
+			<c:if test="${workflowstatus != 'COMPLETED'}">
+				<p>
+					 <a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
+				</p>
+			</c:if>
+			
+			<c:if test="${workflowstatus!='COMPLETED' }">	
+			<p>
+			<select id="internalStatusMaster" style="display:none;">
+			<c:forEach items="${internalStatuses}" var="i">
+			<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+			</c:forEach>
+			</select>	
+			<form:errors path="internalStatus" cssClass="validationError"/>	
+			</p>
+			
+			<p id="actorDiv" style="display:none;">
+			<label class="small"><spring:message code="device.nextactor" text="Next Users"/></label>
+			<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
+			<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
+			</p>		
+			</c:if>			
+				
 			<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus}">
 			<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
 					
-			<p>
-				<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="proprietypoint.viewcitation" text="View Citations"></spring:message></a>	
-			</p>
-			
-			<p>
-			<label class="wysiwyglabel"><spring:message code="proprietypoint.remarks" text="Remarks"/></label>
-			<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
-			<%-- <form:hidden path="remarksAboutDecision"/> --%>
-			</p>	
-			
 			</div>
 				
 			<c:if test="${workflowstatus!='COMPLETED' }">
@@ -887,7 +968,6 @@
 			<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 			<input type="hidden" name="status" id="status" value="${status }">
 			<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
-			<input type="hidden" name="dataEnteredBy" id="dataEnteredBy" value="${domain.dataEnteredBy}">
 			<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
 			<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 			<input type="hidden" name="workflowStartedOnDate" id="workflowStartedOnDate" value="${workflowStartedOnDate }">
@@ -897,7 +977,6 @@
 			<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 			<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
 			<input type="hidden" id="houseTypeType" value="${houseTypeType}" />
-			<input id="deviceType" name= "deviceType" type="hidden" value="${deviceType}" />
 			<input id="oldInternalStatus" value="${internalStatus}" type="hidden">
 			<input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
 			<input id="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
