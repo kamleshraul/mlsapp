@@ -30,7 +30,7 @@ public class FeedbackController extends BaseController {
 			Locale locale = this.getUserLocale();
 			HouseType houseType;
 			Session session;
-			domain.setRatings(Integer.parseInt(request.getParameter("ratingSystem")));
+		    domain.setRatings(Integer.parseInt(request.getParameter("ratingSystem")));
 			domain.setTotalRatings(5);
 			Credential credential = Credential.findByFieldName(Credential.class, "username", this.getCurrentUser().getActualUsername(), "");
 			domain.setCredential(credential);
@@ -55,9 +55,9 @@ public class FeedbackController extends BaseController {
 		return result;
 	}
 	
-	   @RequestMapping(value = "/success", method = RequestMethod.POST)
+	   @RequestMapping(value = "/success", method = RequestMethod.GET)
 	    public String redirectToHomeSuccess(final ModelMap model, final HttpServletRequest request, final Locale locale) {
-	      	return "feedback/success";
+	      	return "feedback/feedback_success";
 	    }
 	   
 	   @RequestMapping(value = "/failure", method = RequestMethod.POST)

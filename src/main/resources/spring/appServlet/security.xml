@@ -64,7 +64,8 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 	
 	<!-- *********** SECURITY CONFIGURATION FOR DB AUTHENTICATION *********** -->
 	<http auto-config="false" use-expressions="true">
-		<intercept-url pattern="/login" access="isAnonymous()" />		
+		<intercept-url pattern="/login" access="isAnonymous()" />
+		<intercept-url pattern="/feedback_success" access="isAnonymous()" />		
 		<form-login login-page="/login.htm" default-target-url="/home.htm"
 			authentication-failure-url="/login.htm?error=true" />
 		<!-- <logout logout-success-url="/login.htm" invalidate-session="true"  delete-cookies="JSESSIONID" /> -->

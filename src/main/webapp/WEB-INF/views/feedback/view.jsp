@@ -158,23 +158,18 @@ $(document).ready(function(){
 });
  $('#submit').click(function(){
 	 $('#ratingSystem').val($("input[name='star']:checked").val());
-	/*  $.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); */
-		$.post($('form').attr('action'), $("form").serialize(), function(data){
-			/* 	$('.tabbar').html(data);
-				$('html').animate({scrollTop:0}, 'slow');
-			 	$('body').animate({scrollTop:0}, 'slow');
-			$.unblockUI();
-			window.location.reload(); */
-		
-			if(data===true){
-			  $.post('feedback/success',function(data){
-				 $.fancybox(data);
+	 $.post($('form').attr('action'), $("form").serialize(), function(data){
+	
+		if(data === true){ 
+	    	$(function(){
+    			window.location.href = $('.feedback_success_page').attr('href');
 			  });
-			}else{
+           
+		}else{
 				$.post('feedback/failure',function(data){
 					 $.fancybox(data);
 				 });
-			}
+			} 
         });	 
  });
 </script>
@@ -183,6 +178,7 @@ $(document).ready(function(){
  <img src='./resources/images/feedback.jpg' width= '400' height= '200' >
 <br/>
 <h2 align="center" style="color:black"><spring:message code='feedback.header' text='Please Rate MLS System'/></h2>
+ <a class="feedback_success_page" style="visibility: hidden" href="feedback/success">Open Link</a>
   <form action="feedback/createfeedback" method="POST">
     <div align="center">
 	<fieldset>
