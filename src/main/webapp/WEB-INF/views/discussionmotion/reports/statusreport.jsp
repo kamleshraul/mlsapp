@@ -91,7 +91,7 @@
 		function addRemarkReport(){
 			console.log("line 92")
 			if(ids.length > 0 && counter < ids.length){
-				var reportQuery = $("#device").val().toUpperCase()+ "_CURRENT_STATUS_REPORT";
+				var reportQuery =  "DISCUSSION_MOTION_CURRENT_STATUS_REPORT";
 				var houseType = $("#selectedHouseType").val();
 				if(houseType=='lowerhouse'){
 					reportQuery+="_LOWERHOUSE";
