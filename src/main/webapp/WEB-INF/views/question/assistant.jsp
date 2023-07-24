@@ -806,10 +806,10 @@
 						
 						var text="";
 						
-						text += "<p>Parent: "+data[0].name+" ("+data[0].displayName+")</p><p>"+data[0].value+"</p><hr />";
+						text += "<p>Parent: "+data[0].name+" ("+data[0].displayName+")</p> <p>"+data[0].value+"</p><hr />";
 						
 						for(var i = 1; i < data.length; i++){
-							text += "<p>Child "+i+":"+data[i].name+" ("+data[i].displayName+")</p><p>"+data[i].value+"</p><hr />";
+							text += "<p>Child "+i+":"+data[i].name+" ("+data[i].displayName+") <a href='#' style='font-weight:bold'  id='viewRevision' onclick='childRevision("+data[i].id+")'> &#174;</a>  </p>  <p>"+data[i].value+"</p><hr />";
 						}						
 						$("#clubbedQuestionTextsDiv").html(text);
 						
@@ -1105,6 +1105,22 @@
 	}	
 	function extractLast( term ) {
 		return split( term ).pop();
+	}
+	
+	function childRevision(id){
+		
+		 $.get('question/revisions/'+id,function(data){
+		    $.fancybox.open(data,{autoSize: false, width: 800, height:700});		    
+	    }).fail(function(){
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}
+			
+		});
+		 
+	    return false; 
 	}
 	
 	function dereferencingInt(referId){
@@ -1922,7 +1938,7 @@
 	</div>
 
 <!--To show the questionTexts of the clubbed questions -->
-<div id="clubbedQuestionTextsDiv">
+<div id="clubbedQuestionTextsDiv" style="z-index: 9;" >
 	<h1>Assistant Question texts of clubbed questions</h1>
 </div>
 <div id="hideClubQTDiv" style="background: #FF0000; color: #FFF; position: fixed; bottom: 0; right: 10px; width: 15px; border-radius: 10px; cursor: pointer;">&nbsp;X&nbsp;</div>
