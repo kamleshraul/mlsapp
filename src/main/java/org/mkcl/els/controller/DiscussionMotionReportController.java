@@ -2186,7 +2186,7 @@ class DiscussionMotionReportHelper{
 			model.addAttribute("data", report);
 			
 			DiscussionMotion m = DiscussionMotion.findById(DiscussionMotion.class, id);
-			page = (m.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))? "discussionmotion/reports/statusCSreportlowerhouse": "discussionmotion/reports/statusCSreportupperhouse";
+			page = (m.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))? "discussionmotion/reports/statusreportcurrentstatuslowerhouse": "discussionmotion/reports/statusreportcurrentstatusupperhouse";
 	
 			
 //			String strDevice = request.getParameter("device"); 
