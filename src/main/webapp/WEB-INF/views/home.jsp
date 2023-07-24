@@ -196,9 +196,9 @@
 				
 				setInterval(updateServerTime, 1000);
 				
-				if($('#isFeedbackEnabled').val()=="YES"){
+				/* if($('#isFeedbackEnabled').val()=="YES"){
 					viewFeedback();
-				}
+				} */
 				
 				if($('#pushNotificationsEnabled').val()=="YES") {
 					$.getScript("./resources/js/atmosphere.js?v=1", function() {
@@ -234,7 +234,10 @@
 			    });
 	    	});	
 			
+			
+			
 			function viewFeedback(){
+				if($('#isFeedbackEnabled').val()=="YES"){
 				$.get('view/feedback',function(data){
 					$.fancybox(data);						
 					},'html').fail(function(){
@@ -245,6 +248,11 @@
 						}
 						scrollTop();
 					});
+				}else{
+					$(function(){
+		    			window.location.href = $('.feedback_disable_page').attr('href');
+					});
+				}
 			}
 			
 
@@ -257,6 +265,7 @@
 		</c:if>
 		<div id="bk">
 		<%@ include file="/common/header.jsp" %>
+		<a class="feedback_disable_page" style="visibility: hidden" href="/els/j_spring_security_logout"/>
 			<input type="hidden" id="dateformat" name="dateformat" value="${dateFormat}"/>
 			<input type="hidden" id="timeformat" name="timeformat" value="${timeFormat}"/>
             <input type="hidden" id="authusername" name="authusername" value="${authusername}"/>
