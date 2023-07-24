@@ -807,9 +807,10 @@
 						var text="";
 						
 						text += "<p>Parent: "+data[0].name+" ("+data[0].displayName+")</p> <p>"+data[0].value+"</p><hr />";
-						
+						var imgText = "<img src='./resources/images/referenced.png' style='display:inline-block' title='Referenced' width='15px' height='15px' align='justify'>";
+		
 						for(var i = 1; i < data.length; i++){
-							text += "<p>Child "+i+":"+data[i].name+" ("+data[i].displayName+") <a href='#' style='font-weight:bold'  id='viewRevision' onclick='childRevision("+data[i].id+")'> &#174;</a>  </p>  <p>"+data[i].value+"</p><hr />";
+							text += "<p>Child "+i+":"+data[i].name+" ("+data[i].displayName+") <a href='#' style='font-weight:bold'  id='viewRevision' onclick='childRevision("+data[i].id+")'> "+imgText+"</a>  </p>  <p>"+data[i].value+"</p><hr />";
 						}						
 						$("#clubbedQuestionTextsDiv").html(text);
 						
