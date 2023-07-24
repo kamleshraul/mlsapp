@@ -4465,7 +4465,21 @@ public class BallotController extends BaseController{
 			params.put("answeringDate", new String[]{request.getParameter("answerDate")});
 			List report = Query.findReport(request.getParameter("report"), params);
 			
-			List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+//			List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+//			StringBuffer designation = new StringBuffer("");
+//			for(UserGroup ug : userGroups){
+//				if(ug != null){
+//					designation.append(ug.getUserGroupType().getName());
+//					break;
+//				}
+//			}
+			
+			Session session = Session.findById(Session.class,Long.parseLong(request.getParameter("session")));
+			
+			HouseType houseType = session.getHouse().getType();
+			DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(request.getParameter("device")));
+			
+			List<UserGroup> userGroups = UserGroup.findActiveUserGroupsOfGivenUser(this.getCurrentUser().getActualUsername(), houseType.getName(), deviceType.getName(), locale.toString());
 			StringBuffer designation = new StringBuffer("");
 			for(UserGroup ug : userGroups){
 				if(ug != null){
