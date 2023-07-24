@@ -4527,7 +4527,7 @@ public class BallotController extends BaseController{
 				if(csptPreBallotRecreate == null || csptPreBallotRecreate.getValue().equals("YES")){
 					Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
 					if(ballot == null){
-						preBallot.remove();
+						preBallot.optimizedRemoveHDS();
 						ballotVOs = Ballot.findPreBallotVO(session, deviceType, answeringDate, locale);
 					}else{
 						if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){

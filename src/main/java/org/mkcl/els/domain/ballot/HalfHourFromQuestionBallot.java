@@ -258,8 +258,7 @@ public class HalfHourFromQuestionBallot {
 				if(cspt == null || cspt.getValue().equals("YES")){
 					Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
 					if(ballot == null){
-						preBallot.remove();
-						
+						preBallot.optimizedRemoveHDS();					
 						
 						PreBallot newPreBallot = new PreBallot(session, deviceType, group, answeringDate, new Date(), locale);
 						List<BallotEntry> preBallotEntries = new ArrayList<BallotEntry>();
