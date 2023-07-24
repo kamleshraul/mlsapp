@@ -478,7 +478,25 @@ public class DiscussionMotionReportController extends BaseController{
 	@RequestMapping(value="/{dmId}/currentstatusreportvm", method=RequestMethod.GET)
 	public String getCurrentStatusReportVM(@PathVariable("dmId") Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
 
-		response.setContentType("text/html; charset=utf-8");		
+		response.setContentType("text/html; charset=utf-8");	
+		UserGroupType ugtDS1 = UserGroupType.findByType(ApplicationConstants.DEPUTY_SECRETARY1, locale.toString());
+		if(ugtDS1!=null) {
+			model.addAttribute("deputy_secretary1_label", ugtDS1.getDisplayName());
+		} else {
+			model.addAttribute("deputy_secretary1_label", "");
+		}
+		UserGroupType ugtDS2 = UserGroupType.findByType(ApplicationConstants.DEPUTY_SECRETARY2, locale.toString());
+		if(ugtDS2!=null) {
+			model.addAttribute("deputy_secretary2_label", ugtDS2.getDisplayName());
+		} else {
+			model.addAttribute("deputy_secretary2_label", "");
+		}
+		UserGroupType ugtDS = UserGroupType.findByType(ApplicationConstants.DEPUTY_SECRETARY, locale.toString());
+		if(ugtDS!=null) {
+			model.addAttribute("deputy_secretary_label", ugtDS.getDisplayName());
+		} else {
+			model.addAttribute("deputy_secretary_label", "");
+		}
 		return DiscussionMotionReportHelper.getCurrentStatusReportData(id, model, request, response, locale);
 	}
 	
@@ -2157,240 +2175,254 @@ class DiscussionMotionReportHelper{
 	public static String getCurrentStatusReportData(final Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
 		String page = "discussionmotion/error";
 		try{
-			String strDevice = request.getParameter("device"); 
-			if(strDevice != null && !strDevice.isEmpty()){
-				DiscussionMotion qt = DiscussionMotion.findById(DiscussionMotion.class, id);
-				List report = generatetCurrentStatusReport(qt, strDevice, locale.toString());				
-				Map<String, Object[]> dataMap = new LinkedHashMap<String, Object[]>();	
-				if(report != null && !report.isEmpty()){
-										
-					List<User> users = User.findByRole(false, "DMOIS_PRINCIPAL_SECRETARY", locale.toString());
-					model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
+			
+			
+			Map<String, String[]> params = new HashMap<String, String[]>();
+			params.put("locale", new String[]{locale.toString()});
+			params.put("DmotionId", new String[]{id.toString()});
+			
+			List report = Query.findReport(request.getParameter("reportOut"), params);
+			
+			model.addAttribute("data", report);
+			
+			DiscussionMotion m = DiscussionMotion.findById(DiscussionMotion.class, id);
+			page = (m.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))? "discussionmotion/reports/statusCSreportlowerhouse": "discussionmotion/reports/statusCSreportupperhouse";
 	
-					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "DMOIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "DMOIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
-					if(csptAllwedUserGroupForStatusReportSign != null){
-						if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
-							Object[] lastObject = (Object[]) report.get(report.size()-1); 
-							for(Object o : report){
-								Object[] objx = (Object[])o;
-	
-								if(objx[21] != null && !objx[21].toString().isEmpty()){
-									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[21].toString())){
-										
-										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[21].toString(), locale.toString());
-																				
-										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
-											if(dataMap.get(ApplicationConstants.UNDER_SECRETARY) != null){
-												if(objx != null){
-													if(objx[6] != null && objx[6].toString().length() > 0){
-														dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
-													}else{
-														Object[] tempObj = dataMap.get(ApplicationConstants.UNDER_SECRETARY);
-														tempObj[22] = objx[22];
-														
-														dataMap.put(ApplicationConstants.UNDER_SECRETARY, tempObj);
-													}
-												}
-											}else {
-												if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)) {
-													dataMap.put(ApplicationConstants.UNDER_SECRETARY_COMMITTEE, objx);
-												}										
-												else if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)) {
-													dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
-												}
-											}
-										}else{
-											if(dataMap.get(userGroupType.getType()) != null){
-												if(objx != null){
-													if(objx[6] != null && objx[6].toString().length() > 0){
-														dataMap.put(userGroupType.getType(), objx);
-													}else{
-														Object[] tempObj = dataMap.get(userGroupType.getType());
-														tempObj[22] = objx[22];
-														
-														dataMap.put(userGroupType.getType(), tempObj);
-													}
-												}
-												
-											}else{
-												dataMap.put(userGroupType.getType(), objx);
-											}
-										}
-									}
-								}
-							}
-							
-							//Following block is added for solving the issue of discussionmotion drafts where in if there exist a draft and later the discussionmotion is pending
-							// at the specific actor, the last remark is displayed
-							WorkflowConfig wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
-							
-//							WorkflowConfig wfConfig = null;
-//							CustomParameter csptCurrentStatusAllowedBeforeApproval = CustomParameter.findByName(CustomParameter.class, qt.getType().getType().toUpperCase()+"_"+qt.getHouseType().getType().toUpperCase()+"_CURRENT_STATUS_REPORT_ALLOWED_BEFORE_APPROVAL", "");
-//							if(csptCurrentStatusAllowedBeforeApproval!=null && csptCurrentStatusAllowedBeforeApproval.getValue()!=null
-//									&& csptCurrentStatusAllowedBeforeApproval.getValue().equals("YES")) {
-//								
-//								wfConfig = WorkflowConfig.getLatest(qt, ApplicationConstants.DISCUSSIONMOTION_RECOMMEND_ADMISSION, locale.toString());
-//								model.addAttribute("currentStatusReportAllowedBeforeApproval", "YES");
-//								
-//							} else {
-//								wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
-//								model.addAttribute("currentStatusReportAllowedBeforeApproval", "NO");
-//							}
-
-							
-							List<WorkflowActor> wfActors = wfConfig.getWorkflowactors();
-							List<WorkflowActor> distinctActors = new ArrayList<WorkflowActor>();
-							for(WorkflowActor wf : wfActors){
-								UserGroupType userGroupType = wf.getUserGroupType();
-								Boolean elementPresent = false;
-								for(WorkflowActor wf1 : distinctActors){
-									UserGroupType userGroupType1 = wf1.getUserGroupType();
-									if(userGroupType.getType().equals(userGroupType1.getType())){
-										elementPresent = true;
-										break;
-									}
-								}
-								if(!elementPresent){
-									distinctActors.add(wf);
-								}
-							}
-							Integer level = null;
-							WorkflowDetails  wfDetails = WorkflowDetails.findCurrentWorkflowDetail(qt);
-							for(WorkflowActor wf : distinctActors){
-								UserGroupType userGroupType = wf.getUserGroupType();
-								if(userGroupType.getType().equals(lastObject[21])){
-									if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
-										for(WorkflowActor wf1 : distinctActors){
-											UserGroupType ugt = wf1.getUserGroupType();
-											if(ugt.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
-												level = wf1.getLevel();
-											}
-										}
-									}else{
-										level = wf.getLevel();
-									}
-								}
-									
-								
-								if(level != null && wf.getLevel()>level){
-									if(dataMap.containsKey(userGroupType.getType())
-											&&
-										(wfDetails!= null && 
-										Integer.parseInt(wfDetails.getAssigneeLevel())>=level)){
-										Object[] tempObj = dataMap.get(userGroupType.getType());
-										tempObj[22] = "";
-										tempObj[6] = "";
-										dataMap.put(userGroupType.getType(), tempObj);
-									}
-								}
-							}
-							CustomParameter onPaperSigningAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "DMOIS_CURRENTSTATUS_ONPAPER_SIGNING_AUTHORITY_"+qt.getHouseType().getType(), "");
-							if(onPaperSigningAuthorityParameter != null){
-								String signingAuthority = onPaperSigningAuthorityParameter.getValue();
-								String[] signingAuthorities = signingAuthority.split(",");
-								for(String str : signingAuthorities){
-									if(str.equals(ApplicationConstants.UNDER_SECRETARY)){
-										str = ApplicationConstants.UNDER_SECRETARY;
-									} else if(str.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)) {
-										str = ApplicationConstants.UNDER_SECRETARY_COMMITTEE;
-									}
-									if(dataMap.get(str) == null){
-										UserGroupType userGroupType = UserGroupType.
-												findByFieldName(UserGroupType.class, "type", str, locale.toString());
-										Reference ref = UserGroup.findDiscussionMotionActor(qt, str, String.valueOf(0), locale.toString());
-										if(ref.getId() != null){
-											Object[] actor = new Object[32];
-											if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) 
-													|| ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)
-													|| ref.getId().split("#")[1].equals(ApplicationConstants.DEPUTY_SECRETARY)){
-												actor[0] = new String(ref.getId().split("#")[3]);
-												actor[1] = new String(ref.getId().split("#")[4]);
-											}else{
-												actor[0] = new String(ref.getId().split("#")[3]);
-												actor[1] = new String("");
-											}
-											actor[3] = new String("");
-											actor[6] = new String("");
-											actor[21] = userGroupType.getType();
-											actor[22] = new String("");
-											actor[24] = null;
-											dataMap.put(str, actor);
-										}
-									}
-								}
-							}
-//							if(dataMap.get(ApplicationConstants.SECRETARY) == null 
-//									&& qt.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
-//								UserGroupType userGroupType = UserGroupType.
-//										findByFieldName(UserGroupType.class, "type", ApplicationConstants.SECRETARY, locale.toString());
-//								
-//								Object[] dataCollection = new Object[32];
-//								dataCollection[0] = new String(userGroupType.getName());
-//								dataCollection[1] = new String("");
-//								dataCollection[3] = new String("");
-//								dataCollection[6] = new String("");
-//								dataCollection[27] = userGroupType.getType();
-//								dataCollection[28] = new String("");
-//								dataCollection[31] = null;
-//								
-//								dataMap.put(ApplicationConstants.SECRETARY, dataCollection);
-//							}
-//							
-//							if(dataMap.get(ApplicationConstants.PRINCIPAL_SECRETARY) == null){
-//								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.PRINCIPAL_SECRETARY, locale.toString());
-//								
-//								Object[] dataCollection = new Object[32];
-//								dataCollection[0] = new String(userGroupType.getName());
-//								dataCollection[1] = new String("");
-//								dataCollection[3] = new String("");
-//								dataCollection[6] = new String("");
-//								dataCollection[27] = userGroupType.getType();
-//								dataCollection[28] = new String("");
-//								dataCollection[31] = null;
-//								
-//								dataMap.put(ApplicationConstants.PRINCIPAL_SECRETARY, dataCollection);
-//							}
-							
-//							if(dataMap.isEmpty()){
-//								for(String val : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
-//								
-//									Reference ref = UserGroup.findDiscussionMotionActor(qt, val, String.valueOf(0), locale.toString());
-//									Object[] actor = new Object[30];
-//									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
-//										actor[0] = new String(ref.getId().split("#")[3]);
-//										actor[1] = new String(ref.getId().split("#")[4]);
-//									}else{
-//										actor[0] = new String(ref.getId().split("#")[3]);
-//										actor[1] = new String("");
-//									}
-//									actor[3] = new String("");
-//									actor[6] = new String("");
-//									actor[28] = new String("");
-//									
-//									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
-//										dataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
-//									}else{
-//										dataMap.put(val, actor);
+			
+//			String strDevice = request.getParameter("device"); 
+//			if(strDevice != null && !strDevice.isEmpty()){
+//				DiscussionMotion qt = DiscussionMotion.findById(DiscussionMotion.class, id);
+//				List report = generatetCurrentStatusReport(qt, strDevice, locale.toString());				
+//				Map<String, Object[]> dataMap = new LinkedHashMap<String, Object[]>();	
+//				if(report != null && !report.isEmpty()){
+//										
+//					List<User> users = User.findByRole(false, "DMOIS_PRINCIPAL_SECRETARY", locale.toString());
+//					model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
+//	
+//					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "DMOIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "DMOIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
+//					if(csptAllwedUserGroupForStatusReportSign != null){
+//						if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
+//							Object[] lastObject = (Object[]) report.get(report.size()-1); 
+//							for(Object o : report){
+//								Object[] objx = (Object[])o;
+//	
+//								if(objx[21] != null && !objx[21].toString().isEmpty()){
+//									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[21].toString())){
+//										
+//										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[21].toString(), locale.toString());
+//																				
+//										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
+//											if(dataMap.get(ApplicationConstants.UNDER_SECRETARY) != null){
+//												if(objx != null){
+//													if(objx[6] != null && objx[6].toString().length() > 0){
+//														dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
+//													}else{
+//														Object[] tempObj = dataMap.get(ApplicationConstants.UNDER_SECRETARY);
+//														tempObj[22] = objx[22];
+//														
+//														dataMap.put(ApplicationConstants.UNDER_SECRETARY, tempObj);
+//													}
+//												}
+//											}else {
+//												if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)) {
+//													dataMap.put(ApplicationConstants.UNDER_SECRETARY_COMMITTEE, objx);
+//												}										
+//												else if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)) {
+//													dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
+//												}
+//											}
+//										}else{
+//											if(dataMap.get(userGroupType.getType()) != null){
+//												if(objx != null){
+//													if(objx[6] != null && objx[6].toString().length() > 0){
+//														dataMap.put(userGroupType.getType(), objx);
+//													}else{
+//														Object[] tempObj = dataMap.get(userGroupType.getType());
+//														tempObj[22] = objx[22];
+//														
+//														dataMap.put(userGroupType.getType(), tempObj);
+//													}
+//												}
+//												
+//											}else{
+//												dataMap.put(userGroupType.getType(), objx);
+//											}
+//										}
 //									}
 //								}
 //							}
-							Map<String, Object[]> sortedDataMap = new LinkedHashMap<String, Object[]>();
-							for(WorkflowActor wfa:distinctActors){
-								UserGroupType ugt = wfa.getUserGroupType();
-								if(dataMap.containsKey(ugt.getType())){
-									sortedDataMap.put(ugt.getType(), dataMap.get(ugt.getType()));
-								}
-							}
-							model.addAttribute("data", sortedDataMap);
-							model.addAttribute("formatData", report.get(report.size()-1));
-						}
-					}
-	
-					page = (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))? "discussionmotion/reports/statusreportlowerhouse": "discussionmotion/reports/statusreportupperhouse";
-				}		
-	
-				model.addAttribute("qid", qt.getId());
-			}
+//							
+//							//Following block is added for solving the issue of discussionmotion drafts where in if there exist a draft and later the discussionmotion is pending
+//							// at the specific actor, the last remark is displayed
+//							WorkflowConfig wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
+//							
+////							WorkflowConfig wfConfig = null;
+////							CustomParameter csptCurrentStatusAllowedBeforeApproval = CustomParameter.findByName(CustomParameter.class, qt.getType().getType().toUpperCase()+"_"+qt.getHouseType().getType().toUpperCase()+"_CURRENT_STATUS_REPORT_ALLOWED_BEFORE_APPROVAL", "");
+////							if(csptCurrentStatusAllowedBeforeApproval!=null && csptCurrentStatusAllowedBeforeApproval.getValue()!=null
+////									&& csptCurrentStatusAllowedBeforeApproval.getValue().equals("YES")) {
+////								
+////								wfConfig = WorkflowConfig.getLatest(qt, ApplicationConstants.DISCUSSIONMOTION_RECOMMEND_ADMISSION, locale.toString());
+////								model.addAttribute("currentStatusReportAllowedBeforeApproval", "YES");
+////								
+////							} else {
+////								wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
+////								model.addAttribute("currentStatusReportAllowedBeforeApproval", "NO");
+////							}
+//
+//							
+//							List<WorkflowActor> wfActors = wfConfig.getWorkflowactors();
+//							List<WorkflowActor> distinctActors = new ArrayList<WorkflowActor>();
+//							for(WorkflowActor wf : wfActors){
+//								UserGroupType userGroupType = wf.getUserGroupType();
+//								Boolean elementPresent = false;
+//								for(WorkflowActor wf1 : distinctActors){
+//									UserGroupType userGroupType1 = wf1.getUserGroupType();
+//									if(userGroupType.getType().equals(userGroupType1.getType())){
+//										elementPresent = true;
+//										break;
+//									}
+//								}
+//								if(!elementPresent){
+//									distinctActors.add(wf);
+//								}
+//							}
+//							Integer level = null;
+//							WorkflowDetails  wfDetails = WorkflowDetails.findCurrentWorkflowDetail(qt);
+//							for(WorkflowActor wf : distinctActors){
+//								UserGroupType userGroupType = wf.getUserGroupType();
+//								if(userGroupType.getType().equals(lastObject[21])){
+//									if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
+//										for(WorkflowActor wf1 : distinctActors){
+//											UserGroupType ugt = wf1.getUserGroupType();
+//											if(ugt.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
+//												level = wf1.getLevel();
+//											}
+//										}
+//									}else{
+//										level = wf.getLevel();
+//									}
+//								}
+//									
+//								
+//								if(level != null && wf.getLevel()>level){
+//									if(dataMap.containsKey(userGroupType.getType())
+//											&&
+//										(wfDetails!= null && 
+//										Integer.parseInt(wfDetails.getAssigneeLevel())>=level)){
+//										Object[] tempObj = dataMap.get(userGroupType.getType());
+//										tempObj[22] = "";
+//										tempObj[6] = "";
+//										dataMap.put(userGroupType.getType(), tempObj);
+//									}
+//								}
+//							}
+//							CustomParameter onPaperSigningAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "DMOIS_CURRENTSTATUS_ONPAPER_SIGNING_AUTHORITY_"+qt.getHouseType().getType(), "");
+//							if(onPaperSigningAuthorityParameter != null){
+//								String signingAuthority = onPaperSigningAuthorityParameter.getValue();
+//								String[] signingAuthorities = signingAuthority.split(",");
+//								for(String str : signingAuthorities){
+//									if(str.equals(ApplicationConstants.UNDER_SECRETARY)){
+//										str = ApplicationConstants.UNDER_SECRETARY;
+//									} else if(str.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)) {
+//										str = ApplicationConstants.UNDER_SECRETARY_COMMITTEE;
+//									}
+//									if(dataMap.get(str) == null){
+//										UserGroupType userGroupType = UserGroupType.
+//												findByFieldName(UserGroupType.class, "type", str, locale.toString());
+//										Reference ref = UserGroup.findDiscussionMotionActor(qt, str, String.valueOf(0), locale.toString());
+//										if(ref.getId() != null){
+//											Object[] actor = new Object[32];
+//											if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) 
+//													|| ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)
+//													|| ref.getId().split("#")[1].equals(ApplicationConstants.DEPUTY_SECRETARY)){
+//												actor[0] = new String(ref.getId().split("#")[3]);
+//												actor[1] = new String(ref.getId().split("#")[4]);
+//											}else{
+//												actor[0] = new String(ref.getId().split("#")[3]);
+//												actor[1] = new String("");
+//											}
+//											actor[3] = new String("");
+//											actor[6] = new String("");
+//											actor[21] = userGroupType.getType();
+//											actor[22] = new String("");
+//											actor[24] = null;
+//											dataMap.put(str, actor);
+//										}
+//									}
+//								}
+//							}
+////							if(dataMap.get(ApplicationConstants.SECRETARY) == null 
+////									&& qt.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+////								UserGroupType userGroupType = UserGroupType.
+////										findByFieldName(UserGroupType.class, "type", ApplicationConstants.SECRETARY, locale.toString());
+////								
+////								Object[] dataCollection = new Object[32];
+////								dataCollection[0] = new String(userGroupType.getName());
+////								dataCollection[1] = new String("");
+////								dataCollection[3] = new String("");
+////								dataCollection[6] = new String("");
+////								dataCollection[27] = userGroupType.getType();
+////								dataCollection[28] = new String("");
+////								dataCollection[31] = null;
+////								
+////								dataMap.put(ApplicationConstants.SECRETARY, dataCollection);
+////							}
+////							
+////							if(dataMap.get(ApplicationConstants.PRINCIPAL_SECRETARY) == null){
+////								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.PRINCIPAL_SECRETARY, locale.toString());
+////								
+////								Object[] dataCollection = new Object[32];
+////								dataCollection[0] = new String(userGroupType.getName());
+////								dataCollection[1] = new String("");
+////								dataCollection[3] = new String("");
+////								dataCollection[6] = new String("");
+////								dataCollection[27] = userGroupType.getType();
+////								dataCollection[28] = new String("");
+////								dataCollection[31] = null;
+////								
+////								dataMap.put(ApplicationConstants.PRINCIPAL_SECRETARY, dataCollection);
+////							}
+//							
+////							if(dataMap.isEmpty()){
+////								for(String val : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
+////								
+////									Reference ref = UserGroup.findDiscussionMotionActor(qt, val, String.valueOf(0), locale.toString());
+////									Object[] actor = new Object[30];
+////									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
+////										actor[0] = new String(ref.getId().split("#")[3]);
+////										actor[1] = new String(ref.getId().split("#")[4]);
+////									}else{
+////										actor[0] = new String(ref.getId().split("#")[3]);
+////										actor[1] = new String("");
+////									}
+////									actor[3] = new String("");
+////									actor[6] = new String("");
+////									actor[28] = new String("");
+////									
+////									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
+////										dataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
+////									}else{
+////										dataMap.put(val, actor);
+////									}
+////								}
+////							}
+//							Map<String, Object[]> sortedDataMap = new LinkedHashMap<String, Object[]>();
+//							for(WorkflowActor wfa:distinctActors){
+//								UserGroupType ugt = wfa.getUserGroupType();
+//								if(dataMap.containsKey(ugt.getType())){
+//									sortedDataMap.put(ugt.getType(), dataMap.get(ugt.getType()));
+//								}
+//							}
+//							model.addAttribute("data", sortedDataMap);
+//							model.addAttribute("formatData", report.get(report.size()-1));
+//						}
+//					}
+//	
+//					page = (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))? "discussionmotion/reports/statusreportlowerhouse": "discussionmotion/reports/statusreportupperhouse";
+//				}		
+//	
+//				model.addAttribute("qid", qt.getId());
+//			}
 		}catch(Exception e){
 			logger.error(e.getMessage(),e);
 			e.printStackTrace();
