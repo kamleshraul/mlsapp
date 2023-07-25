@@ -100,7 +100,8 @@
 			$("#yaadi_details_tab").show();
 			}
 			else if($("#selectedHouseType").val() == 'upperhouse'
-				&& $("#currentusergroupType").val()=='under_secretary'){
+				&& ($("#currentusergroupType").val()=='under_secretary' || $("#currentusergroupType").val()=='under_secretary_committee'))
+			{
 				$("#yaadi_details_tab").show();
 			} else {
 				$("#yaadi_details_tab").hide();
