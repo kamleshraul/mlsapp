@@ -308,13 +308,13 @@
             				</fo:table>
             			
  	
-            			<fo:block font-size="10px">
+            		<!-- 	<fo:block font-size="10px">
             				&#160;
-            			</fo:block>
+            			</fo:block> -->
             			
 	</fo:block>
 	
-						<!-- <fo:block break-before="page">
+						 <fo:block break-before="page">
 							<fo:block font-weight="bold" text-align="center">
 								<xsl:value-of select="./element_1/element_1_9"/>, वि.प.स. यांनी विधानपरिषदमध्ये विशेष उल्लेख म्हणून उपस्थित केलेली सूचना क्रमांक - <xsl:value-of select="./element_1/element_1_4"/>
 							</fo:block>
@@ -353,7 +353,7 @@
 									</xsl:if>
 								</xsl:for-each>	
 							</fo:block>
-						</fo:block> -->
+						</fo:block> 
 								
 	</fo:block>
 											          
