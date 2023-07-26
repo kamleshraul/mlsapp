@@ -391,7 +391,7 @@
 				
 				
 				$('#qsnGenerateYaadi').click(function(){
-						console.log("inside")
+						
 						var yaadiLayingStatus = "";
 						if($('#yaadiLayingStatus').val()!=undefined && $('#yaadiLayingStatus').val()!="") {
 							yaadiLayingStatus = $('#yaadiLayingStatus').val();
