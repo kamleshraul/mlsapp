@@ -407,6 +407,14 @@
 				</c:if>
 			</p>
 			
+			<c:if test="${houseTypeType=='lowerhouse'}">
+				<p>
+					<label class="small"><spring:message code="proprietypoint.selectproprietypointdate" text="Propriety Point Date"/></label>
+						<input id="formattedProprietyPointDate" name="formattedProprietyPointDate" value="${formattedProprietyPointDate}" class="sText" readonly="readonly">
+						<input id="proprietyPointDate" name="proprietyPointDate" type="hidden"  value="${selectedProprietyPointDate}">
+				</p>
+			</c:if>
+			
 			<c:if test="${houseTypeType=='upperhouse' and !(empty submissionDate)}">
 			<p>
 				<label class="small"><spring:message code="proprietypoint.submissionDate" text="Submitted On"/></label>
