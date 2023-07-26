@@ -12,10 +12,8 @@
 		
 	
 		/**** Bulk Put Up ****/
-		$("#bulksubmit").click(function(){
-			console.log("inside ")
-			bulkUpdate();		
-			
+		$("#bulksubmit").click(function(){			
+			bulkUpdate();					
 		});		
 		
 		/**** Page Load ****/
@@ -38,8 +36,10 @@
 		var resource='question/yaaditoupdateContent/assistant/view';
 		 var resourceURL=resource+"?"+parameters;
 		 $.get(resourceURL,function(data){
+			 $.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			 $("#bulkResultDiv").empty();
 			 $("#bulkResultDiv").html(data);
+			 $.unblockUI();
 		 },'html').fail(function(){
 				if($("#ErrorMsg").val()!=''){
 					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -66,17 +66,15 @@
 			return false;	
 		}
 		
-		 
-		var items =new Array();
+		var items = new Array();		
 		for (var i=0; i<qsnId.length; i++) {
-			console.log(i+"here")
-		    items.push({'questionId':qsnId[i],'subject':document.querySelector('.subject_'+qsnId[i]).innerText,'revisedQuestionText':document.querySelector('.revisedQuestionText_'+qsnId[i]).innerText,
-		    	'answer':document.querySelector('.answer_'+qsnId[i]).innerText
-		})
-		         
-			;
-		}
-		console.log(items)
+			
+		    items.push({'subject':tinyMCE.get("subject_"+qsnId[i]).getContent()
+		    	,'revisedQuestionText':tinyMCE.get("revisedQuestionText_"+qsnId[i]).getContent()
+		    	,'answer':tinyMCE.get("answer_"+qsnId[i]).getContent()
+		    	,'questionId':qsnId[i]
+				});
+			}
 		 $.prompt($('#submissionMsg').val(),{
 			buttons: {Ok:true, Cancel:false}, callback: function(v){
 	        if(v){
