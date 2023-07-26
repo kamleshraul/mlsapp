@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -1998,8 +1999,7 @@ public class QuestionController extends GenericController<Question> {
 	
 	
 	@Transactional
-	@RequestMapping(value="/yaaditoUpdateQsnContent/assistant/update", method=RequestMethod.POST) 
-	
+	@RequestMapping(value="/yaaditoUpdateQsnContent/assistant/update", method=RequestMethod.POST) 	
 	public String yaaditoUpdateQsnContent(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
@@ -2036,8 +2036,7 @@ public class QuestionController extends GenericController<Question> {
 					Long id = Long.parseLong(i.get("questionId"));
 					Question question = Question.findById(Question.class, id);
 					
-					question.setSubject(i.get("subject"));
-					
+					question.setRevisedSubject(i.get("subject"));					
 					question.setRevisedQuestionText(i.get("revisedQuestionText"));
 					question.setAnswer(i.get("answer"));
 					question.merge();
@@ -2097,9 +2096,7 @@ public class QuestionController extends GenericController<Question> {
 			Integer sessionYear = Integer.parseInt(strSessionYear);
 			Session session;
 			try {
-				session = Session.findSessionByHouseTypeSessionTypeYear(houseType,sessionType, sessionYear);
-		
-		
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType,sessionType, sessionYear);				
 				DeviceType deviceType = DeviceType.findById(DeviceType.class, 
 						Long.parseLong(strDeviceType));
 				Group group=null;
@@ -2131,9 +2128,17 @@ public class QuestionController extends GenericController<Question> {
 						}
 					}
 				}
-				model.addAttribute("questions", questions);
+				
+				//Uncomment for enabling shuffling for  questions in yaadi
+				//questions= this.shuffleArrayWithoutSamePosition(questions);
+				
+				StringBuilder str = new StringBuilder();		
 				if(questions != null && ! questions.isEmpty()) {
-					model.addAttribute("questionId", questions.get(0).getId());
+					for(Question q : questions) {
+						str.append(q.getId()+",");
+					}
+					model.addAttribute("questions", questions);
+					model.addAttribute("questionIds", str);
 				}
 			} catch (ELSException e) {
 				model.addAttribute("error", e.getParameter());
@@ -2141,6 +2146,35 @@ public class QuestionController extends GenericController<Question> {
 			}
 		}
 	}
+	
+	
+    private  List<Question> shuffleArrayWithoutSamePosition(List<Question> arr) {
+        Random rand = new Random();
+        List<Question> shuffledQuestion = new ArrayList<Question>();
+        for(int i=0;i<arr.size();i++)
+        {
+        	shuffledQuestion.add(i,arr.get(i));
+        }
+
+        // Shuffle the array using the Fisher-Yates algorithm
+        for (int i = shuffledQuestion.size() - 1; i > 0; i--) {
+            int j = rand.nextInt(i + 1);
+            Question temp = shuffledQuestion.get(i);
+            shuffledQuestion.set(i, shuffledQuestion.get(j));       
+            shuffledQuestion.set(j, temp);          
+        }
+
+        // Check if any element is in the same position as the original array
+        for (int i = 0; i < arr.size(); i++) {
+            if (shuffledQuestion.get(i).equals(arr.get(i))) {
+                // Reshuffle the array again if any element is in the same position
+                return shuffleArrayWithoutSamePosition(arr);
+            }
+        }
+
+        return shuffledQuestion;
+    }
+
 	
 	@RequestMapping(value="/yaadidiscussiondate", method=RequestMethod.GET)
 	public String getYaadiToDiscussino(final ModelMap model,
