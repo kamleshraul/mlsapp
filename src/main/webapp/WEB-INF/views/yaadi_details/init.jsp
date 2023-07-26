@@ -354,10 +354,7 @@
 						var selectedAnsweringDate = $("#answeringDateMaster option[value='"+selectedAnsweringDateId+"']").text();
 						//console.log("selectedAnsweringDate: " + selectedAnsweringDate);
 						//console.log("currentDate: " + new Date());
-						if(new Date() < new Date(selectedAnsweringDate)) {
-							alert("Selected yaadi date is yet to come...");
-							return false;
-						}					
+										
 						parameters =  "houseType=" + $("#selectedHouseType").val()
 											+ "&sessionYear=" + $("#selectedSessionYear").val()
 											+ "&sessionType=" + $("#selectedSessionType").val()
