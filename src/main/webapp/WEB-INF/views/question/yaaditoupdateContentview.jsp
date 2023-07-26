@@ -1,6 +1,22 @@
 <%@ include file="/common/taglibs.jsp"%>
 <script type="text/javascript">
 $(document).ready(function(){
+	
+	tinymce.remove();
+	
+	tinymce.init({
+		  selector: 'div.editable',
+		  
+		  inline: true,
+		  theme: 'inlite',
+		  force_br_newlines : true,
+    	  force_p_newlines : false,
+    	  forced_root_block : "",
+    	  //nonbreaking_force_tab: true,
+    	  max_width: 250
+    	 
+		});
+		
 	/* var continueLoop=true;
 	$(".action").each(function(){
 		if(continueLoop){
@@ -49,43 +65,32 @@ $(document).ready(function(){
   		});
 		    return false;
 	    });
-	  tinymce.init({
-		  selector: 'div.editable',
-		  inline: true,
-		  theme: 'inlite',
-		  force_br_newlines : true,
-    	  force_p_newlines : false,
-    	  forced_root_block : "",
-    	  nonbreaking_force_tab: true,
-		  plugins: [
-		    'searchreplace fullscreen',
-		     'table paste'
-		  ],
-		  toolbar: 'bold italic | alignleft aligncenter alignright alignjustify'
-		});
+	 
 });
-/**** Edit Questions ****/
-function editQuestion(id,readonly){
-	var questionid=id.split("edit")[1];
-	var href='question/'+questionid+'/edit';
-	$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			
-	var params="role="+$("#ydrole").val()+"&usergroup="+$("#ydusergroup").val()+"&usergroupType="+
-				$("#ydusergroupType").val()+"&bulkedit=yes"
-				+"&readonly="+readonly;
-	$.get(href+"?"+params,function(data){
-		$.unblockUI();	
-	    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
-    },'html').fail(function(){
-		$.unblockUI();
-		if($("#ErrorMsg").val()!=''){
-			$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-		}else{
-			$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-		}
-		scrollTop();
-	});
-    return false;
+
+function cleanFormattingData(){
+
+	
+	var myarray = $("#questionIds").val().split(",")
+	myarray.pop();
+		
+	
+  	for (var i=0; i<myarray.length; i++) {
+				 			
+ 			if(tinyMCE.get("subject_"+myarray[i]) != null){
+			 var subject = tinyMCE.get("subject_"+myarray[i]).getContent(); 
+			 subject = cleanFormatting(subject);
+			 $("#subject_"+myarray[i]).html(subject) ;
+ 			} 
+			
+ 			if(tinyMCE.get("revisedQuestionText_"+myarray[i]) != null){
+			 var content = tinyMCE.get("revisedQuestionText_"+myarray[i]).getContent(); 
+			 content = cleanFormatting(content);
+			$("#revisedQuestionText_"+myarray[i]).html(content) ;
+ 			}								
+		} 
 }
+
 </script>
 	<p id="error_p" style="display: none;">&nbsp;</p>
 	<c:if test="${(error!='') && (error!=null)}">
@@ -100,9 +105,9 @@ function editQuestion(id,readonly){
 					<tr>
 						<th  style=" min-width:30px;"><input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>
 						<th style=" min-width:30px;"><spring:message code="question.number" text="Number"></spring:message></th>
-						<th style="min-width:100px;"><spring:message code="yaadi.Member" text="Member"></spring:message></th>
+						<th style="min-width:100px;"><spring:message code="question.members" text="Member"></spring:message></th>
 						<th style=" min-width:150px;" ><spring:message code="question.subject" text="Subject"></spring:message></th>
-						<th style=" min-width:150px;" ><spring:message code="yaadidetails.revisedQuestionText" text="revisedText"></spring:message></th>
+						<th style=" min-width:150px;" ><spring:message code="question.QuestionText" text="revisedText"></spring:message></th>
 						<th style=" min-width:30px;"><spring:message code="question.answer" text="SM"></spring:message></th>
 					</tr>			
 					<c:forEach items="${questions}" var="i">
@@ -120,22 +125,22 @@ function editQuestion(id,readonly){
 							</td>
 							
 							<%-- <td  style=" min-width:170px;"><textarea rows="7" cols="22">${i.subject}</textarea></td> --%>
-							<td style="text-align:justify;min-width:200px;" class="subject_${i.id}">
-										<div class="editable" >
-											${i.subject}
-										</div>
+							<td style="text-align:justify;min-width:200px;" >
+								<div  class="editable" width="250px"  id="subject_${i.id}">
+									${i.subject}
+								</div>
 							</td>
 							<%-- <td style=" min-width:170px;" ><textarea rows="7" cols="30">${i.revisedQuestionText}</textarea></td> --%>
-							<td style="text-align:justify;min-width:200px;" class="revisedQuestionText_${i.id}">
-										<div class="editable" >
-											${i.revisedQuestionText}
-										</div>
+							<td style="text-align:justify;min-width:200px;" >
+								<div  class="editable" width="250px"  id="revisedQuestionText_${i.id}">
+									${i.revisedQuestionText}
+								</div>
 							</td>
 							<%-- <td style=" min-width:170px;" ><textarea rows="7" cols="22">${i.remarks}</textarea></td> --%>
-							<td style="text-align:justify;min-width:260px;" class="answer_${i.id}">
-										<div class="editable" >
-											${i.answer}
-										</div>
+							<td style="text-align:justify;min-width:260px;" >
+								<div  class="editable" width="250px"  id="answer_${i.id}">
+									${i.answer}
+								</div>								
 							</td>
 						</tr>
 					</c:forEach>
@@ -145,4 +150,4 @@ function editQuestion(id,readonly){
 			<spring:message code="question.noquestions" text="No Questions Found"></spring:message>
 		</c:otherwise>
 	</c:choose>
-	<input type="hidden" id="questionId" value="${questionId}">
+	<input type="hidden" id="questionIds" value="${questionIds}">
