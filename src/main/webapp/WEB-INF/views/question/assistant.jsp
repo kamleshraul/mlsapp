@@ -1453,7 +1453,7 @@
 								<a href="#" id="rq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;">
 									${i.name}, <spring:message code='device.unstarred' text='Unstarred'/> ${i.remark}
 								</a>
-								 <a href='#' style='font-weight:bold'  id='viewRevision' onclick='childRevision(${i.number})'> 
+								 <a href='#' style='font-weight:bold'   onclick='childRevision(${i.number})'> 
  									<img src='./resources/images/referenced.png' style='display:inline-block' title='Referenced' width='15px' height='15px' align='justify'>
  								</a> 
 							</c:when>
@@ -1461,7 +1461,7 @@
 								<a href="#" id="rq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;">
 									${i.name}, ${i.remark}
 								</a>
-								 <a href='#' style='font-weight:bold'  id='viewRevision' onclick='childRevision(${i.number})'> 
+								 <a href='#' style='font-weight:bold'   onclick='childRevision(${i.number})'> 
  									<img src='./resources/images/referenced.png' style='display:inline-block' title='Referenced' width='15px' height='15px' align='justify'>
  								</a> 
 							</c:otherwise>
