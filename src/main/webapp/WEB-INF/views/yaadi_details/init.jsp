@@ -695,6 +695,6 @@
 	<%-- <input id="houseType" type="hidden" value="${houseType}" /> --%>
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 	<input type="hidden" id="confirmationMsg" value="<spring:message code='generic.confirmationMessage' text='This is an irreversible change.Are you sure you want to continue?'/>"/>
-	<input type="hidden" id="editYaadiMsg" value="As Yaadi is  Not Generated ..Editing is Not Allowed "/>
+	<input type="hidden" id="editYaadiMsg" value="As Yaadi is  Not Generated ..Corrections are Not Allowed "/>
 </body>
 </html>
