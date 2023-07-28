@@ -2215,7 +2215,7 @@ public class QuestionController extends GenericController<Question> {
 		String strHouseType = request.getParameter("houseType");
 		String strDeviceType = request.getParameter("deviceType");
 		String strqsnId = request.getParameter("qsnId");
-		Integer qsnId =  Integer.parseInt(strqsnId);
+		Integer qsnId =  Integer.parseInt(strqsnId.trim());
 		
 		
 		if(strHouseType != null && !(strHouseType.isEmpty())
@@ -2233,42 +2233,44 @@ public class QuestionController extends GenericController<Question> {
 				List<Question> qsnDetails = new ArrayList<Question>();
 				
 				qsnDetails = Question.getQuestionDetail(latestSession,qsnId,deviceType.getId(),latestSession.getHouse().getId(),currentHouse.getFirstDate());
-				if(qsnDetails.size() == 0)
-				{
-					throw new ELSException("Unable to Find Question Please Check the Number ",strqsnId); 
+				if (qsnDetails.size() == 0) {
+					throw new ELSException("Unable to Find Question Please Check the Number ", strqsnId);
 				}
 				String[] Pactor = new String[(qsnDetails.size())];
 				boolean parentSet=false;
 				
-				if(qsnDetails.get(0).getParent() == null)
-				{
-				List<Question> childQsnDetails =  Question.getChildQuestionDetail(latestSession, qsnDetails.get(0).getId(), deviceType.getId(), latestSession.getHouse().getId(),currentHouse.getFirstDate());
-				model.addAttribute("childQuestions", childQsnDetails);
-				
-				}
-				else if(qsnDetails.get(0).getParent() != null)
-				{
-					
-					qsnDetails = Question.getQuestionDetail(latestSession,qsnDetails.get(0).getParent().getNumber(),deviceType.getId(),latestSession.getHouse().getId(),currentHouse.getFirstDate());
-					model.addAttribute("questions", qsnDetails);
-					List<Question> childQsnDetails =  Question.getChildQuestionDetail(latestSession, qsnDetails.get(0).getId(), deviceType.getId(), latestSession.getHouse().getId(),currentHouse.getFirstDate());
+				if (qsnDetails.get(0).getParent() == null) {
+					List<Question> childQsnDetails = Question.getChildQuestionDetail(latestSession,
+							qsnDetails.get(0).getId(), deviceType.getId(), latestSession.getHouse().getId(),
+							currentHouse.getFirstDate());
 					model.addAttribute("childQuestions", childQsnDetails);
-					for(int i=0 ;i<qsnDetails.size();i++) {
-						if(qsnDetails.get(i).getActor() != null) {
-						Pactor = qsnDetails.get(i).getActor().split("#");
-					}}
-					model.addAttribute("actor", Pactor[0]);
-					parentSet =true;
+
+				}
+				else if (qsnDetails.get(0).getParent() != null) {
+					qsnDetails = Question.getQuestionDetail(latestSession, qsnDetails.get(0).getParent().getNumber(),
+							deviceType.getId(), latestSession.getHouse().getId(), currentHouse.getFirstDate());
+					model.addAttribute("questions", qsnDetails);
+					List<Question> childQsnDetails = Question.getChildQuestionDetail(latestSession,
+							qsnDetails.get(0).getId(), deviceType.getId(), latestSession.getHouse().getId(),
+							currentHouse.getFirstDate());
+					model.addAttribute("childQuestions", childQsnDetails);
+					for (int i = 0; i < qsnDetails.size(); i++) {
+						if (qsnDetails.get(i).getActor() != null) {
+							Pactor = qsnDetails.get(i).getActor().split("#");
+							model.addAttribute("actor", Pactor[0]);
+						}
+					}
+					parentSet = true;
 				}
 				
-				if(parentSet == false) {
-				for(int i=0 ;i<qsnDetails.size();i++) {
-					if(qsnDetails.get(i).getActor() != null) {
-				Pactor = qsnDetails.get(i).getActor().split("#");
-				}
-				}
-				model.addAttribute("actor", Pactor[0]);
-				model.addAttribute("questions", qsnDetails);
+				if (parentSet == false) {
+					for (int i = 0; i < qsnDetails.size(); i++) {
+						if (qsnDetails.get(i).getActor() != null) {
+							Pactor = qsnDetails.get(i).getActor().split("#");
+							model.addAttribute("actor", Pactor[0]);
+						}
+					}
+					model.addAttribute("questions", qsnDetails);
 				}
 			
 			} catch(ELSException elsx) {
