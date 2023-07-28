@@ -270,6 +270,7 @@ public class ProprietyPointReportController extends BaseController{
 		String proprietyPointDateStr = request.getParameter("proprietyPointDate");
 		String sessionId = request.getParameter("sessionId");
 		String reportQueryName = request.getParameter("reportQueryName");
+		String houseType = request.getParameter("houseType");
 		if(sessionId==null || sessionId.isEmpty() || proprietyPointDateStr==null || proprietyPointDateStr.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
 			logger.error("**** One of the request parameters is not set ****");
 			isError = true;
@@ -282,7 +283,7 @@ public class ProprietyPointReportController extends BaseController{
 			@SuppressWarnings("rawtypes")
 			List submittedDevices = Query.findReport(reportQueryName, requestMap, true);
 			try {
-				reportFile = generateReportUsingFOP(new Object[] {submittedDevices}, "prois_submitted_devices_template", "WORD", "prois_submitted_devices", locale.toString());
+				  reportFile = generateReportUsingFOP(new Object[] {submittedDevices}, "prois_submitted_devices_template_"+houseType, "WORD", "prois_submitted_devices", locale.toString());
 			} catch (Exception e) {
 				e.printStackTrace();
 				logger.error("**** Some error occurred ****");

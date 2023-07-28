@@ -678,6 +678,7 @@
 						'proprietypoint/report/submitteddevices?'
 						+'proprietyPointDate=' + selectedProprietyPointDate
 						+'&sessionId=' + $("#loadedSession").val()
+						+'&houseType=' + $("#selectedHouseType").val()
 						+'&reportQueryName=PROIS_SUBMITTED_DEVICES_REPORT');
 			}			
 		}
