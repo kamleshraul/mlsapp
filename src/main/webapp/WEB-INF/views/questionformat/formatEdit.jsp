@@ -15,7 +15,7 @@
 		
 		
 		$("#submit").click(function(){
-
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			
 			var parameters = "houseType="+$("#selectedHouseType").val()
 			 +"&deviceType="+$("#selectedDeviceType").val()
@@ -37,21 +37,19 @@
 			
 			 $.get(resourceURL,function(data){
 				
-				 $("#bulkResultDiv").empty();
-				
-				 $("#bulkResultDiv").html(data);
-				
-				 $("#qsnUpdateButton").show();
+				 $("#bulkResultDiv").empty();				
+				 $("#bulkResultDiv").html(data);				 
+				 $("#qsnUpdateButton").show();				 
+				 $.unblockUI();
 			 },'html').fail(function(){
+				 $.unblockUI();
 					if($("#ErrorMsg").val()!=''){
 						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
 					}else{
 						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
 					}
 					scrollTop();
-				});
-			
-		
+				});			 
 			});	
 		
 		
@@ -75,9 +73,9 @@
 			var formaturl = '';
 			if( $("#selectedDeviceType").val() == 4  ){
 				for (var i=0; i<qsnId.length; i++) {
-					console.log(i+"here")
-				    items.push({'questionId':qsnId[i],'questionText':$(".questionText_"+qsnId[i]).get(0).value ,'revisedQuestionText':$(".revisedQuestionText_"+qsnId[i]).get(0).value ,
-				    	'answer':$(".answer_"+qsnId[i]).get(0).value
+					
+				    items.push({'questionId':qsnId[i],'questionText':tinyMCE.get("questionText_"+qsnId[i]).getContent() ,'revisedQuestionText':tinyMCE.get("revisedQuestionText_"+qsnId[i]).getContent(),
+				    	'answer':tinyMCE.get("answer_"+qsnId[i]).getContent()
 				});
 				}
 				formaturl ='question/questionFormatUpdate';
@@ -86,8 +84,8 @@
 			else if( $("#selectedDeviceType").val() == 5  ){
 				for (var i=0; i<qsnId.length; i++) {
 					
-				    items.push({'questionId':qsnId[i],'questionText':$(".questionText_"+qsnId[i]).get(0).value ,'revisedQuestionText':$(".revisedQuestionText_"+qsnId[i]).get(0).value ,
-				    	'answer':$(".answer_"+qsnId[i]).get(0).value
+					items.push({'questionId':qsnId[i],'questionText':tinyMCE.get("questionText_"+qsnId[i]).getContent() ,'revisedQuestionText':tinyMCE.get("revisedQuestionText_"+qsnId[i]).getContent(),
+				    	'answer':tinyMCE.get("answer_"+qsnId[i]).getContent()
 				});
 				}
 				formaturl ='question/questionFormatUpdate';
@@ -104,8 +102,7 @@
 					formaturl ='motion/motionFormatUpdate';
 				} 
 		
-
-			  $.prompt($('#submissionMsg').val(),{
+ 			  $.prompt($('#submissionMsg').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
@@ -132,7 +129,7 @@
 		    					}
 		    					scrollTop();
 		    				});
-		        	}}}); 
+		        	}}});  
 		});
 		
 	});	
@@ -143,8 +140,16 @@
 </script>
 <script type="text/javascript" src="./resources/js/common.js?v=3050"></script>
 <style>
-		td{min-width:150px; max-width:350px;min-height:30px;}
-		th{min-width:150px; max-width:350px;min-height:30px;}
+		.box {
+	  display: inline-block;
+	  width: 20px;
+	  height: 20px;
+	  border: 2px solid rgba(0, 0, 0, .2);
+		}
+
+	.grey{
+	background:#D3D3D3;
+	}
 	</style>
 <script type="text/javascript">
 	     
@@ -219,34 +224,38 @@
 							</c:forEach> 
 						</select>
 
-<br>
-<br>
-<label style="width:150px;height: 25px;"  class="small"><spring:message
-						code="question.number" text="Name" />  </label>
-						<label style="width:150px;height: 25px;"  class="small">:   </label>
+						<br>
+						<br>
+						<label style="width:150px;height: 25px;"  class="small"><spring:message code="question.number" text="Name" />  </label>
 						
-<textarea id="questionNumberField" >
-</textarea> 
- 
-
-
-<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-
-		
+						<label style="width:150px;height: 25px;"  class="small">:   </label>					
+						
+						<textarea id="questionNumberField" > </textarea> 
+ 						
+ 						<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+						
+						
+				<div style="border-style: dotted; width:200px; margin-top: 10px;" >
+					<span class="box"></span> - Parent
+					<span style="margin: 10px;"></span>
+					<span class="box grey"></span> - child				
+				</div>		
 							
 						
 					
-<div id="bulkResultDiv">
-</div>
-	<div id="qsnUpdateButton">
-						<h2></h2>
-						<p class="tright">
-							<input id="qsnSubmit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-						</p>
-</div>					
-</div>
+			<div id="bulkResultDiv">
+			</div>
+							<div id="qsnUpdateButton">
+									<h2></h2>
+									<p class="tright">
+										<input id="qsnSubmit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+									</p>
+							</div>	
+						
+			</div>
 </div>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
-	<input id="submissionMsg" value="<spring:message code='client.prompt.submitEn' text='Do you want to submit the changes'></spring:message>" type="hidden">
+<input id="answerFormatMsg" value="Do You want to format Answer ?" type="hidden">
+<input id="submissionMsg" value="<spring:message code='client.prompt.submitEn' text='Do you want to submit the changes'></spring:message>" type="hidden">
 </body>
 </html>
