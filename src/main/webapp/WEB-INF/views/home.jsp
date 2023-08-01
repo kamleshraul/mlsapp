@@ -199,7 +199,14 @@
 				/* if($('#isFeedbackEnabled').val()=="YES"){
 					viewFeedback();
 				} */
-				
+							 
+			/* 	$('#logout').click(function(){
+					alert("Hello");
+					if($('#isFeedbackEnabled').val()=="YES"){
+						viewFeedback();
+					}
+				}); */
+				 
 				if($('#pushNotificationsEnabled').val()=="YES") {
 					$.getScript("./resources/js/atmosphere.js?v=1", function() {
 						$.getScript("./resources/js/atmosphere_notifications.js?v=7", function() {
@@ -234,12 +241,17 @@
 			    });
 	    	});	
 			
-			
-			
 			function viewFeedback(){
 				if($('#isFeedbackEnabled').val()=="YES"){
 				$.get('view/feedback',function(data){
-					$.fancybox(data);						
+					$.fancybox(data,{
+						helpers: {
+							overlay: { closeClick: false } //Disable click outside event
+					    },
+						afterClose: function(){
+							window.location.href = $('.feedback_disable_page').attr('href');
+						}
+					});						
 					},'html').fail(function(){
 						if($("#ErrorMsg").val()!=''){
 							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -254,8 +266,6 @@
 					});
 				}
 			}
-			
-
 		</script>
 	</head>
 		

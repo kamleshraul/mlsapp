@@ -103,7 +103,17 @@
 			align-items: center;
 		}
 		
-		#submit {
+		#submitFeedback {
+		  border-radius: 25px;
+		   background-color: #007CC8;
+		  color: #efefef;
+		  border: none;
+		  text-align: center;
+		  padding: 10px 20px;
+		  cursor: pointer;
+		}
+		
+		#skipFeedback {
 		  border-radius: 25px;
 		   background-color: #007CC8;
 		  color: #efefef;
@@ -156,9 +166,9 @@ $(document).ready(function(){
 		      
 		});
 });
- $('#submit').click(function(){
+ $('#submitFeedback').click(function(){
 	 $('#ratingSystem').val($("input[name='star']:checked").val());
-	 $.post($('form').attr('action'), $("form").serialize(), function(data){
+	 $.post($('#formFeedback').attr('action'), $("form").serialize(), function(data){
 	
 		if(data === true){ 
 	    	$(function(){
@@ -170,16 +180,21 @@ $(document).ready(function(){
 					 $.fancybox(data);
 				 });
 			} 
-        });	 
+        });
+	
  });
+ $('#skipFeedback').click(function(){
+	 window.location.href = $('.feedback_disable_page').attr('href');
+});
 </script>
 </head>
 <body>
  <img src='./resources/images/feedback.jpg' width= '400' height= '200' >
 <br/>
 <h2 align="center" style="color:black"><spring:message code='feedback.header' text='Please Rate MLS System'/></h2>
- <a class="feedback_success_page" style="visibility: hidden" href="feedback/success">Open Link</a>
-  <form action="feedback/createfeedback" method="POST">
+<div class="center">
+</div>
+  <form id="formFeedback" action="feedback/createfeedback" method="POST">
     <div align="center">
 	<fieldset>
 	<div class="center">
@@ -205,10 +220,14 @@ $(document).ready(function(){
   				</div>
       </div>           
      <br/> <br/>
-     <input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>">
+     <input id="submitFeedback" type="button" value="<spring:message code='generic.submit' text='Submit'/>">
+      <br/> <br/>
+	 <input id="skipFeedback" type="button" value="<spring:message code='generic.skip' text='Skip for Now'/>">
      </fieldset>
     </div> 
     <input type="hidden" id="ratingSystem" name="ratingSystem"/>
+	<a class="feedback_disable_page" style="visibility: hidden" href="/els/j_spring_security_logout"/>
+ 	<a class="feedback_success_page" style="visibility: hidden" href="feedback/success">Open Link</a>
    </form>
 </body>
 </html>
