@@ -284,7 +284,7 @@
 								<%-- <a href="#" class="edit" id="edit${i.id}"><spring:message code="resolution.edit" text="Edit"></spring:message></a></td> --%>
 								</c:when>							
 								<c:otherwise>
-								<td style="min-width:75px;" class="chk"><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
+								<td style="min-width:75px;" class="chk"><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" style="margin-right: 10px;">			
 								<%-- <a href="#" class="readonly" id="edit${i.id}"><spring:message code="resolution.edit" text="Edit"></spring:message></a></td> --%>
 								</c:otherwise>
 							</c:choose> 
