@@ -4138,21 +4138,21 @@ class StarredQuestionController {
 						
 						question.setInternalStatus(putupStatus);						
 						question.setRecommendationStatus(status);
-						question.simpleMerge();
+						question.merge();
 						clarificationFromDepartment.append(question.formatNumber() + ",");
 						
 					} else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
 						
 						question.setInternalStatus(putupStatus);						
 						question.setRecommendationStatus(status);
-						question.simpleMerge();
+						question.merge();
 						clarificationFromMember.append(question.formatNumber() + ",");
 						
 					} else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
 						
 						question.setInternalStatus(putupStatus);
 						question.setRecommendationStatus(status);
-						question.simpleMerge();
+						question.merge();
 						clarificationFromMemberAndDepartment.append(question.formatNumber() + ",");
 					}				
 					
