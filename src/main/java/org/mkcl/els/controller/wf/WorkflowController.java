@@ -679,9 +679,8 @@ public class WorkflowController extends BaseController {
 					}
 				}
 			}
-			else if(deviceTypeForGrid.equals(ApplicationConstants.PROPRIETY_POINT)
-					&& houseTypeForGrid!=null && houseTypeForGrid.equals(ApplicationConstants.UPPER_HOUSE)) {
-				newUrlPattern=urlPattern+"?devicetype="+ApplicationConstants.PROPRIETY_POINT+"&housetype="+ApplicationConstants.UPPER_HOUSE;
+			else if(deviceTypeForGrid.equals(ApplicationConstants.PROPRIETY_POINT) && houseTypeForGrid!=null) {
+				newUrlPattern=urlPattern+"?devicetype="+ApplicationConstants.PROPRIETY_POINT+"&housetype="+houseTypeForGrid;
 				if(strCurrentUserGroupType!=null && !strCurrentUserGroupType.isEmpty()) {
 					if(strCurrentUserGroupType.equals(ApplicationConstants.DEPARTMENT)
 							||strCurrentUserGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {

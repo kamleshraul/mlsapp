@@ -662,7 +662,8 @@
 							$("#adjourningDateDiv").show();
 							//$("#departmentDiv").hide();
 						});	;
-				}else if(device.indexOf('proprietypoint')==0 && houseType=='upperhouse') {
+				}else if(device.indexOf('proprietypoint')==0) {
+					$('#bulkapproval_tab').hide();
 					$.get('ref/proprietypoint/proprietypointdatesforsession?houseType='+$('#selectedHouseType').val()
 							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
 						if(data.length>1) {
@@ -780,7 +781,8 @@
 						//$('#selectedFileCount').hide();
 					}else{
 						var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
-						if(!device.indexOf('motions_adjournment')==0){
+						if(!device.indexOf('motions_adjournment')==0
+								&& !device.indexOf('proprietypoint')==0){
 							$('#bulkapproval_tab').show();
 							var usergroupType = $('#currentusergroupType').val();
 							if(deviceTypeForGrid.indexOf('questions_')==0 && houseType=='lowerhouse') { //hiding bulk approval options for under secretaries as per Deputy Secretary Sathye Sir
