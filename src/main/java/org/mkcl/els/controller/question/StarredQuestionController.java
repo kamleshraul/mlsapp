@@ -32,6 +32,7 @@ import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
@@ -56,12 +57,15 @@ import org.mkcl.els.domain.Workflow;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.chart.Chart;
+import org.mkcl.els.domain.chart.ChartEntry;
 import org.mkcl.els.service.IProcessService;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 @RequestMapping("/starredQuestion")
@@ -4176,6 +4180,152 @@ class StarredQuestionController {
 
 		QuestionController.getBulkTimeoutQuestions(model, request, locale.toString());
 		return "question/bulk_timeout_view";
+	}
+	
+	public static Boolean changeChartAnsweringDate(final String qId,final String chartId, final ModelMap model,final HttpServletRequest request,final AuthUser currentUser,final Locale locale) {
+		boolean chartUpdated = false; 
+		try {
+			   Question question = Question.findById(Question.class, Long.parseLong(qId));
+			   Chart chart = Chart.find(question);
+			   QuestionDates qd = QuestionDates.findById(QuestionDates.class, Long.parseLong(chartId));
+			   Chart reassignedChart = Chart.find(question.getSession(),question.getGroup(),qd.getAnsweringDate(),question.getType(),question.getLocale());
+			   String currentChartAnsweringDate = question.getChartAnsweringDate().getAnsweringDate().toString();
+			   if(chart != null && reassignedChart != null) {
+					
+					/*
+					 * Case : Child Question's chart answering date is less than User's given chart
+					 * answering date for parent 
+					 */
+				    
+				   List<ClubbedEntity> clubbedEntities = Question.findClubbedEntitiesByPosition(question);
+				   
+				   if(clubbedEntities != null && ! clubbedEntities.isEmpty()) {
+					   
+					   for(ClubbedEntity ce : clubbedEntities) {
+						   Question cq = ce.getQuestion();
+						  
+						   if(cq != null && cq.getChartAnsweringDate().getAnsweringDate().before(qd.getAnsweringDate())) {
+							
+							   /*---Remove clubbed question from the Chart.--*/
+							   
+								Member clubbedMember = cq.getPrimaryMember();
+								ChartEntry clubbedChartEntry = Chart.find(chart, clubbedMember);
+								
+								List<Device> clubbedDevices = Chart.getChartRepository().findDevicesWithChartEntry(clubbedChartEntry, ApplicationConstants.STARRED_QUESTION);
+								List<Device> clubbedNewDevices = new ArrayList<Device>();
+								
+								for(Device cd : clubbedDevices) {
+									Question q1 = (Question) cd;
+									if(! q1.getId().equals(cq.getId())) {
+										clubbedNewDevices.add(q1);
+									}
+								}
+								
+								clubbedChartEntry.setDevices(clubbedNewDevices);
+								clubbedChartEntry.merge();
+								
+								// Reset chart specific attributes in @param question.
+								cq.setChartAnsweringDate(null);
+								cq.simpleMerge();
+								
+								/*---End--*/
+								
+								/*---Add clubbed question to the chart--*/
+								
+								List<Question> onClubbedChartQuestions = Chart.findQuestions(cq.getPrimaryMember(), reassignedChart);
+								List<Device> clubbedDevices2 = new ArrayList<Device>();
+								clubbedDevices2.addAll(onClubbedChartQuestions);
+								clubbedDevices2.add(question);
+								ChartEntry cce = Chart.find(reassignedChart, question.getPrimaryMember());
+								cce.setDevices(clubbedDevices2);
+								cce.merge();
+								cq.setChartAnsweringDate(qd);
+								cq.setRemarks(request.getParameter("chartRemark"));
+								cq.setEditedBy(currentUser.getActualUsername());
+								cq.setEditedOn(new Date());
+								String clubbedStrUserGroupType=request.getParameter("currentUserGroupType");
+								if(clubbedStrUserGroupType != null) {
+									UserGroupType clubbedUserGroupType = UserGroupType.findByFieldName(UserGroupType.class,
+											"type", clubbedStrUserGroupType, cq.getLocale());
+									cq.setEditedAs(clubbedUserGroupType.getName());
+								}
+								cq.merge();
+								//chartUpdated = true;
+
+								/*---End--*/							   
+						   }						   
+					   }
+					   
+				   }
+				   
+				 
+				   /*---Remove question from the Chart.--*/
+					   
+						Member member = question.getPrimaryMember();
+						ChartEntry chartEntry = Chart.find(chart, member);
+						
+						List<Device> devices = Chart.getChartRepository().findDevicesWithChartEntry(chartEntry, ApplicationConstants.STARRED_QUESTION);
+						List<Device> newDevices = new ArrayList<Device>();
+						
+						for(Device d : devices) {
+							Question q = (Question) d;
+							if(! q.getId().equals(question.getId())) {
+								newDevices.add(q);
+							}
+						}
+						
+						chartEntry.setDevices(newDevices);
+						chartEntry.merge();
+						
+						// Reset chart specific attributes in @param question.
+						question.setChartAnsweringDate(null);
+						question.simpleMerge();
+						
+						/*---End--*/
+						
+						/*---Add question to the chart--*/
+						
+						List<Question> onChartQuestions = Chart.findQuestions(question.getPrimaryMember(), reassignedChart);
+						List<Device> devices2 = new ArrayList<Device>();
+						devices2.addAll(onChartQuestions);
+						devices2.add(question);
+						ChartEntry ce = Chart.find(reassignedChart, question.getPrimaryMember());
+						ce.setDevices(devices2);
+						ce.merge();
+						question.setChartAnsweringDate(qd);
+						question.setRemarks(request.getParameter("chartRemark"));
+						question.setEditedBy(currentUser.getUsername());
+						question.setEditedOn(new Date());
+						String strUserGroupType=request.getParameter("currentUserGroupType");
+						if(strUserGroupType != null) {
+							UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class,
+									"type", strUserGroupType, question.getLocale());
+							question.setEditedAs(userGroupType.getName());
+						}
+						question.merge();
+						chartUpdated = true;
+						CustomParameter csptChartNotificationAllowed=CustomParameter.findByName(CustomParameter.class,"CHANGE_CHART_ANSWERING_DATE_NOTIFICATION_ALLOWED", "");
+						if(csptChartNotificationAllowed!=null && csptChartNotificationAllowed.getValue()!=null
+								&& csptChartNotificationAllowed.getValue().equals("YES")) {
+							String usergroupTypes = "clerk,assistant,section_officer,under_secretary,under_secretary_committee,deputy_secretary,secretary,principal_secretary";
+							CustomParameter notificationAllowedUserGroupTypes=CustomParameter.findByName(CustomParameter.class,"CHANGE_CHART_ANSWERING_DATE_NOTIFICATION_ALLOWED_USERGROUPTYPES", "");
+							 if(notificationAllowedUserGroupTypes!=null && notificationAllowedUserGroupTypes.getValue()!=null
+									 && !notificationAllowedUserGroupTypes.getValue().isEmpty()) {
+								 usergroupTypes = notificationAllowedUserGroupTypes.getValue();
+							 }
+							NotificationController.sendChartChangeNotification(question,usergroupTypes,currentChartAnsweringDate,question.getChartAnsweringDate().getAnsweringDate().toString(),request.getParameter("chartRemark"),currentUser.getUsername(),"mr_IN");
+						}
+						/*---End--*/
+				   } else {
+					   chartUpdated = false;
+				   }
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				chartUpdated = false;
+				return chartUpdated;
+			}
+		return chartUpdated;
 	}
 
 }
