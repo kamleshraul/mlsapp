@@ -2421,4 +2421,89 @@ public class QuestionController extends GenericController<Question> {
 		return "question/details";
 	}	
 	
+	@Transactional
+	@RequestMapping(value = "/getNumberToLapse", method = RequestMethod.GET)
+	public @ResponseBody String getNumberToLapse(final HttpServletRequest request, final Locale locale) throws ELSException {
+		String strdeviceType = request.getParameter("deviceType");
+		String strMemberIds = request.getParameter("memberIds");
+		String strhouseType = request.getParameter("houseType");
+		String strHouseDate = request.getParameter("latestAssemblyHouseFormationDate");
+		
+		List<Long> qsnToBeLapsed = new ArrayList<Long>();
+		StringBuilder questionNumbers = new StringBuilder();
+		
+		if(strdeviceType != null && !strdeviceType.isEmpty() &&
+				strMemberIds !=null && !strMemberIds.isEmpty() &&
+				strhouseType !=null && !strhouseType.isEmpty()) {
+			
+			HouseType ht = HouseType.findByName(strhouseType, locale.toString());
+			Session s  = Session.findLatestSession(ht);
+			DeviceType dt = DeviceType.findById(DeviceType.class, Long.parseLong(strdeviceType));
+			
+			String qMNames = null;
+			
+			List<Question> QsnNumbers = null;
+			
+			if(ht != null && s != null && dt != null) {
+				 QsnNumbers = 
+						Question.getAllQuestionToBeLapsed(s.getHouse().getId(),strHouseDate,dt.getId(),strMemberIds); 
+			}
+			
+			if (QsnNumbers != null) {
+				for (Question q : QsnNumbers) {
+					qMNames = q.findAllMemberNames(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
+					if (qMNames.isEmpty()) {
+						qsnToBeLapsed.add(q.getId());
+						questionNumbers.append(q.getId().toString() + ",");
+					if (q.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+							if ( q.getBallotStatus() == null) {
+								
+								Status status = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_LAPSED, locale.toString());
+								
+								WorkflowDetails wd = WorkflowDetails.findCurrentWorkflowDetail(q);
+								if (wd != null) {
+									if (wd.getStatus().equals(ApplicationConstants.MYTASK_PENDING)) {
+										wd.setStatus(ApplicationConstants.MYTASK_LAPSED);
+										wd.merge();
+									}
+								}
+								
+								q.setLocalizedActorName("");
+								q.setInternalStatus(status);
+								q.setStatus(status);
+								q.setRecommendationStatus(status);
+
+
+								q.simpleMerge();
+							}
+						} else if (q.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+							if (!q.getRecommendationStatus().getType().equals(ApplicationConstants.YAADISTATUS_LAID)) {
+								
+								Status status = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_LAPSED, locale.toString());
+								
+								WorkflowDetails wd = WorkflowDetails.findCurrentWorkflowDetail(q);
+								if (wd != null) {
+									if (wd.getStatus().equals(ApplicationConstants.MYTASK_PENDING)) {
+										wd.setStatus(ApplicationConstants.MYTASK_LAPSED);
+										wd.merge();
+									}
+								}
+								
+								q.setLocalizedActorName("");
+								q.setInternalStatus(status);
+								q.setStatus(status);
+								q.setRecommendationStatus(status);
+
+								
+								q.simpleMerge();
+							}
+						}
+					}
+				}				
+			}			
+		}		
+		return questionNumbers.toString();
+		
+	}
+	
 }
