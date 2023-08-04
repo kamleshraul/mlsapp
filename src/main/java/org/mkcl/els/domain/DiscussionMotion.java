@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Entity
 @Table(name = "discussionmotion")
 @JsonIgnoreProperties({ "houseType", "session", "type", "recommendationStatus", "supportingMembers", "ballotStatus",
-		"subDepartments", "departments", "drafts", "parent", "clubbedEntities", "referencedEntities" })
+		"subDepartments", "departments", "drafts", "parent", "clubbedEntities", "referencedEntities","ballotStatus" })
 public class DiscussionMotion extends Device implements Serializable {
 
 	/** The Constant serialVersionUID. */
