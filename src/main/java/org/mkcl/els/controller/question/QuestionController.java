@@ -2506,4 +2506,62 @@ public class QuestionController extends GenericController<Question> {
 		
 	}
 	
+	/**** Utility for shifting chart answering date ****/
+	@Transactional
+	@RequestMapping(value="questionId/{id}", method=RequestMethod.GET)
+	public String getChartAnsweringDate(@PathVariable("id")final Long id, 
+			final ModelMap model, final HttpServletRequest request){
+		Question question = Question.findById(Question.class, id);
+		model.addAttribute("formattedDeviceType",question.getType().getName());
+		model.addAttribute("questionId",question.getId());
+		model.addAttribute("questionNumber",question.getNumber());
+		model.addAttribute("formattedQsNumber", FormaterUtil.formatNumberNoGrouping(question.getNumber(), "mr_IN"));
+		model.addAttribute("subject",question.getSubject());
+        model.addAttribute("groupNumber", FormaterUtil.getNumberFormatterNoGrouping("mr_IN").
+				format(question.getGroup().getNumber()));   
+        CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
+        model.addAttribute("formattedChartAnsweringDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"mr_IN").format(question.getChartAnsweringDate().getAnsweringDate()));
+		model.addAttribute("chartAnsweringDate",question.getChartAnsweringDate().getAnsweringDate());
+		model.addAttribute("strusergroupType",request.getParameter("strusergroupType"));
+		Group group = Group.findById(Group.class, question.getGroup().getId());
+		List<QuestionDates> questionDates = group.getQuestionDates();
+		System.out.println(questionDates);
+		int count = 1;
+		for(QuestionDates questionDate : questionDates) {
+			if(questionDate.getAnsweringDate().equals(question.getChartAnsweringDate().getAnsweringDate())) {
+		        questionDates.subList(0, count).clear();
+		        break;
+			}
+			count++;
+		}		
+		System.out.println(questionDates);
+		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+		for(QuestionDates i : questionDates) {
+			String strAnsweringDate = 
+					FormaterUtil.getDateFormatter("mr_IN").format(i.getAnsweringDate());
+			MasterVO masterVO = new MasterVO(i.getId(), strAnsweringDate);
+			masterVO.setValue(FormaterUtil.formatDateToString(i.getAnsweringDate(), ApplicationConstants.DB_DATEFORMAT));
+			masterVOs.add(masterVO);
+		}
+		
+		model.addAttribute("questionDates",masterVOs);
+				
+		return "question/charts/chartdetails";
+	}
+
+	   @Transactional
+	   @RequestMapping(value = "/updatedChart/{chartId}/questionId/{qId}", method = RequestMethod.POST)
+		public @ResponseBody Boolean changeChartAnsweringDate(@PathVariable("qId") final String qId, @PathVariable("chartId") final String chartId,final ModelMap model, final HttpServletRequest request, final Locale locale) {
+		 
+		   boolean chartUpdated = false;
+		   AuthUser authUser = this.getCurrentUser();
+		   Question question = Question.findById(Question.class, Long.parseLong(qId));
+		   
+		   if(question.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+			   chartUpdated = StarredQuestionController.changeChartAnsweringDate(qId, chartId, model, request, authUser, locale);
+		   }
+		   
+		  return chartUpdated;
+	    }
+	   /****  ****/
 }

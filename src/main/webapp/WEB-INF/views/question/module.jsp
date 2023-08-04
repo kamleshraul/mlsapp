@@ -21,9 +21,7 @@
 			
 			});	
 					
-		
-		
-		//blink notice message per second interval
+    	//blink notice message per second interval
 		var f = document.getElementById('noticeMessageDiv');
 		if(f!=null && f!=undefined) {
 			setInterval(function() {

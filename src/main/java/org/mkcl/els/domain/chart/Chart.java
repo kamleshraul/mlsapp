@@ -513,6 +513,15 @@ public class Chart extends BaseDomain implements Serializable {
 		return Chart.getChartRepository().find(device);
 	}
 	
+	//find chart
+	public static Chart find(final Session session,
+			final Group group,
+			final Date answeringDate,
+			final DeviceType deviceType,
+			final String locale) throws ELSException {
+			return Chart.getChartRepository().find(session, group, answeringDate, deviceType, locale);
+		}
+	
 	/**
 	 * Returns null if there is no Chart for the specified parameters.
 	 * @throws ELSException 

@@ -387,7 +387,49 @@
 				}}
 				
 			});
+			
 			/*---------------------------------*/
+			
+			var selectedDeviceType = $("#deviceTypeMaster option[value='"+ $("#selectedQuestionType").val() + "']").text();
+			$("#chart_answering_date_change").hide();
+			if(selectedDeviceType == 'questions_starred' && $('#processMode').val()  == 'upperhouse'){
+				$("#chart_answering_date_change").show();
+			}
+			
+			
+			
+			$("#chart_answering_date_change").click(function(){
+				
+				var selectedQsnId= $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				
+				if(selectedQsnId.length == 0){
+					$.prompt($('#selectQsnMsg').val());
+				}
+				else if(selectedQsnId.length >= 2){
+					$.prompt("Multiple Select Not Allowed");
+				}
+				else {
+					var selectedQsnData = $("#grid").jqGrid ('getRowData', selectedQsnId);
+					console.log(selectedQsnData);
+					if(selectedQsnData["submittedInBatch1"] === "true"){
+						$.prompt("Question No. "+selectedQsnData["number"]+" is from first batch. This feature is meant for second batch questions." );	
+					} else {
+						$.get('question/questionId/'+selectedQsnId,{strusergroupType: $("#currentusergroupType").val()},function(data){
+						    $.fancybox.open(data);
+					    }).fail(function(){
+			    			if($("#ErrorMsg").val()!=''){
+			    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			    			}else{
+			    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			    			}
+			    			scrollTop();
+			    		});
+					    return false;
+					} 
+  				}
+						
+				
+			});
 			
 			
 		});
@@ -569,7 +611,11 @@
 				</a> |
 				</span>				
 			</security:authorize>	
-					
+			<security:authorize access="hasAnyRole('QIS_CLERK')">
+				<a href="#" id="chart_answering_date_change" class="butSim link">
+					<spring:message code="question.chart_answering_date" text="Chart Answering Date"/>
+				</a>
+			</security:authorize>		
 			<p>&nbsp;</p>
 		</div>
 	</div>
@@ -577,7 +623,8 @@
 	<input type="hidden" id="grid_id" value="${gridId}">
 	<input type="hidden" id="gridURLParams" name="gridURLParams">
 	<input id="submissionMsg" value="<spring:message code='' text='Please Unselect the following questions :-'></spring:message>" type="hidden">
-	<input id="selectQsnMsg" value="<spring:message code='' text='Please Select  questions :-'></spring:message>" type="hidden">
+	<input id="selectQsnMsg" value="<spring:message code='' text='Please Select Question'></spring:message>" type="hidden">
+	<input id="multiselectQsnMsg" value="<spring:message code='' text='Multiple Select Not Allowed'></spring:message>" type="hidden">
 	<input id="UpdatedMsg" value="<spring:message code='' text=' following questions are converted to Unstarred :-'></spring:message>" type="hidden">
 	<input id="suchiAnsweringDateSelectionPromptMsg" value="<spring:message code='question.suchiAnsweringDateSelectionPromptMsg' text='Please select the suchi answering date!'/>" type="hidden">	
 	<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">

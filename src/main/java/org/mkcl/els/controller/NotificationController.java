@@ -308,6 +308,27 @@ public class NotificationController extends GenericController<Notification> {
 		getNotificationService().sendNotificationWithTitleUsingTemplate("DEPARTMENT_CHANGE_INTIMATION", templateParameters, locale);
 	}
 	
+	public static void sendChartChangeNotification(
+			       final Question qsn,
+			       final String userGroupTypeNotificationAllowed,
+			       final String currentChartAnsweringDate,
+			       final String newChartAnsweringDate,
+			       final String chartRemarks,
+			       final String username,
+			       final String locale) {
+				Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+				templateParameters.put("locale", new String[]{locale});
+				templateParameters.put("qsnId", new String[]{qsn.getId().toString()});
+				templateParameters.put("userGroupTypeNotificationAllowed", new String[]{userGroupTypeNotificationAllowed});
+				templateParameters.put("houseTypeLike", new String[]{"%"+qsn.getHouseType().getName()+"%"});
+				templateParameters.put("deviceTypeLike", new String[]{"%"+qsn.getType().getName()+"%"});
+				templateParameters.put("groupsAllowedLike", new String[]{"%"+qsn.getGroup().getNumber()+"%"});
+				templateParameters.put("currentChartAnsweringDate", new String[]{currentChartAnsweringDate});
+				templateParameters.put("newChartAnsweringDate", new String[]{newChartAnsweringDate});
+				templateParameters.put("chartRemarks", new String[]{chartRemarks});
+				templateParameters.put("username", new String[]{username});
+				getNotificationService().sendNotificationWithTitleUsingTemplate("CLERK_CHANGE_CHART_ANSWERING_DATE", templateParameters, locale);
+			}
 	
                /*Edited By Shubham Amande*/	
 	public static void sendNotificationYaadiGenerated(final DeviceType deviceType,
