@@ -14550,6 +14550,19 @@ public class Question extends Device implements Serializable {
 	
 	}
 	
+	public static List<Object> getQuestionDetailsforMemberStatsReport(final Session session,final DeviceType deviceType,final Member memberId){
+		return getQuestionRepository().getQuestionDetailsForMemberStatsReport(session, deviceType, memberId);
+	}
+	
+	
+	public static List<Question> getAllQuestionToBeLapsed(
+			final Long houseId,
+			final String startDate,
+			final Long dtId,
+			final String memberIds
+			){
+		return getQuestionRepository().getAllQuestionToBeLapsed(houseId,startDate, dtId, memberIds);
+	}
 	
 	
 }
