@@ -3,7 +3,6 @@ package org.mkcl.els.controller;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -16,15 +15,16 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joda.time.DateTime;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
-import org.mkcl.els.common.vo.AuthUser;
+import org.mkcl.els.common.vo.DeviceTypeConfigDateVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.xmlvo.TestXmlVO;
-import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.AdjournmentMotion;
+import org.mkcl.els.domain.CalendarEventsPerDeviceType;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
@@ -35,14 +35,12 @@ import org.mkcl.els.domain.CutMotionDepartmentDatePriority;
 import org.mkcl.els.domain.CutMotionDraft;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
-import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberDepartment;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MessageResource;
-import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
@@ -57,6 +55,7 @@ import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.domain.chart.ChartEntry;
+import org.mkcl.els.repository.QuestionRepository;
 import org.mkcl.els.service.INotificationService;
 import org.mkcl.els.service.ISecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1661,4 +1660,22 @@ public class AdminController extends BaseController {
 		return returnMsg.toString();
 	}
 	
+		
+	
+	
+	@RequestMapping(value = "/lapsedevice/module", method = RequestMethod.GET)
+	public String getlapsedeviceModule(final ModelMap model, 
+    		final Locale locale,
+            final HttpServletRequest request) {
+		
+		List<DeviceType> dt = DeviceType.findAll(DeviceType.class, "name", ApplicationConstants.ASC, locale.toString());
+		model.addAttribute("alldevices", dt);
+		 
+		List<HouseType> ht = HouseType.findAll(HouseType.class,"type", ApplicationConstants.ASC, locale.toString());
+		model.addAttribute("allhousetype", ht);
+		
+		return "lapsedevice/module";
+	}
+	
+
 }
