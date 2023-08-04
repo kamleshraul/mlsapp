@@ -11,15 +11,16 @@ package org.mkcl.els.repository;
 
 import java.math.BigInteger;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -27,9 +28,6 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-
-import name.fraser.neil.plaintext.diff_match_patch;
-import name.fraser.neil.plaintext.diff_match_patch.Diff;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
@@ -58,6 +56,9 @@ import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.YaadiDetails;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import name.fraser.neil.plaintext.diff_match_patch;
+import name.fraser.neil.plaintext.diff_match_patch.Diff;
 
 /**
  * The Class QuestionRepository.
@@ -3852,6 +3853,50 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		return Qdetails;
 	}
 	
+	
+	public List<Question> getAllQuestionToBeLapsed(
+			final Long houseId,
+			final String startDate,
+			final Long dtId,
+			final String memberIds
+			){
+		
+		
+				List<Question> memberQuestions = new ArrayList<Question>();
+				StringBuilder strquery = new StringBuilder();
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-mm-dd", Locale.ENGLISH);
+				Date date = null;
+				
+				try {
+					 date = formatter.parse(startDate);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+
+				strquery.append("SELECT DISTINCT (q)  FROM Question q  ");
+				strquery.append(
+						"  WHERE q.session.id IN (SELECT id FROM Session ss WHERE ss.house.id=:houseId AND  ss.startDate>=:startDate) ");
+				strquery.append("  AND q.type.id = :deviceTypeId  ");
+				strquery.append("  AND q.number IS NOT NULL  ");
+				strquery.append("  AND  q.primaryMember.id IN ( "+memberIds +")   ");
+				strquery.append("  AND q.parent IS NULL   ");
+				
+
+				TypedQuery<Question> query = em().createQuery(strquery.toString(), Question.class);
+				query.setParameter("houseId",houseId);
+				query.setParameter("startDate", date);
+				query.setParameter("deviceTypeId", dtId);
+				
+				 memberQuestions =  query.getResultList();
+
+
+				if (memberQuestions != null) {
+					return memberQuestions;
+				}
+				return null;
+	}
 	
 	
 	
