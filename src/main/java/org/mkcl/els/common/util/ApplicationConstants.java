@@ -356,6 +356,8 @@ public class ApplicationConstants {
 
 	/**** Processed Status(Unstarred) ****/
 	public static final String QUESTION_UNSTARRED_PROCESSED_BALLOTED="question_unstarred_processed_balloted";
+	
+	public static final String QUESTION_UNSTARRED_PROCESSED_LAPSED ="question_unstarred_processed_lapsed";
 
 	public static final String QUESTION_UNSTARRED_PROCESSED_YAADILAID="question_unstarred_processed_yaadilaid";
 
@@ -366,6 +368,7 @@ public class ApplicationConstants {
 	public static final String QUESTION_SHORTNOTICE_COMPLETE="question_shortnotice_complete";
 
 	public static final String QUESTION_SHORTNOTICE_SUBMIT="question_shortnotice_submit"; 
+	
 
 	/**** Recommendation(Short Notice) ****/
 	public static final String QUESTION_SHORTNOTICE_RECOMMEND_ADMISSION="question_shortnotice_recommend_admission";
@@ -882,6 +885,8 @@ public class ApplicationConstants {
 	public static final String MYTASK_COMPLETED="COMPLETED";    
 	
 	public static final String MYTASK_TIMEOUT="TIMEOUT"; 
+	
+	public static final String MYTASK_LAPSED="LAPSED"; 
 	
 	/**** Workflow Types ****/
 	public static final String APPROVAL_WORKFLOW="APPROVAL_WORKFLOW";
