@@ -2551,7 +2551,7 @@ public class QuestionController extends GenericController<Question> {
 
 	   @Transactional
 	   @RequestMapping(value = "/updatedChart/{chartId}/questionId/{qId}", method = RequestMethod.POST)
-		public @ResponseBody Boolean changeChartAnsweringDate(@PathVariable("qId") final String qId, @PathVariable("chartId") final String chartId,final ModelMap model, final HttpServletRequest request, final Locale locale) {
+	    public @ResponseBody Boolean changeChartAnsweringDate(@PathVariable("qId") final String qId, @PathVariable("chartId") final String chartId,final ModelMap model, final HttpServletRequest request, final Locale locale) {
 		 
 		   boolean chartUpdated = false;
 		   AuthUser authUser = this.getCurrentUser();
@@ -2563,5 +2563,6 @@ public class QuestionController extends GenericController<Question> {
 		   
 		  return chartUpdated;
 	    }
-	   /****  ****/
+
+	
 }

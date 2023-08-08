@@ -4313,7 +4313,7 @@ class StarredQuestionController {
 									 && !notificationAllowedUserGroupTypes.getValue().isEmpty()) {
 								 usergroupTypes = notificationAllowedUserGroupTypes.getValue();
 							 }
-							NotificationController.sendChartChangeNotification(question,usergroupTypes,currentChartAnsweringDate,question.getChartAnsweringDate().getAnsweringDate().toString(),request.getParameter("chartRemark"),currentUser.getUsername(),"mr_IN");
+							NotificationController.sendChartChangeNotification(question,usergroupTypes,currentChartAnsweringDate,question.getChartAnsweringDate().getAnsweringDate().toString(),request.getParameter("chartRemark"),currentUser.getUsername().toString(),locale.toString());
 						}
 						/*---End--*/
 				   } else {

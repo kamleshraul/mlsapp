@@ -318,7 +318,7 @@ public class NotificationController extends GenericController<Notification> {
 			       final String locale) {
 				Map<String, String[]> templateParameters = new HashMap<String, String[]>();
 				templateParameters.put("locale", new String[]{locale});
-				templateParameters.put("qsnId", new String[]{qsn.getId().toString()});
+				templateParameters.put("qsnNumber", new String[]{qsn.getNumber().toString()});
 				templateParameters.put("userGroupTypeNotificationAllowed", new String[]{userGroupTypeNotificationAllowed});
 				templateParameters.put("houseTypeLike", new String[]{"%"+qsn.getHouseType().getName()+"%"});
 				templateParameters.put("deviceTypeLike", new String[]{"%"+qsn.getType().getName()+"%"});
@@ -326,7 +326,7 @@ public class NotificationController extends GenericController<Notification> {
 				templateParameters.put("currentChartAnsweringDate", new String[]{currentChartAnsweringDate});
 				templateParameters.put("newChartAnsweringDate", new String[]{newChartAnsweringDate});
 				templateParameters.put("chartRemarks", new String[]{chartRemarks});
-				templateParameters.put("username", new String[]{username});
+				templateParameters.put("userName", new String[]{username});
 				getNotificationService().sendNotificationWithTitleUsingTemplate("CLERK_CHANGE_CHART_ANSWERING_DATE", templateParameters, locale);
 			}
 	
