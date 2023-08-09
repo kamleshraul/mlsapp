@@ -6,6 +6,7 @@
 	<script type="text/javascript">	
 		$(document).ready(function(){
 			$(".toolTip").hide();
+			$("#selectedDisplayContent").hide();
 			$("#selectionDiv1").show();							
 			/**** grid params which is sent to load grid data being sent ****/		
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
@@ -26,6 +27,18 @@
 				$("#selectionDiv1").hide();	
 				newDiscussionMotion();
 			});
+			
+			/****Member's Motions View ****/
+			$("#member_motions_view").click(function() {
+				$("#selectedDisplayContent").show();
+				$("#generateMotion").show();
+			});
+			
+			$("#generateMotion").click(function(){
+				$("#selectionDiv1").hide();
+				memberMotionsView($("#selectedDisplayContent").val());
+			});
+			
 			/**** edit question ****/
 			$('#edit_record').click(function(){
 				currentSelectedRow=$('#key').val();
@@ -248,7 +261,18 @@
 			</security:authorize>			
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
-			</a> 			
+			</a> 	
+			<a href="#" id="member_motions_view" class="butSim">
+					<spring:message code="motion.member_motions_view" text="Member's Motions View"/>
+			</a>
+			<select name="selectedDisplayContent" id="selectedDisplayContent" style="width:100px;height: 25px;">			
+					<option value="subject"><spring:message code="motion.subject" text="Subject"/></option>
+					<option value="details"><spring:message code="dashboard.discussionmotion" text="Details"/></option>	
+					<option value="brief_explanation"><spring:message code="cutmotion.viewcitation" text="brief_explanation"/></option>			
+			</select>
+			<a href="#" id="generateMotion" class="butSim">
+					Go
+			</a>|		
 		
 			<security:authorize access="hasAnyRole('DMOIS_ASSISTANT','DMOIS_SECTION_OFFICER','DMOIS_CLERK')">
 				<hr>

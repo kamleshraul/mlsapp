@@ -147,6 +147,30 @@
 	function refreshList(){
 		showDiscussionMotionList();
 	}
+	
+	function memberMotionsView(displayContent) { //includes all submitted motions
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		+ "&motionType=" + $("#selectedDiscussionMotionType").val()
+		+ "&statusFilter=all"
+		+ "&createdBy=" + $("#ugparam").val()
+		+ "&displayContent=" + displayContent 
+		+ "&locale="+$("#moduleLocale").val()
+		+ "&report=MEMBER_DISCUSSIONMOTION_VIEW"
+		+ "&reportout=member_discussionmotions_view";
+	
+		var urlSession = "ref/sessionbyhousetype/"
+			+ $("#selectedHouseType").val() + "/" 
+			+ $("#selectedSessionYear").val() + "/"
+			+ $("#selectedSessionType").val();
+		$.get(urlSession,function(data){
+				if(data){
+					parameters += '&sessionId=' + data.id;
+					showTabByIdAndUrl('details_tab','discussionmotion/report/generalreport?'+parameters);
+					
+				}
+			});
+	}
+	
 	/**** new question ****/
 	function newDiscussionMotion() {
 		$("#cancelFn").val("newDiscussionMotion");
