@@ -94,6 +94,12 @@
 				$("#selectionDiv1").hide();
 				viewBallot();
 			});	
+			
+			/**** motion_general_statistics_report ****/
+			$('#motion_general_statistics_report').click(function(){
+				GeneralStatisticsReport();
+			});	
+
 			/**** Bulk Putup ****/
 			$("#bulkputup_tab").click(function(){
 				/** keep it disabled for members till submission date validations are added or submission is allowed **/
@@ -522,6 +528,26 @@
 				}});			
 			}
 		}
+		
+		function GeneralStatisticsReport() { //includes all submitted motions
+			var parameters = "motionType=" + $("#selectedMotionType").val()
+			+ "&locale="+$("#moduleLocale").val()
+			+ "&report=CALLING_ATTENTION_MOTION_GENERAL_STATISTICS_REPORT"
+			+ "&reportout=motionGeneralStatisticsReport";
+		
+			var urlSession = "ref/sessionbyhousetype/"
+				+ $("#selectedHouseType").val() + "/" 
+				+ $("#selectedSessionYear").val() + "/"
+				+ $("#selectedSessionType").val();
+			$.get(urlSession,function(data){
+					if(data){
+						parameters += '&sessionId=' + data.id;
+						showTabByIdAndUrl('details_tab','motion/report/motion/genreport?'+parameters);
+						
+					}
+				});
+		}
+		
 		
 		/**** To Generate Reminder Letter ****/
 		function generateReminderLetter(isRequiredToSend) {
@@ -1562,6 +1588,9 @@
 							</select>
 							<div id="goRLRep" style="display: inline; border: 2px solid black; width: 10px; height: 10px;">Go</div>
 						</div>|
+						<a href="javascript:void(0);" id="motion_general_statistics_report" class="butSim" >
+							<spring:message code="motion.GeneralStatisticsReport" text=" Motion General Statistics Report"/>
+						</a>|
 						<!--  -->
 						<hr>
 						<a href="javascript:void(0);" id="entry_register" class="butSim" >
