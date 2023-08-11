@@ -9,8 +9,51 @@
 	<script type="text/javascript">
 		var ids, counter, limit, dataSize;
 		$(document).ready(function(){			
-			 
-		});		
+			
+			/** Hide the div of selected user pending by status **/
+				$("#CurrentPendingByStatusTextsDiv").hide();
+				$("#hidePSDiv").hide();
+			/** **/
+			
+			
+		});	
+		
+		
+		
+		
+		function motionUserCurrentPendingAsPerStatus(assignee) { //includes all submitted motions
+			var parameters = "motionType=" + $("#selectedMotionType").val()
+			+ "&locale="+$("#moduleLocale").val()
+			+"&assignee="+assignee
+			+ "&report=CALLING_ATTENTION_MOTION_GENERAL_STATISTICS_STATUS_REPORT"
+			+ "&reportout=motionGeneralStatisticsByStatusReport";
+
+			var urlSession = "ref/sessionbyhousetype/"
+				+ $("#selectedHouseType").val() + "/" 
+				+ $("#selectedSessionYear").val() + "/"
+				+ $("#selectedSessionType").val();
+			$.get(urlSession,function(data){
+					if(data){
+						parameters += '&sessionId=' + data.id;
+						$("#CurrentPendingByStatusTextsDiv").hide();
+						$("#hidePSDiv").hide();						
+						//$("#CurrentPendingByStatusTextsDiv").empty();
+						 $.get('motion/report/motion/genreport?'+parameters,function(data){
+					
+							$("#CurrentPendingByStatusTextsDiv").html(data);
+							
+						});	 
+
+						$("#hidePSDiv").show();
+						$("#CurrentPendingByStatusTextsDiv").show();
+						
+					}
+					else{
+						$("#CurrentPendingByStatusTextsDiv").hide();
+						$("#hidePSDiv").hide();
+					}
+				});
+		}
 	</script>
 	 <style type="text/css">
         @media screen{
@@ -68,6 +111,19 @@
 			position: fixed;
 			cursor: pointer;
         }
+        
+          #CurrentPendingByStatusTextsDiv, #clubbedRevisedQuestionTextDiv {
+        	background: none repeat-x scroll 0 0 #FFF;
+		    box-shadow: 0 2px 5px #888888;
+		    max-height: 260px;
+		    right: 32px;
+		    position: fixed;
+		    top: 200px;
+		    width: 300px;
+		    z-index: 10000;
+		    overflow: auto;
+		    border-radius: 10px;
+	    }
                 
     </style>
 </head> 
@@ -82,8 +138,8 @@
 					<h3 style="color: black;"><spring:message code="motion.generalStatisticsReportTitle" text="General Statistics Report"/> </h3>			
 				</div>
 				<br><br>
-				<div style="width: 750px;">
-					<table class="strippedTable" border="1" style="width: 750px;">
+				<div style="width: 550px;">
+					<table class="strippedTable" border="1" style="width: 550px;">
 						<thead>
 							<tr>
 								<th style="text-align: center; font-size: 12px; width: 30px;"><spring:message code="room.name" text="General Statistics Report"/></th>
@@ -96,8 +152,12 @@
 							<c:forEach items="${report}" var="r" varStatus="counter">
 								
 										<tr class="page-break-after-forced">
-													<td style="text-align: center; font-size: 12px; width: 30px;">${r[0]}</td>
-													<td style="text-align: center; font-size: 12px; width: 30px;">${r[1]}</td>
+													<td style="text-align: center; font-size: 12px; width: 30px;" id="${r[2] }">${r[0]}</td>
+													<td style="text-align: center; font-size: 12px; width: 30px;">${r[1]}
+													<a href="javascript:void(0);" id="viewLatestRevisedQuestionTextFromClubbedQuestionsDiv" onclick='motionUserCurrentPendingAsPerStatus("${r[2]}")'>
+													<img src='./resources/images/instruction_icon.png' style='display:inline-block' title='Referenced' width='15px' height='15px' >
+													</a>
+													</td>
 <%-- 													<td style="text-align: left; font-size: 12px; width: 60px;">${r[3]}</td>
 													<td style="text-align: left; font-size: 12px; width: 90px;">${r[4]}</td>
 													<td style="text-align: left; font-size: 12px; width: 60px;">${r[5]}</td> --%>
@@ -137,6 +197,11 @@
 							</c:forEach>
 						</tbody>
 					</table>
+					
+					<div id="CurrentPendingByStatusTextsDiv" style="z-index: 9;" >
+						
+					</div>
+
 				</div>
 			</c:when>
 			<c:otherwise>
