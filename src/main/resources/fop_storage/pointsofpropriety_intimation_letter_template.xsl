@@ -288,7 +288,7 @@
 					
 						<fo:block break-before="page">
 							<fo:block font-weight="bold" text-align="center">
-								<xsl:value-of select="./element_1/element_1_9"/>, वि.प.स. यांनी विधानपरिषदमध्ये विशेष उल्लेख म्हणून उपस्थित केलेली सूचना क्रमांक - <xsl:value-of select="./element_1/element_1_4"/>
+								<xsl:value-of select="./element_1/element_1_9"/>, वि.प.स. यांनी विधानपरिषदमध्ये उपस्थित केलेला औचित्याचा मुद्दा क्रमांक - <xsl:value-of select="./element_1/element_1_4"/>
 							</fo:block>
 							<fo:block>&#160;</fo:block><fo:block>&#160;</fo:block>
 							<fo:block>
@@ -300,7 +300,7 @@
 									<xsl:if test="position()=2">
 											<fo:block font-weight="bold" text-align="center">
 												<fo:block>&#160;</fo:block><fo:block>&#160;</fo:block>
-												सदर सूचनेस जोडण्यात आलेल्या इतर विशेष उल्लेख सूचनांचे मूळ प्रारूप 
+												सदर सूचनेस जोडण्यात आलेल्या इतर औचित्याच्या मुद्द्यांचे मूळ प्रारूप 
 											</fo:block>
 									</xsl:if>
 							</xsl:for-each>
