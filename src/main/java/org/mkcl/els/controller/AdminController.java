@@ -1660,6 +1660,129 @@ public class AdminController extends BaseController {
 		return returnMsg.toString();
 	}
 	
+	@RequestMapping(value="/getAdminCalendar", method=RequestMethod.GET)
+	public String  getAdminCalendar(final ModelMap model, 
+    		final Locale locale,
+            final HttpServletRequest request) {
+		
+		return "calendar/eventCalendar";
+	}
+	
+	
+
+	@RequestMapping(value = "getEventsForCalendar", method = RequestMethod.GET)
+	public @ResponseBody List<DeviceTypeConfigDateVO> getEventsForCalendar(final HttpServletRequest request,
+			final Locale locale) {
+
+		List<DeviceTypeConfigDateVO> DateVOs = new ArrayList<DeviceTypeConfigDateVO>();
+		List<Session> allsession = Session.findAll(Session.class, "id", ApplicationConstants.ASC, locale.toString());
+		List<Session> currentYearSession = new ArrayList<Session>();
+		DateTime currDate = new DateTime();
+		int curryear = currDate.getYear();
+		int prevYear = curryear - 1;
+		for (Session s : allsession) {
+
+			if (s.getYear() == curryear || s.getYear() == prevYear) {
+				if (!s.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION)
+						&& !s.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION_1)
+						&& !s.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION_2)) {
+
+					currentYearSession.add(s);
+				}
+			}
+		}
+
+		for (Session s : currentYearSession) {
+			Map<String, String> sessionP = s.getParametersWithoutFormatting();
+			String[] dtArr = s.getDeviceTypesEnabled().split(",");
+			if (dtArr.length > 0) {
+				for (String i : dtArr) {
+					DeviceType dt = DeviceType.findByType(i, locale.toString());
+					CalendarEventsPerDeviceType ce = CalendarEventsPerDeviceType
+							.findByFieldName(CalendarEventsPerDeviceType.class, "deviceType", dt, "mr_IN");
+					if (ce != null) {
+
+						String[] fields = ce.getParameterkey().split(",");
+						for (String j : fields) {
+							DeviceTypeConfigDateVO dd = new DeviceTypeConfigDateVO();
+							dd.setType(s.getHouse().getType().getType());
+
+							if (j.contains("Batch")) {
+
+								String[] splitedParameterKey = j.split("_");
+								if (j.contains("Time")) {
+									dd.setParamterKey(dt.getName() + "," + splitedParameterKey[0]);
+									if (sessionP.get(dt.getType() + "_" + splitedParameterKey[0] + "StartTime") != null
+											&& sessionP.get(
+													dt.getType() + "_" + splitedParameterKey[0] + "EndTime") != null) {
+										String StartTime = sessionP
+												.get(dt.getType() + "_" + splitedParameterKey[0] + "StartTime");
+										String EndTime = sessionP
+												.get(dt.getType() + "_" + splitedParameterKey[0] + "EndTime");
+										dd.setParameterValue(StartTime + "," + EndTime);
+										DateVOs.add(dd);
+									}
+								} else {
+
+									dd.setParamterKey(dt.getName() + "," + splitedParameterKey[0]);
+									if (sessionP.get(dt.getType() + "_" + splitedParameterKey[0] + "StartDate") != null
+											&& sessionP.get(
+													dt.getType() + "_" + splitedParameterKey[0] + "EndDate") != null) {
+										String StartTime = sessionP
+												.get(dt.getType() + "_" + splitedParameterKey[0] + "StartDate");
+										String EndTime = sessionP
+												.get(dt.getType() + "_" + splitedParameterKey[0] + "EndDate");
+										dd.setParameterValue(StartTime + "," + EndTime);
+										DateVOs.add(dd);
+									}
+								}
+							} else if (j.contains("submission")) {
+
+								String[] splitedParameterKey = j.split("_");
+
+								if (j.contains("Time")) {
+									dd.setParamterKey(dt.getName() + "," + splitedParameterKey[0]);
+									if (sessionP.get(dt.getType() + "_" + splitedParameterKey[0] + "StartTime") != null
+											&& sessionP.get(
+													dt.getType() + "_" + splitedParameterKey[0] + "EndTime") != null) {
+										String StartTime = sessionP
+												.get(dt.getType() + "_" + splitedParameterKey[0] + "StartTime");
+										String EndTime = sessionP
+												.get(dt.getType() + "_" + splitedParameterKey[0] + "EndTime");
+										dd.setParameterValue(StartTime + "," + EndTime);
+										DateVOs.add(dd);
+									}
+								} else {
+
+									dd.setParamterKey(dt.getName() + "," + splitedParameterKey[0]);
+									if (sessionP.get(dt.getType() + "_" + splitedParameterKey[0] + "StartDate") != null
+											&& sessionP.get(
+													dt.getType() + "_" + splitedParameterKey[0] + "EndDate") != null) {
+										String StartTime = sessionP
+												.get(dt.getType() + "_" + splitedParameterKey[0] + "StartDate");
+										String EndTime = sessionP
+												.get(dt.getType() + "_" + splitedParameterKey[0] + "EndDate");
+										dd.setParameterValue(StartTime + "," + EndTime);
+										DateVOs.add(dd);
+									}
+								}
+							} else {
+
+								dd.setParamterKey(dt.getName() + "," + j);
+								if (sessionP.get(dt.getType() + "_" + j) != null) {
+									String StartTime = sessionP.get(dt.getType() + "_" + j);
+									dd.setParameterValue(StartTime);
+									DateVOs.add(dd);
+								}
+							}
+						}
+					}
+
+				}
+			}
+		}
+		return DateVOs;
+	}
 		
 	
 	
