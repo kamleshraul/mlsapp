@@ -1,18 +1,61 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <head>
+	<script type="text/javascript" src="./resources/js/jquery.multiselect.js"></script>
+	<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.multiselect.css" />
+
 	<title>
 		<spring:message code="proceedingautofill.list" text="List of Proceeding Autofill"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
+	
 	/* =============== ACTIONS =============== */
 	
 	
 	/* =============== DOCUMENT READY =============== */
 	$('document').ready(function(){
 		
-		
+		 /*  $.get("ref/members",function(data){
+			  
+		  }) */
+		  
+		  
+		  
+		  
+		  
+			$("#multipleSelectID").multiselect({
+				
+				noneSelectedText: '<spring:message code="dashboard.membername" text=" Members"/>',
+				  
+	            buttonWidth: 250,
+	 
+	            enableFiltering: true,
+				
+			    placeholder: 'Select Members',
+			    keepOrder: true,
+			
+			    selectAll: true,
+			    minWidth:500,
+			    buttonWidth: '300px',
+			    afterSelect: function(value, text){
+			    
+		            var get_val = $("#multiple_value").val();
+		            var hidden_val = (get_val != "") ? get_val+"," : get_val;
+		            $("#multiple_value").val(hidden_val+""+value);
+		          },
+		          afterDeselect: function(value, text){
+		            var get_val = $("#multiple_value").val();
+		            var new_val = get_val.replace(value, "");
+		            $("#multiple_value").val(new_val);
+		          }
+			   
+			});
+ 
+		  
+		  
+		  
+		  
 		
 		$("#submit").click(function(){
 			
@@ -24,7 +67,7 @@
 						
 						var parameters = "houseType="+$("#selectedHouseType").val()
 						 +"&deviceType="+$("#selectedDeviceType").val()
-						 +"&memberIds="+$("#memberIds").val()
+						 +"&memberIds="+$("#multipleSelectID").val()
 						 +"&latestAssemblyHouseFormationDate="+$("#latestAssemblyHouseFormationDate").val();
 						 
 						 var resource = ''
@@ -95,9 +138,24 @@
 			
 			<br>
 			<br>
-			<label style="width:150px;height: 25px;"  class="small"><spring:message code="question.number" text="Name" />  </label>			
-			<label style="width:150px;height: 25px;"  class="small">:   </label>			
-			<textarea id="memberIds" ></textarea> 
+			 	 	
+			<label style="width:150px;height: 25px;"  class="small"><spring:message code="dashboard.membername" text="Name" />  </label>			
+			<label style="width:150px;height: 25px;"  class="small">:   </label>
+			
+			<div  style="width:50%; border-style: groove;border-color: coral;">
+			
+			<c:if test="${!(empty allActiveMembers)}">		
+			<select  id="multipleSelectID"  name="selectedSupportingMembers" multiple>
+			<c:forEach items="${allActiveMembers}" var="i">
+			<option value="${i.id}">${i.getFullname()}</option>
+			</c:forEach>		
+			
+			</select>
+			</c:if>
+			</div> 
+			
+			<br>
+			
 			 <input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 						
 			<div id="ResultDiv" class="fields clearfix" >
