@@ -437,6 +437,10 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 	    		draft.setNoticeContent(this.getNoticeContent());
 	    	}
 	        
+	    	if(this.getAdmissionNumber() != null) {
+	    		draft.setAdmissionNumber(admissionNumber);
+	    	}
+	    	
 	        if(this.getId() != null) {
 	            SpecialMentionNotice specialMentionNotice = SpecialMentionNotice.findById(SpecialMentionNotice.class, this.getId());
 	            List<SpecialMentionNoticeDraft> originalDrafts = specialMentionNotice.getDrafts();
@@ -520,6 +524,11 @@ public class SpecialMentionNotice extends Device implements Serializable  {
 				final Integer itemsCount,
 				final String locale) throws ELSException{
 			return getSpecialMentionNoticeRepository().findAllReadyForSubmissionByMember(session, primaryMember, motionType, itemsCount, locale);
+		}
+		
+		public static List<SpecialMentionNotice> findAllAdmissionNumberNoticesofSpecificSession(final Session session,
+					final String locale) throws ELSException{
+			return getSpecialMentionNoticeRepository().findAllAdmissionNumberNoticesofSpecificSession(session, locale);
 		}
 		
 		 public static Boolean isDuplicateNumberExist(Date specialMentionNoticeDate, Integer number, Long id, String locale) {

@@ -90,7 +90,7 @@ public class AdjournmentMotionDraft extends BaseDomain implements Serializable {
     @Column(length=1000)
     private String editedAs;
     
-    
+    private Integer admissionNumber;
 
     /**** Constructors ****/
 	public AdjournmentMotionDraft() {
@@ -103,6 +103,18 @@ public class AdjournmentMotionDraft extends BaseDomain implements Serializable {
 	/**
 	 * @return the subject
 	 */
+	
+	public Integer getAdmissionNumber() {
+		return admissionNumber;
+	}
+	
+	
+	
+	public void setAdmissionNumber(Integer admissionNumber) {
+		this.admissionNumber = admissionNumber;
+	}
+	
+
 	public String getSubject() {
 		return subject;
 	}

@@ -119,6 +119,10 @@
 				//$.prompt("Work in progress for reporting branch report..");
 				generateAdmittedDevicesReportForReporting();
 			});
+			
+			$('#admissionNumberChange').click(function(){
+				showTabByIdAndUrl('details_tab', 'proprietypoint/bulkview/admissionnumber?houseType='+$('#currentHouseType').val());
+			});
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -187,6 +191,12 @@
 				</a> |
 				<a href="#" id="prois_admitted_reportingbranch" class="butSim bothhouse_report">
 					<spring:message code="prois.admitted_report" text="Admitted Notices Report For Reporters"/>
+				</a> |
+			</security:authorize>
+			<security:authorize access="hasAnyRole('PROIS_CLERK','PROIS_ASSISTANT')">
+				<hr/>
+				<a href="#" id="admissionNumberChange" class="butSim">
+					<spring:message code="generic.admissionNumberChange" text="Change admission Number Change"/>
 				</a> |
 			</security:authorize>
 			<p>&nbsp;</p>

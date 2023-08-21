@@ -96,6 +96,11 @@
 				$(this).attr('href','#');
 				generateRegisterReport();
 			});
+			
+			$("#admissionNumberChange").click(function(){
+				showTabByIdAndUrl('details_tab', 'adjournmentmotion/bulkview/admissionnumber?houseType='+$('#currentHouseType').val());
+			});
+			
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -174,7 +179,13 @@
 					</a> |
 				</c:when>
 			</c:choose>				
-			</security:authorize>		
+			</security:authorize>	
+			<security:authorize access="hasAnyRole('AMOIS_CLERK','AMOIS_ASSISTANT')">
+				<hr/>
+				<a href="#" id="admissionNumberChange" class="butSim">
+					<spring:message code="generic.admissionNumberChange" text="Change admission Number Change"/>
+				</a> |
+			</security:authorize>	
 			<p>&nbsp;</p>
 		</div>
 	</div>

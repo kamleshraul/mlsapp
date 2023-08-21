@@ -454,6 +454,10 @@ public class AdjournmentMotion extends Device implements Serializable {
     		draft.setNoticeContent(this.getNoticeContent());
     	}
         
+    	if(this.getAdmissionNumber() !=null) {
+    	    draft.setAdmissionNumber(admissionNumber);
+    	}
+    	
         if(this.getId() != null) {
             AdjournmentMotion adjournmentMotion = AdjournmentMotion.findById(AdjournmentMotion.class, this.getId());
             List<AdjournmentMotionDraft> originalDrafts = adjournmentMotion.getDrafts();
@@ -544,6 +548,11 @@ public class AdjournmentMotion extends Device implements Serializable {
     public List<ClubbedEntity> findClubbedEntitiesByMotionNumber(final String sortOrder) {
     	return getAdjournmentMotionRepository().findClubbedEntitiesByMotionNumber(this, sortOrder);
     }
+    
+    public static List<AdjournmentMotion> findAllAdmissionNumberMotionofSpecificSession(final Session session,
+			final String locale) throws ELSException{
+	return getAdjournmentMotionRepository().findAllAdmissionNumberMotionofSpecificSession(session, locale);
+}
 	
 	/**
      * Gets the revisions.

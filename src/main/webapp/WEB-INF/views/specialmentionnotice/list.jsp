@@ -87,6 +87,11 @@
 				$(this).attr('href','#');
 				generateRegisterReport();
 			});
+
+			$('#admissionNumberChange').click(function(){
+				showTabByIdAndUrl('details_tab', 'specialmentionnotice/bulkview/admissionnumber?houseType='+$('#currentHouseType').val());
+			});
+			
 		});
 		
 		/**** double clicking record in grid handler ****/
@@ -169,7 +174,19 @@
 					</a> |
 				</c:when>
 			</c:choose>				
-			</security:authorize>		
+			</security:authorize>
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<hr/>
+				<a href="#" id="member_specialmentionnotices_view" class="butSim">
+					<spring:message code="question.member_specialmentionnotice_view" text="Member's Special Mention Notices View"/>
+				</a> |
+			</security:authorize>
+			<security:authorize access="hasAnyRole('SMIS_CLERK','SMIS_ASSISTANT')">
+				<hr/>
+				<a href="#" id="admissionNumberChange" class="butSim">
+					<spring:message code="generic.admissionNumberChange" text="Change admission Number Change"/>
+				</a> |
+			</security:authorize>			
 			<p>&nbsp;</p>
 		</div>
 	</div>

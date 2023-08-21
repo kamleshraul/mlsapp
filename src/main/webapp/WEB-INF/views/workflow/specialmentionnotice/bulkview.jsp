@@ -62,14 +62,14 @@
 		});
 		
 		$("#bulksubmit").click(function(){
-			if($("#selectedAction").val() == "admissionNumberChange"){
+			/* if($("#selectedAction").val() == "admissionNumberChange"){
 				bulkUpdate();
-			}else if($("#selectedAction").val() == "toLapse"){
+			}else if($("#selectedAction").val() == "toLapse"){ */
 				bulkLapse();	
-			}
-			else{
+		/* 	} */
+			/* else{
 				alert("Some Error occured. Please contact Administrator");
-			}
+			} */
 		});		
 	});	
 	/**** Edit Resolutions ****/
@@ -174,11 +174,6 @@
 				}			
 		});
 		
-   /*	var admission=new Array();
-		for (var i=0; i<items.length; i++) {		
-			admission.push({'id':items[i] , 'admissionNumber':$(".am_"+items[i]).get(0).innerText});
-		} */
-		
 		var file=$("#selectedFileCount").val();	
 	    $.prompt($('#lapseMsg').val(),{
 			buttons: {Ok:true, Cancel:false}, callback: function(v){
@@ -271,8 +266,8 @@
 					<th style="min-width:350px;text-align:center;"><spring:message code="resolution.subject" text="Subject"></spring:message></th>
 					<%-- <th style="min-width:70px;text-align:center;"><spring:message code="resolution.lastdecision" text="Last Decision"></spring:message></th> --%>
 					<th style="min-width:50px;"><spring:message code="resolution.admissionNumber" text="Admission Number"></spring:message></th>
-					<th style="min-width:50px;text-align:center;"><spring:message code="resolution.up" text="Up"></spring:message></th>
-					<th style="min-width:50px;text-align:center;"><spring:message code="resolution.down" text="Down"></spring:message></th>
+				<%-- 	<th style="min-width:50px;text-align:center;"><spring:message code="resolution.up" text="Up"></spring:message></th>
+					<th style="min-width:50px;text-align:center;"><spring:message code="resolution.down" text="Down"></spring:message></th> --%>
 					<%-- <th style="min-width:120px;text-align:center;"><spring:message code="resolution.lastremark" text="Last Remark"></spring:message></th> --%>
 				</tr>			
 				<c:set var="index" value="1"></c:set>
@@ -295,12 +290,12 @@
 								<td style="text-align:justify;min-width:350px;">${i.subject}</td>
 						<%-- 		<td style="min-width:70px;text-align:justify;">${i.lastDecision}</td> --%>	
 								<td style="min-width:50px;" class="admissionNumber am_${i.id}">${i.deviceAdmissionNumber}</td>
-								<c:if test="${status.count != 1}">
+								<%-- <c:if test="${status.count != 1}">
 								<td style="min-width:50px;"><input type="button" value="&#x2191;" class="up" style="width: 40px;"/></td>
 								</c:if>
 								<c:if test="${fn:length(bulkapprovals) != status.count}">
 								<td style="min-width:50px;"><input type="button" value="&#x2193;" class="down" style="width: 40px;"/></td>
-								</c:if>
+								</c:if> --%>
 								<%-- <td style="text-align:justify;min-width:120px;">${i.lastRemarkBy} : ${i.lastRemark}</td> --%>
 								
 					</tr>
@@ -309,10 +304,10 @@
 			</table>
 			<br/>
 			 <p>
-			    <select name="selectedAction" id="selectedAction" style="width:100px;height: 25px;">			
+			    <%-- <select name="selectedAction" id="selectedAction" style="width:100px;height: 25px;">			
 						<option value="admissionNumberChange"><spring:message code='mytask.admissionNumber' text='Admission Number Change'/></option>
 						<option value="toLapse"><spring:message code='mytask.lapsed' text='To Lapse'/></option>			
-				</select> 
+				</select> --%> 
 				<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>
 			</p>
 			</div>

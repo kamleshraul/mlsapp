@@ -758,6 +758,12 @@
 					$("#groupDiv").show();
 				}
 				
+				if(device.indexOf('notices_specialmention')==0 && $("#currentusergroupType").val() == 'assistant'){
+					$("#admitted_admission_number").show();
+				}else{
+					$("#admitted_admission_number").hide();
+				}
+				
 			});	
 			/**** status changes then reload grid****/			
 			$("#selectedStatus").change(function(){
@@ -2498,7 +2504,7 @@
 					<option value="5">05</option>		
 				</select> |
 			</c:if>	
-			<c:if test="${usergroupType=='assistant' && selectedDeviceType == 'notices_specialmention'}">
+			<c:if test="${(usergroupType=='assistant') && (selectedDeviceType == 'notices_specialmention')}">
          	<a href="javascript:void(0);" id="admitted_admission_number" class="butSim" >
 						<spring:message code="generic.admittedAdmissionNumber" text="Special Actions on Pending Devices(Special Mention Notice)"/>
 				</a>|

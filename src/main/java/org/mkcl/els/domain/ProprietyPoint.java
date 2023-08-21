@@ -482,7 +482,11 @@ public class ProprietyPoint extends Device implements Serializable {
     	} else {
     		draft.setPointsOfPropriety(this.getPointsOfPropriety());
     	}
-        
+    	
+    	if(this.getAdmissionNumber() != null) {
+    		draft.setAdmissionNumber(admissionNumber);
+    	}
+    	        
         if(this.getId() != null) {
             ProprietyPoint proprietyPoint = ProprietyPoint.findById(ProprietyPoint.class, this.getId());
             Set<ProprietyPointDraft> originalDrafts = proprietyPoint.getDrafts();
@@ -636,6 +640,11 @@ public class ProprietyPoint extends Device implements Serializable {
     public static List<RevisionHistoryVO> getRevisions(final Long proprietyPointId, final String locale) {
         return getProprietyPointRepository().getRevisions(proprietyPointId, locale);
     }
+    
+    public static List<ProprietyPoint> findAllAdmissionNumberPointsofSpecificSession(final Session session,
+			final String locale) throws ELSException{
+	return getProprietyPointRepository().findAllAdmissionNumberPointsofSpecificSession(session, locale);
+}
     
     public String findAllMemberNames(String nameFormat) {
 		StringBuffer allMemberNamesBuffer = new StringBuffer("");

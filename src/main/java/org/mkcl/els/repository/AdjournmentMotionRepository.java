@@ -564,4 +564,27 @@ public class AdjournmentMotionRepository extends BaseRepository<AdjournmentMotio
 		return highlightedText;
 	}
 
+	public List<AdjournmentMotion> findAllAdmissionNumberMotionofSpecificSession (final Session session, final String locale) throws ELSException {
+		try {
+			String strQuery = "SELECT m FROM AdjournmentMotion m" +
+					" JOIN m.status sta" +
+					" WHERE m.session.id=:sessionId" +
+					" AND sta.type=:admissionStatusType" +
+					" AND m.admissionNumber IS NOT NULL" +
+					" AND m.locale=:locale " +
+					" ORDER BY m.adjourningDate, m.admissionNumber ASC";
+			TypedQuery<AdjournmentMotion> query = this.em().createQuery(strQuery, AdjournmentMotion.class);
+			query.setParameter("sessionId", session.getId());
+			query.setParameter("admissionStatusType", ApplicationConstants.ADJOURNMENTMOTION_FINAL_ADMISSION);
+			query.setParameter("locale", locale);
+			return query.getResultList();
+			}catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("AdjournmentMotionRepository_List<AdjournmentMotion> _findAllAdmissionNumberMotionofSpecificSession", "Cannot get the Adjournment Motion ");
+			throw elsException;
+		}	
+	}
+	
 }

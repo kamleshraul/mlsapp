@@ -1,5 +1,6 @@
 package org.mkcl.els.controller.prois;
 
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -17,6 +18,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
+import org.mkcl.els.common.vo.BulkApprovalVO;
 import org.mkcl.els.common.vo.MemberContactVO;
 import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
@@ -42,6 +44,7 @@ import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.SpecialMentionNotice;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
@@ -55,11 +58,13 @@ import org.mkcl.els.service.IProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("proprietypoint")
@@ -2489,6 +2494,119 @@ public class ProprietyPointController extends GenericController<ProprietyPoint> 
 			}
 		}
 		return false;
+	}
+	
+	@RequestMapping(value="/bulkview/admissionnumber",method=RequestMethod.GET)
+	public String getBulkView(final HttpServletRequest request,final Locale locale,
+			final Model model) throws ELSException{
+		populateBulkView(model,request,locale.toString());
+		return "proprietypoint/bulkadmissionNumberChange";		
+	}	
+	
+	
+	@Transactional
+	@RequestMapping(value="/bulkadmissionpointnumberapproval/update",method=RequestMethod.POST)
+	public String bulkApprovalAdmissionNumber(final HttpServletRequest request,final Locale locale,
+			final Model model,
+			final RedirectAttributes redirectAttributes) throws ELSException {
+		
+		String length = request.getParameter("itemLength");
+		boolean updated = false;	
+		UserGroupType userGroupType = this.populateObjectExtendingBaseDomainByStringFieldName(request, "usergroupType", UserGroupType.class, "type", locale.toString());
+
+	  
+		ArrayList<HashMap<String,String>>  pointContent= new ArrayList<HashMap<String,String>>();
+		
+		for (int i=0;i<Integer.parseInt(length);i++)
+		{
+			HashMap<String,String> ymap = new HashMap<String,String>();
+			String  id = request.getParameter("items["+i+"][id]");
+			ymap.put("id", id);
+			String admissionNumber  = request.getParameter("items["+i+"][admissionNumber]");
+			ymap.put("admissionNumber", admissionNumber);
+			pointContent.add(ymap);
+		}
+		
+		
+		if(pointContent != null )
+		{
+			for(HashMap<String,String>  i : pointContent)
+			{
+				Long id = Long.parseLong(i.get("id"));
+			    ProprietyPoint proprietyPoint = ProprietyPoint.findById(ProprietyPoint.class,id);
+			    proprietyPoint.setAdmissionNumber(Integer.parseInt(i.get("admissionNumber")));
+			    proprietyPoint.setEditedOn(new Date());
+			    proprietyPoint.setEditedBy(this.getCurrentUser().getActualUsername());
+			    proprietyPoint.setEditedAs(userGroupType.getName());
+			    proprietyPoint.merge();
+				updated = true;
+			}
+		}
+		
+		if(updated) {
+			this.populateBulkView(model,request,locale.toString());
+			model.addAttribute("type","taskcompleted");
+		}
+		else {
+			model.addAttribute("error","Some error occured");
+		}
+		
+		return "proprietypoint/bulkadmissionNumberChange";
+	}
+	
+	private void populateBulkView(final Model model,
+			final HttpServletRequest request,final String locale) throws ELSException{
+		/**** Request Params ****/
+		String strHouseType=request.getParameter("houseType");
+		HouseType houseType = HouseType.findByType(strHouseType, locale);
+	    DeviceType deviceType = DeviceType.findByType("proprietypoint", locale);
+    	Session session = Session.findLatestSessionHavingGivenDeviceTypeEnabled(houseType, deviceType);
+						
+		if(strHouseType!=null&&!(strHouseType.isEmpty())){	
+			
+			List<BulkApprovalVO> bulkapprovals=new ArrayList<BulkApprovalVO>();
+			
+			List<ProprietyPoint> proprietyPoint = ProprietyPoint.findAllAdmissionNumberPointsofSpecificSession(session, locale);
+			NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
+			for(ProprietyPoint sm : proprietyPoint) {
+				
+				BulkApprovalVO bulkApprovalVO=new BulkApprovalVO();	
+				bulkApprovalVO.setDeviceId(String.valueOf(sm.getId()));
+				
+				if(sm.getNumber()!=null){
+					bulkApprovalVO.setDeviceNumber(format.format(sm.getNumber()));
+				}else{
+					bulkApprovalVO.setDeviceNumber("-");
+				}
+				if(sm.getAdmissionNumber() != null) {
+					bulkApprovalVO.setDeviceAdmissionNumber(format.format(sm.getAdmissionNumber()));
+					bulkApprovalVO.setSupportingMemberId(sm.getAdmissionNumber().toString());
+				}else {
+					bulkApprovalVO.setDeviceAdmissionNumber("-");
+					bulkApprovalVO.setSupportingMemberId("-");
+				}
+				if(sm.getFormattedProprietyPointDate() != null) {
+					bulkApprovalVO.setDeviceDate(sm.getFormattedProprietyPointDate());
+				}
+				else {
+					bulkApprovalVO.setDeviceDate("-");
+				}
+				bulkApprovalVO.setDeviceType(sm.getDeviceType().getName());
+				bulkApprovalVO.setMember(sm.getPrimaryMember().getFullname());
+				if(sm.getRevisedSubject() != null && !sm.getRevisedSubject().isEmpty()){
+					bulkApprovalVO.setSubject(sm.getRevisedSubject());
+				}else{
+					bulkApprovalVO.setSubject(sm.getSubject());
+				}
+				if(sm.getRemarks()!=null&&!sm.getRemarks().isEmpty()){
+					bulkApprovalVO.setLastRemark(sm.getRemarks());
+				}else{
+					bulkApprovalVO.setLastRemark("-");
+				}
+				bulkapprovals.add(bulkApprovalVO);
+			}
+			model.addAttribute("bulkapprovals", bulkapprovals); 	
+		}
 	}
 
 }

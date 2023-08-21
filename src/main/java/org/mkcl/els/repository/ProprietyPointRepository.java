@@ -21,12 +21,10 @@ import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.SearchVO;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.ProprietyPoint;
-import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
-import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.ProprietyPointDraft;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
@@ -567,4 +565,26 @@ public class ProprietyPointRepository extends BaseRepository<ProprietyPoint, Ser
 		return highlightedText;
 	}
 
+	public List<ProprietyPoint> findAllAdmissionNumberPointsofSpecificSession (final Session session, final String locale) throws ELSException {
+		try {
+			String strQuery = "SELECT m FROM ProprietyPoint m" +
+					" JOIN m.status sta" +
+					" WHERE m.session.id=:sessionId" +
+					" AND sta.type=:admissionStatusType" +
+					" AND m.admissionNumber IS NOT NULL" +
+					" AND m.locale=:locale " +
+					" ORDER BY m.proprietyPointDate, m.admissionNumber ASC";
+			TypedQuery<ProprietyPoint> query = this.em().createQuery(strQuery, ProprietyPoint.class);
+			query.setParameter("sessionId", session.getId());
+			query.setParameter("admissionStatusType", ApplicationConstants.PROPRIETYPOINT_FINAL_ADMISSION);
+			query.setParameter("locale", locale);
+			return query.getResultList();
+			}catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("ProprietyPointRepository_List<ProprietyPoint> _findAllAdmissionNumberPointsofSpecificSession", "Cannot get the ProprietyPoint ");
+			throw elsException;
+		}	
+	}
 }

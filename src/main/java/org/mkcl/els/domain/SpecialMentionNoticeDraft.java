@@ -91,8 +91,23 @@ public class SpecialMentionNoticeDraft extends BaseDomain implements Serializabl
     @Column(length=1000)
     private String editedAs;
 
+	private Integer admissionNumber;
+	
+	
 
-    /**** Constructors ****/
+    public Integer getAdmissionNumber() {
+		return admissionNumber;
+	}
+
+
+
+	public void setAdmissionNumber(Integer admissionNumber) {
+		this.admissionNumber = admissionNumber;
+	}
+
+
+
+	/**** Constructors ****/
 	public SpecialMentionNoticeDraft() {
 		super();		
 	}

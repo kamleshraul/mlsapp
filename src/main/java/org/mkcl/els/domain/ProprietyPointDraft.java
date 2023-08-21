@@ -118,6 +118,9 @@ public class ProprietyPointDraft extends BaseDomain implements Serializable {
 	@Column(name="proprietypoint_id")
     private Long proprietyPointId;
 	
+	
+	private Integer admissionNumber;
+	
 	/********************************************* Constructors *******************************************/	
     /**
      * Instantiates a new propriety point draft.
@@ -129,6 +132,14 @@ public class ProprietyPointDraft extends BaseDomain implements Serializable {
     /********************************************* Domain methods *******************************************/
 
     /********************************************* Getters & Setters *******************************************/
+    public Integer getAdmissionNumber() {
+    	return admissionNumber;
+    }
+    
+    public void setAdmissionNumber(Integer admissionNumber) {
+    	this.admissionNumber = admissionNumber;
+    }
+    
 	public String getSubject() {
 		return subject;
 	}
