@@ -342,7 +342,11 @@
 											"<br>"+ data[i].status + ", " + data[i].subDepartment + ", ";
 											
 									if(data[i].deviceTypeType=='questions_starred'){
-										text+=data[i].chartAnsweringDate;
+										if(data[i].yaadiDate!=null && data[i].yaadiDate!='' && data[i].yaadiDate!='-') {
+											text+=data[i].yaadiDate;											
+										} else {
+											text+=data[i].chartAnsweringDate;											
+										}
 									}else if(data[i].deviceTypeType=='questions_unstarred'){
 										text+=data[i].yaadiDate+", "+data[i].yaadiNumber;
 									}

@@ -729,34 +729,6 @@
 				<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 			</p>
 			
-			<p>	
-				<label class="small"><spring:message code="rulessuspensionmotion.putupfor" text="Put up for"/></label>	
-				<select id="changeInternalStatus" class="sSelect">
-				<option value="-"><spring:message code='please.select' text='Please Select'/></option>
-				<c:forEach items="${internalStatuses}" var="i">
-					<c:choose>
-							<c:when test="${i.id==internalStatusSelected }">
-								<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-							</c:when>
-							<c:otherwise>
-							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-							</c:otherwise>
-					</c:choose>
-				</c:forEach>
-				</select>
-								
-				<select id="internalStatusMaster" style="display:none;">
-				<c:forEach items="${internalStatuses}" var="i">
-				<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-				</c:forEach>
-				</select>	
-				<form:errors path="internalStatus" cssClass="validationError"/>
-			</p>				
-			<p id="actorDiv" style="display: none;">
-				<label class="small"><spring:message code="rulessuspensionmotion.nextactor" text="Next Users"/></label>
-				<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
-				<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
-			</p>	
 			<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus}">
 			<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
 					
