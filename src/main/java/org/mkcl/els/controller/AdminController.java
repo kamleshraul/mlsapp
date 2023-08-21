@@ -36,6 +36,7 @@ import org.mkcl.els.domain.CutMotionDraft;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Holiday;
+import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberDepartment;
@@ -1757,6 +1758,12 @@ public class AdminController extends BaseController {
 	public String getlapsedeviceModule(final ModelMap model, 
     		final Locale locale,
             final HttpServletRequest request) {
+		
+		
+		HouseType houseType = HouseType.findByType(ApplicationConstants.BOTH_HOUSE, locale.toString());
+		
+		List<Member> allActiveMembers  = House.findActiveMembers(houseType, new Date(),ApplicationConstants.ASC , locale.toString());
+		model.addAttribute("allActiveMembers", allActiveMembers);
 		
 		List<DeviceType> dt = DeviceType.findAll(DeviceType.class, "name", ApplicationConstants.ASC, locale.toString());
 		model.addAttribute("alldevices", dt);
