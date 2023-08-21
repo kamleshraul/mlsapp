@@ -146,7 +146,7 @@
 									<fo:table-cell display-align="center" text-align="justify" number-columns-spanned="3">
 											<fo:block>
 												<xsl:choose>
-													<xsl:when test="element_1_10!=''  element_1_10 != null">
+													<xsl:when test="element_1_10!='' and element_1_10 != null">
 													<fo:block text-align="center" font-weight="bold">
 														(अध्यक्षस्थानी  माननीय <xsl:apply-templates select="element_1_10"></xsl:apply-templates> &#160; <xsl:apply-templates select="element_1_4"></xsl:apply-templates>)
 													</fo:block>

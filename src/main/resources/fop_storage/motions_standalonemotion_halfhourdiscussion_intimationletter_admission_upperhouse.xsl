@@ -101,12 +101,8 @@
 	            			<xsl:choose>
 
 	            				<xsl:when test="bExplanation!=''">
-	            				<xsl:apply-templates select="bExplanation"/>
+	            					<xsl:apply-templates select="bExplanation"/>
 	            				</xsl:when>
-	            				
-	            				//	<xsl:when test="reason!='' and reason!='-' and reason!='--' and reason!='---' and reason!='----' and reason!='-----'">
-	            				//	<xsl:apply-templates select="reason"/>
-	            				//</xsl:when>	
 	            			
 	            			</xsl:choose>	            			
 	            		</fo:block> 
