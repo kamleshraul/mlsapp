@@ -2425,7 +2425,7 @@ public class QuestionController extends GenericController<Question> {
 	@RequestMapping(value = "/getNumberToLapse", method = RequestMethod.GET)
 	public @ResponseBody String getNumberToLapse(final HttpServletRequest request, final Locale locale) throws ELSException {
 		String strdeviceType = request.getParameter("deviceType");
-		String strMemberIds = request.getParameter("memberIds");
+		String[]  strMemberIds = request.getParameterValues("memberIds");
 		String strhouseType = request.getParameter("houseType");
 		String strHouseDate = request.getParameter("latestAssemblyHouseFormationDate");
 		
@@ -2433,7 +2433,7 @@ public class QuestionController extends GenericController<Question> {
 		StringBuilder questionNumbers = new StringBuilder();
 		
 		if(strdeviceType != null && !strdeviceType.isEmpty() &&
-				strMemberIds !=null && !strMemberIds.isEmpty() &&
+				strMemberIds !=null  &&
 				strhouseType !=null && !strhouseType.isEmpty()) {
 			
 			HouseType ht = HouseType.findByName(strhouseType, locale.toString());
