@@ -25,6 +25,7 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
+import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -153,38 +154,41 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 				 * of mois users . here we are determining what status will be
 				 * shown to a particular user.
 				 ****/
+				UserGroup userGroup = null;
+				UserGroupType userGroupType = null;
 				List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
-				String userGroupType = null;
 				if (userGroups != null) {
 					if (!userGroups.isEmpty()) {
 						CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class,"DMOIS_ALLOWED_USERGROUPTYPES", "");
 						if (customParameter != null) {
 							String allowedUserGroups = customParameter.getValue();
-							for (UserGroup i : userGroups) {
-								if (allowedUserGroups.contains(i.getUserGroupType().getType())) {
-									/****
-									 * Authenticated User's usergroup and
-									 * usergroupType
-									 ****/
-									model.addAttribute("usergroup", i.getId());
-									userGroupType = i.getUserGroupType().getType();
-									model.addAttribute("usergroupType",userGroupType);
-									CustomParameter allowedStatus = CustomParameter.findByName(CustomParameter.class, "DISCUSSIONMOTION_GRID_STATUS_ALLOWED_"+ userGroupType.toUpperCase(),"");
-									List<Status> status = new ArrayList<Status>();
-									if (allowedStatus != null) {
-										status = Status.findStatusContainedIn(allowedStatus.getValue(),locale);
-									} else {
-										CustomParameter defaultAllowedStatus = CustomParameter.findByName(CustomParameter.class, "DISCUSSIONMOTION_GRID_STATUS_ALLOWED_BY_DEFAULT","");
-										if (defaultAllowedStatus != null) {
-											status = Status.findStatusContainedIn(defaultAllowedStatus.getValue(),locale);
-										} else {
-											model.addAttribute("errorcode","motion_status_allowed_by_default_not_set");
-										}
-									}
-									model.addAttribute("status", status);
-									break;
+							List<UserGroupType> configuredUserGroupTypes = 
+									QuestionController.delimitedStringToUGTList(allowedUserGroups, ",", locale);
+							
+							userGroup = QuestionController.getUserGroup(userGroups, configuredUserGroupTypes, lastSessionCreated, locale);
+							if(userGroup==null) {
+								lastSessionCreated = Session.findPreviousSessionInSameHouseForGivenDeviceTypeEnabled(lastSessionCreated, deviceType);
+								if(lastSessionCreated!=null) {
+									userGroup = QuestionController.getUserGroup(userGroups, configuredUserGroupTypes, lastSessionCreated, locale);
 								}
 							}
+							userGroupType = userGroup.getUserGroupType();							
+							model.addAttribute("usergroup", userGroup.getId());
+							model.addAttribute("usergroupType", userGroupType.getType());
+							
+							CustomParameter allowedStatus = CustomParameter.findByName(CustomParameter.class, "DISCUSSIONMOTION_GRID_STATUS_ALLOWED_"+ userGroupType.getType().toUpperCase(),"");
+							List<Status> status = new ArrayList<Status>();
+							if (allowedStatus != null) {
+								status = Status.findStatusContainedIn(allowedStatus.getValue(),locale);
+							} else {
+								CustomParameter defaultAllowedStatus = CustomParameter.findByName(CustomParameter.class, "DISCUSSIONMOTION_GRID_STATUS_ALLOWED_BY_DEFAULT","");
+								if (defaultAllowedStatus != null) {
+									status = Status.findStatusContainedIn(defaultAllowedStatus.getValue(),locale);
+								} else {
+									model.addAttribute("errorcode","motion_status_allowed_by_default_not_set");
+								}
+							}
+							model.addAttribute("status", status);
 						} else {
 							model.addAttribute("errorcode","dmois_allowed_usergroups_notset");
 						}
@@ -218,8 +222,7 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 					}
 				}
 				/**** File Options(Obtain Dynamically) ****/
-				if (userGroupType != null && !userGroupType.isEmpty()
-						&& userGroupType.equals("assistant")) {
+				if (userGroupType != null && userGroupType.getType().equals("assistant")) {
 					int highestFileNo = DiscussionMotion.findHighestFileNo(lastSessionCreated, deviceType, locale);
 					model.addAttribute("highestFileNo", highestFileNo);
 				}
