@@ -1707,64 +1707,31 @@ public class AdminController extends BaseController {
 							DeviceTypeConfigDateVO dd = new DeviceTypeConfigDateVO();
 							dd.setType(s.getHouse().getType().getType());
 
-							if (j.contains("Batch")) {
-
-								String[] splitedParameterKey = j.split("_");
-								if (j.contains("Time")) {
-									dd.setParamterKey(dt.getName() + "," + splitedParameterKey[0]);
-									if (sessionP.get(dt.getType() + "_" + splitedParameterKey[0] + "StartTime") != null
-											&& sessionP.get(
-													dt.getType() + "_" + splitedParameterKey[0] + "EndTime") != null) {
-										String StartTime = sessionP
-												.get(dt.getType() + "_" + splitedParameterKey[0] + "StartTime");
-										String EndTime = sessionP
-												.get(dt.getType() + "_" + splitedParameterKey[0] + "EndTime");
-										dd.setParameterValue(StartTime + "," + EndTime);
-										DateVOs.add(dd);
-									}
-								} else {
-
-									dd.setParamterKey(dt.getName() + "," + splitedParameterKey[0]);
-									if (sessionP.get(dt.getType() + "_" + splitedParameterKey[0] + "StartDate") != null
-											&& sessionP.get(
-													dt.getType() + "_" + splitedParameterKey[0] + "EndDate") != null) {
-										String StartTime = sessionP
-												.get(dt.getType() + "_" + splitedParameterKey[0] + "StartDate");
-										String EndTime = sessionP
-												.get(dt.getType() + "_" + splitedParameterKey[0] + "EndDate");
-										dd.setParameterValue(StartTime + "," + EndTime);
-										DateVOs.add(dd);
-									}
+							String[] splitedParameterKey = j.split("_");
+							if (j.contains("_Time")) {
+								dd.setParamterKey(dt.getName() + "," + splitedParameterKey[0]);
+								if (sessionP.get(dt.getType() + "_" + splitedParameterKey[0] + "StartTime") != null
+										&& sessionP
+												.get(dt.getType() + "_" + splitedParameterKey[0] + "EndTime") != null) {
+									String StartTime = sessionP
+											.get(dt.getType() + "_" + splitedParameterKey[0] + "StartTime");
+									String EndTime = sessionP
+											.get(dt.getType() + "_" + splitedParameterKey[0] + "EndTime");
+									dd.setParameterValue(StartTime + "," + EndTime);
+									DateVOs.add(dd);
 								}
-							} else if (j.contains("submission")) {
+							} else if (j.contains("_Date")) {
 
-								String[] splitedParameterKey = j.split("_");
-
-								if (j.contains("Time")) {
-									dd.setParamterKey(dt.getName() + "," + splitedParameterKey[0]);
-									if (sessionP.get(dt.getType() + "_" + splitedParameterKey[0] + "StartTime") != null
-											&& sessionP.get(
-													dt.getType() + "_" + splitedParameterKey[0] + "EndTime") != null) {
-										String StartTime = sessionP
-												.get(dt.getType() + "_" + splitedParameterKey[0] + "StartTime");
-										String EndTime = sessionP
-												.get(dt.getType() + "_" + splitedParameterKey[0] + "EndTime");
-										dd.setParameterValue(StartTime + "," + EndTime);
-										DateVOs.add(dd);
-									}
-								} else {
-
-									dd.setParamterKey(dt.getName() + "," + splitedParameterKey[0]);
-									if (sessionP.get(dt.getType() + "_" + splitedParameterKey[0] + "StartDate") != null
-											&& sessionP.get(
-													dt.getType() + "_" + splitedParameterKey[0] + "EndDate") != null) {
-										String StartTime = sessionP
-												.get(dt.getType() + "_" + splitedParameterKey[0] + "StartDate");
-										String EndTime = sessionP
-												.get(dt.getType() + "_" + splitedParameterKey[0] + "EndDate");
-										dd.setParameterValue(StartTime + "," + EndTime);
-										DateVOs.add(dd);
-									}
+								dd.setParamterKey(dt.getName() + "," + splitedParameterKey[0]);
+								if (sessionP.get(dt.getType() + "_" + splitedParameterKey[0] + "StartDate") != null
+										&& sessionP
+												.get(dt.getType() + "_" + splitedParameterKey[0] + "EndDate") != null) {
+									String StartTime = sessionP
+											.get(dt.getType() + "_" + splitedParameterKey[0] + "StartDate");
+									String EndTime = sessionP
+											.get(dt.getType() + "_" + splitedParameterKey[0] + "EndDate");
+									dd.setParameterValue(StartTime + "," + EndTime);
+									DateVOs.add(dd);
 								}
 							} else {
 
