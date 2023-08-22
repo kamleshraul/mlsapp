@@ -14559,7 +14559,7 @@ public class Question extends Device implements Serializable {
 			final Long houseId,
 			final String startDate,
 			final Long dtId,
-			final String memberIds
+			final String[]  memberIds
 			){
 		return getQuestionRepository().getAllQuestionToBeLapsed(houseId,startDate, dtId, memberIds);
 	}
