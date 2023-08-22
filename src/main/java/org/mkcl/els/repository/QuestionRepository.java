@@ -3858,7 +3858,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			final Long houseId,
 			final String startDate,
 			final Long dtId,
-			final String memberIds
+			final String[] memberIds
 			){
 		
 		
@@ -3874,13 +3874,21 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 					e.printStackTrace();
 				}
 				
+				
+				StringBuilder memberId = new StringBuilder();
+				for(String i :memberIds) {
+					memberId.append(i+",");
+				}
+				
+				memberId.deleteCharAt(memberId.length()-1);
+				System.out.println(memberId);
 
 				strquery.append("SELECT DISTINCT (q)  FROM Question q  ");
 				strquery.append(
 						"  WHERE q.session.id IN (SELECT id FROM Session ss WHERE ss.house.id=:houseId AND  ss.startDate>=:startDate) ");
 				strquery.append("  AND q.type.id = :deviceTypeId  ");
 				strquery.append("  AND q.number IS NOT NULL  ");
-				strquery.append("  AND  q.primaryMember.id IN ( "+memberIds +")   ");
+				strquery.append("  AND  q.primaryMember.id IN ("+memberId.toString()+")   ");
 				strquery.append("  AND q.parent IS NULL   ");
 				
 
@@ -3888,7 +3896,8 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				query.setParameter("houseId",houseId);
 				query.setParameter("startDate", date);
 				query.setParameter("deviceTypeId", dtId);
-				
+				//query.setParameter("memberIds", memberIds);
+
 				 memberQuestions =  query.getResultList();
 
 
