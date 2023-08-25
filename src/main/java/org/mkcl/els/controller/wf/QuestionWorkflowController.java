@@ -2676,10 +2676,22 @@ public class QuestionWorkflowController  extends BaseController{
 							findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+questionType.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
 					if(finalApprovingAuthority!=null 
 							&&finalApprovingAuthority.getValue().contains(strUserGroupType)){
-						CustomParameter finalApprovingAuthorityStatus = CustomParameter.
-								findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+strUserGroupType.toUpperCase(),"");
+						CustomParameter finalApprovingAuthorityStatus = null;
+						Workflow workflow = Workflow.findByStatus(internalStatus, strLocale);
+						if(workflow!=null) {
+							finalApprovingAuthorityStatus = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_" + questionType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+workflow.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+							if(finalApprovingAuthorityStatus==null) {
+								finalApprovingAuthorityStatus = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_" + questionType.getType().toUpperCase()+"_"+workflow.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+							}						
+						}
+						if(finalApprovingAuthorityStatus == null) {
+							finalApprovingAuthorityStatus = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_" + questionType.getType().toUpperCase() + "_" + strUserGroupType.toUpperCase(), "");
+						}
+						if(finalApprovingAuthorityStatus == null) {
+							finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+strUserGroupType.toUpperCase(),"");
+						}
 						if(finalApprovingAuthorityStatus != null){
-							internalStatuses = Status.
+							internalStatuses=Status.
 									findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), strLocale);
 						}
 					}/**** QUESTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
