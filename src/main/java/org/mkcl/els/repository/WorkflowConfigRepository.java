@@ -2016,8 +2016,13 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			workflowConfig = getLatest(motion, motion.getInternalStatus()
 					.getType(), locale.toString());
 			UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale);
+			List<Long> usergroupTypesIds = new ArrayList<Long>();
+			UserGroupType ugt1 = UserGroupType.findByType(ApplicationConstants.SECTION_OFFICER, locale);
+			usergroupTypesIds.add(ugt1.getId());
+			List<WorkflowActor> workflowActorsToBeExcluded = getWorkflowActors(workflowConfig,usergroupTypesIds,level);
 			currentWorkflowActor = getWorkflowActor(workflowConfig,ugt,(level-1));
-			allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+			allEligibleActors = getWorkflowActorsExcludingGivenActorList(workflowConfig, workflowActorsToBeExcluded, currentWorkflowActor, ApplicationConstants.ASC);
+//			allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
 		} else {
 			workflowConfig = getLatest(motion, status, locale.toString());
 			userGroupType = userGroup.getUserGroupType();

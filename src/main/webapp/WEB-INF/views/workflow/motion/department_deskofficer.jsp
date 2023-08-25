@@ -587,6 +587,53 @@
 	        	$("#submit").css("display","none");
 	        }
 	    });
+		$('#submit').click(function(){
+			$(".wysiwyg").each(function(){
+				var wysiwygVal=$(this).val().trim();
+				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"||wysiwygVal==$('#defaultAnswerMessage').val()){
+					$(this).val("");
+				}
+			});
+			
+			var sendToSectionOfficer = $("#internalStatusMaster option[value='motion_processed_sendToSectionOfficer']").text();
+			var changedInternalStatus = $("#changeInternalStatus").val();
+			
+			
+			if(changedInternalStatus == sendToSectionOfficer){
+				console.log("Reply: "+$('#reply').val());
+				if($('#reply').val()=="" || $('#factualPositionFromDepartment').val()==""){
+					$.prompt($('#noAnswerProvidedMsg').val());
+					return false;
+				}
+			}
+			
+			$.prompt($('#confirmMotionSubmission').val(),{
+				buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){				        	
+						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+						var url = $('form').attr('action');
+						$.post(url,  
+			    	            $("form").serialize(),
+			    	            function(data){
+			       					$('.tabContent').html(data);
+			       					$('html').animate({scrollTop:0}, 'slow');
+			       				 	$('body').animate({scrollTop:0}, 'slow');	
+			       				 	$.unblockUI();	
+			    	            }
+						).fail(function(){
+	    	    			$.unblockUI();
+	    	    			if($("#ErrorMsg").val()!=''){
+	    	    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+	    	    			}else{
+	    	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+	    	    			}
+	    	    			scrollTop();
+	    	    		});
+			        }
+				}
+			});
+			return false;			
+		});
 	});
 	</script>
 	 <style type="text/css">
@@ -1034,10 +1081,10 @@
 			<h2></h2>
 			<p class="tright">		
 				<c:if test="${bulkedit!='yes'}">
-					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+					<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 				</c:if>
 				<c:if test="${bulkedit=='yes'}">
-					<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
+					<input id="submitBulkEdit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
 				</c:if>	
 			</p>
 		</div>
@@ -1088,6 +1135,7 @@
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 <input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
 <input id="departmentChangeTimeLimitCrossed" type="hidden" value="${departmentChangeTimeLimitCrossed}">
+<input id="noAnswerProvidedMsg" value='<spring:message code="client.error.noanswer" text="Please provide answer."></spring:message>' type="hidden" />
 
 <select id="allDevices" style="display: none;">
 	<c:forEach items="${allDevices}" var="i">
