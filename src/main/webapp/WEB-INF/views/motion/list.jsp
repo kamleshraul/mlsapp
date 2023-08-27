@@ -5,8 +5,44 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">	
 		$(document).ready(function(){
+			
+		    if($("#selectedStatus").val() == 955)
+			  {
+				$("#removeDiscussionDateAndStatus").show()			
+			  }else{
+				$("#removeDiscussionDateAndStatus").hide()
+			  }
+		    
+		    $('#removeDiscussionDateAndStatus').click(function(){
+		    	$.prompt($('#discussionstatusChangeMsg').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){
+			        	//console.log($("#key").val())
+			        	
+			        	var id = $("#key").val();
+			        	var ugt = $("#currentusergroupType").val();
+			        	
+			        	if(id != undefined && id != ''){
+			        		$.get('motion/removeDiscussionStatusAndDate/'+id+'?usergroupType='+ugt,function(data) {
+								$.prompt('Number '+ data +'  Changed Successfully !!' )
+								reloadMotionGrid();	
+							}).fail(function(){				
+								if($("#ErrorMsg").val()!=''){
+									$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+								}else{
+									$("#error_p").html("Error occured contact for support.").
+									css({'color':'red', 'display':'block'});
+								}
+								scrollTop();
+							});
+			        	}
+			        	
+			        }}});
+			});
+			
 			$(".toolTip").hide();
 			$("#selectionDiv1").show();	
+			
 			$("#selectedDisplayContent").hide();
 			$("#generateMotion").hide();
 			/**** grid params which is sent to load grid data being sent ****/		
@@ -131,6 +167,7 @@
 				<spring:message code="motion.delete" text="Delete"/>
 			</a> |
 			</security:authorize>
+			
 				
 			<security:authorize access="hasAnyRole('ABC')">		
 				<a href="#" id="submitMotion" class="butSim">
@@ -179,7 +216,11 @@
 					<spring:message code="motion.updateDecision" text="Update Decision"/>
 				</a> |			
 			</security:authorize>
+			<security:authorize	access="hasAnyRole('MOIS_SECTION_OFFICER','MOIS_ASSISTANT','MOIS_CLERK')">
+			 <a href="#" id ="removeDiscussionDateAndStatus"><spring:message code="motion.removeDiscussionDateAndStatus" text="remove Discussion Date And Status"/></a>
+			</security:authorize>	
 			<p>&nbsp;</p>
+			
 		</div>
 	</div>
 	
@@ -189,5 +230,6 @@
 	<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 	</div>
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+	<input type="hidden" id="discussionstatusChangeMsg" value="Do You Want to Proceed With Selected motion ?"/>
 </body>
 </html>
