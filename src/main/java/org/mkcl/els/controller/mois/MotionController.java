@@ -4703,7 +4703,7 @@ public class MotionController extends GenericController<Motion>{
 					specificsessionDates.get(0).setEndTime(convsessionEndTime);
 				}
 				
-				specificsessionDates.get(0).merge();	
+				specificsessionDates.get(0).persist();	
 				
 				updateStatus = "success";
 			} catch (Exception e) {
@@ -4864,5 +4864,35 @@ public class MotionController extends GenericController<Motion>{
 	
 	
 	
+	@RequestMapping(value="/removeDiscussionStatusAndDate/{id}" , method=RequestMethod.GET)
+	public @ResponseBody String removeDiscussionStatusAndDate( final ModelMap model,@PathVariable("id") final String mId  ,final HttpServletRequest request, final Locale locale ) {
+		
+	
+		if(mId !=null && !mId.isEmpty())
+		{
+			String ugt = request.getParameter("usergroupType");
+			AuthUser authUser = this.getCurrentUser();
+			UserGroupType usergrouptype = UserGroupType.findByType(ugt, locale.toString());
+			Motion m = Motion.findById(Motion.class,Long.parseLong(mId) );
+			if(m != null ) {
+				if(m.getDiscussionDate() != null)
+				{
+					m.setDiscussionDate(null);
+				}
+				if(m.getDiscussionStatus() != null)
+				{
+					m.setDiscussionStatus(null);	
+				}
+				m.setEditedOn(new Date());
+				m.setEditedBy(authUser.getActualUsername());
+				m.setEditedAs(usergrouptype.getName());
+				m.merge();
+				return m.getNumber().toString();				
+			}
+		}
+		return null;
+	}
+	
+
 
 }
