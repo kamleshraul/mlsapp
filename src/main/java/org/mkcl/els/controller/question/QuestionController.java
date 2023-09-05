@@ -2525,23 +2525,22 @@ public class QuestionController extends GenericController<Question> {
 		model.addAttribute("strusergroupType",request.getParameter("strusergroupType"));
 		Group group = Group.findById(Group.class, question.getGroup().getId());
 		List<QuestionDates> questionDates = group.getQuestionDates();
-		System.out.println(questionDates);
+		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
 		int count = 1;
 		for(QuestionDates questionDate : questionDates) {
-			if(questionDate.getAnsweringDate().equals(question.getChartAnsweringDate().getAnsweringDate())) {
-		        questionDates.subList(0, count).clear();
-		        break;
+			String strAnsweringDate = 
+					FormaterUtil.getDateFormatter("mr_IN").format(questionDate.getAnsweringDate());
+			MasterVO masterVO = new MasterVO(questionDate.getId(), strAnsweringDate);
+			masterVO.setValue(FormaterUtil.formatDateToString(questionDate.getAnsweringDate(), ApplicationConstants.DB_DATEFORMAT));
+			masterVO.setSessionDate(questionDate.getAnsweringDate());
+			masterVOs.add(masterVO);
+		}		
+		for(MasterVO i : masterVOs) {
+			if(i.getSessionDate().equals(question.getChartAnsweringDate().getAnsweringDate())) {
+			    masterVOs.subList(0, count).clear();
+			    break;
 			}
 			count++;
-		}		
-		System.out.println(questionDates);
-		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
-		for(QuestionDates i : questionDates) {
-			String strAnsweringDate = 
-					FormaterUtil.getDateFormatter("mr_IN").format(i.getAnsweringDate());
-			MasterVO masterVO = new MasterVO(i.getId(), strAnsweringDate);
-			masterVO.setValue(FormaterUtil.formatDateToString(i.getAnsweringDate(), ApplicationConstants.DB_DATEFORMAT));
-			masterVOs.add(masterVO);
 		}
 		
 		model.addAttribute("questionDates",masterVOs);

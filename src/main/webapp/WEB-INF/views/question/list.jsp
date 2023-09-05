@@ -390,13 +390,12 @@
 			
 			/*---------------------------------*/
 			
-			var selectedDeviceType = $("#deviceTypeMaster option[value='"+ $("#selectedQuestionType").val() + "']").text();
+/* 			var selectedDeviceType = $("#deviceTypeMaster option[value='"+ $("#selectedQuestionType").val() + "']").text();
 			$("#chart_answering_date_change").hide();
-			if(selectedDeviceType == 'questions_starred' && $('#processMode').val()  == 'upperhouse'){
+			if(selectedDeviceType == 'questions_starred' && $('#processMode').val()  == 'upperhouse' && $('#loadedSession').val()==$('#latestsessionforchartchange').val()){
 				$("#chart_answering_date_change").show();
 			}
-			
-			
+						
 			
 			$("#chart_answering_date_change").click(function(){
 				
@@ -429,7 +428,7 @@
   				}
 						
 				
-			});
+			}); */
 			
 			
 		});
@@ -611,11 +610,11 @@
 				</a> |
 				</span>				
 			</security:authorize>	
-			<security:authorize access="hasAnyRole('QIS_CLERK')">
+			<%-- <security:authorize access="hasAnyRole('QIS_CLERK')">
 				<a href="#" id="chart_answering_date_change" class="butSim link">
 					<spring:message code="question.chart_answering_date" text="Chart Answering Date"/>
 				</a>
-			</security:authorize>		
+			</security:authorize>	 --%>	
 			<p>&nbsp;</p>
 		</div>
 	</div>

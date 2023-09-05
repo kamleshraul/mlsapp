@@ -53,6 +53,29 @@
 				
 			});
 			
+			$(".deviceNumber").mousedown(function(e) {
+			    if (e.which === 3) {
+			       console.log($(this).attr('id'));
+			       if($('#processMode').val()  == 'upperhouse' && $('#srole').val() == 'QIS_CLERK' && $('#currentDeviceType').val() == 'questions_starred'){
+			    	var currentDate = new Date();
+			        	currentDate.setHours(0,0,0,0);
+			        	var maxChartAnsweringDate = new Date($("#maxChartAnsweringDate").val());
+			         if(currentDate > maxChartAnsweringDate){
+			        	  $("#chart_answering_date_change").hide();
+			          } else { 
+			        	  if($(this).attr('name') == "1"){
+			        		   $("#chart_answering_date_change").hide();
+					       }else{
+					    	   $("#chart_answering_date_change").show(); 
+					       }  
+			         }
+			    	  
+			       }else{
+			    	   $("#chart_answering_date_change").hide();
+			       }
+			    }
+			});
+			
 			 /**** Right Click Menu ****/
 			$(".deviceNumber").contextMenu({
 		        menu: 'contextMenuItems'
@@ -63,6 +86,8 @@
 					clubbingInt(id);		
 				}else if(action=='referencing'){
 					referencingInt(id);
+				}else if(action=='chart_answering_date_change'){
+					chartAnsweringDateChanged(id);	
 				}
 		    });	
 
@@ -292,7 +317,7 @@
 								<c:otherwise>
 									<c:choose>										
 										<c:when test="${r[7] == 'n'}">												
-											<a href="#" class="deviceNumber" id="${r[3]}" title="${r[10]}">
+											<a href="#" class="deviceNumber" id="${r[3]}" name="${r[29]}" title="${r[10]}">
 												<b>${r[4]}</b>
 												<c:if test="${deviceType == 'questions_starred'}">
 													<c:if test="${not fn:contains(r[27], 'typist')}">
@@ -383,8 +408,8 @@
 												</div>
 											</c:if>
 											<c:if test="${deviceType == 'questions_starred'}">
-												<a href="#" class="deviceNumber" id="${r[3]}" title="${r[9]}">
-													${r[4]}
+												<a href="#" class="deviceNumber" id="${r[3]}" name="${r[29]}" title="${r[9]}">
+													${r[4]} 
 													<c:if test="${deviceType == 'questions_starred'}">
 														<c:if test="${not fn:contains(r[27], 'typist')}">
 															<sup style="font-size: 8pt;">*</sup>
@@ -496,7 +521,7 @@
 							<c:otherwise>
 								<c:choose>
 									<c:when test="${r[7] == 'n'}">
-										<a href="#" class="deviceNumber" id="${r[3]}" title="${r[10]}">
+										<a href="#" class="deviceNumber" id="${r[3]}" name="${r[29]}" title="${r[10]}">
 											<b>${r[4]}</b>
 											<c:if test="${deviceType == 'questions_starred'}">
 												<c:if test="${not fn:contains(r[27], 'typist')}">
@@ -588,7 +613,7 @@
 											</div>											
 										</c:if>
 										<c:if test="${deviceType == 'questions_starred'}">
-											<a href="#" class="deviceNumber" id="${r[3]}" title="${r[9]}">
+											<a href="#" class="deviceNumber" id="${r[3]}" name="${r[29]}" title="${r[9]}">
 												${r[4]}
 												<c:if test="${deviceType == 'questions_starred'}">
 													<c:if test="${not fn:contains(r[27], 'typist')}">

@@ -50,7 +50,7 @@ public class ChartController extends BaseController{
 			String strUserGroupType = request.getParameter("usergroupType");
 			String strHouseType = request.getParameter("houseType");
 			
-			if(strGroup != null && (!strGroup.isEmpty()) 
+    		if(strGroup != null && (!strGroup.isEmpty()) 
 					&& strUserGroup != null && (!strUserGroup.isEmpty())
 					&& strUserGroupType != null && (!strUserGroupType.isEmpty()) 
 					&& strDeviceTypeId != null && (!strDeviceTypeId.isEmpty())
@@ -72,8 +72,11 @@ public class ChartController extends BaseController{
 							MasterVO masterVO = new MasterVO(i.getId(), 
 									FormaterUtil.getDateFormatter(
 											locale.toString()).format(i.findAnsweringDateForReport()));
+							masterVO.setValue(i.getAnsweringDate().toString());
 							masterVOs.add(masterVO);
 						}
+						String maxChartAnsweringDate = FormaterUtil.formatDateToString( questionDates.get(questionDates.size()-1).getAnsweringDate(), ApplicationConstants.DB_DATEFORMAT);
+						model.addAttribute("maxChartAnsweringDate", maxChartAnsweringDate);
 						model.addAttribute("answeringDates", masterVOs);
 					}else{
 							model.addAttribute("answeringDates", null);

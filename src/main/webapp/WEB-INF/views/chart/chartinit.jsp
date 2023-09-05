@@ -465,6 +465,19 @@
 				scrollTop();
 			});
 		}	
+		
+		function chartAnsweringDateChanged(id){
+			$.get('question/questionId/'+id,{strusergroupType: $("#currentusergroupType").val()},function(data){
+			    $.fancybox.open(data);
+		    }).fail(function(){
+    			if($("#ErrorMsg").val()!=''){
+    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+    			}else{
+    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+    			}
+    			scrollTop();
+    		});
+		}
 	</script>
 </head>
 
@@ -511,6 +524,7 @@
 		<li><a href="#clubbing" class="edit"><spring:message code="generic.clubbing" text="Clubbing"></spring:message></a></li>
 	</c:if>
 	<li><a href="#referencing" class="edit"><spring:message code="generic.referencing" text="Referencing"></spring:message></a></li>
+	<li><a href="#chart_answering_date_change" id="chart_answering_date_change" class="edit"><spring:message code="question.chart_answering_date" text="Shift Chart"/></a></li>
 </ul>
 
 <div id="clubbingResultDiv" style="display:none;">
@@ -519,6 +533,8 @@
 <div id="referencingResultDiv" style="display:none;">
 </div>
 <input type="hidden" id="deviceType_Chart" value="${deviceType}" />
+<input type="hidden" id="maxChartAnsweringDate" value="${maxChartAnsweringDate}" />
+<%-- <input id="chartAnsweringChangeDate" name="chartAnsweringChangeDate" type="hidden" value="${showChartingAnsweringChange}"> --%>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 <input type="hidden" id="chartCreatePermissionLowerhouse" value="<spring:message code='chart.createpermission.lowerhouse'/>"/>
 <input type="hidden" id="chartCreatePermissionUpperhouse" value="<spring:message code='chart.createpermission.upperhouse'/>"/>
