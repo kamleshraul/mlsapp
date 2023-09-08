@@ -833,7 +833,22 @@ public class MotionWorkflowController extends BaseController {
 			}
 		}
 
-		/**** updating answer related dates ****/
+		/**** reply related processing and dates ****/
+		String operation = request.getParameter("operation");
+		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
+				&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.MOTION_PROCESSED_SEND_TO_SECTIONOFFICER)){
+			if(operation!=null && operation.equals("workflowsubmit")){
+				if(domain.getTransferToDepartmentAccepted()==null || domain.getTransferToDepartmentAccepted().equals(false)) {
+					if(domain.getReply() == null || domain.getReply().isEmpty()){
+						result.rejectValue("reply", "ReplyEmpty");
+						if(!model.containsAttribute("errorcode")){
+							model.addAttribute("errorcode","no_reply_provided_department");								
+						}
+						return "workflow/myTasks/error";
+					}
+				}
+			}
+		}
 		if (domain.getAnsweringDate() == null) {
 			String strAnsweringDate = request.getParameter("setAnsweringDate");
 			if (strAnsweringDate != null && !strAnsweringDate.isEmpty()) {
