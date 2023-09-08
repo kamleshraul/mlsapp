@@ -611,7 +611,7 @@
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){				        	
 						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-						var url = $('form').attr('action');
+						var url = $('form').attr('action')+'?operation=workflowsubmit';
 						$.post(url,  
 			    	            $("form").serialize(),
 			    	            function(data){
@@ -1135,7 +1135,7 @@
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 <input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
 <input id="departmentChangeTimeLimitCrossed" type="hidden" value="${departmentChangeTimeLimitCrossed}">
-<input id="noAnswerProvidedMsg" value='<spring:message code="client.error.noanswer" text="Please provide answer."></spring:message>' type="hidden" />
+<input id="noAnswerProvidedMsg" value='<spring:message code="client.error.motion_noreply" text="Please provide reply"></spring:message>' type="hidden" />
 
 <select id="allDevices" style="display: none;">
 	<c:forEach items="${allDevices}" var="i">
