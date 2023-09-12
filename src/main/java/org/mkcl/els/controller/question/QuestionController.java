@@ -2562,6 +2562,24 @@ public class QuestionController extends GenericController<Question> {
 		   
 		  return chartUpdated;
 	    }
-
-	
+	   
+	   	@RequestMapping(value="/getSubdepartmentChangeCount", method=RequestMethod.GET)
+		public String getSubdepartmentChangeCountPrompt (final ModelMap model,
+				final HttpServletRequest request,
+				final Locale locale) {
+			
+			String sessionId = request.getParameter("sessionId");
+			model.addAttribute("sessionId",sessionId);
+			
+			String deviceType = request.getParameter("deviceType");
+			model.addAttribute("deviceType",deviceType);
+			
+//			String isEqualToGroup = request.getParameter("isEqualToGroup"); 
+//			model.addAttribute("isEqualToGroup",isEqualToGroup);
+			
+			
+			return "question/changeSubdepartmentReportPrompt";
+		}
+	   	
+	   	
 }

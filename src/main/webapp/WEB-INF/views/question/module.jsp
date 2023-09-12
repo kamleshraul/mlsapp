@@ -568,8 +568,6 @@
 			showBallotChoiceOptionReport();
 		});
 		
-		
-		
 		/* Shubham */
 		$("#QuestionNumberRange").hide();
 		
@@ -585,6 +583,24 @@
 		}else{
 			$("#hdReportsDiv").show();
 		}
+		
+		$("#question_subdepartment_change_report").click(function(){
+			var selectedDeviceType = $("#deviceTypeMaster option[value='"+ $("#selectedQuestionType").val() + "']").text();
+			if (selectedDeviceType == 'questions_starred'){
+				$.get("question/getSubdepartmentChangeCount?sessionId="+$('#loadedSession').val()+"&deviceType="+selectedDeviceType,function(data){
+				    $.fancybox.open(data,{autoSize:false,width:750,height: 100});
+			    }).fail(function(){
+	    			if($("#ErrorMsg").val()!=''){
+	    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+	    			}else{
+	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+	    			}
+	    			scrollTop();
+	    		});
+		    }else {
+		    	$.prompt("This is utility for Starred Questions." );	
+		    }
+	    });
 	});
 	
 	function showCurrentStatusReport(val, qId){
@@ -2649,7 +2665,12 @@
 						</a> |
 						<a href="#" id="online_offline_submission_count_report" class="butSim link">
 							<spring:message code="question.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
-						</a>	
+						</a>
+					</security:authorize>
+					<security:authorize access="hasAnyRole('QIS_UNDER_SECRETARY', 'QIS_DEPUTY_SECRETARY', 'QIS_JOINT_SECRETARY', 'QIS_PRINCIPAL_SECRETARY')">
+					    <a href="#" id="question_subdepartment_change_report" class="butSim link">
+							<spring:message code="question.question_subdepartment_change_report" text="Question Subdepartment Change"/>
+						</a>
 					</security:authorize>
 				</div>
 			</security:authorize>

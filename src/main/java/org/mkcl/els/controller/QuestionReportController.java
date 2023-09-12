@@ -2845,6 +2845,28 @@ public class QuestionReportController extends BaseController{
 		return "question/reports/"+request.getParameter("reportout");		
 	}
 	
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	@RequestMapping(value="/subdepartmentChangeReport", method=RequestMethod.GET)
+	public String getSubdepartmentChangeReport(HttpServletRequest request, Model model, Locale locale){
+		
+		Map<String, String[]> requestMap = request.getParameterMap();
+		List report = Query.findReport(request.getParameter("report"), requestMap);
+		if(report != null && !report.isEmpty()){
+			Object[] obj = (Object[])report.get(0);
+			if(obj != null){
+				
+				model.addAttribute("topHeader", obj[0].toString().split(";"));
+			}
+			List<String> serialNumbers = populateSerialNumbers(report, locale);
+			model.addAttribute("serialNumbers", serialNumbers);
+		}
+		model.addAttribute("formater", new FormaterUtil());
+		model.addAttribute("locale", locale.toString());
+		model.addAttribute("report", report);
+		
+		return "question/reports/"+request.getParameter("reportout");		
+	}
+	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/statistical_counts_report", method=RequestMethod.GET)
 	public String generateStatisticalCountsReport(HttpServletRequest request, ModelMap model, Locale locale){
@@ -7955,6 +7977,4 @@ class QuestionReportHelper{
 		return countsUsingGroupByReportVOs;
 	}
 	
-	
-
 }
