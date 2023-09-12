@@ -87,14 +87,15 @@
 						<thead>
 							<tr>
 								<th style="text-align: center; font-size: 12px; width: 30px;">${topHeader[1]}</th>
-								<th style="text-align: center; font-size: 12px; width: 300px;">${topHeader[2]}</th>
+								<th style="text-align: center; font-size: 12px; width: 150px;">${topHeader[2]}</th>
 								<th style="text-align: center; font-size: 12px; width: 60px;">${topHeader[3]}</th>
 								<%-- <th style="text-align: center; font-size: 12px; width: 90px;">${topHeader[4]}</th> --%>
-								<th style="text-align: center; font-size: 12px; width: 60px;">${topHeader[5]}</th>
+								<th style="text-align: center; font-size: 12px; width: 60px;">${topHeader[5]}</th>								
+								<th style="text-align: center; font-size: 12px; width: 150px;">${topHeader[6]}</th>
 							</tr>
 						
 							<tr>
-								<td colspan="4">&nbsp;</td>
+								<td colspan="5">&nbsp;</td>
 							</tr>
 						</thead>
 						<tbody>
@@ -105,19 +106,21 @@
 											<c:when test="${counter.count > 1}">
 												<tr class="page-break-after-forced">
 													<td style="text-align: center; font-size: 12px; width: 30px;">${r[1]}</td>
-													<td style="text-align: justify; font-size: 12px; width: 300px;">${r[2]}</td>
+													<td style="text-align: justify; font-size: 12px; width: 150px;">${r[2]}</td>
 													<td style="text-align: left; font-size: 12px; width: 60px;">${r[3]}</td>
 													<%-- <td style="text-align: left; font-size: 12px; width: 90px;">${r[4]}</td> --%>
-													<td style="text-align: left; font-size: 12px; width: 60px;">${r[5]}</td>
+													<td style="text-align: left; font-size: 12px; width: 60px;">${r[5]}</td>													
+													<td style="text-align: center; font-size: 12px; width: 150px;">${r[6]}</td>
 												</tr>
 											</c:when>
 											<c:otherwise>
 												<tr>
 													<td style="text-align: center; font-size: 12px; width: 30px;">${r[1]}</td>
-													<td style="text-align: justify; font-size: 12px; width: 300px;">${r[2]}</td>
+													<td style="text-align: justify; font-size: 12px; width: 150px;">${r[2]}</td>
 													<td style="text-align: left; font-size: 12px; width: 60px;">${r[3]}</td>
 													<%-- <td style="text-align: left; font-size: 12px; width: 90px;">${r[4]}</td> --%>
-													<td style="text-align: left; font-size: 12px; width: 60px;">${r[5]}</td>
+													<td style="text-align: left; font-size: 12px; width: 60px;">${r[5]}</td>													
+													<td style="text-align: center; font-size: 12px; width: 150px;">${r[6]}</td>
 												</tr>
 											</c:otherwise>
 										</c:choose>	
@@ -125,10 +128,11 @@
 									<c:otherwise>
 										<tr>
 											<td style="text-align: center; font-size: 12px; width: 30px;">${r[1]}</td>
-											<td style="text-align: justify; font-size: 12px; width: 300px;">${r[2]}</td>
+											<td style="text-align: justify; font-size: 12px; width: 150px;">${r[2]}</td>
 											<td style="text-align: left; font-size: 12px; width: 60px;">${r[3]}</td>
 											<%-- <td style="text-align: left; font-size: 12px; width: 90px;">${r[4]}</td> --%>
 											<td style="text-align: left; font-size: 12px; width: 60px;">${r[5]}</td>
+											<td style="text-align: center; font-size: 12px; width: 150px;">${r[6]}</td>
 										</tr>
 									</c:otherwise>
 								</c:choose>			
