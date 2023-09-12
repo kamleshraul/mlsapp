@@ -107,6 +107,7 @@
 								                        <fo:table-column column-number="3" column-width="2.7cm" />
 								                        <fo:table-column column-number="4" column-width="3.0cm" />
 								                        <fo:table-column column-number="5" column-width="2.7cm" />
+								                        <fo:table-column column-number="6" column-width="2.7cm" />
 								                        <fo:table-header>
 								                        	<fo:table-row>
 								                        		<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
@@ -121,9 +122,15 @@
 									                        	</fo:table-cell>
 									                        	<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
 									                        	    <fo:block text-align="center" font-weight="bold">
+									                        	    	सूचने चा विभाग
+								                                    </fo:block>
+									                        	</fo:table-cell>
+									                        	<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
+									                        	    <fo:block text-align="center" font-weight="bold">
 									                        	    	मा.सदस्यांनी सभागृहात औचित्याचे मुद्दे मांडल्याचा दिनांक
 								                                    </fo:block>
 									                        	</fo:table-cell>
+									                        	
 									                        	<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
 									                        	    <fo:block text-align="center" font-weight="bold">
 									                        	    	विभाग/ विभागाला पाठविल्याचा दिनांक व जावक क्रमांक
@@ -155,12 +162,19 @@
 								                                        <fo:block text-align="center">
 								                                        	&#160;&#160;&#160;&#160;<xsl:value-of select="element_1_9" />
 								                                        </fo:block>
-								                                    </fo:table-cell>		                                    
+								                                    </fo:table-cell>	
+								                                   	                                    
 								                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
+								                                        <fo:block text-align="justify">
+								                                        	&#160;&#160;<xsl:value-of select="element_1_12" />
+								                                        </fo:block>
+								                                    </fo:table-cell> 
+								                                     <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
 								                                        <fo:block text-align="justify">
 								                                        	&#160;&#160;<xsl:value-of select="element_1_11" />
 								                                        </fo:block>
-								                                    </fo:table-cell>   
+								                                    </fo:table-cell> 
+								                                      
 								                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
 								                                        <fo:block text-align="justify" font-weight="bold">
 								                                        	&#160;
