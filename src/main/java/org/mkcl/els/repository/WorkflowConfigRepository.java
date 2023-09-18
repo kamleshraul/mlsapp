@@ -528,10 +528,17 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						|| status.equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_SENDTODESKOFFICER)
 						|| status.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_SENDTODESKOFFICER))
 					&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+			
 				workflowConfig = getLatest(question,question.getInternalStatus().getType(),locale.toString());
 				UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale);
+				List<Long> usergroupTypesIds = new ArrayList<Long>();
+				UserGroupType ugt1 = UserGroupType.findByType(ApplicationConstants.SECTION_OFFICER, locale);
+				usergroupTypesIds.add(ugt1.getId());
+				List<WorkflowActor> workflowActorsToBeExcluded = getWorkflowActors(workflowConfig,usergroupTypesIds,level);
 				currentWorkflowActor = getWorkflowActor(workflowConfig,ugt,(level-1));
-				allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+				allEligibleActors = getWorkflowActorsExcludingGivenActorList(workflowConfig, workflowActorsToBeExcluded, currentWorkflowActor, ApplicationConstants.ASC);
+				//allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+			
 			}else if(status.equals(ApplicationConstants.QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTOSECTIONOFFICER)
 					||status.equals(ApplicationConstants.QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODEPARTMENT)
 					||status.equals(ApplicationConstants.QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODESKOFFICER)){
@@ -1126,8 +1133,13 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				workflowConfig = getLatest(resolution,houseType,resolution.getInternalStatusUpperHouse().getType(),locale.toString());
 			}
 			UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale);
+			List<Long> usergroupTypesIds = new ArrayList<Long>();
+			UserGroupType ugt1 = UserGroupType.findByType(ApplicationConstants.SECTION_OFFICER, locale);
+			usergroupTypesIds.add(ugt1.getId());
+			List<WorkflowActor> workflowActorsToBeExcluded = getWorkflowActors(workflowConfig,usergroupTypesIds,level);
 			currentWorkflowActor = getWorkflowActor(workflowConfig,ugt,(level-1));
-			allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+			allEligibleActors = getWorkflowActorsExcludingGivenActorList(workflowConfig, workflowActorsToBeExcluded, currentWorkflowActor, ApplicationConstants.ASC);
+			//allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
 		}else{
 			workflowConfig = getLatest(resolution,houseType,status,locale.toString());
 			userGroupType = userGroup.getUserGroupType();
@@ -2572,8 +2584,13 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 				workflowConfig = getLatest(motion,motion.getInternalStatus().getType(),locale.toString());
 				UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale);
+				List<Long> usergroupTypesIds = new ArrayList<Long>();
+				UserGroupType ugt1 = UserGroupType.findByType(ApplicationConstants.SECTION_OFFICER, locale);
+				usergroupTypesIds.add(ugt1.getId());
+				List<WorkflowActor> workflowActorsToBeExcluded = getWorkflowActors(workflowConfig,usergroupTypesIds,level);
 				currentWorkflowActor = getWorkflowActor(workflowConfig,ugt,(level-1));
-				allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+				allEligibleActors = getWorkflowActorsExcludingGivenActorList(workflowConfig, workflowActorsToBeExcluded, currentWorkflowActor, ApplicationConstants.ASC);
+				//allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
 			}else{
 				workflowConfig = getLatest(motion,status,locale.toString());
 				userGroupType = userGroup.getUserGroupType();
@@ -3011,8 +3028,13 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 			workflowConfig = getLatest(motion,motion.getInternalStatus().getType(),locale.toString());
 			UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale);
+			List<Long> usergroupTypesIds = new ArrayList<Long>();
+			UserGroupType ugt1 = UserGroupType.findByType(ApplicationConstants.SECTION_OFFICER, locale);
+			usergroupTypesIds.add(ugt1.getId());
+			List<WorkflowActor> workflowActorsToBeExcluded = getWorkflowActors(workflowConfig,usergroupTypesIds,level);
 			currentWorkflowActor = getWorkflowActor(workflowConfig,ugt,(level-1));
-			allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+			allEligibleActors = getWorkflowActorsExcludingGivenActorList(workflowConfig, workflowActorsToBeExcluded, currentWorkflowActor, ApplicationConstants.ASC);
+			//allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
 		} else {
 			workflowConfig = getLatest(motion, status, locale.toString());
 			userGroupType = userGroup.getUserGroupType();
@@ -3917,8 +3939,13 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 			workflowConfig = getLatest(adjourn,adjourn.getInternalStatus().getType(),locale.toString());
 			UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale);
+			List<Long> usergroupTypesIds = new ArrayList<Long>();
+			UserGroupType ugt1 = UserGroupType.findByType(ApplicationConstants.SECTION_OFFICER, locale);
+			usergroupTypesIds.add(ugt1.getId());
+			List<WorkflowActor> workflowActorsToBeExcluded = getWorkflowActors(workflowConfig,usergroupTypesIds,level);
 			currentWorkflowActor = getWorkflowActor(workflowConfig,ugt,(level-1));
-			allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+			allEligibleActors = getWorkflowActorsExcludingGivenActorList(workflowConfig, workflowActorsToBeExcluded, currentWorkflowActor, ApplicationConstants.ASC);
+			// allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
 		} else{
 			workflowConfig=getLatest(adjourn,status,locale.toString());
 			userGroupType=userGroup.getUserGroupType();
@@ -4253,8 +4280,13 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 			workflowConfig = getLatest(specialmention,specialmention.getInternalStatus().getType(),locale.toString());
 			UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale);
+			List<Long> usergroupTypesIds = new ArrayList<Long>();
+			UserGroupType ugt1 = UserGroupType.findByType(ApplicationConstants.SECTION_OFFICER, locale);
+			usergroupTypesIds.add(ugt1.getId());
+			List<WorkflowActor> workflowActorsToBeExcluded = getWorkflowActors(workflowConfig,usergroupTypesIds,level);
 			currentWorkflowActor = getWorkflowActor(workflowConfig,ugt,(level-1));
-			allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+			allEligibleActors = getWorkflowActorsExcludingGivenActorList(workflowConfig, workflowActorsToBeExcluded, currentWorkflowActor, ApplicationConstants.ASC);
+			//allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
 		} else{
 			workflowConfig=getLatest(specialmention,status,locale.toString());
 			userGroupType=userGroup.getUserGroupType();
@@ -4590,8 +4622,13 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 			workflowConfig = getLatest(proprietyPoint,proprietyPoint.getInternalStatus().getType(),locale.toString());
 			UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale);
+			List<Long> usergroupTypesIds = new ArrayList<Long>();
+			UserGroupType ugt1 = UserGroupType.findByType(ApplicationConstants.SECTION_OFFICER, locale);
+			usergroupTypesIds.add(ugt1.getId());
+			List<WorkflowActor> workflowActorsToBeExcluded = getWorkflowActors(workflowConfig,usergroupTypesIds,level);
 			currentWorkflowActor = getWorkflowActor(workflowConfig,ugt,(level-1));
-			allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+			allEligibleActors = getWorkflowActorsExcludingGivenActorList(workflowConfig, workflowActorsToBeExcluded, currentWorkflowActor, ApplicationConstants.ASC);
+			//allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
 		}
 		 else{
 			workflowConfig=getLatest(proprietyPoint,status,locale.toString());
@@ -5604,8 +5641,13 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 			workflowConfig = getLatest(motion,motion.getInternalStatus().getType(),locale.toString());
 			UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale);
+			List<Long> usergroupTypesIds = new ArrayList<Long>();
+			UserGroupType ugt1 = UserGroupType.findByType(ApplicationConstants.SECTION_OFFICER, locale);
+			usergroupTypesIds.add(ugt1.getId());
+			List<WorkflowActor> workflowActorsToBeExcluded = getWorkflowActors(workflowConfig,usergroupTypesIds,level);
 			currentWorkflowActor = getWorkflowActor(workflowConfig,ugt,(level-1));
-			allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+			allEligibleActors = getWorkflowActorsExcludingGivenActorList(workflowConfig, workflowActorsToBeExcluded, currentWorkflowActor, ApplicationConstants.ASC);
+			//allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
 		} else {
 			workflowConfig = getLatest(motion, status, locale.toString());
 			userGroupType = userGroup.getUserGroupType();
