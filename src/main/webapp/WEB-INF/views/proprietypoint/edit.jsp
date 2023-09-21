@@ -88,6 +88,17 @@
 			scrollTop();
 		});
 	}
+	function removeFormattingFromDetails(callBack){		
+		var detailsBox=$('textarea#pointsOfPropriety');
+		if(detailsBox!==undefined && detailsBox!==null){				
+			var pointsOfProprietyText=$.wysiwyg.getContent(detailsBox);
+			if(pointsOfProprietyText!==undefined && pointsOfProprietyText!==null && pointsOfProprietyText!==''){
+				cleanText=cleanFormatting(pointsOfProprietyText);
+				$.wysiwyg.setContent(detailsBox,cleanText);
+			}
+		}			
+		callBack();
+	}
 	
 	$(document).ready(function(){
 		initControls();
@@ -198,6 +209,12 @@
 		$("#submit").click(function(e){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			$('#proprietyPointDate').removeAttr('disabled');
+			
+			e.preventDefault();
+			removeFormattingFromDetails(function() {
+				$("#submit").unbind('click').click();
+			});
+			
 			//removing <p><br></p>  from wysiwyg editor
 			$(".wysiwyg").each(function(){
 				var wysiwygVal=$(this).val().trim();
@@ -241,7 +258,8 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});	
+			});
+			removeFormattingFromDetails(function(){/*blank function*/});
 			$.prompt($('#sendForApprovalMsg').val()+$("#selectedSupportingMembers").val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
@@ -276,7 +294,8 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});		
+			});
+			removeFormattingFromDetails(function(){/*blank function*/});
 			/*$.prompt("Submission is offline till further instructions!");
 			return false;*/
 			$.prompt($('#submissionMsg').val(),{
