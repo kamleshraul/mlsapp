@@ -50,6 +50,17 @@
 		});
 	}
 
+	function removeFormattingFromDetails(callBack){		
+		var detailsBox=$('textarea#noticeContent');
+		if(detailsBox!==undefined && detailsBox!==null){				
+			var noticeContentText=$.wysiwyg.getContent(detailsBox);
+			if(noticeContentText!==undefined && noticeContentText!==null && noticeContentText!==''){
+				cleanText=cleanFormatting(noticeContentText);
+				$.wysiwyg.setContent(detailsBox,cleanText);
+			}
+		}			
+		callBack();
+	}
 	
 	$(document).ready(function(){	
 		$("#numberP").css("display","none");
@@ -184,6 +195,12 @@
 			$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");			
 		}
 			
+		$("#submit").click(function(e){
+			e.preventDefault();
+			removeFormattingFromDetails(function() {
+				$("#submit").unbind('click').click();
+			});
+		});
 		
 		//send for submission
 		$("#submitresolution").click(function(e){
@@ -195,6 +212,8 @@
 					$(this).val("");
 				}
 			});		
+			
+			removeFormattingFromDetails(function(){/*blank function*/});
 			
 			if($('#resolutionCount').val()==5){
 				$.prompt($('#extrasubmissionMsg').val(),{
