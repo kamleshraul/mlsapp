@@ -90,6 +90,18 @@
 		});
 	}
 	
+	function removeFormattingFromDetails(callBack){		
+		var detailsBox=$('textarea#noticeContent');
+		if(detailsBox!==undefined && detailsBox!==null){				
+			var noticeContentText=$.wysiwyg.getContent(detailsBox);
+			if(noticeContentText!==undefined && noticeContentText!==null && noticeContentText!==''){
+				cleanText=cleanFormatting(noticeContentText);
+				$.wysiwyg.setContent(detailsBox,cleanText);
+			}
+		}			
+		callBack();
+	}
+	
 	$(document).ready(function(){
 		
 		/**** Auto Suggest(typist login)- Member ****/		
@@ -195,6 +207,12 @@
 		$("#department").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
 		$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
 		
+		$("#submit").click(function(e){
+			e.preventDefault();
+			removeFormattingFromDetails(function() {
+				$("#submit").unbind('click').click();
+			});
+		});
 		
 		$("#submitresolution").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
@@ -204,6 +222,9 @@
 					$(this).val("");
 				}
 			});
+			
+			removeFormattingFromDetails(function(){/*blank function*/});
+			
 			if($('#resolutionCount').val()==5){
 				$.prompt($('#extrasubmissionMsg').val(),{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
