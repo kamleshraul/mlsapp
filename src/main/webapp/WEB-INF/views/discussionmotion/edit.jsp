@@ -32,6 +32,20 @@
 	}	
 	var controlName=$(".autosuggestmultiple").attr("id");
 	
+	function removeFormattingFromDetails(callBack){		
+		var detailsBox=$('textarea#noticeContent');
+		if(detailsBox!==undefined && detailsBox!==null){				
+			var noticeContentText=$.wysiwyg.getContent(detailsBox);
+			if(noticeContentText!==undefined && noticeContentText!==null && noticeContentText!==''){
+				var cleanText=cleanFormatting(noticeContentText);
+				$.wysiwyg.setContent(detailsBox,cleanText);
+			}
+		}
+		
+		callBack();
+	}
+	
+	
 	$(document).ready(function(){		
 		
 $('#ministries').change(function(){
@@ -131,6 +145,14 @@ $('#ministries').change(function(){
 			}
 		});			
 		
+		
+		$("#submit").click(function(e){
+			e.preventDefault();
+			removeFormattingFromDetails(function() {
+				$("#submit").unbind('click').click();
+			});
+		});
+		
 		/**** send for approval ****/
 		$("#sendforapproval").click(function(e){			
 			//no need to send for approval in case of empty supporting members.
@@ -151,7 +173,10 @@ $('#ministries').change(function(){
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});				
+			});	
+			
+			removeFormattingFromDetails(function(){/*blank function*/});
+			
 			$.prompt($('#sendForApprovalMsg').val()+$("#selectedSupportingMembers").val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
@@ -185,6 +210,9 @@ $('#ministries').change(function(){
 					$(this).val("");
 				}
 			});			
+			
+			removeFormattingFromDetails(function(){/*blank function*/});
+			
 			$.prompt($('#submissionMsg').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
