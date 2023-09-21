@@ -89,6 +89,18 @@
 		});
 	}
 	
+	function removeFormattingFromDetails(callBack){		
+		var detailsBox=$('textarea#noticeContent');
+		if(detailsBox!==undefined && detailsBox!==null){				
+			var noticeContentText=$.wysiwyg.getContent(detailsBox);console.log('Befoer: ',noticeContentText);
+			if(noticeContentText!==undefined && noticeContentText!==null && noticeContentText!==''){
+				cleanText=cleanFormatting(noticeContentText);console.log('After: ',cleanText);
+				$.wysiwyg.setContent(detailsBox,cleanText);
+			}
+		}			
+		callBack();
+	}
+	
 	$(document).ready(function(){
 		initControls();
 		
@@ -193,6 +205,12 @@
 		//save the state of adjournment motion
 		$("#submit").click(function(e){
 			$('#adjourningDate').removeAttr('disabled');
+			
+			e.preventDefault();
+			removeFormattingFromDetails(function() {
+				$("#submit").unbind('click').click();
+			});
+			
 			//removing <p><br></p>  from wysiwyg editor
 			$(".wysiwyg").each(function(){
 				var wysiwygVal=$(this).val().trim();
@@ -230,6 +248,9 @@
 				});	
 				return false;
 			}
+			
+			removeFormattingFromDetails(function(){/*blank function*/});
+			
 			//removing <p><br></p>  from wysiwyg editor
 			$(".wysiwyg").each(function(){
 				var wysiwygVal=$(this).val().trim();
@@ -271,7 +292,10 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});		
+			});	
+			
+			removeFormattingFromDetails(function(){/*blank function*/});
+			
 			$.prompt($('#submissionMsg').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
