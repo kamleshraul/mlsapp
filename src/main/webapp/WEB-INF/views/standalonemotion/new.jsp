@@ -104,6 +104,28 @@
 		});
 	}
 	
+	function removeFormattingFromDetails(callBack){		
+		var detailsBox=$('textarea#reason');
+		if(detailsBox!==undefined && detailsBox!==null){				
+			var reasonText=$.wysiwyg.getContent(detailsBox);
+			if(reasonText!==undefined && reasonText!==null && reasonText!==''){
+				var cleanText=cleanFormatting(reasonText);
+				$.wysiwyg.setContent(detailsBox,cleanText);
+			}
+		}
+
+		var detailsBox2=$('textarea#briefExplanation');
+		if(detailsBox!==undefined && detailsBox!==null){				
+			var briefExplanationText=$.wysiwyg.getContent(detailsBox2);
+			if(briefExplanationText!==undefined && briefExplanationText!==null && briefExplanationText!==''){
+				var cleanText=cleanFormatting(briefExplanationText);
+				$.wysiwyg.setContent(detailsBox2,cleanText);
+			}
+		}
+		
+		callBack();
+	}
+	
 	$(document).ready(function(){
 		
 		$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");
@@ -191,7 +213,14 @@
 				}		
 				return false;
 			}
-		});	
+		});
+		
+		$("#submit").click(function(e){
+			e.preventDefault();
+			removeFormattingFromDetails(function() {
+				$("#submit").unbind('click').click();
+			});
+		});
 				
 		//send for approval
 		$("#sendforapproval").click(function(e){
@@ -215,6 +244,9 @@
 					$(this).val("");
 				}
 			});	
+			
+			removeFormattingFromDetails(function(){/*blank function*/});
+			
 			//-------------------------------
 			$.prompt($('#sendForApprovalMsg').val()+$("#selectedSupportingMembers").val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
@@ -248,7 +280,9 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});		
+			});
+			
+			removeFormattingFromDetails(function(){/*blank function*/});
 						
 			$.prompt($('#submissionMsg').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
