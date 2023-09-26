@@ -408,4 +408,32 @@ public class UserRepository extends BaseRepository<User,Long>{
 		buffer.append(" ORDER BY u.lastName");
 		return this.em().createQuery(buffer.toString()).getResultList();
 	}
+
+	public String findFullNameByUserName(final String username,final String locale) throws ELSException{
+		String strQuery="SELECT CONCAT(" +
+											" (CASE WHEN u.title IS NOT NULL AND u.title!='' AND u.first_name IS NOT NULL AND u.first_name!='' THEN CONCAT(u.title, ' ', u.first_name) ELSE '' END)," +
+											" (CASE WHEN (u.title IS NULL OR u.title='') AND u.first_name IS NOT NULL AND u.first_name!='' THEN u.first_name ELSE '' END)," +
+											" (CASE WHEN u.first_name IS NOT NULL AND u.first_name!='' AND u.middle_name IS NOT NULL AND u.middle_name!='' THEN CONCAT(' ', u.middle_name) ELSE '' END)," +
+											" (CASE WHEN u.last_name IS NOT NULL AND u.last_name!='' THEN CONCAT(' ', u.last_name) ELSE '' END)" +
+								") AS userFullName FROM users u" +
+				" INNER JOIN credentials c ON (c.id=u.credential_id)" +
+				" where u.locale=:locale" +
+				" AND c.username=:username";
+		try {
+			Query query=this.em().createNativeQuery(strQuery);
+			query.setParameter("locale", locale);
+			query.setParameter("username", username);
+			String userFullName = (String) query.getSingleResult();
+			return userFullName;
+		} catch(EntityNotFoundException ex){
+			logger.error(ex.getMessage());
+			return "";
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("UserRepository_User_findFullNameByUserName", "User Not found");
+			throw elsException;
+		}
+	}
 }

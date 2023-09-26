@@ -466,6 +466,7 @@
 			+ "&sessionType=" + $("#selectedSessionType").val()
 			+ "&deviceType=" + $("#selectedDeviceType").val()
 			+ "&createdBy=" + $("#ugparam").val()
+			+ "&memberId=" + $("#loggedInMemberId").val()
 			+"&locale="+$("#moduleLocale").val()
 			+ "&report=MEMBER_PROPRIETYPOINTS_VIEW"
 			+ "&reportout=member_proprietypoints_view";

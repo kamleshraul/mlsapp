@@ -703,6 +703,7 @@
 			+ "&motionType=" + $("#selectedMotionType").val()
 			+ "&statusFilter=all"
 			+ "&createdBy=" + $("#ugparam").val()
+			+ "&memberId=" + $("#loggedInMemberId").val()
 			+ "&displayContent=" + displayContent 
 			+ "&locale="+$("#moduleLocale").val()
 			+ "&report=MEMBER_MOTIONS_VIEW"
@@ -724,6 +725,7 @@
 			+ "&motionType=" + $("#selectedMotionType").val()
 			+ "&statusFilter=" + status_filter
 			+ "&createdBy=" + $("#ugparam").val()
+			+ "&memberId=" + $("#loggedInMemberId").val()
 			+ "&displayContent=subject"
 			+ "&locale="+$("#moduleLocale").val()
 			+ "&report=MEMBER_MOTIONS_VIEW"

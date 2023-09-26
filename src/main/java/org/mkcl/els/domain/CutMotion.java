@@ -118,7 +118,13 @@ public class CutMotion extends Device implements Serializable {
 
 	/** The edited by. */
 	@Column(length = 1000)
-	private String editedBy;
+	private String editedBy; 
+    
+    /** The edited by actual name.
+     * (full name of the actual person who logged in as editedBy at the time of update)
+     */
+    @Column(length=1000)
+    private String editedByActualName;
 
 	/** The edited as. */
 	@Column(length = 1000)
@@ -179,10 +185,16 @@ public class CutMotion extends Device implements Serializable {
 	@Column(length = 30000)
 	private String remarks;
 
-	/** primaryMember **/
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_id")
-	private Member primaryMember;
+	/**** PRIMARY, INCHARGE & SUPPORTING MEMBERS ****/
+    /** The primary member. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="member_id")
+    private Member primaryMember;
+    
+    /** The in charge member. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="incharge_member_id")
+    private Member inchargeMember;
 
 	/** The supporting members. */
 	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -462,13 +474,15 @@ public class CutMotion extends Device implements Serializable {
 			draft.setReferencedEntities(this.getReferencedEntities());
 			draft.setEditedAs(this.getEditedAs());
 			draft.setEditedBy(this.getEditedBy());
+            draft.setEditedByActualName(this.getEditedByActualName());
 			draft.setEditedOn(this.getEditedOn());	            
 			draft.setMinistry(this.getMinistry());
 			draft.setDepartment(this.getDepartment());
 			draft.setSubDepartment(this.getSubDepartment());	            
 			draft.setStatus(this.getStatus());
 			draft.setInternalStatus(this.getInternalStatus());
-			draft.setRecommendationStatus(this.getRecommendationStatus());
+			draft.setRecommendationStatus(this.getRecommendationStatus());        	
+        	draft.setInchargeMember(this.getInchargeMember());
 			
 			if(this.getRevisedNoticeContent()!= null 
 					&& this.getRevisedMainTitle() != null){
@@ -1002,13 +1016,65 @@ public class CutMotion extends Device implements Serializable {
 			String locale) {
 		return getCutMotionRepository().findHighestNumberByStatusDepartment(session, deviceType, subDepartment, status, locale);
 	}
+	 
+	public Member findInChargeMember() {
+		/** check primary member **/
+		Member member = this.getPrimaryMember();
+		if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+			return member;
+		} 
+		/** check in supporting members **/
+		List<SupportingMember> supportingMembers = this.getSupportingMembers();
+		if (supportingMembers != null) {
+			for (SupportingMember sm : supportingMembers) {
+				member = sm.getMember();
+				Status approvalStatus = sm.getDecisionStatus();
+				if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+					if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+						return member;
+					}
+				}				
+			}
+		}
+		
+		/** check in clubbed questions members **/
+		List<ClubbedEntity> clubbedEntities = CutMotion.findClubbedEntitiesByPosition(this);
+		if (clubbedEntities != null) {
+			for (ClubbedEntity ce : clubbedEntities) {
+				if (ce.getCutMotion().getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_SYSTEM_CLUBBED)
+						|| ce.getCutMotion().getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)
+						|| ce.getCutMotion().getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_REJECTION)) {
+					member = ce.getCutMotion().getPrimaryMember();
+					if(member!=null) {
+						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getCutMotion())) {
+							return member;
+						}
+					}
+					/** check in clubbed questions supporting members **/
+					List<SupportingMember> clubbedSupportingMembers = ce.getCutMotion().getSupportingMembers();
+					if (clubbedSupportingMembers != null) {
+						for (SupportingMember csm : clubbedSupportingMembers) {
+							member = csm.getMember();
+							Status approvalStatus = csm.getDecisionStatus();
+							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+								if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getCutMotion())) {
+									return member;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return member;
+	}
 	
 	public String findAllMemberNames(String nameFormat) {
 		StringBuffer allMemberNamesBuffer = new StringBuffer("");
 		Member member = null;
 		String memberName = "";				
 		/** primary member **/
-		member = this.getPrimaryMember();		
+		member = this.getInchargeMember();		
 		if(member==null) {
 			return allMemberNamesBuffer.toString();
 		}		
@@ -1026,7 +1092,7 @@ public class CutMotion extends Device implements Serializable {
 			for (SupportingMember sm : supportingMembers) {
 				member = sm.getMember();
 				Status approvalStatus = sm.getDecisionStatus();
-				if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+				if(member!=null && !member.equals(this.getInchargeMember()) && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 					memberName = member.findNameInGivenFormat(nameFormat);
 					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {				
 						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
@@ -1049,9 +1115,10 @@ public class CutMotion extends Device implements Serializable {
 				 * (processed to be putup for nameclubbing, putup for
 				 * nameclubbing, pending for nameclubbing approval)
 				 **/
-				if (ce.getStandaloneMotion().getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_SYSTEM_CLUBBED)
-						|| ce.getStandaloneMotion().getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)) {
-					member = ce.getStandaloneMotion().getPrimaryMember();
+				if (ce.getCutMotion().getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_SYSTEM_CLUBBED)
+						|| ce.getCutMotion().getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)
+						|| ce.getCutMotion().getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_REJECTION)) {
+					member = ce.getCutMotion().getInchargeMember();
 					if(member!=null) {
 						memberName = member.findNameInGivenFormat(nameFormat);
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
@@ -1064,12 +1131,12 @@ public class CutMotion extends Device implements Serializable {
 							}							
 						}												
 					}
-					List<SupportingMember> clubbedSupportingMembers = ce.getStandaloneMotion().getSupportingMembers();
+					List<SupportingMember> clubbedSupportingMembers = ce.getCutMotion().getSupportingMembers();
 					if (clubbedSupportingMembers != null) {
 						for (SupportingMember csm : clubbedSupportingMembers) {
 							member = csm.getMember();
 							Status approvalStatus = csm.getDecisionStatus();
-							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+							if(member!=null && !member.equals(this.getInchargeMember()) && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 								memberName = member.findNameInGivenFormat(nameFormat);
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
@@ -2294,9 +2361,27 @@ public class CutMotion extends Device implements Serializable {
 	public String getEditedBy() {
 		return editedBy;
 	}
-
+	
 	public void setEditedBy(String editedBy) {
 		this.editedBy = editedBy;
+		if(editedBy!=null && !editedBy.isEmpty()) {
+			try {
+				this.editedByActualName = User.findFullNameByUserName(this.getEditedBy(), this.getLocale());
+			} catch (ELSException e) {
+				//e.printStackTrace();
+			}
+		} else {
+			this.setEditedBy("");
+			this.setEditedByActualName("");
+		}
+	}
+
+	public String getEditedByActualName() {
+		return editedByActualName;
+	}
+
+	public void setEditedByActualName(String editedByActualName) {
+		this.editedByActualName = editedByActualName;
 	}
 
 	public String getEditedAs() {
@@ -2513,6 +2598,14 @@ public class CutMotion extends Device implements Serializable {
 
 	public void setPrimaryMember(Member primaryMember) {
 		this.primaryMember = primaryMember;
+	}
+
+	public Member getInchargeMember() {
+		return inchargeMember;
+	}
+
+	public void setInchargeMember(Member inchargeMember) {
+		this.inchargeMember = inchargeMember;
 	}
 
 	public List<SupportingMember> getSupportingMembers() {

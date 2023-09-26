@@ -119,6 +119,12 @@ public class CutMotionDraft extends BaseDomain implements Serializable{
     /** The edited by. */
     @Column(length=1000)
     private String editedBy;
+    
+    /** The edited by actual name.
+     * (full name of the actual person who logged in as editedBy at the time of update)
+     */
+    @Column(length=1000)
+    private String editedByActualName;
 
     /** The edited as. */
     @Column(length=1000)
@@ -167,6 +173,11 @@ public class CutMotionDraft extends BaseDomain implements Serializable{
      */
     @Column(length=45)
     private String deviceId;
+    
+    /** The in charge member. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="incharge_member_id")
+    private Member inchargeMember;
         
     /**** Constructors ****/
 
@@ -327,6 +338,25 @@ public class CutMotionDraft extends BaseDomain implements Serializable{
 
 	public void setEditedBy(String editedBy) {
 		this.editedBy = editedBy;
+//		if(editedBy!=null && !editedBy.isEmpty()) {
+//			try {
+//				this.editedByActualName = User.findFullNameByUserName(this.getEditedBy(), this.getLocale());
+//			} catch (ELSException e) {
+//				//e.printStackTrace();
+//				this.setEditedByActualName("");
+//			}
+//		} else {
+//			this.setEditedBy("");
+//			this.setEditedByActualName("");
+//		}
+	}
+
+	public String getEditedByActualName() {
+		return editedByActualName;
+	}
+
+	public void setEditedByActualName(String editedByActualName) {
+		this.editedByActualName = editedByActualName;
 	}
 
 	public String getEditedAs() {
@@ -400,4 +430,13 @@ public class CutMotionDraft extends BaseDomain implements Serializable{
 	public void setDeviceId(String deviceId) {
 		this.deviceId = deviceId;
 	}
+
+	public Member getInchargeMember() {
+		return inchargeMember;
+	}
+
+	public void setInchargeMember(Member inchargeMember) {
+		this.inchargeMember = inchargeMember;
+	}
+	
 }

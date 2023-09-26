@@ -323,6 +323,7 @@
 		+ "&motionType=" + $("#selectedQuestionType").val()
 		+ "&statusFilter=" + status_filter
 		+ "&createdBy=" + $("#ugparam").val()
+		+ "&memberId=" + $("#loggedInMemberId").val()
 		+"&locale="+$("#moduleLocale").val()
 		+ "&report=MEMBER_STANDALONEMOTIONS_VIEW"
 		+ "&reportout=member_standalonemotion_view"+viewMode;

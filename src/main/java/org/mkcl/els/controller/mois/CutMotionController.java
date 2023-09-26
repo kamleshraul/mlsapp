@@ -1759,7 +1759,10 @@ public class CutMotionController extends GenericController<CutMotion>{
 		/**** add department ****/
 		if(domain.getSubDepartment()!=null){
 			domain.setDepartment(domain.getSubDepartment().getDepartment());
-		}
+		}	
+		
+		/**** on creation, setting primary member as default incharge member in the domain ****/
+		domain.setInchargeMember(domain.getPrimaryMember());
 	}
 
 	@Override
@@ -1895,7 +1898,9 @@ public class CutMotionController extends GenericController<CutMotion>{
 		if(strUserGroupType!=null){
 			//UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, domain.getLocale());
 			domain.setEditedAs(userGroupType.getName());
-		}
+		}		
+		/**** update incharge member in the domain ****/
+		domain.setInchargeMember(domain.findInChargeMember());
 		/**** updating submission date and creation date ****/
 		String strCreationDate=request.getParameter("setCreationDate");
 		String strSubmissionDate=request.getParameter("setSubmissionDate");

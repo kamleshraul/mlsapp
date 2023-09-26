@@ -613,10 +613,24 @@
 			</c:otherwise>
 			</c:choose>
 			
-			<c:if test="${!(empty domain.reply)}">
+			<c:if test="${!(empty domain.replyDoc)}">
 			<p>
-				<label class="wysiwyglabel"><spring:message code="proprietypoint.reply" text="Reply"/></label>
-				<form:textarea path="reply" cssClass="wysiwyg" readonly="true"></form:textarea>
+				<label class="small"><spring:message code="proprietypoint.reply" text="Reply"/></label>
+				<span id="replyDocumentDiv" style="margin-top: 20px; margin-left: 0px; display: inline-block !important;">
+					<jsp:include page="/common/file_load.jsp">
+						<jsp:param name="fileid" value="replyDoc" />
+						<jsp:param name="filetag" value="${domain.replyDoc}" />
+						<jsp:param name="storageType" value="file_server" />
+						<jsp:param name="locationHierarchy" value="${locationHierarchy_replyDoc}" />
+						<jsp:param name="isUploadAllowed" value="false" />
+						<jsp:param name="isRemovable" value="false" />
+						<jsp:param name="isDeletable" value="false" />
+					</jsp:include>
+				</span>
+				<c:if test="${!(empty domain.reply)}">
+					<br/><br/>
+					<form:textarea path="reply" cssClass="wysiwyg" readonly="true"></form:textarea>
+				</c:if>
 			</p>
 			</c:if>
 			</div>

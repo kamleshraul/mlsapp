@@ -29,6 +29,7 @@ import org.mkcl.els.controller.prois.ProprietyPointController;
 import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.ClubbedEntity;
+import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
@@ -626,6 +627,45 @@ public class ProprietyPointWorkflowController  extends BaseController {
 			model.addAttribute("formattedReplyReceivedDate", FormaterUtil.formatDateToString(domain.getReplyReceivedDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
 		}
 		
+		/**** Reply Document Location Hierarchy ****/
+		if(ApplicationConstants.SERVER_FILE_STORAGE_ENABLED.equals("YES"))
+		{
+			model.addAttribute("isServerFileStorageEnabled", ApplicationConstants.SERVER_FILE_STORAGE_ENABLED);
+			
+			if(domain.getReplyDoc()!=null && !domain.getReplyDoc().isEmpty())
+			{
+				Document replyDocument = Document.findByTag(domain.getReplyDoc());
+				if(replyDocument!=null) {
+					model.addAttribute("locationHierarchy_replyDoc", replyDocument.getLocationHierarchy());
+				}
+			} 
+			else if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+					|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))
+			{
+				StringBuffer locationHierarchyReplyDoc = new StringBuffer();
+				locationHierarchyReplyDoc.append("PARLIAMENTARY_DEVICES~");
+				locationHierarchyReplyDoc.append(domain.getDeviceType().getType().toUpperCase());
+				locationHierarchyReplyDoc.append("~");
+				locationHierarchyReplyDoc.append(domain.getSession().getType().getType().toUpperCase());
+				locationHierarchyReplyDoc.append("_SESSION_");
+				locationHierarchyReplyDoc.append(domain.getSession().getYear());
+				locationHierarchyReplyDoc.append("~");
+				locationHierarchyReplyDoc.append(domain.getHouseType().getType().toUpperCase());
+				locationHierarchyReplyDoc.append("~");
+				locationHierarchyReplyDoc.append(domain.getId().toString());
+				locationHierarchyReplyDoc.append("~");
+				locationHierarchyReplyDoc.append("REPLY_DOCUMENT");			
+				model.addAttribute("locationHierarchy_replyDoc", locationHierarchyReplyDoc.toString());
+			}
+	        /** Maximum File Size Limits for Common File Upload Categories **/
+			CustomParameter csptMaxFileSizeForDeviceReplyDocument = CustomParameter.findByName(CustomParameter.class, "MAX_FILE_SIZE_FOR_REPLY_DOCUMENT_OF_"+domain.getDeviceType().getType().toUpperCase(), "");
+			if(csptMaxFileSizeForDeviceReplyDocument!=null && csptMaxFileSizeForDeviceReplyDocument.getValue()!=null) {
+				model.addAttribute("maxFileSizeMB_replyDoc", csptMaxFileSizeForDeviceReplyDocument.getValue());
+			} else {
+				model.addAttribute("maxFileSizeMB_replyDoc", ApplicationConstants.DEFAULT_MAX_FILE_UPLOAD_LIMIT);
+			}
+		}		
+		
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -757,12 +797,23 @@ public class ProprietyPointWorkflowController  extends BaseController {
 					&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.PROPRIETYPOINT_PROCESSED_SENDTOSECTIONOFFICER)){
 				if(operation!=null && operation.equals("workflowsubmit")){
 					if(domain.getTransferToDepartmentAccepted()==null || domain.getTransferToDepartmentAccepted().equals(false)) {
-						if(domain.getReply() == null || domain.getReply().isEmpty()){
-							result.rejectValue("reply", "ReplyEmpty");
-							if(!model.containsAttribute("errorcode")){
-								model.addAttribute("errorcode","no_reply_provided_department");								
+						if(ApplicationConstants.SERVER_FILE_STORAGE_ENABLED.equals("YES")) {
+							if(domain.getReplyDoc() == null || domain.getReplyDoc().isEmpty()){
+								result.rejectValue("reply", "ReplyEmpty");
+								if(!model.containsAttribute("errorcode")){
+									model.addAttribute("errorcode","no_reply_provided_department");								
+								}
+								return "workflow/myTasks/error";
 							}
-							return "workflow/myTasks/error";
+						}
+						else {
+							if(domain.getReply() == null || domain.getReply().isEmpty()){
+								result.rejectValue("reply", "ReplyEmpty");
+								if(!model.containsAttribute("errorcode")){
+									model.addAttribute("errorcode","no_reply_provided_department");
+								}
+								return "workflow/myTasks/error";
+							}
 						}
 					}
 				}

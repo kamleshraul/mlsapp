@@ -739,6 +739,8 @@ public class MotionController extends GenericController<Motion>{
 		/**** Session ****/
 		Session selectedSession=domain.getSession();
 		model.addAttribute("session",selectedSession.getId());
+		
+		model.addAttribute("sessionDetailsText", selectedSession.findSessionDetailsText());
 
 		/**** Session Year ****/
 		Integer sessionYear=0;
@@ -2007,7 +2009,10 @@ public class MotionController extends GenericController<Motion>{
 		//set submission priority to default value if not set explicitly
 		if(domain.getSubmissionPriority()==null) {
 			domain.setSubmissionPriority(ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
-		}
+		}	
+		
+		/**** on creation, setting primary member as default incharge member in the domain ****/
+		domain.setInchargeMember(domain.getPrimaryMember());
 	}
 
 	@Override
@@ -2202,7 +2207,9 @@ public class MotionController extends GenericController<Motion>{
 		//set submission priority to default value if not set explicitly
 		if(domain.getSubmissionPriority()==null) {
 			domain.setSubmissionPriority(ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
-		}
+		}		
+		/**** update incharge member in the domain ****/
+		domain.setInchargeMember(domain.findInChargeMember());		
 		/**** updating submission date and creation date ****/
 		String strCreationDate=request.getParameter("setCreationDate");
 		String strSubmissionDate=request.getParameter("setSubmissionDate");

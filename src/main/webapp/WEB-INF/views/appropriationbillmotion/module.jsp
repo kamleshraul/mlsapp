@@ -147,6 +147,7 @@
 		+ "&sessionType=" + $("#selectedSessionType").val()
 		+ "&appropriationBillMotionType=" + $("#selectedAppropriationBillMotionType").val()
 		+ "&createdBy=" + $("#ugparam").val()
+		+ "&memberId=" + $("#loggedInMemberId").val()
 		+"&locale="+$("#moduleLocale").val()
 		+ "&report=MEMBER_APPROPRIATIONBILLMOTIONS_VIEW"
 		+ "&reportout=member_appropriationbillmotions_view";

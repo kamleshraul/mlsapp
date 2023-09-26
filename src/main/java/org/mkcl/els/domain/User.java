@@ -300,6 +300,10 @@ public class User extends BaseDomain implements Serializable {
 		}
 		return sb.toString();
 	}
+
+	public static String findFullNameByUserName(final String username, final String locale) throws ELSException {
+		return getUserRepository().findFullNameByUserName(username, locale);
+	}
 	
 	public String findFullNameForRis(){
 		return this.getTitle()+" "+this.getMiddleName()+" "+this.getLastName()+" "+this.getFirstName();

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -38,6 +39,13 @@ public class SessionDates extends BaseDomain implements Serializable {
     /** Question Hour Included On that Day */
     private boolean isQuestionHourIncluded ;
     
+    /** The order of the day document. */
+    @Column(length=100)
+    private String orderOfDayDoc;
+
+	/** The session repository. */
+    @Autowired
+    private transient SessionRepository sessionRepository;    
     
     
     //============= Constructors =============//    
@@ -71,7 +79,6 @@ public class SessionDates extends BaseDomain implements Serializable {
 	public Date getEndTime() {
 		return endTime;
 	}
-
 	
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
@@ -80,16 +87,18 @@ public class SessionDates extends BaseDomain implements Serializable {
 	public boolean getIsQuestionHourIncluded() {
 		return isQuestionHourIncluded;
 	}
-
-	
 	
 	public void setIsQuestionHourIncluded(boolean isQuestionHourIncluded) {
 		this.isQuestionHourIncluded = isQuestionHourIncluded;
 	}
 
-	/** The session repository. */
-    @Autowired
-    private transient SessionRepository sessionRepository;
+	public String getOrderOfDayDoc() {
+		return orderOfDayDoc;
+	}
+
+	public void setOrderOfDayDoc(String orderOfDayDoc) {
+		this.orderOfDayDoc = orderOfDayDoc;
+	}
 
     /**
      * Gets the session repository.
@@ -106,6 +115,7 @@ public class SessionDates extends BaseDomain implements Serializable {
     }
     
     
+    //============= Domain Methods =============//    
     public static List<SessionDates> findSessionDates(final Session session,final String sessionDates) throws ELSException {
         return getSessionRepository().findSessionDates(session,sessionDates);
     }

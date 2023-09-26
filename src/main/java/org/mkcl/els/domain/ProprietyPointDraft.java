@@ -63,6 +63,10 @@ public class ProprietyPointDraft extends BaseDomain implements Serializable {
     @Column(length=30000)
     private String reply;
     
+    /** The document tag having reply file reference. */
+    @Column(length=100)
+    private String replyDoc;
+    
     /** The rejection reason. */
     @Column(length=30000)
     private String rejectionReason;
@@ -202,6 +206,14 @@ public class ProprietyPointDraft extends BaseDomain implements Serializable {
 
 	public void setReply(String reply) {
 		this.reply = reply;
+	}
+
+	public String getReplyDoc() {
+		return replyDoc;
+	}
+
+	public void setReplyDoc(String replyDoc) {
+		this.replyDoc = replyDoc;
 	}
 
 	public String getRejectionReason() {

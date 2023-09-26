@@ -496,6 +496,21 @@ public class Session extends BaseDomain implements Serializable {
 		return null;
 	}
 	
+	public String findSessionDetailsText() {
+		StringBuffer sessionDetailsText = new StringBuffer();
+		sessionDetailsText.append(this.getType().getSessionType());
+		sessionDetailsText.append(" ");
+		MessageResource sessionLabel = MessageResource.findByFieldName(MessageResource.class, "code", "legislature.session", this.getLocale());
+		if(sessionLabel!=null) {
+			sessionDetailsText.append(sessionLabel.getValue());
+		} else {
+			sessionDetailsText.append("Session");
+		}		
+		sessionDetailsText.append(", ");
+		sessionDetailsText.append(FormaterUtil.formatNumberNoGrouping(this.getYear(), this.getLocale()));
+		return sessionDetailsText.toString();
+	}
+	
     // ------------------------------Getters/Setters-----------------------
 	/**
      * Gets the house.

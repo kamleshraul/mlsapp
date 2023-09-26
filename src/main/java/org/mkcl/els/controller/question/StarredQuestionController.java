@@ -33,7 +33,9 @@ import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Device;
+import org.mkcl.els.domain.DeviceStatusUpdateInfo;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
@@ -1098,7 +1100,10 @@ class StarredQuestionController {
 		//set submission priority to default value if not set explicitly
 		if(domain.getSubmissionPriority()==null) {
 			domain.setSubmissionPriority(ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
-		}		
+		}	
+		
+		/**** on creation, setting primary member as default incharge member in the domain ****/
+		domain.setInchargeMember(domain.getPrimaryMember());
 	}
 
 
@@ -1756,6 +1761,52 @@ class StarredQuestionController {
 				model.addAttribute("isFirstBatchQuestion", "YES");
 			} else {
 				model.addAttribute("isFirstBatchQuestion", "NO");
+			}
+		}
+		
+		/**** Status Update like Lapsed/Withdrawn performed with supporting document upload ****/		
+		if(domain.getNumber()!=null && ApplicationConstants.SERVER_FILE_STORAGE_ENABLED.equals("YES")) 
+		{	
+			model.addAttribute("isServerFileStorageEnabled", ApplicationConstants.SERVER_FILE_STORAGE_ENABLED);	
+			CustomParameter csptStatusUpdateOptions = CustomParameter.findByName(CustomParameter.class, domain.getType().getType()+"_STATUS_UPDATE_OPTIONS","");
+			if(csptStatusUpdateOptions != null) {
+				List<Status> statusUpdateOptions = new ArrayList<Status>();
+				statusUpdateOptions = Status.findStatusContainedIn(csptStatusUpdateOptions.getValue(), locale);
+				model.addAttribute("statusUpdateOptions", statusUpdateOptions);
+			}
+			Map<String, String> statusUpdateFields = new HashMap<String, String>();
+			statusUpdateFields.put("deviceId", domain.getId().toString());
+			statusUpdateFields.put("statusType", domain.getRecommendationStatus().getType());
+			List<DeviceStatusUpdateInfo> statusUpdateInfoList = DeviceStatusUpdateInfo.findAllByFieldNames(DeviceStatusUpdateInfo.class, statusUpdateFields, "updatedOn", ApplicationConstants.DESC, domain.getLocale());
+			if(statusUpdateInfoList!=null && !statusUpdateInfoList.isEmpty()) {
+				Document statusUpdateReferenceDocument = Document.findByTag(statusUpdateInfoList.get(0).getUpdateReferenceDoc());
+				if(statusUpdateReferenceDocument!=null) {
+					model.addAttribute("statusUpdateReferenceDoc", statusUpdateReferenceDocument.getTag());
+					model.addAttribute("locationHierarchy_statusUpdateReferenceDoc", statusUpdateReferenceDocument.getLocationHierarchy());
+				}
+			}
+			else {
+				StringBuffer locationHierarchyStatusUpdateDoc = new StringBuffer();
+				locationHierarchyStatusUpdateDoc.append("PARLIAMENTARY_DEVICES~");
+				locationHierarchyStatusUpdateDoc.append(domain.getType().getType().toUpperCase());
+				locationHierarchyStatusUpdateDoc.append("~");
+				locationHierarchyStatusUpdateDoc.append(domain.getSession().getType().getType().toUpperCase());
+				locationHierarchyStatusUpdateDoc.append("_SESSION_");
+				locationHierarchyStatusUpdateDoc.append(domain.getSession().getYear());
+				locationHierarchyStatusUpdateDoc.append("~");
+				locationHierarchyStatusUpdateDoc.append(domain.getHouseType().getType().toUpperCase());
+				locationHierarchyStatusUpdateDoc.append("~");
+				locationHierarchyStatusUpdateDoc.append(domain.getId().toString());
+				locationHierarchyStatusUpdateDoc.append("~");
+				locationHierarchyStatusUpdateDoc.append("STATUS_UPDATE_DOCUMENT");				
+				model.addAttribute("locationHierarchy_statusUpdateReferenceDoc", locationHierarchyStatusUpdateDoc.toString());
+			}
+	        /** Maximum File Size Limits for Common File Upload Categories **/
+			CustomParameter csptMaxFileSizeForDeviceStatusUpdate = CustomParameter.findByName(CustomParameter.class, "MAX_FILE_SIZE_FOR_DEVICE_STATUS_UPDATE", "");
+			if(csptMaxFileSizeForDeviceStatusUpdate!=null && csptMaxFileSizeForDeviceStatusUpdate.getValue()!=null) {
+				model.addAttribute("maxFileSizeMB_statusUpdateReferenceDoc", csptMaxFileSizeForDeviceStatusUpdate.getValue());
+			} else {
+				model.addAttribute("maxFileSizeMB_statusUpdateReferenceDoc", ApplicationConstants.DEFAULT_MAX_FILE_UPLOAD_LIMIT);
 			}
 		}
 	}
@@ -2560,6 +2611,12 @@ class StarredQuestionController {
 		if(userGroupType != null){
 			domain.setEditedAs(userGroupType.getName());
 		}
+		// set Edited On and EditedBy
+		domain.setEditedOn(new Date());
+		domain.setEditedBy(authUser.getActualUsername());
+		
+		/**** update incharge member in the domain ****/
+		domain.setInchargeMember(domain.findInChargeMember());
 		
 		//Check for required fields
 		if(domain.getHouseType() != null && domain.getType() != null && domain.getSession() != null
@@ -2739,16 +2796,58 @@ class StarredQuestionController {
 			}
 			// operation is Null OR Empty
 			else{
-				// Set status, internalStatus, recommendationstatus
-				if(!userGroupType.getType().equals(ApplicationConstants.ASSISTANT)
-					&& !userGroupType.getType().equals(ApplicationConstants.CLERK)){
-					Status status=Status.
-							findByType(ApplicationConstants.QUESTION_COMPLETE, domain.getLocale());
-					domain.setStatus(status);
-					domain.setInternalStatus(status);
-					domain.setRecommendationStatus(status);
-				}
-				
+				/**** Status Update like Lapsed/Withdrawn performed with supporting document upload ****/
+				String selectStatusUpdate=request.getParameter("selectStatusUpdate");
+				if(selectStatusUpdate!=null && !selectStatusUpdate.isEmpty() && ApplicationConstants.SERVER_FILE_STORAGE_ENABLED.equals("YES")) {
+					Status updatedStatus = Status.findById(Status.class, Long.parseLong(selectStatusUpdate));
+					if(updatedStatus!=null) {
+						//Question question = Question.findById(Question.class, domain.getId());
+						WorkflowDetails wfDetails=null;
+						try {
+							wfDetails = WorkflowDetails.findCurrentWorkflowDetail(domain);
+							if(wfDetails != null) {
+								if(updatedStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_LAPSED)) {
+									wfDetails.setStatus(ApplicationConstants.MYTASK_LAPSED);								
+								}
+								else if(updatedStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_WITHDRAWN)) {
+									wfDetails.setStatus(ApplicationConstants.MYTASK_WITHDRAWN);								
+								}
+								else if(updatedStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_DELETED)) {
+									wfDetails.setStatus(ApplicationConstants.MYTASK_DELETED);							
+								}
+								wfDetails.merge();
+							}
+						} catch (ELSException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						domain.setStatus(updatedStatus);
+						domain.setInternalStatus(updatedStatus);
+						domain.setRecommendationStatus(updatedStatus);
+						domain.setLocalizedActorName("");
+						
+						DeviceStatusUpdateInfo statusUpdateInfo = new DeviceStatusUpdateInfo();
+						statusUpdateInfo.setDeviceId(domain.getId().toString());
+						statusUpdateInfo.setLocale(domain.getLocale());
+						statusUpdateInfo.setStatusType(updatedStatus.getType());
+						statusUpdateInfo.setUpdateReferenceDoc(request.getParameter("statusUpdateReferenceDoc"));
+						statusUpdateInfo.setUpdateRemarks(domain.getRemarks());
+						statusUpdateInfo.setUpdatedBy(domain.getEditedBy());
+						statusUpdateInfo.setUpdatedOn(domain.getEditedOn());
+						statusUpdateInfo.persist();
+					}
+				} 
+				else {
+					// Set status, internalStatus, recommendationstatus
+					if(!userGroupType.getType().equals(ApplicationConstants.ASSISTANT)
+						&& !userGroupType.getType().equals(ApplicationConstants.CLERK)){
+						Status status=Status.
+								findByType(ApplicationConstants.QUESTION_COMPLETE, domain.getLocale());
+						domain.setStatus(status);
+						domain.setInternalStatus(status);
+						domain.setRecommendationStatus(status);
+					}
+				}			
 			}
 		}
 		// Required Fields are not entered
@@ -2759,10 +2858,6 @@ class StarredQuestionController {
 			domain.setInternalStatus(status);
 			domain.setRecommendationStatus(status);
 		}
-
-		// set Edited On and EditedBy
-		domain.setEditedOn(new Date());
-		domain.setEditedBy(authUser.getActualUsername());
 
 		//set submission priority to default value if not set explicitly
 		if(domain.getSubmissionPriority()==null) {

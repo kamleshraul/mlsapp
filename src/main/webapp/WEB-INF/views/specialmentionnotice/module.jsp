@@ -320,6 +320,7 @@
 			+ "&sessionType=" + $("#selectedSessionType").val()
 			+ "&motionType=" + $("#selectedMotionType").val()
 			+ "&createdBy=" + $("#ugparam").val()
+			+ "&memberId=" + $("#loggedInMemberId").val()
 			+"&locale="+$("#moduleLocale").val()
 			+ "&report=MEMBER_SPECIALMENTIONNOTICES_VIEW"
 			+ "&reportout=member_specialmentionnotice_view";

@@ -1211,6 +1211,9 @@ class HalfHourDiscussionFromQuestionController {
 			}
 		}
 		domain.setHalfHourDiscusionFromQuestionReference(refQuestion);
+		
+		/**** on creation, setting primary member as default incharge member in the domain ****/
+		domain.setInchargeMember(domain.getPrimaryMember());
 	}
 
 	public static void populateAfterCreate(final Question domain,
@@ -2466,7 +2469,13 @@ class HalfHourDiscussionFromQuestionController {
 		//set EditedAs
 		if(userGroupType != null){
 			domain.setEditedAs(userGroupType.getName());
-		}
+		}		
+		// set Edited On and EditedBy
+		domain.setEditedOn(new Date());
+		domain.setEditedBy(authUser.getActualUsername());
+		
+		/**** update incharge member in the domain ****/
+		domain.setInchargeMember(domain.findInChargeMember());
 		
 		//Check for required fields
 		if(domain.getHouseType() != null && domain.getType() != null && domain.getSession() != null

@@ -243,6 +243,10 @@ public class ApplicationConstants {
 	
 	public static final String QUESTION_PROCESSED_LAPSED="question_processed_lapsed";
 	
+	public static final String QUESTION_PROCESSED_WITHDRAWN="question_processed_withdrawn";
+	
+	public static final String QUESTION_PROCESSED_DELETED="question_processed_deleted";
+	
 	/**** Put Up ****/
 	public static final String QUESTION_PUTUP_NAMECLUBBING="question_putup_nameclubbing";
 	
@@ -886,7 +890,11 @@ public class ApplicationConstants {
 	
 	public static final String MYTASK_TIMEOUT="TIMEOUT"; 
 	
-	public static final String MYTASK_LAPSED="LAPSED"; 
+	public static final String MYTASK_LAPSED="LAPSED";  
+	
+	public static final String MYTASK_WITHDRAWN="WITHDRAWN";  
+	
+	public static final String MYTASK_DELETED="DELETED";
 	
 	/**** Workflow Types ****/
 	public static final String APPROVAL_WORKFLOW="APPROVAL_WORKFLOW";
@@ -3205,7 +3213,17 @@ public class ApplicationConstants {
 	public static final String SPECIAL_SESSION_1 = "special1";
 	
 	public static final String SPECIAL_SESSION_2 = "special2";
-
+	
+	/** Constants for Storage on File Server **/
+	public static final String SERVER_FILE_STORAGE_ENABLED = "NO";
+	
+	public static final String FILE_CATEGORY_ORDER_OF_DAY = "ORDER_OF_DAY";
+	
+	public static final String FILE_CATEGORY_STARRED_QUESTIONS_YAADI = "STARRED_QUESTIONS_YAADI";
+	
+	public static final String FILE_CATEGORY_UNSTARRED_QUESTIONS_YAADI = "UNSTARRED_QUESTIONS_YAADI";
+	
+	public static final String DEFAULT_MAX_FILE_UPLOAD_LIMIT = "2";
 	
 	public void setEnvironmentInstance(Environment environment) {
 		this.environmentInstance = environment;

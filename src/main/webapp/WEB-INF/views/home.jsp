@@ -282,7 +282,10 @@
             <input type="hidden" id="authfullname" name="authfullname" value="${authtitle} ${authfirstname} ${authmiddlename} ${authlastname}"/>    
             <input type="hidden" id="authlocale" name="authlocale" value="${locale}"/>
             <input type="hidden" id="authhousetype" name="authhousetype" value="${authhousetype}"/>
+            
             <input type="hidden" id="isMemberLogin" name="isMemberLogin" value="${isMemberLogin}"/>
+            <input type="hidden" id="loggedInMemberId" value="${memberId}"/>
+            
             <input type="hidden" id="isMinisterLogin" name="isMinisterLogin" value="${isMinisterLogin}"/>
             <input type="hidden" id="isSpeakerOrChairmanLogin" name="isSpeakerOrChairmanLogin" value="${isSpeakerOrChairmanLogin}"/>
             <input type="hidden" id="isDepartmentLogin" name="isDepartmentLogin" value="${isDepartmentLogin}"/>

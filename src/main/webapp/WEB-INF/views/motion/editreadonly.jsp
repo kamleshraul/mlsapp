@@ -49,7 +49,7 @@
 <%-- <form:form action="motion" method="PUT" modelAttribute="domain"> --%>
 
 	<%-- <%@ include file="/common/info.jsp" %> --%>
-	<h2>${formattedQuestionType}: ${formattedNumber}</h2>
+	<h2>${formattedMotionType}: ${formattedNumber} (${sessionDetailsText})</h2>
 		
 	<p>
 	<label class="small"><spring:message code="question.number" text="Question Number"/>*</label>

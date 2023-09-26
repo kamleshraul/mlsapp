@@ -300,6 +300,7 @@
 			+ "&sessionType=" + $("#selectedSessionType").val()
 			+ "&motionType=" + $("#selectedMotionType").val()
 			+ "&createdBy=" + $("#ugparam").val()
+			+ "&memberId=" + $("#loggedInMemberId").val()
 			+"&locale="+$("#moduleLocale").val()
 			+ "&report=MEMBER_ADJOURNMENTMOTIONS_VIEW"
 			+ "&reportout=member_adjournmentmotions_view";

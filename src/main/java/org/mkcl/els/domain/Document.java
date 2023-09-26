@@ -75,8 +75,11 @@ public class Document implements Serializable {
 
     private String createdBy;
     
-    @Column(length = 100000)
+    @Column(length = 10000)
     private String path;
+	
+    @Column(length = 10000)
+    private String locationHierarchy; //required for storageType of file_server
 
     /** The document repository. */
     @Autowired
@@ -351,6 +354,14 @@ public class Document implements Serializable {
 
 	public void setPath(String path) {
 		this.path = path;
+	}
+
+	public String getLocationHierarchy() {
+		return locationHierarchy;
+	}
+
+	public void setLocationHierarchy(String locationHierarchy) {
+		this.locationHierarchy = locationHierarchy;
 	}
     
     

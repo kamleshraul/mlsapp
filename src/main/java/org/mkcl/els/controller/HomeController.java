@@ -9,7 +9,6 @@
  */
 package org.mkcl.els.controller;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -28,7 +27,6 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.DepartmentDashboardVo;
-import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.ApplicationLocale;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
@@ -51,13 +49,11 @@ import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportLog;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
-import org.mkcl.els.repository.FeedbackRepository;
 import org.mkcl.els.service.ISecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -273,6 +269,10 @@ public class HomeController extends BaseController {
         	if(i.getType().equalsIgnoreCase(ApplicationConstants.MEMBER_LOWERHOUSE)
         			|| i.getType().equalsIgnoreCase(ApplicationConstants.MEMBER_UPPERHOUSE)) {
         		model.addAttribute("isMemberLogin", "YES");
+        		Member member = this.populateLoggedInMember(model, this.getCurrentUser(), locale.toString());
+				if(member != null){
+					model.addAttribute("memberId", member.getId());
+				}
         		
         	} else if(i.getType().endsWith(ApplicationConstants.ROLE_DEPARTMENT_USER) && model.get("isDepartmentLogin")==null) {
         		model.addAttribute("isDepartmentLogin", "YES");		
@@ -845,5 +845,16 @@ public class HomeController extends BaseController {
         		csptDefaultLocale.merge();
         	}
     	}
+	}
+	
+	private Member populateLoggedInMember(final ModelMap model,
+			final AuthUser authUser,
+			final String locale){
+		Member member = Member.findMember(authUser.getFirstName(), 
+										  authUser.getMiddleName(),
+										  authUser.getLastName(), 
+										  authUser.getBirthDate(), 
+										  locale);
+		return member;
 	}
 }

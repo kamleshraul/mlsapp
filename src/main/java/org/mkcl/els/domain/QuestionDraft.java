@@ -80,6 +80,13 @@ public class QuestionDraft extends BaseDomain implements Serializable{
     @JoinColumn(name="recommendationstatus_id")
     private Status recommendationStatus;
 
+    /** 
+     * If a question is discussed then its discussion status is set to discussed
+     */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="discussionstatus_id")
+    private Status discussionStatus;
+
     /** The clarification needed from. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="clarification_neededfrom_id")
@@ -97,6 +104,12 @@ public class QuestionDraft extends BaseDomain implements Serializable{
     /** The edited by. */
     @Column(length=1000)
     private String editedBy;
+    
+    /** The edited by actual name.
+     * (full name of the actual person who logged in as editedBy at the time of update)
+     */
+    @Column(length=1000)
+    private String editedByActualName;
 
     /** The edited as. */
     @Column(length=1000)
@@ -167,6 +180,11 @@ public class QuestionDraft extends BaseDomain implements Serializable{
     private String rejectionReason;
     
     private Boolean processed;
+    
+    /** The in charge member. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="incharge_member_id")
+    private Member inchargeMember;
     
     /**** Constructors ****/
 
@@ -436,7 +454,17 @@ public class QuestionDraft extends BaseDomain implements Serializable{
 	}
 
 
-    /**
+    public Status getDiscussionStatus() {
+		return discussionStatus;
+	}
+
+
+	public void setDiscussionStatus(Status discussionStatus) {
+		this.discussionStatus = discussionStatus;
+	}
+
+
+	/**
      * Gets the mark as answered.
      *
      * @return the mark as answered
@@ -473,10 +501,29 @@ public class QuestionDraft extends BaseDomain implements Serializable{
 
 	public void setEditedBy(String editedBy) {
 		this.editedBy = editedBy;
+//		if(editedBy!=null && !editedBy.isEmpty()) {
+//			try {
+//				this.editedByActualName = User.findFullNameByUserName(this.getEditedBy(), this.getLocale());
+//			} catch (ELSException e) {
+//				//e.printStackTrace();
+//				this.setEditedByActualName("");
+//			}
+//		} else {
+//			this.setEditedBy("");
+//			this.setEditedByActualName("");
+//		}
 	}
 
 	public String getEditedBy() {
 		return editedBy;
+	}
+
+	public void setEditedByActualName(String editedByActualName) {
+		this.editedByActualName = editedByActualName;
+	}
+
+	public String getEditedByActualName() {
+		return editedByActualName;
 	}
 
 	public void setEditedAs(String editedAs) {
@@ -578,6 +625,16 @@ public Boolean getProcessed() {
 
 public void setProcessed(Boolean processed) {
 	this.processed = processed;
+}
+
+
+public Member getInchargeMember() {
+	return inchargeMember;
+}
+
+
+public void setInchargeMember(Member inchargeMember) {
+	this.inchargeMember = inchargeMember;
 }
 	
 

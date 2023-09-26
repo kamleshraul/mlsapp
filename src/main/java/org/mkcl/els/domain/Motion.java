@@ -103,7 +103,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 	/** The edited by. */
 	@Column(length=1000)
-	private String editedBy;
+	private String editedBy; 
+    
+    /** The edited by actual name.
+     * (full name of the actual person who logged in as editedBy at the time of update)
+     */
+    @Column(length=1000)
+    private String editedByActualName;
 
 	/** The edited as. */
 	@Column(length=1000)
@@ -193,10 +199,16 @@ import org.springframework.transaction.annotation.Transactional;
 	@Column(length=30000)
 	private String remarks;
 
-	/** The primary member. */
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="member_id")
-	private Member primaryMember;
+	/**** PRIMARY, INCHARGE & SUPPORTING MEMBERS ****/
+    /** The primary member. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="member_id")
+    private Member primaryMember;
+    
+    /** The in charge member. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="incharge_member_id")
+    private Member inchargeMember;
 
 	/** The supporting members. */
 	@ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
@@ -442,13 +454,15 @@ import org.springframework.transaction.annotation.Transactional;
 			draft.setReferencedUnits(referencedUnits);
 			draft.setEditedAs(this.getEditedAs());
 			draft.setEditedBy(this.getEditedBy());
+            draft.setEditedByActualName(this.getEditedByActualName());
 			draft.setEditedOn(this.getEditedOn());	            
 			draft.setMinistry(this.getMinistry());
 			draft.setDepartment(this.getDepartment());
 			draft.setSubDepartment(this.getSubDepartment());	            
 			draft.setStatus(this.getStatus());
 			draft.setInternalStatus(this.getInternalStatus());
-			draft.setRecommendationStatus(this.getRecommendationStatus());
+			draft.setRecommendationStatus(this.getRecommendationStatus());        	
+        	draft.setInchargeMember(this.getInchargeMember());
 			draft.setMlsBranchNotifiedOfTransfer(this.getMlsBranchNotifiedOfTransfer());
 			draft.setTransferToDepartmentAccepted(this.getTransferToDepartmentAccepted());
 			draft.setAdvanceCopyActor(this.getAdvanceCopyActor());
@@ -941,9 +955,27 @@ import org.springframework.transaction.annotation.Transactional;
 	public String getEditedBy() {
 		return editedBy;
 	}
-
+	
 	public void setEditedBy(String editedBy) {
 		this.editedBy = editedBy;
+		if(editedBy!=null && !editedBy.isEmpty()) {
+			try {
+				this.editedByActualName = User.findFullNameByUserName(this.getEditedBy(), this.getLocale());
+			} catch (ELSException e) {
+				//e.printStackTrace();
+			}
+		} else {
+			this.setEditedBy("");
+			this.setEditedByActualName("");
+		}
+	}
+
+	public String getEditedByActualName() {
+		return editedByActualName;
+	}
+
+	public void setEditedByActualName(String editedByActualName) {
+		this.editedByActualName = editedByActualName;
 	}
 
 	public String getEditedAs() {
@@ -1056,6 +1088,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 	public void setPrimaryMember(Member primaryMember) {
 		this.primaryMember = primaryMember;
+	}
+
+	public Member getInchargeMember() {
+		return inchargeMember;
+	}
+
+	public void setInchargeMember(Member inchargeMember) {
+		this.inchargeMember = inchargeMember;
 	}
 
 	public List<SupportingMember> getSupportingMembers() {
@@ -2494,6 +2534,58 @@ import org.springframework.transaction.annotation.Transactional;
 			}
 		}
 	}
+	 
+	public Member findInChargeMember() {
+		/** check primary member **/
+		Member member = this.getPrimaryMember();
+		if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+			return member;
+		} 
+		/** check in supporting members **/
+		List<SupportingMember> supportingMembers = this.getSupportingMembers();
+		if (supportingMembers != null) {
+			for (SupportingMember sm : supportingMembers) {
+				member = sm.getMember();
+				Status approvalStatus = sm.getDecisionStatus();
+				if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+					if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+						return member;
+					}
+				}				
+			}
+		}
+		
+		/** check in clubbed questions members **/
+		List<ClubbedEntity> clubbedEntities = Motion.findClubbedEntitiesByPosition(this);
+		if (clubbedEntities != null) {
+			for (ClubbedEntity ce : clubbedEntities) {
+				if (ce.getMotion().getInternalStatus().getType().equals(ApplicationConstants.MOTION_SYSTEM_CLUBBED)
+						|| ce.getMotion().getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_ADMISSION)
+						|| ce.getMotion().getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_REJECTION)) {
+					member = ce.getMotion().getPrimaryMember();
+					if(member!=null) {
+						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getMotion())) {
+							return member;
+						}
+					}
+					/** check in clubbed questions supporting members **/
+					List<SupportingMember> clubbedSupportingMembers = ce.getMotion().getSupportingMembers();
+					if (clubbedSupportingMembers != null) {
+						for (SupportingMember csm : clubbedSupportingMembers) {
+							member = csm.getMember();
+							Status approvalStatus = csm.getDecisionStatus();
+							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+								if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getMotion())) {
+									return member;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return member;
+	}
 	
 	public static String findAllMemberNames(Long id, String nameFormat) {
 		StringBuffer allMemberNamesBuffer = new StringBuffer("");
@@ -2501,7 +2593,7 @@ import org.springframework.transaction.annotation.Transactional;
 		Member member = null;
 		String memberName = "";				
 		/** primary member **/
-		member = motion.getPrimaryMember();		
+		member = motion.getInchargeMember();
 		if(member==null) {
 			return allMemberNamesBuffer.toString();
 		}	
@@ -2519,7 +2611,7 @@ import org.springframework.transaction.annotation.Transactional;
 			for (SupportingMember sm : supportingMembers) {
 				member = sm.getMember();
 				Status approvalStatus = sm.getDecisionStatus();
-				if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+				if(member!=null && !member.equals(motion.getInchargeMember()) && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 					memberName = member.findNameInGivenFormat(nameFormat);
 					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {				
 						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(motion)) {
@@ -2543,8 +2635,9 @@ import org.springframework.transaction.annotation.Transactional;
 				 * nameclubbing, pending for nameclubbing approval)
 				 **/
 				if (ce.getMotion().getInternalStatus().getType().equals(ApplicationConstants.MOTION_SYSTEM_CLUBBED)
-						|| ce.getMotion().getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
-					member = ce.getMotion().getPrimaryMember();
+						|| ce.getMotion().getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_ADMISSION)
+						|| ce.getMotion().getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_REJECTION)) {
+					member = ce.getMotion().getInchargeMember();
 					if(member!=null) {
 						memberName = member.findNameInGivenFormat(nameFormat);
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
@@ -2562,7 +2655,7 @@ import org.springframework.transaction.annotation.Transactional;
 						for (SupportingMember csm : clubbedSupportingMembers) {
 							member = csm.getMember();
 							Status approvalStatus = csm.getDecisionStatus();
-							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+							if(member!=null && !member.equals(motion.getInchargeMember()) && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 								memberName = member.findNameInGivenFormat(nameFormat);
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getMotion())) {

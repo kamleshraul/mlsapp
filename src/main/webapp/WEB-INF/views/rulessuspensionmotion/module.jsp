@@ -276,6 +276,7 @@
 			+ "&sessionType=" + $("#selectedSessionType").val()
 			+ "&motionType=" + $("#selectedMotionType").val()
 			+ "&createdBy=" + $("#ugparam").val()
+			+ "&memberId=" + $("#loggedInMemberId").val()
 			+"&locale="+$("#moduleLocale").val()
 			+ "&report=MEMBER_RULESSUSPENSIONMOTIONS_VIEW"
 			+ "&reportout=member_rulessuspensionmotions_view";

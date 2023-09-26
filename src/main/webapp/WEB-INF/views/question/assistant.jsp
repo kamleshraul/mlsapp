@@ -387,6 +387,7 @@
 	    var isRevisedQuestionTextDisallowedToEdit = false;
 	    var revisedQuestionTextOriginal = $('#revisedQuestionText').val();
 	    var clubbedQuestionNumbers = "";
+	    var highSecurityPasswordEnteredForPage = false;
 		if($('#revisedQuestionText').val()!=undefined && $('#revisedQuestionText').val()!="" && $('#revisedQuestionText').val()!="<p></p>") {
 			$('#revisedQuestionText').wysiwyg({ //registered here for keypress event handling
 				resizeOptions: {maxWidth: 600},
@@ -743,6 +744,14 @@
 	    });
 	    /**** On Update Validations If Any ****/
 		$("#submit").click(function(e){
+			if($('#selectStatusUpdate').val()!=undefined
+					&& $('#selectStatusUpdate').val()!=""
+					&& $('#selectStatusUpdate').val()!="-") {
+				if($('#statusUpdateReferenceDoc').val()=="") {
+					$.prompt("Please upload supporting reference document for the status update!");
+					return false;
+				}
+			}
 			if($('#questionTypeType').val()=='questions_unstarred') {
 				var answer = $('#answer').val();
 				if(answer!=undefined && answer!='' && answer!='-' 
@@ -1097,7 +1106,39 @@
 			} else {
 				$(this).val("false");
 			}
-			alert("isAllowedInYaadi: " + $(this).val());
+			//alert("isAllowedInYaadi: " + $(this).val());
+		});
+		
+		$('#toggleStatusUpdate').click(function(event, isHighSecurityValidationRequired){
+			if($('#highSecurityPasswordEnabled').val()=='no') {
+				isHighSecurityValidationRequired = false;
+			} else {
+				if(highSecurityPasswordEnteredForPage) {
+					isHighSecurityValidationRequired = false;
+				}
+			}
+			if(isHighSecurityValidationRequired!=false) {
+				validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+				return false;
+			}
+			highSecurityPasswordEnteredForPage = true;
+			//console.log("Toggle Now");
+			$('#statusUpdateDiv').toggle();
+		});
+		
+		$('#selectStatusUpdate').change(function() {
+		    /* $("#recommendationStatus").val($("#oldRecommendationStatus").val());
+			if($(this).val()!="-") {
+				//$("#internalStatus").val($(this).val());
+			    $("#recommendationStatus").val($(this).val());
+			} */
+			if($(this).val()!="-") {
+				$('#submit').removeAttr("disabled");
+				$('#submit').show();
+			} else {
+				$('#submit').attr("disabled", "disabled");		
+				$('#submit').hide();
+			}
 		});
 	});
 	
@@ -1169,6 +1210,15 @@
 		    overflow: auto;
 		    border-radius: 10px;
 	    }
+	    
+	    .imageLink{
+			width: 18px;
+			height: 18px;				
+			/* box-shadow: 2px 2px 5px #000000;
+			border-radius: 5px;
+			padding: 2px;
+			border: 1px solid #000000; */ 
+		}
     </style>
 </head> 
 
@@ -1612,7 +1662,58 @@
 		<p id="internalStatusDiv">
 		<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
 		<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
+		<c:if test="${isServerFileStorageEnabled eq 'YES'}">
+			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
+			<a href="javascript:void(0);" id="toggleStatusUpdate" style="margin-left: 10px;text-decoration: none;">
+				<img src="./resources/images/Revise.jpg" title="Status Update" class="imageLink" />
+			</a>
+			</security:authorize>
+			<c:if test="${not empty statusUpdateReferenceDoc}">
+			<span id="currentStatusUpdateReferenceDocSpan" style="margin-top: 10px; margin-left: 10px; display: inline-block !important;">
+				<jsp:include page="/common/file_download.jsp">
+					<jsp:param name="fileid" value="currentStatusUpdateReferenceDoc" />
+					<jsp:param name="filetag" value="${statusUpdateReferenceDoc}" />
+					<jsp:param name="storageType" value="file_server" />
+					<jsp:param name="locationHierarchy" value="${locationHierarchy_statusUpdateReferenceDoc}" />
+					<jsp:param name="isUploadAllowed" value="false" />
+					<jsp:param name="isRemovable" value="false" />
+					<jsp:param name="isDeletable" value="false" />
+				</jsp:include>
+			</span>
+			</c:if>
+		</c:if>
 		</p>
+		
+		<c:if test="${isServerFileStorageEnabled eq 'YES'}">
+		<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
+		<div id="statusUpdateDiv" style="display: none;">
+			<p style="margin-top: 10px;">
+				<label class="small"><spring:message code="generic.statusupdate" text="Updated Status"/></label>
+				<select id="selectStatusUpdate" name="selectStatusUpdate" class="sSelect">
+					<option value="-"><spring:message code='please.select' text='Please Select'/></option>
+					<c:forEach items="${statusUpdateOptions}" var="i">
+						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+					</c:forEach>
+				</select>
+			</p>			
+			<p id="statusUpdateReferenceP">
+				<label class="small"><spring:message code="generic.statusupdate_referencedocument" text="Reference Document"/></label>
+				<span id="statusUpdateReferenceDocSpan" style="margin-top: 10px; margin-left: 0px; display: inline-block !important;">
+					<jsp:include page="/common/file_load.jsp">
+						<jsp:param name="fileid" value="statusUpdateReferenceDoc" />
+						<jsp:param name="filetag" value="" />
+						<jsp:param name="storageType" value="file_server" />
+						<jsp:param name="locationHierarchy" value="${locationHierarchy_statusUpdateReferenceDoc}" />
+						<jsp:param name="maxFileSizeMB" value="${maxFileSizeMB_statusUpdateReferenceDoc}" />
+						<jsp:param name="isUploadAllowed" value="true" />
+						<jsp:param name="isRemovable" value="true" />
+						<jsp:param name="isDeletable" value="false" />
+					</jsp:include>
+				</span>
+			</p>
+		</div>
+		</security:authorize>
+		</c:if>
 		
 		<c:set var="isAllowedToPutupQuestionForApproval" value="NO"/>
 		<c:choose>
@@ -1690,35 +1791,41 @@
 			<form:hidden path="actor"/>
 		</c:if>
 		
-		<c:if test="${!(empty domain.factualPosition)}">
-			<p>
-				<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
-				<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
-			</p>
-		</c:if>
+		<c:choose>
+			<c:when test="${!(empty domain.factualPosition)}">
+				<p>
+					<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
+					<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
+				</p>
+			</c:when>
+			<c:otherwise>
+				<c:if test="${fn:contains(internalStatusType, 'question_final_clarificationNeededFromDepartment') || fn:contains(internalStatusType, 'question_unstarred_final_clarificationNeededFromDepartment')}">
+				<p>
+					<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
+					<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
+					<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+				</p>
+				</c:if>
+			</c:otherwise>
+		</c:choose>
 		
-		<c:if test="${!(empty domain.factualPositionFromMember)}">
-			<p>
-				<label class="wysiwyglabel"><spring:message code="question.factualPositionFromMember" text="Factual Position from Member"/></label>
-				<form:textarea path="factualPositionFromMember" cssClass="wysiwyg"></form:textarea>
-			</p>
-		</c:if>
-		
-		<c:if test="${fn:contains(internalStatusType, 'question_final_clarificationNeededFromDepartment') || fn:contains(internalStatusType, 'question_unstarred_final_clarificationNeededFromDepartment')}">
-			<p>
-			<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
-			<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
-			<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-			</p>
-		</c:if>	
-		
-		<c:if test="${fn:contains(internalStatusType, 'question_final_clarificationNeededFromMember') || fn:contains(internalStatusType, 'question_unstarred_final_clarificationNeededFromMember')}">
-			<p>
-			<label class="wysiwyglabel"><spring:message code="question.factualPositioFromMember" text="Factual Position From Member"/></label>
-			<form:textarea path="factualPositionFromMember" cssClass="wysiwyg"></form:textarea>
-			<form:errors path="factualPositionFromMember" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-			</p>
-		</c:if>	
+		<c:choose>
+			<c:when test="${!(empty domain.factualPositionFromMember)}">
+				<p>
+					<label class="wysiwyglabel"><spring:message code="question.factualPositionFromMember" text="Factual Position from Member"/></label>
+					<form:textarea path="factualPositionFromMember" cssClass="wysiwyg"></form:textarea>
+				</p>
+			</c:when>
+			<c:otherwise>
+				<c:if test="${fn:contains(internalStatusType, 'question_final_clarificationNeededFromMember') || fn:contains(internalStatusType, 'question_unstarred_final_clarificationNeededFromMember')}">
+				<p>
+					<label class="wysiwyglabel"><spring:message code="question.factualPositioFromMember" text="Factual Position From Member"/></label>
+					<form:textarea path="factualPositionFromMember" cssClass="wysiwyg"></form:textarea>
+					<form:errors path="factualPositionFromMember" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+				</p>
+				</c:if>
+			</c:otherwise>
+		</c:choose>
 		
 		<c:choose>
 			<c:when  test="${!(empty domain.rejectionReason)}">
@@ -1806,7 +1913,11 @@
 			<h2></h2>
 			<p class="tright">
 			<c:choose>
-				<c:when test="${bulkedit!='yes'}">
+				<c:when test="${bulkedit!='yes'}">					
+					<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
+						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" style="display: none;" disabled="disabled">
+					</security:authorize>
+					
 					<c:if test="${((internalStatusType=='question_submit' || internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_putup'
 									|| internalStatusType =='question_system_groupchanged' || internalStatusType=='question_putup_rejection' || internalStatusType=='question_putup_convertToUnstarredAndAdmit'
 									|| internalStatusType == 'question_putup_clubbing' || internalStatusType == 'question_putup_nameclubbing' 

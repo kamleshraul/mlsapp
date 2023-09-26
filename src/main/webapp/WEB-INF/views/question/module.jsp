@@ -880,6 +880,7 @@
 		+ "&questionType=" + $("#selectedQuestionType").val()
 		+ "&statusFilter=" + status_filter
 		+ "&createdBy=" + $("#ugparam").val()
+		+ "&memberId=" + $("#loggedInMemberId").val()
 		+"&locale="+$("#moduleLocale").val()
 		+ "&report=MEMBER_QUESTIONS_VIEW"
 		+ "&reportout=member_questions_view"+viewMode;
@@ -896,6 +897,7 @@
 		+ "&sessionType=" + $("#selectedSessionType").val()
 		+ "&questionType=" + $("#selectedQuestionType").val()
 		+ "&createdBy=" + $("#ugparam").val()
+		+ "&memberId=" + $("#loggedInMemberId").val()
 		+"&locale="+$("#moduleLocale").val()
 		+ "&report=MEMBER_QUESTIONS_DETAIL_VIEW"
 		+ "&reportout=member_questions_detail_view";

@@ -179,9 +179,15 @@
 					}
 					if(value ==sendToDeskOfficer){
 						$("#replyP").css("display","none");
-						 $("#actorDiv").show();
+						if($('#isServerFileStorageEnabled').val()=="YES") {
+							$("#replyDocumentDiv").css("display","none");
+						}
+						$("#actorDiv").show();
 					}else{
 						$("#replyP").css("display","inline-block");
+						if($('#isServerFileStorageEnabled').val()=="YES") {
+							$("#replyDocumentDiv").css("display","inline-block");
+						}
 					}
 					$("#recommendationStatus").val(value);
 					/**** setting level,localizedActorName ****/
@@ -198,9 +204,15 @@
 					}
 					if(value ==sendToDeskOfficer){
 						$("#replyP").css("display","none");
-						 $("#actorDiv").show();
+						if($('#isServerFileStorageEnabled').val()=="YES") {
+							$("#replyDocumentDiv").css("display","none");
+						}
+						$("#actorDiv").show();
 					}else{
 						$("#replyP").css("display","inline-block");
+						if($('#isServerFileStorageEnabled').val()=="YES") {
+							$("#replyDocumentDiv").css("display","inline-block");
+						}
 					}
 					$("#recommendationStatus").val(value);					
 					if(value == sendToSectionOfficer){
@@ -265,7 +277,10 @@
 		initControls();
 		loadActors($("#changeInternalStatus").val());
 		if($('#workflowstatus').val()=="PENDING") {
-			$("#replyP").hide();			
+			$("#replyP").hide();
+			if($('#isServerFileStorageEnabled').val()=="YES") {
+				$("#replyDocumentDiv").hide();
+			}
 		}
 		/*******Actor changes*************/
 		$("#actor").change(function(){
@@ -419,10 +434,18 @@
 			var sendToSectionOfficer=$("#internalStatusMaster option[value='proprietypoint_processed_sendToSectionOfficer']").text();
 			var changedInternalStatus = $("#changeInternalStatus").val();
 			if(changedInternalStatus == sendToSectionOfficer) {
-				if(($('#reply').val()=="" || ($("#workflowstatus").val()=='COMPLETED' && $('#rereply').val()==""))){
-					$.prompt($('#noReplyProvidedMsg').val());
-					return false;
+				if($('#isServerFileStorageEnabled').val()=="YES") {
+					if(($('#replyDoc').val()=="" || ($("#workflowstatus").val()=='COMPLETED' && $('#rereply').val()==""))){
+						$.prompt($('#noReplyProvidedMsg').val());
+						return false;
+					}
+				} else {
+					if(($('#reply').val()=="" || ($("#workflowstatus").val()=='COMPLETED' && $('#rereply').val()==""))){
+						$.prompt($('#noReplyProvidedMsg').val());
+						return false;
+					}
 				}
+				
 				if(/*$('#houseTypeType').val()=='upperhouse' &&*/ $("#workflowstatus").val()=='PENDING'
 						&& $("#lastDateForReplyReceiving").val()!=''
 						&& new Date()> new Date($("#lastDateForReplyReceiving").val())  && $('#reasonForLateReply').val()==""){
@@ -822,23 +845,52 @@
 			<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus}">
 			<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
 			
-			<c:if test="${workflowstatus != 'COMPLETED'}">
+			<%-- <c:if test="${workflowstatus != 'COMPLETED'}">
 				<p>
 					<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="proprietypoint.viewcitation" text="View Citations"></spring:message></a>	
 				</p>
-			</c:if>
+			</c:if> --%>
 			
 			<c:choose>
 			<c:when test="${workflowstatus=='COMPLETED'}">
 				<p id="replyP">
-					<label class="wysiwyglabel"><spring:message code="proprietypoint.reply" text="Reply"/></label>
+					<label class="small"><spring:message code="proprietypoint.reply" text="Reply"/></label>
+					<c:if test="${isServerFileStorageEnabled eq 'YES'}">		
+					<span id="replyDocumentDiv" style="margin-top: 20px; margin-left: 0px; display: inline-block !important;">
+						<jsp:include page="/common/file_load.jsp">
+							<jsp:param name="fileid" value="replyDoc" />
+							<jsp:param name="filetag" value="${domain.replyDoc}" />
+							<jsp:param name="storageType" value="file_server" />
+							<jsp:param name="locationHierarchy" value="${locationHierarchy_replyDoc}" />
+							<jsp:param name="isUploadAllowed" value="false" />
+							<jsp:param name="isRemovable" value="false" />
+							<jsp:param name="isDeletable" value="false" />
+						</jsp:include>
+					</span>
+					<br/><br/>
+					</c:if>
 					<form:textarea path="reply" cssClass="wysiwyg" readonly="true"></form:textarea>
 					<form:errors path="reply" cssClass="validationError"></form:errors>
 				</p>
 			</c:when>
 			<c:otherwise>
 				<p id="replyP">
-					<label class="wysiwyglabel"><spring:message code="proprietypoint.reply" text="Reply"/></label>
+					<label class="small"><spring:message code="proprietypoint.reply" text="Reply"/></label>
+					<c:if test="${isServerFileStorageEnabled eq 'YES'}">		
+					<span id="replyDocumentDiv" style="margin-top: 20px; margin-left: 0px; display: inline-block !important;">
+						<jsp:include page="/common/file_load.jsp">
+							<jsp:param name="fileid" value="replyDoc" />
+							<jsp:param name="filetag" value="${domain.replyDoc}" />
+							<jsp:param name="storageType" value="file_server" />
+							<jsp:param name="locationHierarchy" value="${locationHierarchy_replyDoc}" />
+							<jsp:param name="isUploadAllowed" value="${workflowstatus eq 'PENDING'? 'true' : 'false'}" />
+							<jsp:param name="maxFileSizeMB" value="${maxFileSizeMB_replyDoc}" />
+							<jsp:param name="isRemovable" value="${workflowstatus eq 'PENDING'? 'true' : 'false'}" />
+							<jsp:param name="isDeletable" value="${(empty domain.replyDoc and workflowstatus eq 'PENDING')? 'true' : 'false'}" />
+						</jsp:include>
+					</span>
+					<br/><br/>
+					</c:if>
 					<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
 					<form:errors path="reply" cssClass="validationError"></form:errors>
 				</p>
@@ -916,7 +968,8 @@
 		<input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 		<input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
-		<input id="submissionMsg" value="<spring:message code='proprietypoint.submitForReply' text='Do you want to submit for the reply of special mention notice?'></spring:message>" type="hidden">
+		<input id="submissionMsg" value="<spring:message code='proprietypoint.submitForReply' text='Do you want to submit for the reply of propriety point notice?'></spring:message>" type="hidden">
+		<input id="isServerFileStorageEnabled" value="${isServerFileStorageEnabled}" type="hidden"/>
 		
 		<ul id="contextMenuItems" >
 			<li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>

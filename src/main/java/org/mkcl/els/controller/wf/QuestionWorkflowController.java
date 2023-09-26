@@ -1838,6 +1838,10 @@ public class QuestionWorkflowController  extends BaseController{
 					domain.setEditedOn(new Date());
 					domain.setEditedBy(this.getCurrentUser().getActualUsername());
 					domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());
+					
+					/**** update incharge member in the domain ****/
+					domain.setInchargeMember(domain.findInChargeMember());
+					
 					String strDateOfAnsweringByMinister = request.getParameter("dateOfAnsweringByMinister");
 					Date dateOfAnsweringByMinister = null;
 	

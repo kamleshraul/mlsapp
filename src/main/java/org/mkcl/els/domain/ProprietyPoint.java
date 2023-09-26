@@ -134,6 +134,10 @@ public class ProprietyPoint extends Device implements Serializable {
     @Column(length=30000)
     private String reply;
     
+    /** The document tag having reply file reference. */
+    @Column(length=100)
+    private String replyDoc;
+    
     /** The rejection reason. */
     @Column(length=30000)
     private String rejectionReason;
@@ -485,6 +489,13 @@ public class ProprietyPoint extends Device implements Serializable {
     	
     	if(this.getAdmissionNumber() != null) {
     		draft.setAdmissionNumber(admissionNumber);
+    	}
+    	
+    	if(this.getReply()!=null) {
+    		draft.setReply(this.getReply());
+    	}
+    	if(this.getReplyDoc()!=null) {
+    		draft.setReplyDoc(this.getReplyDoc());
     	}
     	        
         if(this.getId() != null) {
@@ -1167,6 +1178,14 @@ public class ProprietyPoint extends Device implements Serializable {
 		this.reply = reply;
 	}
 	
+	public String getReplyDoc() {
+		return replyDoc;
+	}
+
+	public void setReplyDoc(String replyDoc) {
+		this.replyDoc = replyDoc;
+	}
+
 	public Date getReplyRequestedDate() {
 		return replyRequestedDate;
 	}

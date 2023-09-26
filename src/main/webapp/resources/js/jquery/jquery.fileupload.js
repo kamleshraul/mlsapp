@@ -495,8 +495,16 @@
             options.textStatus = textStatus;
             options.jqXHR = jqXHR;
             var upload_ele ='#'+this.element.attr('id') + "_" +'upload';
-            $.get('./common/file_download.jsp?fileid='+this.element.attr('id').split('_')[1]+'&filetag='+result, function(data){
-            	 $(upload_ele).replaceWith(data);
+            var fileid = this.element.attr('id').split('_')[1];
+            var storageType = $('#storageType_'+fileid).val();
+            //console.log("file storage type: " + storageType);
+            var locationHierarchy = $('#locationHierarchy_'+fileid).val();
+            //console.log("location hierarchy: " + $('#maxFileSizeMB'+fileid).val());
+            var maxFileSizeMB = $('#maxFileSizeMB_'+fileid).val();
+            console.log("maxFileSizeMB: " + maxFileSizeMB);
+            $.get('./common/file_download.jsp?fileid='+this.element.attr('id').split('_')[1]+'&filetag='+result+'&storageType='+storageType+'&locationHierarchy='+locationHierarchy+'&maxFileSizeMB='+maxFileSizeMB, function(data){
+            	//console.log("file data: " + data);
+            	$(upload_ele).replaceWith(data);
             });
             this._trigger('done', null, options);
         },

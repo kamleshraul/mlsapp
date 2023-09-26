@@ -99,8 +99,18 @@
 			//---ADDED BY VIKAS------------------
 			$('#gridURLParams_ForNew').val($('#gridURLParams').val());		
 			
-			$("#discussionSelection").click(function(){
+			/* $("#discussionSelection").click(function(){
 				showDiscussionSelection();
+			}); */
+			$("#searchByReferenceNumberButton").click(function(){
+				var referenceNumber = $('#referenceNumberSearchValue').val();
+				if(referenceNumber!="") {
+					var motionId = referenceNumber.slice(0,-1); //motion id is usually reference number except last digit (valid till maximum 9 letters per motion)
+					viewMotionDetail(motionId);
+				} else {
+					$.prompt("Please enter reference number of the motion!");
+					return false;
+				}
 			});
 			/****Determine Ordering of Motions for Submission ****/
 			$("#determine_ordering_for_submission").click(function() {
@@ -143,7 +153,34 @@
 			if($('#key')){
 				$('#key').val(rowid);
 			}
-		}					
+		}		
+		/**** detail of motions searched using reference number ****/		
+		function viewMotionDetail(id){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
+			var parameters="houseType="+$("#selectedHouseType").val()
+			+"&sessionYear="+$("#selectedSessionYear").val()
+			+"&sessionType="+$("#selectedSessionType").val()
+			+"&motionType="+$("#selectedMotionType").val()
+			+"&ugparam="+$("#ugparam").val()
+			+"&status="+$("#selectedStatus").val()
+			+"&role="+$("#srole").val()
+			+"&usergroup="+$("#currentusergroup").val()
+			+"&usergroupType="+$("#currentusergroupType").val()
+			+"&edit=false";
+			var resourceURL='motion/'+id+'/edit?'+parameters;
+			$.get(resourceURL,function(data){
+				$.unblockUI();
+				$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			},'html').fail(function(){
+				$.unblockUI();
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});	
+		}
 	</script>
 </head>
 <body>
@@ -206,10 +243,19 @@
 				</a> |		
 				</span>
 			</security:authorize>
-			<security:authorize access="hasAnyRole('MOIS_ASSISTANT')">
+			<%-- <security:authorize access="hasAnyRole('MOIS_ASSISTANT')">
 				<a href="#" id="discussionSelection" class="butSim">
 					<spring:message code="motion.discussionSelection" text="Discussion Selection"/>
 				</a> |			
+			</security:authorize> --%>
+			<security:authorize	access="hasAnyRole('MOIS_SECTION_OFFICER','MOIS_ASSISTANT','MOIS_CLERK')">
+				<a href="#" id="searchByReferenceNumber" class="butSim">
+					<spring:message code="motion.reference_number" text="Reference Number"/>
+				</a>
+				<div id="searchByReferenceNumberDiv" style="display: inline-block;margin-left: -5px;">
+					<input type="text" id="referenceNumberSearchValue" style="width:55px; border:1px solid; border-right: 0px; height:18px; padding:0px 3px; position:relative;"> 	
+					<input type="button" id="searchByReferenceNumberButton" value="" style="margin-left: -5px;border-style: none; background: url('/els/resources/images/searchbutton3.gif') no-repeat; width: 24px; height: 20px;"> |				
+				</div>				
 			</security:authorize>
 			<security:authorize access="hasAnyRole('MOIS_POSTER', 'MOIS_SPEAKER', 'MOIS_CHAIRMAN')">
 				<a href="#" id="updateDecisionForMotions" class="butSim">

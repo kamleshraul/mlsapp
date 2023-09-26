@@ -17,7 +17,9 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.File;
@@ -114,8 +116,14 @@ public class FileController extends GenericController<File> {
             response.setContentLength((int) document.getFileSize());
             response.setHeader("Content-Disposition", "attachment; filename=\""
                     + document.getOriginalFileName() + "\"");
-            FileCopyUtils.copy(
-                    document.getFileData(), response.getOutputStream());
+            if(document.getPath()!=null && !document.getPath().isEmpty() && ApplicationConstants.SERVER_FILE_STORAGE_ENABLED.equals("YES")) {
+            	java.io.File storageFile = new java.io.File(document.getPath());
+            	FileCopyUtils.copy(FileUtils.readFileToByteArray(storageFile), response.getOutputStream());
+            } 
+            else {
+            	FileCopyUtils.copy(document.getFileData(), response.getOutputStream());
+            }            
+            
         } catch (IOException e) {
             logger.error("Error occured while downloading file:" + e.toString());
         }catch (ELSException e) {
@@ -134,8 +142,13 @@ public class FileController extends GenericController<File> {
             response.setContentLength((int) document.getFileSize());
             response.setHeader("Content-Disposition", "inline; filename=\""
                     + document.getOriginalFileName() + "\"");
-            FileCopyUtils.copy(
-                    document.getFileData(), response.getOutputStream());
+            if(document.getPath()!=null && !document.getPath().isEmpty() && ApplicationConstants.SERVER_FILE_STORAGE_ENABLED.equals("YES")) {
+            	java.io.File storageFile = new java.io.File(document.getPath());
+            	FileCopyUtils.copy(FileUtils.readFileToByteArray(storageFile), response.getOutputStream());
+            } 
+            else {
+            	FileCopyUtils.copy(document.getFileData(), response.getOutputStream());
+            }
         } catch (IOException e) {
             logger.error("Error occured while opening file:" + e.toString());
         }catch (ELSException e) {
@@ -177,7 +190,8 @@ public class FileController extends GenericController<File> {
      * @return the image
      */
     @RequestMapping(value = "photo/{tag}", method = RequestMethod.GET)
-    public void getImage(@PathVariable final String tag,
+    public @ResponseBody
+    String getImage(@PathVariable final String tag,
                          final HttpServletRequest request,
                          final HttpServletResponse response) {
         Document document = null;
@@ -185,14 +199,19 @@ public class FileController extends GenericController<File> {
         	document = Document.findByTag(tag);
             response.setContentType(document.getType());
             response.setContentLength((int) document.getFileSize());
-            FileCopyUtils.copy(
-                    document.getFileData(), response.getOutputStream());
+            if(document.getPath()!=null && !document.getPath().isEmpty() && ApplicationConstants.SERVER_FILE_STORAGE_ENABLED.equals("YES")) {
+            	java.io.File storageFile = new java.io.File(document.getPath());
+            	FileCopyUtils.copy(FileUtils.readFileToByteArray(storageFile), response.getOutputStream());
+            } 
+            else {
+            	FileCopyUtils.copy(document.getFileData(), response.getOutputStream());
+            }
         } catch (IOException e) {
             logger.error("Error occured while downloading file:" + e.toString());
         }catch (ELSException e) {
 			logger.error("Error occured while downloading file:" + e.toString());
 		}
-        return;
+        return tag;
     }
 
     /**
@@ -212,6 +231,10 @@ public class FileController extends GenericController<File> {
         Document document =null;
         try{
         	document = Document.findByTag(tag);
+        	if(document.getPath()!=null && !document.getPath().isEmpty() && ApplicationConstants.SERVER_FILE_STORAGE_ENABLED.equals("YES")) {
+            	java.io.File storageFile = new java.io.File(document.getPath());      
+            	storageFile.delete();  		
+        	}
         	document.remove();
         	return true;
         }catch (ELSException e) {

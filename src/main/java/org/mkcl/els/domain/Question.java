@@ -67,7 +67,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Entity
 @Table(name="questions")
 @JsonIgnoreProperties(value={"houseType", "session", "originalType", "type","creationDate","createdBy",
-	"dataEnteredBy","editedOn","editedBy","answeringDate","originalAnsweringDate","chartAnsweringDate",
+	"dataEnteredBy","editedOn","editedBy","editedByActualName","answeringDate","originalAnsweringDate","chartAnsweringDate",
 	"subject","revisedSubject","questionText","revisedQuestionText","answer","priority",
 	 "remarks","rejectionReason", "supportingMembers",
 	"group", "originalSubDepartment", "drafts", "parent", "clubbedEntities", "referencedEntities",
@@ -132,7 +132,13 @@ public class Question extends Device implements Serializable {
     
     /** The edited by. */
     @Column(length=1000)
-    private String editedBy;
+    private String editedBy; 
+    
+    /** The edited by actual name.
+     * (full name of the actual person who logged in as editedBy at the time of update)
+     */
+    @Column(length=1000)
+    private String editedByActualName;
 
     /** The edited as. */
     @Column(length=1000)
@@ -209,6 +215,13 @@ public class Question extends Device implements Serializable {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="ballotstatus_id")
     private Status ballotStatus;
+
+    /** 
+     * If a question is discussed then its discussion status is set to discussed 
+     */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="discussionstatus_id")
+    private Status discussionStatus;
    
     /** The remarks. */
     @Column(length=30000)
@@ -218,11 +231,16 @@ public class Question extends Device implements Serializable {
 	private String rejectionReason;
     
     
-    /**** PRIMARY & SUPPORTING MEMBERS ****/
+    /**** PRIMARY, INCHARGE & SUPPORTING MEMBERS ****/
     /** The primary member. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="member_id")
     private Member primaryMember;
+    
+    /** The in charge member. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="incharge_member_id")
+    private Member inchargeMember;
 
     /** The supporting members. */
     @ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
@@ -2245,8 +2263,8 @@ public class Question extends Device implements Serializable {
     public static Member findDeviceOwner(final Question question) {
     	Member deviceOwner = null;
     	if(question!=null) {    		
-        	if(question.getPrimaryMember().isSupportingOrClubbedMemberToBeAddedForDevice(question)) {
-        	    deviceOwner = question.getPrimaryMember();
+        	if(question.getInchargeMember().isSupportingOrClubbedMemberToBeAddedForDevice(question)) {
+        	    deviceOwner = question.getInchargeMember();
         	} else {
         	    if(question.getSupportingMembers()!=null) {
         	        for(SupportingMember sm: question.getSupportingMembers()) {
@@ -2267,7 +2285,7 @@ public class Question extends Device implements Serializable {
         	            	if (ce.getQuestion().getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_SYSTEM_CLUBBED)
         							|| ce.getQuestion().getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_FINAL_ADMISSION)
         							|| ce.getQuestion().getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_FINAL_REJECTION)) {
-        						Member clubbedQuestionMember = ce.getQuestion().getPrimaryMember();
+        						Member clubbedQuestionMember = ce.getQuestion().getInchargeMember();
         						if(clubbedQuestionMember!=null) {
         							if(clubbedQuestionMember.isSupportingOrClubbedMemberToBeAddedForDevice(question)) {
         								deviceOwner = clubbedQuestionMember;
@@ -2424,7 +2442,18 @@ public class Question extends Device implements Serializable {
     	
     	UserGroupType memberUGT = UserGroupType.findByType(ApplicationConstants.MEMBER, this.getLocale());
     	submissionDraft.setEditedAs(memberUGT.getName());
-        submissionDraft.setEditedBy(this.getCreatedBy());
+        if(this.getCreatedBy()!=null && !this.getCreatedBy().isEmpty()) {
+        	submissionDraft.setEditedBy(this.getCreatedBy());
+            try {
+				submissionDraft.setEditedByActualName(User.findFullNameByUserName(this.getCreatedBy(), this.getLocale()));
+			} catch (ELSException e) {
+				//e.printStackTrace();
+				submissionDraft.setEditedByActualName("");
+			}
+		} else {
+			submissionDraft.setEditedBy("");
+			submissionDraft.setEditedByActualName("");
+		}
         submissionDraft.setEditedOn(this.getSubmissionDate());
         
         Set<QuestionDraft> questionDrafts = this.getDrafts();
@@ -2472,6 +2501,7 @@ public class Question extends Device implements Serializable {
             
             draft.setEditedAs(this.getEditedAs());
             draft.setEditedBy(this.getEditedBy());
+            draft.setEditedByActualName(this.getEditedByActualName());
             draft.setEditedOn(this.getEditedOn());
             
             draft.setGroup(this.getGroup());
@@ -2481,6 +2511,8 @@ public class Question extends Device implements Serializable {
             draft.setStatus(this.getStatus());
             draft.setInternalStatus(this.getInternalStatus());
             draft.setRecommendationStatus(this.getRecommendationStatus());
+        	
+        	draft.setInchargeMember(this.getInchargeMember());
 
           	if(this.getRevisedReason() != null && this.getRevisedBriefExplanation() != null){
     		    draft.setReason(this.getRevisedReason());
@@ -2540,6 +2572,7 @@ public class Question extends Device implements Serializable {
 	            
 	            draft.setEditedAs(this.getEditedAs());
 	            draft.setEditedBy(this.getEditedBy());
+	            draft.setEditedByActualName(this.getEditedByActualName());
 	            draft.setEditedOn(this.getEditedOn());
 	            
 	            draft.setGroup(this.getGroup());
@@ -2565,6 +2598,8 @@ public class Question extends Device implements Serializable {
 	                draft.setQuestionText(this.getQuestionText());
 	                draft.setSubject(this.getRevisedSubject());
 	            }
+	        	
+	        	draft.setInchargeMember(this.getInchargeMember());
 	              
 	            if(this.getId() != null) {
 	                Question question = Question.findById(Question.class, this.getId());
@@ -2608,6 +2643,7 @@ public class Question extends Device implements Serializable {
             
             draft.setEditedAs(this.getEditedAs());
             draft.setEditedBy(this.getEditedBy());
+            draft.setEditedByActualName(this.getEditedByActualName());
             draft.setEditedOn(this.getEditedOn());
             
             draft.setGroup(this.getGroup());
@@ -2634,6 +2670,8 @@ public class Question extends Device implements Serializable {
             	draft.setQuestionText(this.getQuestionText());
                 draft.setSubject(this.getSubject());
             }
+        	
+        	draft.setInchargeMember(this.getInchargeMember());
             
             if(this.getId() != null) {
             	/**** for submission draft avoid query for fetching drafts ****/
@@ -2688,6 +2726,7 @@ public class Question extends Device implements Serializable {
             
             draft.setEditedAs(this.getEditedAs());
             draft.setEditedBy(this.getEditedBy());
+            draft.setEditedByActualName(this.getEditedByActualName());
             draft.setEditedOn(this.getEditedOn());
             
             draft.setGroup(this.getGroup());
@@ -2724,6 +2763,8 @@ public class Question extends Device implements Serializable {
         	}
         	
         	draft.setPriority(this.getPriority());
+        	
+        	draft.setInchargeMember(this.getInchargeMember());
         	
         	/**** for submission draft avoid query for fetching drafts ****/
         	UserGroupType ugt = UserGroupType.findByName(UserGroupType.class, this.getEditedAs(), this.getLocale());
@@ -2928,7 +2969,7 @@ public class Question extends Device implements Serializable {
 			for (SupportingMember sm : supportingMembers) {
 				member = sm.getMember();
 				Status approvalStatus = sm.getDecisionStatus();
-				if(member!=null && approvalStatus!=null 
+				if(member!=null && !member.equals(this.getInchargeMember()) && approvalStatus!=null 
 						&& approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 					memberName = member.findNameInGivenFormat(nameFormat);
 					if(memberName!=null && !memberName.isEmpty() 
@@ -2961,9 +3002,13 @@ public class Question extends Device implements Serializable {
 						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
 						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
 						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)) {
-					member = ce.getQuestion().getPrimaryMember();
-					if(member!=null) {
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)) {
+					member = ce.getQuestion().getInchargeMember();
+					if(member!=null && !member.equals(this.getInchargeMember())) {
 						memberName = member.findNameInGivenFormat(nameFormat);
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getQuestion())) {
@@ -2980,7 +3025,7 @@ public class Question extends Device implements Serializable {
 						for (SupportingMember csm : clubbedSupportingMembers) {
 							member = csm.getMember();
 							Status approvalStatus = csm.getDecisionStatus();
-							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+							if(member!=null && !member.equals(this.getInchargeMember()) && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 								memberName = member.findNameInGivenFormat(nameFormat);
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getQuestion())) {
@@ -2999,13 +3044,73 @@ public class Question extends Device implements Serializable {
 		}		
 		return allMemberNamesBuffer.toString();
 	}
+	 
+	public Member findInChargeMember() {
+		/** check primary member **/
+		Member member = this.getPrimaryMember();
+		if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+			return member;
+		} 
+		/** check in supporting members **/
+		List<SupportingMember> supportingMembers = this.getSupportingMembers();
+		if (supportingMembers != null) {
+			for (SupportingMember sm : supportingMembers) {
+				member = sm.getMember();
+				Status approvalStatus = sm.getDecisionStatus();
+				if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+					if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+						return member;
+					}
+				}				
+			}
+		}
+		/** check in clubbed questions members **/
+		List<ClubbedEntity> clubbedEntities = Question.findClubbedEntitiesByPosition(this);
+		if (clubbedEntities != null) {
+			for (ClubbedEntity ce : clubbedEntities) {
+				if (ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_SYSTEM_CLUBBED)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)) {
+					member = ce.getQuestion().getPrimaryMember();
+					if(member!=null) {
+						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getQuestion())) {
+							return member;
+						}
+					}
+					/** check in clubbed questions supporting members **/
+					List<SupportingMember> clubbedSupportingMembers = ce.getQuestion().getSupportingMembers();
+					if (clubbedSupportingMembers != null) {
+						for (SupportingMember csm : clubbedSupportingMembers) {
+							member = csm.getMember();
+							Status approvalStatus = csm.getDecisionStatus();
+							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+								if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getQuestion())) {
+									return member;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return member;
+	}
 	
 	public String findAllMemberNames(String nameFormat) {
 		StringBuffer allMemberNamesBuffer = new StringBuffer("");
 		Member member = null;
 		String memberName = "";				
 		/** primary member **/
-		member = this.getPrimaryMember();		
+		member = this.getInchargeMember();		
 		if(member==null) {
 			return allMemberNamesBuffer.toString();
 		}		
@@ -3023,7 +3128,7 @@ public class Question extends Device implements Serializable {
 			for (SupportingMember sm : supportingMembers) {
 				member = sm.getMember();
 				Status approvalStatus = sm.getDecisionStatus();
-				if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+				if(member!=null && !member.equals(this.getInchargeMember()) && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 					memberName = member.findNameInGivenFormat(nameFormat);
 					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {				
 						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
@@ -3053,9 +3158,13 @@ public class Question extends Device implements Serializable {
 						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
 						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
 						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)) {
-					member = ce.getQuestion().getPrimaryMember();
-					if(member!=null) {
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)) {
+					member = ce.getQuestion().getInchargeMember();
+					if(member!=null && !member.equals(this.getInchargeMember())) {
 						memberName = member.findNameInGivenFormat(nameFormat);
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getQuestion())) {
@@ -3072,7 +3181,7 @@ public class Question extends Device implements Serializable {
 						for (SupportingMember csm : clubbedSupportingMembers) {
 							member = csm.getMember();
 							Status approvalStatus = csm.getDecisionStatus();
-							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+							if(member!=null && !member.equals(this.getInchargeMember()) && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 								memberName = member.findNameInGivenFormat(nameFormat);
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getQuestion())) {
@@ -3102,7 +3211,7 @@ public class Question extends Device implements Serializable {
 		String constituencyName = "";
 		
 		/** primary member **/
-		member = this.getPrimaryMember();		
+		member = this.getInchargeMember();		
 		if(member==null) {
 			return allMemberNamesBuffer.toString();
 		}		
@@ -3125,7 +3234,7 @@ public class Question extends Device implements Serializable {
 			for (SupportingMember sm : supportingMembers) {
 				member = sm.getMember();
 				Status approvalStatus = sm.getDecisionStatus();
-				if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+				if(member!=null && !member.equals(this.getInchargeMember()) && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 					memberName = member.findNameInGivenFormat(nameFormat);
 					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
@@ -3160,9 +3269,13 @@ public class Question extends Device implements Serializable {
 						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
 						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
 						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
-						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)) {
-					member = ce.getQuestion().getPrimaryMember();
-					if(member!=null) {
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)) {
+					member = ce.getQuestion().getInchargeMember();
+					if(member!=null && !member.equals(this.getInchargeMember())) {
 						memberName = member.findNameInGivenFormat(nameFormat);
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getQuestion())) {
@@ -3183,7 +3296,7 @@ public class Question extends Device implements Serializable {
 						for (SupportingMember csm : clubbedSupportingMembers) {
 							member = csm.getMember();
 							Status approvalStatus = csm.getDecisionStatus();
-							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+							if(member!=null && !member.equals(this.getInchargeMember()) && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 								memberName = member.findNameInGivenFormat(nameFormat);
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(ce.getQuestion())) {
@@ -3417,8 +3530,26 @@ public class Question extends Device implements Serializable {
 		
 	public void setEditedBy(String editedBy) {
 		this.editedBy = editedBy;
+		if(editedBy!=null && !editedBy.isEmpty()) {
+			try {
+				this.editedByActualName = User.findFullNameByUserName(this.getEditedBy(), this.getLocale());
+			} catch (ELSException e) {
+				//e.printStackTrace();
+			}
+		} else {
+			this.setEditedBy("");
+			this.setEditedByActualName("");
+		}
 	}
 		
+	public String getEditedByActualName() {
+		return editedByActualName;
+	}
+
+	public void setEditedByActualName(String editedByActualName) {
+		this.editedByActualName = editedByActualName;
+	}
+
 	public String getEditedAs() {
 		return editedAs;
 	}	
@@ -3551,6 +3682,14 @@ public class Question extends Device implements Serializable {
 		this.ballotStatus = ballotStatus;
 	}	
 	
+	public Status getDiscussionStatus() {
+		return discussionStatus;
+	}
+
+	public void setDiscussionStatus(Status discussionStatus) {
+		this.discussionStatus = discussionStatus;
+	}
+
 	public String getRemarks() {
 		return remarks;
 	}	
@@ -3575,6 +3714,14 @@ public class Question extends Device implements Serializable {
 		this.primaryMember = primaryMember;
 	}
 		
+	public Member getInchargeMember() {
+		return inchargeMember;
+	}
+
+	public void setInchargeMember(Member inchargeMember) {
+		this.inchargeMember = inchargeMember;
+	}
+
 	public List<SupportingMember> getSupportingMembers() {
 		return supportingMembers;
 	}	
@@ -12168,6 +12315,7 @@ public class Question extends Device implements Serializable {
 					revisedBallot.merge();
 					
 					q.setPrimaryMember(handoveredToMember);
+					q.setInchargeMember(handoveredToMember);
 					q.simpleMerge();
 					
 					// Forcefully add to Chart
@@ -12242,6 +12390,7 @@ public class Question extends Device implements Serializable {
 				 * Handover the question to the immediate supporting member.
 				 */
 				q.setPrimaryMember(member);
+				q.setInchargeMember(member);
 				q.merge();
 				
 				/*
@@ -12262,6 +12411,7 @@ public class Question extends Device implements Serializable {
 				 */
 				Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, locale);
 				q.setPrimaryMember(member);
+				q.setInchargeMember(member);
 				q.setInternalStatus(ASSISTANT_PROCESSED);
 				q.merge();
 				
@@ -12313,6 +12463,7 @@ public class Question extends Device implements Serializable {
 				 * Handover the question to the immediate supporting member.
 				 */
 				q.setPrimaryMember(member);
+				q.setInchargeMember(member);
 				q.merge();
 				
 				/*
@@ -12374,6 +12525,7 @@ public class Question extends Device implements Serializable {
 				 * Handover the question to the immediate supporting member.
 				 */
 				q.setPrimaryMember(member);
+				q.setInchargeMember(member);
 				q.merge();
 				
 				/*
@@ -12448,6 +12600,7 @@ public class Question extends Device implements Serializable {
 					revisedBallot.merge();
 					
 					q.setPrimaryMember(handoveredToMember);
+					q.setInchargeMember(handoveredToMember);
 					q.simpleMerge();
 					
 					/*
@@ -12496,6 +12649,7 @@ public class Question extends Device implements Serializable {
 				 */
 				Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, locale);
 				q.setPrimaryMember(member);
+				q.setInchargeMember(member);
 				q.setInternalStatus(ASSISTANT_PROCESSED);
 				q.merge();
 				
@@ -12564,6 +12718,7 @@ public class Question extends Device implements Serializable {
 				 * Handover the question to the immediate supporting member.
 				 */
 				q.setPrimaryMember(member);
+				q.setInchargeMember(member);
 				q.merge();
 				
 				/*
@@ -12625,6 +12780,7 @@ public class Question extends Device implements Serializable {
 				 * Handover the question to the immediate supporting member.
 				 */
 				q.setPrimaryMember(member);
+				q.setInchargeMember(member);
 				q.merge();
 				
 				/*
@@ -12699,6 +12855,7 @@ public class Question extends Device implements Serializable {
 					revisedBallot.merge();
 					
 					q.setPrimaryMember(handoveredToMember);
+					q.setInchargeMember(handoveredToMember);
 					q.simpleMerge();
 					
 					/*
@@ -13384,6 +13541,7 @@ public class Question extends Device implements Serializable {
 		q.setType(this.getType());
 		
 		q.setPrimaryMember(this.getPrimaryMember());
+		q.setInchargeMember(this.getInchargeMember());
 		q.setAnswer(this.getAnswer());
 		
 		q.setSubject(this.getSubject());
@@ -13431,7 +13589,18 @@ public class Question extends Device implements Serializable {
 		draft.setReferencedEntities(q.getReferencedEntities());
 
 		draft.setEditedAs(editedAs);
-		draft.setEditedBy(editedBy);
+		if(editedBy!=null && !editedBy.isEmpty()) {
+			draft.setEditedBy(editedBy);
+			try {
+				draft.setEditedByActualName(User.findFullNameByUserName(editedBy, q.getLocale()));
+			} catch (ELSException e) {
+				//e.printStackTrace();
+				draft.setEditedByActualName("");
+			}
+		} else {
+			draft.setEditedBy("");
+			draft.setEditedByActualName("");
+		}
 		draft.setEditedOn(new Date());
 
 		draft.setGroup(q.getGroup());

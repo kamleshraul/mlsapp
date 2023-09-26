@@ -801,13 +801,14 @@ public class MotionWorkflowController extends BaseController {
 			}
 		}
 		/**** Workflowdetails ****/
-		WorkflowDetails workflowDetails = WorkflowDetails.findById(WorkflowDetails.class,
-				domain.getWorkflowDetailsId());
+		WorkflowDetails workflowDetails = WorkflowDetails.findById(WorkflowDetails.class,domain.getWorkflowDetailsId());
 		String userGroupType = workflowDetails.getAssigneeUserGroupType();
 		/**** Updating domain ****/
 		domain.setEditedOn(new Date());
 		domain.setEditedBy(this.getCurrentUser().getActualUsername());
-		domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());
+		domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());		
+		/**** update incharge member in the domain ****/
+		domain.setInchargeMember(domain.findInChargeMember());
 		String strCreationDate = request.getParameter("setCreationDate");
 		String strSubmissionDate = request.getParameter("setSubmissionDate");
 		String strWorkflowStartedOnDate = request.getParameter("workflowStartedOnDate");

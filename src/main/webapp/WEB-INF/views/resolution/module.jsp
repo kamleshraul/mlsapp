@@ -195,6 +195,7 @@
 			+ "&sessionType=" + $("#selectedSessionType").val()
 			+ "&resolutionType=" + $("#selectedDeviceType").val()
 			+ "&createdBy=" + $("#ugparam").val()
+			+ "&memberId=" + $("#loggedInMemberId").val()
 			+"&locale="+$("#moduleLocale").val()
 			+ "&report=MEMBER_RESOLUTIONS_VIEW"
 			+ "&reportout=member_resolutions_view";

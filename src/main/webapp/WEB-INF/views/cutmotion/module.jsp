@@ -163,6 +163,7 @@
 		+ "&sessionType=" + $("#selectedSessionType").val()
 		+ "&cutMotionType=" + $("#selectedCutMotionType").val()
 		+ "&createdBy=" + $("#ugparam").val()
+		+ "&memberId=" + $("#loggedInMemberId").val()
 		+"&locale="+$("#moduleLocale").val()
 		+ "&report=MEMBER_CUTMOTIONS_VIEW"
 		+ "&reportout=member_cutmotions_view";
@@ -175,6 +176,7 @@
 		+ "&sessionType=" + $("#selectedSessionType").val()
 		+ "&cutMotionType=" + $("#selectedCutMotionType").val()
 		+ "&createdBy=" + $("#ugparam").val()
+		+ "&memberId=" + $("#loggedInMemberId").val()
 		+"&locale="+$("#moduleLocale").val()
 		+ "&report=MEMBER_REPLIED_CUTMOTIONS_VIEW"
 		+ "&reportout=member_replied_cutmotions_view";
@@ -186,6 +188,7 @@
 		+ "&sessionYear=" + $("#selectedSessionYear").val()
 		+ "&sessionType=" + $("#selectedSessionType").val()
 		+ "&cutMotionType=" + $("#selectedCutMotionType").val()
+		+ "&memberId=" + $("#loggedInMemberId").val()
 		+ "&supportedBy=" + $("#ugparam").val()
 		+"&locale="+$("#moduleLocale").val()
 		+ "&report=MEMBER_REPLIED_SUPPORTED_CUTMOTIONS_VIEW"
