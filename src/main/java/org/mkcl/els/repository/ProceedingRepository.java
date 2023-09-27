@@ -238,19 +238,19 @@ public class ProceedingRepository extends BaseRepository<Proceeding, Serializabl
 				}
 				//Roster Start Time
 				if(o[7]!=null){
-					proceedingSearchVO.setChartAnsweringDate(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[7].toString(), ApplicationConstants.DB_DATETIME_FORMAT), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+					proceedingSearchVO.setChartAnsweringDate(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[7].toString(), ApplicationConstants.DB_DATETIME__24HOURS_FORMAT), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
 				}
 				//Roster End Time
 				if(o[8]!=null){
-					proceedingSearchVO.setSubmissionDate(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[8].toString(), ApplicationConstants.DB_DATETIME_FORMAT), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+					proceedingSearchVO.setSubmissionDate(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[8].toString(), ApplicationConstants.DB_DATETIME__24HOURS_FORMAT), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
 				}
 				//Slot Start Time
 				if(o[9]!=null){
-					proceedingSearchVO.setSubDepartment(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[9].toString(), ApplicationConstants.DB_DATETIME_FORMAT), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+					proceedingSearchVO.setSubDepartment(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[9].toString(), ApplicationConstants.DB_DATETIME__24HOURS_FORMAT), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
 				}
 				//Slot End Time
 				if(o[10]!=null){
-					proceedingSearchVO.setStatusType(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[10].toString(), ApplicationConstants.DB_DATETIME_FORMAT), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+					proceedingSearchVO.setStatusType(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[10].toString(), ApplicationConstants.DB_DATETIME__24HOURS_FORMAT), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
 				}
 				//Slot Name
 				if(o[11]!=null){
