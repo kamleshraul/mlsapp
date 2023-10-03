@@ -2615,9 +2615,6 @@ class StarredQuestionController {
 		domain.setEditedOn(new Date());
 		domain.setEditedBy(authUser.getActualUsername());
 		
-		/**** update incharge member in the domain ****/
-		domain.setInchargeMember(domain.findInChargeMember());
-		
 		//Check for required fields
 		if(domain.getHouseType() != null && domain.getType() != null && domain.getSession() != null
 				&& domain.getPrimaryMember() != null && domain.getMinistry() != null
@@ -2956,7 +2953,10 @@ class StarredQuestionController {
 			catch (ParseException e) {
 				e.printStackTrace();
 			}
-		}		
+		}
+		
+		/**** update incharge member in the domain ****/
+		domain.setInchargeMember(domain.findInChargeMember());		
 		
 		/**** updating revised question text in related department workflow details when copy pasted by clerk/assistant from notepad ****/
 		if(domain.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_FINAL_ADMISSION)

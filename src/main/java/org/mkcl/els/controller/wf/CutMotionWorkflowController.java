@@ -801,9 +801,7 @@ public class CutMotionWorkflowController extends BaseController {
 			/**** Updating domain ****/
 			domain.setEditedOn(new Date());
 			domain.setEditedBy(this.getCurrentUser().getActualUsername());
-			domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());			
-			/**** update incharge member in the domain ****/
-			domain.setInchargeMember(domain.findInChargeMember());
+			domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());
 			String strCreationDate = request.getParameter("setCreationDate");
 			String strSubmissionDate = request.getParameter("setSubmissionDate");
 			String strWorkflowStartedOnDate = request.getParameter("workflowStartedOnDate");
@@ -830,7 +828,9 @@ public class CutMotionWorkflowController extends BaseController {
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
-			}			
+			}				
+			/**** update incharge member in the domain ****/
+			domain.setInchargeMember(domain.findInChargeMember());		
 			/**** Set Amount to be deducted ****/
 			String setAmountToBeDeducted = request.getParameter("setAmountToBeDeducted");
 			if(setAmountToBeDeducted!=null && !setAmountToBeDeducted.isEmpty()) {

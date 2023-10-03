@@ -1849,9 +1849,6 @@ class ShortNoticeController {
 		domain.setEditedOn(new Date());
 		domain.setEditedBy(authUser.getActualUsername());
 		
-		/**** update incharge member in the domain ****/
-		domain.setInchargeMember(domain.findInChargeMember());
-		
 		//Check for required fields
 		if(domain.getHouseType() != null && domain.getType() != null && domain.getSession() != null
 				&& domain.getPrimaryMember() != null && domain.getMinistry() != null
@@ -2108,6 +2105,9 @@ class ShortNoticeController {
 				e.printStackTrace();
 			}
 		}
+		
+		/**** update incharge member in the domain ****/
+		domain.setInchargeMember(domain.findInChargeMember());
 		
 	}
 

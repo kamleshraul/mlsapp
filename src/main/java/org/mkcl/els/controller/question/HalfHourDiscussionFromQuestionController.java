@@ -2474,9 +2474,6 @@ class HalfHourDiscussionFromQuestionController {
 		domain.setEditedOn(new Date());
 		domain.setEditedBy(authUser.getActualUsername());
 		
-		/**** update incharge member in the domain ****/
-		domain.setInchargeMember(domain.findInChargeMember());
-		
 		//Check for required fields
 		if(domain.getHouseType() != null && domain.getType() != null && domain.getSession() != null
 				&& domain.getPrimaryMember() != null && domain.getMinistry() != null
@@ -2723,6 +2720,9 @@ class HalfHourDiscussionFromQuestionController {
 			}
 		}
 		domain.setHalfHourDiscusionFromQuestionReference(refQuestion);
+		
+		/**** update incharge member in the domain ****/
+		domain.setInchargeMember(domain.findInChargeMember());
 	}
 
 	public static void populateAfterUpdate(final Question domain,

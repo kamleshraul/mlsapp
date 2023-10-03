@@ -1839,9 +1839,6 @@ public class QuestionWorkflowController  extends BaseController{
 					domain.setEditedBy(this.getCurrentUser().getActualUsername());
 					domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());
 					
-					/**** update incharge member in the domain ****/
-					domain.setInchargeMember(domain.findInChargeMember());
-					
 					String strDateOfAnsweringByMinister = request.getParameter("dateOfAnsweringByMinister");
 					Date dateOfAnsweringByMinister = null;
 	
@@ -1960,6 +1957,9 @@ public class QuestionWorkflowController  extends BaseController{
 							e.printStackTrace();
 						}
 					}
+					
+					/**** update incharge member in the domain ****/
+					domain.setInchargeMember(domain.findInChargeMember());
 					
 					/**** answer related dates ****/
 					String allowedDeviceTypes = "";

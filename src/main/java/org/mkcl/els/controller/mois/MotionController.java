@@ -2208,8 +2208,6 @@ public class MotionController extends GenericController<Motion>{
 		if(domain.getSubmissionPriority()==null) {
 			domain.setSubmissionPriority(ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
 		}		
-		/**** update incharge member in the domain ****/
-		domain.setInchargeMember(domain.findInChargeMember());		
 		/**** updating submission date and creation date ****/
 		String strCreationDate=request.getParameter("setCreationDate");
 		String strSubmissionDate=request.getParameter("setSubmissionDate");
@@ -2276,7 +2274,9 @@ public class MotionController extends GenericController<Motion>{
 		/**** add department ****/
 		if(domain.getSubDepartment()!=null){
 			domain.setDepartment(domain.getSubDepartment().getDepartment());
-		}	
+		}		
+		/**** update incharge member in the domain ****/
+		domain.setInchargeMember(domain.findInChargeMember());	
 		/**** In case of assistant if internal status=submit,ministry,department,group is set 
 		 * then change its internal and recommendstion status to assistant processed ****/		
 		

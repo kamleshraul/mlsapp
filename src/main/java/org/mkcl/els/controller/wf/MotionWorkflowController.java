@@ -806,9 +806,7 @@ public class MotionWorkflowController extends BaseController {
 		/**** Updating domain ****/
 		domain.setEditedOn(new Date());
 		domain.setEditedBy(this.getCurrentUser().getActualUsername());
-		domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());		
-		/**** update incharge member in the domain ****/
-		domain.setInchargeMember(domain.findInChargeMember());
+		domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());
 		String strCreationDate = request.getParameter("setCreationDate");
 		String strSubmissionDate = request.getParameter("setSubmissionDate");
 		String strWorkflowStartedOnDate = request.getParameter("workflowStartedOnDate");
@@ -832,7 +830,9 @@ public class MotionWorkflowController extends BaseController {
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
-		}
+		}		
+		/**** update incharge member in the domain ****/
+		domain.setInchargeMember(domain.findInChargeMember());
 
 		/**** reply related processing and dates ****/
 		String operation = request.getParameter("operation");

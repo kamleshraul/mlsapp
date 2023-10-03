@@ -2200,9 +2200,6 @@ class UnstarredQuestionController {
 		domain.setEditedOn(new Date());
 		domain.setEditedBy(authUser.getActualUsername());
 		
-		/**** update incharge member in the domain ****/
-		domain.setInchargeMember(domain.findInChargeMember());
-		
 		//Check for required fields
 		if(domain.getHouseType() != null && domain.getType() != null && domain.getSession() != null
 				&& domain.getPrimaryMember() != null && domain.getMinistry() != null
@@ -2465,6 +2462,10 @@ class UnstarredQuestionController {
 				e.printStackTrace();
 			}
 		}
+		
+		/**** update incharge member in the domain ****/
+		domain.setInchargeMember(domain.findInChargeMember());
+		
 		/** allow question to be eligible for unstarred yaadi if it was removed before & now allowed **/
 		String isAllowedInYaadiStr = request.getParameter("isAllowedInYaadi");
 		if(isAllowedInYaadiStr!=null && !isAllowedInYaadiStr.isEmpty()) {
