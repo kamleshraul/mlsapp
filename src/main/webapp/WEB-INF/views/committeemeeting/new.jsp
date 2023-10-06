@@ -99,7 +99,18 @@
 	
 	<form:errors path="version" cssClass="validationError"/>
 	
-
+	<c:if test="${committeeDisolved eq true}">
+		<div style="background-color:red;color:white;padding:10px;font-size:15px;">
+			<spring:message code="committee.meeting.disolved" 
+				text="Current Committee Is Disolved, Currently Cannot Create Meeting"
+				arguments="${committeeDisolutionDateFormatted}"
+				htmlEscape="false"
+				argumentSeparator=";"></spring:message>
+			<%-- <c:url value="${committeeDisolutionDateFormatted}"/> --%>
+		</div>
+		<br/><br/>
+	</c:if>
+	
 
 	<p>
 	<label class="small"><spring:message code="committeetour.committeename" text="Committee Name" />*</label>
@@ -234,9 +245,14 @@
 	<form:errors path="speech" cssClass="validationError"/>	
 	</p>
 	<div class="fields expand">
-		<h2></h2>	
+		<h2></h2>
 		<p class="tright">
-			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<c:if test="${committeeDisolved != '' && !committeeDisolved eq true}">
+				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			</c:if>
+			<c:if test="${committeeDisolved == '' || committeeDisolved eq false }">
+				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			</c:if>
 			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 		</p>
 	</div>	
