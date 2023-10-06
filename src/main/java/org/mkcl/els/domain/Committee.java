@@ -564,6 +564,13 @@ public class Committee extends BaseDomain implements Serializable {
 		}
 	}
 	
+	public static Committee findLatestCommitteeByCommitteeName(CommitteeName committeeName) {
+		if(committeeName!=null && committeeName.getId()!=null && committeeName.getIsExpired()==false) {
+			return Committee.findLatestCommitteeByCommitteeNameId(committeeName);
+		}
+		return null;
+	}
+
 	//=============== INTERNAL METHODS =========
 	private static CommitteeRepository getRepository() {
 		CommitteeRepository repository = new Committee().repository;
@@ -1030,6 +1037,16 @@ public class Committee extends BaseDomain implements Serializable {
 		int partyWiseCommitteeMembersCount = (int) d3;
 		return partyWiseCommitteeMembersCount;
 	}
+	
+	private static Committee findLatestCommitteeByCommitteeNameId(CommitteeName committeeName) {
+		if(committeeName!=null && committeeName.getId()>0) {
+			List<Committee> committees = Committee.findAllByFieldName(Committee.class, "committeeName", committeeName, "id","desc", "mr_IN");
+			if(committees!=null && committees.size()>0)
+				return committees.get(0);
+		}
+		return null;
+	}
+	
 	
 	//=============== GETTERS/SETTERS ==========
 	public CommitteeName getCommitteeName() {
