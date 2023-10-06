@@ -105,6 +105,24 @@ public class CommitteeMeetingController extends
 			this.populateprashnavalis(model, locale,committee);
 			model.addAttribute("committeeDisplayName", committeeName.getDisplayName());
 			model.addAttribute("committeName",committeeName.getId());
+			
+			model.addAttribute("committeeDisolved",false);
+			model.addAttribute("committeeDisolutionDateFormatted","");
+			
+			if(committee==null) {
+				committee=Committee.findLatestCommitteeByCommitteeName(committeeName);
+			}
+			if(committee==null || 
+					(committee.getDissolutionDate()!=null 
+					 && !committee.getDissolutionDate().after(new Date()))){
+				model.addAttribute("committeeDisolved",true);
+				if(committee!=null && committee.getDissolutionDate() !=null) {
+					model.addAttribute("committeeDisolutionDate",committee.getDissolutionDate());
+					model.addAttribute("committeeDisolutionDateFormatted",
+							FormaterUtil.formatDateToString(committee.getDissolutionDate()
+							,ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_2, "mr_IN"));
+				}
+			}
 		}
 		
 		this.populateCommitteeType(model, committeeType);
