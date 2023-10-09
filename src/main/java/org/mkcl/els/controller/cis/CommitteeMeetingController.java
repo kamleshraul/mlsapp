@@ -115,13 +115,17 @@ public class CommitteeMeetingController extends
 			if(committee==null || 
 					(committee.getDissolutionDate()!=null 
 					 && !committee.getDissolutionDate().after(new Date()))){
-				model.addAttribute("committeeDisolved",true);
+				model.addAttribute("committeeDisolved",true);				
+				//check for committee dissolution date
 				if(committee!=null && committee.getDissolutionDate() !=null) {
 					model.addAttribute("committeeDisolutionDate",committee.getDissolutionDate());
 					model.addAttribute("committeeDisolutionDateFormatted",
 							FormaterUtil.formatDateToString(committee.getDissolutionDate()
 							,ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_2, "mr_IN"));
 				}
+			}else if(committee==null || committee.getDissolutionDate()==null) {
+				model.addAttribute("committeeDisolved",true);
+				model.addAttribute("committeeDisolutionDateFormatted","");
 			}
 		}
 		
