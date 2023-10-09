@@ -101,11 +101,17 @@
 	
 	<c:if test="${committeeDisolved eq true}">
 		<div style="background-color:red;color:white;padding:10px;font-size:15px;">
-			<spring:message code="committee.meeting.disolved" 
-				text="Current Committee Is Disolved, Currently Cannot Create Meeting"
-				arguments="${committeeDisolutionDateFormatted}"
-				htmlEscape="false"
-				argumentSeparator=";"></spring:message>
+			<c:if test="${committeeDisolutionDateFormatted eq ''}">
+				<spring:message code="committee.meeting.disabled" 
+					text="Current Committee Is Disolved, Currently Cannot Create Meeting"/>
+			</c:if>
+			<c:if test="${!(committeeDisolutionDateFormatted eq '')}">
+				<spring:message code="committee.meeting.disolved" 
+					text="Current Committee Is Disolved, Currently Cannot Create Meeting"
+					arguments="${committeeDisolutionDateFormatted}"
+					htmlEscape="false"
+					argumentSeparator=";"></spring:message>
+			</c:if>
 			<%-- <c:url value="${committeeDisolutionDateFormatted}"/> --%>
 		</div>
 		<br/><br/>
