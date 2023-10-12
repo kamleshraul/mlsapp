@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -22,7 +23,9 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.DeviceTypeConfigDateVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.common.vo.SearchVO;
 import org.mkcl.els.common.xmlvo.TestXmlVO;
+import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.CalendarEventsPerDeviceType;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -42,6 +45,8 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberDepartment;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MessageResource;
+import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.PosterLog;
 import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
@@ -50,6 +55,7 @@ import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
+import org.mkcl.els.domain.SupportLog;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroupType;
@@ -59,6 +65,7 @@ import org.mkcl.els.domain.chart.ChartEntry;
 import org.mkcl.els.repository.QuestionRepository;
 import org.mkcl.els.service.INotificationService;
 import org.mkcl.els.service.ISecurityService;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -1774,5 +1781,146 @@ public class AdminController extends BaseController {
 		return "lapsedevice/module";
 	}
 	
+	@Transactional
+	@RequestMapping(value = "/posterUtility", method = RequestMethod.POST)
+	public @ResponseBody String getParametersForPoster(final HttpServletRequest request, final Locale locale,
+			final ModelMap model) {
 
+		String strworkflow = request.getParameter("workflow");
+		String strselecteDeviceType = request.getParameter("selecteDeviceType");
+		String strId = request.getParameter("number");
+		String strselectedStatus = request.getParameter("selectedStatus");
+		String strselectedUserGroupType = request.getParameter("selectedUserGroupType");
+		String strlevel = request.getParameter("level");
+		String strassignee = request.getParameter("assignee");
+		String strsupportIssueNumber = request.getParameter("issueNumber");
+
+		// TODO Get Numbers As Input And Process it further
+
+		String response = null;
+		StringBuilder strUrl = new StringBuilder();
+		Map<String, String[]> requestParametersMap = request.getParameterMap();
+		StringBuilder requestParameters = new StringBuilder();
+
+		if (strId == null || strId.isEmpty()) {
+			logger.error("Recieved Empty Device Ids");
+		}
+
+		if (strId != null && !strId.isEmpty() && strsupportIssueNumber != null && !strsupportIssueNumber.isEmpty()) {
+
+			DeviceType dt = DeviceType.findByType(strselecteDeviceType, locale.toString());
+
+			if (strId.charAt(strId.length() - 1) == ',') {
+				strId = strId.substring(0, strId.length() - 1);
+				logger.info("Trimmed String :- " + strId);
+			}
+
+			/*
+			 * if (dt.getDeviceName().equals("Question")) { Question q = null; try {
+			 * for(String splittedQsnIds:strId.split(",")) { q
+			 * =Question.findById(Question.class,Long.parseLong(splittedQsnIds));
+			 * Ids.append(q.getId().toString()+","); } logger.info(Ids.substring(0,
+			 * Ids.length()-1)); } catch (Exception e) { e.printStackTrace(); } } else
+			 * if(dt.getDeviceName().equals("Motions")) { Motion m = null; }
+			 */
+
+			if (strworkflow.equals(ApplicationConstants.START_WORKFLOW_BULK)) {
+
+				response = this.startBulkDeviceWorkflow(dt.getDevice().toLowerCase(), strId, strselectedStatus,
+						strselectedUserGroupType, Integer.parseInt(strlevel), request, locale);
+
+				strUrl.append(strworkflow);
+				strUrl.append("/" + dt.getDevice().toLowerCase());
+				strUrl.append("/id/" + strId);
+				strUrl.append("/status/" + strselectedStatus);
+				strUrl.append("/userGroupType/" + strselectedUserGroupType);
+				strUrl.append("/level/" + strlevel);
+				if (strassignee != null && !strassignee.isEmpty()) {
+					strUrl.append("?assignee=" + strassignee);
+				}
+			} else if (strworkflow.equals(ApplicationConstants.END_WORKFLOW_BULK)) {
+				response = this.endBulkDeviceWorkflow(dt.getDevice().toLowerCase(), strId, request, locale);
+				strUrl.append(strworkflow);
+				strUrl.append("/" + dt.getDevice().toLowerCase());
+				strUrl.append("/id/" + strId);
+			}
+
+			PosterLog pl = new PosterLog();
+			pl.setDeviceType(dt);
+			pl.setWorkflowActivity(strworkflow);
+			pl.setLocale(locale.toString());
+			String userAddress = request.getRemoteAddr();
+			SupportLog supportLog = SupportLog.findLatest(userAddress);
+			if (supportLog != null) {
+				pl.setSupportUserName(supportLog.getUserCredential().getUsername());
+			}
+			pl.setTimeOfAction(new Date());
+			pl.setPosterUrl(strUrl.toString());
+			pl.setSupportId(strsupportIssueNumber);
+			logger.info("Poster Response :-" + response);
+			pl.setPosterResponse(response);
+
+			Iterator<String> i = requestParametersMap.keySet().iterator();
+			while (i.hasNext()) {
+				String key = (String) i.next();
+				String value = ((String[]) requestParametersMap.get(key))[0];
+				requestParameters.append(key + " - " + value);
+				requestParameters.append(System.getProperty("line.separator"));
+
+			}
+			pl.setRequestParameters(requestParameters.toString());
+
+			pl.persist();
+
+		}
+
+		return response;
+	}
+	
+	@RequestMapping(value = "/getDeviceDetailforSupportActivity", method = RequestMethod.POST)
+	public String   findDevicesDetailForSupportActivities(final ModelMap model,
+			final HttpServletRequest request, final Locale locale) {
+
+		
+
+		String strparam = request.getParameter("param");
+		String strSession = request.getParameter("session");
+		//String strRecord = request.getParameter("record");
+		String strOffset = request.getParameter("offset");
+		String strDeviceType = request.getParameter("deviceType");
+		String strfilter = request.getParameter("filter");
+		String strhouseType = request.getParameter("houseType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strSessionType = request.getParameter("sessionType");
+		//String strGroup = request.getParameter("group");
+		//String strStatus = request.getParameter("status");
+		
+		
+		List<SearchVO> DevicesDetails = new ArrayList<SearchVO>();
+		DeviceType dt = DeviceType.findByType(strDeviceType, locale.toString());
+		HouseType ht = HouseType.findByType(strhouseType, locale.toString());
+		
+		if (strparam != null && !strparam.isEmpty() 
+				&& strSession != null && !strSession.isEmpty()
+					&& strDeviceType != null && !strDeviceType.isEmpty()
+						&& strhouseType != null && !strhouseType.isEmpty()
+								&& strSessionYear != null && !strSessionYear.isEmpty()
+										&& strSessionType != null && !strSessionType.isEmpty()
+				) {
+			
+			
+			DevicesDetails = Query.getDeviceDetailsforSupportActivity(strparam, strSession,ht, dt, strfilter,Integer.parseInt(strOffset), locale);
+		}
+
+		if(strfilter.equals("Member")) {
+			model.addAttribute("pageCursor", true);
+		}
+		model.addAttribute("houseTypeId", ht.getId());
+		model.addAttribute("responseDeviceType",dt.getDeviceName() );
+		model.addAttribute("count", DevicesDetails.size());
+		model.addAttribute("DevicesDetails", DevicesDetails) ;
+		return "support_activities/accordian";
+	}
+		
+	
 }
