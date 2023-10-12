@@ -10,10 +10,13 @@
 package org.mkcl.els.domain;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+
+import org.mkcl.els.common.vo.SearchVO;
 import org.mkcl.els.repository.QueryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -104,5 +107,9 @@ public class Query extends BaseDomain{
 	
 	public static String generateDynamicInnerQueryText(final String innerQuery,final Map<String, String[]> requestMap) {
 		return getQueryRepository().generateDynamicInnerQueryText(innerQuery, requestMap);
+	}
+	public static List<SearchVO> getDeviceDetailsforSupportActivity(String param, String session,HouseType houseType, DeviceType deviceType,
+			String filter,Integer offset , Locale locale ) {
+		return getQueryRepository().getDeviceDetailsForSupportActivity(param, session,houseType, deviceType, filter,offset, locale);
 	}
 }
