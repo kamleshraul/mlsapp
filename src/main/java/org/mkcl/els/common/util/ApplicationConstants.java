@@ -1845,6 +1845,20 @@ public class ApplicationConstants {
 	public static final String RESOLUTION = "Resolution";
 	
 	public static final String STANDALONE_MOTION = "StandaloneMotion";
+	
+	public static final String CUTMOTION = "CutMotion";
+	
+	public static final String MOTION = "Motion";
+	
+	public static final String PROPRIETYPOINT = "ProprietyPoint";
+	
+	public static final String SPECIALMENTION_NOTICE = "SpecialMentionNotice";
+	
+	public static final String RULES_SUSPENSION_MOTION = "RulesSuspensionMotion";
+	
+	public static final String ADJOURNMEBT_MOTION = "AdjournmentMotion";
+	
+	public static final String DISCUSSION_MOTION = "DiscussionMotion";
 
 	public static final String QUESTION_FINAL = "question_final";
 
@@ -3213,6 +3227,17 @@ public class ApplicationConstants {
 	public static final String SPECIAL_SESSION_1 = "special1";
 	
 	public static final String SPECIAL_SESSION_2 = "special2";
+	
+	public static final String START_WORKFLOW_BULK = "start_workflow_bulk";
+	
+	public static final String END_WORKFLOW_BULK = "end_workflow_bulk";
+	
+	public static final String SUPPORT_SEARCH_FILTER_ALL = "All";
+	
+	public static final String SUPPORT_SEARCH_FILTER_SPECIFIC = "Specific";
+	
+	public static final String SUPPORT_SEARCH_FILTER_MEMBER = "Member";
+
 	
 	/** Constants for Storage on File Server **/
 	public static final String SERVER_FILE_STORAGE_ENABLED = "NO";
