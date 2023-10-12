@@ -115,8 +115,8 @@
 			<thead>
 				<tr>
 					<th style="width: 82px; padding: 2px;"><spring:message code="question.currentStatus" text="Column 1"/></th>
-					 <c:forEach var="number" items="${AllowedGroupsText}">
-					  <th style="width: 82px; padding: 2px;"><spring:message code="group.number" text="group Number"/> :-  ${number}</th>  
+					 <c:forEach var="names" items="${usergroupAssigneeNames}">
+					  <th style="width: 82px; padding: 2px;">  ${names}</th>  
 					</c:forEach>
 					
 					 
