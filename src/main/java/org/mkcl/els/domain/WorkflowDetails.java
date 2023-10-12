@@ -18,6 +18,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.DepartmentDashboardVo;
 import org.mkcl.els.common.vo.Task;
+import org.mkcl.els.common.vo.WorkFlowDetailsVO;
 import org.mkcl.els.repository.WorkflowDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -1716,6 +1717,12 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	public static WorkflowDetails startProcessAtGivenAssigneeForCutMotion(CutMotion cutmotion, String approvalWorkflow, Workflow workflow,
 			UserGroupType userGroupType, Integer level, String assignee, String locale)  throws ELSException  {
 		return getRepository().startProcessAtGivenAssigneeForCutMotion(cutmotion, approvalWorkflow, workflow, userGroupType, level, assignee, locale);
+		
+	}
+	
+	
+	public static List<WorkFlowDetailsVO> getWorkFlowDetailsForSupportDetails(final Long deviceId)  throws ELSException  {
+		return getRepository().getWorkFlowDetailsForSupportActivity(deviceId);
 		
 	}
 		
