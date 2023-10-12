@@ -76,7 +76,8 @@ public class DeviceType extends BaseDomain implements Serializable {
 	
 	private Integer supportOrder;
 	
-	@Column(length=100)
+	
+	@Column(name="device_name",length=100 )
     private String deviceName;
     
     @Autowired
