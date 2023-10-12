@@ -50,6 +50,7 @@ import org.mkcl.els.common.vo.OrdinanceSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.SectionVO;
 import org.mkcl.els.common.vo.TemplateVO;
+import org.mkcl.els.common.vo.WorkFlowDetailsVO;
 import org.mkcl.els.controller.mois.CutMotionDateControllerUtility;
 import org.mkcl.els.controller.wf.EditingWorkflowController;
 import org.mkcl.els.domain.*;
@@ -11801,9 +11802,35 @@ public class ReferenceController extends BaseController {
 	}
 	
 	
+	@RequestMapping(value = "/getWorkFlowDetails/{id}", method = RequestMethod.GET)
+	public String getWorkFlowDetailsForSupportActivity(final Locale locale,@PathVariable("id")  final Long questionId,
+			final ModelMap model) {
+		
+		List<WorkFlowDetailsVO> wfdVO = null;
+		try {
+			wfdVO = WorkflowDetails.getWorkFlowDetailsForSupportDetails(questionId);
+		} catch (ELSException e) {
+			
+			e.printStackTrace();
+		}
+		if(wfdVO != null) {
+			model.addAttribute("WorkFlowDetailsVO",wfdVO);
+		}
+		return "support_activities/workflowdetails";
+	}
 	
-	
-	
-	
+	@RequestMapping(value="getMemberForSpecificSession/sessionId/{sessionId}",method = RequestMethod.GET)
+	public @ResponseBody List<Member> getWorkFlowDetailsForSupportActivity(final Locale locale,@PathVariable("sessionId") Long sessionId ) {
+		
+		if(sessionId != null) {
+			Session s = Session.findById(Session.class, sessionId);
+			House h = s.getHouse();
+			
+			List<Member> members = Member.findActiveMembers(h, new Date(), ApplicationConstants.ASC,locale.toString());
+			return members;
+						
+		}
+		return null;
+	}
 	
 }
