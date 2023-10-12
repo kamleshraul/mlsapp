@@ -2,8 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title><spring:message code="guesthouse.guesthousebooking"
-		text="Guest House Booking" /></title>
+<title> Session Submission And Config Calendar </title>
 <!-- BEGIN META -->
 
 <!-- END META -->
@@ -113,13 +112,13 @@
 			   	   					  if (startDateAndTimeSplitted[0].includes("/")) {
 			   	   					    //console.log("/ Yes");
 			   	   					    var formatDate = startDateAndTimeSplitted[0].split("/")
-			   	   					    newEvent.description = 'config:- ' +deviceTypeAndKey[1] + '<br> Start Date :-  '+ startDateAndTime +  '<br> End Date :-' + endDateAndTime;
+			   	   					    newEvent.description = 'config:- '+  deviceTypeAndKey[0]+' || '+deviceTypeAndKey[1] + '<br> Start Date :-  '+ startDateAndTime +  '<br> End Date :-' + endDateAndTime;
 			   	   						newEvent.start = formatDate[2]+'-'+formatDate[1]+'-'+formatDate[0]+'T'+startDateAndTimeSplitted[1];
 			   	   						newEvent.end = formatDate[2]+'-'+formatDate[1]+'-'+formatDate[0]+'T23:59:00';
 	
 			   	   					  } else {
 			   	   					    //console.log(" - Yes");
-			   	   					    newEvent.description = 'config:- ' +deviceTypeAndKey[1] + '<br> Start Date :-  '+startDateAndTime+'<br> End Date :-'+ endDateAndTime;
+			   	   					    newEvent.description = 'config:- ' +  deviceTypeAndKey[0]+' || '+deviceTypeAndKey[1] + '<br> Start Date :-  '+startDateAndTime+'<br> End Date :-'+ endDateAndTime;
 			   	   						newEvent.start = startDateAndTimeSplitted[0]+'T'+startDateAndTimeSplitted[1];
 			   	   						newEvent.end = startDateAndTimeSplitted[0]+'T23:59:00';
 			   	   					  }
@@ -129,13 +128,13 @@
 			   	   					  if (startDateAndTimeSplitted[0].includes("/")) {
 			   	   					    //console.log("/ Yes");
 			   	   					    var formatDate = startDateAndTimeSplitted[0].split("/")
-			   	   					    newEvent.description = 'config:- ' +deviceTypeAndKey[1] + '<br> Start Date :-  '+ startDateAndTime ;
+			   	   					    newEvent.description = 'config:- ' +  deviceTypeAndKey[0]+' || '+deviceTypeAndKey[1] + '<br> Start Date :-  '+ startDateAndTime ;
 			   	   						newEvent.start = formatDate[2]+'-'+formatDate[1]+'-'+formatDate[0]+'T'+startDateAndTime[1];
 			   	   						newEvent.end = formatDate[2]+'-'+formatDate[1]+'-'+formatDate[0]+'T23:59:00';
 	
 			   	   					  } else {
 			   	   					    //console.log(" - Yes");
-			   	   					    newEvent.description = 'config:- ' +deviceTypeAndKey[1] + '<br> Start Date :-  '+startDateAndTime;
+			   	   					    newEvent.description = 'config:- ' +  deviceTypeAndKey[0]+' || '+deviceTypeAndKey[1] + '<br> Start Date :-  '+startDateAndTime;
 			   	   						newEvent.start = startDateAndTimeSplitted[0]+'T'+startDateAndTimeSplitted[1];
 			   	   						newEvent.end = startDateAndTimeSplitted[0]+'T23:59:00';
 			   	   					  }
