@@ -2,6 +2,7 @@ package org.mkcl.els.repository;
 
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
+import org.mkcl.els.common.vo.WorkFlowDetailsVO;
 import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.AppropriationBillMotion;
 import org.mkcl.els.domain.Bill;
@@ -7885,5 +7887,64 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 			cutmotion.simpleMerge();
 			return workflowDetails;
 		}
+		
+
+		public List<WorkFlowDetailsVO> getWorkFlowDetailsForSupportActivity(final Long deviceId) throws ELSException {
+			
+			
+			List<Object> wfDetails = new ArrayList<Object>();
+			List<WorkFlowDetailsVO> wfDetailsVo = new ArrayList<WorkFlowDetailsVO>();
+			StringBuilder strQuery = new StringBuilder();
+			
+			
+			strQuery.append("SELECT wd.status , wd.device_number,wd.assignee,wd.assignee_level,wd.assignee_user_group_name,wd.assignment_time,  ");
+			strQuery.append("  wd.completion_time,wd.internal_status,wd.recommendation_status,wd.workflow_sub_type  FROM workflow_details wd WHERE wd.device_id IN ");
+			strQuery.append("('"+deviceId+"')");
+			strQuery.append(" ORDER BY wd.id  DESC ");
+			
+			javax.persistence.Query nQuery=   this.em().createNativeQuery(strQuery.toString());
+			wfDetails = nQuery.getResultList();
+			
+			if(wfDetails != null) {
+				
+				WorkFlowDetailsVO wfD = null;
+				 for(Object i : wfDetails) {
+						wfD =new WorkFlowDetailsVO();
+						 Object[] o=(Object[]) i;
+						 
+						 wfD.setStatus(o[0].toString());
+						 if(o[1] != null) {
+							 wfD.setDeviceNumber(o[1].toString());
+						 }else {
+							 wfD.setDeviceNumber("-");
+						 }
+						
+						 wfD.setAssignee(o[2].toString());
+						 wfD.setAssigneeLevel(o[3].toString());
+						 wfD.setAssigneeUserGroupName(o[4].toString());
+						 if(o[5] !=null) {							 
+				             wfD.setAssignmentTime(o[5].toString());
+						 }else {
+							 wfD.setAssignmentTime("-");
+						 }
+						 
+						 if(o[6] != null) {
+							 wfD.setCompletionTime(o[6].toString());
+						 }else {
+							 wfD.setCompletionTime("-");
+						 }
+					           
+						 //Long sqlAssignmentDate  = Long.parseLong(o[6].toString());						 
+						 //wfD.setAssignmentTime();
+						 wfD.setInternalStatus(o[7].toString());
+						 wfD.setRecommendationStatus(o[8].toString());
+						 wfD.setWorkflowSubType(o[9].toString());
+						 
+						 wfDetailsVo.add(wfD);
+				}
+			}
+			return wfDetailsVo;
+		}
+	
 		
 }
