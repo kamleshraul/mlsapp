@@ -102,47 +102,51 @@ public class QuestionReportController extends BaseController{
 		String strAllowedGroupsText = request.getParameter("allowedGroupsText");
 		String strDeviceType = request.getParameter("deviceType");
 
-		if (!strSessionId.isEmpty() && strSessionId != null 
-				&& !strDeviceType.isEmpty() && strDeviceType != null
-					&& !strAllowedGroups.isEmpty() && strAllowedGroups != null
-						&& !strAllowedGroupsText.isEmpty() && strAllowedGroupsText != null	) {
-			
+		if (!strSessionId.isEmpty() && strSessionId != null && !strDeviceType.isEmpty() && strDeviceType != null
+				&& !strAllowedGroups.isEmpty() && strAllowedGroups != null && !strAllowedGroupsText.isEmpty()
+				&& strAllowedGroupsText != null) {
+
 			DeviceType dt = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
 			Session s = Session.findById(Session.class, Long.parseLong(strSessionId));
 			String[] groupsAllowed = strAllowedGroups.split(",");
 			String[] AllowedGroupsText = strAllowedGroupsText.split(",");
-			
-			if (groupsAllowed.length > 0) {
-				
-				model.addAttribute("AllowedGroupsText", AllowedGroupsText);
 
+			if (groupsAllowed.length > 0) {
+
+				model.addAttribute("AllowedGroupsText", AllowedGroupsText);
 				Map<String, String[]> parameters = new HashMap<String, String[]>();
 				parameters.put("locale", new String[] { locale.toString() });
 				parameters.put("sessionId", new String[] { s.getId().toString() });
 				parameters.put("deviceType", new String[] { dt.getId().toString() });
-				parameters.put("groupsAllowed", new String[] { strAllowedGroups });
+				// parameters.put("groupsAllowed", new String[] { strAllowedGroups });
 
-				List<Object> content = Query.findReport("STATUSWISE_QUESTION_COUNT_REPORT", parameters,true);
-
+				List<Object> content = Query.findReport("STATUSWISE_QUESTION_COUNT_REPORT", parameters, false);
 				CustomParameter cp = CustomParameter.findByName(CustomParameter.class,
 						"STATUS_TO_SHOW_IN_STATUSWISE_QUESTION_COUNT_REPORT", "");
 
 				if (cp != null && content != null) {
-					String[] dNames = cp.getValue().split(",");
-					Map<String, List<String>> reportC = new LinkedHashMap<String, List<String>>();
 
-					for (int i = 0; i < groupsAllowed.length; i++) {
+					List<String> usergroupAssigneeNames = new ArrayList<String>();
+					for (int i = 0; i < content.size(); i++) {
 						Object[] o = (Object[]) content.get(i);
-
-						for (int j = 0; j < dNames.length; j++) {
-							if (!reportC.containsKey(dNames[j])) {
-								reportC.put(dNames[j], new ArrayList<String>());
+						usergroupAssigneeNames.add(o[0].toString());
+					}
+					model.addAttribute("usergroupAssigneeNames", usergroupAssigneeNames);
+					String[] statusNames = cp.getValue().split(",");
+					Map<String, List<String>> reportC = new LinkedHashMap<String, List<String>>();
+					for (int i = 0; i < usergroupAssigneeNames.size(); i++) {
+						Object[] o = (Object[]) content.get(i);
+						for (int j = 1; j < statusNames.length; j++) {
+							if (!reportC.containsKey(statusNames[j])) {
+								reportC.put(statusNames[j], new ArrayList<String>());
 							}
-							reportC.get(dNames[j]).add(o[j].toString());
+							reportC.get(statusNames[j]).add(o[j].toString());
 						}
 					}
 					model.addAttribute("report", reportC);
+					
 				}
+				
 			}
 		}
 
