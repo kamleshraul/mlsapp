@@ -1,5 +1,8 @@
 package org.mkcl.els.common.vo;
 
+import java.util.List;
+import java.util.Map;
+
 public class SearchVO {
 	
 	/** The id. */
@@ -32,6 +35,9 @@ public class SearchVO {
 	/** The Internal status. */
 	private String internalStatus;
 	
+	/** The Internal status. */
+	private String recommendationStatus;
+	
 	/** The device type. */
 	private String deviceType;	
 	
@@ -40,6 +46,10 @@ public class SearchVO {
 	
 	/** ** The Session Type ***. */
 	private String sessionType;	
+	
+	private Map<String,String> parent;	
+	
+	private List<Map<String,String>> child;
 	
 	private String group;
 	
@@ -53,6 +63,10 @@ public class SearchVO {
 	
 	private String device;
 	
+	private String HouseType;
+	
+	private String answer;
+	
 	//===========added for portlet proceedings 
 	private String primaryMember;
 	
@@ -65,6 +79,10 @@ public class SearchVO {
 	private String chartAnsweringDate;
 	
 	private String actor;
+	
+	private List<MasterVO> revisions; 
+	
+	private String internalStatusType;
 
 	public Long getId() {
 		return id;
@@ -266,6 +284,66 @@ public class SearchVO {
 		this.actor = actor;
 	}
 
+	public List<MasterVO> getRevisions() {
+		return revisions;
+	}
+
+	public void setRevisions(List<MasterVO> revisions) {
+		this.revisions = revisions;
+	}
+
+	public String getHouseType() {
+		return HouseType;
+	}
+
+	public void setHouseType(String houseType) {
+		HouseType = houseType;
+	}
+
+	public String getRecommendationStatus() {
+		return recommendationStatus;
+	}
+
+	public void setRecommendationStatus(String recommendationStatus) {
+		this.recommendationStatus = recommendationStatus;
+	}
+
+	public String getAnswer() {
+		return answer;
+	}
+
+	public void setAnswer(String answer) {
+		this.answer = answer;
+	}
+
+
+
+	public String getInternalStatusType() {
+		return internalStatusType;
+	}
+
+	public void setInternalStatusType(String internalStatusType) {
+		this.internalStatusType = internalStatusType;
+	}
+
+	public Map<String, String> getParent() {
+		return parent;
+	}
+
+	public void setParent(Map<String, String> parent) {
+		this.parent = parent;
+	}
+
+	public List<Map<String, String>> getChild() {
+		return child;
+	}
+
+	public void setChild(List<Map<String, String>> child) {
+		this.child = child;
+	}
+
+	
+	
 	
 
 }
