@@ -3,18 +3,32 @@ package org.mkcl.els.repository;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Parameter;
+import javax.persistence.TypedQuery;
 
+import org.joda.time.LocalDateTime;
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.SearchVO;
+import org.mkcl.els.common.vo.WorkFlowDetailsVO;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Device;
+import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Gender;
+import org.mkcl.els.domain.House;
+import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.Question;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -464,4 +478,361 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 		}		
 		return "";
 	}
+	
+	
+	
+		public List<SearchVO> getDeviceDetailsForSupportActivity(String param, String session,HouseType ht, DeviceType dt,
+				String filter, Integer offset, Locale locale) {
+
+			
+			List<Object> Details = new ArrayList<Object>();
+			List<SearchVO> ResponseResult = new ArrayList<SearchVO>();			
+			House currentHouse = null;
+			try {
+				currentHouse = House.findCurrentHouse(locale.toString());
+			} catch (ELSException e) {
+
+				e.printStackTrace();
+			}
+			StringBuffer query = new StringBuffer();
+			javax.persistence.Query nQuery = null;
+			
+			//Adding generic Present in All devices
+			query.append("SELECT q.id,q.number,q.session.type.sessionType,  q.session.year,q.houseType.name , q.subDepartment.displayName, ");
+			
+			
+			
+			if(dt.getDeviceName().equals(ApplicationConstants.CUTMOTION)) {
+				query.append(" q.revisedMainTitle ,q.deviceType.name, ");
+			}else {
+				if(dt.getDeviceName().equals(ApplicationConstants.PROPRIETYPOINT)) {
+					query.append(" q.revisedSubject , q.deviceType.name, ");
+				}else {
+					query.append(" q.revisedSubject , q.type.name, ");
+				}
+				
+			}
+			
+			/*
+			 * 
+			 * XXX-> Check if  resolution then add status as per houseType or just Add generic status types
+			 *
+			 */			
+			if(dt.getDeviceName().equals(ApplicationConstants.RESOLUTION)) {
+				if(ht.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+					query.append(" q.statusLowerHouse.name,q.internalStatusLowerHouse.name,q.recommendationStatusLowerHouse.name,q.actorLowerHouse,q.internalStatusLowerHouse.type  ");
+				}else {
+					query.append(" q.statusUpperHouse.name,q.internalStatusUpperHouse.name,q.recommendationStatusUpperHouse.name,q.actorUpperHouse,q.internalStatusUpperHouse.type  ");
+				}
+				query.append(",q.member.title.name,q.member.firstName,q.member.lastName ");
+			}else {
+				query.append(" q.status.name,q.internalStatus.name,q.recommendationStatus.name,q.actor,q.internalStatus.type , q.primaryMember.title.name ,q.primaryMember.firstName,q.primaryMember.lastName ");
+			}
+			
+			
+			/*
+			 * if Device is  XXX-> Question  or XXX-> Standalone then Add Group And Answer  And revisedQuestionText
+			 *  XXX-> OR <-XXX
+			 *  Add Reply field , revisedDetails
+			 *  Last 
+			 */						
+			if(dt.getDeviceName().equals(ApplicationConstants.QUESTION) || dt.getDeviceName().equals(ApplicationConstants.STANDALONE_MOTION)) {
+				query.append(" ,q.group.number ");
+				if( !dt.getDeviceName().equals(ApplicationConstants.STANDALONE_MOTION) ) {
+					query.append(" ,q.revisedQuestionText,q.answer ,q.parent.id  ");
+				}else {
+					query.append(" ,q.revisedBriefExplanation,q.answer ");
+				}				
+			}else if(dt.getDeviceName().equals(ApplicationConstants.ADJOURNMEBT_MOTION) 
+					   || dt.getDeviceName().equals(ApplicationConstants.MOTION )
+						|| dt.getDeviceName().equals(ApplicationConstants.CUTMOTION)
+						   || dt.getDeviceName().equals(ApplicationConstants.PROPRIETYPOINT)
+						   	 || dt.getDeviceName().equals(ApplicationConstants.RULES_SUSPENSION_MOTION)
+						   	   || dt.getDeviceName().equals(ApplicationConstants.SPECIALMENTION_NOTICE) ) {				
+				if(dt.getDeviceName().equals(ApplicationConstants.MOTION)) {
+					query.append(" ,q.revisedDetails ");
+				}
+				else if(dt.getDeviceName().equals(ApplicationConstants.PROPRIETYPOINT)) {
+					query.append(" ,q.revisedPointsOfPropriety ");
+				}
+				else {
+					query.append(" ,q.revisedNoticeContent ");
+				}
+				query.append(" ,q.reply ");
+			}else {
+				query.append(" ,q.revisedNoticeContent ");
+			}
+						
+			/*
+			 * 
+			 * XXX-> Adding device Type Class And HouseType 
+			 * 
+			 */
+			query.append( " FROM  "+dt.getDeviceName()+"  q  ");
+			query.append(" WHERE q.houseType.id = "+ ht.getId() +"");
+			
+			/*
+			 * 
+			 * XXX-> Checking if Passed Filter Param is Specific Or ALL 
+			 * 
+			 */
+			
+			if (filter.equals(ApplicationConstants.SUPPORT_SEARCH_FILTER_ALL)) {
+				
+				query.append("  AND  q.number IN (" + param + ")");
+				query.append(" ORDER BY q.id DESC ");
+				nQuery = this.em().createQuery(query.toString());
+				nQuery.setMaxResults(10);
+				
+				Details = nQuery.getResultList();
+				
+			}else {
+				if(dt.getDeviceName().equals(ApplicationConstants.CUTMOTION) || dt.getDeviceName().equals(ApplicationConstants.PROPRIETYPOINT)) {
+					query.append("  AND q.deviceType.id IN (:deviceTypeId)");	
+				}else {
+					query.append("  AND q.type.id IN (:deviceTypeId)");	
+				}
+				query.append(
+						"  AND q.session.id IN (:sessionId)");
+				
+				
+				if(filter.equals(ApplicationConstants.SUPPORT_SEARCH_FILTER_SPECIFIC)) {
+					if(currentHouse != null ) {
+						query.append("  AND q.number IN (" + param + ")");
+						query.append("ORDER BY q.id DESC");		
+						
+						nQuery = this.em().createQuery(query.toString());					
+						
+					}else {
+						logger.info("Unable to Find Current House for filter :- ",filter);
+					}
+				} else if (filter.equals(ApplicationConstants.SUPPORT_SEARCH_FILTER_MEMBER)) {
+					query.append("  AND q.primaryMember.id IN (" + param + ")");
+					query.append("ORDER BY q.id DESC  ");					
+					
+					nQuery = this.em().createQuery(query.toString());
+					nQuery.setFirstResult(offset);
+					nQuery.setMaxResults(10);
+					
+				}
+				
+				nQuery.setParameter("deviceTypeId", dt.getId());					
+				nQuery.setParameter("sessionId", Long.parseLong(session));
+				
+			    Details  = nQuery.getResultList();
+			    logger.info("Result Generated SuccessFully !!!");
+			}
+			
+			
+			 if(Details != null && Details.size()>0) {
+				 SearchVO singleSVo = null;
+				 for(Object i : Details) {
+					singleSVo =new SearchVO();
+					 Object[] o=(Object[]) i;
+		
+		 
+					 singleSVo.setId(Long.parseLong(o[0].toString()));
+					 if(o[1] != null) {
+						 singleSVo.setNumber(o[1].toString());
+					 }else{
+						 singleSVo.setNumber("-");
+					 }
+					 
+					 singleSVo.setDevice(dt.getDeviceName());
+					 singleSVo.setMinistry(dt.getType()); // used ministry because of no empty field t store deviceType
+					
+					
+					 if(o[2]!=null) {
+						 singleSVo.setSessionType(o[2].toString());
+					 }
+					 else {
+						 singleSVo.setSessionType("-");
+					 }
+					 
+					 if(o[3] !=null) {
+						 singleSVo.setSessionYear(o[3].toString());
+					 }
+					 else {
+						 singleSVo.setSessionYear("-");
+					 }
+					 
+					 if(o[4] !=null) {
+						 singleSVo.setHouseType(o[4].toString());
+					 }
+					 else {
+						 singleSVo.setHouseType("-");
+					 }
+					 
+					 if(o[5] !=null) {
+						 singleSVo.setSubDepartment(o[5].toString());
+					 }
+					 else {
+						 singleSVo.setSubDepartment("-");
+					 }
+					 
+					 
+					 if(o[6] != null ) {
+						 if(o[6].toString().isEmpty()) {
+							 singleSVo.setSubject("-");
+						 }else {
+							 singleSVo.setSubject(o[6].toString());
+						 }
+						 
+					 }else {
+						 singleSVo.setSubject("-");
+					 }
+					 
+					 if(o[7] !=null) {
+						 singleSVo.setDeviceType(o[7].toString());
+					 }
+					 else {
+						 singleSVo.setDeviceType("-");
+					 }
+					 
+					 if(o[8] !=null) {
+						 singleSVo.setStatus(o[8].toString());
+					 }
+					 else {
+						 singleSVo.setStatus("-");
+					 }
+					 
+					 if(o[9] !=null) {
+						 singleSVo.setInternalStatus(o[9].toString());
+					 }
+					 else {
+						 singleSVo.setInternalStatus("-");
+					 }
+					 
+					 if(o[10] !=null) {
+						 singleSVo.setRecommendationStatus(o[10].toString());
+					 }
+					 else {
+						 singleSVo.setRecommendationStatus("-");
+					 }
+					 
+					 if(o[11] != null) {
+						 if(o[11].toString().isEmpty()) {
+							 singleSVo.setActor("-");
+						 }else {
+							 singleSVo.setActor(o[11].toString());
+						 }
+						 
+					 }
+					 else {
+						 singleSVo.setActor("-");
+					 }
+					 
+					 if(o[12] != null) {
+						 if(o[12].toString().isEmpty()) {
+							 singleSVo.setInternalStatusType("-");
+						 }else {
+							 singleSVo.setInternalStatusType(o[12].toString());
+						 }
+					 }else {
+						 singleSVo.setInternalStatusType("-");
+					 }
+					 
+					 if(o[13] != null &&  o[14] != null && o[15] !=null) {
+						 singleSVo.setPrimaryMember(o[13].toString()+"  "+o[14].toString()+" "+o[15].toString());
+					 }else {
+						 singleSVo.setPrimaryMember("-");
+					 }
+					 
+					
+					 if(dt.getDeviceName().equals(ApplicationConstants.QUESTION) || dt.getDeviceName().equals(ApplicationConstants.STANDALONE_MOTION)) {
+						
+						 if(o[16] != null) {
+							 singleSVo.setGroup(o[16].toString());
+						 }else {
+							 singleSVo.setGroup("-");
+						 }
+						 						 
+						 if(o[17] != null) {
+							 
+							 if(!o[17].toString().isEmpty() ) {
+								 singleSVo.setRevisedContent(o[17].toString());
+							 }else {
+								 singleSVo.setRevisedContent("-");
+							 }							 
+						 }else {
+							 singleSVo.setRevisedContent("-");
+						 }
+						 
+						 if(o[18] !=null) {
+							 if(!o[18].toString().isEmpty()) {
+								 singleSVo.setAnswer(o[18].toString());
+							 }else {
+								 singleSVo.setAnswer("-");
+							 }
+						 }else {
+							 singleSVo.setAnswer("-");
+						 }
+						 
+						 if(dt.getDeviceName().equals(ApplicationConstants.QUESTION)) {							 
+							 if(o[19] != null) {
+								 Question parent = Question.findById(Question.class, Long.parseLong(o[19].toString()));
+								 Map<String,String> IdAndNumber = new  HashMap<String, String>();
+								 IdAndNumber.put(parent.getId().toString(), parent.getNumber().toString());
+								 singleSVo.setParent(IdAndNumber);
+							 }else {
+								 List<Map<String,String>> childs  =findIfParent(singleSVo.getId());
+								 singleSVo.setChild(childs);
+							 }
+						 }
+
+					 }else  {
+						 if(o[16] != null ) {
+							 if(!o[16].toString().isEmpty() ) {
+								 singleSVo.setRevisedContent(o[16].toString());
+							 }else {
+								 singleSVo.setRevisedContent("-");
+							 }
+						 }else {
+							 singleSVo.setRevisedContent("-");
+						 }
+						 if(!(dt.getDeviceName().equals(ApplicationConstants.RESOLUTION) || dt.getDeviceName().equals(ApplicationConstants.DISCUSSION_MOTION))) {
+							
+							 if(o[17] != null ) {
+								 singleSVo.setAnswer(o[17].toString());
+							 }else {
+								 singleSVo.setAnswer("-");
+							 }
+							}
+						
+					 }
+					 ResponseResult.add(singleSVo);
+				 
+				 }
+			 }
+
+
+			return ResponseResult;
+		}
+		
+		
+		public List<Map<String,String>>  findIfParent(Long qsnId) {
+			
+			StringBuilder strQuery = new StringBuilder();
+			List<Map<String,String>> childDetails = new ArrayList<Map<String,String>>();
+			
+			strQuery.append("SELECT q.id,q.number FROM questions q WHERE q.parent IN( "+ qsnId+" )");
+			javax.persistence.Query nQuery = this.em().createNativeQuery(strQuery.toString());
+			List<Object> childs = nQuery.getResultList();
+			
+			if(childs != null && childs.size()>0) {
+				 for(Object i : childs) {
+						 Object[] o=(Object[]) i;
+						 Map <String,String> IdAndNumber = new  HashMap<String, String>();
+						 IdAndNumber.put(o[0].toString(), o[1].toString());
+						 childDetails.add(IdAndNumber);
+				}
+				 return childDetails;
+			}
+			
+			return null;
+		}
+		
+		
+		
+ 
 }
