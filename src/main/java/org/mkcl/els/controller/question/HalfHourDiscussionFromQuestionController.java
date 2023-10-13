@@ -2722,7 +2722,11 @@ class HalfHourDiscussionFromQuestionController {
 		domain.setHalfHourDiscusionFromQuestionReference(refQuestion);
 		
 		/**** update incharge member in the domain ****/
-		domain.setInchargeMember(domain.findInChargeMember());
+		if(domain.getNumber()!=null) {
+			domain.setInchargeMember(domain.findInChargeMember());			
+		} else {
+			domain.setInchargeMember(domain.getPrimaryMember());
+		}
 	}
 
 	public static void populateAfterUpdate(final Question domain,

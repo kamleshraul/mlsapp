@@ -2956,7 +2956,11 @@ class StarredQuestionController {
 		}
 		
 		/**** update incharge member in the domain ****/
-		domain.setInchargeMember(domain.findInChargeMember());		
+		if(domain.getNumber()!=null) {
+			domain.setInchargeMember(domain.findInChargeMember());
+		} else {
+			domain.setInchargeMember(domain.getPrimaryMember());
+		}		
 		
 		/**** updating revised question text in related department workflow details when copy pasted by clerk/assistant from notepad ****/
 		if(domain.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_FINAL_ADMISSION)

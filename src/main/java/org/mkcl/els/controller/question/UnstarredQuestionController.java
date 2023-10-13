@@ -2464,7 +2464,11 @@ class UnstarredQuestionController {
 		}
 		
 		/**** update incharge member in the domain ****/
-		domain.setInchargeMember(domain.findInChargeMember());
+		if(domain.getNumber()!=null) {
+			domain.setInchargeMember(domain.findInChargeMember());
+		} else {
+			domain.setInchargeMember(domain.getPrimaryMember());
+		}
 		
 		/** allow question to be eligible for unstarred yaadi if it was removed before & now allowed **/
 		String isAllowedInYaadiStr = request.getParameter("isAllowedInYaadi");

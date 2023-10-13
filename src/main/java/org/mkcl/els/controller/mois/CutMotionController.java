@@ -1930,7 +1930,11 @@ public class CutMotionController extends GenericController<CutMotion>{
 			domain.setDepartment(domain.getSubDepartment().getDepartment());
 		}			
 		/**** update incharge member in the domain ****/
-		domain.setInchargeMember(domain.findInChargeMember());
+		if(domain.getNumber()!=null) {
+			domain.setInchargeMember(domain.findInChargeMember());
+		} else {
+			domain.setInchargeMember(domain.getPrimaryMember());
+		}
 		/**** In case of assistant if internal status=submit,ministry,department,group is set 
 		 * then change its internal and recommendstion status to assistant processed ****/
 		CustomParameter assistantProcessedAllowed = CustomParameter.

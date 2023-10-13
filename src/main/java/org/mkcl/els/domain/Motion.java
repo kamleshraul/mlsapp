@@ -2536,6 +2536,14 @@ import org.springframework.transaction.annotation.Transactional;
 	}
 	 
 	public Member findInChargeMember() {
+		if(this.getSubmissionDate()==null) //as submission date is required to find activeness of members
+		{
+			if(this.getInchargeMember()!=null) {
+				return this.getInchargeMember(); 
+			} else {
+				return this.getPrimaryMember();
+			}
+		}
 		/** check primary member **/
 		Member member = this.getPrimaryMember();
 		if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
