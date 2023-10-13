@@ -8,7 +8,7 @@
 		<script type="text/javascript">
 			$(document).ready(function() {	
 				$('#pageCursorDiv').hide()
-				if( $('#count').val()  < 10){
+				if( $('#count').val()  < 12){
 					
 					lastPage = true;
 				}else{

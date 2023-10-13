@@ -77,9 +77,9 @@
 				}
 				if(value!='-'&&type!='-'&&houseType!='-'){
 					if($("#whichDevice").val().indexOf('questions_')==0){
-						loadGrp(houseType,value,type);
+						//loadGrp(houseType,value,type);
 					}else{
-						loadMinWithoutGroup();
+						//loadMinWithoutGroup();
 					}
 				}else{
 					//$.prompt($("#houseTypeYearSessionTypeEmptyMsg").val());
@@ -119,9 +119,9 @@
 				}
 				if(value!='-'&&year!='-'&&houseType!='-'){
 					if($("#whichDevice").val().indexOf('questions_')==0){
-						loadGrp(houseType,year,value);
+						//loadGrp(houseType,year,value);
 					}else{
-						loadMinWithoutGroup();
+						//loadMinWithoutGroup();
 					}
 				}else{
 					//$.prompt($("#houseTypeYearSessionTypeEmptyMsg").val());
@@ -240,7 +240,7 @@
 			});
 			
 			if($('#whichDevice').val()=='questions_'){
-				loadAllMinistries();
+				//loadAllMinistries();
 			}			
 		});
 		
@@ -315,7 +315,7 @@
 	
 		/**** On clicking search button ****/		
 		function search(offset){
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			
 			  start=0;
 			 
 			var resourceURL = "";
@@ -378,12 +378,15 @@
 				}
 				
 				//console.log(resourceURL +" "+JSON.stringify(postData));
-				
-				if(selectedSearchBy=='searchByNumber' && $("#searchvalue").val()==''){
+				if(selectedSearchBy=='-' ){
+					$.prompt("Please Select Search By ")
+				}
+				else if(selectedSearchBy=='searchByNumber' && $("#searchvalue").val()==''){
 					$.prompt("Please Enter Number You Want to Search ")
 				} else if(selectedSearchBy=='searchByNumber' && $("#filter").val()=='-'){
 					$.prompt("Please Select the filter  ")
 				}else{
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 					  $.post(resourceURL,postData,function(data){
 
 						$("#viewDeviceDiv").html(data)
