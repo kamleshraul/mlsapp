@@ -608,11 +608,12 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 					}
 				} else if (filter.equals(ApplicationConstants.SUPPORT_SEARCH_FILTER_MEMBER)) {
 					query.append("  AND q.primaryMember.id IN (" + param + ")");
+					query.append("  AND q.number IS NOT NULL ");
 					query.append("ORDER BY q.id DESC  ");					
 					
 					nQuery = this.em().createQuery(query.toString());
 					nQuery.setFirstResult(offset);
-					nQuery.setMaxResults(10);
+					nQuery.setMaxResults(12);
 					
 				}
 				
