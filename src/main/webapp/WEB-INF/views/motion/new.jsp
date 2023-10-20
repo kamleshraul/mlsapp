@@ -382,12 +382,16 @@
 				checkMaxAllowedTextSize(str);
 			});
 			
-			$('#submit').click(function(event){
-				if(!checkBeforeSubmit()){
-					event.preventDefault();
-					return false;
-				}
-			});
+			/*$('#submit').click(function(event){
+				removeFormattingFromDetails(function() {
+					$("#submit").unbind('click').click();
+					if(!checkBeforeSubmit()){
+						event.preventDefault();
+						return false;
+					}
+				});
+				
+			});*/
 			
 		}else{
 			var para=document.getElementById('maxTextLengthPara');
@@ -461,8 +465,13 @@
 		$('#submit').click(function(e) {
 			e.preventDefault();
 			removeFormattingFromDetails(function() {
-				$("#submit").unbind('click').click();
+				if(getMaxAllowedTextSize() > 0 && !checkBeforeSubmit()){					
+					return false;
+				}else{
+					$("#submit").unbind('click').click();
+				}
 			});
+			
 		});
 
 	});
