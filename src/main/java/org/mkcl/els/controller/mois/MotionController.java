@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -4414,9 +4415,25 @@ public class MotionController extends GenericController<Motion>{
 			}
 		}
 		
-		if(houseType!=null && ApplicationConstants.UPPER_HOUSE.equalsIgnoreCase(houseType.getType())
-				&& ((role!=null && role.trim().length()>0 && ApplicationConstants.MEMBER_UPPERHOUSE.equalsIgnoreCase(role))
-						|| userRoleStr.contains(ApplicationConstants.MEMBER_UPPERHOUSE))
+		List<String> applicableRoles=new ArrayList<String>();
+		boolean applicableRoleNotPresent = false;
+		CustomParameter custMaxAllowedTextApplicableRoles = CustomParameter.findByName(CustomParameter.class, "MOTIONS_CALLING_ATTENTION_MAX_TEXT_LENGTH_APPLICABLE_ROLES", "");
+		if(custMaxAllowedTextApplicableRoles!=null 
+				&& custMaxAllowedTextApplicableRoles.getValue()!=null 
+				&& custMaxAllowedTextApplicableRoles.getValue().trim().length()>0) {
+			
+			applicableRoles= getRoleListFromString(custMaxAllowedTextApplicableRoles.getValue().trim());
+			
+			List<String> currentUserRoleList=getRoleListFromString(userRoleStr);
+			
+			if(applicableRoles!=null && currentUserRoleList!=null) {
+				applicableRoleNotPresent=Collections.disjoint(applicableRoles, currentUserRoleList);
+			}
+		}
+		
+		if(houseType!=null
+				&& ((role!=null && role.trim().length()>0 && applicableRoles.contains(role))
+						|| (!applicableRoles.isEmpty() && applicableRoleNotPresent==false))
 				&& ApplicationConstants.MOTION_CALLING_ATTENTION.equalsIgnoreCase(motionType.getType())) {
 			CustomParameter maxAllowedTextSizeObj = CustomParameter.findByName(CustomParameter.class, "MOTIONS_CALLING_ATTENTION_MAX_TEXT_LENGTH", "");
 			CustomParameter externalLinkObj = CustomParameter.findByName(CustomParameter.class, "MOTIONS_PATRAK_EXTERNAL_LINK", "");
@@ -4435,6 +4452,15 @@ public class MotionController extends GenericController<Motion>{
 	}
 	
 	
+	private List<String> getRoleListFromString(String userRoleStr) {
+		if(userRoleStr!=null)
+			return userRoleStr.trim().contains(",")?
+				 Arrays.asList(userRoleStr.trim().split(",")):
+				 Arrays.asList(userRoleStr.trim());
+		else
+			return null;
+	}
+
 	/**** Set Submission Window  ****/
 	@RequestMapping(value="/submissionwindow", method=RequestMethod.GET)
 	public String getSubmissionWindow(final ModelMap model,
