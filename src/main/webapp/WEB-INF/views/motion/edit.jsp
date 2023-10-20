@@ -184,7 +184,10 @@
 					$(this).val("");
 				}
 			});
-			removeFormattingFromDetails(function(){/*blank function*/});
+			e.preventDefault();
+			removeFormattingFromDetails(function() {
+				$("#sendforapproval").unbind('click').click();
+			});
 			$.prompt($('#sendForApprovalMsg').val()+$("#selectedSupportingMembers").val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
@@ -391,7 +394,11 @@
 		$('#submit').click(function(e){
 			e.preventDefault();
 			removeFormattingFromDetails(function(){
-				$("#submit").unbind('click').click(); 
+				if(getMaxAllowedTextSize() > 0 && !checkBeforeSubmit()){					
+					return false;
+				}else{
+					$("#submit").unbind('click').click();
+				}
 			});		
 			
 		});
