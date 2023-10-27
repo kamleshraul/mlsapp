@@ -1815,14 +1815,6 @@ public class AdminController extends BaseController {
 				logger.info("Trimmed String :- " + strId);
 			}
 
-			/*
-			 * if (dt.getDeviceName().equals("Question")) { Question q = null; try {
-			 * for(String splittedQsnIds:strId.split(",")) { q
-			 * =Question.findById(Question.class,Long.parseLong(splittedQsnIds));
-			 * Ids.append(q.getId().toString()+","); } logger.info(Ids.substring(0,
-			 * Ids.length()-1)); } catch (Exception e) { e.printStackTrace(); } } else
-			 * if(dt.getDeviceName().equals("Motions")) { Motion m = null; }
-			 */
 
 			if (strworkflow.equals(ApplicationConstants.START_WORKFLOW_BULK)) {
 
@@ -1850,9 +1842,10 @@ public class AdminController extends BaseController {
 			pl.setWorkflowActivity(strworkflow);
 			pl.setLocale(locale.toString());
 			String userAddress = request.getRemoteAddr();
-			SupportLog supportLog = SupportLog.findLatest(userAddress);
+			SupportLog supportLog = SupportLog.findLatestForSupportActivity(userAddress);
 			if (supportLog != null) {
-				pl.setSupportUserName(supportLog.getUserCredential().getUsername());
+				//System.out.println("Support Log In :-  "+supportLog.getSupportCredential().getUsername());
+				pl.setSupportUserName(supportLog.getSupportCredential().getUsername());
 			}
 			pl.setTimeOfAction(new Date());
 			pl.setPosterUrl(strUrl.toString());
