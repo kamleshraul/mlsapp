@@ -81,6 +81,23 @@ public class SupportLog extends BaseDomain implements Serializable{
 		return null;
 	}
 	
+	public static SupportLog findLatestForSupportActivity(final String userAddress) {
+		List<SupportLog> supportLogs = SupportLog.findAllByFieldName(SupportLog.class, "userAddress", userAddress, "timeOfAction", ApplicationConstants.DESC, "");
+		if(supportLogs!=null) {
+			
+			SupportLog latestSupportLog = supportLogs.get(0);
+			
+			return latestSupportLog;
+			
+//			for(SupportLog supportLog: supportLogs) {
+//				if(!supportLog.isEntered) {
+//					return supportLog;
+//				}
+//			}
+		}
+		return null;
+	}
+	
 	/**** Getter Setter ****/
 	public Credential getSupportCredential() {
 		return supportCredential;
