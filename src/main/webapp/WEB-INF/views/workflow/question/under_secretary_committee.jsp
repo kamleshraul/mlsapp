@@ -740,6 +740,37 @@
 	        return false;  
 	    });
 	    
+		/**** Put Up ****/
+		$("#save").click(function(e){
+			//removing <p><br></p>  from wysiwyg editor
+			$(".wysiwyg").each(function(){
+				var wysiwygVal=$(this).val().trim();
+				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+					$(this).val("");
+				}
+			});		
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			$.post($('form').attr('action')+'?operation=save',  
+		            $("form").serialize(),  
+		            function(data){
+						$('.tabContent').html(data);
+	   					$('html').animate({scrollTop:0}, 'slow');
+	   				 	$('body').animate({scrollTop:0}, 'slow');
+	   					$.unblockUI();	
+		            }).fail(function(){
+		            	$.unblockUI();	
+		    			if($("#ErrorMsg").val()!=''){
+		    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+		    			}else{
+		    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+		    			}
+		    			scrollTop();
+		    			
+		    		});
+	        return false;			
+
+	    });
+	    
 		/**** On Bulk Edit ****/
 		$("#submitBulkEdit").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
@@ -1265,14 +1296,6 @@
 	<form:errors path="questionText" cssClass="validationError"/>	
 	</p>
 	
-	<c:if test="${selectedQuestionType=='questions_starred' or selectedQuestionType=='questions_unstarred'}">
-		<p>
-			<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
-			<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
-			<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-		</p>
-	</c:if>
-	
 		
 	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 	<p>
@@ -1342,6 +1365,14 @@
 	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedReason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
+	
+	<c:if test="${selectedQuestionType=='questions_starred' or selectedQuestionType=='questions_unstarred'}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
+			<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+		</p>
+	</c:if>
 	
 	<c:if test="${selectedQuestionType == 'questions_shortnotice' and domain.dateOfAnsweringByMinister != null}">
 		<p>
@@ -1513,6 +1544,7 @@
 		<h2></h2>
 		<p class="tright">		
 		<c:if test="${bulkedit!='yes'}">
+			<input id="save" type="button" value="<spring:message code='generic.save' text='Save'/>" class="butDef">
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 		</c:if>
 		<c:if test="${bulkedit=='yes'}">

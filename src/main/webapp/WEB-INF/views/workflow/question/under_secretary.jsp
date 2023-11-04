@@ -1309,14 +1309,6 @@
 	</p>
 	
 	</div>
-	
-	<c:if test="${selectedQuestionType=='questions_starred' or selectedQuestionType=='questions_unstarred'}">
-		<p>
-			<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
-			<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
-			<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-		</p>
-	</c:if>
 
 	
 	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
@@ -1388,6 +1380,14 @@
 	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedReason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
+	
+	<c:if test="${selectedQuestionType=='questions_starred' or selectedQuestionType=='questions_unstarred'}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
+			<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+		</p>
+	</c:if>
 	
 	<p id="internalStatusDiv">
 	<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
