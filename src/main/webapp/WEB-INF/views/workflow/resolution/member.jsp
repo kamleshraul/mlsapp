@@ -870,6 +870,7 @@
 	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<form:hidden path="transferToDepartmentAccepted"/>
 	<form:hidden path="fileSentUpperHouse"/>
+	<form:hidden path="sentForClarification"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
 	<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">

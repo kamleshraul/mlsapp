@@ -1093,6 +1093,8 @@ public class ApplicationConstants {
 
 	public static final String RESOLUTION_PROCESSED_SENDTOSECTIONOFFICER = "resolution_processed_sendToSectionOfficer";
 
+	public static final String RESOLUTION_PROCESSED_SENDTODEPARTMENT = "resolution_processed_sendToDepartment";
+
 	/**** Final ****/ 
 	public static final String RESOLUTION_FINAL_ADMISSION="resolution_final_admission";    
 	

@@ -63,6 +63,8 @@ public class BulkApprovalVO {
 	/**** PENDING<COMPLETED<TIMEOUT ****/
 	private String currentStatus;
 	
+	private String sentForClarification;
+	
 	
 	/***** Constructor ***********/
 	
@@ -322,6 +324,14 @@ public class BulkApprovalVO {
 
 	public void setRevisions(List revisions) {
 		this.revisions = revisions;
+	}
+
+	public String getSentForClarification() {
+		return sentForClarification;
+	}
+
+	public void setSentForClarification(String sentForClarification) {
+		this.sentForClarification = sentForClarification;
 	}	
 	
 	

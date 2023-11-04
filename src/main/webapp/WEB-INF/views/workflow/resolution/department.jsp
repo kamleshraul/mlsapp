@@ -899,6 +899,7 @@
 	<form:hidden path="fileIndexUpperHouse"/>	
 	<form:hidden path="fileSentLowerHouse"/>
 	<form:hidden path="fileSentUpperHouse"/>
+	<form:hidden path="sentForClarification"/>
 	<form:hidden path="numberOfDaysForFactualPositionReceiving"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">

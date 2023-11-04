@@ -755,6 +755,29 @@ public class ResolutionWorkflowController extends BaseController{
 				}			
 			}
 		}
+		if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)
+				&& resolution.getSentForClarification()
+				// && (resolution.getFactualPosition()==null || resolution.getFactualPosition().isEmpty())
+		){
+			if(type.equals(ApplicationConstants.RESOLUTION_RECOMMEND_ADMISSION) || type.equals(ApplicationConstants.RESOLUTION_RECOMMEND_REJECTION)
+			){
+				CustomParameter csptPostClarificationApprovalFinalAuthority = CustomParameter.findByName(CustomParameter.class, "RESOLUTION_POST_CLARIFICATION_APPROVAL_UPPERHOUSE_FINAL_AUTHORITY", "");
+				if (csptPostClarificationApprovalFinalAuthority != null
+						&& csptPostClarificationApprovalFinalAuthority.getValue().contains(userGroupType)) {
+					CustomParameter finalApprovingAuthorityStatus = CustomParameter.findByName(CustomParameter.class, "RESOLUTION_PUT_UP_OPTIONS_POST_CLARIFICATION_APPROVAL_UPPERHOUSE_FINAL_AUTHORITY", "");
+					if (finalApprovingAuthorityStatus != null) {
+						try {
+							internalStatuses = Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), locale);
+							model.addAttribute("internalStatuses",internalStatuses);
+							return;
+						} catch (ELSException e) {
+							model.addAttribute("error", e.getParameter());
+							return;
+						}
+					}
+				}
+			}
+		}
 		CustomParameter specificDeviceRecommendationStatusUG=null;
 		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
 			specificDeviceRecommendationStatusUG=CustomParameter.findByName(CustomParameter.class,"RESOLUTION_PUT_UP_OPTIONS_"+resolutionType.toUpperCase()+"_"+resolution.getRecommendationStatusLowerHouse().getType().toUpperCase()+"_"+userGroupType.toUpperCase(),"");
@@ -916,6 +939,23 @@ public class ResolutionWorkflowController extends BaseController{
 						calendar.add(Calendar.DATE, domain.getNumberOfDaysForFactualPositionReceiving());
 						domain.setLastDateOfFactualPositionReceiving(calendar.getTime());
 					}
+				}
+			}
+			
+			/**** setting the flag of sent for clarification ****/
+			if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+				if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
+						domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))
+						&& domain.getRecommendationStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_PROCESSED_SENDTODEPARTMENT))
+				{
+					domain.setSentForClarification(true);
+				}
+			} else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+				if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
+						domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))
+						&& domain.getRecommendationStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_PROCESSED_SENDTODEPARTMENT)) 
+				{
+					domain.setSentForClarification(true);
 				}
 			}
 			
@@ -1407,6 +1447,7 @@ public class ResolutionWorkflowController extends BaseController{
 				&&strWorkflowSubType!=null&&!(strWorkflowSubType.isEmpty())){	
 			/**** List of Statuses ****/
 				List<Status> internalStatuses=new ArrayList<Status>();
+				
 				HouseType houseType=HouseType.findByFieldName(HouseType.class,"name",strHouseType, strLocale);
 				DeviceType motionType=DeviceType.findByFieldName(DeviceType.class,"name",strDeviceType,strLocale);
 				Status internalStatus=Status.findByType(strWorkflowSubType, strLocale);
@@ -1496,22 +1537,49 @@ public class ResolutionWorkflowController extends BaseController{
 		Status internalStatus=null;
 		if(selectedItems != null && (selectedItems.length >0)
 				&&strStatus!=null&&!strStatus.isEmpty()
-				&&strWorkflowSubType!=null&&!strWorkflowSubType.isEmpty()) {
+				&&strWorkflowSubType!=null&&!strWorkflowSubType.isEmpty()) 
+		{
 			Status status=null;
 			if(!strStatus.equals("-")){
 				status=Status.findById(Status.class,Long.parseLong(strStatus));
 			}
 			for(String i : selectedItems) {
-					HouseType houseType=null;
-					Long id = Long.parseLong(i);
-					WorkflowDetails wfDetails=WorkflowDetails.findById(WorkflowDetails.class,id);
-					
-					Resolution resolution = Resolution.findById(Resolution.class,Long.parseLong(wfDetails.getDeviceId()));
-					if(resolution.getType().getType().trim().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
-						houseType = HouseType.findByFieldName(HouseType.class, "name", wfDetails.getHouseType(), resolution.getLocale());
-					} else {
-						houseType=resolution.getHouseType();
+				HouseType houseType=null;
+				Long id = Long.parseLong(i);
+				WorkflowDetails wfDetails=WorkflowDetails.findById(WorkflowDetails.class,id);
+				String currentUGT = wfDetails.getAssigneeUserGroupType();
+				Resolution resolution = Resolution.findById(Resolution.class,Long.parseLong(wfDetails.getDeviceId()));
+				if(resolution.getType().getType().trim().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
+					houseType = HouseType.findByFieldName(HouseType.class, "name", wfDetails.getHouseType(), resolution.getLocale());
+				} else {
+					houseType=resolution.getHouseType();
+				}
+				if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)
+						&& resolution.getSentForClarification()
+						// && (resolution.getFactualPosition()==null || resolution.getFactualPosition().isEmpty())
+						&& status!=null
+				){
+					if(status.getType().equals(ApplicationConstants.RESOLUTION_RECOMMEND_ADMISSION) || status.getType().equals(ApplicationConstants.RESOLUTION_RECOMMEND_REJECTION)
+					){
+						CustomParameter csptPostClarificationApprovalFinalAuthority = CustomParameter.findByName(CustomParameter.class, "RESOLUTION_POST_CLARIFICATION_APPROVAL_UPPERHOUSE_FINAL_AUTHORITY", "");
+						if (csptPostClarificationApprovalFinalAuthority != null
+								&& csptPostClarificationApprovalFinalAuthority.getValue().contains(currentUGT)) {
+							//TODO:
+							Status finalStatus = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_ADMISSION, resolution.getLocale());
+							if(status.getType().equals(ApplicationConstants.RESOLUTION_RECOMMEND_REJECTION)) {
+								finalStatus = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_REJECTION, resolution.getLocale());
+							}
+							try {
+								UserGroupType assistantUGT = UserGroupType.findByType(ApplicationConstants.ASSISTANT, resolution.getLocale());
+								resolution.startWorkflow(resolution, finalStatus, assistantUGT, 7, houseType.getType(), false, resolution.getLocale());
+							} catch (ELSException e) {
+								e.printStackTrace();
+								model.addAttribute("error", e.getParameter());
+							}
+							
+						}
 					}
+				} else {
 					String actor=request.getParameter("actor");
 					if(actor==null||actor.isEmpty()){
 						if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
@@ -1690,73 +1758,61 @@ public class ResolutionWorkflowController extends BaseController{
 							
 							wfDetails.setCompletionTime(new Date());
 							wfDetails.merge();
-							/**** Update Resolution ****/
-							resolution.setEditedOn(new Date());
-							resolution.setEditedBy(this.getCurrentUser().getActualUsername());
-							resolution.setEditedAs(wfDetails.getAssigneeUserGroupName());	
-							
-							if(refText != null && !refText.isEmpty()){
-								resolution.setReferencedResolutionText(refText);
-							}
-							if(remark != null && !remark.isEmpty()){
-								resolution.setRemarks(remark);
-							}
-							
-							if(strFile != null && !strFile.isEmpty() && !strFile.equals("-")){
-								if(resolution.getFile() == null){
-									resolution.setFile(new Integer(strFile));
-								}
-							}
-													
-							try {
-								performAction(resolution, wfDetails);
-							} catch (ELSException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							
-//							/***Setting the edited On , Edited By and Edited As***/
-//							List<UserGroup> usergroups = this.getCurrentUser().getUserGroups();
-//							Credential credential = Credential.findByFieldName(Credential.class, "username", this.getCurrentUser().getUsername(), locale.toString());
-//							resolution.setEditedBy(credential.getUsername());
-//							for(UserGroup u : usergroups){
-//								UserGroup userGroup = UserGroup.findActive(credential, u.getUserGroupType(), new Date(), locale.toString());
-//								if(userGroup != null){
-//									UserGroupType userGroupType = userGroup.getUserGroupType();
-//									if(userGroupType != null){
-//										resolution.setEditedAs(userGroupType.getName());
-//									}
-//								}
-//							}
-							resolution.setEditedOn(new Date());
-							resolution.merge();
-							
-							if(resolution.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-								internalStatus=resolution.getInternalStatusLowerHouse();	
-							}else if(resolution.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
-								internalStatus=resolution.getInternalStatusUpperHouse();	
-							}
-							if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_RECOMMEND_ADMISSION)){
-								recommendAdmissionMsg.append(resolution.formatNumber()+",");
-							}else if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_RECOMMEND_REJECTION)){
-								recommendRejectionMsg.append(resolution.formatNumber()+",");
-							}else if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_FINAL_ADMISSION)){
-								admittedMsg.append(resolution.formatNumber()+",");
-							}else if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_FINAL_REJECTION)){
-								rejectedMsg.append(resolution.formatNumber()+",");
-							}else if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT)){
-								recommendClarificationFromDepartmentMsg.append(resolution.formatNumber()+",");
-							}else if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_RECOMMEND_CLARIFICATION_FROM_MEMBER)){
-								recommendClarificationFromMemberMsg.append(resolution.formatNumber()+",");
-							}else if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT)){
-								clarificationNeededFromDepartmentMsg.append(resolution.formatNumber()+",");
-							}else if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER)){
-								clarificationNeededFromMemberMsg.append(resolution.formatNumber()+",");
-							}
 						}
-					}					
-				}				
-			}			
+					}
+				}
+				/**** Update Resolution ****/
+				resolution.setEditedOn(new Date());
+				resolution.setEditedBy(this.getCurrentUser().getActualUsername());
+				resolution.setEditedAs(wfDetails.getAssigneeUserGroupName());	
+				
+				if(refText != null && !refText.isEmpty()){
+					resolution.setReferencedResolutionText(refText);
+				}
+				if(remark != null && !remark.isEmpty()){
+					resolution.setRemarks(remark);
+				}
+				
+				if(strFile != null && !strFile.isEmpty() && !strFile.equals("-")){
+					if(resolution.getFile() == null){
+						resolution.setFile(new Integer(strFile));
+					}
+				}
+										
+				try {
+					performAction(resolution, wfDetails);
+				} catch (ELSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				resolution.setEditedOn(new Date());
+				resolution.merge();
+				
+				if(resolution.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+					internalStatus=resolution.getInternalStatusLowerHouse();	
+				}else if(resolution.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+					internalStatus=resolution.getInternalStatusUpperHouse();	
+				}
+				if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_RECOMMEND_ADMISSION)){
+					recommendAdmissionMsg.append(resolution.formatNumber()+",");
+				}else if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_RECOMMEND_REJECTION)){
+					recommendRejectionMsg.append(resolution.formatNumber()+",");
+				}else if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_FINAL_ADMISSION)){
+					admittedMsg.append(resolution.formatNumber()+",");
+				}else if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_FINAL_REJECTION)){
+					rejectedMsg.append(resolution.formatNumber()+",");
+				}else if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT)){
+					recommendClarificationFromDepartmentMsg.append(resolution.formatNumber()+",");
+				}else if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_RECOMMEND_CLARIFICATION_FROM_MEMBER)){
+					recommendClarificationFromMemberMsg.append(resolution.formatNumber()+",");
+				}else if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT)){
+					clarificationNeededFromDepartmentMsg.append(resolution.formatNumber()+",");
+				}else if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER)){
+					clarificationNeededFromMemberMsg.append(resolution.formatNumber()+",");
+				}										
+			}				
+		}			
 		model.addAttribute("recommendAdmission", recommendAdmissionMsg.toString());
 		model.addAttribute("recommendRejection", recommendRejectionMsg.toString());
 		model.addAttribute("admitted", admittedMsg.toString());
@@ -2328,14 +2384,24 @@ public class ResolutionWorkflowController extends BaseController{
 						}else{
 							bulkApprovalVO.setLastRemark("-");
 						}
+						String resolutionStatusType = "";
 						if(resolution.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
 							bulkApprovalVO.setLastDecision(resolution.getInternalStatusLowerHouse().getName());
+							resolutionStatusType = resolution.getInternalStatusLowerHouse().getType();
 						}else if(resolution.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
 							bulkApprovalVO.setLastDecision(resolution.getInternalStatusUpperHouse().getName());
-						
+							resolutionStatusType = resolution.getInternalStatusUpperHouse().getType();
 						}	
 						bulkApprovalVO.setLastRemarkBy(resolution.getEditedAs());
 						bulkApprovalVO.setCurrentStatus(i.getStatus());
+						
+						bulkApprovalVO.setSentForClarification("NO");
+						if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)
+								&& resolution.getSentForClarification()
+								// && (resolution.getFactualPosition()==null || resolution.getFactualPosition().isEmpty())
+						){
+							bulkApprovalVO.setSentForClarification("YES");
+						}						
 						bulkapprovals.add(bulkApprovalVO);
 					}/**** Status Wise Bulk Submission ****/
 					else if(strFile!=null&&!strFile.isEmpty()&&
@@ -2359,12 +2425,14 @@ public class ResolutionWorkflowController extends BaseController{
 						}else{
 							bulkApprovalVO.setLastRemark("-");
 						}
+						String resolutionStatusType = "";
 						if(resolution.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
 							bulkApprovalVO.setLastDecision(resolution.getInternalStatusLowerHouse().getName());
+							resolutionStatusType = resolution.getInternalStatusLowerHouse().getType();
 						}else if(resolution.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
 							bulkApprovalVO.setLastDecision(resolution.getInternalStatusUpperHouse().getName());
-						
-						}	
+							resolutionStatusType = resolution.getInternalStatusUpperHouse().getType();
+						}
 						Map<String, String[]> requestMap=new HashMap<String, String[]>();			
 						requestMap.put("resolutionId",new String[]{String.valueOf(resolution.getId())});
 						requestMap.put("locale",new String[]{resolution.getLocale()});
@@ -2372,6 +2440,22 @@ public class ResolutionWorkflowController extends BaseController{
 						bulkApprovalVO.setRevisions(result);
 						bulkApprovalVO.setLastRemarkBy(resolution.getEditedAs());	
 						bulkApprovalVO.setCurrentStatus(i.getStatus());
+						
+						bulkApprovalVO.setSentForClarification("NO");
+						if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)
+								&& resolution.getSentForClarification()
+								// && (resolution.getFactualPosition()==null || resolution.getFactualPosition().isEmpty())
+						){
+//							if(resolutionStatusType.equals(ApplicationConstants.RESOLUTION_RECOMMEND_ADMISSION) || resolutionStatusType.equals(ApplicationConstants.RESOLUTION_RECOMMEND_REJECTION)
+//							){
+//								CustomParameter csptPostClarificationApprovalFinalAuthority = CustomParameter.findByName(CustomParameter.class, "RESOLUTION_POST_CLARIFICATION_APPROVAL_UPPERHOUSE_FINAL_AUTHORITY", "");
+//								if (csptPostClarificationApprovalFinalAuthority != null
+//										&& csptPostClarificationApprovalFinalAuthority.getValue().contains(strUsergroupType)) {
+//									//TODO:
+//								}
+//							}
+							bulkApprovalVO.setSentForClarification("YES");
+						}
 						bulkapprovals.add(bulkApprovalVO);
 					}
 				}		

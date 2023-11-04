@@ -355,6 +355,8 @@ public class Resolution extends Device implements Serializable{
     
     private Boolean mlsBranchNotifiedOfTransfer = false;
     
+    private boolean sentForClarification = false;
+    
     /****For sequenced number generation ****/ 
     private transient volatile static Integer RESOLUTION_NON_CUR_NUM_LOWER_HOUSE = 0;
     
@@ -3251,6 +3253,14 @@ public class Resolution extends Device implements Serializable{
 
 	public void setMlsBranchNotifiedOfTransfer(Boolean mlsBranchNotifiedOfTransfer) {
 		this.mlsBranchNotifiedOfTransfer = mlsBranchNotifiedOfTransfer;
+	}
+
+	public boolean getSentForClarification() {
+		return sentForClarification;
+	}
+
+	public void setSentForClarification(boolean sentForClarification) {
+		this.sentForClarification = sentForClarification;
 	}
 
 }

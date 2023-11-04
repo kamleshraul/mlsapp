@@ -129,6 +129,9 @@
 								<td>
 									<span>
 											${i.deviceNumber} 
+											<c:if test="${i.sentForClarification=='YES'}">
+												<img src="./resources/images/sent_for_clarification.png" style="display:inline-block;" title="Sent for Clarification" width="15px" height="15px">
+											</c:if>
 										</span>
 									
 										<br/> 

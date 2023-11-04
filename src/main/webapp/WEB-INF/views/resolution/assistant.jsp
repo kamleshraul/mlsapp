@@ -800,6 +800,9 @@
 			<p id="internalStatusDiv">
 				<label class="small"><spring:message code="resolution.currentStatus" text="Current Status"/></label>
 				<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
+				<c:if test="${domain.sentForClarification=='true'}">
+					<img src="./resources/images/sent_for_clarification.png" style="display:inline-block;" title="Sent for Clarification" width="15px" height="15px">
+				</c:if>
 				</p>
 				 
 				 <c:if test="${((internalStatusType=='resolution_system_putup' or internalStatusType=='resolution_recommend_repeat') && selectedDeviceType=='resolutions_nonofficial') 
@@ -822,8 +825,7 @@
 							</c:choose>
 					</c:if>
 					</c:forEach>
-				</select>
-				
+				</select>				
 				<select id="internalStatusMaster" style="display:none;">
 					<c:forEach items="${internalStatuses}" var="i">
 						<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
@@ -985,6 +987,7 @@
 	<form:hidden path="fileIndexUpperHouse"/>	
 	<form:hidden path="fileSentLowerHouse"/>
 	<form:hidden path="fileSentUpperHouse"/>
+	<form:hidden path="sentForClarification"/>
 	<form:hidden path="ballotStatus" value="${ballotStatusId}"/>
 	<form:hidden path="discussionStatus" value="${discussionStatusId}"/>
 	<form:hidden path="karyavaliGenerationDate"/>

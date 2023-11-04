@@ -669,6 +669,9 @@
 	<p id="internalStatusDiv">
 	<label class="small"><spring:message code="resolution.currentStatus" text="Current Status"/></label>
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
+	<c:if test="${domain.sentForClarification=='true'}">
+		<img src="./resources/images/sent_for_clarification.png" style="display:inline-block;" title="Sent for Clarification" width="15px" height="15px">
+	</c:if>
 	</p>
 	
 	<p>
@@ -721,6 +724,9 @@
 									</c:choose>
 							</c:forEach>
 						</select>
+						<c:if test="${domain.sentForClarification=='true'}">
+							<img src="./resources/images/sent_for_clarification.png" style="display:inline-block; margin-top: 10px;" title="Sent for Clarification" width="15px" height="15px">
+						</c:if>
 						<c:if test="${houseTypeForStatus=='lowerhouse'}">
 						 <form:errors path="internalStatusLowerHouse" cssClass="validationError"/>	 
 						</c:if>
@@ -855,6 +861,7 @@
 	<form:hidden path="fileIndexUpperHouse"/>	
 	<form:hidden path="fileSentLowerHouse"/>
 	<form:hidden path="fileSentUpperHouse"/>
+	<form:hidden path="sentForClarification"/>
 	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<form:hidden path="transferToDepartmentAccepted"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
