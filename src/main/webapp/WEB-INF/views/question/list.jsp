@@ -529,7 +529,7 @@
 				</a> |	
 				</span>		
 			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER', 'QIS_CHAIRMAN','QIS_DEPUTY_SECRETARY')">
+			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_CHAIRMAN','QIS_DEPUTY_SECRETARY')">
 				<a href="#" id="statreport" class="butSim">
 					<spring:message code="question.statreport" text="Generate Statistics Report"/>
 				</a>
@@ -567,7 +567,7 @@
 					<spring:message code="question.generateAdmissionReport" text="Generate Admission Report"/>
 				</a> |
 			</security:authorize>				
-			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_CHAIRMAN','QIS_CLERK')">
+			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_CHAIRMAN','QIS_CLERK')">
 				<a href="#" id="showDeptSessionReport" class="butSim">
 						<spring:message code="question.deptSessionReport" text="Department-Session-wise Report"/>
 				</a> |
@@ -577,7 +577,7 @@
 			<spring:message code="question.convertStarredToUnStarred" text="convert Starred To UnStarred"/>
 			</a> 
 			<hr>
-			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','QIS_CLERK','HDS_CLERK','QIS_CHAIRMAN','HDS_ASSISTANT')">
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','QIS_CLERK','HDS_CLERK','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_CHAIRMAN','HDS_ASSISTANT')">
 				<a href="#" id="generateIntimationLetter" class="butSim">
 					<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
 				</a> 				

@@ -2527,7 +2527,7 @@
 				</c:forEach>
 			</select>
 			
-			<security:authorize	access="hasAnyRole('QIS_CLERK', 'QIS_ASSISTANT', 'QIS_SECTION_OFFICER', 'QIS_DEPUTY_SECRETARY', 'QIS_JOINT_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_CHAIRMAN')">
+			<security:authorize	access="hasAnyRole('QIS_CLERK', 'QIS_ASSISTANT', 'QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE', 'QIS_DEPUTY_SECRETARY', 'QIS_JOINT_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_CHAIRMAN')">
 				<a href="#" id="select_clubbingStatus" class="butSim"> 
 					<spring:message	code="generic.clubbingStatus" text="Clubbing Status"/>
 				</a>
@@ -2588,8 +2588,8 @@
 						<hr>
 					</security:authorize>
 					
-					<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','QIS_CLERK','HDS_CLERK','HDS_ASSISTANT','QIS_CHAIRMAN')">
-						<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_CHAIRMAN')">
+					<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_CLERK','HDS_CLERK','HDS_ASSISTANT','QIS_CHAIRMAN')">
+						<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_CHAIRMAN')">
 							<a href="#" id="memberwise_questions_report" class="butSim link">
 								<spring:message code="question.memberwisereport" text="Member's Questions Report"/>
 							</a> |		
@@ -2621,7 +2621,7 @@
 							<spring:message code="question.bulletein_report" text="Bulletein Report"/>
 						</a> |
 						
-						<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_CHAIRMAN')">
+						<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_CHAIRMAN')">
 							<a href="#" id="groupwise_counts_report_for_bac" class="butSim link">
 								<spring:message code="question.bulletein_report" text="Groupwise BAC Report"/>
 							</a> |
@@ -2641,10 +2641,12 @@
 						</a> | --%>
 						<a href="#" id="memberwise_admitted_questions_report" class="butSim link">
 							<spring:message code="question.memberwisereport.admitted" text="Member's Admitted Questions Report"/>
-						</a> |						
+						</a> |		
+						<security:authorize access="hasAnyRole('QIS_CLERK', 'QIS_ASSISTANT', 'QIS_SECTION_OFFICER')">				
 						<a href="#" id="generateMemberDraftReport" class="butSim">
 							<spring:message code="question.generateMemberDraftReport" text="Generate Member Draft Report"/>
 						</a> 
+						</security:authorize>
 						<!-- Edited By Shubham Amande  -->
 						|
 					    <a href="#" id="TestReport" class="butSim" >
@@ -2652,13 +2654,13 @@
 						</a>
 						 |
 						<!----------------------------------------------------------->
-						<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_CHAIRMAN')">
+						<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_CHAIRMAN')">
 							<a href="#" id="showVivranReport" class="butSim">
 								<spring:message code="question.vivranReport" text="Vivran Report"/>
 							</a> |
 						</security:authorize>
 					</security:authorize>
-					<security:authorize access="hasAnyRole('QIS_UNDER_SECRETARY', 'QIS_DEPUTY_SECRETARY', 'QIS_JOINT_SECRETARY', 'QIS_PRINCIPAL_SECRETARY')">
+					<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY', 'QIS_JOINT_SECRETARY', 'QIS_PRINCIPAL_SECRETARY')">
 						<a href="#" id="memberwise_questions_report" class="butSim link">
 							<spring:message code="question.memberwisereport" text="Member's Questions Report"/>
 						</a> |	
@@ -2669,7 +2671,7 @@
 							<spring:message code="question.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
 						</a>
 					</security:authorize>
-					<security:authorize access="hasAnyRole('QIS_UNDER_SECRETARY', 'QIS_DEPUTY_SECRETARY', 'QIS_JOINT_SECRETARY', 'QIS_PRINCIPAL_SECRETARY')">
+					<security:authorize access="hasAnyRole('QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE', 'QIS_DEPUTY_SECRETARY', 'QIS_JOINT_SECRETARY', 'QIS_PRINCIPAL_SECRETARY')">
 					    <a href="#" id="question_subdepartment_change_report" class="butSim link">
 							<spring:message code="question.question_subdepartment_change_report" text="Question Subdepartment Change"/>
 						</a>
