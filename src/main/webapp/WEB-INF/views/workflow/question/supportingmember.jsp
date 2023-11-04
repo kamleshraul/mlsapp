@@ -89,7 +89,7 @@
 	</p>	
 	
 	<c:choose>
-	<c:when test="${status=='COMPLETED'}">
+	<c:when test="${status=='COMPLETED' || status=='TIMEOUT'}">
 	<p>
 	<label class="small"><spring:message code="question.decisionstatus" text="Decision?"/>*</label>
 	<input id="formattedDecisionStatus" name="formattedDecisionStatus" class="sText" readonly="readonly" value="${formattedDecisionStatus}">
@@ -97,9 +97,9 @@
 	</p>	
 	<div class="fields">
 		<h2></h2>
-		<p class="tright">
+		<%-- <p class="tright">
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" disabled="disabled">
-		</p>
+		</p> --%>
 	</div>	
 	</c:when>
 	<c:otherwise>
