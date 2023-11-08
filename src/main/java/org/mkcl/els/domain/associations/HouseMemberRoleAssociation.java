@@ -525,4 +525,8 @@ public class HouseMemberRoleAssociation implements Serializable {
 		return getMemberHouseRoleRepository().findActiveMembersInHouseByTerm(house,
 				strParam, locale);
 	}
+	
+	public static List<MasterVO> findActiveMembersByTerm( String strParam, String locale) {
+		return getMemberHouseRoleRepository().findActiveMembersByTerm(strParam, locale);
+	}
 }
