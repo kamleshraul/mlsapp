@@ -11112,6 +11112,25 @@ public class ReferenceController extends BaseController {
 		return autoCompleteVOs;
 	}
 	
+	@RequestMapping(value="/membersbyterm", method=RequestMethod.GET)
+	public @ResponseBody List<AutoCompleteVO> getMembersAutoCompleteData(HttpServletRequest request,Locale locale){
+		String  strParam = request.getParameter("term");
+		List<AutoCompleteVO> autoCompleteVOs = new ArrayList<AutoCompleteVO>();
+		
+		if(strParam != null) {
+			List<MasterVO> memberVOs = HouseMemberRoleAssociation.findActiveMembersByTerm(strParam,locale.toString());
+			for(MasterVO i : memberVOs){
+				AutoCompleteVO autoCompleteVO = new AutoCompleteVO();
+				autoCompleteVO.setId(i.getId());
+				autoCompleteVO.setValue(i.getName());
+				autoCompleteVOs.add(autoCompleteVO);
+			}
+			
+		}
+		
+		return autoCompleteVOs;
+	}
+	
 	
 	@RequestMapping(value="/rulessuspensionmotion/actors",method=RequestMethod.POST)
 	public @ResponseBody List<Reference> findRulesSuspensionMotionActors(final HttpServletRequest request,
