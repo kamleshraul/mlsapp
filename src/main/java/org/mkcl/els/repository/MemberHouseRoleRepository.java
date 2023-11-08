@@ -31,6 +31,7 @@ import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.springframework.stereotype.Repository;
 
+
 import com.trg.search.Search;
 
 /**
@@ -520,5 +521,45 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
 			e.printStackTrace();
 			return memberVOs;
 		}
+	}
+	
+	public List<MasterVO> findActiveMembersByTerm( String strParam, String locale) {
+		List<MasterVO> memberVOs = new ArrayList<MasterVO>();
+		try {
+			
+			
+			List<House> allHouses = House.findAll(House.class, "id",ApplicationConstants.DESC, locale.toString());
+			Long currentLowerHouseId = allHouses.get(0).getId();
+			
+
+			String q = "SELECT m.id,t.name,m.first_name,m.middle_name,m.last_name FROM members_houses_roles AS mhr JOIN members AS m JOIN memberroles AS mr "
+					+ " JOIN titles AS t WHERE t.id=m.title_id AND mr.id=mhr.role AND mhr.member=m.id AND  m.locale= '" + locale+"'"
+					+ " AND mhr.house_id IN (2,"+currentLowerHouseId+")  AND"
+					+ " (m.first_name LIKE '%"+ strParam+"%' OR m.middle_name LIKE '%"+ strParam+"%' OR m.last_name LIKE '%"+ strParam+"%' OR CONCAT(m.last_name,' ',m.first_name) "
+					+ " LIKE '%"+ strParam+"%' OR CONCAT(m.first_name,' ',m.last_name) LIKE '%"+ strParam+"%' OR CONCAT(m.last_name,' ',m.first_name,' ',m.middle_name) LIKE '%"+ strParam+"%' "
+					+ " OR CONCAT(m.last_name,', ',t.name,' ',m.first_name,' ',m.middle_name) LIKE '%"+ strParam+"%' OR CONCAT(m.first_name,' ',m.middle_name,' ',m.last_name) LIKE '%"+ strParam+"%' )"
+					+ " ORDER BY m.first_name ASC";
+			
+			Query Nquery = this.em().createNativeQuery(q);
+			 
+			 List members = Nquery.getResultList();
+			for(Object i:members){
+					Object[] o=(Object[]) i;
+					MasterVO masterVO=new MasterVO();
+					masterVO.setId(Long.parseLong(o[0].toString()));
+					if(o[3]!=null){
+						masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString()+" "+o[4].toString());
+					}else{
+						masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString());
+						}
+						memberVOs.add(masterVO);
+					}
+						
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+		}
+		
+		return memberVOs;
 	}
 }
