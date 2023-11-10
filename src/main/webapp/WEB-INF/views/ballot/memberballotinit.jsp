@@ -187,7 +187,12 @@
 				form_submit('question/report/viewSuchi', parameters, 'GET');
 			});
 			/**** on page load ****/
-			attendance();											
+			if(($("#firstBatchSubmissionEndTime").val()!='') && (new Date()> new Date($("#firstBatchSubmissionEndTime").val()))){
+				attendance();
+			} else {
+				$.prompt($("#firstBatchSubmissionPendingMsg").val());
+				$(".commandbarContent").hide();
+			}									
 		});		
 		function loadAnsweringDates(group){
 			var options="<option value='-'>"+$("#pleaseSelect").val()+"</option>";
@@ -643,6 +648,8 @@
 <input type="hidden" id="session" name="session" value="${session }">
 <input type="hidden" id="questionType" name="questionType" value="${questionType}">
 <input type="hidden" id="noOfRounds" name="noOfRounds" value="${noOfRounds}">
+<input type="hidden" id="firstBatchSubmissionEndTime" value="${firstBatchSubmissionEndTime}">
+<input type="hidden" id="firstBatchSubmissionPendingMsg" value="<spring:message code='memberballot.firstBatchSubmissionPendingMsg' text='First Batch Submissions for the session are still pending!'/>">
 <input type="hidden" id="selectGroupAnsweringDateMsg" name="selectGroupAnsweringDateMsg" value="<spring:message code='memberballot.selectanseringdatemsg' text='Please Select Group And Ansering Date.'/>">
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 <input type="hidden" id="answeringDateNotSetPrompt" value="<spring:message code='memberballotinit.answeringDateNotSetPrompt' text='Please select answering date first.'/>"/>

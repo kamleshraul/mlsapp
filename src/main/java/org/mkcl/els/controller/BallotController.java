@@ -1071,6 +1071,13 @@ public class BallotController extends BaseController{
 					SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
 					Integer sessionYear=Integer.parseInt(strSessionYear);
 					Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+					String firstBatchSubmissionEndTimeParameter = session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME);
+					if(firstBatchSubmissionEndTimeParameter!=null && !firstBatchSubmissionEndTimeParameter.isEmpty()) 
+					{
+						model.addAttribute("firstBatchSubmissionEndTime", firstBatchSubmissionEndTimeParameter);
+					} else {
+						model.addAttribute("firstBatchSubmissionEndTime", "2100-01-01 00:00:00");
+					}
 					String noOfRounds=session.getParameter(ApplicationConstants.QUESTION_STARRED_NO_OF_ROUNDS_MEMBERBALLOT);
 					if(noOfRounds!=null){
 						if(!noOfRounds.isEmpty()){
