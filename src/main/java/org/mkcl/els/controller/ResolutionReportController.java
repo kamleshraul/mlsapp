@@ -131,6 +131,10 @@ public class ResolutionReportController extends BaseController{
 					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (strHouseType.equals(ApplicationConstants.LOWER_HOUSE)? "ROIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "ROIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
 					if(csptAllwedUserGroupForStatusReportSign != null){
 						if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
+							String underSecretaryLevelActorUGT = ApplicationConstants.UNDER_SECRETARY;
+							if(csptAllwedUserGroupForStatusReportSign.getValue().contains(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)) {
+								underSecretaryLevelActorUGT = ApplicationConstants.UNDER_SECRETARY_COMMITTEE;
+							}
 							Object[] lastObject = (Object[]) report.get(report.size()-1); 
 							for(Object o : report){
 								Object[] objx = (Object[])o;
@@ -140,20 +144,20 @@ public class ResolutionReportController extends BaseController{
 										
 										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[21].toString(), locale.toString());
 																				
-										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
-											if(dataMap.get(ApplicationConstants.UNDER_SECRETARY) != null){
+										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
+											if(dataMap.get(underSecretaryLevelActorUGT) != null){
 												if(objx != null){
 													if(objx[6] != null && objx[6].toString().length() > 0){
-														dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
+														dataMap.put(underSecretaryLevelActorUGT, objx);
 													}else{
-														Object[] tempObj = dataMap.get(ApplicationConstants.UNDER_SECRETARY);
+														Object[] tempObj = dataMap.get(underSecretaryLevelActorUGT);
 														tempObj[22] = objx[22];
 														
-														dataMap.put(ApplicationConstants.UNDER_SECRETARY, tempObj);
+														dataMap.put(underSecretaryLevelActorUGT, tempObj);
 													}
 												}
 											}else {
-												dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
+												dataMap.put(underSecretaryLevelActorUGT, objx);
 											}
 										}else{
 											if(dataMap.get(userGroupType.getType()) != null){
@@ -205,10 +209,10 @@ public class ResolutionReportController extends BaseController{
 							for(WorkflowActor wf : distinctActors){
 								UserGroupType userGroupType = wf.getUserGroupType();
 								if(userGroupType.getType().equals(lastObject[21])){
-									if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
+									if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
 										for(WorkflowActor wf1 : distinctActors){
 											UserGroupType ugt = wf1.getUserGroupType();
-											if(ugt.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
+											if(ugt.getType().equals(underSecretaryLevelActorUGT)){
 												level = wf1.getLevel();
 											}
 										}
@@ -237,12 +241,12 @@ public class ResolutionReportController extends BaseController{
 								for(String str : signingAuthorities){
 									String authority = str;
 									if(str.equals(ApplicationConstants.UNDER_SECRETARY) || str.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
-										str = ApplicationConstants.UNDER_SECRETARY;
+										str = underSecretaryLevelActorUGT;
 									}
 									if(dataMap.get(str) == null){
 										UserGroupType userGroupType = null;
 										Reference ref = null;
-										if(authority.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
+										if(authority.equals(underSecretaryLevelActorUGT)){
 											 userGroupType = UserGroupType.
 													findByFieldName(UserGroupType.class, "type", authority, locale.toString());
 											 ref = UserGroup.findResolutionActor(resolution, strHouseType,authority, String.valueOf(0), locale.toString());
@@ -302,19 +306,19 @@ public class ResolutionReportController extends BaseController{
 //										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[21].toString(), locale.toString());
 //																				
 //										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
-//											if(dataMap.get(ApplicationConstants.UNDER_SECRETARY) != null){
+//											if(dataMap.get(underSecretaryLevelActorUGT) != null){
 //												if(objx != null){
 //													if(objx[6] != null && objx[6].toString().length() > 0){
-//														dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
+//														dataMap.put(underSecretaryLevelActorUGT, objx);
 //													}else{
-//														Object[] tempObj = dataMap.get(ApplicationConstants.UNDER_SECRETARY);
+//														Object[] tempObj = dataMap.get(underSecretaryLevelActorUGT);
 //														tempObj[22] = objx[22];
 //														
-//														dataMap.put(ApplicationConstants.UNDER_SECRETARY, tempObj);
+//														dataMap.put(underSecretaryLevelActorUGT, tempObj);
 //													}
 //												}
 //											}else{
-//												dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
+//												dataMap.put(underSecretaryLevelActorUGT, objx);
 //											}
 //										}else{
 //											if(dataMap.get(userGroupType.getType()) != null){
@@ -403,7 +407,7 @@ public class ResolutionReportController extends BaseController{
 //									actor[28] = new String("");
 //									
 //									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
-//										dataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
+//										dataMap.put(underSecretaryLevelActorUGT, actor);
 //									}else{
 //										dataMap.put(val, actor);
 //									}
