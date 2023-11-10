@@ -531,7 +531,7 @@ public class CommitteeController extends GenericController<Committee> {
 		String strdissolutionDate = request.getParameter("dissolutionDate");
 		Long committeeId = null; // populate After Persisting
 		
-		List<Map<String,String>> committeeMemberDetails = new ArrayList<>();
+		List<Map<String,String>> committeeMemberDetails = new ArrayList<Map<String,String>>();
 		
 		Integer totalRows = Integer.parseInt(strtotalRows);
 		
@@ -750,7 +750,7 @@ public class CommitteeController extends GenericController<Committee> {
 		
 		Integer totalRows = Integer.parseInt(strtotalRows);
 		Committee committeeToBeupdated = Committee.findById(Committee.class, Long.parseLong(strCommitteeId));
-		List<Map<String,String>> committeeMemberDetails = new ArrayList<>();
+		List<Map<String,String>> committeeMemberDetails = new ArrayList<Map<String,String>>();
 		
 		if(totalRows != null ) {
 			CommitteeName cm = CommitteeName.findById(CommitteeName.class, Long.parseLong(strcommitteeNameId));
