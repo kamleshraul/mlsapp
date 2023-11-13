@@ -175,8 +175,8 @@
 								                                        </fo:block>
 								                                    </fo:table-cell>  
 								                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
-								                                        <fo:block text-align="justify" font-weight="bold">
-								                                        	&#160;
+								                                        <fo:block text-align="justify">
+								                                        	&#160;&#160;<xsl:value-of select="element_1_12" />
 								                                        </fo:block>
 								                                    </fo:table-cell>    
 								                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
