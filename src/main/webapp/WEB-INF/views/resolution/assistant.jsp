@@ -1039,7 +1039,7 @@
 <input id="departmentSelected" value="${ departmentSelected}" type="hidden">
 <input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 <input id="oldInternalStatus" value="${internalStatus}" type="hidden">
-<input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
+<input id="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
 <input id="deviceType" value="${domain.type.type}" type="hidden" />
 <input id="isRepeatWorkFlow" type="hidden" value="${isRepeatWorkFlow}" />
 <input id="resolutionType" type="hidden" value="${selectedDeviceType}" />
