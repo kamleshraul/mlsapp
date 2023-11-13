@@ -167,7 +167,7 @@
 																				<fo:table-row>
 																					<fo:table-cell text-align="justify">
 																						<fo:block font-weight="bold">
-																							प्रधान सचिव / सचिव ,
+																							प्रधान सचिव / सचिव,
 																						</fo:block>
 																					</fo:table-cell>										
 																				</fo:table-row>
@@ -191,7 +191,7 @@
 																					<fo:table-cell text-align="justify">
 																						<fo:block>
 																							<!--शिबीर कार्यालय,<xsl:value-of select="./element_1/element_1_11" />.-->
-																							मंत्रालय  , <xsl:value-of select="./element_1/element_1_11" />.
+																							मंत्रालय, <xsl:value-of select="./element_1/element_1_11" />.
 																						</fo:block>
 																					</fo:table-cell>										
 																				</fo:table-row>
@@ -297,7 +297,7 @@
 												
 												<fo:block>
 													<!--(३) 	&#160;प्रधान सचिव, महाराष्ट्र शासन, संसदीय कार्य विभाग, शिबीर कार्यालय, <xsl:value-of select="./element_1/element_1_11" />.-->
-													      ३) 	&#160;प्रधान सचिव /सचिव ,संसदीय कार्य विभाग,  महाराष्ट्र शासन,  मंत्रालय ,<xsl:value-of select="./element_1/element_1_11" />.													
+													      ३) 	&#160;प्रधान सचिव /सचिव,संसदीय कार्य विभाग,  महाराष्ट्र शासन,  मंत्रालय,<xsl:value-of select="./element_1/element_1_11" />.													
 												</fo:block>
 											
             								</fo:block>
