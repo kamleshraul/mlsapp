@@ -494,13 +494,18 @@
 							</c:choose>
 							<br>
 							<div>
-								<span style="font-size: 10px;">${r[22]}</span>
 								<c:if test="${deviceType == 'questions_starred'}">
+									<span style="font-size: 10px;">${r[22]}</span>
 									<c:if test="${r[28]==true}">
 										<img width="20px" height="20px" src="./resources/images/VerifyIcon.png" align="right" style="display:inline-block" title="<spring:message code='question.processedByClerk' text='Processed By Clerk'/>">
 									</c:if>
 								</c:if>
-								
+								<c:if test="${deviceType == 'resolutions_nonofficial'}">
+									<span style="font-size: 10px;">${r[19]}</span>
+									<c:if test="${r[21]==true}">
+										<img width="15px" height="15px" src="./resources/images/sent_for_clarification.png" align="right" style="display:inline-block;" title="Sent for Clarification">
+									</c:if>
+								</c:if>
 							</div>
 						</td>
 						<c:set var="counter" value="${counter + 1}"/>
@@ -701,10 +706,16 @@
 						</c:choose>
 						<br>
 						<div>
-							<span style="font-size: 10px;">${r[22]}</span>
 							<c:if test="${deviceType == 'questions_starred'}">
+								<span style="font-size: 10px;">${r[22]}</span>
 								<c:if test="${r[28]==true}">
 									<img width="20px" height="20px" src="./resources/images/VerifyIcon.png" align="right" style="display:inline-block" title="<spring:message code='question.processedByClerk' text='Processed By Clerk'/>">
+								</c:if>
+							</c:if>
+							<c:if test="${deviceType == 'resolutions_nonofficial'}">
+								<span style="font-size: 10px;">${r[19]}</span>
+								<c:if test="${r[21]==true}">
+									<img width="15px" height="15px" src="./resources/images/sent_for_clarification.png" align="right" style="display:inline-block;" title="Sent for Clarification">
 								</c:if>
 							</c:if>
 						</div>
