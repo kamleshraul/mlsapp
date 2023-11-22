@@ -604,10 +604,13 @@
 					<spring:message code="question.unstarred_suchi_report" text="Unstarred Suchi Report"/>
 				</a> |
 				</span>
+				<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
+			
 				<span id="admitted_departmentwise_report_span">
 				<a href="#" id="admitted_departmentwise_report" class="butSim link">
 					<spring:message code="question.admitted_departmentwise_report" text="Admitted Departmentwise Report"/>
 				</a> |
+				</security:authorize>	
 				</span>				
 			</security:authorize>	
 			<%-- <security:authorize access="hasAnyRole('QIS_CLERK')">
