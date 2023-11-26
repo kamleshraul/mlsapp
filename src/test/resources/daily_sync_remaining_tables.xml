@@ -1,0 +1,1105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<job version="11.1">
+<syncjob>
+<fkcheck check="yes" />
+<passwords isencoded="yes" />
+<source>
+<host>172.1.0.28</host>
+<user>els_prod</user>
+<pwd>sja5kZgZmRo=</pwd>
+<port>3306</port>
+<compressed>1</compressed>
+<ssl>0</ssl>
+<sslauth>0</sslauth>
+<clientkey></clientkey>
+<clientcert></clientcert>
+<cacert></cacert>
+<cipher></cipher>
+<charset></charset>
+<database>els_prod</database>
+</source>
+<target>
+<host>localhost</host>
+<user>root</user>
+<pwd>ppG1sTYgmBmZGg==</pwd>
+<port>3306</port>
+<compressed>1</compressed>
+<ssl>0</ssl>
+<sslauth>0</sslauth>
+<clientkey></clientkey>
+<clientcert></clientcert>
+<cacert></cacert>
+<cipher></cipher>
+<charset></charset>
+<database>els_session</database>
+</target>
+<tables all="no">
+<table>
+<name>`abbreviations`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`act_ge_bytearray`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`act_ge_property`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`act_id_group`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`act_id_info`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`act_id_membership`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`act_id_user`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`act_re_deployment`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`act_re_procdef`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`act_ru_event_subscr`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`act_ru_execution`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`act_ru_identitylink`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`act_ru_job`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`act_ru_task`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`act_ru_variable`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`acts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`acts_titles`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`addresses`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`adjournment_reasons`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`adjournmentmotion_drafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`adjournmentmotiondrafts_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`adjournmentmotions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`adjournmentmotions_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`adjournmentmotions_drafts_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`adjournmentmotions_supportingmembers`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`adjournments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`airports`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`amendments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`api_tokens`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`appropriation_bill_motions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`appropriationbillmotion_drafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`appropriationbillmotions_drafts_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`appropriationbillmotions_supportingmembers`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`authorities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`ballotevents`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`ballottypes`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bill_checklist`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bill_drafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billamendmentmotion_drafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billamendmentmotiondrafts_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billamendmentmotiondrafts_referencedentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billamendmentmotiondrafts_sectionamendments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billamendmentmotions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billamendmentmotions_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billamendmentmotions_drafts_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billamendmentmotions_referencedentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billamendmentmotions_revisedsectionamendments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billamendmentmotions_sectionamendments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billamendmentmotions_supportingmembers`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billdraft_checklist`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billdrafts_annexuresforamendingbill`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billdrafts_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billdrafts_contentdrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billdrafts_financialmemorandumdrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billdrafts_sections`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billdrafts_statementofobjectandreasondrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billdrafts_statutorymemorandumdrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billdrafts_titles`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billkinds`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_annexuresforamendingbill`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_contentdrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_drafts_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_financialmemorandumdrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_layingletters`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_revisedannexuresforamendingbill`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_revisedcontentdrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_revisedfinancialmemorandumdrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_revisedstatementofobjectandreasondrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_revisedstatutorymemorandumdrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_revisedtitles`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_sections`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_statementofobjectandreasondrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_statutorymemorandumdrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_supportingmembers`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_titles`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bills_votingdetails`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`billtypes`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`bookmarks`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`books`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`catchwords`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`citations`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`citizenquestions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`citizens`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`clarification_needed_from`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_designations`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_drafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_drafts_committee_members`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_drafts_invited_members`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_meeting_types`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_meetings`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_members`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_members_attendance`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_names`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_reporters`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_subjects`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_tour_drafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_tour_drafts_committee_reporters`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_tour_drafts_tour_itineraries`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_tours`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_tours_committee_reporters`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_tours_district`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_tours_drafts_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_tours_tour_itineraries`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_tours_towns`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_tours_zillaparishad`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committee_types`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committees`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committees_committee_members`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committees_drafts_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`committees_invited_members`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`constituencies`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`constituencies_districts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`contacts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`creeks`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cur_support`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cur_support_cutmotions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cur_support_discussionmotions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cur_support_motions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cur_support_proprietypoints`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cur_support_rulessuspensionmotions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cur_support_specialmentionnotices`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cutmotion_demand_number_details`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cutmotion_drafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cutmotiondate_departments_priority`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cutmotiondate_drafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cutmotiondate_drafts_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cutmotiondatedraft_departments_priority`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cutmotiondates`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cutmotiondepartmentdatepriority`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cutmotions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cutmotions_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cutmotions_departments_date_priority`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cutmotions_drafts_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`cutmotions_supportingmembers`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`dams`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`day_working_scope`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`debug_stored_procedure`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`degrees`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`designations`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`device_number_information`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`device_original_submission_dates`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`devicetype_parameters`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussiondatedevices`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussionmotion`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussionmotion_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussionmotion_departments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussionmotion_draft_departments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussionmotion_draft_ministries`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussionmotion_draft_subdepartments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussionmotion_drafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussionmotion_drafts_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussionmotion_drafts_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussionmotion_drafts_referencedentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussionmotion_drafts_referencedunits`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussionmotion_ministries`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussionmotion_referencedentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussionmotion_referencedunits`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussionmotion_subdepartments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`discussionmotion_supportingmembers`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`districts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`divisions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`document_links`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`election_results`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`electionresults_rivalmembers`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`elections`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`electiontypes`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`eventmotion_drafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`eventmotions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`eventmotions_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`eventmotions_drafts_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`eventmotions_referencedentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`eventmotions_referencedunits`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`eventmotions_supportingmembers`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`eventmotionsdrafts_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`exceptional_working_days`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`families`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`fields`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`files`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`forts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`genders`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`ghats`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`government_corporations`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`government_programs`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`government_projects`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`government_schemes`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`grids_backup_3nov2022`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`grids_copy_25feb2023`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`guesthouse`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`guesthousereservation`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`highways`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`house_parties`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`house_parties_parties`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`houses`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`housetypes`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`identification_keys`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`languages`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`lapsed_entities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`laying_letter`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`laying_letter_draft`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`layingletters_drafts_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`locales`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`maritalstatus`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`memberballot_choice_draft`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`members_books`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`members_familymembers`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`members_languages`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`members_positionsheld`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`members_professions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`members_qualifications`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`message_resources`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`ministries_backup_3nov2022`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`ministries_backup_9nov2022`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`mockscreens`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`motions_amendments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`motions_referencedentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`nationalities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`non_commitee_member_non_commitee_member_information`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`non_commitee_members`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`noncommiteemember_informations`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`noncommitte_member_types`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`notifications`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`number_information`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`ordinances`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`ordinances_titles`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`partial_updates`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`party_types`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`partysymbols`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`positions_held`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`prashnavali_informations`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`prashnavali_prashnavali_information`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`prashnavalis`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`print_requisition_fields`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`print_requisition_parameters`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`print_requisitions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`proceeding_autofill`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`proceeding_citation`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`proceedings`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`professions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`propriety_points`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`proprietypoint_drafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`proprietypointdrafts_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`proprietypoints_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`proprietypoints_drafts_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`proprietypoints_supportingmembers`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`push_messages`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`pushmessages`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`qualifications`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`question_limiting_actions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`question_sequences`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`question_update`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`questions_referencedentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`questiontypes`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`railwaystations`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`reference_links`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`referenced_entities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`referencetypes`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`referred_question_for_hdq_view`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`relations`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`religions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`reminder_letter_tasks`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`reporters`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`reservations`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`resolution_drafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`resolutions_drafts_association`</name>
+<columns all="yes" />
+</table>
+</tables>
+<sync_action type="directsync" />
+<abortonerror abort="yes" />
+<sendreport send="no" /></syncjob>
+</job>

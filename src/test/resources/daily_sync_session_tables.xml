@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<job version="11.1">
+<syncjob>
+<fkcheck check="yes" />
+<passwords isencoded="yes" />
+<source>
+<host>172.1.0.28</host>
+<user>els_prod</user>
+<pwd>sja5kZgZmRo=</pwd>
+<port>3306</port>
+<compressed>1</compressed>
+<ssl>0</ssl>
+<sslauth>0</sslauth>
+<clientkey></clientkey>
+<clientcert></clientcert>
+<cacert></cacert>
+<cipher></cipher>
+<charset></charset>
+<database>els_prod</database>
+</source>
+<target>
+<host>localhost</host>
+<user>root</user>
+<pwd>ppG1sTYgmBmZGg==</pwd>
+<port>3306</port>
+<compressed>1</compressed>
+<ssl>0</ssl>
+<sslauth>0</sslauth>
+<clientkey></clientkey>
+<clientcert></clientcert>
+<cacert></cacert>
+<cipher></cipher>
+<charset></charset>
+<database>els_session</database>
+</target>
+<tables all="no">
+<table>
+<name>`chart_entries`</name>
+<columns all="yes" />
+<sqlwhere>id IN (
+   SELECT cce.chart_entry_id 
+   FROM charts_chart_entries cce
+   JOIN charts c ON (c.id=cce.chart_id)
+   WHERE c.session_id&gt;=2950
+)</sqlwhere></table>
+<table>
+<name>`chart_entries_devices`</name>
+<columns all="no">
+<column>chart_entry_id</column>
+</columns>
+<sqlwhere>chart_entry_id IN (SELECT cce.chart_entry_id 
+   FROM charts_chart_entries cce
+   JOIN charts c ON (c.id=cce.chart_id)
+   WHERE c.session_id&gt;=2950
+)</sqlwhere></table>
+<table>
+<name>`charts`</name>
+<columns all="yes" />
+<sqlwhere>session_id&gt;=2950</sqlwhere></table>
+<table>
+<name>`clubbed_entities`</name>
+<columns all="yes" />
+<sqlwhere>id&gt;=162054</sqlwhere></table>
+<table>
+<name>`questions`</name>
+<columns all="yes" />
+<sqlwhere>session_id&gt;=2950</sqlwhere></table>
+<table>
+<name>`questions_clubbingentities`</name>
+<columns all="no">
+<column>question_id</column>
+</columns>
+<sqlwhere>question_id IN (
+    SELECT id FROM questions WHERE session_id&gt;=2950
+)</sqlwhere></table>
+<table>
+<name>`ballot_entries`</name>
+<columns all="yes" />
+<sqlwhere>id IN (
+   SELECT bbe.ballot_entry_id 
+   FROM ballots_ballot_entries bbe
+   JOIN ballots b ON (b.id=bbe.ballot_id)
+   WHERE b.session_id&gt;=2950
+)</sqlwhere></table>
+<table>
+<name>`ballot_entries_device_sequences`</name>
+<columns all="no">
+<column>ballot_entry_id</column>
+</columns>
+<sqlwhere>ballot_entry_id IN (
+   SELECT bbe.ballot_entry_id 
+   FROM ballots_ballot_entries bbe
+   JOIN ballots b ON (b.id=bbe.ballot_id)
+   WHERE b.session_id&gt;=2950
+)</sqlwhere></table>
+<table>
+<name>`ballots`</name>
+<columns all="yes" />
+<sqlwhere>session_id&gt;=2950</sqlwhere></table>
+<table>
+<name>`ballots_ballot_entries`</name>
+<columns all="no">
+<column>ballot_id</column>
+</columns>
+<sqlwhere>ballot_id IN (SELECT id FROM ballots WHERE session_id&gt;=2950)</sqlwhere></table>
+<table>
+<name>`credentials`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`credentials_roles`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`custom_parameters`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`departments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`device_sequences`</name>
+<columns all="yes" />
+<sqlwhere>id IN (
+   SELECT beds.device_sequence_id 
+   FROM ballot_entries_device_sequences beds
+   JOIN ballots_ballot_entries bbe ON (beds.ballot_entry_id=bbe.ballot_entry_id)
+   JOIN ballots b ON (b.id=bbe.ballot_id)
+   WHERE b.session_id&gt;=2950
+)</sqlwhere></table>
+<table>
+<name>`devicetypes`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`grids`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`groups`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`groups_ministries`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`groups_subdepartments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`memberballot_choice`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`memberballot_choice_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`memberballot_choice_audit`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`memberdepartments_subdepartments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`memberroles`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`members`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`members_departments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`members_houses_roles`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`members_ministries`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`members_parties`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`members_suspensions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`member_supportingmembers`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`menus`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`ministries`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`motions`</name>
+<columns all="yes" />
+<sqlwhere>session_id&gt;=2800</sqlwhere></table>
+<table>
+<name>`motions_clubbingentities`</name>
+<columns all="yes" />
+<sqlwhere>motion_id IN (
+    SELECT id FROM motions WHERE session_id&gt;=2800
+)</sqlwhere></table>
+<table>
+<name>`motions_supportingmembers`</name>
+<columns all="yes" />
+<sqlwhere>motion_id IN (
+    SELECT id FROM motions WHERE session_id&gt;=2800
+)</sqlwhere></table>
+<table>
+<name>`notification_templates`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`parties`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`preballots`</name>
+<columns all="yes" />
+<sqlwhere>session_id&gt;=2950</sqlwhere></table>
+<table>
+<name>`preballots_ballot_entries`</name>
+<columns all="yes" />
+<sqlwhere>preballot_id IN (
+    SELECT id FROM preballots WHERE session_id&gt;=2950
+)</sqlwhere></table>
+<table>
+<name>`queries`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`question_dates`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`questions_referencedunits`</name>
+<columns all="yes" />
+<sqlwhere>question_id IN (
+     SELECT id FROM questions WHERE session_id&gt;=2950
+)</sqlwhere></table>
+<table>
+<name>`questions_supportingmembers`</name>
+<columns all="yes" />
+<sqlwhere>question_id IN (
+     SELECT id FROM questions WHERE session_id&gt;=2950
+)</sqlwhere></table>
+<table>
+<name>`reference_letters`</name>
+<columns all="yes" />
+<sqlwhere>session_id&gt;=2800</sqlwhere></table>
+<table>
+<name>`referenced_units`</name>
+<columns all="yes" />
+<sqlwhere>id&gt;=57053</sqlwhere></table>
+<table>
+<name>`reminder_letters`</name>
+<columns all="yes" />
+<sqlwhere>DATE(reminder_date)&gt;='2023-01-01'</sqlwhere></table>
+<table>
+<name>`roles`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`session_dates`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`session_devicetype_config`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`sessions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`status`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`status_recommendations`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`subdepartments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`supportingmembers`</name>
+<columns all="yes" />
+<sqlwhere>request_received_on&gt;='2023-10-01 00:00:00'</sqlwhere></table>
+<table>
+<name>`usergroups`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`usergroups_parameters`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`usergroups_types`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`users`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`wf_config`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`workflowactors`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`workflows`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`charts_chart_entries`</name>
+<columns all="no">
+<column>chart_id</column>
+</columns>
+<sqlwhere>chart_id IN (
+    SELECT id FROM charts WHERE session_id&gt;=2950
+)</sqlwhere></table>
+<table>
+<name>`exceptional_holidays`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`holidays`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`memberballot`</name>
+<columns all="yes" />
+<sqlwhere>session&gt;=2950</sqlwhere></table>
+<table>
+<name>`memberballot_attendance`</name>
+<columns all="yes" />
+<sqlwhere>session&gt;=2950</sqlwhere></table>
+<table>
+<name>`motion_drafts`</name>
+<columns all="yes" />
+<sqlwhere>motion_id IN (
+    SELECT id FROM motions WHERE session_id&gt;=2800
+)</sqlwhere></table>
+<table>
+<name>`motions_drafts_association`</name>
+<columns all="no">
+<column>motion_id</column>
+</columns>
+<sqlwhere>motion_id IN (
+    SELECT id FROM motions WHERE session_id&gt;=2800
+)</sqlwhere></table>
+<table>
+<name>`motions_referencedunits`</name>
+<columns all="no">
+<column>motion_id</column>
+</columns>
+<sqlwhere>motion_id IN (
+    SELECT id FROM motions WHERE session_id&gt;=2800
+)</sqlwhere></table>
+<table>
+<name>`question_drafts`</name>
+<columns all="yes" />
+<sqlwhere>question_id IN (
+   SELECT id FROM questions WHERE session_id&gt;=2950
+)</sqlwhere></table>
+<table>
+<name>`questions_drafts_association`</name>
+<columns all="no">
+<column>question_id</column>
+</columns>
+<sqlwhere>question_id IN (
+   SELECT id FROM questions WHERE session_id&gt;=2950
+)</sqlwhere></table>
+<table>
+<name>`resolutions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`standalone_motions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`yaadi_details`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`yaadi_details_devices`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`chart_entries_devices_history`</name>
+<columns all="no">
+<column>chart_entry_id</column>
+</columns>
+<sqlwhere>chart_entry_id IN (SELECT cce.chart_entry_id 
+   FROM charts_chart_entries cce
+   JOIN charts c ON (c.id=cce.chart_id)
+   WHERE c.session_id&gt;=2950
+)</sqlwhere></table>
+<table>
+<name>`workflow_details`</name>
+<columns all="yes" />
+<sqlwhere>assignment_time&gt;='2023-10-01 00:00:00'</sqlwhere></table>
+<table>
+<name>`device_status_update_info`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`exceptional_working_days`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`feedback`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`notifications`</name>
+<columns all="yes" />
+<sqlwhere>pushmessage_id IN (
+     SELECT id FROM push_messages WHERE sent_on&gt;='2023-10-01 00:00:00'
+)</sqlwhere></table>
+<table>
+<name>`push_messages`</name>
+<columns all="yes" />
+<sqlwhere>sent_on&gt;='2023-10-01 00:00:00'</sqlwhere></table>
+</tables>
+<sync_action type="directsync" />
+<abortonerror abort="yes" />
+<sendreport send="no" /></syncjob>
+</job>
