@@ -1098,6 +1098,266 @@
 <name>`resolutions_drafts_association`</name>
 <columns all="yes" />
 </table>
+<table>
+<name>`rival_members`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rivers`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rosters`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rosters_reporters`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rosters_users`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rules`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rules_contentdrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rules_suspension_motion_drafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rules_suspension_motiondrafts_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rules_suspension_motions`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rules_suspension_motions_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rules_suspension_motions_supportingmembers`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rules_titles`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rulessuspensionmotion_departments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rulessuspensionmotion_ministries`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rulessuspensionmotion_subdepartments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rulessuspensionmotions_draft_departments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rulessuspensionmotions_draft_ministries`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rulessuspensionmotions_draft_subdepartments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`rulessuspensionmotions_drafts_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`sanctuaries`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`section_drafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`sectionamendments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`sectionorders`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`sectionorderseries`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`sections`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`sections_drafts_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`session_submission_dates_for_devicetype`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`sessionplaces`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`sessiontypes`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`slots`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`specialmentionnotice`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`specialmentionnotice_drafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`specialmentionnoticedrafts_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`specialmentionnotices_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`specialmentionnotices_drafts_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`standalone_supportingmembers`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`standalonemotion_drafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`standalonemotions_drafts_association`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`standalonemotionsdrafts_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`standalonemotionsdrafts_referencedentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`standalonemotionsdrafts_referencedunits`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`standalones_clubbingentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`standalones_referencedentities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`standalones_referencedunits`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`states`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`subdepartments_backup_3nov2022`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`supportingmembers_contentdrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`supportingmembers_financialmemorandumdrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`supportingmembers_sectionamendments`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`supportingmembers_statementofobjectandreasondrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`supportingmembers_statutorymemorandumdrafts`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`supportingmembers_titles`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`tehsils`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`titles`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`tour_itineraries`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`towns`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`universities`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`upperhouse_constituencytype`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`user_citations`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`voting_details`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`wfconfig_wfactors`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`yaadi_details_removed_devices`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`zillaparishads`</name>
+<columns all="yes" />
+</table>
+<table>
+<name>`hibernate_sequences`</name>
+<columns all="yes" />
+</table>
 </tables>
 <sync_action type="directsync" />
 <abortonerror abort="yes" />
