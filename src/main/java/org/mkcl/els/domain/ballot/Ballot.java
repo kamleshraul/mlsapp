@@ -194,6 +194,9 @@ public class Ballot extends BaseDomain implements Serializable {
 		else if(deviceType.getType().startsWith(ApplicationConstants.NONOFFICIAL_BILL)) {
 			preBallotVOs =  NonOfficialBillBallot.findPreBallotVO(session, deviceType, answeringDate, locale);
 		}
+		else if(deviceType.getType().equals(ApplicationConstants.PROPRIETY_POINT)) {
+			preBallotVOs = ProprietyPointBallot.findPreBallotVO(session, deviceType, answeringDate, locale);
+		}
 		
 		return preBallotVOs;
 	}

@@ -37,7 +37,10 @@ public class SessionDates extends BaseDomain implements Serializable {
     private Date endTime;
     
     /** Question Hour Included On that Day */
-    private boolean isQuestionHourIncluded ;
+    private boolean isQuestionHourIncluded;
+    
+    /** Whether Propriety Points included for that Day */
+    private boolean proprietyPointsIncluded;
     
     /** The order of the day document. */
     @Column(length=100)
@@ -90,6 +93,14 @@ public class SessionDates extends BaseDomain implements Serializable {
 	
 	public void setIsQuestionHourIncluded(boolean isQuestionHourIncluded) {
 		this.isQuestionHourIncluded = isQuestionHourIncluded;
+	}
+
+	public boolean getProprietyPointsIncluded() {
+		return proprietyPointsIncluded;
+	}
+
+	public void setProprietyPointsIncluded(boolean proprietyPointsIncluded) {
+		this.proprietyPointsIncluded = proprietyPointsIncluded;
 	}
 
 	public String getOrderOfDayDoc() {

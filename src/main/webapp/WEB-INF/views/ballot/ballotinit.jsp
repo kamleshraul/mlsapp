@@ -87,6 +87,15 @@
 					 +"&role="+$("#srole").val() 
 					 + "&answeringDate=" + $("#selectedAnsweringDate").val()+"&category=motion";
 					resourceURL = 'ballot/preballot?' + parameters;
+				}else if($("#category").val()=='proprietypoint'){
+					var parameters = "houseType="+$("#selectedHouseType").val()
+					 +"&sessionYear="+$("#selectedSessionYear").val()
+					 +"&sessionType="+$("#selectedSessionType").val()
+					 +"&deviceType="+$("#selectedDeviceType").val()
+					 +"&status="+$("#selectedStatus").val()
+					 +"&role="+$("#srole").val() 
+					 + "&answeringDate=" + $("#selectedAnsweringDate").val()+"&category=proprietypoint";
+					resourceURL = 'ballot/preballot?' + parameters;
 				}
 				$.get(resourceURL,function(data){
 					/* var dt = $("#selectedQuestionType").val();
@@ -183,6 +192,15 @@
 					 +"&status="+$("#selectedStatus").val()
 					 +"&role="+$("#srole").val() 
 					 + "&answeringDate=" + $("#selectedAnsweringDate").val()+"&category=motion";
+					resourceURL = 'ballot/viewpreballot?' + parameters;
+				}else if($("#category").val()=='proprietypoint'){
+					var parameters = "houseType="+$("#selectedHouseType").val()
+					 +"&sessionYear="+$("#selectedSessionYear").val()
+					 +"&sessionType="+$("#selectedSessionType").val()
+					 +"&deviceType="+$("#selectedDeviceType").val()
+					 +"&status="+$("#selectedStatus").val()
+					 +"&role="+$("#srole").val() 
+					 + "&answeringDate=" + $("#selectedAnsweringDate").val()+"&category=proprietypoint";
 					resourceURL = 'ballot/viewpreballot?' + parameters;
 				}
 				$.get(resourceURL,function(data){
@@ -288,6 +306,15 @@
 					 +"&status="+$("#selectedStatus").val()
 					 +"&role="+$("#srole").val() 
 					 + "&answeringDate=" + $("#selectedAnsweringDate").val()+"&category=motion";
+					resourceURL = 'ballot/create?' + parameters;
+				}else if($("#category").val()=='proprietypoint'){
+					var parameters = "houseType="+$("#selectedHouseType").val()
+					 +"&sessionYear="+$("#selectedSessionYear").val()
+					 +"&sessionType="+$("#selectedSessionType").val()
+					 +"&deviceType="+$("#selectedDeviceType").val()
+					 +"&status="+$("#selectedStatus").val()
+					 +"&role="+$("#srole").val() 
+					 + "&answeringDate=" + $("#selectedAnsweringDate").val()+"&category=proprietypoint";
 					resourceURL = 'ballot/create?' + parameters;
 				}
 				
@@ -398,6 +425,16 @@
 					 +"&role="+$("#srole").val() 
 					 + "&answeringDate=" + $("#selectedAnsweringDate").val()
 					 +"&category=motion";
+					resourceURL = 'ballot/view?' + parameters;
+				}else if($("#category").val()=='proprietypoint'){
+					parameters = "houseType="+$("#selectedHouseType").val()
+					 +"&sessionYear="+$("#selectedSessionYear").val()
+					 +"&sessionType="+$("#selectedSessionType").val()
+					 +"&deviceType="+$("#selectedDeviceType").val()
+					 +"&status="+$("#selectedStatus").val()
+					 +"&role="+$("#srole").val() 
+					 + "&answeringDate=" + $("#selectedAnsweringDate").val()
+					 +"&category=proprietypoint";
 					resourceURL = 'ballot/view?' + parameters;
 				}
 				$.get(resourceURL,function(data){
@@ -817,22 +854,24 @@
 	<h4 style="color: #FF0000;" id="error">${error}</h4>
 </c:if>
 <div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv2">
-
-		<c:choose>
-			<c:when test="${deviceTypeType=='resolutions_nonofficial'
-								or deviceTypeType=='bills_nonofficial' 
-								or deviceTypeType == 'questions_halfhourdiscussion_from_question' 
-								or deviceTypeType == 'motions_standalonemotion_halfhourdiscussion' }">
-				<a href="#" id="select_discussiondatedate" class="butSim">
-					<spring:message code="ballotinitial.discussiondate" text="Discussion Date"/>
-				</a>
-			</c:when>
-			<c:otherwise>
-				<a href="#" id="select_answeringdate" class="butSim">
-					<spring:message code="ballotinitial.answeringdate" text="Answering Date"/>
-				</a>
-			</c:otherwise>
-		</c:choose>
+	<c:choose>
+		<c:when test="${not empty answeringDates}">
+			<c:choose>
+				<c:when test="${deviceTypeType=='resolutions_nonofficial'
+									or deviceTypeType=='bills_nonofficial' 
+									or deviceTypeType == 'questions_halfhourdiscussion_from_question' 
+									or deviceTypeType == 'motions_standalonemotion_halfhourdiscussion'
+									or deviceTypeType == 'proprietypoint' }">
+					<a href="#" id="select_discussiondatedate" class="butSim">
+						<spring:message code="ballotinitial.discussiondate" text="Discussion Date"/>
+					</a>
+				</c:when>
+				<c:otherwise>
+					<a href="#" id="select_answeringdate" class="butSim">
+						<spring:message code="ballotinitial.answeringdate" text="Answering Date"/>
+					</a>
+				</c:otherwise>
+			</c:choose>
 			<c:choose>
 				<c:when test="${deviceTypeType == 'questions_starred'}">
 					<select name="selectedAnsweringDate" id="selectedAnsweringDate" style="width:100px;height: 25px;">				
@@ -849,7 +888,8 @@
 				<c:when test="${deviceTypeType == 'questions_halfhourdiscussion_from_question' 
 								or deviceTypeType == 'motions_standalonemotion_halfhourdiscussion' 
 								or deviceTypeType=='resolutions_nonofficial'
-								or deviceTypeType=='bills_nonofficial'}">
+								or deviceTypeType=='bills_nonofficial'
+								or deviceTypeType == 'proprietypoint'}">
 					<select name="selectedAnsweringDate" id="selectedAnsweringDate" style="width:100px;height: 25px;">				
 					<c:forEach items="${answeringDates}" var="i">			
 						<option value="${i.value}"><c:out value="${i.name}"></c:out></option>	
@@ -862,7 +902,9 @@
 			'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_UNDER_SECRETARY_COMMITTEE', 'QIS_JOINT_SECRETARY',
 			'QIS_ADDITIONAL_SECRETARY', 'SMOIS_UNDER_SECRETARY_COMMITTEE','SMOIS_UNDER_SECRETARY', 'SMOIS_DEPUTY_SECRETARY',
 				'SMOIS_JOINT_SECRETARY', 'SMOIS_SECRETARY', 'SMOIS_OFFICER_ON_SPECIAL_DUTY', 'SMOIS_PRINCIPAL_SECRETARY', 'BIS_ASSISTANT', 'BIS_PRINCIPAL_SECRETARY',
-			 'ROIS_UNDERSECRETARY', 'ROIS_UNDER_SECRETARY_COMMITTEE', 'ROIS_SECRETARY', 'ROIS_SECTION_OFFICER','ROIS_DEPUTYSECRETARY')">
+			 'PROIS_SECTION_OFFICER','PROIS_DEPUTY_SECRETARY',
+				'ROIS_UNDERSECRETARY', 'ROIS_UNDER_SECRETARY_COMMITTEE', 'ROIS_SECRETARY', 'ROIS_SECTION_OFFICER','ROIS_DEPUTYSECRETARY'
+			 )">
 			<a href="#" id="pre_ballot" class="butSim">
 				<spring:message code="ballotinitial.preballot" text="Pre Ballot"/>
 			</a>
@@ -872,7 +914,7 @@
 				<spring:message code="ballotinitial.viewpreballot" text="View Preballot"/>
 			</a>
 			|
-			<security:authorize access="hasAnyRole('QIS_ADMIN', 'QIS_CLERK','QIS_ASSISTANT','QIS_SECTION_OFFICER','SMOIS_CLERK','SMOIS_ASSISTANT')">
+			<security:authorize access="hasAnyRole('QIS_ADMIN', 'QIS_CLERK','QIS_ASSISTANT','QIS_SECTION_OFFICER','SMOIS_CLERK','SMOIS_ASSISTANT','PROIS_CLERK','PROIS_ASSISTANT')">
 			<a href="#" id="preview_preballot" class="butSim">
 				<spring:message code="ballotinitial.previewpreballot" text="Preview PreBallot"/>
 			</a> |
@@ -881,6 +923,7 @@
 			'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_UNDER_SECRETARY_COMMITTEE', 'QIS_JOINT_SECRETARY',
 			'QIS_ADDITIONAL_SECRETARY', 'SMOIS_UNDER_SECRETARY_COMMITTEE','SMOIS_UNDER_SECRETARY', 'SMOIS_DEPUTY_SECRETARY',
 			'SMOIS_JOINT_SECRETARY', 'SMOIS_SECRETARY', 'BIS_ASSISTANT', 
+			'PROIS_SECTION_OFFICER','PROIS_DEPUTY_SECRETARY',
 			 'ROIS_UNDERSECRETARY', 'ROIS_UNDER_SECRETARY_COMMITTEE', 'ROIS_SECRETARY', 'ROIS_SECTION_OFFICER','ROIS_DEPUTYSECRETARY')">
 			<a href="#" id="create_ballot" class="butSim">
 				<spring:message code="ballotinitial.createballot" text="Create Ballot"/>
@@ -888,6 +931,7 @@
 			</security:authorize>
 			<security:authorize access="hasAnyRole('QIS_ADMIN', 'QIS_UNDER_SECRETARY', 'QIS_DEPUTY_SECRETARY',  'QIS_UNDER_SECRETARY_COMMITTEE', 'QIS_JOINT_SECRETARY',
 			 'SMOIS_UNDER_SECRETARY_COMMITTEE','SMOIS_UNDER_SECRETARY','SMOIS_DEPUTY_SECRETARY','SMOIS_JOINT_SECRETARY', 'SMOIS_SECRETARY', 'SMOIS_OFFICER_ON_SPECIAL_DUTY', 
+			 'PROIS_SECTION_OFFICER','PROIS_UNDER_SECRETARY_COMMITTEE','PROIS_UNDER_SECRETARY','PROIS_DEPUTY_SECRETARY',
 			  'BIS_ASSISTANT', 'ROIS_UNDERSECRETARY', 'ROIS_UNDER_SECRETARY_COMMITTEE', 'ROIS_SECRETARY', 'ROIS_SECTION_OFFICER','ROIS_ASSISTANT','ROIS_DEPUTYSECRETARY','QIS_PRINCIPAL_SECRETARY')">
 				<a href="#" id="view_ballot" class="butSim">
 					<spring:message code="ballotinitial.viewballot" text="View Ballot"/>
@@ -911,7 +955,8 @@
 			<a href="#" id="view_log" class="butSim">
 				<spring:message code="ballotinitial.viewlog" text="View Log"/>
 			</a>
-			<c:if test="${deviceTypeType != 'bills_nonofficial' and not(fn:contains(deviceTypeType, 'resolutions_')) and not(fn:contains(deviceTypeType, 'halfhour'))}"> |
+			<c:if test="${deviceTypeType != 'bills_nonofficial' and not(fn:contains(deviceTypeType, 'resolutions_')) 
+							and not(fn:contains(deviceTypeType, 'halfhour')) and deviceTypeType ne 'proprietypoint'}"> |
 				<span id="yaadiDiv">
 				<a href="#" id="update_yaadi" class="butSim">
 					<spring:message code="ballotinitial.updateyaadi" text="Update Questions in Yaadi"/>
@@ -948,6 +993,11 @@
 			
 			<br />
 			<h3 id="error_msg" style="color: red"></h3>
+		</c:when>
+		<c:otherwise>
+			<h3>No Discussion Dates Available for Given Session</h3>
+		</c:otherwise>
+	</c:choose>		
 </div>
 <div id="ballotResultDiv">
 </div>

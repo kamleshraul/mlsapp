@@ -2870,6 +2870,10 @@ public class ApplicationConstants {
 	public static final String PROPRIETYPOINT_FINAL_UNCLUBBING="proprietypoint_final_unclubbing";
 	
 	public static final String PROPRIETYPOINT_FINAL_REJECT_UNCLUBBING = "proprietypoint_final_reject_unclubbing";
+
+	public static final String PROPRIETYPOINT_PROCESSED_BALLOTED="proprietypoint_processed_balloted";
+	
+	public static final String PROPRIETYPOINT_PROCESSED_DISCUSSED="proprietypoint_processed_discussed";
 	
 	/**** Other constants ****/
 	public static final String PROPRIETYPOINT_GET_REVISION = "PROPRIETYPOINT_GET_REVISION";	

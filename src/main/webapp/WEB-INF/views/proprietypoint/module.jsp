@@ -48,9 +48,9 @@
 		}
 		$(document).ready(function(){	
 			/**** On Page Load ****/
-			var currentDeviceType = $("#currentDeviceType").val();
-			/* var currentHouseType = $("#currentHouseType").val();
-			if(currentHouseType=='upperhouse') {
+			//var currentDeviceType = $("#currentDeviceType").val();
+			var currentHouseType = $("#currentHouseType").val();
+			/* if(currentHouseType=='upperhouse') {
 				$('.proprietypointdate_display').show();
 			} else {
 				$('.proprietypointdate_display').hide();
@@ -324,7 +324,12 @@
 					reloadProprietyPointGrid();
 					$("#selectedFileCount").val("-");
 				}
-			});			
+			});
+			/**** Ballot Tab ****/
+			$('#ballot_tab').click(function() {
+				$("#selectionDiv1").hide();
+				viewBallot();
+			});
 			/**** Search Tab ****/
 			$('#search_tab').click(function() {
 				$("#selectionDiv1").hide();
@@ -429,7 +434,24 @@
 					+"&subDepartment="+$("#selectedSubDepartment").val()
 			);
 			loadSession();
-		}		
+		}
+		/**** Ballot Tab ****/
+		function viewBallot() {
+			var parameters = $("#gridURLParams").val();
+			if (parameters == undefined) {
+				parameters = "houseType=" + $("#selectedHouseType").val()
+						+ "&sessionYear=" + $("#selectedSessionYear").val()
+						+ "&sessionType=" + $("#selectedSessionType").val()
+						+ "&deviceType="+$("#selectedDeviceType").val()
+						+ "&ugparam=" + $("#ugparam").val() + "&status="
+						+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+						+ "&usergroup=" + $("#currentusergroup").val()
+						+ "&usergroupType=" + $("#currentusergroupType").val();
+			}
+			parameters = parameters + "&category=proprietypoint";
+			var resourceURL = 'ballot/init?' + parameters;
+			showTabByIdAndUrl('ballot_tab', resourceURL);
+		}	
 		/**** Search Facility ****/
 		function searchInt(id){
 			//$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
@@ -833,7 +855,20 @@
 				   <spring:message code="generic.details" text="Details">
 				   </spring:message>
 				</a>
-			</li>
+			</li>			
+			<c:if test="${houseType=='lowerhouse'}">
+			<security:authorize
+				access="hasAnyRole('PROIS_CLERK','PROIS_ASSISTANT', 'PROIS_UNDER_SECRETARY',
+				'PROIS_DEPUTY_SECRETARY','PROIS_PRINCIPAL_SECRETARY','PROIS_SPEAKER', 'PROIS_JOINT_SECRETARY',
+				'PROIS_SECRETARY', 'PROIS_OFFICER_ON_SPECIAL_DUTY', 'PROIS_DEPUTY_SPEAKER', 'PROIS_CHAIRMAN',
+				'PROIS_DEPUTY_CHAIRMAN', 'PROIS_SECTION_OFFICER', 'PROIS_UNDER_SECRETARY_COMMITTEE',
+				'SUPER_ADMIN','PROIS_ADDITIONAL_SECRETARY')">
+				<li><a id="ballot_tab" href="#" class="tab"> <spring:message
+							code="question.ballot" text="Ballot"></spring:message>
+				</a></li>
+
+			</security:authorize>
+			</c:if>			
 			<security:authorize access="hasAnyRole('PROIS_CLERK','PROIS_ASSISTANT', 'PROIS_UNDER_SECRETARY',
 			'PROIS_DEPUTY_SECRETARY','PROIS_PRINCIPAL_SECRETARY','PROIS_SPEAKER', 'PROIS_JOINT_SECRETARY',
 			'PROIS_SECRETARY', 'PROIS_OFFICER_ON_SPECIAL_DUTY', 'PROIS_DEPUTY_SPEAKER', 'PROIS_CHAIRMAN',

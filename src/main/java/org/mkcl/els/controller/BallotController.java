@@ -75,6 +75,7 @@ import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.SessionDates;
 import org.mkcl.els.domain.SessionPlace;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.StandaloneMotion;
@@ -324,6 +325,52 @@ public class BallotController extends BaseController{
 							masterVO.setValue(strDiscussionDate);
 
 							masterVOs.add(masterVO);
+						}
+						model.addAttribute("answeringDates", masterVOs);
+					}
+				}else if(category.equals("proprietypoint")){
+					String strDeviceType = request.getParameter("deviceType");
+					DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+					model.addAttribute("deviceTypeType", deviceType.getType());
+					model.addAttribute("category", "proprietypoint");
+					/** Create HouseType */
+					String strHouseType = request.getParameter("houseType");
+					HouseType houseType =
+							HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+					model.addAttribute("houseType",houseType.getType());
+
+					/** Create SessionType */
+					String strSessionTypeId = request.getParameter("sessionType");
+					SessionType sessionType =
+							SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+
+					/** Create year */
+					String strYear = request.getParameter("sessionYear");
+					Integer year = Integer.valueOf(strYear);
+
+					/** Create Session */
+					Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+					
+					/** Compute & Add discussionDates to model */
+					CustomParameter dbDateFormat = 
+							CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+					CustomParameter serverDateFormat = 
+							CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+					List<SessionDates> sessionDates = session.getSessionDates();
+					if(sessionDates!=null && !sessionDates.isEmpty()) {
+						List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+						for(SessionDates sessionDateEntry : sessionDates) {
+							if(sessionDateEntry.getProprietyPointsIncluded()) {
+								Date discussionDate = sessionDateEntry.getSessionDate();
+								String localizedDate = FormaterUtil.formatDateToString(discussionDate, 
+										serverDateFormat.getValue(), locale.toString());
+								MasterVO masterVO = new MasterVO();
+								masterVO.setName(localizedDate);
+								masterVO.setValue(FormaterUtil.formatDateToString(discussionDate, 
+										dbDateFormat.getValue(), ApplicationConstants.STANDARD_LOCALE));
+
+								masterVOs.add(masterVO);
+							}
 						}
 						model.addAttribute("answeringDates", masterVOs);
 					}
@@ -4348,8 +4395,9 @@ public class BallotController extends BaseController{
 					displayAnsweringDate = answeringDate;
 				}
 			}
-			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
-					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
+			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) 
+						|| deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)
+						|| deviceType.getType().equals(ApplicationConstants.PROPRIETY_POINT)) {
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 			}
 			else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION) || deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
@@ -4402,6 +4450,9 @@ public class BallotController extends BaseController{
 				else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
 					answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 					retVal = this.billNonOfficialPreBallot(model, session, deviceType, answeringDate, locale.toString());
+				}
+				else if(deviceType.getType().equals(ApplicationConstants.PROPRIETY_POINT)) {
+					retVal = this.preBallotProprietyPointAssembly(model, session, deviceType, answeringDate, locale.toString());	
 				}
 			}
 			
@@ -4746,6 +4797,23 @@ public class BallotController extends BaseController{
 			return "ballot/nonofficial_member_preballot";
 		} catch (ELSException e) {
 
+			e.printStackTrace();
+			model.addAttribute("error", e.getParameter());
+			return "ballot/error";
+		}
+	}
+
+	private String preBallotProprietyPointAssembly(final ModelMap model,
+			final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final String locale) {
+		List<BallotVO> ballotVOs;
+		try {
+			ballotVOs = Ballot.findPreBallotVO(session, deviceType, answeringDate, locale);
+			model.addAttribute("ballotVOs", ballotVOs);
+			return "ballot/prois_preballot_assembly";
+		} catch (ELSException e) {
 			e.printStackTrace();
 			model.addAttribute("error", e.getParameter());
 			return "ballot/error";
@@ -5638,8 +5706,9 @@ public class BallotController extends BaseController{
 					displayAnsweringDate = answeringDate;
 				}
 			}
-			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
-					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
+			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) 
+						|| deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)
+						|| deviceType.getType().equals(ApplicationConstants.PROPRIETY_POINT)) {
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 			}
 			else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION) || deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
@@ -5695,6 +5764,9 @@ public class BallotController extends BaseController{
 				else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
 					answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 					retVal = this.billNonOfficialPreBallot(model, session, deviceType, answeringDate, locale.toString());
+				}
+				else if(deviceType.getType().equals(ApplicationConstants.PROPRIETY_POINT)) {
+					retVal = this.preBallotProprietyPointAssembly(model, session, deviceType, answeringDate, locale.toString());	
 				}
 			}
 			

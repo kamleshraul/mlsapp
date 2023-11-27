@@ -37,7 +37,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="propriety_points")
-@JsonIgnoreProperties({"houseType", "session", "deviceType", "supportingMembers", "ballotStatus", "parent", "clubbedEntities", "drafts"})
+@JsonIgnoreProperties({"houseType", "session", "deviceType", "supportingMembers", "ballotStatus", "discussionStatus", "parent", "clubbedEntities", "drafts"})
 public class ProprietyPoint extends Device implements Serializable {
 
 	/** The Constant serialVersionUID. */
@@ -180,6 +180,11 @@ public class ProprietyPoint extends Device implements Serializable {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="ballotstatus_id")
     private Status ballotStatus;
+
+	/**** The Disucssion Status. ****/
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="discussionstatus_id")
+	private Status discussionStatus;
     
     /** The remarks. */
     @Column(length=30000)
@@ -1008,6 +1013,41 @@ public class ProprietyPoint extends Device implements Serializable {
 			Map<String, String[]> requestMap) {
 		return getProprietyPointRepository().fullTextSearchForSearching(param,start,noOfRecords, locale, requestMap);
 	}
+    
+    
+    /**
+     * Find the ProprietyPoints based on ballot status
+     * @param session
+     * @param deviceType
+     * @param discussionDate
+     * @param internalStatuses
+     * @param hasParent
+     * @param isBalloted
+     * @param startTime
+     * @param endTime
+     * @param sortOrder
+     * @param locale
+     * @return
+     */
+    public static List<ProprietyPoint> findByBallot(final Session session,
+			final DeviceType deviceType,
+			final Date discussionDate,
+			final Status[] internalStatuses,
+			final Boolean hasParent,
+			final Boolean isBalloted,
+			final Boolean isMandatoryUnique,
+			final Boolean isPreBallot,
+			final Date startTime,
+			final Date endTime,
+			final String sortOrder,
+			final String locale) {
+    	
+    	return getProprietyPointRepository().findByBallot(session, deviceType, discussionDate, 
+    			internalStatuses, hasParent, isBalloted, 
+    			isMandatoryUnique, isPreBallot, startTime, 
+    			endTime, sortOrder, locale);
+    }
+    
 
     /********************************************* Getters & Setters *******************************************/
 	public HouseType getHouseType() {
@@ -1296,6 +1336,14 @@ public class ProprietyPoint extends Device implements Serializable {
 
 	public void setBallotStatus(Status ballotStatus) {
 		this.ballotStatus = ballotStatus;
+	}
+
+	public Status getDiscussionStatus() {
+		return discussionStatus;
+	}
+
+	public void setDiscussionStatus(Status discussionStatus) {
+		this.discussionStatus = discussionStatus;
 	}
 
 	public String getRemarks() {

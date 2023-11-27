@@ -30,6 +30,7 @@ import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.UserGroupType;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class ProprietyPointRepository extends BaseRepository<ProprietyPoint, Serializable> {
@@ -587,4 +588,170 @@ public class ProprietyPointRepository extends BaseRepository<ProprietyPoint, Ser
 			throw elsException;
 		}	
 	}
+	
+	/**
+	 * Find.
+	 *
+	 * @param session the session
+	 * @param deviceType the device type
+	 * @param startTime the start time
+	 * @param endTime the end time
+	 * @param internalStatuses the internal statuses
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
+	 */
+	@Transactional
+	@SuppressWarnings({"rawtypes" })
+	public List<ProprietyPoint> findByBallot(final Session session,
+			final DeviceType deviceType,
+			final Date discussionDate,
+			final Status[] internalStatuses,
+			final Boolean hasParent,
+			final Boolean isBalloted,
+			final Boolean isMandatoryUnique,
+			final Boolean isPreBallot,
+			final Date startTime,
+			final Date endTime,
+			final String sortOrder,
+			final String locale) {
+		
+		StringBuffer query = null;		
+		List<ProprietyPoint> mos = null;
+		
+		if(isPreBallot.booleanValue()){
+			query = new StringBuffer(" SELECT q.id,q.revised_subject FROM propriety_points q" +
+					" WHERE q.session_id=:sessionId AND q.devicetype_id=:deviceTypeId " +
+					" AND q.discussion_date IS NULL" +
+					" AND q.submission_date>=:strStartTime AND q.submission_date<=:strEndTime" +
+					" AND q.locale=:locale" +
+					" AND q.number IS NOT NULL");
+		}else if(!isPreBallot.booleanValue()){
+			query = new StringBuffer(
+					" SELECT q.id,q.revised_subject FROM propriety_points q" +
+					" WHERE q.session_id=:sessionId AND q.devicetype_id=:deviceTypeId " +
+					" AND q.discussion_date IS NULL" +
+					" AND q.submission_date>=:strStartTime AND q.submission_date<=:strEndTime" +
+					" AND q.locale=:locale" +
+					" AND q.number IS NOT NULL");
+		}
+		
+		
+		query.append(this.getStatusFiltersNative(internalStatuses));
+		Status balloted = Status.findByFieldName(Status.class, "type", ApplicationConstants.PROPRIETYPOINT_PROCESSED_BALLOTED, locale);
+		if(isBalloted.booleanValue()){
+			query.append(" AND (q.ballotstatus_id=:ballotStatus OR q.ballotstatus_id IS NULL)");
+		}else{
+			query.append(" AND q.ballotstatus_id IS NULL");
+		}
+		
+		if(!hasParent) {
+				query.append(" AND q.parent IS NULL");
+		}
+		
+		
+		if(isPreBallot.booleanValue()){
+			query.append(" ORDER BY q.submission_date ASC, q.number ASC");
+			
+			Query tQuery = this.em().createNativeQuery(query.toString());
+			tQuery.setParameter("sessionId", session.getId());
+			tQuery.setParameter("deviceTypeId", deviceType.getId());
+			//tQuery.setParameter("strDiscussionDate", discussionDate);
+			tQuery.setParameter("strStartTime", startTime);
+			tQuery.setParameter("strEndTime", endTime);
+			tQuery.setParameter("locale", locale);
+			
+			if(isBalloted.booleanValue()){
+				tQuery.setParameter("ballotStatus", balloted);
+			}
+			
+			List data = tQuery.getResultList();
+			
+			if(data != null && !data.isEmpty()){
+				mos = new ArrayList<ProprietyPoint>();
+				for(Object o : data){
+					Object[] objArr = (Object[]) o;
+					if(objArr != null){
+						if(objArr[0] != null){
+							ProprietyPoint q = ProprietyPoint.findById(ProprietyPoint.class, new Long(objArr[0].toString()));					
+							mos.add(q);
+						}
+					}
+				}
+			}
+		}else if(!isPreBallot.booleanValue()){
+			if(isMandatoryUnique.booleanValue()){
+				query.append(" AND q.member_id NOT IN(SELECT" +
+					" qqq.member_id FROM propriety_points qqq" + 
+					" WHERE qqq.id IN(SELECT ds.device_id" +
+					" FROM ballots b" +
+					" INNER JOIN ballots_ballot_entries bbe ON(bbe.ballot_id=b.id)" +
+					" INNER JOIN ballot_entries be ON(be.id=bbe.ballot_entry_id)" +
+					" INNER JOIN ballot_entries_device_sequences beds ON(beds.ballot_entry_id=bbe.ballot_entry_id)" +
+					" INNER JOIN device_sequences ds ON(ds.id=beds.device_sequence_id)" +
+					" WHERE b.session_id=:sessionId" +
+					" AND b.devicetype_id=:deviceTypeId))");
+				
+				query.append(" AND q.revised_subject NOT IN (SELECT" +
+						" qqq.revised_subject FROM propriety_points qqq" + 
+						" WHERE qqq.id IN(SELECT ds.device_id" +
+						" FROM ballots b" +
+						" INNER JOIN ballots_ballot_entries bbe ON(bbe.ballot_id=b.id)" +
+						" INNER JOIN ballot_entries be ON(be.id=bbe.ballot_entry_id)" +
+						" INNER JOIN ballot_entries_device_sequences beds ON(beds.ballot_entry_id=bbe.ballot_entry_id)" +
+						" INNER JOIN device_sequences ds ON(ds.id=beds.device_sequence_id)" +
+						" WHERE b.session_id=:sessionId" +
+						" AND b.devicetype_id=:deviceTypeId))");
+			}
+			//query.append(" GROUP BY q.revised_subject");
+			query.append(" ORDER BY q.submission_date DESC, q.number DESC");
+						
+			Query tQuery = this.em().createNativeQuery(query.toString());
+			tQuery.setParameter("sessionId", session.getId());
+			tQuery.setParameter("deviceTypeId", deviceType.getId());
+			//tQuery.setParameter("strDiscussionDate", discussionDate);
+			tQuery.setParameter("strStartTime", startTime);
+			tQuery.setParameter("strEndTime", endTime);
+			tQuery.setParameter("locale", locale);
+			
+			if(isBalloted.booleanValue()){
+				tQuery.setParameter("ballotStatus", balloted);
+			}
+			
+			List data = tQuery.getResultList();
+			
+			if(data != null && !data.isEmpty()){
+				mos = new ArrayList<ProprietyPoint>();
+				for(Object o : data){
+					Object[] obj = ((Object[]) o);
+					if(obj[0] != null){
+						String[] ids = obj[0].toString().split(",");
+						
+						ProprietyPoint q = ProprietyPoint.findById(ProprietyPoint.class, new Long(ids[0]));
+						
+						mos.add(q);
+					}
+				}
+			}
+		}
+		//query.append(" ORDER BY q.revised_subject ASC,q.member_id ASC,q.submission_date DESC");
+
+		
+		return mos;
+	}
+	
+	private String getStatusFiltersNative(final Status[] internalStatuses) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" AND(");
+		int n = internalStatuses.length;
+		for(int i = 0; i < n; i++) {
+			sb.append(" q.internalstatus_id = " + internalStatuses[i].getId());
+			if(i < n - 1) {
+				sb.append(" OR");
+			}
+		}
+		sb.append(")");
+		return sb.toString();
+	}
+	
 }
