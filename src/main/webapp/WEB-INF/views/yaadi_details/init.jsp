@@ -7,23 +7,34 @@
 		$(document).ready(function() {
 			if($("#selectedHouseType").val()=='lowerhouse' 
 					&& $("#deviceType").val()=='questions_starred'
-					&& $("#currentusergroupType").val()=='section_officer') {
+					&& $("#yaadiShufflingEnabled").val()=='section_officer') {
 				//$("#view_yaadi").hide();
 				//$("#view_suchi").hide();
 			}
 			
-			/* show publish button for unpublished suchi on default answering date populated */
-			if($("#deviceType").val()=='questions_stared') {
+			var isSuchiPublished = "NO";
+			
+			if($("#deviceType").val()=='questions_starred'
+				&& $("#yaadiShufflingEnabled").val()=='YES') {
+				$("#view_suchi").hide();
+			}
+			
+			/* show publish button for unpublished suchi on default answering date populated when yaadi shuffling is enabled */
+			if($("#yaadiShufflingEnabled").val()=='YES')
+			{
 				if($('#selectedAnsweringDate').val()!=undefined && $('#selectedAnsweringDate').val()!=""
-						&& $('#selectedAnsweringDate').val()>0) {					
-					populatePublishButtonForSelectedAnsweringDate();					
+						&& $('#selectedAnsweringDate').val()>0) {
+					populatePublishButtonForSelectedAnsweringDate();
 				}
 			}
-			/* show publish button for unpublished suchi on selected answering date after change */
+			/* show publish button for unpublished suchi on selected answering date after change when yaadi shuffling is enabled */
 			$('#selectedAnsweringDate').change(function() {
-				if($('#selectedAnsweringDate').val()!=undefined && $('#selectedAnsweringDate').val()!=""
-						&& $('#selectedAnsweringDate').val()<0) {					
-					populatePublishButtonForSelectedAnsweringDate();					
+				if($("#yaadiShufflingEnabled").val()=='YES')
+				{
+					if($('#selectedAnsweringDate').val()!=undefined && $('#selectedAnsweringDate').val()!=""
+							&& $('#selectedAnsweringDate').val()>0) {
+						populatePublishButtonForSelectedAnsweringDate();
+					}
 				}
 			});
 			/* publish suchi if unpublished on click of publish button */
@@ -102,9 +113,8 @@
 				var parameters="";
 				var yaadiGenerationAllowed= false
 				//Shubham
-				if($("#deviceType").val()=='questions_starred'){
-				
-					
+				if($("#deviceType").val()=='questions_starred')
+				{						
 					var yaadiGenerationAllowedFlag = "#yaadiGenerationAllowed_"+$('#selectedAnsweringDate').val();
 					
 					 if ($("#houseType").val() == "upperhouse" || $("#DIRECT_VIEW_YAADI_ACCESS").val() == "YES" || $(yaadiGenerationAllowedFlag).val()  == "YES")
@@ -144,6 +154,8 @@
 									 role: $("#srole").val(), 
 									 answeringDate: $("#selectedAnsweringDate").val(),
 									 category: $("#category").val(),
+									 yaadiShufflingEnabled: $("#yaadiShufflingEnabled").val(),
+									 isSuchiPublished: isSuchiPublished,
 									 outputFormat: $("#outputFormat").val(),
 					 			 };
 					
@@ -201,12 +213,16 @@
 				$("#resultDiv").empty();
 				var resourceURL="";
 				var parameters="";
-				var SuchiGenerationAllowed= false
-				if($("#deviceType").val()=='questions_starred'){
+				var SuchiGenerationAllowed= false;
+				if($("#deviceType").val()=='questions_starred')
+				{
+					if($("#yaadiShufflingEnabled").val()=='YES'
+							&& isSuchiPublished!='YES') {
+						$.prompt("Not allowed for Suchi generation before publishing!");
+						return false;
+					}
 					
-
-					var SuchiGenerationAllowedFlag = "#yaadiGenerationAllowed_"+$('#selectedAnsweringDate').val();
-					
+					var SuchiGenerationAllowedFlag = "#yaadiGenerationAllowed_"+$('#selectedAnsweringDate').val();					
 					
 					if ($("#houseType").val() == "upperhouse"){
 						SuchiGenerationAllowed = true;
@@ -214,51 +230,50 @@
 						SuchiGenerationAllowed = true;
 					}else if($(SuchiGenerationAllowedFlag).val() == "YES") {
 						SuchiGenerationAllowed = true;
-					}
-			
-				
+					}			
 					
 					if (SuchiGenerationAllowed == true){
-					//check output format set or not
-					if($("#outputFormat").val() == "") {
-						$.prompt($('#outputFormatNotSetPrompt').val());
-						return false;
-					}
-					//isHighSecurityValidationRequired = false;
-					if(isHighSecurityValidationRequired!=false) {
-						validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
-						return false;
-					}
-					/* parameters = "houseType="+$("#selectedHouseType").val()
-									 +"&sessionYear="+$("#selectedSessionYear").val()
-									 +"&sessionType="+$("#selectedSessionType").val()
-									 +"&questionType="+$("#selectedQuestionType").val()
-									 +"&group="+$("#selectedGroup").val()
-									 +"&status="+$("#selectedStatus").val()
-									 +"&role="+$("#srole").val() 
-									 + "&answeringDate=" + $("#selectedAnsweringDate").val()
-									 +"&category=" + $("#category").val()
-									 + "&outputFormat=" + $("#outputFormat").val(); */	
-					 parameters = {
-					 				 houseType: $("#selectedHouseType").val(),
-									 sessionYear: $("#selectedSessionYear").val(),
-									 sessionType: $("#selectedSessionType").val(),
-									 questionType: $("#selectedQuestionType").val(),
-									 group: $("#selectedGroup").val(),
-									 status: $("#selectedStatus").val(),
-									 role: $("#srole").val(), 
-									 answeringDate: $("#selectedAnsweringDate").val(),
-									 category: $("#category").val(),
-									 outputFormat: $("#outputFormat").val()
-					 			 };
-					
-					/* resourceURL = 'question/report/viewSuchi?' + parameters;
-					$(this).attr('href', resourceURL); */
-					form_submit('question/report/viewSuchi', parameters, 'GET');}else
-					{
-						 window.alert("Not allowed for SUchi generation")
+						//check output format set or not
+						if($("#outputFormat").val() == "") {
+							$.prompt($('#outputFormatNotSetPrompt').val());
+							return false;
 						}
-					
+						//isHighSecurityValidationRequired = false;
+						if(isHighSecurityValidationRequired!=false) {
+							validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+							return false;
+						}
+						/* parameters = "houseType="+$("#selectedHouseType").val()
+										 +"&sessionYear="+$("#selectedSessionYear").val()
+										 +"&sessionType="+$("#selectedSessionType").val()
+										 +"&questionType="+$("#selectedQuestionType").val()
+										 +"&group="+$("#selectedGroup").val()
+										 +"&status="+$("#selectedStatus").val()
+										 +"&role="+$("#srole").val() 
+										 + "&answeringDate=" + $("#selectedAnsweringDate").val()
+										 +"&category=" + $("#category").val()
+										 + "&outputFormat=" + $("#outputFormat").val(); */	
+						 parameters = {
+						 				 houseType: $("#selectedHouseType").val(),
+										 sessionYear: $("#selectedSessionYear").val(),
+										 sessionType: $("#selectedSessionType").val(),
+										 questionType: $("#selectedQuestionType").val(),
+										 group: $("#selectedGroup").val(),
+										 status: $("#selectedStatus").val(),
+										 role: $("#srole").val(), 
+										 answeringDate: $("#selectedAnsweringDate").val(),
+										 category: $("#category").val(),
+										 outputFormat: $("#outputFormat").val()
+						 			 };
+						
+						/* resourceURL = 'question/report/viewSuchi?' + parameters;
+						$(this).attr('href', resourceURL); */
+						form_submit('question/report/viewSuchi', parameters, 'GET');
+					} 
+					else
+					{
+						$.prompt("Not allowed for Suchi generation!");
+					}					
 				} else if($("#deviceType").val()=='questions_unstarred') {
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 					var parameters = "houseType=" + $("#selectedHouseType").val()
@@ -486,8 +501,12 @@
 				success: function(data) {	
 					if(data==false) {
 						$('#publishButton1').show();
+						isSuchiPublished = "NO";
+						$("#view_suchi").hide();
 					} else {
 						$('#publishButton1').hide();
+						isSuchiPublished = "YES";
+						$("#view_suchi").show();
 					}
 				},
 				error: function(data) {
@@ -512,7 +531,7 @@
 					var successMsg = "";
 					if(data==false) {
 						promptMsg = "Do you really want to publish suchi for the selected answering date now?";
-						successMsg = "Suchi for the selected answering date published now!"
+						successMsg = "Suchi for the selected answering date published now!";
 					} else if(data==true) {
 						$.prompt("Suchi for the selected answering date is already published!");
 						return false;
@@ -641,7 +660,7 @@
 				</a> |		 
 				<a href="#" id="view_suchi" class="butSim">
 					<spring:message code="yaadidetails.viewSuchi" text="Suchi Report"/>
-				</a>
+				</a> |
 				</security:authorize>
 			</c:when>
 			<c:otherwise>
@@ -650,16 +669,22 @@
 				</a> |		 
 				<a href="#" id="view_suchi" class="butSim">
 					<spring:message code="yaadidetails.viewSuchi" text="Suchi Report"/>
-				</a>
+				</a> |
 			</c:otherwise>
 		</c:choose>
 		
-		<c:if test="${deviceTypeType=='questions_stared'}">
-		<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
-			<button type="button" id="publishButton1" class="publishButton" style="display: none;">Publish!</button>
-		</security:authorize>
-		</c:if>
-		|
+		<c:choose>
+			<c:when test="${deviceTypeType=='questions_starred' and houseType=='upperhouse' and yaadiShufflingEnabled=='YES'}">
+				<security:authorize access="hasAnyRole('QIS_UNDER_SECRETARY')">
+					<button type="button" id="publishButton1" class="publishButton" style="display: none;">Publish!</button> |
+				</security:authorize>
+			</c:when>
+			<c:when test="${deviceTypeType=='questions_starred' and houseType=='lowerhouse' and yaadiShufflingEnabled=='YES'}">
+				<security:authorize access="hasAnyRole('QIS_JOINT_SECRETARY')">
+					<button type="button" id="publishButton1" class="publishButton" style="display: none;">Publish!</button> |
+				</security:authorize>
+			</c:when>
+		</c:choose>
 		<c:if test="${deviceTypeType=='questions_unstarred'}">
 		<a href="#" id="bulk_yaadi_update" class="butSim">
 			<spring:message code="yaadidetails.bulkYaadiUpdate" text="Bulk Yaadi Update"/>				
@@ -670,8 +695,10 @@
 		<a href="#" id="update_questions_status" class="butSim update_devices_status">
 			<spring:message code="yaadidetails.update_questions_status" text="Update Status of Yaadi Questions"/>				
 		</a> |
+		</security:authorize>
+		<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT')">
 	 	<a href="#" id="update_questions" class="butSim update_devices_content">
-			<spring:message code="yaadidetails.update_questions" text="Update  Yaadi Questions"/>				
+			<spring:message code="yaadidetails.update_questions" text="Update Yaadi Questions"/>
 		</a> |
 		</security:authorize>
 		</c:if>
@@ -685,7 +712,7 @@
 	<input id="DIRECT_VIEW_YAADI_ACCESS" type="hidden" value="${DIRECT_VIEW_YAADI_ACCESS}" />
 	<input id="ds" type="hidden" value="${ds}" />
 	<input id="houseType" type="hidden" value="${houseType}" />
-	
+	<input id="yaadiShufflingEnabled" type="hidden" value="${yaadiShufflingEnabled}" />
 
 
 	<input id="deviceType" type="hidden" value="${deviceTypeType}" />

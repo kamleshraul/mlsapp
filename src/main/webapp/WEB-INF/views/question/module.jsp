@@ -2231,7 +2231,7 @@
 			<security:authorize
 				access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
 				'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_JOINT_SECRETARY',
-				'QIS_SECRETARY', 'QIS_CHAIRMAN', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_SECTION_OFFICER', 
+				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_SECTION_OFFICER', 
 				'QIS_UNDER_SECRETARY_COMMITTEE','SUPER_ADMIN','QIS_ADDITIONAL_SECRETARY')">
 				<li><a id="chart_tab" href="#" class="tab"> <spring:message
 							code="question.chart" text="Chart"></spring:message>
@@ -2241,8 +2241,8 @@
 			<security:authorize
 				access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
 				'QIS_DEPUTY_SECRETARY','QIS_SPEAKER', 'QIS_JOINT_SECRETARY','QIS_PRINCIPAL_SECRETARY',
-				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
-				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
+				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER',
+				'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
 				'SUPER_ADMIN','QIS_ADDITIONAL_SECRETARY')">
 				<c:if test="${houseType=='upperhouse'}">
 					<li><a id="memberballot_tab" href="#" class="tab"> <spring:message
@@ -2260,7 +2260,7 @@
 				access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY','QIS_CLERK',
 				'QIS_DEPUTY_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
 				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER',
-				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
+				'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
 				'SUPER_ADMIN','QIS_ADDITIONAL_SECRETARY')">
 				<li><a id="ballot_tab" href="#" class="tab"> <spring:message
 							code="question.ballot" text="Ballot"></spring:message>
@@ -2281,7 +2281,7 @@
 				access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY','QIS_CLERK',
 				'QIS_DEPUTY_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
 				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', '',
-				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
+				'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
 				'SUPER_ADMIN','QIS_ADDITIONAL_SECRETARY')">			
 				<li>
 					<a id="yaadi_details_tab" href="#" class="tab">
@@ -2561,7 +2561,7 @@
 				</select>
 			</security:authorize>
 			
-			<security:authorize access="!hasAnyRole('QIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+			<security:authorize access="!hasAnyRole('QIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','QIS_CHAIRMAN')">
 				<a href="javascript:void(0);" id="reports_link" class="butSim" style="float: right;">
 					<spring:message code="question.reports" text="Reports"/>
 				</a>
@@ -2588,7 +2588,7 @@
 						<hr>
 					</security:authorize>
 					
-					<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_CLERK','HDS_CLERK','HDS_ASSISTANT','QIS_CHAIRMAN')">
+					<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_CLERK','HDS_CLERK','HDS_ASSISTANT')">
 						<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_CHAIRMAN')">
 							<a href="#" id="memberwise_questions_report" class="butSim link">
 								<spring:message code="question.memberwisereport" text="Member's Questions Report"/>

@@ -34,6 +34,7 @@ import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Question.PROCESSING_MODE;
+import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
@@ -276,6 +277,8 @@ class StarredQuestionBallot {
 			final String locale) throws ELSException {			
 		List<DeviceVO> deviceVOs = new ArrayList<DeviceVO>();		
 		
+		String houseType = session.findHouseType();
+		
 		Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 		parametersMap.put("locale", new String[]{locale.toString()});
 		parametersMap.put("sessionId", new String[]{session.getId().toString()});
@@ -291,6 +294,7 @@ class StarredQuestionBallot {
 		
 		if(ballotVOs!=null && !ballotVOs.isEmpty()) {
 			List<QuestionSequenceVO> questionSequenceVOs = new ArrayList<QuestionSequenceVO>();
+			int serialNumber = 1;
 			for(Object i: ballotVOs) {
 				Object[] ballotVO = (Object[])i;
 				QuestionSequenceVO questionSequenceVO = new QuestionSequenceVO();
@@ -304,7 +308,10 @@ class StarredQuestionBallot {
 					questionSequenceVO.setNumber(Integer.parseInt(ballotVO[2].toString()));
 				}
 				if(ballotVO[3]!=null && !ballotVO[3].toString().isEmpty()) {
-					questionSequenceVO.setSequenceNo(Integer.parseInt(ballotVO[3].toString()));
+					questionSequenceVO.setSequenceNo(Integer.parseInt(ballotVO[3].toString()));					
+				} else {
+					questionSequenceVO.setSequenceNo(serialNumber);
+					serialNumber++;
 				}
 				if(ballotVO.length>=5) {
 					if(ballotVO[4]!=null && !ballotVO[4].toString().isEmpty()) {
@@ -327,7 +334,6 @@ class StarredQuestionBallot {
 				Question q = Question.findById(Question.class, questionSequenceVO.getQuestionId());
 				/**** Member Names ****/
 				Member ballotEntryMember = Member.findById(Member.class, questionSequenceVO.getMemberId());
-				String houseType = session.findHouseType();
 				String allMemberNames = "";	
 				String ballotEntryMemberName = "";
 				String questionMemberNames = "";
@@ -494,9 +500,54 @@ class StarredQuestionBallot {
 		} else {
 			deviceVOs = null;
 		}
+		
+		CustomParameter csptYaadiShufflingEnabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_YAADI_SEQUENCE_SHUFFLING_ENABLED_"+houseType.toUpperCase(), "");
+		String yaadiShufflingEnabled = "NO";
+		if(csptYaadiShufflingEnabled!=null) {
+			yaadiShufflingEnabled = csptYaadiShufflingEnabled.getValue();
+		}
+		if(deviceVOs!=null && !deviceVOs.isEmpty() && yaadiShufflingEnabled.equals("YES")) {
+			QuestionDates questionDatesObjForAnsweringDate = group.findQuestionDatesByGroupAndAnsweringDate(answeringDate);
+			if(questionDatesObjForAnsweringDate!=null && questionDatesObjForAnsweringDate.getSuchiPublished()==null) 
+			{
+				deviceVOs = DeviceVO.sort(deviceVOs, "number", ApplicationConstants.ASC);
+			}
+			else if(questionDatesObjForAnsweringDate!=null && questionDatesObjForAnsweringDate.getSuchiPublished()!=null
+					&& questionDatesObjForAnsweringDate.getSuchiPublished().booleanValue()!=true) 
+			{
+				deviceVOs = DeviceVO.sort(deviceVOs, "number", ApplicationConstants.ASC);
+			}			
+		}
 				
 		return deviceVOs;
 	}
+	
+	private static  List<DeviceVO> shuffleArrayWithoutSamePosition(List<DeviceVO> arr) {
+        Random rand = new Random();
+        List<DeviceVO> shuffledDeviceVOs = new ArrayList<DeviceVO>();
+        for(int i=0;i<arr.size();i++)
+        {
+        	shuffledDeviceVOs.add(i,arr.get(i));
+        }
+
+        // Shuffle the array using the Fisher-Yates algorithm
+        for (int i = shuffledDeviceVOs.size() - 1; i > 0; i--) {
+            int j = rand.nextInt(i + 1);
+            DeviceVO temp = shuffledDeviceVOs.get(i);
+            shuffledDeviceVOs.set(i, shuffledDeviceVOs.get(j));       
+            shuffledDeviceVOs.set(j, temp);          
+        }
+
+        // Check if any element is in the same position as the original array
+        for (int i = 0; i < arr.size(); i++) {
+            if (shuffledDeviceVOs.get(i).equals(arr.get(i))) {
+                // Reshuffle the array again if any element is in the same position
+                return shuffleArrayWithoutSamePosition(arr);
+            }
+        }
+
+        return shuffledDeviceVOs;
+    }
 	
 	@SuppressWarnings("rawtypes")
 	public static List<RoundVO> findBallotedRoundVOsForSuchi(final Session session, final DeviceType deviceType, final String processingMode,

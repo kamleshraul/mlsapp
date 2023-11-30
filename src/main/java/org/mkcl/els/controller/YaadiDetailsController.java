@@ -91,6 +91,13 @@ public class YaadiDetailsController extends BaseController {
 					}
 				}
 				model.addAttribute("answeringDates", masterVOs);
+				
+				CustomParameter csptYaadiShufflingEnabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_YAADI_SEQUENCE_SHUFFLING_ENABLED_"+houseType.toUpperCase(), "");
+				String yaadiShufflingEnabled = "NO";
+				if(csptYaadiShufflingEnabled!=null) {
+					yaadiShufflingEnabled = csptYaadiShufflingEnabled.getValue();
+				}
+				model.addAttribute("yaadiShufflingEnabled", yaadiShufflingEnabled);
 			}
 			List<MasterVO> outputFormats = new ArrayList<MasterVO>();
 			MasterVO pdfFormat = new MasterVO();

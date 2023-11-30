@@ -53,6 +53,8 @@ public class QuestionYaadiSuchiXmlVO extends XmlVO {
 	private String yaadiNumber;
 	
 	private String yaadiNumberInText;
+	
+	private String isSuchiPublished;
 		
 	public QuestionYaadiSuchiXmlVO() {
 		
@@ -230,6 +232,15 @@ public class QuestionYaadiSuchiXmlVO extends XmlVO {
 
 	public void setYaadiNumberInText(String yaadiNumberInText) {
 		this.yaadiNumberInText = yaadiNumberInText;
+	}
+
+	@XmlElement(name = "isSuchiPublished")
+	public String getIsSuchiPublished() {
+		return isSuchiPublished;
+	}
+
+	public void setIsSuchiPublished(String isSuchiPublished) {
+		this.isSuchiPublished = isSuchiPublished;
 	}	
 	
 }

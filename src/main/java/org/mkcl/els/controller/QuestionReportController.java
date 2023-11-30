@@ -2909,10 +2909,18 @@ public class QuestionReportController extends BaseController{
 		String strSessionType=request.getParameter("sessionType");
 		String strSessionYear=request.getParameter("sessionYear");	    
 		String strDeviceType=request.getParameter("questionType");
-		String reportFormat=request.getParameter("outputFormat");
 		if(strDeviceType == null){
 			strDeviceType = request.getParameter("deviceType");
 		}
+		String yaadiShufflingEnabled=request.getParameter("yaadiShufflingEnabled");
+		String isSuchiPublished=request.getParameter("isSuchiPublished");
+		if(yaadiShufflingEnabled!=null && yaadiShufflingEnabled=="YES" 
+					&& isSuchiPublished != null && !isSuchiPublished.equals("YES")) {
+			isSuchiPublished = "NO";
+		} else {
+			isSuchiPublished = "YES";
+		}
+		String reportFormat=request.getParameter("outputFormat");
 		String strAnsweringDate = request.getParameter("answeringDate");
 
 		if(strHouseType!=null && strSessionType!=null && strSessionYear!=null && strDeviceType!=null && strAnsweringDate!=null && reportFormat!=null){
@@ -3035,6 +3043,8 @@ public class QuestionReportController extends BaseController{
 
 				data.setDeviceVOs(ballotedDeviceVOs);
 				data.setTotalNumberOfDevices(FormaterUtil.formatNumberNoGrouping(ballotedDeviceVOs.size(), locale.toString()));
+				
+				data.setIsSuchiPublished(isSuchiPublished);
 				//generate report
 				try {
 					reportFile = generateReportUsingFOP(data, "template_questionYaadi_report_"+houseType.getType(), reportFormat, "starred_question_yaadi", locale.toString());

@@ -4435,8 +4435,8 @@ public class MotionController extends GenericController<Motion>{
 				&& ((role!=null && role.trim().length()>0 && applicableRoles.contains(role))
 						|| (!applicableRoles.isEmpty() && applicableRoleNotPresent==false))
 				&& ApplicationConstants.MOTION_CALLING_ATTENTION.equalsIgnoreCase(motionType.getType())) {
-			CustomParameter maxAllowedTextSizeObj = CustomParameter.findByName(CustomParameter.class, "MOTIONS_CALLING_ATTENTION_MAX_TEXT_LENGTH", "");
-			CustomParameter externalLinkObj = CustomParameter.findByName(CustomParameter.class, "MOTIONS_PATRAK_EXTERNAL_LINK", "");
+			CustomParameter maxAllowedTextSizeObj = CustomParameter.findByName(CustomParameter.class, "MOTIONS_CALLING_ATTENTION_MAX_TEXT_LENGTH_"+houseType.getType().toUpperCase(), "");
+			CustomParameter externalLinkObj = CustomParameter.findByName(CustomParameter.class, "MOTIONS_PATRAK_EXTERNAL_LINK_"+houseType.getType().toUpperCase(), "");
 			if(maxAllowedTextSizeObj!=null && maxAllowedTextSizeObj.getValue()!=null 
 					&& maxAllowedTextSizeObj.getValue().trim().length()>0) {
 				model.addAttribute("maxAllowedTextSize",Integer.valueOf(maxAllowedTextSizeObj.getValue().trim()));

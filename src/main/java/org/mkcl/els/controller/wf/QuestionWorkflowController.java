@@ -906,7 +906,11 @@ public class QuestionWorkflowController  extends BaseController{
 					reference.setState("yes");
 				}
 			}else{
-				reference.setState("yes");
+				if(!workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+						&& !workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
+						&& !workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.MEMBER)){
+					reference.setState("yes");
+				}
 			}
 			references.add(reference);
 			if(!ce.getQuestion().getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_LAPSED)) {
