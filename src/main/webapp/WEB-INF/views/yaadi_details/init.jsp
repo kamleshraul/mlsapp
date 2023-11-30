@@ -36,6 +36,16 @@
 						populatePublishButtonForSelectedAnsweringDate();
 					}
 				}
+				
+				var yaadiGenAllowedFlag = "#yaadiGenerationAllowed_"+$('#selectedAnsweringDate').val();
+				if($("#selectedHouseType").val() == "lowerhouse") {
+					if($(yaadiGenAllowedFlag).val()  == "YES") {
+						$('#update_questions').show();			
+					}
+					else {
+						$('#update_questions').hide();
+					}
+				}
 			});
 			/* publish suchi if unpublished on click of publish button */
 			$('#publishButton1').click(function(event, isHighSecurityValidationRequired) {
@@ -349,7 +359,15 @@
 				}
 			});
 			
-			
+			var yaadiGenAllowedFlag = "#yaadiGenerationAllowed_"+$('#selectedAnsweringDate').val();
+			if($("#selectedHouseType").val() == "lowerhouse") {
+				if($(yaadiGenAllowedFlag).val()  == "YES") {
+					$('#update_questions').show();			
+				}
+				else {
+					$('#update_questions').hide();
+				}
+			}			
 			
 			$(".update_devices_content").click(function(event, isHighSecurityValidationRequired) {
 								
@@ -700,9 +718,11 @@
 		</a> |
 		</security:authorize>
 		<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT')">
+		<security:authorize access="!hasAnyRole( 'QIS_GENERAL_CLERK')">
 	 	<a href="#" id="update_questions" class="butSim update_devices_content">
 			<spring:message code="yaadidetails.update_questions" text="Update Yaadi Questions"/>
 		</a> |
+		</security:authorize>
 		</security:authorize>
 		</c:if>
 		<hr/>

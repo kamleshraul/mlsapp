@@ -2131,7 +2131,7 @@ public class QuestionController extends GenericController<Question> {
 					}
 				}
 				
-				CustomParameter csptYaadiShufflingEnabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_YAADI_SEQUENCE_SHUFFLING_ENABLED_"+houseType.getType().toUpperCase(), locale);
+				CustomParameter csptYaadiShufflingEnabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_YAADI_SEQUENCE_SHUFFLING_ENABLED_"+houseType.getType().toUpperCase(), "");
 				String yaadiShufflingEnabled = "NO";
 				if(csptYaadiShufflingEnabled!=null) {
 					yaadiShufflingEnabled = csptYaadiShufflingEnabled.getValue();
