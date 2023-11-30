@@ -519,7 +519,13 @@
                   margin-bottom="2cm"
                   margin-left="2.5cm"
                   margin-right="2.5cm">
-			      <fo:region-body margin-top="1cm"/>        
+			      <fo:region-body margin-top="1cm">
+		     		  <xsl:if test="isSuchiPublished='NO'">
+			      		<xsl:attribute name="background-image">
+	               			<xsl:text>report_images/preview_watermark.jpg</xsl:text>
+	               		</xsl:attribute>
+	              	  </xsl:if>
+			      </fo:region-body>
 			      <fo:region-before region-name="page-number" extent="2cm"/>
 			      <fo:region-after extent="1.5cm"/>
 			    </fo:simple-page-master>

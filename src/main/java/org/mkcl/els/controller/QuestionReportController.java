@@ -2914,13 +2914,16 @@ public class QuestionReportController extends BaseController{
 		}
 		String yaadiShufflingEnabled=request.getParameter("yaadiShufflingEnabled");
 		String isSuchiPublished=request.getParameter("isSuchiPublished");
-		if(yaadiShufflingEnabled!=null && yaadiShufflingEnabled=="YES" 
+		if(yaadiShufflingEnabled!=null && yaadiShufflingEnabled.equals("YES") 
 					&& isSuchiPublished != null && !isSuchiPublished.equals("YES")) {
 			isSuchiPublished = "NO";
 		} else {
 			isSuchiPublished = "YES";
 		}
 		String reportFormat=request.getParameter("outputFormat");
+		if(isSuchiPublished.equals("NO")) {
+			reportFormat = "PDF";
+		}
 		String strAnsweringDate = request.getParameter("answeringDate");
 
 		if(strHouseType!=null && strSessionType!=null && strSessionYear!=null && strDeviceType!=null && strAnsweringDate!=null && reportFormat!=null){
