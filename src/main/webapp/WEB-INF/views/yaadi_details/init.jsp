@@ -3,7 +3,9 @@
 <head>
 	<title></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<script type="text/javascript">				
+	<script type="text/javascript">		
+		var isSuchiPublished = "NO";
+		
 		$(document).ready(function() {
 			if($("#selectedHouseType").val()=='lowerhouse' 
 					&& $("#deviceType").val()=='questions_starred'
@@ -11,8 +13,6 @@
 				//$("#view_yaadi").hide();
 				//$("#view_suchi").hide();
 			}
-			
-			var isSuchiPublished = "NO";
 			
 			if($("#deviceType").val()=='questions_starred'
 				&& $("#yaadiShufflingEnabled").val()=='YES') {
@@ -117,7 +117,7 @@
 				{						
 					var yaadiGenerationAllowedFlag = "#yaadiGenerationAllowed_"+$('#selectedAnsweringDate').val();
 					
-					 if ($("#houseType").val() == "upperhouse" || $("#DIRECT_VIEW_YAADI_ACCESS").val() == "YES" || $(yaadiGenerationAllowedFlag).val()  == "YES")
+					if ($("#houseType").val() == "upperhouse" || $("#DIRECT_VIEW_YAADI_ACCESS").val() == "YES" || $(yaadiGenerationAllowedFlag).val()  == "YES")
 					{
 						yaadiGenerationAllowed = true;
 					
@@ -125,47 +125,47 @@
 			
 					if (yaadiGenerationAllowed == true){
 						//check output format set or not
-					if($("#outputFormat").val() == "") {
-						$.prompt($('#outputFormatNotSetPrompt').val());
-						return false;
+						if($("#outputFormat").val() == "") {
+							$.prompt($('#outputFormatNotSetPrompt').val());
+							return false;
+						}
+						//isHighSecurityValidationRequired = false;
+						if(isHighSecurityValidationRequired!=false) {
+							validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+							return false;
+						}
+						/* parameters = "houseType="+$("#selectedHouseType").val()
+										 +"&sessionYear="+$("#selectedSessionYear").val()
+										 +"&sessionType="+$("#selectedSessionType").val()
+										 +"&questionType="+$("#selectedQuestionType").val()
+										 +"&group="+$("#selectedGroup").val()
+										 +"&status="+$("#selectedStatus").val()
+										 +"&role="+$("#srole").val() 
+										 + "&answeringDate=" + $("#selectedAnsweringDate").val()
+										 +"&category=" + $("#category").val()
+										 + "&outputFormat=" + $("#outputFormat").val(); */	
+						 parameters = {
+						 				 houseType: $("#selectedHouseType").val(),
+										 sessionYear: $("#selectedSessionYear").val(),
+										 sessionType: $("#selectedSessionType").val(),
+										 questionType: $("#selectedQuestionType").val(),
+										 group: $("#selectedGroup").val(),
+										 status: $("#selectedStatus").val(),
+										 role: $("#srole").val(), 
+										 answeringDate: $("#selectedAnsweringDate").val(),
+										 category: $("#category").val(),
+										 yaadiShufflingEnabled: $("#yaadiShufflingEnabled").val(),
+										 isSuchiPublished: isSuchiPublished,
+										 outputFormat: $("#outputFormat").val(),
+						 			 };
+						
+						/* resourceURL = 'question/report/viewYaadi?' + parameters;
+						$(this).attr('href', resourceURL); */
+						form_submit('question/report/viewYaadi', parameters, 'GET');
 					}
-					//isHighSecurityValidationRequired = false;
-					if(isHighSecurityValidationRequired!=false) {
-						validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
-						return false;
-					}
-					/* parameters = "houseType="+$("#selectedHouseType").val()
-									 +"&sessionYear="+$("#selectedSessionYear").val()
-									 +"&sessionType="+$("#selectedSessionType").val()
-									 +"&questionType="+$("#selectedQuestionType").val()
-									 +"&group="+$("#selectedGroup").val()
-									 +"&status="+$("#selectedStatus").val()
-									 +"&role="+$("#srole").val() 
-									 + "&answeringDate=" + $("#selectedAnsweringDate").val()
-									 +"&category=" + $("#category").val()
-									 + "&outputFormat=" + $("#outputFormat").val(); */	
-					 parameters = {
-					 				 houseType: $("#selectedHouseType").val(),
-									 sessionYear: $("#selectedSessionYear").val(),
-									 sessionType: $("#selectedSessionType").val(),
-									 questionType: $("#selectedQuestionType").val(),
-									 group: $("#selectedGroup").val(),
-									 status: $("#selectedStatus").val(),
-									 role: $("#srole").val(), 
-									 answeringDate: $("#selectedAnsweringDate").val(),
-									 category: $("#category").val(),
-									 yaadiShufflingEnabled: $("#yaadiShufflingEnabled").val(),
-									 isSuchiPublished: isSuchiPublished,
-									 outputFormat: $("#outputFormat").val(),
-					 			 };
-					
-					/* resourceURL = 'question/report/viewYaadi?' + parameters;
-					$(this).attr('href', resourceURL); */
-					form_submit('question/report/viewYaadi', parameters, 'GET');
-				}
 					else
 					{
-					 window.alert("Not allowed for yaadi generation")
+					 	$.prompt("Not allowed for yaadi generation");
 					}
 					
 				} else if($("#deviceType").val()=='questions_unstarred') {
@@ -493,6 +493,7 @@
 		}
 		
 		function populatePublishButtonForSelectedAnsweringDate() {
+			//console.log(isSuchiPublished);
 			clearErrorMsg();
 			var parameters = "answeringDate=" + $("#selectedAnsweringDate").val();						
 			$.ajax({url: 'ref/check_if_suchi_published_on_selected_answering_date', data: parameters,
@@ -502,12 +503,14 @@
 					if(data==false) {
 						$('#publishButton1').show();
 						isSuchiPublished = "NO";
+						//console.log("isSuchiPublished: " + isSuchiPublished);
 						$("#view_suchi").hide();
 					} else {
 						$('#publishButton1').hide();
 						isSuchiPublished = "YES";
 						$("#view_suchi").show();
 					}
+					//console.log(isSuchiPublished);
 				},
 				error: function(data) {
 					$.prompt("Some error occurred to find if suchi is published or not!");
@@ -675,7 +678,7 @@
 		
 		<c:choose>
 			<c:when test="${deviceTypeType=='questions_starred' and houseType=='upperhouse' and yaadiShufflingEnabled=='YES'}">
-				<security:authorize access="hasAnyRole('QIS_UNDER_SECRETARY')">
+				<security:authorize access="hasAnyRole('QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE')">
 					<button type="button" id="publishButton1" class="publishButton" style="display: none;">Publish!</button> |
 				</security:authorize>
 			</c:when>
