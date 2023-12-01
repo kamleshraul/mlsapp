@@ -406,7 +406,9 @@ public class NotificationController extends GenericController<Notification> {
 		templateParameters.put("deviceNumber", new String[]{FormaterUtil.formatNumberNoGrouping(motion.getNumber(), locale)});
 		templateParameters.put("sessionId", new String[]{motion.getSession().getId().toString()});
 		templateParameters.put("departmentUserName", new String[]{departmentUserName});
-		getNotificationService().sendNotificationWithTitleUsingTemplate(motion.getType().getType().toUpperCase() + "_REQUEST_FOR_DEPARTMENT_PROCESSING", templateParameters, locale);
+		templateParameters.put("deviceTypeName", new String[]{motion.getType().getName()});
+		String[] deviceNameSplit = motion.getType().getType().toUpperCase().split("_");
+		getNotificationService().sendNotificationWithTitleUsingTemplate(deviceNameSplit[0]+"_"+deviceNameSplit[1]+ "_REQUEST_FOR_DEPARTMENT_PROCESSING", templateParameters, locale);
 	}
 	
 	public static void sendDepartmentProcessNotificationIncludingBranchForMotion(final Motion motion, final String usergroupTypes, final String copyType, final String locale) {
