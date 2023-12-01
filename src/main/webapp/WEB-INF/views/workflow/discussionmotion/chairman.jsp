@@ -660,7 +660,7 @@
 					</td>
 					<td>
 						
-						<select id="changeInternalStatus" class="sSelect">
+						<%-- <select id="changeInternalStatus" class="sSelect">
 							<c:forEach items="${internalStatuses}" var="i">
 								<c:choose>
 									<c:when test="${i.type=='discussionmotion_system_groupchanged' }">
@@ -669,7 +669,7 @@
 									<c:when test="${i.id==internalStatus }">
 										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
 									</c:when>
-<%-- 									<c:when test="${(empty domain.factualPosition || empty domain.answer) && (i.type=='question_processed_sendToDepartment' ||  i.type=='question_unstarred_processed_sendToDepartment')}">
+									<c:when test="${(empty domain.factualPosition || empty domain.answer) && (i.type=='question_processed_sendToDepartment' ||  i.type=='question_unstarred_processed_sendToDepartment')}">
 										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
 									</c:when>
 									<c:when test="${!(empty domain.answer) && (i.type=='question_processed_answerReceived' || i.type=='question_unstarred_processed_answerReceived')}">
@@ -677,14 +677,33 @@
 									</c:when>
 									<c:when test="${!(empty domain.factualPosition) && (i.type=='question_processed_clarificationReceived' || i.type=='question_unstarred_processed_clarificationReceived')}">
 										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-									</c:when> --%>
+									</c:when>
 									<c:otherwise>
 										<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	 
 									</c:otherwise>
 										
 								</c:choose>
 							</c:forEach>
+						</select> --%>
+						<select id="changeInternalStatus" class="sSelect">
+						<c:forEach items="${internalStatuses}" var="i">
+							<c:choose>
+									<c:when test="${i.id==internalStatusSelected }">
+									<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									</c:when>
+									<c:otherwise>
+									<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+									</c:otherwise>
+							</c:choose>
+						</c:forEach>
 						</select>
+								
+						<select id="internalStatusMaster" style="display:none;">
+							<c:forEach items="${internalStatuses}" var="i">
+								<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+							</c:forEach>
+						</select>	
+						<form:errors path="internalStatus" cssClass="validationError"/>	
 					</td>
 					<td>
 						<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
