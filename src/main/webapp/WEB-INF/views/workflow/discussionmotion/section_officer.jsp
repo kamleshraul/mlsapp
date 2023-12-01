@@ -36,7 +36,7 @@
 	function loadActors(value){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		var valueToSend="";
-
+		console.log("in loadActors")
 		if(value!='-'){		
 			var sendToDepartment=$("#internalStatusMaster option[value='discussionmotion_processed_sendToDepartment']").text();
 			var sendToMember=$("#internalStatusMaster option[value='discussionmotion_processed_sendToMember']").text();
@@ -74,7 +74,7 @@
 			var params="discussionmotion="+$("#id").val()+"&status="+valueToSend+
 			"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
 			var resourceURL='ref/discussionmotion/actors?'+params;
-	
+			console.log("before load actor ajax")
 			$.get(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''){
 					$("#actor").empty();
@@ -165,6 +165,7 @@
 		$("#actor").change(function(){
 		    var actor=$(this).val();
 		    var temp=actor.split("#");
+		    console.log(temp)
 		    $("#level").val(temp[2]);		    
 		    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
 		    $("#actorName").val(temp[4]);
@@ -359,8 +360,14 @@
 	   	    
 		//**** Load actors on page load ****/
 		if($('#workflowstatus').val()!='COMPLETED'){
+			
+			
 			var statusType = $("#internalStatusType").val().split("_");
+			console.log(statusType)
+			
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
+			console.log("id" + id)
+			
 			$("#changeInternalStatus").val(id);
 			$("#changeInternalStatus").change();
 		}
@@ -746,7 +753,7 @@
 					</td>
 					<td>
 						
-						<select id="changeInternalStatus" class="sSelect">
+						<%--  <select id="changeInternalStatus" class="sSelect">
 							<c:forEach items="${internalStatuses}" var="i">
 								<c:choose>
 									<c:when test="${i.type=='discussionmotion_system_groupchanged' }">
@@ -755,7 +762,7 @@
 									<c:when test="${i.id==internalStatus }">
 										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
 									</c:when>
-<%-- 									<c:when test="${(empty domain.factualPosition || empty domain.answer) && (i.type=='question_processed_sendToDepartment' ||  i.type=='question_unstarred_processed_sendToDepartment')}">
+									<c:when test="${(empty domain.factualPosition || empty domain.answer) && (i.type=='question_processed_sendToDepartment' ||  i.type=='question_unstarred_processed_sendToDepartment')}">
 										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
 									</c:when>
 									<c:when test="${!(empty domain.answer) && (i.type=='question_processed_answerReceived' || i.type=='question_unstarred_processed_answerReceived')}">
@@ -763,14 +770,40 @@
 									</c:when>
 									<c:when test="${!(empty domain.factualPosition) && (i.type=='question_processed_clarificationReceived' || i.type=='question_unstarred_processed_clarificationReceived')}">
 										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-									</c:when> --%>
+									</c:when>
 									<c:otherwise>
 										<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	 
 									</c:otherwise>
 										
 								</c:choose>
 							</c:forEach>
-						</select>
+						</select>  --%>
+						
+					
+						
+						
+					 	 <select id="changeInternalStatus" class="sSelect">
+							<c:forEach items="${internalStatuses}" var="i">
+								 <c:choose>
+									<c:when test="${i.id==internalStatusSelected }">
+										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									</c:when>
+									<c:otherwise>
+										<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+									</c:otherwise>
+								</c:choose> 
+								
+							</c:forEach>
+						</select>  
+								
+						 <select id="internalStatusMaster" style="display:none;">
+							<c:forEach items="${internalStatuses}" var="i">
+								<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+							</c:forEach>
+						</select>	
+						<form:errors path="internalStatus" cssClass="validationError"/>	 
+						
+						
 					</td>
 					<td>
 						<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
