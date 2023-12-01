@@ -874,8 +874,14 @@ public class DiscussionMotionWorkflowController extends BaseController{
 					if(!endflag.isEmpty()){
 						if(endflag.equals("continue")){
 							WorkflowDetails workflowDetails2=null;
-							if(Integer.parseInt(level)>8){
-							//Rajesh - Code for multiple department task start
+							
+							//e2_sectionofficer#section_officer#9#कक्ष अधिकारी#श्री. मंदार - शेमणकर  For Example 							
+							String[] currentUserGroupType = motion.getActor().split("#");
+							
+							if(currentUserGroupType[1].equals(ApplicationConstants.SECTION_OFFICER) && domain.getInternalStatus().getType().equals(ApplicationConstants.DISCUSSIONMOTION_FINAL_ADMISSION)){
+								// Shubham A - Added Above if Condition Hack to Assign 'DEPARTMENT' Actor to DisscusMotion Sub Device As per their WorkFlow Config 
+								// TODO Need to Find  a Solution  ¯\_(ツ)_/¯ 
+								//Rajesh - Code for multiple department task start
 							List<Reference> actors = new ArrayList<Reference>();
 							//String strDiscussionmotion = request.getParameter("discussionmotion");
 							String strInternalStatus = request.getParameter("status");
@@ -1858,7 +1864,7 @@ public class DiscussionMotionWorkflowController extends BaseController{
 		requestMap.put("locale",new String[]{domain.getLocale()});
 		if(userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)
 				|| userGroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
-			List result=Query.findReport("DMOIS_LATEST_REVISION_FOR_DESKOFFICER", requestMap);
+			List result=Query.findReport("DMOIS_LATEST_REVISION_FOR_DESK", requestMap);
 			model.addAttribute("latestRevisions",result);
 		}else{
 			List result=Query.findReport("DMOIS_LATEST_REVISIONS", requestMap);
