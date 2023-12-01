@@ -1493,7 +1493,20 @@
 						$('#generateIntimationLetter').attr('href', 'proprietypoint/report/generateIntimationLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val()+'&copyType=tentativeCopy');
 					}else if(currentDevice.indexOf('motions_cutmotion')==0){
 						$('#generateIntimationLetter').attr('href', 'cutmotion/report/generateIntimationLetter?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
-					}
+					}else if(currentDevice.indexOf('motions_discussionmotion_shortduration')==0 || currentDevice.indexOf('motions_discussionmotion_lastweek')==0 ){
+						console.log("above link")
+						var number = $("#grid").jqGrid('getCell', workflowId,'deviceId');
+						console.log(number)
+						//javascript:void(0);
+					 	$('#generateIntimationLetter').attr('href',
+								'discussionmotion/report/commonadmissionreport?discussionmotionId=' + number
+								+ '&locale=mr_IN'
+								+ '&motionType=' + $("#selectedDeviceType").val()
+								+ '&outputFormat=WORD' 
+								+ '&reportQuery=DISCUSSIONMOTION_DEPARTMENTINTIMATION_LETTER'
+								+ '&templateName=department_intimationletter'
+								+ '&reportName=departmentintimationletter');
+						}
 					if(isNeededToResetLetterFilter == true) {
 						$("#intimationLetterFilter").val("-");
 					}
