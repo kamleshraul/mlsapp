@@ -1430,9 +1430,12 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 					if(domain.getNoticeContent().isEmpty()){
 						result.rejectValue("noticeContent","NoticeContentEmpty");
 					}
-					if(domain.getBriefExplanation().isEmpty()){
-						result.rejectValue("briefExplanation","NoticeContentEmpty");
+					if(domain.getType().getType().equals(ApplicationConstants.DISCUSSIONMOTION_SHORTDURATION)) {
+						if(domain.getBriefExplanation().isEmpty()){
+							result.rejectValue("briefExplanation","NoticeContentEmpty");
+						}
 					}
+					
 					if (result.getFieldErrorCount("supportingMembers") == 0) {
 						// check if request is already
 						// sent for approval
@@ -1529,8 +1532,10 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 						if(domain.getNoticeContent().isEmpty()){
 							result.rejectValue("noticeContent","NoticeContentEmpty");
 						}
-						if(domain.getBriefExplanation().isEmpty()){
-							result.rejectValue("briefExplanation","NoticeContentEmpty");
+						if(domain.getType().getType().equals(ApplicationConstants.DISCUSSIONMOTION_SHORTDURATION)) {
+							if(domain.getBriefExplanation().isEmpty()){
+								result.rejectValue("briefExplanation","NoticeContentEmpty");
+							}
 						}
 						String internalStatusType=domain.getInternalStatus().getType();
 						if(internalStatusType.equals(ApplicationConstants.DISCUSSIONMOTION_SUBMIT)){
@@ -1565,9 +1570,12 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 			if(domain.getNoticeContent().isEmpty()){
 				result.rejectValue("noticeContent","NoticeContentEmpty");
 			}
-			if(domain.getBriefExplanation().isEmpty()){
-				result.rejectValue("briefExplanation","NoticeContentEmpty");
+			if(domain.getType().getType().equals(ApplicationConstants.DISCUSSIONMOTION_SHORTDURATION)) {
+				if(domain.getBriefExplanation().isEmpty()){
+					result.rejectValue("briefExplanation","NoticeContentEmpty");
+				}
 			}
+			
 			String usergroupType=request.getParameter("usergroupType");
 			if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("assistant")){
 				if(domain.getMinistries()==null){
