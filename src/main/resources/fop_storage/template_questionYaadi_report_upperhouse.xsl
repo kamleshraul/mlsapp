@@ -565,11 +565,21 @@
 			</xsl:variable>
 			
 	        <fo:page-sequence master-reference="{$pageSequenceVariable}" id="DocumentBody">
-		        <fo:static-content flow-name="page-number">	        	
-		        	<fo:block font-family="Kokila" font-size="10pt" text-align="center">
-		        		<fo:page-number/>		        				        		
-		        	</fo:block>
-		        </fo:static-content>       	        
+		        
+		        <fo:static-content flow-name="page-number">
+	        	<xsl:choose>
+		        	<xsl:when test="isSuchiPublished='NO'">
+			        	<fo:block font-family="Kokila" font-size="12pt" text-align="center" font-weight="bold">
+			        		This copy is NOT the actual yaadi. kindly consider it for only proof-reading
+			        	</fo:block>
+		        	</xsl:when>
+		        	<xsl:otherwise>
+		        		<fo:block font-family="Kokila" font-size="10pt" text-align="center">
+		        			<fo:page-number/>
+		        		</fo:block>
+		        	</xsl:otherwise>
+	        	</xsl:choose>
+		        </fo:static-content>
 		
 		    <!-- <fo:static-content flow-name="ra-right">
 			  <fo:block font-size="10pt">
