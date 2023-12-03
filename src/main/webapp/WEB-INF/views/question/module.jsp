@@ -93,7 +93,7 @@
 				//console.log("inside func");
 				$("#yaadi_details_tab").show();
 			} 
-			else if(($("#currentusergroupType").val()=='clerk' && $("#generalClerkDisplay").val() !='YES'))
+			else if($("#currentusergroupType").val()=='clerk' && $("#generalClerkDisplay").val() !='YES')
 			{  
 			$("#yaadi_details_tab").show();
 			}

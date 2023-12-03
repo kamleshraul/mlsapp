@@ -17,6 +17,7 @@
 			if($("#deviceType").val()=='questions_starred'
 				&& $("#yaadiShufflingEnabled").val()=='YES') {
 				$("#view_suchi").hide();
+				$("#update_questions").hide();
 			}
 			
 			/* show publish button for unpublished suchi on default answering date populated when yaadi shuffling is enabled */
@@ -523,10 +524,12 @@
 						isSuchiPublished = "NO";
 						//console.log("isSuchiPublished: " + isSuchiPublished);
 						$("#view_suchi").hide();
+						$("#update_questions").show();
 					} else {
 						$('#publishButton1').hide();
 						isSuchiPublished = "YES";
 						$("#view_suchi").show();
+						$("#update_questions").hide();
 					}
 					//console.log(isSuchiPublished);
 				},
@@ -674,8 +677,18 @@
 		<%-- </security:authorize> --%>
 		
 		<c:choose>
-			<c:when test="${deviceTypeType=='questions_starred'}">
+			<c:when test="${deviceTypeType=='questions_starred' and houseType=='lowerhouse'}">
 				<security:authorize access="!hasAnyRole( 'QIS_GENERAL_CLERK')">
+				<a href="#" id="view_yaadi" class="butSim">
+					<spring:message code="yaadidetails.viewYaadi" text="Yaadi Report"/>
+				</a> |		 
+				<a href="#" id="view_suchi" class="butSim">
+					<spring:message code="yaadidetails.viewSuchi" text="Suchi Report"/>
+				</a> |
+				</security:authorize>
+			</c:when>
+			<c:when test="${deviceTypeType=='questions_starred' and houseType=='upperhouse'}">
+				<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE')">
 				<a href="#" id="view_yaadi" class="butSim">
 					<spring:message code="yaadidetails.viewYaadi" text="Yaadi Report"/>
 				</a> |		 
@@ -712,11 +725,12 @@
 		</a> |
 		</c:if>
 		<c:if test="${deviceTypeType=='questions_starred'}">
-		<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER')">
+		<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 		<a href="#" id="update_questions_status" class="butSim update_devices_status">
-			<spring:message code="yaadidetails.update_questions_status" text="Update Status of Yaadi Questions"/>				
+			<spring:message code="yaadidetails.update_questions_status" text="Update Status of Yaadi Questions"/>
 		</a> |
 		</security:authorize>
+		<c:if test="${houseType=='upperhouse'}">
 		<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT')">
 		<security:authorize access="!hasAnyRole( 'QIS_GENERAL_CLERK')">
 	 	<a href="#" id="update_questions" class="butSim update_devices_content">
@@ -724,6 +738,7 @@
 		</a> |
 		</security:authorize>
 		</security:authorize>
+		</c:if>
 		</c:if>
 		<hr/>
 		<br/>

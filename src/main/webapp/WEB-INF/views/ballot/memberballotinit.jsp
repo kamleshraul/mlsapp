@@ -613,7 +613,7 @@
 					<spring:message code="memberballot.viewfinalballot" text="View Final Ballot"/>
 				</a> |
 			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_UNDER_SECRETARY')">
+			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY', 'QIS_UNDER_SECRETARY_COMMITTEE')">
 				<a href="#" id="previewFinalBallot" class="butSim link">
 					<spring:message code="memberballot.previewFinalballot" text="Preview Final Ballot"/>
 				</a> |
