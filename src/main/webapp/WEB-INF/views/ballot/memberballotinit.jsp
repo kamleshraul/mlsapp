@@ -605,10 +605,12 @@
 			</security:authorize>
 			</security:authorize>
 			<!-- <div style="display:none;"> -->
-			<security:authorize access="hasAnyRole('QIS_UNDER_SECRETARY')">
+			<security:authorize access="hasAnyRole('QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_SECRETARY')">
+				<security:authorize access="!hasAnyRole('QIS_SECRETARY')">
 				<a href="#" id="finalballot" class="butSim link">
 					<spring:message code="memberballot.finalballot" text="Final Ballot"/>
 				</a> |
+				</security:authorize>
 				<a href="#" id="viewfinalballot" class="butSim link">
 					<spring:message code="memberballot.viewfinalballot" text="View Final Ballot"/>
 				</a> |
