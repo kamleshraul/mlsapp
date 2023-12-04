@@ -840,12 +840,33 @@ public class MotionWorkflowController extends BaseController {
 				&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.MOTION_PROCESSED_SEND_TO_SECTIONOFFICER)){
 			if(operation!=null && operation.equals("workflowsubmit")){
 				if(domain.getTransferToDepartmentAccepted()==null || domain.getTransferToDepartmentAccepted().equals(false)) {
-					if(domain.getReply() == null || domain.getReply().isEmpty()){
-						result.rejectValue("reply", "ReplyEmpty");
-						if(!model.containsAttribute("errorcode")){
-							model.addAttribute("errorcode","no_reply_provided_department");								
+					if(domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
+						if(domain.getReply() == null || domain.getReply().isEmpty()){
+							result.rejectValue("reply", "ReplyEmpty");
+							if(!model.containsAttribute("errorcode")){
+								model.addAttribute("errorcode","no_reply_provided_department");								
+							}
+							return "workflow/myTasks/error";
+						}	
+					}
+					
+					if(domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+						if(domain.getFactualPositionFromDepartment() == null || domain.getFactualPositionFromDepartment().isEmpty()){
+							result.rejectValue("reply", "ReplyEmpty");
+							if(!model.containsAttribute("errorcode")){
+								model.addAttribute("errorcode","no_factual_position_provided_department");								
+							}
+							return "workflow/myTasks/error";
 						}
-						return "workflow/myTasks/error";
+					}	
+					if(domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+						if(domain.getFactualPositionFromMember() == null || domain.getFactualPositionFromMember().isEmpty()){
+							result.rejectValue("reply", "ReplyEmpty");
+							if(!model.containsAttribute("errorcode")){
+								model.addAttribute("errorcode","no_factual_position_provided_member");								
+							}
+							return "workflow/myTasks/error";
+						}
 					}
 				}
 			}
