@@ -7,13 +7,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.BallotVO;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.House;
+import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.Status;
@@ -271,6 +276,30 @@ public class ProprietyPointBallot {
 		return preBallotVOs;
 	}
 	
+	
+	//===============================================
+	//
+	//=============== DOMAIN METHODS ================
+	//
+	//===============================================
+	public static Ballot create(final Ballot ballot) throws ELSException {
+		Session session = ballot.getSession();
+		House house = session.getHouse();
+		HouseType houseType = house.getType();
+		
+		String houseTypeType = houseType.getType();
+		if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+			return ProprietyPointBallot.createPROISAssemblyBallot(ballot);
+		}
+//		else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+//			return ProprietyPointBallot.createPROISCouncilBallot(ballot);
+//		}
+		else {
+			throw new ELSException("ProprietyPointBallot.create/1", "Inappropriate houseType set in Session.");
+		}
+	}
+	
+	
 	//===============================================
 	//
 	//=============== INTERNAL METHODS ==============
@@ -303,6 +332,173 @@ public class ProprietyPointBallot {
 		List<ProprietyPoint> proprietyPoints = ProprietyPoint.findByBallot(session, deviceType, answeringDate, internalStatuses, false, false, isMandatoryUnique, isPreBallot, startTime, endTime, ApplicationConstants.ASC, locale);
 			
 		return proprietyPoints;
+	}
+	
+	private static Ballot createPROISAssemblyBallot(final Ballot ballot) throws ELSException {
+		return ProprietyPointBallot.createBallotPROISAssembly(ballot);
+	}
+	
+	private static Ballot createBallotPROISAssembly(final Ballot b) throws ELSException {
+		Ballot ballot = Ballot.find(b.getSession(), b.getDeviceType(), 
+				b.getAnsweringDate(), b.getLocale());
+		
+		if(ballot == null) {
+			List<Member> computedList = null;
+			
+			CustomParameter csptUniqueFlag = CustomParameter.findByName(CustomParameter.class, b.getDeviceType().getType().toUpperCase() + "_" + b.getSession().getHouse().getType().getType().toUpperCase() + "_UNIQUE_FLAG_MEMBER_BALLOT", "");
+			if(csptUniqueFlag == null){
+				ELSException elsException = new ELSException();
+				elsException.setParameter("PROIS_LOWERHOUSE_UNIQUE_FLAG_MEMBER_BALLOT", "Custom Parameters for PROIS_LOWERHOUSE_UNIQUE_FLAG_MEMBER_BALLOT is not set.");
+				throw elsException;
+			}
+			
+			if(csptUniqueFlag.getValue().equalsIgnoreCase("YES")){
+				computedList = ProprietyPointBallot.computeMembersProprietyPoint(b.getSession(),
+							b.getDeviceType(),
+							b.getAnsweringDate(),
+							true,
+							b.getLocale());
+			}
+			
+			// Read the constant 2 as a configurable parameter
+			CustomParameter proisAssemblyBallotOutPutCount = CustomParameter.findByName(CustomParameter.class, "PROIS_ASSEMBLY_BALLOT_OUTPUT_COUNT", "");
+			if(proisAssemblyBallotOutPutCount == null){
+				ELSException elsException = new ELSException();
+				elsException.setParameter("PROIS_ASSEMBLY_BALLOT_OUTPUT_COUNT", "Custom Parameters for PROIS_ASSEMBLY_BALLOT_OUTPUT_COUNT is not set.");
+				throw elsException;
+			}
+			
+			int outPutCount = Integer.parseInt(proisAssemblyBallotOutPutCount.getValue());
+			List<Member> finalComputedList = ProprietyPointBallot.getUniqueMembers(b.getSession(), b.getDeviceType(), computedList, "member");
+			List<Member> newMemberList = new ArrayList<Member>();
+			
+			if(finalComputedList.size() < outPutCount){
+				if(!finalComputedList.isEmpty()){
+					Member m = finalComputedList.get(0);
+					if(m.isActiveMemberOn(new Date(), b.getLocale())){
+						newMemberList.add(m);
+					}
+				}
+				finalComputedList = ProprietyPointBallot.computeMembersProprietyPoint(b.getSession(),
+						b.getDeviceType(),
+						b.getAnsweringDate(),
+						false,
+						b.getLocale());
+			}
+			
+			for(Member m : finalComputedList){
+				if(m.isActiveMemberOn(new Date(), b.getLocale())){
+					newMemberList.add(m);
+				}
+			}
+			
+			List<Member> randomizedList = ProprietyPointBallot.randomizeMembers(newMemberList);
+			List<Member> selectedList = ProprietyPointBallot.selectMembersForBallot(randomizedList, outPutCount);
+			
+			List<BallotEntry> ballotEntries = ProprietyPointBallot.createPROISBallotEntries(b.getSession(), b.getDeviceType(), b.getAnsweringDate(), selectedList,
+					b.getLocale());
+			b.setBallotEntries(ballotEntries);
+			ballot = (Ballot) b.persist();	
+		}
+		
+		return ballot;
+	}
+	
+	private static List<Member> computeMembersProprietyPoint(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final Boolean isUnique,
+			final String locale) throws ELSException {
+		//CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
+		
+		Date startTime = ProprietyPoint.findSubmissionStartTime(session, answeringDate); //for council 2nd argument should be 1 working day before answeringDate
+		Date endTime = ProprietyPoint.findSubmissionEndTime(session, answeringDate); //for council 2nd argument should be 1 working day before answeringDate or session end date if current date is session date
+		
+		List<Member> members = null;		
+		Status ADMITTED = null;
+		Status RECOMMENDADMITTED = null;
+
+		if(deviceType.getType().equals(ApplicationConstants.PROPRIETY_POINT)){
+			
+			ADMITTED = Status.findByType(ApplicationConstants.PROPRIETYPOINT_FINAL_ADMISSION, locale);
+			RECOMMENDADMITTED = Status.findByType(ApplicationConstants.PROPRIETYPOINT_RECOMMEND_ADMISSION, locale);
+			Status[] internalStatuses = new Status[] { ADMITTED, RECOMMENDADMITTED };
+			
+			if(isUnique.booleanValue()){
+				members = ProprietyPoint.findPrimaryMembersByBallot(session, deviceType, answeringDate, internalStatuses, false, false, startTime, endTime, ApplicationConstants.ASC, locale);
+			}else{
+				members = ProprietyPoint.findPrimaryMembersForBallot(session, deviceType,answeringDate, internalStatuses, false, startTime, endTime,ApplicationConstants.ASC, locale);
+			}
+		}	
+		
+		return members;
+	}
+	
+	private static List<Member> getUniqueMembers(final Session session, final DeviceType deviceType, final List<Member> members, final String memberNotice) {
+		StringBuffer memberList = new StringBuffer("");
+		String returnData = Question.findBallotedMembers(session, memberNotice, deviceType); //review if to be replicated with propriety point method 
+		memberList.append(( returnData == null)? "":returnData);
+		List<Member> newMs = new ArrayList<Member>();
+		if(!memberList.toString().isEmpty()){
+			for(Member m : members){
+				if(!ProprietyPointBallot.isExistingInList(memberList.toString(), m.getId().toString())){
+					newMs.add(m);
+				}
+			}
+		}else{
+			newMs.addAll(members);
+		}
+		
+		return newMs;
+	}
+	
+	private static boolean isExistingInList(final String list, final String data){
+		boolean retVal = false;
+		if(list != null){
+			if(data != null){
+				retVal = list.contains(data);
+			}
+		}
+		return retVal;
+	}
+	
+	/**
+	 * Does not shuffle in place, returns a new list.
+	 */
+	private static List<Member> randomizeMembers(final List<Member> members) {
+		List<Member> newMembers = new ArrayList<Member>();
+		newMembers.addAll(members);
+		Long seed = System.nanoTime();
+		Random rnd = new Random(seed);
+		Collections.shuffle(newMembers, rnd);
+		return newMembers;
+	}
+	
+	/**
+	 * A subset of eligible Members of size @param maxMembers are taken in Ballot.
+	 */
+	private static List<Member> selectMembersForBallot(final List<Member> members,
+			final Integer maxMembers) {
+		List<Member> selectedMList = new ArrayList<Member>();
+		selectedMList.addAll(members);
+		if(selectedMList.size() >= maxMembers) {
+			selectedMList = selectedMList.subList(0, maxMembers); 
+		}
+		return selectedMList;
+	}
+	
+	private static List<BallotEntry> createPROISBallotEntries(final Session session, final DeviceType deviceType, final Date answeringDate, final List<Member> members,
+			final String locale) {
+		List<BallotEntry> ballotEntries = new ArrayList<BallotEntry>();
+		
+		for(Member m : members) {
+			
+			BallotEntry ballotEntry = new BallotEntry();
+			ballotEntry.setMember(m);
+			ballotEntries.add(ballotEntry);
+		}
+
+		return ballotEntries;
 	}
 
 }

@@ -1048,6 +1048,48 @@ public class ProprietyPoint extends Device implements Serializable {
     			endTime, sortOrder, locale);
     }
     
+    /**
+     * @param session
+     * @param deviceType
+     * @param discussionDate
+     * @param internalStatuses
+     * @param hasParent
+     * @param isBalloted
+     * @param startTime
+     * @param endTime
+     * @param sortOrder
+     * @param locale
+     * @return
+     */
+    public static List<Member> findPrimaryMembersByBallot(final Session session,
+			final DeviceType deviceType,
+			final Date discussionDate,
+			final Status[] internalStatuses,
+			final Boolean hasParent,
+			final Boolean isBalloted,
+			final Date startTime,
+			final Date endTime,
+			final String sortOrder,
+			final String locale) {
+    	return getProprietyPointRepository().findPrimaryMembersByBallot(session, deviceType, discussionDate, 
+    			internalStatuses, hasParent, isBalloted, 
+    			startTime, endTime, sortOrder, locale);
+    }
+    
+    public static List<Member> findPrimaryMembersForBallot(final Session session,
+    	final DeviceType deviceType,
+    	final Date discussionDate,
+    	final Status[] internalStatuses,
+    	final Boolean hasParent,
+    	final Date startTime,
+    	final Date endTime,
+    	final String sortOrder,
+    	final String locale) {
+    	return getProprietyPointRepository().findPrimaryMembersForBallot(session, deviceType, 
+    		discussionDate, internalStatuses, hasParent, startTime, 
+    		endTime, sortOrder, locale);
+    }
+    
 
     /********************************************* Getters & Setters *******************************************/
 	public HouseType getHouseType() {

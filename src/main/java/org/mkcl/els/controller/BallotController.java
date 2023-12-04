@@ -474,8 +474,9 @@ public class BallotController extends BaseController{
 					displayAnsweringDate = answeringDate;
 				}
 			}
-			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
-					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
+			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) 
+					|| deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)
+					|| deviceType.getType().equals(ApplicationConstants.PROPRIETY_POINT)) {
 				CustomParameter dbDateFormat = 
 						CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
@@ -580,7 +581,8 @@ public class BallotController extends BaseController{
 			if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)
 					&& houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) 
 					&& !deviceType.getType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)
-					&& !deviceType.getType().startsWith(ApplicationConstants.DEVICE_BILLS)){
+					&& !deviceType.getType().startsWith(ApplicationConstants.DEVICE_BILLS)
+					&& !deviceType.getType().equals(ApplicationConstants.PROPRIETY_POINT)){
 				String strGroup = request.getParameter("group");
 				group = Group.findById(Group.class, Long.valueOf(strGroup));
 			}
@@ -610,9 +612,9 @@ public class BallotController extends BaseController{
 					displayAnsweringDate = answeringDate;
 				}
 			}
-			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
-					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
-
+			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) 
+						|| deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)						
+						|| deviceType.getType().equals(ApplicationConstants.PROPRIETY_POINT)) {
 				CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 			}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION) || deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
@@ -624,8 +626,10 @@ public class BallotController extends BaseController{
 			CustomParameter parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT_HYPHEN", "");
 			String localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, parameter.getValue(), locale.toString());
 			model.addAttribute("answeringDate", localizedAnsweringDate);
-			String localizedDisplayAnsweringDate = FormaterUtil.formatDateToString(displayAnsweringDate, parameter.getValue(), locale.toString());
-			model.addAttribute("displayAnsweringDate", localizedDisplayAnsweringDate);
+			if(displayAnsweringDate!=null) {
+				String localizedDisplayAnsweringDate = FormaterUtil.formatDateToString(displayAnsweringDate, parameter.getValue(), locale.toString());
+				model.addAttribute("displayAnsweringDate", localizedDisplayAnsweringDate);
+			}			
 
 			/** DeviceType & HouseType specific Ballot views */
 			if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
@@ -797,6 +801,54 @@ public class BallotController extends BaseController{
 						NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
 					}
 					retVal = "ballot/nonofficial_bill_membersubjectcombo_ballot";
+				}else if(deviceType.getType().equals(ApplicationConstants.PROPRIETY_POINT)){
+
+					/*List<DeviceBallotVO> ballotVOs = Ballot.findHDSBallotVO(session, deviceType, answeringDate, locale.toString());
+					StringBuilder voIds = new StringBuilder();
+					for(int i = 0; i < ballotVOs.size(); i++){
+						voIds.append(ballotVOs.get(i).getId().toString()+";"+ballotVOs.get(i).getSelected());
+						if(i < (ballotVOs.size() - 1)){
+							voIds.append("#");
+						}
+					}
+					model.addAttribute("ids",voIds.toString());*/
+
+					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+					parametersMap.put("locale", new String[]{locale.toString()});
+					parametersMap.put("sessionId", new String[]{session.getId().toString()});
+					parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+					parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
+
+					List ballotVOs = org.mkcl.els.domain.Query.findReport("PROIS_ASSEMBLY_BALLOT_VIEW", parametersMap);
+					parametersMap = null;
+					List<MasterVO> serialNumber = new ArrayList<MasterVO>(ballotVOs.size());
+					for(int i = 0; i < ballotVOs.size(); i++){
+						serialNumber.add(new MasterVO((i + 1), FormaterUtil.formatNumberNoGrouping((i + 1), locale.toString())));
+					}
+					model.addAttribute("serialnumber", serialNumber);
+					model.addAttribute("ballotVOs", ballotVOs);
+					
+					if(ballotVOs != null && !ballotVOs.isEmpty()){
+						Object[] objs = (Object[])ballotVOs.get(0);
+						if(objs[1] != null){
+							classId = objs[1].toString();
+						}
+					}
+					
+					serialNumber = null;
+					//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
+					String groupNumber = "";
+					if(questionDates!=null) {					
+						group = Group.findByAnsweringDateInHouseType(answeringDate, houseType);
+						groupNumber = group.getNumber().toString();
+					}
+					String ballotUserName = this.getCurrentUser().getActualUsername();
+					CustomParameter csptBallotNotificationDisabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_BALLOT_NOTIFICATION_DISABLED", "");
+					if(csptBallotNotificationDisabled==null || csptBallotNotificationDisabled.getValue()==null
+							|| (!csptBallotNotificationDisabled.getValue().equals("YES"))) {
+						NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
+					}
+					retVal = "ballot/prois_membersubjectcombo_ballot";
 				}
 			}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {

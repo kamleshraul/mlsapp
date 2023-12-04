@@ -448,6 +448,9 @@ public class Ballot extends BaseDomain implements Serializable {
 		else if(deviceTypeType.equals(ApplicationConstants.NONOFFICIAL_BILL)) {
 			ballot = NonOfficialBillBallot.create(this);
 		}
+		else if(deviceTypeType.equals(ApplicationConstants.PROPRIETY_POINT)) {
+			ballot = ProprietyPointBallot.create(this);
+		}
 		
 		return ballot;
 	}

@@ -740,6 +740,180 @@ public class ProprietyPointRepository extends BaseRepository<ProprietyPoint, Ser
 		return mos;
 	}
 	
+	/**
+	 * Find primary members.
+	 *
+	 * @param session the session
+	 * @param deviceType the device type
+	 * @param startTime the start time
+	 * @param endTime the end time
+	 * @param internalStatuses the internal statuses
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
+	 */
+	@SuppressWarnings({"rawtypes" })
+	public List<Member> findPrimaryMembersByBallot(final Session session,
+			final DeviceType deviceType,
+			final Date discussionDate,
+			final Status[] internalStatuses,
+			final Boolean hasParent,
+			final Boolean isBalloted,
+			final Date startTime,
+			final Date endTime,
+			final String sortOrder,
+			final String locale) {
+		// Removed for performance reason. Uncomment when Caching mechanism is added
+
+		// CustomParameter dbDateFormat =
+		//    	CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+		// String strAnsweringDate = 
+		//		FormaterUtil.formatDateToString(answeringDate, dbDateFormat.getValue());
+
+		// CustomParameter parameter = 
+		//		CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
+		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+		
+		StringBuffer query = new StringBuffer("SELECT m.* FROM members m WHERE m.id IN(SELECT DISTINCT" +
+									" q.member_id" +
+									" FROM propriety_points q" +
+									" WHERE q.session_id=:sessionId" + 
+									" AND q.devicetype_id=:deviceTypeId" +
+									" AND q.discussion_date IS NULL" +
+									" AND q.submission_date>=:strStartTime" + 
+									" AND q.submission_date<=:strEndTime" +
+									" AND q.locale=:locale" +
+									" AND q.number IS NOT NULL");
+		
+		query.append(this.getStatusFiltersNative(internalStatuses));
+		
+		if(isBalloted.booleanValue()){
+			query.append(" AND q.ballotstatus_id=:ballotStatus");
+		}else{
+			query.append(" AND q.ballotstatus_id IS NULL");
+		}
+		
+		if(!hasParent) {
+			query.append(" AND q.parent IS NULL");
+		}
+		
+		query.append(" AND q.member_id NOT IN(SELECT DISTINCT" +
+					" be.member_id" +
+					" FROM ballots b" +
+					" INNER JOIN ballots_ballot_entries bbe ON(bbe.ballot_id=b.id)" +
+					" INNER JOIN ballot_entries be ON(be.id=bbe.ballot_entry_id)" +
+					" WHERE b.session_id=:sessionId" +
+					" AND b.devicetype_id=:deviceTypeId)" + 
+					" AND q.revised_subject NOT IN(SELECT DISTINCT" +
+					" qq.revised_subject" +
+					" FROM propriety_points qq" +
+					" WHERE qq.session_id=:sessionId" +
+					" AND qq.devicetype_id=:deviceTypeId" +
+					" AND qq.ballotstatus_id IS NOT NULL)");
+		
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(" ORDER BY q.number ASC");
+		}
+		else if(sortOrder.equals(ApplicationConstants.DESC)) {
+			query.append(" ORDER BY q.number DESC");
+		}
+		query.append(")");
+		
+		Query tQuery = this.em().createNativeQuery(query.toString(), Member.class);
+		tQuery.setParameter("sessionId", session.getId());
+		tQuery.setParameter("deviceTypeId", deviceType.getId());
+		//tQuery.setParameter("strDiscussionDate", discussionDate);
+		tQuery.setParameter("strStartTime", startTime);
+		tQuery.setParameter("strEndTime", endTime);
+		tQuery.setParameter("locale", locale);
+		if(isBalloted.booleanValue()){
+			Status balloted = Status.findByFieldName(Status.class, "type", ApplicationConstants.PROPRIETYPOINT_PROCESSED_BALLOTED, locale);			
+			tQuery.setParameter("ballotStatus", balloted.getId());
+		}
+		
+		List genMembers = tQuery.getResultList();
+		List<Member> members = new ArrayList<Member>();
+		if(genMembers != null && !genMembers.isEmpty()){
+			for(Object o : genMembers){
+				Member m = (Member) o;
+				members.add(m);
+			}
+		}
+		return members;
+	}
+	
+	/**
+	 * Find primary members.
+	 *
+	 * @param session the session
+	 * @param deviceType the device type
+	 * @param startTime the start time
+	 * @param endTime the end time
+	 * @param internalStatuses the internal statuses
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Member> findPrimaryMembersForBallot(final Session session,
+			final DeviceType deviceType,
+			final Date discussionDate,
+			final Status[] internalStatuses,
+			final Boolean hasParent,
+			final Date startTime,
+			final Date endTime,
+			final String sortOrder,
+			final String locale) {
+		// Removed for performance reason. Uncomment when Caching mechanism is added
+
+		// CustomParameter dbDateFormat =
+		//    	CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+		// String strAnsweringDate = 
+		//		FormaterUtil.formatDateToString(answeringDate, dbDateFormat.getValue());
+
+		// CustomParameter parameter = 
+		//		CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
+		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+		StringBuffer query = new StringBuffer(
+				"SELECT m.* FROM members m WHERE m.id IN (SELECT DISTINCT(q.member_id) FROM propriety_points q" +
+				" WHERE q.session_id=:sessionId AND q.devicetype_id=:deviceTypeId"+
+				" AND q.discussion_date IS NULL" +
+				" AND q.submission_date>=:strStartTime AND q.submission_date<=:strEndTime"+
+				" AND q.locale=:locale" +
+				" AND q.ballotstatus_id IS NULL");
+		query.append(this.getStatusFiltersNative(internalStatuses));
+		
+		if(!hasParent) {
+			query.append(" AND q.parent IS NULL");
+		}		
+		
+		query.append(" AND q.subject NOT IN(SELECT DISTINCT qqq.revised_subject FROM propriety_points qqq WHERE qqq.session_id=:sessionId" +
+				" AND qqq.devicetype_id=:deviceTypeId" +
+				" AND qqq.ballotstatus_id IS NOT NULL)" +
+				" AND q.revised_subject NOT IN(SELECT DISTINCT qqq.revised_subject FROM propriety_points qqq WHERE qqq.session_id=:sessionId" +
+				" AND qqq.devicetype_id=:deviceTypeId" +
+				" AND qqq.ballotstatus_id IS NOT NULL)");
+		
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(" ORDER BY q.number ASC");
+		}
+		else if(sortOrder.equals(ApplicationConstants.DESC)) {
+			query.append(" ORDER BY q.number DESC");
+		}
+
+		query.append(")");
+		
+		Query tQuery = this.em().createNativeQuery(query.toString(), Member.class);
+		tQuery.setParameter("sessionId", session.getId());
+		tQuery.setParameter("deviceTypeId", deviceType.getId());
+		//tQuery.setParameter("strDiscussionDate", discussionDate);
+		tQuery.setParameter("strStartTime", startTime);
+		tQuery.setParameter("strEndTime", endTime);
+		tQuery.setParameter("locale", locale);
+		List<Member> members = tQuery.getResultList();
+		return members;
+	}
+	
 	private String getStatusFiltersNative(final Status[] internalStatuses) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" AND(");
