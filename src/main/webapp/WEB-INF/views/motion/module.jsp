@@ -417,6 +417,10 @@
 			$("#memberMotionStatisticReport").click(function(){
 				generateMemberMotionStatisticalReport();
 			});
+			
+			$("#motion_order_of_the_day").click(function(){
+				getSessionDates();
+			});
 		});
 		
 		function updateVisibilityForMemberMotionsViewLinks() {
@@ -1284,6 +1288,21 @@
 					+"&locale="+$('#moduleLocale').val()+"&report=MOIS_MEMBERWISE_MOTION_STATISTICAL_REPORT" 
 					+"&reportout=memberMotionStatisticReport");			
 		}
+		
+		function getSessionDates(){
+			/* showTabByIdAndUrl("details_tab","motion/report/sessiondates/orderoftheday?sessionId="+$("#loadedSession").val());			
+			 */
+			 $.get("motion/report/sessiondates/orderoftheday?sessionId="+$("#loadedSession").val()+"&ugparam="+$("#ugparam").val(),function(data){
+				$.fancybox.open(data);
+			 }).fail(function(){
+    			if($("#ErrorMsg").val()!=''){
+    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+    			}else{
+    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+    			}
+    			scrollTop();
+    		});
+		}
 	</script>
 </head>
 <body>
@@ -1697,7 +1716,15 @@
 								<input id="discussionStatsReportDate" class="sText datemask"/> <a class="butSim" href="javascript:void(0);" id="goDiscussionStatsReport"><spring:message code="goselmotion.go" text="Go" /></a>
 							</div>
 						</div>|	
+						
 					</div>	
+				</security:authorize>
+				<security:authorize access="hasAnyRole('MOIS_ASSISTANT')">
+				    <c:if test="${houseType=='lowerhouse'}">
+				         <a href="#" id="motion_order_of_the_day" class="butSim link">
+							<spring:message code="mois.order_of_the_day" text="Order of the Day Notices"/>
+						</a> |
+				     </c:if>
 				</security:authorize>
 				<security:authorize access="hasAnyRole('MOIS_UNDER_SECRETARY', 'MOIS_DEPUTY_SECRETARY', 'MOIS_SECRETARY', 'MOIS_PRINCIPAL_SECRETARY')">
 					

@@ -11852,4 +11852,66 @@ public class ReferenceController extends BaseController {
 		return null;
 	}
 	
+	
+	/* For order of the day get all Present Ministers (Autocomplete) */
+	
+	@RequestMapping(value="orderoftheday/getmemberministers",method = RequestMethod.GET)
+	public @ResponseBody List<AutoCompleteVO> getMemberMinistersForOrderOfTheDay(final HttpServletRequest request, @RequestParam("session")final Long session, final ModelMap model, final Locale locale){
+		
+		CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		List<MasterVO> ministerVOs = new ArrayList<MasterVO>();
+		List<AutoCompleteVO> autoCompleteVOs = new ArrayList<AutoCompleteVO>();
+		
+		Session selectedSession = Session.findById(Session.class,session);
+		String param=request.getParameter("term");
+		if(customParameter != null) {
+			String server = customParameter.getValue();
+			if(server.equals("TOMCAT")) {
+				try {
+					param=new String(param.getBytes("ISO-8859-1"),"UTF-8");
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}	
+			}
+		}
+		
+		ministerVOs=MemberMinister.findMinistersInGivenHouse(selectedSession.getHouse(),param,locale.toString());
+		
+		for(MasterVO i : ministerVOs) {
+			AutoCompleteVO autoCompleteVO = new AutoCompleteVO();
+			autoCompleteVO.setId(i.getId());
+			autoCompleteVO.setValue(i.getName());
+			autoCompleteVOs.add(autoCompleteVO);
+		}
+		
+		return autoCompleteVOs;
+		
+	}
+	
+	@RequestMapping(value="orderoftheday/getSessionCreation",method = RequestMethod.GET)
+	public @ResponseBody Boolean getSessionDatesCreation(final HttpServletRequest request, final ModelMap model, final Locale locale) {
+		
+		boolean sessionDatesOrderOfTheDay = false;
+		
+		if(request.getParameter("discusssionDateId") != null) {
+			SessionDates sessionDates = SessionDates.findById(SessionDates.class, Long.parseLong(request.getParameter("discusssionDateId")));
+		if(request.getParameter("isRegularSitting").equals("true")) {
+		    if(sessionDates.getCurmotionOrderOfTheDay() != null) {
+		    	sessionDatesOrderOfTheDay = true;
+		    } else {
+		    	sessionDatesOrderOfTheDay = false;
+		    }	
+		 } else {
+			 if(sessionDates.getPrevmotionOrderOfTheDay() != null) {
+			    	sessionDatesOrderOfTheDay = true;
+			    } else {
+			    	sessionDatesOrderOfTheDay = false;
+			    }
+		}
+	 }
+		
+	   return sessionDatesOrderOfTheDay;
+	} 
+	
 }

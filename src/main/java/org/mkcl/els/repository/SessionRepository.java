@@ -319,6 +319,23 @@ public class SessionRepository extends BaseRepository<Session, Long>{
 			}
     }
 
+	/*
+	 * public List findSessionSpecificDates(final Session session) throws
+	 * ELSException{ String strQuery= "   SELECT sd.sessionDate FROM Session s "
+	 * +"  INNER JOIN FETCH s.sessionDates sd " +"  WHERE s.id =:sessionId ";
+	 * 
+	 * Query query=this.em().createQuery(strQuery);
+	 * query.setParameter("sessionId",session.getId());
+	 * 
+	 * try { List sessionDates = query.getResultList(); return sessionDates; }
+	 * catch(NoResultException e){ logger.warn(e.getMessage()); return null;
+	 * }catch(EntityNotFoundException e){ logger.error(e.getMessage()); return null;
+	 * }catch(Exception e){ e.printStackTrace(); logger.error(e.getMessage());
+	 * ELSException elsException=new ELSException();
+	 * elsException.setParameter("SessionRepository_Session_find_sepcific_session",
+	 * "Session Dates  Not found"); throw elsException; } }
+	 */ 
+    
     //--------------------------23012013---------------------------------
   	public List<String> getParametersSetForDeviceType(final Long sessionId,final String deviceType) throws ELSException {
   		org.mkcl.els.domain.Query nativeQuery=org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class,

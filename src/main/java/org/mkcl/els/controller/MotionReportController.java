@@ -3,6 +3,7 @@ package org.mkcl.els.controller;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.DeviceVO;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.xmlvo.DeviceXmlVO;
 import org.mkcl.els.domain.ActivityLog;
@@ -31,6 +34,7 @@ import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.ReferenceLetter;
 import org.mkcl.els.domain.ReminderLetter;
 import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.SessionDates;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
@@ -48,6 +52,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("motion/report")
@@ -1554,8 +1559,241 @@ public class MotionReportController extends BaseController{
 		
 		}
 		
+		/********************* Created by Sagar Shanbhag **********************/
 		
+		/* Fetch Session Dates on Fancy box */
 		
+		@RequestMapping(value="/sessiondates/orderoftheday", method=RequestMethod.GET)
+		public String getSessionDatesForMotions(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws ELSException{
+			
+		Session session = Session.findById(Session.class, Long.parseLong(request.getParameter("sessionId")));
+					
+			if(session != null) {
+				model.addAttribute("sessionId",session.getId());
+				List<SessionDates> sessionDates= session.getSessionDates();
+				List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+				for(SessionDates i: sessionDates){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setId(i.getId());
+					masterVO.setName(FormaterUtil.getDateFormatter(locale.toString()).format(i.getSessionDate()));
+					masterVOs.add(masterVO);
+				}
+				model.addAttribute("sessionDates",masterVOs);
+				model.addAttribute("ugparam",request.getParameter("ugparam"));
+			}
+		
+			return "motion/reports/sessiondates";
+		}
+		
+		/* Fetch Admitted Motions where DiscussionStatus is Null 
+		 * for the order of the day on html page */
+			
+		@RequestMapping(value="/sessiondates/orderoftheday/motions", method=RequestMethod.GET)
+		public String getAdmittedMotionsForSpecificSessionDate(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws ELSException{
+			
+			String retVal = "motion/error";
+             
+			try {
+				Map<String, String[]> originalrequestMap = request.getParameterMap();
+				SessionDates sessionDate = SessionDates.findById(SessionDates.class, Long.parseLong(request.getParameter("discussionDate"))); 	
+			  if(request.getParameter("sessionCreated").equals("false")) {
+				  
+				    List report = Query.findReport(request.getParameter("report"), originalrequestMap,true);
+					if(report != null && !report.isEmpty()){
+						Object[] obj = (Object[])report.get(0);
+						if(obj != null){
+							model.addAttribute("topHeader", obj[0].toString().split(";"));
+							model.addAttribute("colHeader", obj[1].toString().split(";"));
+						}
+		
+						List<String> serialNumbers = populateSerialNumbers(report, locale);
+						model.addAttribute("serialNumbers", serialNumbers);
+						model.addAttribute("report", report);
+				        model.addAttribute("isCreated",request.getParameter("sessionCreated"));
+				   }
+			  }	else {
+				  
+				  Map<String, String[]> modifiedParameterMap = new HashMap<String, String[]>();
+				  for (Object key : request.getParameterMap().keySet()) {
+			            String paramName = (String) key;
+			            String[] values = request.getParameterValues(paramName);
+			            modifiedParameterMap.put(paramName, values);
+			        }
+				  
+				  if(request.getParameter("isRegularSitting").equals("true")) {
+					  
+					  modifiedParameterMap.put("motionList",new String[] {sessionDate.getCurmotionOrderOfTheDay()});
+					  
+				  }	else {
+					  
+					  modifiedParameterMap.put("motionList",new String[] {sessionDate.getPrevmotionOrderOfTheDay()});
+					  
+				  }			  
+				  
+				  List report = Query.findReport(request.getParameter("report"), modifiedParameterMap,true);
+					if(report != null && !report.isEmpty()){
+						Object[] obj = (Object[])report.get(0);
+						if(obj != null){
+							model.addAttribute("topHeader", obj[0].toString().split(";"));
+							model.addAttribute("colHeader", obj[1].toString().split(";"));
+						}
+		
+						List<String> serialNumbers = populateSerialNumbers(report, locale);
+						model.addAttribute("serialNumbers", serialNumbers);
+						model.addAttribute("report", report);
+				        model.addAttribute("isCreated",request.getParameter("sessionCreated"));
+				   }
+				  
+			  }
+				
+			    model.addAttribute("formater", new FormaterUtil());
+				model.addAttribute("locale", locale.toString());
+				model.addAttribute("motion", new Motion());
+				model.addAttribute("ugparam",request.getParameter("ugparam"));
+				model.addAttribute("sessionId",request.getParameter("sessionId"));
+				model.addAttribute("isRegularSitting",request.getParameter("isRegularSitting"));
+				model.addAttribute("discussionDateId",request.getParameter("discussionDate"));
+				model.addAttribute("discussionDate",sessionDate.getSessionDate());
+				model.addAttribute("formattedDiscussionDate",FormaterUtil.getDateFormatter(locale.toString()).format(sessionDate.getSessionDate()));
+				retVal = "motion/reports/" + request.getParameter("reportout");  
+			} catch (Exception e) {
+				logger.error("error", e);
+				model.addAttribute("errorcode", "general_error");				
+			}
+			
+			return retVal;
+		}
+		
+		@Transactional
+		@RequestMapping(value="/motionOrderOftheDay/update",method=RequestMethod.POST)
+		public String motionOrderOfTheDayCreation(final HttpServletRequest request, final Locale locale, final Model model, final RedirectAttributes redirectAttributes) throws ELSException {
+			
+			String retVal = "motion/error";
+			
+		    		
+		    	String length = request.getParameter("itemLength");
+				boolean updated = false;
+				
+				if(Integer.parseInt(length) != 0) {
+					StringBuffer buffer = new StringBuffer();
+
+					for(int i=0; i < Integer.parseInt(length); i++ ) {
+						buffer.append(request.getParameter("items["+i+"][id]")+",");
+					}
+					    buffer.deleteCharAt(buffer.length()-1);
+					SessionDates sessionDates = SessionDates.findById(SessionDates.class, Long.parseLong(request.getParameter("discussionDateId")));
+					if(request.getParameter("isRegularSitting").equals("true")) {
+						sessionDates.setCurmotionOrderOfTheDay(buffer.toString());
+					} else {
+						sessionDates.setPrevmotionOrderOfTheDay(buffer.toString());
+					}
+                    sessionDates.merge();
+                    updated = true;
+                }
+		    	
+		    if(updated) {
+					model.addAttribute("type","taskcompleted");
+			        model.addAttribute("isCreated","true");
+
+					retVal = "redirect:/motion/report/sessiondates/orderoftheday/motions" 
+					+ "?sessionId="+request.getParameter("sessionId")
+					+ "&locale=" + request.getParameter("locale") 
+					+"&discussionDate="+ request.getParameter("discussionDateId")
+					+"&ugparam="+request.getParameter("ugparam")
+					+"&isRegularSitting="+request.getParameter("isRegularSitting")
+					+"&sessionCreated=true"
+					+"&report="+request.getParameter("report")
+					+"&reportout="+request.getParameter("reportout");
+				}
+				else {
+					model.addAttribute("error","Some error occured");
+					 model.addAttribute("isCreated","false");
+				}
+		    
+		      
+				
+		    return retVal;
+				
+		}
+		
+		@RequestMapping(value="/orderoftheday/motion/fop",method=RequestMethod.GET)
+		public @ResponseBody void generateMotionOrderOftheDayReport(final HttpServletRequest request, HttpServletResponse response,final Locale locale, final ModelMap model) throws Exception {
+			
+			try {
+				ActivityLog.logActivity(request,locale.toString());
+			} catch (Exception e) {
+				logger.error("error",e);
+			}
+			
+			File reportFile = null;
+			Boolean isError = false;
+			MessageResource errorMessage = null;
+			
+			String isRegularSitting = request.getParameter("isRegularSitting");
+			String discussionDateId = request.getParameter("discussionDateId");
+			String ugparam = request.getParameter("ugparam");
+			String sessionId = request.getParameter("sessionId");
+			String queryName = "MOTION_ORDER_OF_THE_DAY";
+			String fileName = null;
+			if(isRegularSitting != null) {
+	
+				if(isRegularSitting.equals("true")) {
+					fileName = "regular";
+				} else {
+					fileName = "special";
+				}		
+			}
+			SessionDates sessionDates = SessionDates.findById(SessionDates.class, Long.parseLong(discussionDateId));
+			
+			if(sessionDates != null) {
+				Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+				queryParameters.put("isRegularSitting", new String[] {isRegularSitting});
+				queryParameters.put("discussionDate", new String[] {discussionDateId});
+				queryParameters.put("ugparam", new String[] {ugparam});
+				queryParameters.put("sessionId", new String[] {sessionId});
+				
+				if(isRegularSitting.equals("true")) {
+					queryParameters.put("motionList",new String[] {sessionDates.getCurmotionOrderOfTheDay()});
+				}else {
+					queryParameters.put("motionList",new String[] {sessionDates.getPrevmotionOrderOfTheDay()});
+				}
+				queryParameters.put("locale", new String[] {locale.toString()});
+				
+				List reportData = Query.findReport(queryName, queryParameters,true);
+				
+				if(reportData != null && !reportData.isEmpty()) {
+					List<String> serialNumbers = new ArrayList<String>();
+					for(int i=1; i<=reportData.size(); i++) {
+						serialNumbers.add(FormaterUtil.formatNumberNoGrouping(i, locale.toString()));
+					}
+					
+					List<String> localisedContent = new ArrayList<String>();
+					if(reportData.get(0) != null) {
+						Object[] obj = (Object[]) reportData.get(0);
+						for(String i : obj[0].toString().split(";")) {
+							localisedContent.add(i);
+						}
+						for(String j : obj[1].toString().split(";")) {
+							localisedContent.add(j);
+						}
+					}
+					
+					if(!isError) {
+						
+						reportFile = generateReportUsingFOP(new Object[] {reportData,serialNumbers,localisedContent,ApplicationConstants.MOTION_CALLING_ATTENTION}, "motion_order_of_the_day", "WORD", "motion_order_of_the_day_"+fileName, locale.toString());
+						
+						if(reportFile!=null) {
+							System.out.println("Report generated successfully in WORD format!");
+							openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+						}
+					}
+					
+				}  else {
+					//error
+					
+				}
+			}
+		}
 		
 }
 
@@ -1584,4 +1822,5 @@ class MotionReportHelper{
 		
 		return page;
 	}
+	
 }

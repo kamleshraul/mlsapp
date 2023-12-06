@@ -45,6 +45,12 @@ public class SessionDates extends BaseDomain implements Serializable {
     /** The order of the day document. */
     @Column(length=100)
     private String orderOfDayDoc;
+    
+    @Column(length=1000)
+    private String curmotionOrderOfTheDay;
+    
+    @Column(length=1000)
+    private String prevmotionOrderOfTheDay;
 
 	/** The session repository. */
     @Autowired
@@ -111,7 +117,23 @@ public class SessionDates extends BaseDomain implements Serializable {
 		this.orderOfDayDoc = orderOfDayDoc;
 	}
 
-    /**
+	public String getCurmotionOrderOfTheDay() {
+		return curmotionOrderOfTheDay;
+	}
+
+	public void setCurmotionOrderOfTheDay(String curmotionOrderOfTheDay) {
+		this.curmotionOrderOfTheDay = curmotionOrderOfTheDay;
+	}
+
+	public String getPrevmotionOrderOfTheDay() {
+		return prevmotionOrderOfTheDay;
+	}
+
+	public void setPrevmotionOrderOfTheDay(String prevmotionOrderOfTheDay) {
+		this.prevmotionOrderOfTheDay = prevmotionOrderOfTheDay;
+	}
+
+	/**
      * Gets the session repository.
      *
      * @return the session repository
@@ -131,4 +153,9 @@ public class SessionDates extends BaseDomain implements Serializable {
         return getSessionRepository().findSessionDates(session,sessionDates);
     }
 	
+	/*
+	 * public static List findSessionSpecificDates(final Session session) throws
+	 * ELSException { return
+	 * getSessionRepository().findSessionSpecificDates(session); }
+	 */
 }
