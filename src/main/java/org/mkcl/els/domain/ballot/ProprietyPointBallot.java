@@ -299,6 +299,40 @@ public class ProprietyPointBallot {
 		}
 	}
 	
+	public static List<BallotVO> findUnBallotedVO(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final String locale) throws ELSException {
+		List<BallotVO> unBallotedVOs = new ArrayList<BallotVO>();
+		
+		Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
+		if(ballot != null){
+			List<ProprietyPoint> proprietyPoints = 
+					ProprietyPointBallot.computeProprietyPointsForBallot(session, deviceType, answeringDate, false, false, locale);
+			
+			List<ProprietyPoint> newProprietyPointList = new ArrayList<ProprietyPoint>();
+			for(ProprietyPoint m : proprietyPoints){
+				if(m.getPrimaryMember().isActiveMemberOn(new Date(), locale)){
+					newProprietyPointList.add(m);
+				}
+			}
+			for(ProprietyPoint m : newProprietyPointList) {				
+				BallotVO unBallotedVO = new BallotVO();
+				unBallotedVO.setMemberName(m.getPrimaryMember().getFullname());
+				unBallotedVO.setQuestionNumber(m.getNumber());
+				if(m.getRevisedSubject() != null && !m.getRevisedSubject().isEmpty()){
+					unBallotedVO.setQuestionSubject(m.getRevisedSubject());
+				}else{
+					unBallotedVO.setQuestionSubject(m.getSubject());
+				}
+				
+				unBallotedVOs.add(unBallotedVO);
+			}			
+		}
+		
+		return unBallotedVOs;
+	}
+	
 	
 	//===============================================
 	//

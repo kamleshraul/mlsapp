@@ -62,10 +62,10 @@
 						<table class="strippedTable" border="1">
 							<thead>
 								<tr>
-									<th style="width:40%;"><spring:message code="general.srnumber" text="Serial Number"/></th>
+									<th style="width:10%;"><spring:message code="general.srnumber" text="Serial Number"/></th>
 									<th><spring:message code="member.name" text="Member Name"/></th>
-									<%-- <th><spring:message code="question.number" text="Resolution Number"/></th>
-									<th><spring:message code="question.subject" text="Subject"/></th> --%>
+									<th><spring:message code="question.number" text="Notice Number"/></th>
+									<th><spring:message code="question.subject" text="Subject"/></th>
 									<%-- <th><spring:message code="question.selectfordiscussion" text="To Be Discussed"/></th> --%>
 								</tr>
 							</thead>
@@ -73,13 +73,13 @@
 					
 								<c:forEach items="${ballotVOs}" var="ballotVO" varStatus="counter">
 									<tr>
-										<td style="width: 40%;">
+										<td style="width: 10%;">
 											${serialnumber[counter.count - 1].name}
 										</td>
 										<%-- <td>${ballotVO.memberName}</td> --%>
 										<td>${ballotVO[1]}</td>
-										<%-- <td>${ballotVO.number}</td>
-										<td>${ballotVO.subject}</td> --%>
+										<td>${ballotVO[3]}</td>
+										<td>${ballotVO[4]}</td>
 										<%-- <td align="center">
 											<c:choose>
 												<c:when test="${ballotVO.selected=='checked'}">

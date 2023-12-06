@@ -4872,6 +4872,23 @@ public class BallotController extends BaseController{
 		}
 	}
 
+	private String unBallotedProprietyPointAssembly(final ModelMap model,
+			final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final String locale) {
+		List<BallotVO> ballotVOs;
+		try {
+			ballotVOs = Ballot.findUnBallotedVO(session, deviceType, answeringDate, locale);
+			model.addAttribute("ballotVOs", ballotVOs);
+			return "ballot/prois_unballoted_assembly";
+		} catch (ELSException e) {
+			e.printStackTrace();
+			model.addAttribute("error", e.getParameter());
+			return "ballot/error";
+		}
+	}
+
 	private String starredPreBallot(final ModelMap model,
 			final Session session,
 			final DeviceType deviceType,
@@ -5872,6 +5889,105 @@ public class BallotController extends BaseController{
 		catch(Exception e) {
 			logger.error("error", e);
 			model.addAttribute("type", "INSUFFICIENT_PARAMETERS_FOR_PRE_BALLOT_CREATION");
+			retVal = "ballot/error";
+		}
+		return retVal;
+	}
+	
+	@RequestMapping(value="/viewunballoted",method=RequestMethod.GET)
+	public String viewUnBallotedDevices(final HttpServletRequest request,
+			final ModelMap model,
+			final Locale locale){
+		String retVal = "ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		try {
+			model.addAttribute("formater", new FormaterUtil());
+			model.addAttribute("locale", locale.toString());
+			model.addAttribute("preballot", "yes");
+			
+			/** Create HouseType */
+			String strHouseType = request.getParameter("houseType");
+			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+			model.addAttribute("houseType", houseType.getType());
+			
+			/** Create SessionType */
+			String strSessionTypeId = request.getParameter("sessionType");
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+
+			/** Create year */
+			String strYear = request.getParameter("sessionYear");
+			Integer year = Integer.valueOf(strYear);
+
+			/** Create Session */
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+			model.addAttribute("sessionId", session.getId());
+			
+			/** Create DeviceType */
+			DeviceType deviceType = null;
+			String strDeviceType = request.getParameter("questionType");
+			if(strDeviceType == null){
+				strDeviceType = request.getParameter("deviceType");				
+			}	
+			deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+			model.addAttribute("deviceType", deviceType.getType());
+			model.addAttribute("deviceName", deviceType.getName());
+			model.addAttribute("deviceId", deviceType.getId());
+			
+			/** Create Group */
+			String strGroup = request.getParameter("group");
+			Group  group=null;
+			if(strGroup!=null && !strGroup.isEmpty()){
+				group = Group.findById(Group.class, new Long(strGroup));
+			}
+			
+			/** Create answeringDate */
+			String strAnsweringDate = request.getParameter("answeringDate");
+			Date answeringDate = null;
+			Date displayAnsweringDate = null;
+			CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+			
+			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+				QuestionDates questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+				answeringDate = questionDates.getAnsweringDate();
+				displayAnsweringDate = questionDates.getDisplayAnsweringDate();
+				if(displayAnsweringDate==null) {
+					displayAnsweringDate = answeringDate;
+				}
+			}
+			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) 
+						|| deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)
+						|| deviceType.getType().equals(ApplicationConstants.PROPRIETY_POINT)) {
+				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+			}
+			else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION) || deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
+				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+			}
+			
+			model.addAttribute("strAnsweringDate", strAnsweringDate);
+			if(answeringDate!=null) {
+				model.addAttribute("answeringDate", FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
+			}
+			if(displayAnsweringDate!=null) {
+				model.addAttribute("displayAnsweringDate", FormaterUtil.formatDateToString(displayAnsweringDate, ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
+			}
+
+			/** Route PreBallot creation to appropriate handler method - based on house type*/
+			if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+				if(deviceType.getType().equals(ApplicationConstants.PROPRIETY_POINT)) {
+					retVal = this.unBallotedProprietyPointAssembly(model, session, deviceType, answeringDate, locale.toString());	
+				}
+			}
+		}
+		catch(Exception e) {
+			logger.error("error", e);
+			model.addAttribute("type", "INSUFFICIENT_PARAMETERS_FOR_UNBALLOTED_DEVICES");
 			retVal = "ballot/error";
 		}
 		return retVal;

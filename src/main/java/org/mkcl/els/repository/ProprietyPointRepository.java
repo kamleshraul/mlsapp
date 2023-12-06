@@ -702,14 +702,29 @@ public class ProprietyPointRepository extends BaseRepository<ProprietyPoint, Ser
 						" INNER JOIN device_sequences ds ON(ds.id=beds.device_sequence_id)" +
 						" WHERE b.session_id=:sessionId" +
 						" AND b.devicetype_id=:deviceTypeId))");
+			} else {
+				//for finding unballoted members for given answering date
+				query.append(" AND q.member_id NOT IN(SELECT be.member_id" +						 
+						" FROM ballots b" +
+						" INNER JOIN ballots_ballot_entries bbe ON(bbe.ballot_id=b.id)" +
+						" INNER JOIN ballot_entries be ON(be.id=bbe.ballot_entry_id)" +
+						" WHERE b.session_id=:sessionId" +
+						" AND b.devicetype_id=:deviceTypeId" +
+						" AND b.answering_date=:strDiscussionDate)");
 			}
 			//query.append(" GROUP BY q.revised_subject");
-			query.append(" ORDER BY q.submission_date DESC, q.number DESC");
+			query.append(" ORDER BY q.submission_date ASC, q.number ASC");
 						
 			Query tQuery = this.em().createNativeQuery(query.toString());
 			tQuery.setParameter("sessionId", session.getId());
 			tQuery.setParameter("deviceTypeId", deviceType.getId());
-			//tQuery.setParameter("strDiscussionDate", discussionDate);
+			if(!isPreBallot.booleanValue() && !isMandatoryUnique.booleanValue()) {
+				tQuery.setParameter("strDiscussionDate", discussionDate);
+			} else {
+				System.out.println("Normal Preballot Case");
+				//tQuery.setParameter("strDiscussionDate", discussionDate);
+			}			
+			
 			tQuery.setParameter("strStartTime", startTime);
 			tQuery.setParameter("strEndTime", endTime);
 			tQuery.setParameter("locale", locale);

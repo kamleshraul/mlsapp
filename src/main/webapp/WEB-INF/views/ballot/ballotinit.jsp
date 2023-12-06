@@ -453,7 +453,55 @@
 					scrollTop();
 				});
 					
-			});			
+			});		
+			
+			$('#view_unballoted').click(function(event, isHighSecurityValidationRequired){	
+				if($('#highSecurityPasswordEnabled').val()=='no') {
+					isHighSecurityValidationRequired = false;
+				} else {
+					if(highSecurityPasswordEntered) {
+						isHighSecurityValidationRequired = false;
+					}
+				}
+				if(isHighSecurityValidationRequired!=false) {					
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");					
+					return false;
+				}
+				//highSecurityPasswordEntered = true;
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				var resourceURL = "";
+				if($("#category").val()=='proprietypoint'){
+					var parameters = "houseType="+$("#selectedHouseType").val()
+					 +"&sessionYear="+$("#selectedSessionYear").val()
+					 +"&sessionType="+$("#selectedSessionType").val()
+					 +"&deviceType="+$("#selectedDeviceType").val()
+					 +"&status="+$("#selectedStatus").val()
+					 +"&role="+$("#srole").val() 
+					 + "&answeringDate=" + $("#selectedAnsweringDate").val()+"&category=proprietypoint";
+					resourceURL = 'ballot/viewunballoted?' + parameters;
+				}
+				if(resourceURL!="") {
+					$.get(resourceURL,function(data){					
+						$("#ballotResultDiv").empty();
+						$("#ballotResultDiv").html(data);
+						
+						$.unblockUI();					
+					},'html').fail(function(data){
+						$.unblockUI();
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.");
+						}
+						scrollTop();
+					});
+				}
+				else {
+					$.prompt("Not allowed for selected device type!");
+					return false;
+				}
+				
+			});
 			
 			$("#update_yaadi").click(function(){
 				$.prompt("Please call administrator to open this link on the day before generating yaadi! ");
@@ -935,9 +983,14 @@
 			  'BIS_ASSISTANT', 'ROIS_UNDERSECRETARY', 'ROIS_UNDER_SECRETARY_COMMITTEE', 'ROIS_SECRETARY', 'ROIS_SECTION_OFFICER','ROIS_ASSISTANT','ROIS_DEPUTYSECRETARY','QIS_PRINCIPAL_SECRETARY')">
 				<a href="#" id="view_ballot" class="butSim">
 					<spring:message code="ballotinitial.viewballot" text="View Ballot"/>
-				</a>
+				</a> |
 			</security:authorize>
-			
+			<security:authorize access="hasAnyRole('PROIS_SECTION_OFFICER','PROIS_DEPUTY_SECRETARY')">
+			<a href="#" id="view_unballoted" class="butSim">
+				<spring:message code="ballotinitial.viewunballoted" text="View Un-Balloted List"/>
+			</a>
+			|
+			</security:authorize>
 			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 				<c:if test="${deviceTypeType=='questions_halfhourdiscussion_from_question' and balHouseType=='lowerhouse'}">
 					<a href="#" id="update_ballot_hdq" class="butSim">

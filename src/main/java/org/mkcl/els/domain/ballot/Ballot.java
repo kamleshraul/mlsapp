@@ -201,6 +201,19 @@ public class Ballot extends BaseDomain implements Serializable {
 		return preBallotVOs;
 	}
 	
+	public static List<BallotVO> findUnBallotedVO(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final String locale) throws ELSException {
+		List<BallotVO> preBallotVOs = null;		
+				
+		if(deviceType.getType().equals(ApplicationConstants.PROPRIETY_POINT)) {
+			preBallotVOs = ProprietyPointBallot.findUnBallotedVO(session, deviceType, answeringDate, locale);
+		}
+		
+		return preBallotVOs;
+	}
+	
 	public static List<BallotVO> findResolutionCouncilPreBallotVO(final Session session,
 			final DeviceType deviceType,
 			final Date answeringDate,
