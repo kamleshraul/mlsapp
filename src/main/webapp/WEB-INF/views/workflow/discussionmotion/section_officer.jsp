@@ -36,7 +36,7 @@
 	function loadActors(value){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		var valueToSend="";
-		console.log("in loadActors")
+		//console.log("in loadActors")
 		if(value!='-'){		
 			var sendToDepartment=$("#internalStatusMaster option[value='discussionmotion_processed_sendToDepartment']").text();
 			var sendToMember=$("#internalStatusMaster option[value='discussionmotion_processed_sendToMember']").text();
@@ -47,6 +47,7 @@
 			var discussionMotionType = $("#selectedDiscussionMotionType").val();
 			var sendback = $("#internalStatusMaster option[value='discussionmotion_recommend_sendback']").text();
 			var discuss = $("#internalStatusMaster option[value='discussionmotion_recommend_discuss']").text();
+			//console.log("1")
 			
 			//if( value==rejectedWithReason || value==departmentIntimated||value==clarificationReceived){
 				if( value==rejectedWithReason||value==clarificationReceived){
@@ -54,19 +55,24 @@
 				$("#recommendationStatus").val(value);
 				$("#actor").empty();
 				$("#actorDiv").hide();
+				$.unblockUI();
 				return false;
 			}else if(value==clarificationReceived){
 				$("#endFlag").val("end");
 				$("#recommendationStatus").val(value);
 				$("#actor").empty();
 				$("#actorDiv").hide();
+				$.unblockUI();
 				return false;
 			}else if(value==sendToDepartment || value==sendToMember){			
 			    valueToSend=$("#internalStatus").val();
+			    $.unblockUI();
 			    $("#endFlag").val("continue");
 		    }else {
 			    valueToSend=value;
 		    }	
+				
+			//console.log("2")	
 			
 			if(value==sendback || value==discuss){
 				$("#endFlag").val("continue");
@@ -74,7 +80,7 @@
 			var params="discussionmotion="+$("#id").val()+"&status="+valueToSend+
 			"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
 			var resourceURL='ref/discussionmotion/actors?'+params;
-			console.log("before load actor ajax")
+			//console.log("before load actor ajax")
 			$.get(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''){
 					$("#actor").empty();
