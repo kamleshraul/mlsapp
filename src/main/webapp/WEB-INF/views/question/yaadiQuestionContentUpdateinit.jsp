@@ -114,8 +114,7 @@
 	}		
 	</script>
 	<style type="text/css">	
-	.true{
-	}
+	
 	</style>
 </head>
 <body>	
@@ -128,7 +127,7 @@
 		
 		<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		
 	</p>
-	<div id="bulkResultDiv">	
+	<div id="bulkResultDiv" >	
 	</div>	
 	<input type="hidden" id="ydhouseType" value="${houseType}">
 	<input type="hidden" id="ydsessionType" value="${sessionType}">
