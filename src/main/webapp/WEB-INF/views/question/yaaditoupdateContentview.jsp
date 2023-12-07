@@ -13,7 +13,8 @@ $(document).ready(function(){
     	  force_p_newlines : false,
     	  forced_root_block : "",
     	  //nonbreaking_force_tab: true,
-    	  max_width: 250
+    	  max_width: 150,
+    	 
     	 
 		});
 		
@@ -92,6 +93,43 @@ function cleanFormattingData(){
 }
 
 </script>
+<style type="text/css">
+			/***** For custom stripped table UI ****/
+			.strippedTable_custom{
+				font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+				font-size: 12px;	
+				width: 900px;
+				text-align: left;
+				border-collapse: collapse;
+				border-left: 2px solid #000000;
+				border-right: 2px solid #000000;
+				border-bottom: 2px solid #000000;
+			}
+			.strippedTable_custom tbody{
+			}
+			.strippedTable_custom tr:nth-child(even) {background: #C6D3DD/*#CCC*/}
+			.strippedTable_custom tr:nth-child(odd) {background: #DAE4EC/*#FFF*/}
+			.strippedTable_custom th
+			{
+				font-size: 13px;
+				font-weight: bold;
+				padding: 8px;
+				/* background: #FEFFD1; */	
+				border-top: 2px solid #000000;
+				border-bottom: 1px solid #000000;
+				/* color: #039; */
+				background-color: #A2C6E4;	
+			}
+			.strippedTable_custom td
+			{
+				padding: 8px;
+				/* background: #e8edff; */
+				border-bottom: 1px solid #000000;
+				/* color: #669; */
+				border-top: 1px solid transparent;
+				max-width: 250px;
+			}
+		</style> 
 	<p id="error_p" style="display: none;">&nbsp;</p>
 	<c:if test="${(error!='') && (error!=null)}">
 		<h4 style="color: #FF0000;">${error}</h4>
@@ -101,8 +139,8 @@ function cleanFormattingData(){
 			<h3>${success} ${failure}</h3>
 						
 			
-			<table class="uiTable">
-					<tr>
+			<table class="strippedTable_custom" >
+				<tr>
 						<th  style=" min-width:30px;"><input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>
 						<th style=" min-width:30px;"><spring:message code="question.number" text="Number"></spring:message></th>
 						<th style="min-width:100px;"><spring:message code="question.members" text="Member"></spring:message></th>
@@ -125,25 +163,26 @@ function cleanFormattingData(){
 							</td>
 							
 							<%-- <td  style=" min-width:170px;"><textarea rows="7" cols="22">${i.subject}</textarea></td> --%>
-							<td style="text-align:justify;min-width:200px;" >
+							<td style="text-align:justify;" >
 								<div  class="editable" width="250px"  id="subject_${i.id}">
-									${i.subject}
+									${i.revisedSubject}
 								</div>
 							</td>
 							<%-- <td style=" min-width:170px;" ><textarea rows="7" cols="30">${i.revisedQuestionText}</textarea></td> --%>
-							<td style="text-align:justify;min-width:200px;" >
+							<td style="text-align:justify;" >
 								<div  class="editable" width="250px"  id="revisedQuestionText_${i.id}">
 									${i.revisedQuestionText}
 								</div>
 							</td>
 							<%-- <td style=" min-width:170px;" ><textarea rows="7" cols="22">${i.remarks}</textarea></td> --%>
-							<td style="text-align:justify;min-width:260px;" >
+							<td style="text-align:justify;" >
 								<div  class="editable" width="250px"  id="answer_${i.id}">
 									${i.answer}
 								</div>								
 							</td>
 						</tr>
 					</c:forEach>
+
 			</table>
 		</c:when>
 		<c:otherwise>
