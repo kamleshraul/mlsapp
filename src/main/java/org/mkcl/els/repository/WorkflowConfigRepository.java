@@ -2218,6 +2218,32 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		}	
 	}
 	
+	private WorkflowConfig getLatest(final String deviceid,final Integer houseTypeId , final Integer deviceTypeId,final String internalStatus,final String locale) {
+		
+		String[] temp=internalStatus.split("_");
+		String workflowName=temp[temp.length-1]+"_workflow";
+		String strQuery="SELECT wc FROM WorkflowConfig wc" +
+				" JOIN wc.workflow wf" +
+				" JOIN wc.deviceType d " +
+				" JOIN wc.houseType ht" +
+				" WHERE d.id=:deviceTypeId" +
+				" AND wf.type=:workflow"+
+				" AND ht.id=:houseTypeId" +
+				" AND wc.isLocked=true ORDER BY wc.id "+ApplicationConstants.DESC ;				
+		javax.persistence.Query query=this.em().createQuery(strQuery);
+		query.setParameter("deviceTypeId",deviceTypeId);
+		query.setParameter("workflow",workflowName);
+		query.setParameter("houseTypeId", houseTypeId);
+		try{
+			return (WorkflowConfig) query.getResultList().get(0);
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return new WorkflowConfig();
+		}	
+		
+		
+	}
+	
 	public Reference findActorVOAtGivenLevel(final Motion motion, final Status status, 
 			final String usergroupType, final int level, final String locale) throws ELSException {
 		Reference actorAtGivenLevel = null;
@@ -3564,11 +3590,26 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				int noOfComparisons = 0;
 				int noOfSuccess = 0;
 				Map<String, String> params = j.getParameters();
-				if (houseType != null) {
-					HouseType bothHouse = HouseType.findByFieldName(HouseType.class, "type", "bothhouse", locale);
-					if (params.get(ApplicationConstants.HOUSETYPE_KEY + "_" + locale) != null
-							&& !params.get(ApplicationConstants.HOUSETYPE_KEY + "_" + locale).contains(bothHouse.getName())) {
-						if (params.get(ApplicationConstants.HOUSETYPE_KEY + "_" + locale).contains(houseType.getName())) {
+				
+				if( 
+						!(userGroupType.getType().equals(ApplicationConstants.SECTION_OFFICER) 
+								&& internalStatus.getType().equals(ApplicationConstants.DISCUSSIONMOTION_FINAL_ADMISSION))
+						) {
+					if (houseType != null) {
+						HouseType bothHouse = HouseType.findByFieldName(HouseType.class, "type", "bothhouse", locale);
+						if (params.get(ApplicationConstants.HOUSETYPE_KEY + "_" + locale) != null
+								&& !params.get(ApplicationConstants.HOUSETYPE_KEY + "_" + locale).contains(bothHouse.getName())) {
+							if (params.get(ApplicationConstants.HOUSETYPE_KEY + "_" + locale).contains(houseType.getName())) {
+								noOfComparisons++;
+								noOfSuccess++;
+							} else {
+								noOfComparisons++;
+							}
+						}
+					}
+					if (deviceType != null) {
+						if (params.get(ApplicationConstants.DEVICETYPE_KEY + "_" + locale) != null
+								&& params.get(ApplicationConstants.DEVICETYPE_KEY + "_" + locale).contains(deviceType.getName())) {
 							noOfComparisons++;
 							noOfSuccess++;
 						} else {
@@ -3576,15 +3617,8 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						}
 					}
 				}
-				if (deviceType != null) {
-					if (params.get(ApplicationConstants.DEVICETYPE_KEY + "_" + locale) != null
-							&& params.get(ApplicationConstants.DEVICETYPE_KEY + "_" + locale).contains(deviceType.getName())) {
-						noOfComparisons++;
-						noOfSuccess++;
-					} else {
-						noOfComparisons++;
-					}
-				}
+				
+				
 				
 				if(domainMinistries != null) {
 					if (params.get(ApplicationConstants.MINISTRY_KEY + "_" + locale) != null
