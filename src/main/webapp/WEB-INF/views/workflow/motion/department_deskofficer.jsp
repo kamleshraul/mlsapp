@@ -217,7 +217,9 @@
 						$("#replyP").css("display","none");
 						$("#factualP").css("display","none");
 					}else{
-						$("#replyP").css("display","inline-block");
+						if($("#internalStatus").val() == "942"){
+							$("#replyP").css("display","inline-block");
+						}
 						$("#factualP").css("display","inline-block");
 					}
 					/**** setting level,localizedActorName ****/
@@ -1042,13 +1044,13 @@
 			</p>
 		</c:when>
 		<c:otherwise>
-			<c:if test="${internalStatusType != 'motion_final_clarificationNeededFromDepartment'}">
+			<%-- <c:if test="${internalStatusType != 'motion_final_clarificationNeededFromDepartment'}"> --%>
 				<p id="replyP">
 					<label class="wysiwyglabel"><spring:message code="motion.reply" text="Reply"/></label>
 					<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
 					<form:errors path="reply" cssClass="validationError"></form:errors>
 				</p>
-			</c:if>
+			<%-- </c:if> --%>
 		</c:otherwise>
 	</c:choose>
 	
