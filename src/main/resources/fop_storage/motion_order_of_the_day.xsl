@@ -24,9 +24,9 @@
 	    <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">	  
 	    	<fo:layout-master-set>				
 				<fo:simple-page-master master-name="first"
-	                  	page-height="21cm" page-width="29.7cm"
+	                  	page-height="29.7cm" page-width="21cm"
 	                  	margin-top="2cm" margin-bottom="2cm"
-	                  	margin-left="2.5cm" margin-right="2.5cm">
+	                  	margin-left="1.5cm" margin-right="1.5cm">
 			      	<fo:region-body margin-top="0cm"/>
 			      	<fo:region-before extent="2cm"/>
 			      	<fo:region-after extent="1.5cm"/>
@@ -34,7 +34,7 @@
 				<fo:simple-page-master master-name="others"
 	                  	page-height="29.7cm" page-width="21cm"
 	                  	margin-top="2cm" margin-bottom="2cm"
-	                  	margin-left="2.5cm" margin-right="2.5cm">
+	                  	margin-left="1.5cm" margin-right="1.5cm">
 			      	<fo:region-body margin-top="0cm"/>
 			      	<fo:region-before region-name="rb-common" extent="2cm"/>
 			      	<fo:region-after region-name="ra-common" extent="1.5cm"/>
@@ -85,8 +85,8 @@
 				       	<fo:block>
 				       	 	 <fo:table table-layout="fixed" border-collapse="collapse">
 								<fo:table-column column-width="1.5cm"/>
-						        <fo:table-column column-width="5.5cm"/>
-						        <fo:table-column column-width="18cm"/>
+						        <fo:table-column column-width="4.5cm"/>
+						        <fo:table-column column-width="12cm"/>
 						        <fo:table-header>
 						        	<fo:table-row>
 						        		<fo:table-cell display-align="before" text-align="center" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
