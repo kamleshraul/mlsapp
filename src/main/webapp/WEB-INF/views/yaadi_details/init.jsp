@@ -520,7 +520,9 @@
 				async: false,
 				success: function(data) {	
 					if(data==false) {
-						$('#publishButton1').show();
+						if($('#isGroupAllowedForYaadiPublishing').val()!="NO") {
+							$('#publishButton1').show();							
+						}
 						isSuchiPublished = "NO";
 						//console.log("isSuchiPublished: " + isSuchiPublished);
 						$("#view_suchi").hide();
@@ -731,7 +733,7 @@
 		</a> |
 		</security:authorize>
 		<c:if test="${houseType=='upperhouse'}">
-		<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT')">
+		<security:authorize access="hasAnyRole('QIS_CLERK')">
 		<security:authorize access="!hasAnyRole( 'QIS_GENERAL_CLERK')">
 	 	<a href="#" id="update_questions" class="butSim update_devices_content">
 			<spring:message code="yaadidetails.update_questions" text="Update Yaadi Questions"/>
@@ -751,6 +753,7 @@
 	<input id="ds" type="hidden" value="${ds}" />
 	<input id="houseType" type="hidden" value="${houseType}" />
 	<input id="yaadiShufflingEnabled" type="hidden" value="${yaadiShufflingEnabled}" />
+	<input id="isGroupAllowedForYaadiPublishing" type="hidden" value="${isGroupAllowedForYaadiPublishing}" />
 
 
 	<input id="deviceType" type="hidden" value="${deviceTypeType}" />

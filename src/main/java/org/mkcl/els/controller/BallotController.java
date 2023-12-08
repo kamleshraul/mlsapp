@@ -53,6 +53,7 @@ import org.mkcl.els.common.vo.StarredBallotVO;
 import org.mkcl.els.common.xmlvo.CumulativeMemberwiseQuestionsXmlVO;
 import org.mkcl.els.common.xmlvo.MemberBallotTotalQuestionReportXmlVO;
 import org.mkcl.els.common.xmlvo.MemberwiseQuestionsXmlVO;
+import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.ActivityLog;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.Credential;
@@ -1166,6 +1167,7 @@ public class BallotController extends BaseController{
 						&&(!strSessionYear.isEmpty())
 						&&(!strDeviceType.isEmpty())
 						&&(!strRound.isEmpty())){
+					String usergroupType = request.getParameter("usergroupType");
 					HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
 					SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
 					Integer sessionYear=Integer.parseInt(strSessionYear);
@@ -1189,7 +1191,24 @@ public class BallotController extends BaseController{
 								rounds.add(reference);
 							}
 							/**** Populating Groups ****/
-							List<Group> groups=Group.findByHouseTypeSessionTypeYear(houseType,sessionType,sessionYear);
+							List<Group> groups=new ArrayList<Group>();
+							CustomParameter csptGroupsAllowedForMemberBallot = null;
+							if(usergroupType!=null && !usergroupType.isEmpty()) {
+								csptGroupsAllowedForMemberBallot = CustomParameter.findByName(CustomParameter.class, questionType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_GROUPS_ALLOWED_FOR_MEMBERBALLOT_"+usergroupType.toUpperCase(), "");
+							}
+							if(csptGroupsAllowedForMemberBallot!=null && csptGroupsAllowedForMemberBallot.getValue()!=null) {
+								String strGroups = csptGroupsAllowedForMemberBallot.getValue();
+								if(strGroups != null && ! strGroups.isEmpty()) {
+									List<Integer> groupNumbers = QuestionController.delimitedStringToIntegerList(strGroups, ",");
+									groups = new ArrayList<Group>();
+									for(Integer groupNumber : groupNumbers) {
+										Group group = Group.findByNumberHouseTypeSessionTypeYear(groupNumber, houseType, session.getType(), session.getYear());
+										groups.add(group);
+									}
+								}
+							} else {
+								groups=Group.findByHouseTypeSessionTypeYear(houseType,sessionType,sessionYear);
+							}
 							List<MasterVO> masterVOs=new ArrayList<MasterVO>();
 							for(Group i:groups){
 								MasterVO masterVO=new MasterVO(i.getId(),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i.getNumber()));

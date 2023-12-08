@@ -34,7 +34,6 @@ import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.YaadiDetails;
-import org.mozilla.javascript.ObjArray;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -64,6 +63,7 @@ public class YaadiDetailsController extends BaseController {
 		try {
 			String category = request.getParameter("category");
 			model.addAttribute("category", category);
+			String usergroupType = request.getParameter("usergroupType");
 			String houseType = request.getParameter("houseType");
 			model.addAttribute("houseType", houseType);
 			/** Populate DeviceType */
@@ -76,6 +76,28 @@ public class YaadiDetailsController extends BaseController {
 				/** Populate Group*/
 				String strGroup = request.getParameter("group");
 				Group group = Group.findById(Group.class, Long.parseLong(strGroup));
+				CustomParameter csptGroupsAllowedForMemberBallot = null;
+				if(usergroupType!=null && !usergroupType.isEmpty()) {
+					csptGroupsAllowedForMemberBallot = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.toUpperCase()+"_GROUPS_ALLOWED_FOR_MEMBERBALLOT_"+usergroupType.toUpperCase(), "");
+					if(csptGroupsAllowedForMemberBallot!=null && csptGroupsAllowedForMemberBallot.getValue()!=null) {
+						boolean isGroupAllowed = false;
+						boolean isGroupAllowedForYaadiPublishing = false;
+						for(String groupAllowed : csptGroupsAllowedForMemberBallot.getValue().split(",")) {
+							if(groupAllowed.equals(group.getNumber().toString())) {
+								//isGroupAllowed = true;
+								isGroupAllowedForYaadiPublishing = true;
+								break;
+							}
+						}
+//						if(!isGroupAllowed) {
+//							model.addAttribute("errorCode", "GROUP_NOT_ALLOWED_FOR_USER");
+//							return "yaadi_details/error";
+//						}
+						if(!isGroupAllowedForYaadiPublishing) {
+							model.addAttribute("isGroupAllowedForYaadiPublishing", "NO");
+						}
+					}
+				}
 				/** Compute & Add answeringDates to model*/
 				List<MasterVO> masterVOs = new ArrayList<MasterVO>();
 				questionDates = group.getQuestionDates();				

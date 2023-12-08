@@ -412,8 +412,15 @@
 		
 		/**** Bulk Timeout ****/
 		$("#bulktimeout_tab").click(function() {
-			$("#selectionDiv1").hide();
-			bulkTimeout();
+			var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+			if(selectedQuestionId.length<1) {
+				$.prompt($('#selectRowFirstMessage').val());
+				return false;
+			} 
+			else {
+				$("#selectionDiv1").hide();
+				bulkTimeout();
+			}
 		});
 		
 		/**** Yaadi Details Tab ****/
@@ -1227,6 +1234,7 @@
 					+ "&sessionYear=" + $("#selectedSessionYear").val()
 					+ "&sessionType=" + $("#selectedSessionType").val()
 					+ "&questionType=" + $("#selectedQuestionType").val()
+					+ "&answeringDate=" + $("#selectedModuleAsweringDate").val()
 					+ "&ugparam=" + $("#ugparam").val() 
 					+ "&status=" + $("#selectedStatus").val() 
 					+ "&role=" + $("#srole").val()

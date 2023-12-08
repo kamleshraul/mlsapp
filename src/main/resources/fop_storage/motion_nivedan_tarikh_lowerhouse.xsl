@@ -248,7 +248,7 @@
             									
             									<fo:block text-align="justify">
 													&#160;&#160;&#160;&#160;&#160;&#160;
-													<fo:inline>सोबत दर्शविल्याप्रमाणे दिलेली लक्षवेधी  सूचना <fo:inline font-weight="bold">क्रमांक <xsl:value-of select="./element_1/element_1_12" /></fo:inline> मा. अध्यक्षांनी मान्य केली असून, उक्त लक्षवेधी सूचना सभागृहाच्या कामकाजात 
+													<fo:inline>सोबत दर्शविल्याप्रमाणे दिलेली लक्षवेधी  सूचना <fo:inline font-weight="bold">क्रमांक <xsl:value-of select="./element_1/element_1_4" />&#160;<xsl:value-of select="./element_1/element_1_12" /></fo:inline> मा. अध्यक्षांनी मान्य केली असून, उक्त लक्षवेधी सूचना सभागृहाच्या कामकाजात 
 														<fo:inline font-weight="bold">
 															<xsl:choose>
 																<xsl:when test="./element_1/element_1_12='दिनांक '">

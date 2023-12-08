@@ -2131,63 +2131,41 @@ public class QuestionController extends GenericController<Question> {
 					}
 				}
 				
-//				CustomParameter csptYaadiShufflingEnabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_YAADI_SEQUENCE_SHUFFLING_ENABLED_"+houseType.getType().toUpperCase(), "");
-//				String yaadiShufflingEnabled = "NO";
-//				if(csptYaadiShufflingEnabled!=null) {
-//					yaadiShufflingEnabled = csptYaadiShufflingEnabled.getValue();
-//				}
-//				if(questions!=null && !questions.isEmpty() && yaadiShufflingEnabled.equals("YES")) {
-//					QuestionDates questionDatesObjForAnsweringDate = group.findQuestionDatesByGroupAndAnsweringDate(answeringDate);
-//					if(questionDatesObjForAnsweringDate!=null && questionDatesObjForAnsweringDate.getSuchiPublished()==null) 
-//					{
-//						//Uncomment for enabling shuffling for  questions in yaadi
-//						//questions= this.shuffleArrayWithoutSamePosition(questions);						
-//						
-//						//simple ordering by numbers to hide the actual sequence order of yaadi
-//						Collections.sort(questions, new Comparator<Question>() {
-//							@Override
-//							public int compare(final Question q1, final Question q2) {
-//								return q1.getNumber().compareTo(q2.getNumber());
-//							}
-//						});
-//					}
-//					else if(questionDatesObjForAnsweringDate!=null && questionDatesObjForAnsweringDate.getSuchiPublished()!=null
-//							&& questionDatesObjForAnsweringDate.getSuchiPublished().booleanValue()!=true) 
-//					{
-//						//Uncomment for enabling shuffling for  questions in yaadi
-//						//questions= this.shuffleArrayWithoutSamePosition(questions);						
-//						
-//						//simple ordering by numbers to hide the actual sequence order of yaadi
-//						Collections.sort(questions, new Comparator<Question>() {
-//							@Override
-//							public int compare(final Question q1, final Question q2) {
-//								return q1.getNumber().compareTo(q2.getNumber());
-//							}
-//						});
-//					}			
-//				} else {
-//					//Uncomment for enabling shuffling for  questions in yaadi
-//					//questions= this.shuffleArrayWithoutSamePosition(questions);						
-//					
-//					//simple ordering by numbers to hide the actual sequence order of yaadi
-//					Collections.sort(questions, new Comparator<Question>() {
-//						@Override
-//						public int compare(final Question q1, final Question q2) {
-//							return q1.getNumber().compareTo(q2.getNumber());
-//						}
-//					});
-//				}
-				
-				//Uncomment for enabling shuffling for  questions in yaadi
-				//questions= this.shuffleArrayWithoutSamePosition(questions);
-				
-				//simple ordering by numbers to hide the actual sequence order of yaadi
-				Collections.sort(questions, new Comparator<Question>() {
-					@Override
-					public int compare(final Question q1, final Question q2) {
-						return q1.getNumber().compareTo(q2.getNumber());
+				CustomParameter csptYaadiShufflingEnabled = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_YAADI_SEQUENCE_SHUFFLING_ENABLED_"+houseType.getType().toUpperCase(), "");
+				String yaadiShufflingEnabled = "NO";
+				if(csptYaadiShufflingEnabled!=null) {
+					yaadiShufflingEnabled = csptYaadiShufflingEnabled.getValue();
+				}
+				if(questions!=null && !questions.isEmpty() && yaadiShufflingEnabled.equals("YES")) {
+					QuestionDates questionDatesObjForAnsweringDate = group.findQuestionDatesByGroupAndAnsweringDate(answeringDate);
+					if(questionDatesObjForAnsweringDate!=null && questionDatesObjForAnsweringDate.getSuchiPublished()==null) 
+					{
+						//Uncomment for enabling shuffling for  questions in yaadi
+						//questions= this.shuffleArrayWithoutSamePosition(questions);						
+						
+						//simple ordering by numbers to hide the actual sequence order of yaadi
+						Collections.sort(questions, new Comparator<Question>() {
+							@Override
+							public int compare(final Question q1, final Question q2) {
+								return q1.getNumber().compareTo(q2.getNumber());
+							}
+						});
 					}
-				});
+					else if(questionDatesObjForAnsweringDate!=null && questionDatesObjForAnsweringDate.getSuchiPublished()!=null
+							&& questionDatesObjForAnsweringDate.getSuchiPublished().booleanValue()!=true) 
+					{
+						//Uncomment for enabling shuffling for  questions in yaadi
+						//questions= this.shuffleArrayWithoutSamePosition(questions);						
+						
+						//simple ordering by numbers to hide the actual sequence order of yaadi
+						Collections.sort(questions, new Comparator<Question>() {
+							@Override
+							public int compare(final Question q1, final Question q2) {
+								return q1.getNumber().compareTo(q2.getNumber());
+							}
+						});
+					}			
+				}
 				
 				StringBuilder str = new StringBuilder();		
 				if(questions != null && ! questions.isEmpty()) {
