@@ -44,6 +44,7 @@ import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.MaritalStatus;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
+import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Part;
 //import org.mkcl.els.domain.PartDraft;
 import org.mkcl.els.domain.Party;
@@ -618,11 +619,13 @@ public class MasterWebService {
 				e.printStackTrace();
 			}
 			List<Roster> rosters=Roster.findAllRosterBySessionAndLanguage(session,language, locale.toString());
+			MessageResource rosterKhand = MessageResource.findByFieldName(MessageResource.class, "code", "roster.khand", locale.toString());
+			
 			for(Roster r:rosters){
 				MasterVO masterVO = new MasterVO();
 				masterVO.setNumber(r.getDay());
 				masterVO.setValue(r.getId().toString());
-				masterVO.setName(FormaterUtil.formatDateToString(r.getStartTime(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+				masterVO.setName(FormaterUtil.formatDateToString(r.getStartTime(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()).concat("-"+rosterKhand.getValue()+" "+r.getRegisterNo().toString()));
 				masterVOs.add(masterVO);
 				//rosterDays.add(r.getDay());
 			}
