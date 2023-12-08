@@ -6,6 +6,19 @@
     #motionReportContainer {
       justify-content:center;
     }
+ /*    #search {
+	  background-color: #04AA6D;
+	  border: none;
+	  color: white;
+	  cursor : pointer;
+	  border-radius: 8px;
+	  text-align: center;
+	  text-decoration: none;
+	  display: inline-block;
+	  font-size: 13px;
+	  margin: 4px 2px;
+	  height: 20px;
+	} */
   </style>
   <script type="text/javascript">
   
@@ -19,14 +32,13 @@
   
      $(document).ready(function(){
     	 
-    	/*   var controlName=$(".autosuggestmultiple").attr("id");  */
-    	
-        var currentDate = new Date();
-		currentDate.setHours(0,0,0,0);
-		var maxChartAnsweringDate = new Date($("#discussionDate").val());
-		if(currentDate >= maxChartAnsweringDate){
-		   $("#submitMotionOrder").hide();
-		} 
+            var currentDate = new Date();
+			currentDate.setHours(0,0,0,0);
+			var maxChartAnsweringDate = new Date($("#discussionDate").val());
+			if(currentDate > maxChartAnsweringDate){
+			   $("#submitMotionOrder").hide();
+			  /*  $("#searchBoxDiv").hide(); */
+			}  
 		
     		$("#chkall").change(function(){
     			if($(this).is(":checked")){
@@ -49,8 +61,6 @@
     		}	
     		});	
     		
-    		
-    		
     		$("#submitMotionOrder").click(function(){
     		    submitMotionsOrder();   		
     		});
@@ -64,8 +74,77 @@
 				var resourceURL = 'motion/report/orderoftheday/motion/fop?'+ parameters;
 				$(this).attr('href', resourceURL);
 			});
+    		
+    		$('#search').click(function(){
+    			addMotions();
+    		});
+    		
 	    	 
      });
+     
+     function appendDataToColumn(data){
+    	 
+    	for(var i=0; i<data.length; i++){
+    		
+    	 var rowCount = $("#myTable tbody tr").length;
+
+    	 var newRow = $("<tr></tr>");
+    	 
+    	 newRow.append("<td style='min-width:100px;' align='center' class='chk'><input type='checkbox' id=chk"+data[i].number+" name=chk"+data[i].number+" class='sCheck action' value='true' checked  style='margin-right: 10px;'></td>");
+    	 
+    	 newRow.append("<td style='width: 50px;' align='center'><b>" + (rowCount + 1) + "</b></td>");
+
+    	 newRow.append("<td style='width: 70px;' align='center'><b>" + data[i].formattedNumber + "</b></td>");
+    	  
+    	 newRow.append("<td style='width: 140px;' align='center'><b>" + data[i].displayName + "<br/>("+data[i].name+")</b></td>");
+    	 
+    	 newRow.append("<td style='width: 500px; padding: 15px;' align='justify'>" + data[i].type + "<br/><br/>"+data[i].value+"</td>");
+    	  
+    	  $("#myTable tbody").append(newRow);
+    	} 
+    	 
+     }
+     
+     function addMotions(){
+    	 var file=$("#selectedFileCount").val();
+    	 $.prompt($('#addMotionsMsg').val(),{
+	 			buttons: {Ok:true, Cancel:false}, callback: function(v){
+	 	        if(v){
+	 	        	$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 
+	 	        	$.ajax({url: 'motion/report/orderoftheday/getMotions', 
+	 					data: {						
+	 						 motionList:$("#searchvalue").val(),
+	 						 sessionId: $("#sessionId").val(),
+	 						 discussionDate: $("#discussionDateId").val(),
+	 						 ugparam: $("#ugparam").val(),
+	 						 report: "MOTION_ORDER_OF_THE_DAY",
+	 						 locale: "mr_IN",
+	 						 file:file
+	 					},
+	 					type: 'GET',
+	 					async: false,
+	 					success: function(data) {	
+	 						/* $('html').animate({scrollTop:0}, 'slow');
+	        				 	$('body').animate({scrollTop:0}, 'slow'); */
+	        				 	
+        				 	$("html, body").animate({ scrollTop: $(document).height()-$(window).height() });
+	     					console.log(data);
+ 	     					$.unblockUI(); 	
+	     					appendDataToColumn(data);
+	 					},
+	 					error: function(data) {
+	 						$.unblockUI();
+	 						if($("#ErrorMsg").val()!=''){
+	 							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+	 						}else{
+	 							$("#error_p").html("Error occured contact for support.");
+	 						}
+	 					}
+	 				});
+	 				
+	 	        }}}); 
+    	 
+     }
      
      function submitMotionsOrder(){
     	var items=new Array();
@@ -165,7 +244,23 @@
 	<h4><b>${topHeader[3]}</b></h4>
   </center>
   <br/>
-   <table border="1">
+    <div id="searchBoxDiv">
+     <center>
+    	<table style="padding: 0px; margin: 0px;"> 
+		<tr> 
+			<td style="border-style:solid none solid solid;border-color:#4B7B9F;border-width:2px;">
+				<input type="text" name="zoom_query" id="searchvalue" style="width:660px; border:0px solid; height:17px; padding:0px 3px; position:relative;"> 
+			</td>
+			<td style="border-style:solid;border-color:#4B7B9F;border-width:1px;cursor: pointer;"> 
+				<input type="button" id="search" value="Add Motion" style="border-style: none; width: 100px; height: 20px;">
+			</td>
+		 </tr>
+		</table>
+	  </center>
+     </div> 
+  <br/>
+  <center>
+   <table id="myTable" border="1">
      	<thead>
 		   <tr>
 		    <th style="min-width:100px;text-align:center;"><spring:message code="resolution.submitall" text="Submit All"></spring:message>
@@ -178,13 +273,6 @@
 		   </tr>
 		</thead>    
 		<tbody>
-		<tr>
-		   <td><br/></td>
-		   <td><br/></td>
-		   <td><br/></td>
-		   <td><br/></td>
-		   <td><br/></td>
-		</tr>
 		<c:set var="index" value="1"></c:set>
         <c:forEach items="${report}" var="r" varStatus="counter">
 		   <tr id="row${r[16]}">
@@ -202,23 +290,8 @@
       </c:forEach>
        </tbody> 
       </table>
+      </center>
       <br/>
-   <%--    <div id="searchBoxDiv">
-    	<table style="padding: 0px; margin: 0px;"> 
-		<tr> 
-			<td style="border-style:solid none solid solid;border-color:#4B7B9F;border-width:2px;">
-				<input type="text" name="zoom_query" id="searchvalue" style="width:660px; border:0px solid; height:17px; padding:0px 3px; position:relative;"> 
-			</td>
-			<td style="border-style:solid;border-color:#4B7B9F;border-width:1px;cursor: pointer;"> 
-				<input type="button" id="search" value="" style="border-style: none; background: url('/els/resources/images/searchbutton3.gif') no-repeat; width: 24px; height: 20px;">
-			</td>
-			<td>
-				<a href="#" id="reset" style="margin-left: 10px;margin-right: 10px;"><spring:message code="clubbing.reset" text="Reset Filters"></spring:message></a>
-				<a href="#" id="backToQuestion" style="margin-left: 10px;margin-right: 10px;"><spring:message code="clubbing.back" text="Back"></spring:message></a>
-			</td>
-		</tr>
-	</table>
-</div> --%>
       <center>
      	 <input id="submitMotionOrder" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
      </center>
@@ -229,7 +302,8 @@
         </center>
     </c:if> 
 </div>
-    <input id="submissionMsg" value="<spring:message code='specialmentionnotice.client.prompt.submit' text='Do you want to create order of the day..?'></spring:message>" type="hidden">
+    <input id="submissionMsg" value="<spring:message code='orderoftheday.client.prompt.submit' text='Do you want to create order of the day..?'></spring:message>" type="hidden">
+    <input id="addMotionsMsg" value="<spring:message code='orderoftheday.client.prompt.submit' text='Do you want to add motions?'></spring:message>" type="hidden">
     <input id="sessionId" name="sessionId" value="${sessionId}" type="hidden">
 	<input id="isRegularSitting" name="isRegularSitting" value="${isRegularSitting}" type="hidden"/>
 	<input id="discussionDateId" name="discussionDateId" value="${discussionDateId}" type="hidden"/>

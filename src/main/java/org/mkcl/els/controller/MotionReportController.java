@@ -2,6 +2,7 @@ package org.mkcl.els.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.AutoCompleteVO;
 import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
@@ -28,6 +30,7 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Query;
@@ -51,6 +54,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -1795,6 +1799,43 @@ public class MotionReportController extends BaseController{
 			}
 		}
 		
+		
+	    @RequestMapping(value="orderoftheday/getMotions",method = RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getMemberMinistersForOrderOfTheDay(final HttpServletRequest request, final ModelMap model, final Locale locale){
+			
+	    	List<Motion> motions = null;
+	    	List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+	    	 Map<String, String[]> modifiedParameterMap = new HashMap<String, String[]>();
+	    	
+			if(request.getParameter("motionList")!= null) {
+				
+				modifiedParameterMap.put("ugparam", request.getParameterValues("ugparam"));
+				modifiedParameterMap.put("discussionDate", request.getParameterValues("discussionDate"));
+				modifiedParameterMap.put("sessionId", request.getParameterValues("sessionId"));
+				modifiedParameterMap.put("motionList", request.getParameterValues("motionList"));
+				modifiedParameterMap.put("locale", request.getParameterValues("locale"));
+				
+				List report = Query.findReport(request.getParameter("report"), modifiedParameterMap,true);
+				Object[] obj = null;
+				if(report != null) {
+					for(int i=0;i<report.size();i++) {
+						obj = (Object[]) report.get(i);
+						MasterVO masterVO = new MasterVO();
+						 masterVO.setId(Long.parseLong(obj[6].toString())); 
+						 masterVO.setNumber(Integer.parseInt(obj[16].toString()));
+						 masterVO.setType(obj[8].toString());
+						 masterVO.setValue(obj[9].toString());
+						 masterVO.setDisplayName(obj[2].toString());
+						 masterVO.setName(obj[4].toString());
+						 masterVO.setFormattedNumber(obj[7].toString());
+						masterVOs.add(masterVO);
+					}
+				}
+				
+			}
+				
+			return masterVOs;
+		}		
 }
 
 
