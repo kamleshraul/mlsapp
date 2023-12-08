@@ -44,6 +44,14 @@
 					reloadResolutionGrid();						
 				}			
 			});
+			
+			/** Admitted Non Resolution Yaadi Report **/
+			
+			$('#admittedNonResolutionYaadi').click(function(){
+				admittedNonResolutionYaadiView()
+			})
+			
+			
 			/**** device type changes then reload grid****/			
 			$("#selectedDeviceType").change(function(){
 				var value = $(this).val();
@@ -509,6 +517,23 @@
 				}
 			});
 		}
+		
+		function admittedNonResolutionYaadiView(){
+			
+			$.get('ref/sessionbyhousetype/'+$("#selectedHouseType").val()+"/"+$("#selectedSessionYear").val()+"/"+$("#selectedSessionType").val()
+					  ,function(session){
+				var parameters = "houseType=" + $("#selectedHouseType").val()
+				+ "&sessionId=" + session.id
+				+ "&resolutionTypeId=" + $("#selectedDeviceType").val()
+				+"&locale="+$("#moduleLocale").val()
+				+ "&report=ROIS_ADMITED_YAADI"
+				+ "&reportout=admitted_non_resolution_yaadi_report";
+				
+				showTabByIdAndUrl('details_tab','resolution/report/generalreport?'+parameters);
+			})
+			
+		}
+
 
 	</script>
 </head>
@@ -725,7 +750,12 @@
 					</select>|
 					<a href="javascript:void(0);" id="department_report" class="butSim" >
 						<spring:message code="generic.departmentWiseReport" text="Department-wise Report"/>
-					</a>|
+					</a>|				
+					<a  href="#" id="admittedNonResolutionYaadi" class="butSim">
+						Admitted 
+						<spring:message code="dashboard.resolutionsnonofficial" text="admitted Non Resolution Yaadi"/>
+						  Yaadi
+					</a>	
 					<%-- <a href="javascript:void(0);" id="party_report" class="butSim" >
 						<spring:message code="generic.partyWiseReport" text="Party-wise Report"/>
 					</a>						
