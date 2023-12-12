@@ -690,7 +690,7 @@
 				</security:authorize>
 			</c:when>
 			<c:when test="${deviceTypeType=='questions_starred' and houseType=='upperhouse'}">
-				<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE')">
+				<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_PRINCIPAL_SECRETARY')">
 				<a href="#" id="view_yaadi" class="butSim">
 					<spring:message code="yaadidetails.viewYaadi" text="Yaadi Report"/>
 				</a> |		 
