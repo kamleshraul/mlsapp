@@ -598,17 +598,35 @@
 			});
 			
 			var sendToSectionOfficer = $("#internalStatusMaster option[value='motion_processed_sendToSectionOfficer']").text();
+			//console.log(sendToSectionOfficer)
 			var changedInternalStatus = $("#changeInternalStatus").val();
 			
 			
 			if(changedInternalStatus == sendToSectionOfficer){
+				if($('#internalStatus').val() == 956){
+					if( $('#factualPositionFromDepartment').val()==""){
+						$.prompt($('#noAnswerProvidedMsg').val());
+						return false;
+					}
+				}else{
+					if($('#reply').val()=="" ){
+						$.prompt($('#noAnswerProvidedMsg').val());
+						return false;
+					}
+				}
+			}
+			
+			
+			
+			
+			/* if(changedInternalStatus == sendToSectionOfficer){
 				console.log("Reply: "+$('#reply').val());
 				if($('#reply').val()=="" || $('#factualPositionFromDepartment').val()==""){
 					$.prompt($('#noAnswerProvidedMsg').val());
 					return false;
 				}
 			}
-			
+			 */
 			$.prompt($('#confirmMotionSubmission').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){				        	
