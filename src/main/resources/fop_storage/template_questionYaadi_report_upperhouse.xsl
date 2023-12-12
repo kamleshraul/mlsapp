@@ -570,8 +570,11 @@
 	        	<xsl:choose>
 		        	<xsl:when test="isSuchiPublished='NO'">
 			        	<fo:block font-family="Kokila" font-size="12pt" text-align="center" font-weight="bold">
-			        		This copy is NOT the actual yaadi. kindly consider it for only proof-reading
+			        		<fo:page-number/>. This copy is NOT the actual yaadi. kindly consider it for only proof-reading
 			        	</fo:block>
+			        	<fo:block font-family="Kokila" font-size="12pt" text-align="center" font-weight="bold">
+			        		Generated on: <xsl:value-of select="reportDate" />
+			        	</fo:block>		        	
 		        	</xsl:when>
 		        	<xsl:otherwise>
 		        		<fo:block font-family="Kokila" font-size="10pt" text-align="center">
