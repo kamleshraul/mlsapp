@@ -607,6 +607,7 @@
 	<input id="bulkedit" name="bulkedit" value="no" type="hidden">
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
+	<input id="deviceType" name="deviceType" value="${discussionMotionType}" type="hidden" />
 	<input type="hidden" name="selectedSupportingMembersIfErrors" value="${selectedSupportingMembersIfErrors}" />
 	 <input type="hidden" name="multiple_value" id="multiple_value"  />
 </form:form>
