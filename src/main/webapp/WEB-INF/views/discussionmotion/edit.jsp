@@ -532,6 +532,7 @@ $('#ministries').change(function(){
 	<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
 	<input id="role" name="role" value="${role}" type="hidden">
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
+	<input id="deviceType" name="deviceType" value="${discussionMotionType}" type="hidden" />
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
 </form:form>
 <input id="currentStatus" value="${internalStatusType }" type="hidden">
