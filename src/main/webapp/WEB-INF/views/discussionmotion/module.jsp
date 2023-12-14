@@ -31,6 +31,13 @@
 				$(".sf .data").mask("99/99/9999");
 			}
 		});
+		
+		/**** Search ****/
+		$('#search_tab').click(function() {
+			$("#selectionDiv1").hide();
+			searchInt();
+		});
+		
 		/**** displaying grid ****/
 		$('#list_tab').click(function() {
 			$("#selectionDiv1").show();							
@@ -146,6 +153,18 @@
 	}
 	function refreshList(){
 		showDiscussionMotionList();
+	}
+	
+	/**** Search Facility ****/
+	function searchInt(id){
+		//$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		var params="searchfacility=yes&usergroup="+$("#currentusergroup").val()
+			        +"&usergroupType="+$("#currentusergroupType").val()+
+			        "&houseType="+$("#selectedHouseType").val()+
+			        "&sessionType="+$("#selectedSessionType").val()+
+			        "&sessionYear="+$("#selectedSessionYear").val()+
+			        "&deviceType="+$("#selectedDiscussionMotionType").val();		
+		showTabByIdAndUrl('search_tab','devicesearch/init?'+params);
 	}
 	
 	function memberMotionsView(displayContent) { //includes all submitted motions
@@ -339,7 +358,14 @@
 							code="generic.motion.statusupdate" text="Update Motion">
 						</spring:message>
 				</a></li>
-			</security:authorize>						
+			</security:authorize>		
+			<security:authorize
+				access="!hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','MOIS_TYPIST')">
+				<li><a id="search_tab" href="#" class="tab"> <spring:message
+							code="generic.motion.search" text="Search">
+						</spring:message>
+				</a></li>
+			</security:authorize>				
 			
 		</ul>
 		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv1">
