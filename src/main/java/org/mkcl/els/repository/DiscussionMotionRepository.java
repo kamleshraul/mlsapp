@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -14,8 +15,10 @@ import name.fraser.neil.plaintext.diff_match_patch.Diff;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
+import org.mkcl.els.common.vo.SearchVO;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotion;
@@ -530,6 +533,297 @@ public class DiscussionMotionRepository extends BaseRepository<DiscussionMotion,
 		} 
 		
 		return motions;
+	}
+	public List<SearchVO> fullTextSearchForSearching(String param, int start, int noOfRecords, String locale,
+			Map<String, String[]> requestMap) {
+		String orderByQuery=" ORDER BY am.number ASC, s.start_date DESC, dt.id ASC";
+		/**** Condition 1 :must not contain processed question ****/
+		/**** Condition 2 :parent must be null ****/
+		String selectQuery="SELECT "
+				+ "  am.id AS id,"
+				+ "  am.number AS number,"
+				+ "  am.subject AS SUBJECT,"
+				+ "  am.revised_subject AS revisedSubject,"
+				+ "  am.notice_content AS noticeContent,"
+				+ "  am.revised_notice_content AS revisedNoticeContent,"
+				+ "  st.name AS STATUS,"
+				+ "  dt.name AS deviceType,"
+				+ "  s.session_year AS sessionYear,"
+				+ "  sety.session_type AS sessionType,"
+				+ "  mi.name AS ministry,"
+				+ "  sd.name AS subdepartment,"
+				+ "  st.type AS statustype,"
+				+ "  CONCAT(  t.name, ' ', m.first_name, ' ', m.last_name ) AS memberName,  "
+				+ "  am.discussion_date AS discussionDate,"
+				+ "  am.localized_actor_name AS actor, "
+				+ "  ist.name as internalStatus "
+				+ " FROM"
+				+ "  discussionmotion AS am "
+				+ "  LEFT JOIN discussionmotion_ministries dmm ON (dmm.discussionmotion_id = am.id)"
+				+ "  LEFT JOIN ministries mi ON (mi.id = dmm.ministry_id)"
+				+ "  LEFT JOIN discussionmotion_subdepartments dmsd ON (dmsd.discussionmotion_id = am.id)"
+				+ "  LEFT JOIN subdepartments sd ON (sd.id = dmsd.subdepartment_id)"
+				+ "  LEFT JOIN housetypes AS ht   ON (am.housetype_id = ht.id)  "		
+				+ "  LEFT JOIN sessions AS s ON (am.session_id = s.id) "		
+				+ "  LEFT JOIN sessiontypes AS sety  ON (s.sessiontype_id = sety.id) "
+				+ "  LEFT JOIN STATUS AS ist ON ( am.internalstatus_id = ist.id ) "				
+				+ "  LEFT JOIN STATUS AS st ON ( am.recommendationstatus_id = st.id ) "			
+				+ "  LEFT JOIN devicetypes AS dt ON (am.devicetype_id = dt.id) "			
+				+ "  LEFT JOIN members AS m  ON (am.member_id = m.id) "			
+				+ "  LEFT JOIN titles AS t ON (m.title_id = t.id)  "
+				+ " WHERE am.locale = 'mr_IN' "
+				+ "  AND st.type NOT IN ( 'discussionmotion_incomplete',  'discussionmotion_complete' )"
+				+ "  AND am.number IS NOT NULL ";
+		
+		StringBuffer filter = new StringBuffer("");
+		filter.append(addSpecialMentionNoticeFilter(requestMap));
+		
+		String[] strSessionType = requestMap.get("sessionYear");
+		String[] strSessionYear = requestMap.get("sessionType");
+		
+		if(strSessionType == null || (strSessionType != null && strSessionType[0].equals("-")) 
+				|| strSessionYear == null || (strSessionYear != null && strSessionYear[0].equals("-"))
+				|| (strSessionType == null && strSessionYear == null)){
+			CustomParameter csptUseCurrentSession = CustomParameter.findByName(CustomParameter.class, "DISCUSSIONMOTION_SEARCH_USE_CURRENT_SESSION", "");
+			if(csptUseCurrentSession != null && csptUseCurrentSession.getValue() != null 
+					&& !csptUseCurrentSession.getValue().isEmpty() && csptUseCurrentSession.getValue().equalsIgnoreCase("yes")){
+				String[] strSession = requestMap.get("session");
+				if(strSession != null && strSession[0] != null && !strSession[0].isEmpty()){
+					filter.append(" AND s.id=" + strSession[0]);
+				}
+			}
+		}
+		/**** full text query ****/
+		String searchQuery=null;
+		String query = null;
+		if(requestMap.get("number") != null){
+			if(!filter.toString().isEmpty()){
+				query = selectQuery+filter+orderByQuery;
+			}
+		}else{
+			if(!param.contains("+")&&!param.contains("-")){
+				searchQuery=" AND (( match(am.subject,am.notice_content,am.revised_subject,am.revised_notice_content) "+
+						"against('"+param+"' in natural language mode)"+
+						")||am.subject LIKE '%"+param+"%'||am.notice_content LIKE '%"+param+
+						"%'||am.revised_subject LIKE '%"+param+"%'||am.revised_notice_content LIKE '%"+param+"%')";
+			}else if(param.contains("+")&&!param.contains("-")){
+				String[] parameters = param.split("\\+");
+				StringBuffer buffer = new StringBuffer();
+				for(String i : parameters){
+					buffer.append("+"+i+" ");
+				}
+				
+				searchQuery =" AND match(am.subject,am.notice_content,am.revised_subject,am.revised_notice_content) "+
+						"against('"+buffer.toString()+"' in boolean  mode)";
+			}else if(!param.contains("+")&&param.contains("-")){
+				String[] parameters=param.split("-");
+				StringBuffer buffer=new StringBuffer();
+				for(String i:parameters){
+					buffer.append(i+" "+"-");
+				}
+				buffer.deleteCharAt(buffer.length()-1);
+				searchQuery=" AND match(am.subject,am.notice_content,am.revised_subject,am.revised_notice_content) "+
+						"against('"+buffer.toString()+"' in boolean  mode)";
+			}else if(param.contains("+")||param.contains("-")){
+				searchQuery=" AND match(am.subject,am.notice_content,am.reason,am.revised_subject,am.revised_notice_content) "+
+						"against('"+param+"' in boolean  mode)";
+			}	
+			
+			query = selectQuery + filter + searchQuery + orderByQuery;
+		}
+		/**** Final Query ****/
+		String finalQuery = "SELECT rs.id,rs.number,rs.subject,rs.revisedSubject,rs.noticeContent,rs.revisedNoticeContent, "+
+				"rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.ministry,rs.subdepartment,rs.statustype,rs.memberName,rs.discussionDate,rs.actor,rs.internalStatus FROM (" + query + ") as rs LIMIT " + start + "," + noOfRecords;
+
+		List results=this.em().createNativeQuery(finalQuery).getResultList();
+		List<SearchVO> discussionMotionSearchVOs=new ArrayList<SearchVO>();
+		if(results!=null){
+			for(Object i:results){
+				Object[] o=(Object[]) i;
+				SearchVO discussionMotionSearchVO=new SearchVO();
+				if(o[0]!=null){
+					discussionMotionSearchVO.setId(Long.parseLong(o[0].toString()));
+				}
+				if(o[1]!=null){
+					discussionMotionSearchVO.setNumber(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[1].toString())));
+				}
+				if(o[3]!=null){
+					if(!o[3].toString().isEmpty()){
+						discussionMotionSearchVO.setSubject(higlightText(o[3].toString(),param));
+					}else{
+						if(o[2]!=null){
+							discussionMotionSearchVO.setSubject(higlightText(o[2].toString(),param));
+						}
+					}
+				}else{
+					if(o[2]!=null){
+						discussionMotionSearchVO.setSubject(higlightText(o[2].toString(),param));
+					}
+				}				
+				if(o[5]!=null){
+					if(!o[5].toString().isEmpty()){
+						discussionMotionSearchVO.setNoticeContent(higlightText(o[5].toString(),param));
+					}else{
+						if(o[4]!=null){
+							discussionMotionSearchVO.setNoticeContent(higlightText(o[4].toString(),param));
+						}
+					}
+				}else{
+					if(o[4]!=null){
+						discussionMotionSearchVO.setNoticeContent(higlightText(o[4].toString(),param));
+					}
+				}
+				if(o[6]!=null){
+					discussionMotionSearchVO.setStatus(o[6].toString());
+				}
+				if(o[7]!=null){
+					discussionMotionSearchVO.setDeviceType(o[7].toString());
+				}
+				if(o[8]!=null){
+					discussionMotionSearchVO.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[8].toString())));
+				}
+				if(o[9]!=null){
+					discussionMotionSearchVO.setSessionType(o[9].toString());
+				}
+				
+				if(o[10]!=null){
+					discussionMotionSearchVO.setMinistry(o[10].toString());
+				}
+				
+				if(o[11]!=null){
+					discussionMotionSearchVO.setSubDepartment(o[11].toString());
+				}
+				if(o[12]!=null){
+					discussionMotionSearchVO.setStatusType(o[12].toString());
+				}
+				if(o[13]!=null){
+					discussionMotionSearchVO.setFormattedPrimaryMember(o[13].toString());
+				}
+				if(o[14]!=null){
+					discussionMotionSearchVO.setChartAnsweringDate(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[14].toString(), ApplicationConstants.DB_DATEFORMAT), ApplicationConstants.SERVER_DATEFORMAT, locale));
+				}else {
+					discussionMotionSearchVO.setChartAnsweringDate("-");
+				}
+				if(o[15]!=null){
+					discussionMotionSearchVO.setActor(o[15].toString());
+				}
+				if(o[16] != null) {
+					discussionMotionSearchVO.setInternalStatus(o[16].toString());
+				}
+				discussionMotionSearchVOs.add(discussionMotionSearchVO);
+			}
+		}
+		return discussionMotionSearchVOs;
+	}
+	
+	private String higlightText(final String textToHiglight,final String pattern) {
+
+		String highlightedText=textToHiglight;
+		String replaceMentText="<span class='highlightedSearchPattern'>";
+		String replaceMentTextEnd="</span>";
+		if((!pattern.contains("+"))&&(!pattern.contains("-"))){
+			String[] temp=pattern.trim().split(" ");
+			for(String j:temp){
+				if(!j.isEmpty()){
+					if(!highlightedText.contains(replaceMentText+j.trim()+replaceMentTextEnd)){
+						highlightedText=highlightedText.replaceAll(j.trim(),replaceMentText+j.trim()+replaceMentTextEnd);
+					}
+				}
+			}			
+		}else if((pattern.contains("+"))&&(!pattern.contains("-"))){
+			String[] temp=pattern.trim().split("\\+");
+			for(String j:temp){
+				if(!highlightedText.contains(replaceMentText+j.trim()+replaceMentTextEnd)){
+					highlightedText=highlightedText.replaceAll(j.trim(),replaceMentText+j.trim()+replaceMentTextEnd);
+				}
+			}			
+		}else if((!pattern.contains("+"))&&(pattern.contains("-"))){
+			String[] temp=pattern.trim().split("\\-");
+			String[] temp1=temp[0].trim().split(" ");
+			for(String j:temp1){
+				if(!highlightedText.contains(replaceMentText+j.trim()+replaceMentTextEnd)){
+					highlightedText=highlightedText.replaceAll(j.trim(),replaceMentText+j.trim()+replaceMentTextEnd);
+				}
+			}		
+		}else if(pattern.contains("+")&& pattern.contains("-")){
+			String[] temp=pattern.trim().split("\\-");
+			String[] temp1=temp[0].trim().split("\\+");
+			for(String j:temp1){
+				String[] temp2=j.trim().split(" ");
+				for(String k:temp2){
+					if(!highlightedText.contains(replaceMentText+k.trim()+replaceMentTextEnd)){
+						highlightedText=highlightedText.replaceAll(k.trim(),replaceMentText+k.trim()+replaceMentTextEnd);
+					}
+				}
+			}		
+		}
+		return highlightedText;
+	}
+	
+	private String addSpecialMentionNoticeFilter(Map<String, String[]> requestMap) {
+		StringBuffer buffer=new StringBuffer();
+		
+		if(requestMap.get("number") != null){
+			String deviceNumber = requestMap.get("number")[0];
+			if((!deviceNumber.isEmpty()) && (!deviceNumber.equals("-"))){
+				buffer.append(" AND am.number=" + deviceNumber);
+			}
+		}
+		if(requestMap.get("primaryMember") != null){
+			String member = requestMap.get("primaryMember")[0];
+			if((!member.isEmpty()) && (!member.equals("-"))){
+				buffer.append(" AND am.member_id=" + member);
+			}
+		}
+		if(requestMap.get("deviceType")!=null){
+			String deviceType=requestMap.get("deviceType")[0];
+			if((!deviceType.isEmpty())&&(!deviceType.equals("-"))){
+				buffer.append(" AND dt.id="+deviceType);
+			}
+		}
+		if(requestMap.get("houseType")!=null){
+			String houseType=requestMap.get("houseType")[0];
+			if((!houseType.isEmpty())&&(!houseType.equals("-"))){
+				buffer.append(" AND ht.type='"+houseType+"'");
+			}
+		}
+		if(requestMap.get("sessionYear")!=null){
+			String sessionYear=requestMap.get("sessionYear")[0];
+			if((!sessionYear.isEmpty())&&(!sessionYear.equals("-"))){
+				buffer.append(" AND s.session_year="+sessionYear);
+			}
+		}
+		if(requestMap.get("sessionType")!=null){
+			String sessionType=requestMap.get("sessionType")[0];
+			if((!sessionType.isEmpty())&&(!sessionType.equals("-"))){
+				buffer.append(" AND sety.id="+sessionType);
+			}
+		}
+		if(requestMap.get("ministry")!=null){
+			String ministry=requestMap.get("ministry")[0];
+			if((!ministry.isEmpty())&&(!ministry.equals("-"))){
+				buffer.append(" AND mi.id="+ministry);
+			}
+		}
+		if(requestMap.get("subDepartment")!=null){
+			String subDepartment=requestMap.get("subDepartment")[0];
+			if((!subDepartment.isEmpty())&&(!subDepartment.equals("-"))){
+				buffer.append(" AND sd.id="+subDepartment);
+			}
+		}	
+		if(requestMap.get("status")!=null){
+			String status=requestMap.get("status")[0];
+			if((!status.isEmpty())&&(!status.equals("-"))){
+				if(status.equals(ApplicationConstants.UNPROCESSED_FILTER)){
+					buffer.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.DISCUSSIONMOTION_SYSTEM_ASSISTANT_PROCESSED+"')");
+				}else if(status.equals(ApplicationConstants.PENDING_FILTER)){
+					buffer.append(" AND st.priority<(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.DISCUSSIONMOTION_FINAL_ADMISSION+"')");
+				}else if(status.equals(ApplicationConstants.APPROVED_FILTER)){
+					buffer.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.DISCUSSIONMOTION_FINAL_ADMISSION+"')");
+				} 
+			}
+		}			
+		return buffer.toString();
 	}
 	
 }
