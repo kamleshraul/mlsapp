@@ -1151,7 +1151,7 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 		Session session = domain.getSession();								
 		if(session != null) {
 			String noOFSupportingMembersToCheck = 
-					session.getParameter(ApplicationConstants.DISCUSSIONMOTION_SHORTDURATION_NO_OF_SUPPORTING_MEMBERS);
+					session.getParameter(domain.getType().getType()+"_numberOfSupportingMembers");
 			String noOFSupportingMembersComparator = 
 					session.getParameter(ApplicationConstants.DISCUSSIONMOTION_SHORTDURATION_NO_OF_SUPPORTING_MEMBERS_COMPARATOR);
 			if(noOFSupportingMembersToCheck!=null && !noOFSupportingMembersToCheck.isEmpty() 
