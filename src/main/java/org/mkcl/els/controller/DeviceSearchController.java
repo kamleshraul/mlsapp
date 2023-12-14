@@ -19,6 +19,7 @@ import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.DiscussionMotion;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Ministry;
@@ -207,6 +208,8 @@ public class DeviceSearchController extends BaseController{
 					}else if(deviceType.getDevice().equals("proprietypoint")){
 						searchVOs = ProprietyPoint.
 								fullTextSearchForSearching(param, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
+					}else if (deviceType.getDevice().equals("Discussionmotion")) {
+						searchVOs = DiscussionMotion.fullTextSearchForSearching(param, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
 					}
 					
 				}
