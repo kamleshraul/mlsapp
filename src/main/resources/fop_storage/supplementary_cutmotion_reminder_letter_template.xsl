@@ -110,7 +110,7 @@
 						
 						<fo:block text-align="left">
 							<fo:block font-weight="bold">प्रति : </fo:block>
-							<fo:block margin-left="1.5cm" font-weight="bold">सचिव-१ (कार्यभार)</fo:block>
+							<fo:block margin-left="1.5cm" font-weight="bold">प्रधान सचिव</fo:block>
 							<fo:block margin-left="1.5cm" font-weight="bold"><xsl:value-of select="element_1[1]/element_1_3"/>,</fo:block>
 							<fo:block margin-left="1.5cm">महाराष्ट्र शासन,</fo:block>
 							<fo:block margin-left="1.5cm">मंत्रालय, मुंबई - ४०० ०३२</fo:block>	
