@@ -720,7 +720,7 @@
 	<c:if test="${(selectedDeviceType == 'resolutions_nonofficial') && internalStatusType == 'resolution_final_clarificationNeededFromDepartment' }">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="resolution.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
-			<textarea class="wysiwyg" rows="5" cols="50">${questionsAskedInFactualPosition}</textarea>
+			<textarea class="wysiwyg" rows="5" cols="50" readonly="true">${questionsAskedInFactualPosition}</textarea>
 		</p>
 		<p>
 		<label class="small"><spring:message code="resolution.lastDateOfFactualPositionReceiving" text="Last date of receiving Factual Position"/></label>
