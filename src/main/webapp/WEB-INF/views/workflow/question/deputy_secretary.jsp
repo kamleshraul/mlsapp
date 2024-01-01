@@ -1351,7 +1351,7 @@
 				<a href="#" id="reviseBriefExplanation" style="margin: 0px 20px 10px 10px;"><spring:message code="question.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
 			</c:if>
 		</c:if>
-		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
+		<%-- <a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a> --%>
 	</p>
 	
 	
