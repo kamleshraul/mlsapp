@@ -858,11 +858,7 @@
 			</li>			
 			<c:if test="${houseType=='lowerhouse'}">
 			<security:authorize
-				access="hasAnyRole('PROIS_CLERK','PROIS_ASSISTANT', 'PROIS_UNDER_SECRETARY',
-				'PROIS_DEPUTY_SECRETARY','PROIS_PRINCIPAL_SECRETARY','PROIS_SPEAKER', 'PROIS_JOINT_SECRETARY',
-				'PROIS_SECRETARY', 'PROIS_OFFICER_ON_SPECIAL_DUTY', 'PROIS_DEPUTY_SPEAKER', 'PROIS_CHAIRMAN',
-				'PROIS_DEPUTY_CHAIRMAN', 'PROIS_SECTION_OFFICER', 'PROIS_UNDER_SECRETARY_COMMITTEE',
-				'SUPER_ADMIN','PROIS_ADDITIONAL_SECRETARY')">
+				access="hasAnyRole('PROIS_SECTION_OFFICER','PROIS_UNDER_SECRETARY_COMMITTEE','PROIS_DEPUTY_SECRETARY','PROIS_PRINCIPAL_SECRETARY')">
 				<li><a id="ballot_tab" href="#" class="tab"> <spring:message
 							code="question.ballot" text="Ballot"></spring:message>
 				</a></li>
