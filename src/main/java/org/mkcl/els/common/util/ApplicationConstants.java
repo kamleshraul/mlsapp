@@ -631,7 +631,9 @@ public class ApplicationConstants {
 	
 	public static final String STANDALONE_FINAL_REJECT_CLUBBING_POST_ADMISSION = "standalonemotion_final_reject_clubbingPostAdmission";
 
-	public static final String STANDALONE_CLUBBING_MODE = "STANDALONE_CLUBBING_MODE"; 
+	public static final String STANDALONE_CLUBBING_MODE = "STANDALONE_CLUBBING_MODE";
+	
+	public static final String STANDALONEMOTION_PROCESSED_CLARIFICATION_REPUTUP = "standalonemotion_processed_clarification_reputup";
 
 
 	/**** STANDALONE CONSTANTS ****/	

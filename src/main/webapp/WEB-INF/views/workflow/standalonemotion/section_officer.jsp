@@ -115,6 +115,7 @@
 		var answerReceived=$("#internalStatusMaster option[value='standalonemotion_processed_answerReceived']").text();
 		var rejectedWithReason = $("#internalStatusMaster option[value='standalonemotion_processed_rejectionWithReason']").text();
 		var clarificationReceived = $("#internalStatusMaster option[value='standalonemotion_processed_clarificationReceived']").text();
+		var clarificationNotReceived = $("#internalStatusMaster option[value='standalonemotion_processed_clarificationNotReceived']").text();
 		var clarificationFromMemberAndDepartment=$("#internalStatusMaster option[value='standalonemotion_recommend_clarificationNeededFromMemberAndDepartment']").text();		
 		var departmentIntimated = $("#internalStatusMaster option[value='standalonemotion_processed_departmentIntimated']").text();
 		var questionType = $("#selectedQuestionType").val();
@@ -126,7 +127,7 @@
 		if((questionType == 'motions_standalonemotion_halfhourdiscussion') && (value == sendBack || value == discuss)){
 			$("#endFlag").val("continue");
 		}
-		if(value==rejectedWithReason || value==departmentIntimated||value==clarificationReceived){
+		if(value==rejectedWithReason || value==departmentIntimated||value==clarificationReceived||value==clarificationNotReceived){
 			$("#endFlag").val("end");
 			$("#recommendationStatus").val(value);
 			$("#actor").empty();
@@ -673,7 +674,10 @@
 		$("#department option[selected!='selected']").hide();
 		$("#subDepartment option[selected!='selected']").hide();
 		//**** Load Actors On Start Up ****/
-		if($('#workflowstatus').val()!='COMPLETED'){
+		if($('#workflowstatus').val()!='COMPLETED' || ($("#workflowstatus").val()=='COMPLETED' 
+				&& ($("#internalStatusType").val()=='standalonemotion_final_clarificationNeededFromDepartment' 
+				|| $("#internalStatusType").val()=='standalonemotion_final_clarificationNeededFromMember'
+				|| $("#internalStatusType").val()=='standalonemotion_final_clarificationNeededFromMemberAndDepartment'))){
 			var statusType = $("#internalStatusType").val().split("_");
 			var items = $("#internalStatusMaster option[value$='_"+statusType[statusType.length-1]+"']");
 			var id= $(items[0]).text().trim();
@@ -1044,7 +1048,9 @@
 					</c:otherwise>
 				</c:choose>
 			</c:forEach>
-			<c:if test="${workflowstatus != 'COMPLETED'}">
+			<c:if test="${workflowstatus!='COMPLETED' or (workflowstatus=='COMPLETED' and (internalStatusType=='standalonemotion_final_clarificationNeededFromDepartment'
+					|| internalStatusType=='standalonemotion_final_clarificationNeededFromMember'
+					|| internalStatusType=='standalonemotion_final_clarificationNeededFromMemberAndDepartment'))}">
 				<tr>
 					<td>
 						${userName}<br>
@@ -1119,7 +1125,9 @@
 		</p>
 	</c:if>
 		
-	<c:if test="${workflowstatus!='COMPLETED' }">	
+	<c:if test="${workflowstatus!='COMPLETED' or (workflowstatus=='COMPLETED' and (internalStatusType=='standalonemotion_final_clarificationNeededFromDepartment'
+					|| internalStatusType=='standalonemotion_final_clarificationNeededFromMember'
+					|| internalStatusType=='standalonemotion_final_clarificationNeededFromMemberAndDepartment'))}">	
 		<p>
 			<select id="internalStatusMaster" style="display:none;">
 			<c:forEach items="${internalStatuses}" var="i">
@@ -1167,6 +1175,23 @@
 		</p>
 	</div>
 	</c:if>
+	
+	<c:if test="${workflowstatus!='COMPLETED' or (workflowstatus=='COMPLETED' and (internalStatusType=='standalonemotion_final_clarificationNeededFromDepartment'
+					|| internalStatusType=='standalonemotion_final_clarificationNeededFromMember'
+					|| internalStatusType=='standalonemotion_final_clarificationNeededFromMemberAndDepartment'))}">
+		<div class="fields">
+		<h2></h2>
+		<p class="tright">		
+		<c:if test="${bulkedit!='yes'}">
+			<input id="resubmit" type="submit" value="<spring:message code='generic.resubmit' text='Resubmit'/>" class="butDef">
+		</c:if>
+		<c:if test="${bulkedit=='yes'}">
+			<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
+		</c:if>
+		</p>
+	</div>
+	</c:if>
+	
 	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
 	<form:hidden path="file"/>
 	<form:hidden path="id"/>
@@ -1180,6 +1205,7 @@
 	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<form:hidden path="transferToDepartmentAccepted"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
+	<input type="hidden" id="clarificationStatus" name="clarificationStatus" value="${clarificationStatus}"/>
 	<input type="hidden" name="status" id="status" value="${status }">
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
 	<input type="hidden" name="dataEnteredBy" id="dataEnteredBy" value="${dataEnteredBy }">

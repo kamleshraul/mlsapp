@@ -422,6 +422,16 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 		model.addAttribute("formattedQuestionType",questionType.getName());
 		model.addAttribute("questionType",questionType.getId());
 		model.addAttribute("selectedQuestionType",questionType.getType());
+		
+		/******Set Clarification Not Received *********/
+		boolean boolClarificationNotReceived = false;
+		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
+				&& workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)
+				&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+						|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER))){
+			boolClarificationNotReceived = true;
+		}
 
 		/**** Primary Member ****/
 		String memberNames=null;
@@ -546,8 +556,15 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 			/**** list of put up options available ****/
 			/**** added by sandeep singh(jan 29 2013) ****/
 
-			populateInternalStatus(model,domain,locale);
-			
+			if(boolClarificationNotReceived){
+				Status clarificationStatus = Status.findByType(ApplicationConstants.STANDALONEMOTION_PROCESSED_CLARIFICATION_REPUTUP, locale);
+				model.addAttribute("clarificationStatus", clarificationStatus.getType());
+				
+				populateInternalStatus(model, clarificationStatus.getType(), workflowDetails.getAssigneeUserGroupType(), locale, domain.getType().getType());
+			}
+			else {
+				populateInternalStatus(model,domain,locale);
+			}			
 		}
 		if(recommendationStatus!=null){
 			model.addAttribute("recommendationStatus",recommendationStatus.getId());
@@ -809,6 +826,69 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 			e.printStackTrace();
 		}
 	}
+	
+	private void populateInternalStatus(final ModelMap model, 
+			final String type,
+			final String userGroupType,
+			final String locale, 
+			final String deviceType) {
+		List<Status> internalStatuses = new ArrayList<Status>();
+		try{
+			/**** First we will check if custom parameter for device type,internal status and usergroupType has been set ****/
+			CustomParameter specificDeviceStatusUserGroupStatuses = CustomParameter.findByName(CustomParameter.class,"STANDALONEMOTION_PUT_UP_OPTIONS_"+deviceType.toUpperCase()+"_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
+			CustomParameter specificDeviceUserGroupStatuses = CustomParameter.findByName(CustomParameter.class,"STANDALONEMOTION_PUT_UP_OPTIONS_"+deviceType.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
+			CustomParameter specificStatuses = CustomParameter.findByName(CustomParameter.class,"STANDALONEMOTION_PUT_UP_OPTIONS_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
+			if(specificDeviceStatusUserGroupStatuses != null){
+				internalStatuses = Status.
+						findStatusContainedIn(specificDeviceStatusUserGroupStatuses.getValue(), locale);
+			}else if(specificDeviceUserGroupStatuses != null){
+				internalStatuses=Status.
+						findStatusContainedIn(specificDeviceUserGroupStatuses.getValue(), locale);
+			}else if(specificStatuses != null){
+				internalStatuses=Status.
+						findStatusContainedIn(specificStatuses.getValue(), locale);
+			}else if(userGroupType.equals(ApplicationConstants.CHAIRMAN)
+					||userGroupType.equals(ApplicationConstants.SPEAKER)) {
+				CustomParameter finalStatus = CustomParameter.findByName(CustomParameter.class,"STANDALONEMOTION_PUT_UP_OPTIONS_FINAL","");
+				if(finalStatus != null){
+					internalStatuses = Status.findStatusContainedIn(finalStatus.getValue(), locale);
+				}else{
+					CustomParameter recommendStatus = CustomParameter.findByName(CustomParameter.class,"STANDALONEMOTION_PUT_UP_OPTIONS_RECOMMEND","");
+					if(recommendStatus != null){
+						internalStatuses = Status.findStatusContainedIn(recommendStatus.getValue(), locale);
+					}else{
+						CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class,"STANDALONEMOTION_PUT_UP_OPTIONS_BY_DEFAULT","");
+						if(defaultCustomParameter != null){
+							internalStatuses = Status.
+									findStatusContainedIn(defaultCustomParameter.getValue(), locale);
+						}else{
+							model.addAttribute("errorcode","question_putup_options_final_notset");
+						}		
+					}
+				}
+			}else if((!userGroupType.equals(ApplicationConstants.CHAIRMAN))
+					&&(!userGroupType.equals(ApplicationConstants.SPEAKER))) {
+				CustomParameter recommendStatus = CustomParameter.findByName(CustomParameter.class,"STANDALONEMOTION_PUT_UP_OPTIONS_RECOMMEND","");
+				if(recommendStatus != null){
+					internalStatuses = Status.findStatusContainedIn(recommendStatus.getValue(), locale);
+				}else{
+					CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class,"STANDALONEMOTION_PUT_UP_OPTIONS_BY_DEFAULT","");
+					if(defaultCustomParameter != null){
+						internalStatuses = Status.
+								findStatusContainedIn(defaultCustomParameter.getValue(), locale);
+					}else{
+						model.addAttribute("errorcode", "question_putup_options_final_notset");
+					}		
+				}
+			}	
+			/**** Internal Status****/
+			model.addAttribute("internalStatuses", internalStatuses);
+		}catch (ELSException e) {
+			model.addAttribute("error", e.getParameter());
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	private void populateForHalfHourDiscussionEdit(final ModelMap model, final StandaloneMotion domain, final HttpServletRequest request) {
 		Session selectedSession = domain.getSession();
@@ -955,6 +1035,13 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 					}
 					domain.setReferencedEntities(referencedEntities);
 				}
+			}
+			
+			/**** Is Clarification of Question Received or not *************/
+			boolean boolClarificationStatus = false;
+			String clarificationStatus = request.getParameter("clarificationStatus");
+			if(clarificationStatus != null && !clarificationStatus.isEmpty()){
+				boolClarificationStatus = true;
 			}
 
 			if(domain.getType() != null){
@@ -1206,19 +1293,25 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 					String endflag = null;
 					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
 						endflag = "continue";
+					}else if(boolClarificationStatus && workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
+						endflag = "continue";
+						//Do Nothing
 					}else{
 						endflag = domain.getEndFlag();
 					}
 	
 					Map<String,String> properties=new HashMap<String, String>();
 					String level="";
+					String nextuser = null;
 					//String currentDeviceTypeWorkflowType = null;
 					if(domain.getType() != null){
 						if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE) 
 								&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 	
-							//currentDeviceTypeWorkflowType = ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW;
-							String nextuser=domain.getActor();
+							//currentDeviceTypeWorkflowType = ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW;							
+							if(!boolClarificationStatus){
+								nextuser=domain.getActor();
+							}
 							level=domain.getLevel();
 							properties.put("pv_deviceId",String.valueOf(domain.getId()));
 							properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
@@ -1316,7 +1409,9 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 						}else{
 							//String sendbackactor=request.getParameter("sendbackactor");
 							//currentDeviceTypeWorkflowType = ApplicationConstants.APPROVAL_WORKFLOW;
-							String nextuser = request.getParameter("actor");						
+							if(!boolClarificationStatus){
+								nextuser = request.getParameter("actor");
+							}
 	
 							properties.put("pv_deviceId", String.valueOf(domain.getId()));
 							properties.put("pv_deviceTypeId", String.valueOf(domain.getType().getId()));
@@ -1334,18 +1429,33 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 					}
 		
 					String strTaskId=workflowDetails.getTaskId();
-					Task task = processService.findTaskById(strTaskId);
-					processService.completeTask(task,properties);
+					Task task = null;
+					if(!boolClarificationStatus) {
+						task = processService.findTaskById(strTaskId);
+						processService.completeTask(task,properties);
+					}					
 	
 					if(endflag!=null){
 						if(!endflag.isEmpty()){
 							if(endflag.equals("continue")){
-								ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
-								Task newtask = processService.getCurrentTask(processInstance);
-								/**** Workflow Detail entry made only if its not the end of workflow ****/
-								WorkflowDetails newWFDetails = WorkflowDetails.create(motion, newtask, usergroupType, currentDeviceTypeWorkflowType, level);
-								domain.setWorkflowDetailsId(newWFDetails.getId());
-								domain.setTaskReceivedOn(new Date());
+								if(boolClarificationStatus){
+									/**** Process Started and task created ****/
+									List<WorkflowDetails> pendingWorkflows = WorkflowDetails.findPendingWorkflowDetails(domain, workflowDetails.getWorkflowType());
+									for(WorkflowDetails wd : pendingWorkflows){
+										Task prevTask = processService.findTaskById(wd.getTaskId());
+										processService.completeTask(prevTask, properties);
+										wd.setStatus("TIMEOUT");
+										wd.setCompletionTime(new Date());
+										wd.merge();
+									}
+								}else{
+									ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+									Task newtask = processService.getCurrentTask(processInstance);
+									/**** Workflow Detail entry made only if its not the end of workflow ****/
+									WorkflowDetails newWFDetails = WorkflowDetails.create(motion, newtask, usergroupType, currentDeviceTypeWorkflowType, level);
+									domain.setWorkflowDetailsId(newWFDetails.getId());
+									domain.setTaskReceivedOn(new Date());
+								}
 							}
 						}			
 					}

@@ -7009,6 +7009,33 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 			return details;
 		}
 
+		public List<WorkflowDetails> findPendingWorkflowDetails(StandaloneMotion motion, String workflowType) throws ELSException {
+			List<WorkflowDetails> details = new ArrayList<WorkflowDetails>();
+			try{
+				/**** To make the HDS to take the workflow with mailer task ****/
+				String strQuery="SELECT m FROM WorkflowDetails m" +
+						" WHERE m.deviceId=:deviceId"+
+						" AND m.workflowType=:workflowType" +
+						" AND m.status='PENDING'" +
+						" ORDER BY m.assignmentTime " + ApplicationConstants.DESC;
+				Query query=this.em().createQuery(strQuery);
+				query.setParameter("deviceId", motion.getId().toString());
+				query.setParameter("workflowType",workflowType);
+				details = (List<WorkflowDetails>)query.getResultList();
+			}catch (NoResultException e) {
+				e.printStackTrace();
+				logger.error(e.getMessage());
+			}catch(Exception e){	
+				e.printStackTrace();
+				logger.error(e.getMessage());
+				ELSException elsException=new ELSException();
+				elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findPendingWorkflowDetails_motion", "WorkflowDetails Not Found");
+				throw elsException;
+			}		
+			
+			return details;
+		}
+
 		public WorkflowDetails startProcessAtGivenLevel(RulesSuspensionMotion rulesSuspensionMotion,
 				String processDefinitionKey, Workflow processWorkflow, UserGroupType userGroupType, Integer level, String locale) throws ELSException {
 			ProcessDefinition processDefinition = processService.findProcessDefinitionByKey(processDefinitionKey);

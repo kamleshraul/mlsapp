@@ -1183,6 +1183,10 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return getRepository().findPendingWorkflowDetails(motion, workflowType);
 	}
 	
+	public static List<WorkflowDetails> findPendingWorkflowDetails(StandaloneMotion motion, String workflowType) throws ELSException {
+		return getRepository().findPendingWorkflowDetails(motion, workflowType);
+	}
+	
 	public static WorkflowDetails startProcessAtGivenLevel(RulesSuspensionMotion rulesSuspensionMotion, String approvalWorkflow,
 			Workflow workflow, UserGroupType userGroupType, Integer level, String locale) throws ELSException {
 		return getRepository().startProcessAtGivenLevel(rulesSuspensionMotion, approvalWorkflow, workflow, userGroupType, level, locale);
