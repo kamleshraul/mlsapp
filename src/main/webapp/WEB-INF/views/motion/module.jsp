@@ -1642,7 +1642,7 @@
 							<div style="display: none; width: 200px;" id="jodPatraDiv">
 								<select id="jodPatraDate" class="sSelect">
 									<option value="-"><spring:message code='please.select' text="Please Select"></spring:message></option>
-								</select> <a class="butSim" href="javascript:void(0);" id="goJodPatra"><spring:message code="jodpatra.go" text="Go" /></a>
+								</select> <%-- <a class="butSim" href="javascript:void(0);" id="goJodPatra"><spring:message code="jodpatra.go" text="Go" /></a> --%>
 								&nbsp;
 								<a href="javascript:void(0);" id="formJodPatra" style="margin: 0px 0px 0px -10px;">
 									<img width="20px" height="20px" src="./resources/images/word_icon.png"  title="<spring:message code='motion.jodpatra.formation' text='Jod Patra'/>" />
