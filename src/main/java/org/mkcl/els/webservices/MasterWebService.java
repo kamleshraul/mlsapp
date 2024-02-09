@@ -13,19 +13,24 @@ package org.mkcl.els.webservices;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import org.apache.commons.codec.binary.Base64;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.HouseTypeVO;
 import org.mkcl.els.common.vo.HouseVO;
 import org.mkcl.els.common.vo.MasterVO;
@@ -49,11 +54,21 @@ import org.mkcl.els.domain.Part;
 //import org.mkcl.els.domain.PartDraft;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.State;
 import org.mkcl.els.domain.SubDepartment;
+import org.mkcl.els.service.impl.JwtServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -78,6 +93,71 @@ public class MasterWebService {
      * @param housetype the housetype
      * @return the constituencies
      */
+	
+	@Autowired
+	AuthenticationManager authenticationManager;
+	
+	@Autowired
+	SessionRegistry sessionRegistry;
+	
+
+	@Autowired
+	JwtServiceImpl jwtService;
+	
+	@RequestMapping(value = "/authentication")
+    public @ResponseBody
+    String getAuthenticateByCredentials(HttpServletRequest request,HttpServletResponse response) throws ELSException, UnsupportedEncodingException {
+
+	   String username = request.getParameter("username");
+	  // String password =  java.net.URLDecoder.decode(request.getParameter("password"), "UTF-8");
+	   byte[] decodedBytes = Base64.decodeBase64(request.getParameter("password"));
+	   String password = new String(decodedBytes);
+	   
+		if (username != null && !username.isEmpty() && password != null && !password.isEmpty()) {
+
+			UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(username,
+					password);
+			Authentication auth = authenticationManager.authenticate(authReq);
+			SecurityContext sc = SecurityContextHolder.getContext();
+			sc.setAuthentication(auth);
+			HttpSession session = request.getSession(true);
+			// session.setAttribute("SPRING_SECURITY_CONTEXT", sc);
+			sessionRegistry.registerNewSession(session.getId(), sc.getAuthentication().getPrincipal());
+			// System.out.println(sessionRegistry.getAllPrincipals().toArray().toString());
+			AuthUser au = (AuthUser) auth.getPrincipal();
+			
+			Set<Role> roles=au.getRoles();
+			for(Role i:roles){
+				if(i.getType().equals("RIS_CHIEF_REPORTER")) {
+					if (session != null) {
+						String token = jwtService.generateToken(au, session);
+						if (token != null) {
+							response.setStatus(HttpStatus.OK.value());
+							return token;
+						}
+
+					}
+				}
+				else if(i.getType().startsWith("EDIS_")) {
+					if (session != null) {
+						String token = jwtService.generateToken(au, session);
+						if (token != null) {
+							response.setStatus(HttpStatus.OK.value());
+							return token;
+						}
+
+					}
+				}
+			}		
+
+			
+			
+			
+		}
+	   response.setStatus(HttpStatus.UNAUTHORIZED.value());
+	   return null;
+   }
+	
     @RequestMapping(value = "/constituencies/{housetype}/{locale}")
     public @ResponseBody
     List<MasterVO> getConstituencies(@PathVariable("locale") final String locale,@PathVariable("housetype") final String housetype) {
