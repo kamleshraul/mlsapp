@@ -75,6 +75,16 @@
 				$(this).attr('href', resourceURL);
 			});
     		
+    		$('#motion_detail_report').click(function() {
+			     $(this).attr('href', '#');
+				 var parameters = "sessionId="+$("#sessionId").val()
+				 +"&isRegularSitting="+$("#isRegularSitting").val()
+				 +"&discussionDateId="+$("#discussionDateId").val()
+				 +"&ugparam="+$("#ugparam").val();	
+				var resourceURL = 'motion/report/fop?'+ parameters;
+				$(this).attr('href', resourceURL);  
+			});
+    		
     		$('#search').click(function(){
     			addMotions();
     		});
@@ -221,6 +231,10 @@
 <div id="motionReportContainer">
    <c:if test="${isCreated == 'true'}">
 	    <div style="float:right;">
+	    <a id="motion_detail_report" class="exportLink" href="#" style="text-decoration: none;">
+	       <!-- <img src="./resources/images/word_new.png" alt="Export to WORD" width="32" height="32"> -->
+	       Motion Detail Report
+	    </a> &nbsp;&nbsp;&nbsp;
 	   <a id="motion_order_of_the_day__word" class="exportLink" href="#" style="text-decoration: none;">
 			<img src="./resources/images/word_new.png" alt="Export to WORD" width="32" height="32">
 		</a>

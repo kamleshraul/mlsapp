@@ -1799,6 +1799,83 @@ public class MotionReportController extends BaseController{
 			}
 		}
 		
+		@RequestMapping(value="/fop",method=RequestMethod.GET)
+		public @ResponseBody void generateMotionReport(final HttpServletRequest request, HttpServletResponse response,final Locale locale, final ModelMap model) throws Exception {
+			try {
+				ActivityLog.logActivity(request,locale.toString());
+			} catch (Exception e) {
+				logger.error("error",e);
+			}
+			
+			File reportFile = null;
+			Boolean isError = false;
+			MessageResource errorMessage = null;
+			
+			String isRegularSitting = request.getParameter("isRegularSitting");
+			String discussionDateId = request.getParameter("discussionDateId");
+			String ugparam = request.getParameter("ugparam");
+			String sessionId = request.getParameter("sessionId");
+			String queryName = "MOTION_DETAIL_REPORT";
+			String fileName = null;
+			if(isRegularSitting != null) {
+	
+				if(isRegularSitting.equals("true")) {
+					fileName = "regular";
+				} else {
+					fileName = "special";
+				}		
+			}
+			SessionDates sessionDates = SessionDates.findById(SessionDates.class, Long.parseLong(discussionDateId));
+			
+			if(sessionDates != null) {
+				Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+				queryParameters.put("isRegularSitting", new String[] {isRegularSitting});
+				queryParameters.put("discussionDate", new String[] {discussionDateId});
+				queryParameters.put("ugparam", new String[] {ugparam});
+				queryParameters.put("sessionId", new String[] {sessionId});
+				
+				if(isRegularSitting.equals("true")) {
+					queryParameters.put("motionList",new String[] {sessionDates.getCurmotionOrderOfTheDay()});
+				}else {
+					queryParameters.put("motionList",new String[] {sessionDates.getPrevmotionOrderOfTheDay()});
+				}
+				queryParameters.put("locale", new String[] {locale.toString()});
+				
+				List reportData = Query.findReport(queryName, queryParameters,true);
+				
+				if(reportData != null && !reportData.isEmpty()) {
+					List<String> serialNumbers = new ArrayList<String>();
+					for(int i=1; i<=reportData.size(); i++) {
+						serialNumbers.add(FormaterUtil.formatNumberNoGrouping(i, locale.toString()));
+					}
+					
+					List<String> localisedContent = new ArrayList<String>();
+					if(reportData.get(0) != null) {
+						Object[] obj = (Object[]) reportData.get(0);
+						for(String i : obj[0].toString().split(";")) {
+							localisedContent.add(i);
+						}
+						for(String j : obj[1].toString().split(";")) {
+							localisedContent.add(j);
+						}
+					}
+					
+					if(!isError) {
+						
+						reportFile = generateReportUsingFOP(new Object[] {reportData,serialNumbers,localisedContent,ApplicationConstants.MOTION_CALLING_ATTENTION}, "motion_detail_report", "WORD", "motion_detail_report_"+fileName, locale.toString());
+						
+						if(reportFile!=null) {
+							System.out.println("Report generated successfully in WORD format!");
+							openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+						}
+					}
+					
+				}  else {
+					//error
+					
+				}
+			}
+		}
 		
 	    @RequestMapping(value="orderoftheday/getMotions",method = RequestMethod.GET)
 		public @ResponseBody List<MasterVO> getMemberMinistersForOrderOfTheDay(final HttpServletRequest request, final ModelMap model, final Locale locale){
@@ -1835,7 +1912,9 @@ public class MotionReportController extends BaseController{
 			}
 				
 			return masterVOs;
-		}		
+		}
+	    
+		
 }
 
 
