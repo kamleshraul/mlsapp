@@ -7,6 +7,15 @@
 		$(document).ready(function(){
 			//====================================================
 			//for resolution balloting and approval workflow
+			$("#propriety_point_ballot").click(function(){
+				$(this).attr('href', '#');
+				console.log($("#deviceTypeId").val()+"--"+$("#answeringDate").val());
+				var parameters = "sessionId="+$("#sessionId").val()
+				+"&answeringDate="+$("#answeringDate").val()
+				+"&deviceTypeId="+$("#deviceTypeId").val();	
+				var resourceURL = 'proprietypoint/report/ppballotfop?'+ parameters;
+				$(this).attr('href', resourceURL);
+			});
 			$("#discuss").click(function(){
 				//var postURL = "resolution/discussresolutions";
 				/* $("input[type=checkbox]:checked").each(function(){
@@ -53,6 +62,11 @@
 			</c:when>
 		
 			<c:otherwise>
+			    <div style="float:right;">
+			       <a id="propriety_point_ballot" class="exportLink" href="#" style="text-decoration: none;">
+				       <img src="./resources/images/word_new.png" alt="Export to WORD" width="32" height="32"/>
+				   </a>
+			    </div>
 				<h2 style="text-align: center; color: #000000;"><spring:message code="prois.post.ballot.header" text="POST BALLOT LIST" /></h2>
 				<label class="small"><spring:message code="generic.date" text="Discussion Date"/>: <span style="text-decoration: underline; font-weight: bold;">${answeringDate}</span>&nbsp;&nbsp;<spring:message code="prois.post.ballotdailymessage" text="Notice of Propriety Point" /></label>
 				<form action="question/discusshdss" method="post" >
@@ -64,7 +78,7 @@
 								<tr>
 									<th style="width:10%;"><spring:message code="general.srnumber" text="Serial Number"/></th>
 									<th><spring:message code="member.name" text="Member Name"/></th>
-									<th><spring:message code="question.number" text="Notice Number"/></th>
+									<th><spring:message code="proprietypoint.number" text="Notice Number"/></th>
 									<th><spring:message code="question.subject" text="Subject"/></th>
 									<%-- <th><spring:message code="question.selectfordiscussion" text="To Be Discussed"/></th> --%>
 								</tr>
@@ -141,6 +155,10 @@
 			</c:otherwise>
 		</c:choose>
 	</div>
+	<input id="sessionId" name="sessionId" value="${sessionId}" type="hidden">
+	<input id="answeringDate" name="answeringDate" value="${answeringDate}" type="hidden"/>
+	<input id="deviceTypeId" name="deviceTypeId" value="${deviceTypeId}" type="hidden"/>
+	
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </body>
 </html>

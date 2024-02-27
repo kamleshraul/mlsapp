@@ -16,10 +16,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.domain.ActivityLog;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.SessionDates;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
@@ -471,6 +473,66 @@ public class ProprietyPointReportController extends BaseController{
 				e.printStackTrace();
 			}
 		}		
+	}
+	
+	@RequestMapping(value="/ppballotfop",method=RequestMethod.GET)
+	public @ResponseBody void generateMotionReport(final HttpServletRequest request, HttpServletResponse response,final Locale locale, final ModelMap model) throws Exception {
+		try {
+			ActivityLog.logActivity(request,locale.toString());
+		} catch (Exception e) {
+			logger.error("error",e);
+		}
+		
+		File reportFile = null;
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		
+		String answeringDate = request.getParameter("answeringDate");
+		String sessionId = request.getParameter("sessionId");
+		String deviceTypeId =request.getParameter("deviceTypeId");
+		String queryName = "PROIS_ASSEMBLY_BALLOT_VIEW_REPORT";
+		String fileName = null;
+	
+			Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+			queryParameters.put("answeringDate", new String[] {answeringDate});
+			queryParameters.put("deviceTypeId", new String[] {deviceTypeId});
+			queryParameters.put("sessionId", new String[] {sessionId});
+			queryParameters.put("locale", new String[] {locale.toString()});
+			
+			List reportData = Query.findReport(queryName, queryParameters,false);
+			
+			if(reportData != null && !reportData.isEmpty()) {
+				List<String> serialNumbers = new ArrayList<String>();
+				for(int i=1; i<=reportData.size(); i++) {
+					serialNumbers.add(FormaterUtil.formatNumberNoGrouping(i, locale.toString()));
+				}
+				
+				List<String> localisedContent = new ArrayList<String>();
+				if(reportData.get(0) != null) {
+					Object[] obj = (Object[]) reportData.get(0);
+					for(String i : obj[1].toString().split(";")) {
+						localisedContent.add(i);
+					}
+					for(String j : obj[2].toString().split(";")) {
+						localisedContent.add(j);
+					}
+				}
+				
+				if(!isError) {
+					
+					reportFile = generateReportUsingFOP(new Object[] {reportData,serialNumbers,localisedContent,ApplicationConstants.PROPRIETY_POINT}, "propriety_point_ballot_template", "WORD", "propriety_point_ballot_report", locale.toString());
+					
+					if(reportFile!=null) {
+						System.out.println("Report generated successfully in WORD format!");
+						openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+					}
+				}
+				
+			}  else {
+				//error
+				
+			}
+		
 	}
 }
 

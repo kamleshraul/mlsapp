@@ -828,6 +828,10 @@ public class BallotController extends BaseController{
 					}
 					model.addAttribute("serialnumber", serialNumber);
 					model.addAttribute("ballotVOs", ballotVOs);
+					model.addAttribute("locale",locale.toString());
+					model.addAttribute("sessionId",session.getId().toString());
+					model.addAttribute("deviceTypeId",deviceType.getId().toString());
+					model.addAttribute("answeringDate",strAnsweringDate);
 					
 					if(ballotVOs != null && !ballotVOs.isEmpty()){
 						Object[] objs = (Object[])ballotVOs.get(0);
