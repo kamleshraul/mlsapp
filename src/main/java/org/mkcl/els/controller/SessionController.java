@@ -9,6 +9,7 @@
  */
 package org.mkcl.els.controller;
 
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -53,6 +54,7 @@ import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.UserGroupType;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -932,6 +934,8 @@ public class SessionController extends GenericController<Session> {
 	 * 
 	 * 
 	 */
+	
+	@Transactional
 	protected void createGroups(ModelMap model, Session domain,
 			HttpServletRequest request) throws ELSException {
 		
@@ -941,6 +945,8 @@ public class SessionController extends GenericController<Session> {
 		Group newGroup = new Group();
 		List<Ministry> ministries = null;
 		List<SubDepartment> subD = null;
+		String createGroupSameAsPrevious = request.getParameter("createGroupSameAsPrevious");
+		
 		if (groupNumberLimitParameter != null) {
 			if (!groupNumberLimitParameter.isEmpty()) {
 				// Session prevS = Session.findPreviousSession(domain);
@@ -952,40 +958,75 @@ public class SessionController extends GenericController<Session> {
 						&& !prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION_1)
 						&& !prevS.getType().getType().equals(ApplicationConstants.SPECIAL_SESSION_2)) {
 
-					//System.out.println(prevS.getId());
-					for (int i = 1; i <= groupNumberLimit; i++) {
-						newGroup.setLocale(domain.getLocale());
-						newGroup.setHouseType(domain.getHouse().getType());
-						newGroup.setSession(domain);
-						newGroup.setYear(domain.getYear());
-						newGroup.setSessionType(domain.getType());
-						newGroup.setNumber((Integer) i);
-
-						cp = CustomParameter.findByName(CustomParameter.class, "PREVIOUS_NUMBER_FOR_GROUP_" + i + "_"
-								+ domain.getHouse().getType().getType().toUpperCase(), "");
-
-						List<Group> PrevGroup = Group.findByHouseTypeSessionTypeYear(prevS.getHouse().getType(),
-								prevS.getType(), prevS.getYear());
-
-						for (int j = 0; j < PrevGroup.size(); j++) {
-							if (PrevGroup.get(j).getNumber().equals(Integer.parseInt(cp.getValue()))) {
-								ministries = Group.findMinistriesByName(PrevGroup.get(j).getId());
-								newGroup.setMinistries(ministries);
-
-								subD = Group.findSubdepartmentsByName(PrevGroup.get(j).getId());
-								newGroup.setSubdepartments(subD);
-
-							}
-						}
-
-						newGroup.merge();
-						domain.setIsGroupCreatedUsingChkbox(true);
+					
+					if(createGroupSameAsPrevious != null && createGroupSameAsPrevious.equals("on")) {
+						populateNewGroupSameAsPreviousGroup(groupNumberLimit, newGroup, domain, prevS, ministries, subD);
+					}else {
+						rotatePreviousGroupAndPopulateNewGroup(groupNumberLimit, newGroup, domain, prevS, cp, ministries, subD);
 					}
-
+					
+					domain.setIsGroupCreatedUsingChkbox(true);
 				}
 			}
 		}
 		
+	}
+	
+	private void populateNewGroupSameAsPreviousGroup(int groupNumberLimit, Group newGroup, Session domain,
+			Session prevS, List<Ministry> ministries, List<SubDepartment> subD) throws ELSException {
+		List<Group> PrevGroup = Group.findByHouseTypeSessionTypeYear(prevS.getHouse().getType(), prevS.getType(),
+				prevS.getYear());
+		for (int i = 1; i <= groupNumberLimit; i++) {
+			newGroup.setLocale(domain.getLocale());
+			newGroup.setHouseType(domain.getHouse().getType());
+			newGroup.setSession(domain);
+			newGroup.setYear(domain.getYear());
+			newGroup.setSessionType(domain.getType());
+			newGroup.setNumber((Integer) i);
+
+			ministries = Group.findMinistriesByName(PrevGroup.get(i-1).getId());
+			newGroup.setMinistries(ministries);
+
+			subD = Group.findSubdepartmentsByName(PrevGroup.get(i-1).getId());
+			newGroup.setSubdepartments(subD);
+			newGroup.merge();
+			
+
+		}
+	}
+	
+	
+	
+	private void rotatePreviousGroupAndPopulateNewGroup(int groupNumberLimit, Group newGroup, Session domain,
+			Session prevS, CustomParameter cp, List<Ministry> ministries, List<SubDepartment> subD)
+			throws ELSException {
+		List<Group> PrevGroup = Group.findByHouseTypeSessionTypeYear(prevS.getHouse().getType(), prevS.getType(),
+				prevS.getYear());
+		for (int i = 1; i <= groupNumberLimit; i++) {
+			newGroup.setLocale(domain.getLocale());
+			newGroup.setHouseType(domain.getHouse().getType());
+			newGroup.setSession(domain);
+			newGroup.setYear(domain.getYear());
+			newGroup.setSessionType(domain.getType());
+			newGroup.setNumber((Integer) i);
+
+			cp = CustomParameter.findByName(CustomParameter.class,
+					"PREVIOUS_NUMBER_FOR_GROUP_" + i + "_" + domain.getHouse().getType().getType().toUpperCase(), "");
+
+			for (int j = 0; j < PrevGroup.size(); j++) {
+				if (PrevGroup.get(j).getNumber().equals(Integer.parseInt(cp.getValue()))) {
+					ministries = Group.findMinistriesByName(PrevGroup.get(j).getId());
+					newGroup.setMinistries(ministries);
+
+					subD = Group.findSubdepartmentsByName(PrevGroup.get(j).getId());
+					newGroup.setSubdepartments(subD);
+
+				}
+			}
+			newGroup.merge();
+			
+		}
+
 	}
 	
 	protected void populateSessionDates(ModelMap model, Session domain,
