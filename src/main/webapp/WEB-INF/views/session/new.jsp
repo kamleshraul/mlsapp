@@ -6,6 +6,18 @@
 <script type="text/javascript">
 	$('document').ready(function() {
 		initControls();
+		//createGroupSameAsPreviousCKB
+		 $('#createGroupSameAsPreviousCKB').hide()
+		 
+		  $('#groupCreationckb').click(function() {
+              if($(this).prop("checked") == true) {
+            	  $('#createGroupSameAsPreviousCKB').show()
+              }
+              else if($(this).prop("checked") == false) {
+            	  $('#createGroupSameAsPreviousCKB').hide()
+              }
+            });
+		
 		
 		loadFixedDeviceType($('#houseType').val());
 		
@@ -294,8 +306,17 @@
 				<label class="small"><spring:message code="session.groupCreation"
 						text="groupCreation" /></label>
 				
-				<input type="checkbox" name="groupCreation" />
-		</p>				
+				<input type="checkbox" name="groupCreation" id="groupCreationckb" />
+		</p>
+		<div id="createGroupSameAsPreviousCKB">
+		<p>
+				<label class="small"><spring:message code="session.createGroupAsPrevious"
+						text="create Group As Previous" /></label>
+				
+				<input type="checkbox" name="createGroupSameAsPrevious"  />
+		</p>
+		</div>		
+				
 		
 			<div class="fields">
 				<h2></h2>
