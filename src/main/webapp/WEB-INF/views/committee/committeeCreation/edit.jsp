@@ -246,9 +246,9 @@
 			
 			// foundationDateInLocale ,dissolutionDateInLocale
 			
-			if($('#foundationDate').val() == ""){
+			/* if($('#foundationDate').val() == ""){
 				$.prompt(" Please Enter  "+$('#foundationDateInLocale').val());
-			}else if($('#formationDate').val() == ""){
+			}else */ if($('#formationDate').val() == ""){
 				$.prompt(" Please Enter  "+$('#formationDateInLocale').val());
 			}else if($('#dissolutionDate').val() == ""){
 				$.prompt(" Please Enter  "+$('#dissolutionDateInLocale').val());
