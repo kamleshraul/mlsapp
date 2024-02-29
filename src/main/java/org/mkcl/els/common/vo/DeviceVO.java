@@ -81,6 +81,8 @@ public class DeviceVO {
 	
 	private Boolean isPresentInYaadi;
 	
+	private String formattedSerialNumber;
+	
 	//---------------------------------Constructors----------------------------------------
 	public DeviceVO() {
 		super();
@@ -377,6 +379,14 @@ public class DeviceVO {
 
 	public void setIsPresentInYaadi(Boolean isPresentInYaadi) {
 		this.isPresentInYaadi = isPresentInYaadi;
-	}		
-		
+	}
+
+	public String getFormattedSerialNumber() {
+		return formattedSerialNumber;
+	}
+
+	public void setFormattedSerialNumber(String formattedSerialNumber) {
+		this.formattedSerialNumber = formattedSerialNumber;
+	}
+	
 }

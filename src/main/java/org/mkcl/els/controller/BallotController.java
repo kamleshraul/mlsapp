@@ -4904,6 +4904,11 @@ public class BallotController extends BaseController{
 		try {
 			ballotVOs = Ballot.findUnBallotedVO(session, deviceType, answeringDate, locale);
 			model.addAttribute("ballotVOs", ballotVOs);
+			model.addAttribute("locale",locale.toString());
+			model.addAttribute("sessionId",session.getId().toString());
+			model.addAttribute("deviceTypeId",deviceType.getId().toString());
+			model.addAttribute("answeringDate",FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT));
+			
 			return "ballot/prois_unballoted_assembly";
 		} catch (ELSException e) {
 			e.printStackTrace();

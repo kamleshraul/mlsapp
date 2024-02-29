@@ -15,12 +15,17 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.BallotVO;
+import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.common.xmlvo.QuestionYaadiSuchiXmlVO;
 import org.mkcl.els.domain.ActivityLog;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionDates;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
@@ -28,6 +33,8 @@ import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.WorkflowActor;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
+import org.mkcl.els.domain.ballot.Ballot;
+import org.mkcl.els.domain.ballot.ProprietyPointBallot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -476,7 +483,7 @@ public class ProprietyPointReportController extends BaseController{
 	}
 	
 	@RequestMapping(value="/ppballotfop",method=RequestMethod.GET)
-	public @ResponseBody void generateMotionReport(final HttpServletRequest request, HttpServletResponse response,final Locale locale, final ModelMap model) throws Exception {
+	public @ResponseBody void generateProprietyPointBallotReport(final HttpServletRequest request, HttpServletResponse response,final Locale locale, final ModelMap model) throws Exception {
 		try {
 			ActivityLog.logActivity(request,locale.toString());
 		} catch (Exception e) {
@@ -534,6 +541,80 @@ public class ProprietyPointReportController extends BaseController{
 			}
 		
 	}
+	
+	@RequestMapping(value="/ppunballotfop",method=RequestMethod.GET)
+	public @ResponseBody void generateProprietyPointUnballotReport(final HttpServletRequest request, HttpServletResponse response,final Locale locale, final ModelMap model) throws Exception {
+		try {
+			ActivityLog.logActivity(request,locale.toString());
+		} catch (Exception e) {
+			logger.error("error",e);
+		}
+		
+		File reportFile = null;
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		
+		String answeringDate = request.getParameter("answeringDate");
+		String sessionId = request.getParameter("sessionId");
+		String deviceTypeId =request.getParameter("deviceTypeId");
+		String fileName = null;
+		String reportFormat= "WORD";
+		
+		Session session  = Session.findById(Session.class, Long.parseLong(sessionId));
+		DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(deviceTypeId));
+		Date answeringDate2 = FormaterUtil.formatStringToDate(answeringDate, ApplicationConstants.DB_DATEFORMAT);
+		
+		List<DeviceVO> unBallotedVOs = new ArrayList<DeviceVO>();
+		
+		Ballot ballot = Ballot.find(session, deviceType, answeringDate2, locale.toString());
+		if(ballot != null){
+			List<ProprietyPoint> proprietyPoints = 
+					ProprietyPointBallot.computeProprietyPointsForBallot(session, deviceType, answeringDate2, false, false, locale.toString());
+			
+			List<ProprietyPoint> newProprietyPointList = new ArrayList<ProprietyPoint>();
+			for(ProprietyPoint m : proprietyPoints){
+				if(m.getPrimaryMember().isActiveMemberOn(new Date(), locale.toString())){
+					newProprietyPointList.add(m);
+				}
+			}
+			int count = 1;
+			for(ProprietyPoint m : newProprietyPointList) {				
+				DeviceVO unBallotedVO = new DeviceVO();
+				unBallotedVO.setFormattedSerialNumber(FormaterUtil.formatNumberNoGrouping(count, locale.toString()));
+				unBallotedVO.setMemberNames(m.getPrimaryMember().getFullname());
+				unBallotedVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(m.getNumber(),locale.toString()));
+				if(m.getRevisedSubject() != null && !m.getRevisedSubject().isEmpty()){
+					unBallotedVO.setSubject(m.getRevisedSubject());
+				}else{
+					unBallotedVO.setSubject(m.getSubject());
+				}
+				
+				unBallotedVOs.add(unBallotedVO);
+				count++;
+			}
+			
+			QuestionYaadiSuchiXmlVO data = new QuestionYaadiSuchiXmlVO();
+			data.setHouseTypeName(session.getHouse().getType().getName());
+			data.setSessionNumber(session.getNumber().toString());
+			data.setSessionYear(FormaterUtil.formatNumberNoGrouping(session.getYear(), locale.toString()));
+			// Device Type field not available in QuestionYaadiSuchiXmlVO so setting deviceType DeviceType in House
+			data.setHouseType(deviceType.getName());
+			data.setAnsweringDate(FormaterUtil.formatDateToString(answeringDate2, ApplicationConstants.SERVER_DATEFORMAT,locale.toString()));
+			data.setDeviceVOs(unBallotedVOs);
+			
+			try {
+				reportFile = generateReportUsingFOP(data, "propriety_point_unballot_template", reportFormat, "propriety_point_unballot_report", locale.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			System.out.println("Propriety Point Ballot Generated successfully in " + reportFormat + " format!");
+
+			openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);
+			
+		}
+		
+	}
+	
 }
 
 class ProprietyPointReportHelper{

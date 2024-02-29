@@ -339,7 +339,7 @@ public class ProprietyPointBallot {
 	//=============== INTERNAL METHODS ==============
 	//
 	//===============================================
-	private static List<ProprietyPoint> computeProprietyPointsForBallot(final Session session,
+	public static List<ProprietyPoint> computeProprietyPointsForBallot(final Session session,
 			final DeviceType deviceType,
 			final Date answeringDate,
 			final Boolean isMandatoryUnique,
