@@ -3250,13 +3250,39 @@ public class ApplicationConstants {
 	/** Constants for Storage on File Server **/
 	public static final String SERVER_FILE_STORAGE_ENABLED = "NO";
 	
+	public static final String SERVER_FILE_STORAGE_CLIENT_ID = "MLS";
+	
+	public static final String CSPT_FILE_SERVER_TOKEN_GENERATION_URL = "FILE_SERVER_TOKEN_GENERATION_URL";
+	
+	public static final String FILE_SERVER_TOKEN_GENERATION_URL_DEFAULT = "http://172.1.0.45:9090/generate/token?client="+SERVER_FILE_STORAGE_CLIENT_ID;
+	
+	public static final String CSPT_FILE_SERVER_FILE_UPLOAD_URL = "FILE_SERVER_FILE_UPLOAD_URL";
+	
+	public static final String FILE_SERVER_FILE_UPLOAD_URL_DEFAULT = "http://172.1.0.45:9090/api/files/upload";
+	
+	public static final String CSPT_FILE_SERVER_FILE_DOWNLOAD_URL = "FILE_SERVER_FILE_DOWNLOAD_URL";
+	
+	public static final String FILE_SERVER_FILE_DOWNLOAD_URL_DEFAULT = "http://172.1.0.45:9090/api/files/download/{fileId}";
+	
 	public static final String FILE_CATEGORY_ORDER_OF_DAY = "ORDER_OF_DAY";
 	
 	public static final String FILE_CATEGORY_STARRED_QUESTIONS_YAADI = "STARRED_QUESTIONS_YAADI";
 	
 	public static final String FILE_CATEGORY_UNSTARRED_QUESTIONS_YAADI = "UNSTARRED_QUESTIONS_YAADI";
 	
+	public static final String FILE_CATEGORY_PARLIAMENTARY_DEVICE = "PARLIAMENTARY_DEVICE";
+	
 	public static final String DEFAULT_MAX_FILE_UPLOAD_LIMIT = "2";
+	
+	public static final String MIME_PDF = "application/pdf";
+	
+	public static final String EXTENSION_XML = ".xml";
+	public static final String EXTENSION_XSLT = ".xsl";
+	public static final String EXTENSION_FO = ".fo";
+	public static final String EXTENSION_PDF = ".pdf";
+	public static final String EXTENSION_RTF = ".rtf";
+	public static final String EXTENSION_WORD = ".doc";
+	public static final String EXTENSION_HTML = ".html";
 	
 	public void setEnvironmentInstance(Environment environment) {
 		this.environmentInstance = environment;

@@ -1787,7 +1787,8 @@ class StarredQuestionController {
 			}
 			else {
 				StringBuffer locationHierarchyStatusUpdateDoc = new StringBuffer();
-				locationHierarchyStatusUpdateDoc.append("PARLIAMENTARY_DEVICES~");
+				locationHierarchyStatusUpdateDoc.append(ApplicationConstants.FILE_CATEGORY_PARLIAMENTARY_DEVICE);
+				locationHierarchyStatusUpdateDoc.append("~");
 				locationHierarchyStatusUpdateDoc.append(domain.getType().getType().toUpperCase());
 				locationHierarchyStatusUpdateDoc.append("~");
 				locationHierarchyStatusUpdateDoc.append(domain.getSession().getType().getType().toUpperCase());

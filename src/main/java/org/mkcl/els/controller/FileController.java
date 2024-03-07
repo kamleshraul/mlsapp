@@ -12,12 +12,12 @@ package org.mkcl.els.controller;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FileUtils;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.CustomParameter;
@@ -25,16 +25,24 @@ import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -109,22 +117,10 @@ public class FileController extends GenericController<File> {
     public void get(@PathVariable final String tag,
                     final HttpServletRequest request,
                     final HttpServletResponse response) {
-        Document document = null;
-        try {
-        	document = Document.findByTag(tag);
-            response.setContentType(document.getType());
-            response.setContentLength((int) document.getFileSize());
-            response.setHeader("Content-Disposition", "attachment; filename=\""
-                    + document.getOriginalFileName() + "\"");
-            if(document.getPath()!=null && !document.getPath().isEmpty() && ApplicationConstants.SERVER_FILE_STORAGE_ENABLED.equals("YES")) {
-            	java.io.File storageFile = new java.io.File(document.getPath());
-            	FileCopyUtils.copy(FileUtils.readFileToByteArray(storageFile), response.getOutputStream());
-            } 
-            else {
-            	FileCopyUtils.copy(document.getFileData(), response.getOutputStream());
-            }            
-            
-        } catch (IOException e) {
+        try {        	            
+            this.fetchFileContentForDownload(tag, request, response);
+        } 
+        catch (IOException e) {
             logger.error("Error occured while downloading file:" + e.toString());
         }catch (ELSException e) {
 			logger.error(e.getMessage());			
@@ -135,24 +131,13 @@ public class FileController extends GenericController<File> {
     public void openFile(@PathVariable final String tag,
                     final HttpServletRequest request,
                     final HttpServletResponse response) {
-        Document document = null;
         try {
-        	document = Document.findByTag(tag);
-            response.setContentType(document.getType());
-            response.setContentLength((int) document.getFileSize());
-            response.setHeader("Content-Disposition", "inline; filename=\""
-                    + document.getOriginalFileName() + "\"");
-            if(document.getPath()!=null && !document.getPath().isEmpty() && ApplicationConstants.SERVER_FILE_STORAGE_ENABLED.equals("YES")) {
-            	java.io.File storageFile = new java.io.File(document.getPath());
-            	FileCopyUtils.copy(FileUtils.readFileToByteArray(storageFile), response.getOutputStream());
-            } 
-            else {
-            	FileCopyUtils.copy(document.getFileData(), response.getOutputStream());
-            }
-        } catch (IOException e) {
+        	this.fetchFileContentForOpening(tag, request, response);
+        } 
+        catch (IOException e) {
             logger.error("Error occured while opening file:" + e.toString());
         }catch (ELSException e) {
-			logger.error(e.getMessage());			
+			logger.error(e.getMessage());
 		}
     }
 
@@ -194,19 +179,10 @@ public class FileController extends GenericController<File> {
     String getImage(@PathVariable final String tag,
                          final HttpServletRequest request,
                          final HttpServletResponse response) {
-        Document document = null;
         try {
-        	document = Document.findByTag(tag);
-            response.setContentType(document.getType());
-            response.setContentLength((int) document.getFileSize());
-            if(document.getPath()!=null && !document.getPath().isEmpty() && ApplicationConstants.SERVER_FILE_STORAGE_ENABLED.equals("YES")) {
-            	java.io.File storageFile = new java.io.File(document.getPath());
-            	FileCopyUtils.copy(FileUtils.readFileToByteArray(storageFile), response.getOutputStream());
-            } 
-            else {
-            	FileCopyUtils.copy(document.getFileData(), response.getOutputStream());
-            }
-        } catch (IOException e) {
+        	this.fetchFileContentForPhotoDisplay(tag, request, response);
+        } 
+        catch (IOException e) {
             logger.error("Error occured while downloading file:" + e.toString());
         }catch (ELSException e) {
 			logger.error("Error occured while downloading file:" + e.toString());
@@ -231,9 +207,9 @@ public class FileController extends GenericController<File> {
         Document document =null;
         try{
         	document = Document.findByTag(tag);
-        	if(document.getPath()!=null && !document.getPath().isEmpty() && ApplicationConstants.SERVER_FILE_STORAGE_ENABLED.equals("YES")) {
-            	java.io.File storageFile = new java.io.File(document.getPath());      
-            	storageFile.delete();  		
+        	if(document.getLocationHierarchy()!=null && !document.getLocationHierarchy().isEmpty() && ApplicationConstants.SERVER_FILE_STORAGE_ENABLED.equals("YES")) {
+//            	java.io.File storageFile = new java.io.File(document.getLocationHierarchy());      
+//            	storageFile.delete();  		
         	}
         	document.remove();
         	return true;
@@ -266,4 +242,90 @@ public class FileController extends GenericController<File> {
 			result.rejectValue("name","NameEmpty","Name is not set.");
 		}		
 	}
+    
+    private void fetchFileContentForDownload(final String tag, final HttpServletRequest request, final HttpServletResponse response) throws IOException, ELSException {
+    	this.fetchFileContent(tag, false, false, request, response);
+    }
+    
+    private void fetchFileContentForOpening(final String tag, final HttpServletRequest request, final HttpServletResponse response) throws IOException, ELSException {
+    	this.fetchFileContent(tag, false, true, request, response);
+    }
+    
+    private void fetchFileContentForPhotoDisplay(final String tag, final HttpServletRequest request, final HttpServletResponse response) throws IOException, ELSException {
+    	this.fetchFileContent(tag, true, false, request, response);
+    }
+    
+    private void fetchFileContent(final String tag, final boolean isPhotoToBeDisplayed,  final boolean isFetchedForOpen, final HttpServletRequest request, final HttpServletResponse response) throws IOException, ELSException {
+    	Document document = Document.findByTag(tag);
+        response.setContentType(document.getType());
+        response.setContentLength((int) document.getFileSize());
+        
+        if(!isPhotoToBeDisplayed) {
+        	StringBuffer contentDispositionHeader = new StringBuffer("");
+            if(isFetchedForOpen) {
+            	contentDispositionHeader.append("inline;");
+            } else {
+            	contentDispositionHeader.append("attachment;");
+            }
+            contentDispositionHeader.append(" ");
+            contentDispositionHeader.append("filename=\"");
+            contentDispositionHeader.append(document.getOriginalFileName());
+            contentDispositionHeader.append("\"");
+            response.setHeader("Content-Disposition", contentDispositionHeader.toString());
+            
+//            response.setHeader("Content-Disposition", "attachment; filename=\""
+//            			+ document.getOriginalFileName() + "\"");
+        }
+        
+        if(document.getLocationHierarchy()!=null && !document.getLocationHierarchy().isEmpty() && ApplicationConstants.SERVER_FILE_STORAGE_ENABLED.equals("YES")) 
+        {
+        	RestTemplate restTemplate = new RestTemplate();
+        	
+        	CustomParameter csptURLForTokenGenerationOnFileServer = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CSPT_FILE_SERVER_TOKEN_GENERATION_URL, "");
+			String tokenGenerationURLForFileServer = null;
+			if(csptURLForTokenGenerationOnFileServer!=null && csptURLForTokenGenerationOnFileServer.getValue()!=null) {
+				tokenGenerationURLForFileServer = csptURLForTokenGenerationOnFileServer.getValue();
+			} else {
+				tokenGenerationURLForFileServer = ApplicationConstants.FILE_SERVER_TOKEN_GENERATION_URL_DEFAULT;
+			}
+			
+			HttpEntity<String> reqEntity = new HttpEntity<String>("Hello CDN File Server!");
+            
+            @SuppressWarnings("rawtypes")
+            ResponseEntity<HashMap> mapResponse = restTemplate.exchange(tokenGenerationURLForFileServer, HttpMethod.GET, reqEntity, HashMap.class);
+            System.out.println(mapResponse.getBody().get("message") + ": " +mapResponse.getBody().get("token"));
+            String token = mapResponse.getBody().get("token").toString();
+            
+            CustomParameter csptURLForFileUploadOnFileServer = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CSPT_FILE_SERVER_FILE_DOWNLOAD_URL, "");
+    		String fileUploadURLForFileServer = null;
+    		if(csptURLForFileUploadOnFileServer!=null && csptURLForFileUploadOnFileServer.getValue()!=null) {
+    			fileUploadURLForFileServer = csptURLForFileUploadOnFileServer.getValue();
+    		} else {
+    			fileUploadURLForFileServer = ApplicationConstants.FILE_SERVER_FILE_DOWNLOAD_URL_DEFAULT;
+    		}
+    		
+            StringBuffer cdnURLForFileDownload = new StringBuffer(fileUploadURLForFileServer.replace("{fileId}", document.getFileIdOnFileServer()));
+//            cdnURLForFileDownload.append("?request_parameters_here=");
+//            cdnURLForFileDownload.append(request_parameter_value);
+            
+            // Create headers
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", token);
+            headers.set("Accept", document.getType());
+            
+            // Create the request entity
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<MultiValueMap<String, Object>>(headers);
+
+            // Make the HTTP GET request for File Download
+            ResponseEntity<ByteArrayResource> responseEntity = restTemplate.exchange(cdnURLForFileDownload.toString(), HttpMethod.GET, requestEntity, ByteArrayResource.class);
+            System.out.println("Response from external API: " + responseEntity.getBody());
+            if(responseEntity!=null && responseEntity.getStatusCode().value()==HttpStatus.OK.value()) {
+            	System.out.println("File Downloaded Successfully");
+            	FileCopyUtils.copy(responseEntity.getBody().getByteArray(), response.getOutputStream());
+            }
+        } 
+        else {
+        	FileCopyUtils.copy(document.getFileData(), response.getOutputStream());
+        }
+    }
 }

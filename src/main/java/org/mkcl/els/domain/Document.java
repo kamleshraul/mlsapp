@@ -74,12 +74,12 @@ public class Document implements Serializable {
     private long fileSize;
 
     private String createdBy;
-    
-    @Column(length = 10000)
-    private String path;
 	
     @Column(length = 10000)
     private String locationHierarchy; //required for storageType of file_server
+    
+    /** The file id of the corresponding file saved on file server. */
+    private String fileIdOnFileServer;
 
     /** The document repository. */
     @Autowired
@@ -118,7 +118,7 @@ public class Document implements Serializable {
     
     public Document(final String tag, final String type,
             final String originalFileName, final Date createdOn,
-            final byte[] fileData, final long fileSize,final String path) {
+            final byte[] fileData, final long fileSize,final String locationHierarchy) {
         super();
         this.tag = tag;
         this.type = type;
@@ -126,7 +126,7 @@ public class Document implements Serializable {
         this.createdOn = createdOn;
         this.fileData = fileData;
         this.fileSize = fileSize;
-        this.path = path;
+        this.locationHierarchy = locationHierarchy;
     }
 
     // ---------------------------------------Domain_Methods---------------------------------------
@@ -348,14 +348,6 @@ public class Document implements Serializable {
         this.createdBy = createdBy;
     }
 
-	public String getPath() {
-		return path;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
-	}
-
 	public String getLocationHierarchy() {
 		return locationHierarchy;
 	}
@@ -363,6 +355,13 @@ public class Document implements Serializable {
 	public void setLocationHierarchy(String locationHierarchy) {
 		this.locationHierarchy = locationHierarchy;
 	}
-    
+
+	public String getFileIdOnFileServer() {
+		return fileIdOnFileServer;
+	}
+
+	public void setFileIdOnFileServer(String fileIdOnFileServer) {
+		this.fileIdOnFileServer = fileIdOnFileServer;
+	}    
     
 }

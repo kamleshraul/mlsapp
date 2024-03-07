@@ -643,7 +643,8 @@ public class ProprietyPointWorkflowController  extends BaseController {
 					|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))
 			{
 				StringBuffer locationHierarchyReplyDoc = new StringBuffer();
-				locationHierarchyReplyDoc.append("PARLIAMENTARY_DEVICES~");
+				locationHierarchyReplyDoc.append(ApplicationConstants.FILE_CATEGORY_PARLIAMENTARY_DEVICE);
+				locationHierarchyReplyDoc.append("~");
 				locationHierarchyReplyDoc.append(domain.getDeviceType().getType().toUpperCase());
 				locationHierarchyReplyDoc.append("~");
 				locationHierarchyReplyDoc.append(domain.getSession().getType().getType().toUpperCase());

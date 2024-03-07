@@ -3817,7 +3817,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 						String fileNameToCreate = filePath + file.getOriginalFilename();
 						File newFile = new File(fileNameToCreate);
 						FileUtils.writeByteArrayToFile(newFile, file.getBytes());
-						document.setPath(fileNameToCreate);
+						document.setLocationHierarchy(fileNameToCreate);
 					}else{
 						 document.setFileData(file.getBytes());
 					}
@@ -3857,7 +3857,7 @@ public class ProceedingController extends GenericController<Proceeding>{
                     .findByName(CustomParameter.class, "DOCUMENT_STORAGE_USED","");
             if(storageCustomParameter != null){
             	 if(storageCustomParameter.getValue().equals("drive")){
-                 	String filePath = document.getPath();
+                 	String filePath = document.getLocationHierarchy();
                  	java.io.File file = new java.io.File(filePath);
                  	FileInputStream inputStream = new FileInputStream(file);
                  	FileCopyUtils.copy(
@@ -3890,7 +3890,7 @@ public class ProceedingController extends GenericController<Proceeding>{
                      .findByName(CustomParameter.class, "DOCUMENT_STORAGE_USED","");
              if(storageCustomParameter != null){
              	 if(storageCustomParameter.getValue().equals("drive")){
-               	String filePath = document.getPath();
+               	String filePath = document.getLocationHierarchy();
              	java.io.File file = new java.io.File(filePath);
              	file.delete();
              	//Files.deleteIfExists(file.toPath());
