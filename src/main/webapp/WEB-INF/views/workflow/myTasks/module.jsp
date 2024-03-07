@@ -519,6 +519,15 @@
 				}else{
 					$("#shortNoticeAnswerDateDiv").hide();
 				}
+				if(device=='questions_unstarred' || device=='motions_cutmotion_budgetary' || device=='motions_cutmotion_supplementary'
+					|| device=='motions_calling_attention' || device=='notices_specialmention'){
+					if($("#currentusergroupType").val()=='department') {
+						$('#selectedDeviceTypeDisplayName').text("("+$('#selectedDeviceType option:selected').text()+")");
+						$("#total_pending_devices_vivaran_for_devicetype").show();
+					}
+				}else{
+					$("#total_pending_devices_vivaran_for_devicetype").hide();
+				}
 				if(value!=""){
 					if($("#selectedModule option[value='']").html==null){
 						prependOptionToSelectedModule();
@@ -758,7 +767,7 @@
 					$("#groupDiv").show();
 				}
 				
-				if(device.indexOf('notices_specialmention')==0 && $("#currentusergroupType").val() == 'assistant'){
+				if(device.indexOf('notices_specialmention')==0 && ($("#currentusergroupType").val() == 'assistant' || $("#currentusergroupType").val() == 'section_officer')){
 					$("#admitted_admission_number").show();
 				}else{
 					$("#admitted_admission_number").hide();
@@ -942,6 +951,41 @@
 				    return false;
 				}
 				return false;
+			});
+			
+			/* Below report is intended only for department users including all desk officers and coordination desk of given department  */
+			$("#total_pending_devices_vivaran_for_devicetype").click(function(){ //Only for department users including all desk officers and coordination desk
+				var selectedSubDepartment = $("#selectedDepartment").val();
+				if(selectedSubDepartment=="") {
+					if($("#selectedDepartment option[value!='']").length==1) {
+						selectedSubDepartment = $("#selectedDepartment option[value!='']:first").val();
+					}
+					else {
+						$.prompt("Please select a department for the required report!");
+						return false;
+					}
+				}
+				
+				var params="houseType="+$("#selectedHouseType").val()
+				+ "&sessionYear="+$("#selectedSessionYear").val()
+				+ "&sessionType="+$("#selectedSessionType").val()
+				+ "&deviceType="+$("#selectedDeviceType").val()
+				+ "&subDepartment="+selectedSubDepartment
+				+ "&userGroupType="+$("#currentusergroupType").val()
+				+ "&assignee="+$("#assignee").val()
+				+ "&latestAssemblyHouseFormationDate="+$("#latestAssemblyHouseFormationDate").val()+" 00:00:00"
+				+ "&onlineDepartmentReplyBeginningDate="+$("#onlineDepartmentReplyBeginningDate").val()+" 00:00:00"
+				+ "&locale="+$("#moduleLocale").val()
+				+ "&report=MYTASKS_OVERALL_PENDING_COUNT_DETAILS_OF_SINGLE_DEPARTMENT_USERS_FOR_GIVEN_DEVICETYPE"
+				+ "&reportout=overall_pending_count_details_of_single_department_users";
+				
+				$.get('workflow/report/generalreport?'+params, function(data){
+				    $.fancybox.open(data, {autoSize: true, width: 800, height:600});
+			    },'html');
+				
+				//showTabByIdAndUrl('details_tab', 'workflow/report/generalreport?'+params);
+				
+			    return false;
 			});
 			
 			//Some filters are not required for department screen. this filters are hidden in departmentutility function
@@ -1362,6 +1406,17 @@
 
 		function onPageLoad() {
 			prependOptionToSelectedModule();
+			
+			var selectedDevice = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+			if(selectedDevice=='questions_unstarred' || selectedDevice=='motions_cutmotion_budgetary' || selectedDevice=='motions_cutmotion_supplementary'
+					|| selectedDevice=='motions_calling_attention' || selectedDevice=='notices_specialmention'){
+				if($("#currentusergroupType").val()=='department') {
+					$('#selectedDeviceTypeDisplayName').text("("+$('#selectedDeviceType option:selected').text()+")");
+					$("#total_pending_devices_vivaran_for_devicetype").show();
+				}
+			}else{
+				$("#total_pending_devices_vivaran_for_devicetype").hide();
+			}
 		}
 
 		function prependOptionToSelectedDeviceType() {
@@ -2484,7 +2539,7 @@
 						<option value="${i.type}">${i.id}</option>
 					</c:forEach>
 				</select>
-			</div> |
+			</div>
 			
 			<c:if test="${usergroupType=='section_officer'}">
 				<div id='replyFilter' style='display:inline;' >	
@@ -2517,11 +2572,24 @@
 					<option value="5">05</option>		
 				</select> |
 			</c:if>	
-			<c:if test="${(usergroupType=='assistant') && (selectedDeviceType == 'notices_specialmention')}">
-         	<a href="javascript:void(0);" id="admitted_admission_number" class="butSim" >
+			<c:choose>
+				<c:when test="${(usergroupType=='assistant' || usergroupType=='section_officer') && (selectedDeviceType == 'notices_specialmention')}">
+					<a href="javascript:void(0);" id="admitted_admission_number" class="butSim" >
 						<spring:message code="generic.admittedAdmissionNumber" text="Special Actions on Pending Devices(Special Mention Notice)"/>
-				</a>|
-			</c:if>	
+					</a>|
+				</c:when>
+				<%-- <c:when test="${(usergroupType=='department' || usergroupType=='department_deskofficer')}"> --%>
+				<c:when test="${(usergroupType=='department')}">
+					<a href="javascript:void(0);" id="total_pending_devices_vivaran_for_devicetype" class="butSim" >
+						<spring:message code="generic.total_pending_devices_vivaran_for_devicetype" text="Total Pending Devices Vivaran"/>&nbsp;<label id="selectedDeviceTypeDisplayName">(Device Type)</label>
+					</a>|
+				</c:when>
+				<c:otherwise>
+					<a href="javascript:void(0);" id="admitted_admission_number" class="butSim" style="display: none;">
+						<spring:message code="generic.admittedAdmissionNumber" text="Special Actions on Pending Devices(Special Mention Notice)"/>
+					</a>|
+				</c:otherwise>
+			</c:choose>
 	    	</div>	
 		</div>
 		<div id="nextTaskDiv" style="display: none;">
