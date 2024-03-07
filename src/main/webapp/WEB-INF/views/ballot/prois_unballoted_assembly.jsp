@@ -25,7 +25,11 @@
 
 <c:otherwise>
 <div id="reportDiv">
-<label class="small"><spring:message code="question.ballot.discussionDate" text="Answering Date"/>: ${answeringDate}</label>
+
+<div style="text-align: center; max-width: 800px; width: 800px; margin-left: 25px;">
+	<h2 style="text-decoration: underline; font-family: 'Times New Roman';"><spring:message code="generic.unballoted_notices.list" text="UN-BALLOTED LIST" /></h2>
+	<h4 style="margin-top: 15px;margin-bottom: 15px;"><label class="small"><spring:message code="question.ballot.discussionDate" text="Answering Date"/>: ${answeringDate}</label></h4>
+</div>
 
 <table class="strippedTable" border="1">
 	<thead>

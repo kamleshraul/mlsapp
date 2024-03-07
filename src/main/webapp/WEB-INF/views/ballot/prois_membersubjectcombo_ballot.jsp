@@ -67,8 +67,10 @@
 				       <img src="./resources/images/word_new.png" alt="Export to WORD" width="32" height="32"/>
 				   </a>
 			    </div>
-				<h2 style="text-align: center; color: #000000;"><spring:message code="prois.post.ballot.header" text="POST BALLOT LIST" /></h2>
-				<label class="small"><spring:message code="generic.date" text="Discussion Date"/>: <span style="text-decoration: underline; font-weight: bold;">${answeringDate}</span>&nbsp;&nbsp;<spring:message code="prois.post.ballotdailymessage" text="Notice of Propriety Point" /></label>
+				<div style="text-align: center; max-width: 800px; width: 800px; margin-left: 25px;">
+					<h2 style="text-decoration: underline; font-family: 'Times New Roman';"><spring:message code="generic.ballot.list" text="BALLOT LIST" /></h2>
+					<h4 style="margin-top: 15px;margin-bottom: 15px;"><label class="small"><spring:message code="question.ballot.discussionDate" text="Answering Date"/>: ${answeringDate}</label></h4>
+				</div>
 				<form action="question/discusshdss" method="post" >
 					<div >
 					</div>
