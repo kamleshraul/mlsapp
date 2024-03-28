@@ -29,8 +29,10 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.CatchwordHeadingVO;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.ProceedingVO;
 import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
+import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.common.vo.VishaysuchiDeviceVO;
 import org.mkcl.els.common.vo.VishaysuchiVO;
@@ -38,10 +40,14 @@ import org.mkcl.els.common.xmlvo.VishaysuchiXMLVO;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Document;
+import org.mkcl.els.domain.EditorPart;
+import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.PartDraft;
 import org.mkcl.els.domain.Query;
@@ -49,6 +55,7 @@ import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.Slot;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
@@ -180,6 +187,7 @@ public class EditingController extends GenericController<Roster>{
 				number = null;
 			}
 			
+           
 			/****Days****/
 			model.addAttribute("days",days);
 			
@@ -210,6 +218,13 @@ public class EditingController extends GenericController<Roster>{
 		
 	}
 	
+	@Override
+	protected void populateList(final ModelMap model,final HttpServletRequest request,
+			final String locale,final AuthUser currentUser) {
+		
+		 /** Setting Open Word Flag **/			
+		model.addAttribute("openWordFlag", false);
+	}
 	
 	/**
 	 * @param request
@@ -1795,7 +1810,174 @@ public class EditingController extends GenericController<Roster>{
 			e.printStackTrace();
 		}
 	}
+	
+	/*-------------------Shubham A-------------------------*/
+	
+	@RequestMapping(value = "/addRosterDataInWord",method = RequestMethod.GET)
+	public  String addRosterDataInWord(final HttpServletRequest request,
+			final Locale locale,ModelMap model) {
+		
+		
+		DeviceType defaultSelectedDeviceType = DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION, locale.toString());			
+		String device = defaultSelectedDeviceType.getDevice();  
+		
+		// Populate House types
+		List<HouseType> houseTypes = HouseType.findAll(HouseType.class, "name", ApplicationConstants.ASC, locale.toString());
+		model.addAttribute("houseTypes", houseTypes);
+		HouseType defaultSelectedHouseType = HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale.toString());
+			
+		// Populate Session types
+		List<SessionType> sessionTypes = SessionType.findAll(SessionType.class, "sessionType", ApplicationConstants.ASC, locale.toString());
+		model.addAttribute("sessionTypes", sessionTypes);
+		
+		// Populate latest Session type and year
+		SessionType sessionType = null;
+		Integer sessionYear = new GregorianCalendar().get(Calendar.YEAR);
+		Session latestSession = null;
+		try {
+			latestSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(defaultSelectedHouseType, defaultSelectedDeviceType);
+		} catch (ELSException e) {
+			logger.info("Unable To find Latest Session");
+			logger.error(e.getMessage());
+			model.addAttribute("errorcode","");		
+			return "common/error";
+		}
+		
+		if(latestSession != null) {
+			sessionType = latestSession.getType();
+			model.addAttribute("sessionType", sessionType.getId());
+			sessionYear = latestSession.getYear();
+		}
+		
+		model.addAttribute("sessionYear", sessionYear);
+		
+		int year = sessionYear;
+		CustomParameter houseFormationYear=CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+		List<Reference> years = new ArrayList<Reference>();
+		if(houseFormationYear != null){
+			Integer formationYear=Integer.parseInt(houseFormationYear.getValue());
+			for(int i = year; i >= formationYear; i--){
+				Reference reference = new Reference(String.valueOf(i),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i));
+				years.add(reference);
+			}
+		}else{
+			model.addAttribute("errorcode", "");	
+			return "common/error";
+			
+		}
+		model.addAttribute("years", years);
+		
+		//-----XVX-----
+		List<MasterVO> days = new ArrayList<MasterVO>();
+		Map<String, String[]> parameters = new HashMap<String, String[]>();
+		parameters.put("locale", new String[]{locale.toString()});
+		List rosterDays = Query.findReport("EDIS_DISTINCT_ROSTER_DAYS", parameters);
+		for(Object o : rosterDays){
+			MasterVO mV = new MasterVO();
+			Integer number = Integer.valueOf(o.toString()); 
+			mV.setNumber(number);
+			mV.setValue(FormaterUtil.formatNumberNoGrouping(number, locale.toString()));
+			days.add(mV);
+			number = null;
+		}
+		
+		/****Days****/
+		model.addAttribute("days",days);
+		
+		return "editing/addRosterDataInWord";
+	}
+	
+	@RequestMapping(value = "/displayRosterList",method = RequestMethod.GET)
+	public String displayRosterList(final HttpServletRequest request,
+			final Locale locale,ModelMap model) {
+		
+		//the name is searched in detail_view Column
+		String gridNameToSearchInDB ="editingRosterList";
+		Grid grid = null;
+		  try{
+	        	grid = Grid.findByDetailView(gridNameToSearchInDB, locale.toString());
+	        	model.addAttribute("gridId", grid.getId());
+	        }catch (ELSException e) {
+	        	logger.error(e.getMessage());
+				model.addAttribute("error", e.getParameter());		
+				return "common/error";
+			}
+		  
+		  /** Setting Open Word Flag **/			
+		model.addAttribute("openWordFlag", true);
+		return "editing/list";
+	}
+	
+	
+	@RequestMapping(value="/getEditingRosterForRIS",method=RequestMethod.GET)
+	public @ResponseBody ProceedingVO getEditingRosterForRIS(final HttpServletRequest request,
+			final Locale locale,ModelMap model) throws ELSException {
+		
+		ProceedingVO editingRosterDetails = new ProceedingVO();
+		int first_slot = 0;
+		String dateFormat = "dd-MM-yyyy";
+		String timeFormat = "HH:mm";
+		
+		String strRosterId = request.getParameter("roterId");
+		
+		Long rosterId  = Long.parseLong(strRosterId);
+		Roster roster =Roster.findById(Roster.class, rosterId);
+		if(roster == null) {
+			throw new ELSException("Unable to Find Roster for Id :- ", strRosterId);
+			
+		}
+		editingRosterDetails.setSlotName("-");
+		editingRosterDetails.setLanguageReporter("-");
+		editingRosterDetails.setPreviousReporter("-");
+		editingRosterDetails.IsEditorTerm(true);
+		
+		List<Slot> firstAndLastSlot = Slot.getFirstAndLastSlotForGivenRoster(rosterId); 
+		editingRosterDetails.setSlotName(firstAndLastSlot.get(first_slot).getName());
+		
+		String firstSlotDate = FormaterUtil.formatDateToString(firstAndLastSlot.get(first_slot).getStartTime(), dateFormat); 
+		String firstSlotTime = FormaterUtil.formatDateToString(firstAndLastSlot.get(first_slot).getStartTime(), timeFormat);
+		editingRosterDetails.setCurrentSlotStartDate(firstSlotDate);
+		editingRosterDetails.setCurrentSlotStartTime(firstSlotTime);
+		
+				
+		MessageResource generalNotice = MessageResource.findByFieldName(MessageResource.class, "code", "part.generalNotice", locale.toString());
+		editingRosterDetails.setGeneralNotice(generalNotice.getValue());
+		MessageResource mlsURL = MessageResource.findByFieldName(MessageResource.class, "code", "part.mlsUrl", locale.toString());
+		editingRosterDetails.setMlsUrl(mlsURL.getValue());
+		
+		
+		EditorPart editorPart=EditorPart.findByFieldName(EditorPart.class,"roster",roster,locale.toString());
+		
+		Long editorId = this.getCurrentUser().getUserId();
+		User editor = User.findById(User.class, editorId);
+		
+		if(editorPart==null){
+			editorPart=new EditorPart();
+			//editorPart.setProceeding(domain);
+			editorPart.setRoster(roster);
+			editorPart.setLocale(locale.toString());
+			editorPart.setEditor(editor);
+			editorPart.persist();
+			
+			//editingRosterDetails.setPartid("E_"+editorPart.getId());
+			editingRosterDetails.setVersion(editorPart.getVersion());
+		}else{
+			editingRosterDetails.setPartid(editorPart.getId());
+			editingRosterDetails.setVersion(editorPart.getVersion());
+		}
+		
+		
+		
+		return editingRosterDetails;
+	}
+	
+	
+	
 }
+
+
+
+
 
 
 /**
