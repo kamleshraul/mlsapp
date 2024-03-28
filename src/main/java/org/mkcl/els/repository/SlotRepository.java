@@ -343,5 +343,19 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 		}
 		return null;
 	}
+	
+	public List<Slot> getFirstAndLastSlotForGivenRoster(Long rosterId){
+		
+		StringBuilder strQuery = new StringBuilder();
+		List<Slot> slots = new ArrayList<>();
+		
+		strQuery.append(" (SELECT * FROM slots  WHERE roster = "+rosterId+"  LIMIT 1) ");
+		strQuery.append(" UNION ");
+		strQuery.append(" (SELECT * FROM slots  WHERE roster = "+rosterId+"  ORDER BY id DESC LIMIT 1 )");
+		Query query=this.em().createNativeQuery(strQuery.toString(), Slot.class);
+		slots=query.getResultList();
+		
+		return slots;  // returns Empty Array if their is no  element fetched From DB
+	}
 
 }
