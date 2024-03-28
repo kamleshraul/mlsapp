@@ -163,16 +163,18 @@ public class JwtServiceImpl implements IJwtService {
 	}
 	
 	public String generateToken(AuthUser auth ,HttpSession session ) {
-		
-		if(auth != null && session != null)
-		{
-			Map<String,Object> tokenData=new HashMap<String, Object>();
-			tokenData.put("sessionId", session.getId());
-			tokenData.put("username", auth.getUsername());
-			JWTSigner jwtSigner=new JWTSigner(secret);
-			return jwtSigner.sign(tokenData);
+			
+		if (auth == null || session == null ) {
+			return null;
 		}
-		return null;
+		
+		// TODO -- > Add Expire time also in Unix timestamp
+		Map<String,Object> tokenData=new HashMap<String, Object>();
+		tokenData.put("sessionId", session.getId());
+		tokenData.put("username", auth.getUsername());
+		tokenData.put("userId", auth.getUserId());
+		JWTSigner jwtSigner=new JWTSigner(secret);
+		return jwtSigner.sign(tokenData);
 	}
 	
 	public boolean verifyJwtToken(String jwtToken) {
