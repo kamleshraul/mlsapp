@@ -307,7 +307,7 @@
 									<br>
 									<div style="margin-top: 10px; text-align: center;">
 										<a href='#' style='font-weight:bold; align-items: center;'   onclick='workflowDetails(${r.id})'> 
-		 									<img src='./resources/images/IcoPageHeading.jpg' style='display:inline-block' title='Revision' width='15px' height='15px' align='justify'>
+		 									<img src='./resources/images/IcoPageHeading.jpg' style='display:inline-block' title='WorkFlow' width='15px' height='15px' align='justify'>
 		 									<br>
 		 									View WorkFlow Detail
 		 								</a> 
@@ -315,7 +315,7 @@
 									<br>
 									<div style="margin-top: 10px; text-align: center;">
 										<a href='#' style='font-weight:bold; align-items: center;'   onclick='posterActivity(${r.id},"${r.ministry}","${r.internalStatusType}")'> 
-		 									<img src='./resources/images/Revise.jpg' style='display:inline-block' title='Revision' width='15px' height='15px' align='justify'>
+		 									<img src='./resources/images/Revise.jpg' style='display:inline-block' title='Poster' width='15px' height='15px' align='justify'>
 		 									<br>
 		 									 Poster 
 		 								</a> 
