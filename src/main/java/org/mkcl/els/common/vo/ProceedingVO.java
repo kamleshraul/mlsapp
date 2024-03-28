@@ -20,7 +20,11 @@ public class ProceedingVO {
     
     private String languageReporter;
     
-    private String generalNotice;
+    private String generalNotice; 
+    
+    
+    // TODO --> Chane Term to Turn
+    private Boolean isEditorTerm;
     
     private Long version;
     
@@ -108,7 +112,15 @@ public class ProceedingVO {
 		this.version = version;
 	}
 
+	public Boolean getIsEditorTerm() {
+		return isEditorTerm;
+	}
 
+	public void IsEditorTerm(Boolean isEditorTerm) {
+		this.isEditorTerm = isEditorTerm;
+	}
+
+	
     
 
     
