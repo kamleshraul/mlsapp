@@ -15,7 +15,7 @@
 					+'&day='+$("#selectedDay").val()
 					);
 			
-			
+		
 			/* $("#unedited_copy").click(function(){
 				showUneditedProceeding();
 			});
@@ -38,12 +38,37 @@
 		}		
 		/**** double clicking record in grid handler ****/		
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
-			$("#selectionDiv1").hide();
-			//$("#cancelFn").val("rowDblClickHandler");			
-			$('#key').val(rowid);
-			//showTabByIdAndUrl('details_tab', 'roster/'+rowid+'/edit?'+$("#gridURLParams").val());
-			showUneditedProceeding();
-		}			
+			
+			if($('#openWordFlag').val() == 'false' ){
+				$("#selectionDiv1").hide();					
+				$('#key').val(rowid);		
+				showUneditedProceeding();
+			}else{
+				
+				openRosterInWordForEditor(rowid);
+			}
+			
+		}	
+		
+		
+		function openRosterInWordForEditor(rowid){
+			
+			
+			$.get('editing/getEditingRosterForRIS?roterId='+rowid,function(returnedData){
+				if(returnedData){
+					console.log(returnedData);
+					/* window.open('riscust://'+returnedData.mlsUrl+'???1.0.0???word???'+'???'+returnedData.slotName
+							+'???'+returnedData.currentSlotStartDate +'???'+returnedData.previousReporter +'???'+returnedData.currentSlotStartTime 
+							+'???'+returnedData.languageReporter +'???'+returnedData.generalNotice +'???'+returnedData.version +'???',"_self"); */
+				}else{
+					$.prompt("Unable To Open the Roster")
+				}
+    		}); 
+			
+		}
+		
+		
+		
 	</script>
 </head>
 <body>
@@ -69,7 +94,9 @@
 	</div>
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
-	<input type="hidden" id="gridURLParams" name="gridURLParams">		
+	<input type="hidden" id="gridURLParams" name="gridURLParams">	
+	<input type="hidden" id="openWordFlag" value="${openWordFlag}">	
+	<input type="hidden" id="defaultSelectedLanguage" value=1>
 	<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 	</div>
 </body>
