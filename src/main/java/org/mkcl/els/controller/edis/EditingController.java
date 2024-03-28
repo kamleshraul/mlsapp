@@ -1837,16 +1837,18 @@ public class EditingController extends GenericController<Roster>{
 		try {
 			latestSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(defaultSelectedHouseType, defaultSelectedDeviceType);
 		} catch (ELSException e) {
-			logger.info("Unable To find Latest Session");
 			logger.error(e.getMessage());
-			model.addAttribute("errorcode","");		
-			return "common/error";
+			
 		}
 		
 		if(latestSession != null) {
 			sessionType = latestSession.getType();
 			model.addAttribute("sessionType", sessionType.getId());
 			sessionYear = latestSession.getYear();
+		}else {
+			System.out.println("Unable To find Latest Session"); // added SOP if logger not printed
+			model.addAttribute("errorcode","");		
+			return "common/error";  // returned from here cause can't execute further process if no latest session found
 		}
 		
 		model.addAttribute("sessionYear", sessionYear);
@@ -1861,6 +1863,8 @@ public class EditingController extends GenericController<Roster>{
 				years.add(reference);
 			}
 		}else{
+			logger.error("Cant Find House Formation Year");
+			System.out.println("Cant Find House Formation Year"); // added SOP if logger not printed
 			model.addAttribute("errorcode", "");	
 			return "common/error";
 			
@@ -1898,6 +1902,7 @@ public class EditingController extends GenericController<Roster>{
 	        	grid = Grid.findByDetailView(gridNameToSearchInDB, locale.toString());
 	        	model.addAttribute("gridId", grid.getId());
 	        }catch (ELSException e) {
+	        	System.out.printf("Cant find grid by detail view name of - [%s]",gridNameToSearchInDB); // added SOP if logger not printed
 	        	logger.error(e.getMessage());
 				model.addAttribute("error", e.getParameter());		
 				return "common/error";
@@ -1957,16 +1962,13 @@ public class EditingController extends GenericController<Roster>{
 			editorPart.setRoster(roster);
 			editorPart.setLocale(locale.toString());
 			editorPart.setEditor(editor);
-			editorPart.persist();
-			
-			//editingRosterDetails.setPartid("E_"+editorPart.getId());
+			editorPart.persist();		
+			editingRosterDetails.setPartid(editorPart.getId());
 			editingRosterDetails.setVersion(editorPart.getVersion());
 		}else{
 			editingRosterDetails.setPartid(editorPart.getId());
 			editingRosterDetails.setVersion(editorPart.getVersion());
 		}
-		
-		
 		
 		return editingRosterDetails;
 	}
