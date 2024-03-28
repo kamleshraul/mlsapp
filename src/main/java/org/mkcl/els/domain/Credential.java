@@ -253,6 +253,11 @@ public class Credential extends BaseDomain implements Serializable {
     public static String findAllActiveUsernamesAsCommaSeparatedString(final String locale) {
     	return getRepository().findAllActiveUsernamesAsCommaSeparatedString(locale);
     }
+    
+    public static Long findUserIdByUsername(final String username) {
+    	return getRepository().findUserIdByUsername(username);
+    }
+   
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the username.
