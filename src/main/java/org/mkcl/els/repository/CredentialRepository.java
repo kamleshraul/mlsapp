@@ -1,6 +1,7 @@
 package org.mkcl.els.repository;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -85,6 +86,22 @@ public class CredentialRepository extends BaseRepository<Credential, Serializabl
 		}
 		
 		return activeUsernames;
+	}
+	
+	
+	public Long findUserIdByUsername(String username) {
+		
+		StringBuilder strQuery = new StringBuilder();
+		Long userId = null;
+		
+		strQuery.append(" SELECT u.id FROM credentials c ");
+		strQuery.append(" INNER JOIN users u ON (u.credential_id =  c.id) ");
+		strQuery.append(" WHERE c.username = '"+username +"'" );
+		
+		Query query = this.em().createNativeQuery(strQuery.toString());		
+		BigInteger userIdFromDB =  (BigInteger) query.getSingleResult();
+		userId= userIdFromDB.longValue();
+		return userId;
 	}
 	
 }
