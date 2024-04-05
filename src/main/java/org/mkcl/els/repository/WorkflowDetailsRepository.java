@@ -6810,19 +6810,37 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				+ " AND wd.locale=:locale"
 				+ " GROUP BY SUBDEPARTMENT"
 				+ " ORDER BY SUBDEPARTMENT";		
-	
+		org.mkcl.els.domain.Query queryToCall=(org.mkcl.els.domain.Query)org.mkcl.els.domain.Query.findByFieldName(Query.class,"keyField", "PROC_DEPARTMENT_DEVICES_COUNT",strLocale);
+		
+		strQuery= (queryToCall!=null && queryToCall.getQuery()!=null && queryToCall.getQuery().trim().length()>0)
+					?queryToCall.getQuery():strQuery;
 		Query query = this.em().createNativeQuery(strQuery);
-		List<String> sessionTypes = Arrays.asList(strSessionType.split(","));
-		query.setParameter("sessionType", sessionTypes);
+		List<String> sessionTypes = Arrays.asList(strSessionType.split(","));		
+		//query.setParameter("sessionType", sessionTypes.size()>1?strSessionType.trim():sessionTypes);
+		query.setParameter("sessionType",strSessionType.trim());
+		
 		List<String> sessionYears = Arrays.asList(strSessionYear.split(","));
-		query.setParameter("sessionYear", sessionYears);
+		//query.setParameter("sessionYear", sessionYears.size()>1?strSessionYear.trim():sessionYears);
+		query.setParameter("sessionYear",strSessionYear.trim());
+		
 		List<String> houseTypes = Arrays.asList(strHouseType.split(","));
-		query.setParameter("houseType", houseTypes);
+		//query.setParameter("houseType", houseTypes.size()>1?strHouseType.trim():houseTypes);
+		query.setParameter("houseType",strHouseType.trim());
+		
 		List<String> deviceTypes = Arrays.asList(strDeviceType.split(","));
-		query.setParameter("deviceType", deviceTypes);
+		//query.setParameter("deviceType", deviceTypes.size()>1?strDeviceType.trim():deviceTypes);
+		query.setParameter("deviceType",strDeviceType.trim());
+		
 		List<String> subdepartments = Arrays.asList(strSubdepartment.split(","));
-		query.setParameter("subdepartment", subdepartments);
-		query.setParameter("locale", strLocale);
+		//query.setParameter("subdepartment", subdepartments.size()>1?strSubdepartment.trim():subdepartments);
+		query.setParameter("subdepartment",strSubdepartment.trim());
+		
+		try {
+			if(query.getParameter("locale")!=null && query.getParameter("locale").getName()!=null
+					&& query.getParameter("locale").getName().equalsIgnoreCase("locale")) {
+				query.setParameter("locale", strLocale);
+			}
+		}catch(Exception e) {e.printStackTrace();}
 		List result =  query.getResultList();	
 		 for(int i=0;i<result.size();i++){
 	       	 Object[] row = (Object[])result.get(i);
