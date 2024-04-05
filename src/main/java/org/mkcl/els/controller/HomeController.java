@@ -773,7 +773,7 @@ public class HomeController extends BaseController {
          parameters.put("houseType", new String[]{""});
          parameters.put("deviceType", new String[]{""});
          parameters.put("subdepartment", new String[]{""});
-         List result = Query.findReport("DEPARTMENT_DEVICES_COUNT", parameters);
+         List result = Query.findReport("PROC_DEPARTMENT_DEVICES_COUNT", parameters);
          for(int i=0;i<result.size();i++){
         	 Object[] row = (Object[])result.get(i);
         		DepartmentDashboardVo departmentDeviceCount = new DepartmentDashboardVo();
