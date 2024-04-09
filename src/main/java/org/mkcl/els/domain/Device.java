@@ -271,6 +271,10 @@ public abstract class Device extends BaseDomain {
 			SpecialMentionNotice specialMentionNotice = SpecialMentionNotice.findById(SpecialMentionNotice.class, deviceId);
 			specialMentionNotice.startWorkflow(specialMentionNotice, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
 		
+		} else if(deviceName.split("_")[0].toUpperCase().equals("GOVERNORSPEECHNOTICE")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
+			GovernorSpeechNotice governorSpeechNotice = GovernorSpeechNotice.findById(GovernorSpeechNotice.class, deviceId);
+			governorSpeechNotice.startWorkflow(governorSpeechNotice, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
+		
 		} else if(deviceName.split("_")[0].toUpperCase().equals("RULESSUSPENSIONMOTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
 			RulesSuspensionMotion rulesSuspensionMotion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, deviceId);
 			rulesSuspensionMotion.startWorkflow(rulesSuspensionMotion, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
@@ -315,6 +319,10 @@ public abstract class Device extends BaseDomain {
 		} else if(deviceName.split("_")[0].toUpperCase().equals("SPECIALMENTIONNOTICE")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
 			 SpecialMentionNotice specialMentionNotice = SpecialMentionNotice.findById(SpecialMentionNotice.class, deviceId);
 			 specialMentionNotice.endWorkflow(specialMentionNotice, workflowHouseType, locale);
+		
+		}  else if(deviceName.split("_")[0].toUpperCase().equals("GOVERNORSPEECHNOTICE")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
+			 GovernorSpeechNotice governorSpeechNotice = GovernorSpeechNotice.findById(GovernorSpeechNotice.class, deviceId);
+			 governorSpeechNotice.endWorkflow(governorSpeechNotice, workflowHouseType, locale);
 		
 		} else if(deviceName.split("_")[0].toUpperCase().equals("RULESSUSPENSIONMOTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
 			RulesSuspensionMotion rulesSuspensionMotion = RulesSuspensionMotion.findById(RulesSuspensionMotion.class, deviceId);
