@@ -38,6 +38,7 @@ import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.DiscussionMotion;
 import org.mkcl.els.domain.EventMotion;
+import org.mkcl.els.domain.GovernorSpeechNotice;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.MemberBallotChoice;
 import org.mkcl.els.domain.Ministry;
@@ -1420,6 +1421,49 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 			throw elsException;
 		}
 	}
+	
+	
+	@SuppressWarnings("unchecked")
+	public List<WorkflowDetails> findAllForGovernorSpeechNotices(String strHouseType,
+			String strSessionType, String strSessionYear, String strDeviceType,
+			String strStatus, String strWorkflowSubType, String assignee, String strItemsCount, 
+			String strLocale) throws ELSException {
+		
+		StringBuffer buffer=new StringBuffer();
+		buffer.append("SELECT wd FROM WorkflowDetails wd" +
+				" WHERE houseType=:houseType"+
+				" AND sessionType=:sessionType" +
+				" AND sessionYear=:sessionYear"+
+				" AND assignee=:assignee" +
+				" AND deviceType=:deviceType"+
+				" AND status=:status"+
+				" AND workflowSubType=:workflowSubType"+
+				" AND locale=:locale"+
+				" ORDER BY numericalDevice");
+		
+		List<WorkflowDetails> workflowDetails=new ArrayList<WorkflowDetails>();
+		try{
+			Query query=this.em().createQuery(buffer.toString());
+			query.setParameter("houseType",strHouseType);
+			query.setParameter("sessionType",strSessionType);
+			query.setParameter("sessionYear",strSessionYear);
+			query.setParameter("assignee",assignee);
+			query.setParameter("deviceType",strDeviceType);
+			query.setParameter("locale",strLocale);
+			query.setParameter("status",strStatus);
+			query.setParameter("workflowSubType",strWorkflowSubType);
+			query.setMaxResults(Integer.parseInt(strItemsCount));
+			workflowDetails=query.getResultList();
+			return workflowDetails;
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findAllForGovernorSpeechNotices", "WorkflowDetails Not found");
+			throw elsException;
+		}
+	}
+	
 	
 	@SuppressWarnings("unchecked")
 	public List<WorkflowDetails> findAllForProprietyPoints(String strHouseType,
@@ -7780,6 +7824,102 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 			return workflowDetails;
 		}
 		
+		
+	/**********************Governor Speech Notice************************/
+		public WorkflowDetails findCurrentWorkflowDetail(final GovernorSpeechNotice governorSpeechNotice) throws ELSException{
+			WorkflowDetails workflowDetails = null;
+			try{
+				Workflow workflow = governorSpeechNotice.findWorkflowFromStatus();
+				if(workflow!=null) {
+					workflowDetails = findCurrentWorkflowDetail(governorSpeechNotice, workflow.getType());
+				}			
+			}catch (NoResultException e) {
+				e.printStackTrace();
+				logger.error(e.getMessage());
+			}catch(Exception e){	
+				e.printStackTrace();
+				logger.error(e.getMessage());
+				ELSException elsException=new ELSException();
+				elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findCurrentWorkflowDetail_governorSpeechNotice", "WorkflowDetails Not Found");
+				throw elsException;
+			}		
+			
+			return workflowDetails;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public WorkflowDetails findCurrentWorkflowDetail(final GovernorSpeechNotice governorSpeechNotice, final String workflowType) throws ELSException{
+			WorkflowDetails workflowDetails = null;
+			try{
+				String strQuery="SELECT m FROM WorkflowDetails m" +
+						" WHERE m.deviceId=:deviceId"+
+						" AND m.workflowType=:workflowType" +
+						" AND m.status='PENDING'" +
+						" ORDER BY m.assignmentTime " + ApplicationConstants.DESC;
+				Query query=this.em().createQuery(strQuery);
+				query.setParameter("deviceId", governorSpeechNotice.getId().toString());
+				query.setParameter("workflowType",workflowType);
+				List<WorkflowDetails> details = (List<WorkflowDetails>)query.getResultList();
+				if(details != null && !details.isEmpty()){
+					workflowDetails = details.get(0);
+				}
+			}catch (NoResultException e) {
+				e.printStackTrace();
+				logger.error(e.getMessage());
+			}catch(Exception e){	
+				e.printStackTrace();
+				logger.error(e.getMessage());
+				ELSException elsException=new ELSException();
+				elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findCurrentWorkflowDetail_governorSpeechNotice", "WorkflowDetails Not Found");
+				throw elsException;
+			}		
+			
+			return workflowDetails;
+		}
+		
+		
+		public WorkflowDetails startProcessAtGivenLevel(final GovernorSpeechNotice governorSpeechNotice, final String processDefinitionKey, final Workflow processWorkflow, final UserGroupType userGroupType, final int level, final String locale) throws ELSException {
+			ProcessDefinition processDefinition = processService.findProcessDefinitionByKey(processDefinitionKey);
+			Map<String,String> properties = new HashMap<String, String>();
+			Reference actorAtGivenLevel = WorkflowConfig.findActorVOAtGivenLevel(governorSpeechNotice, processWorkflow, userGroupType, level, locale);
+			if(actorAtGivenLevel==null) {
+				throw new ELSException();
+			}
+			String userAtGivenLevel = actorAtGivenLevel.getId();
+			String[] temp = userAtGivenLevel.split("#");
+			properties.put("pv_user",temp[0]);
+			properties.put("pv_endflag", "continue");	
+			properties.put("pv_deviceId", String.valueOf(governorSpeechNotice.getId()));
+			properties.put("pv_deviceTypeId", String.valueOf(governorSpeechNotice.getType().getId()));
+			if(processDefinitionKey.equals(ApplicationConstants.GOVERNORSPEECHNOTICE_APPROVAL_WORKFLOW)) {
+				properties.put("pv_mailflag", null);
+				properties.put("pv_timerflag", null);
+			}		
+			ProcessInstance processInstance= processService.createProcessInstance(processDefinition, properties);
+			Task task= processService.getCurrentTask(processInstance);
+			String workflowType = processWorkflow.getType();
+//					WorkflowDetails workflowDetails = WorkflowDetails.create(specialMentionNotice,task,workflowType,Integer.toString(level));
+			UserGroupType usergroupType = UserGroupType.findByType(temp[1], governorSpeechNotice.getLocale());
+			WorkflowDetails workflowDetails = WorkflowDetails.create(governorSpeechNotice, task, usergroupType, workflowType, Integer.toString(level));
+			governorSpeechNotice.setEndFlag("continue");
+			governorSpeechNotice.setTaskReceivedOn(new Date());
+			governorSpeechNotice.setWorkflowDetailsId(workflowDetails.getId());
+			governorSpeechNotice.setWorkflowStarted("YES");
+			governorSpeechNotice.setWorkflowStartedOn(new Date());
+			
+			String actor = actorAtGivenLevel.getId();
+			governorSpeechNotice.setActor(actor);
+			
+			String[] actorArr = actor.split("#");
+			governorSpeechNotice.setLevel(actorArr[2]);
+			governorSpeechNotice.setLocalizedActorName(actorArr[3] + "(" + actorArr[4] + ")");
+			
+			governorSpeechNotice.simpleMerge();
+			return workflowDetails;		
+		}
+		
+		/******************************************************************************/
+		
 		public WorkflowDetails startProcess(final SpecialMentionNotice specialMentionNotice, final String processDefinitionKey, final Workflow processWorkflow, final String locale) throws ELSException {
 			ProcessDefinition processDefinition = processService.findProcessDefinitionByKey(processDefinitionKey);
 			Map<String,String> properties = new HashMap<String, String>();
@@ -7991,5 +8131,256 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 			return wfDetailsVo;
 		}
 	
+		//======================Governor Speech Notice Methods=====================//
+				public WorkflowDetails create(final GovernorSpeechNotice governorSpeechNotice,
+											  final Task task,
+											  final UserGroupType usergroupType,
+											  final String workflowType,
+											  final String assigneeLevel) 
+											  throws ELSException {
+					WorkflowDetails workflowDetails=new WorkflowDetails();
+					try {
+						String userGroupId=null;
+						String userGroupType=null;
+						String userGroupName=null;				
+						String username=task.getAssignee();
+						if(username==null || username.isEmpty()){
+							throw new ELSException("WorkflowDetailsRepository_WorkflowDetail_create_governorspechnotice_Task", "assignee is not set for the motion task");					
+						}
+						Credential credential=Credential.findByFieldName(Credential.class,"username",username,"");
+						//UserGroup userGroup=UserGroup.findByFieldName(UserGroup.class,"credential",credential, question.getLocale());
+						UserGroup userGroup = UserGroup.findActive(credential, usergroupType, new Date(), governorSpeechNotice.getLocale());
+						if(userGroup == null){
+							throw new ELSException("WorkflowDetailsRepository_WorkflowDetail_create_governorspeechnotice_Task", "there is no active usergroup for the assignee");
+						}
+						userGroupId=String.valueOf(userGroup.getId());
+						userGroupType=userGroup.getUserGroupType().getType();
+						userGroupName=userGroup.getUserGroupType().getName();
+						workflowDetails.setAssignee(task.getAssignee());
+						workflowDetails.setAssigneeUserGroupId(userGroupId);
+						workflowDetails.setAssigneeUserGroupType(userGroupType);
+						workflowDetails.setAssigneeUserGroupName(userGroupName);
+						workflowDetails.setAssigneeLevel(assigneeLevel);
+						CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP","");
+						if(customParameter!=null){
+							SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+							if(task.getCreateTime()!=null){
+								if(!task.getCreateTime().isEmpty()){
+									workflowDetails.setAssignmentTime(format.parse(task.getCreateTime()));
+								}
+							}
+						}	
+						if(governorSpeechNotice!=null){
+							if(governorSpeechNotice.getId()!=null){
+								workflowDetails.setDeviceId(String.valueOf(governorSpeechNotice.getId()));
+							}
+//							if(userGroupType.equals(ApplicationConstants.DEPARTMENT) || userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+//								if(specialMentionNotice.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+//									if(specialMentionNotice.getNumber()!=null){
+//										workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(specialMentionNotice.getLocale()).format(specialMentionNotice.getNumber()));
+//										workflowDetails.setNumericalDevice(specialMentionNotice.getNumber());
+//									}
+//								} else {
+//									if(specialMentionNotice.getNumber()!=null){
+//										workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(specialMentionNotice.getLocale()).format(specialMentionNotice.getNumber()));
+//										workflowDetails.setNumericalDevice(specialMentionNotice.getNumber());
+//									}
+//								}
+//							}
+							if(governorSpeechNotice.getNumber()!=null){
+								workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(governorSpeechNotice.getLocale()).format(governorSpeechNotice.getNumber()));
+								workflowDetails.setNumericalDevice(governorSpeechNotice.getNumber());
+							}
+							
+							if(governorSpeechNotice.getPrimaryMember()!=null){
+								workflowDetails.setDeviceOwner(governorSpeechNotice.getPrimaryMember().getFullname());
+							}
+							if(governorSpeechNotice.getType()!=null){
+								workflowDetails.setDeviceType(governorSpeechNotice.getType().getName());
+							}
+							if(governorSpeechNotice.getHouseType()!=null){
+								workflowDetails.setHouseType(governorSpeechNotice.getHouseType().getName());
+							}
+							if(governorSpeechNotice.getInternalStatus()!=null){
+								workflowDetails.setInternalStatus(governorSpeechNotice.getInternalStatus().getName());
+							}
+							workflowDetails.setLocale(governorSpeechNotice.getLocale());
+							if(governorSpeechNotice.getRecommendationStatus()!=null){
+								workflowDetails.setRecommendationStatus(governorSpeechNotice.getRecommendationStatus().getName());
+							}
+							workflowDetails.setRemarks(governorSpeechNotice.getRemarks());
+							if(governorSpeechNotice.getSession()!=null){
+								if(governorSpeechNotice.getSession().getType()!=null){
+									workflowDetails.setSessionType(governorSpeechNotice.getSession().getType().getSessionType());
+								}
+								workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(governorSpeechNotice.getLocale()).format(governorSpeechNotice.getSession().getYear()));
+							}
+							if(governorSpeechNotice.getRevisedSubject() != null && !governorSpeechNotice.getRevisedSubject().isEmpty()){
+								workflowDetails.setSubject(governorSpeechNotice.getRevisedSubject());
+							}else{
+								workflowDetails.setSubject(governorSpeechNotice.getSubject());
+							}
+							
+							if(governorSpeechNotice.getRevisedNoticeContent() != null && !governorSpeechNotice.getRevisedNoticeContent().isEmpty()){
+								workflowDetails.setText(governorSpeechNotice.getRevisedNoticeContent());
+							}else{
+								workflowDetails.setText(governorSpeechNotice.getNoticeContent());
+							}
+//							if(specialMentionNotice.getMinistry() != null){
+//								workflowDetails.setMinistry(specialMentionNotice.getMinistry().getName());
+//							}
+//							if(specialMentionNotice.getSubDepartment() != null){
+//								workflowDetails.setSubdepartment(specialMentionNotice.getSubDepartment().getName());
+//							}
+//							if(governorSpeechNotice.getReply() != null && !specialMentionNotice.getReply().isEmpty()){
+//								workflowDetails.setReply(specialMentionNotice.getReply());
+//							}
+						}
+						workflowDetails.setProcessId(task.getProcessInstanceId());
+						workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
+						workflowDetails.setTaskId(task.getId());
+						workflowDetails.setWorkflowType(workflowType);
+						
+						if(workflowType.equals(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW)){
+							workflowDetails.setUrlPattern(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_GOVERNORSPEECHNOTICE);
+							workflowDetails.setForm(workflowDetails.getUrlPattern());
+							Status requestStatus=Status.findByType(ApplicationConstants.REQUEST_TO_SUPPORTING_MEMBER, governorSpeechNotice.getLocale());
+							if(requestStatus!=null){
+							workflowDetails.setWorkflowSubType(requestStatus.getType());
+							}
+						} else {
+							workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN_GOVERNORSPEECHNOTICE);
+							workflowDetails.setForm(workflowDetails.getUrlPattern()+"/"+userGroupType);
+							if(workflowType.equals(ApplicationConstants.CLUBBING_POST_ADMISSION_WORKFLOW)
+									|| workflowType.equals(ApplicationConstants.UNCLUBBING_WORKFLOW)
+									|| workflowType.equals(ApplicationConstants.ADMIT_DUE_TO_REVERSE_CLUBBING_WORKFLOW)) {
+								workflowDetails.setWorkflowSubType(governorSpeechNotice.getRecommendationStatus().getType());
+							} else {
+								workflowDetails.setWorkflowSubType(governorSpeechNotice.getInternalStatus().getType());
+							}
+							workflowDetails.persist();
+						}
+					} catch (ParseException e) {
+						logger.error("Parse Exception",e);
+						return new WorkflowDetails();
+					} catch(Exception e){
+						e.printStackTrace();
+						logger.error(e.getMessage());
+						ELSException elsException=new ELSException();
+						elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_create_governorspeechnotice", "WorkflowDetails cannot be created");
+						throw elsException;
+					}
+					return workflowDetails;
+				}
+				
+				public List<WorkflowDetails> create(final GovernorSpeechNotice governorSpeechNotice,
+													final List<Task> tasks,
+													final String workflowType,
+													final String assigneeLevel) 
+													throws ELSException, ParseException {		
+					List<WorkflowDetails> workflowDetailsList = new ArrayList<WorkflowDetails>();
+					Status requestStatus = Status.findByType(ApplicationConstants.REQUEST_TO_SUPPORTING_MEMBER, governorSpeechNotice.getLocale());
+					CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP","");
+					if(customParameter == null || customParameter.getValue()==null || customParameter.getValue().isEmpty()){
+						throw new ELSException("WorkflowDetailsRepository_WorkflowDetail_create_governorspeechnotice_List<Task>", "Custom Parameter 'DB_TIMESTAMP' is not set.");	
+					}
+					SimpleDateFormat format = FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+					for(Task i:tasks){
+						WorkflowDetails workflowDetails=new WorkflowDetails();
+						String userGroupId=null;
+						String userGroupType=null;
+						String userGroupName=null;				
+						String username=i.getAssignee();
+						if(username==null || username.isEmpty()) {
+							throw new ELSException("WorkflowDetailsRepository_WorkflowDetail_create_governorspeechnotice_List<Task>", "assignee is not set.");
+						}
+						Credential credential=Credential.findByFieldName(Credential.class,"username",username,"");
+						UserGroup userGroup=UserGroup.findActive(credential, new Date(), governorSpeechNotice.getLocale());
+						userGroupId=String.valueOf(userGroup.getId());
+						userGroupType=userGroup.getUserGroupType().getType();
+						userGroupName=userGroup.getUserGroupType().getName();
+						workflowDetails.setAssignee(i.getAssignee());
+						workflowDetails.setAssigneeUserGroupId(userGroupId);
+						workflowDetails.setAssigneeUserGroupType(userGroupType);
+						workflowDetails.setAssigneeUserGroupName(userGroupName);
+						workflowDetails.setAssigneeLevel(assigneeLevel);
+						if(i.getCreateTime()!=null){
+							if(!i.getCreateTime().isEmpty()){
+								workflowDetails.setAssignmentTime(format.parse(i.getCreateTime()));
+							}
+						}
+						if(governorSpeechNotice!=null){
+							if(governorSpeechNotice.getId()!=null){
+								workflowDetails.setDeviceId(String.valueOf(governorSpeechNotice.getId()));
+							}
+							if(governorSpeechNotice.getNumber()!=null){
+								workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(governorSpeechNotice.getLocale()).format(governorSpeechNotice.getNumber()));
+								workflowDetails.setNumericalDevice(governorSpeechNotice.getNumber());
+							}
+							if(governorSpeechNotice.getPrimaryMember()!=null){
+								workflowDetails.setDeviceOwner(governorSpeechNotice.getPrimaryMember().getFullname());
+							}
+							if(governorSpeechNotice.getType()!=null){
+								workflowDetails.setDeviceType(governorSpeechNotice.getType().getName());
+							}
+							if(governorSpeechNotice.getHouseType()!=null){
+								workflowDetails.setHouseType(governorSpeechNotice.getHouseType().getName());
+							}
+							if(governorSpeechNotice.getInternalStatus()!=null){
+								workflowDetails.setInternalStatus(governorSpeechNotice.getInternalStatus().getName());
+							}
+							workflowDetails.setLocale(governorSpeechNotice.getLocale());
+							if(governorSpeechNotice.getRecommendationStatus()!=null){
+								workflowDetails.setRecommendationStatus(governorSpeechNotice.getRecommendationStatus().getName());
+							}
+							workflowDetails.setRemarks(governorSpeechNotice.getRemarks());
+							if(governorSpeechNotice.getSession()!=null){
+								if(governorSpeechNotice.getSession().getType()!=null){
+									workflowDetails.setSessionType(governorSpeechNotice.getSession().getType().getSessionType());
+								}
+								workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(governorSpeechNotice.getLocale()).format(governorSpeechNotice.getSession().getYear()));
+							}
+							if(governorSpeechNotice.getRevisedSubject() != null && !governorSpeechNotice.getRevisedSubject().isEmpty()){
+								workflowDetails.setSubject(governorSpeechNotice.getRevisedSubject());
+							}else{
+								workflowDetails.setSubject(governorSpeechNotice.getSubject());
+							}
+							
+							if(governorSpeechNotice.getRevisedNoticeContent() != null && !governorSpeechNotice.getRevisedNoticeContent().isEmpty()){
+								workflowDetails.setText(governorSpeechNotice.getRevisedNoticeContent());
+							}else{
+								workflowDetails.setText(governorSpeechNotice.getNoticeContent());
+							}
+//							if(governorSpeechNotice.getMinistry() != null){
+//								workflowDetails.setMinistry(specialMentionNotice.getMinistry().getName());
+//							}
+//							if(specialMentionNotice.getSubDepartment() != null){
+//								workflowDetails.setSubdepartment(specialMentionNotice.getSubDepartment().getName());
+//							}
+//							if(specialMentionNotice.getReply() != null && !specialMentionNotice.getReply().isEmpty()){
+//								workflowDetails.setReply(specialMentionNotice.getReply());
+//							}
+						}
+						workflowDetails.setProcessId(i.getProcessInstanceId());
+						workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
+						workflowDetails.setTaskId(i.getId());
+						workflowDetails.setWorkflowType(workflowType);
+						if(workflowType.equals(ApplicationConstants.APPROVAL_WORKFLOW)){
+							workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN_GOVERNORSPEECHNOTICE);
+							workflowDetails.setForm(workflowDetails.getUrlPattern()+"/"+userGroupType);
+							workflowDetails.setWorkflowSubType(governorSpeechNotice.getInternalStatus().getType());					
+						} else if(workflowType.equals(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW)){
+							workflowDetails.setUrlPattern(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_GOVERNORSPEECHNOTICE);
+							workflowDetails.setForm(workflowDetails.getUrlPattern());
+							if(requestStatus!=null){
+							workflowDetails.setWorkflowSubType(requestStatus.getType());
+							}
+						}
+						workflowDetailsList.add((WorkflowDetails) workflowDetails.persist());			
+					}
+
+					return workflowDetailsList;
+				}
+		
 		
 }

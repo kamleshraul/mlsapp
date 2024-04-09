@@ -661,7 +661,7 @@ public class SessionController extends GenericController<Session> {
 	        				else{
 	        					for(String parameterKey : parametersForDeviceType) {
 	        						//for number formatting in comma/hash separated string fields. 
-	        						if((parameterKey.equals("resolutions_nonofficial_numberOfDaysForFactualPositionReceiving")) || (parameterKey.equals("questions_halfhourdiscussion_standalone_numberOfDaysForFactualPositionReceiving"))) {
+	        						if((parameterKey.equals("resolutions_nonofficial_numberOfDaysForFactualPositionReceiving")) || (parameterKey.equals("notices_governor_speech_numberOfAcceptingNotices")) || (parameterKey.equals("questions_halfhourdiscussion_standalone_numberOfDaysForFactualPositionReceiving"))) {
 	        							String[] numbers = domain.getParameter(parameterKey).split("#");
 	        							String formattedValue = "";
 	        							for(int j = 0; j < numbers.length; j++) {		        								

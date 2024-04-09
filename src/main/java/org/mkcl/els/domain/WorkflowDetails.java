@@ -376,6 +376,24 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	return getRepository().create(motion, tasks, workflowType, assigneeLevel);
 	}
 	
+	
+	public static WorkflowDetails create(final GovernorSpeechNotice governorSpeechNotice, 
+			 final Task newtask,
+			 final UserGroupType usergroupType, 
+			 final String currentDeviceTypeWorkflowType,
+			 final String level) 
+			 throws ELSException {
+	return getRepository().create(governorSpeechNotice, newtask, usergroupType, currentDeviceTypeWorkflowType, level);
+	}
+	
+	public static List<WorkflowDetails> create(final GovernorSpeechNotice motion,
+					   final List<Task> tasks,
+					   final String workflowType,
+					   final String assigneeLevel) 
+					   throws ELSException, ParseException {
+	return getRepository().create(motion, tasks, workflowType, assigneeLevel);
+	}
+	
 	// Start Process
 	public static WorkflowDetails startProcess(final Question question, 
 			final String processDefinitionKey, 
@@ -561,6 +579,19 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 			final String strLocale) throws ELSException {
 		return getRepository().findAllForSpecialMentionNotices(strHouseType, strSessionType, strSessionYear, strMotionType,
 				strStatus, strWorkflowSubType, specialmentionNoticeDate, assignee, strItemsCount, strLocale);
+	}
+	
+	public static List<WorkflowDetails> findAllForGovernorSpeechNotices(final String strHouseType,
+			final String strSessionType,
+			final String strSessionYear,
+			final String strMotionType,
+			final String strStatus,
+			final String strWorkflowSubType,
+			final String assignee,
+			final String strItemsCount,
+			final String strLocale) throws ELSException {
+		return getRepository().findAllForGovernorSpeechNotices(strHouseType, strSessionType, strSessionYear, strMotionType,
+				strStatus, strWorkflowSubType, assignee, strItemsCount, strLocale);
 	}
 	
 	public static List<WorkflowDetails> findAllForProprietyPoints(final String strHouseType,
@@ -1152,6 +1183,24 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return getRepository().create(motion, task, workflowType, level);
 	}
 	/******************************AppropriationBillMotion**************************/
+	
+	/********************Governor Speech Notice*********************/
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final GovernorSpeechNotice governorSpeechNotice) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(governorSpeechNotice);
+	}
+	
+	public static WorkflowDetails startProcessAtGivenLevel(final GovernorSpeechNotice governorSpeechNotice, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final UserGroupType userGroupType, 
+			final int level, 
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(governorSpeechNotice, processDefinitionKey, processWorkflow, userGroupType, level, locale);
+	}
+	
+	
+	/**************************************************************/
 	
 	// TODO: Incomplete
 	// kept to hide errors only method needs to be replaced with actual code

@@ -608,7 +608,18 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 	}	
 	/***************************Appropriation Bill Motion********************************/
 
+	/****************************** Governor Speech Notice *********************/
+	public static List<Reference> findGovernorSpeechNoticeActorsVO(
+			GovernorSpeechNotice motion, Status internalStatus,
+			UserGroup userGroup, int level, String locale) {
+		return getWorkflowConfigRepository().findGovernorSpeechNoticeActors(motion, internalStatus, userGroup, level, locale);
+	}
+	
+	public static Reference findActorVOAtGivenLevel(final GovernorSpeechNotice governorSpeechNotice, final Workflow processWorkflow, final UserGroupType userGroupType, final int level, final String locale) throws ELSException {
+		return getWorkflowConfigRepository().findActorVOAtGivenLevel(governorSpeechNotice, processWorkflow, userGroupType, level, locale);
+	}
 
+	/****************************** END *********************/
 	
 	public static List<WorkflowConfig> findLockedWorkflowConfigOfGivenWOrkflowTypeForGivenDeviceType(final HouseType houseType,
 			final DeviceType deviceType,

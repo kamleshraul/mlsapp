@@ -122,9 +122,11 @@ public class ApplicationConstants {
 
 	/** The Constant LOWERHOUSEGRID. */
 	public static final String LOWERHOUSEGRID="MEMBER_LOWERHOUSEGRID";
+	public static final String TEMP_LOWERHOUSEGRID="MEMBER_TEMP_LOWERHOUSEGRID";
 
 	/** The Constant UPPERHOUSEGRID. */
 	public static final String UPPERHOUSEGRID="MEMBER_UPPERHOUSEGRID";
+	public static final String TEMP_UPPERHOUSEGRID="MEMBER_TEMP_UPPERHOUSEGRID";
 	
 	/*************** SECURITY PARAMETERS ***************/
 	/** The Constant DEFAULT_PASSWORD. */
@@ -984,7 +986,11 @@ public class ApplicationConstants {
 	
 	public static final String APPROVAL_WORKFLOW_URLPATTERN_SPECIALMENTIONNOTICE="workflow/specialmentionnotice";
 	
+	public static final String APPROVAL_WORKFLOW_URLPATTERN_GOVERNORSPEECHNOTICE="workflow/governorspeechnotice";
+	
 	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_SPECIALMENTIONNOTICE="workflow/specialmentionnotice/supportingmember";
+	
+	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_GOVERNORSPEECHNOTICE="workflow/governorspeechnotice/supportingmember";
 	
 	public static final String SPECIALMENTIONNOTICE_APPROVAL_WORKFLOW = "SPECIALMENTIONNOTICE_APPROVAL_WORKFLOW";
 	/**** Advanced Search Status Filter ****/
@@ -1412,8 +1418,12 @@ public class ApplicationConstants {
 	public static final String MEMBERMINISTER_FIND_ASSIGNED_DEPARTMENTSVO_WITH_GROUP = "MEMBERMINISTER_FIND_ASSIGNED_DEPARTMENTSVO_WITH_GROUP";
 
 	public static final String MEMBERHOUSEROLE_FIND_ALL_ACTIVE_MEMBERVOS_IN_SESSION = "MEMBERHOUSEROLE_FIND_ALL_ACTIVE_MEMBERVOS_IN_SESSION";
-
+	
+	public static final String MEMBERHOUSEROLE_TEMP_ENTRY_FIND_ALL_ACTIVE_MEMBERVOS_IN_SESSION = "MEMBERHOUSEROLE_TEMP_ENTRY_FIND_ALL_ACTIVE_MEMBERVOS_IN_SESSION";
+	
 	public static final String MEMBERHOUSEROLE_FIND_ALL_ACTIVE_MEMBERVOS_IN_SESSION_WITH_PARAM = "MEMBERHOUSEROLE_FIND_ALL_ACTIVE_MEMBERVOS_IN_SESSION_WITH_PARAM";
+	
+	public static final String MEMBERHOUSEROLE_TEMP_ENTRY_FIND_ALL_ACTIVE_MEMBERVOS_IN_SESSION_WITH_PARAM = "MEMBERHOUSEROLE_TEMP_ENTRY_FIND_ALL_ACTIVE_MEMBERVOS_IN_SESSION_WITH_PARAM";
 
 	/**** role types for comparison ****/
 
@@ -3179,6 +3189,47 @@ public class ApplicationConstants {
 	
 	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_APPROPRIATIONBILLMOTION = "workflow/appropriationbillmotion/supportingmember";
 	/**************** AppropriationBill Motion Completed ********************/
+	
+	/**************** Governor Speech Notice ********************/
+	public static final String GOVERNOR_SPPECH_NOTICE = "notices_governor_speech";
+	
+	/**** member status  ****/	
+	public static final String GOVERNORSPEECHNOTICE_INCOMPLETE="governorspeechnotice_incomplete";
+
+	public static final String GOVERNORSPEECHNOTICE_COMPLETE="governorspeechnotice_complete";
+
+	public static final String GOVERNORSPEECHNOTICE_SUBMIT="governorspeechnotice_submit";
+	
+	/**** Recommendation status ****/	
+	public static final String GOVERNORSPEECHNOTICE_RECOMMEND_ADMISSION="governorspeechnotice_recommend_admission";
+
+	public static final String GOVERNORSPEECHNOTICE_RECOMMEND_REJECTION="governorspeechnotice_recommend_rejection";
+	
+	public static final String GOVERNORSPEECHNOTICE_PUTUP_REJECTION="governorspeechnotice_putup_rejection";
+	
+	public static final String GOVERNORSPEECHNOTICE_RECOMMEND_SENDBACK="governorspeechnotice_recommend_sendback";
+	
+	public static final String GOVERNORSPEECHNOTICE_RECOMMEND_DISCUSS="governorspeechnotice_recommend_discuss";	
+	
+	public static final String GOVERNORSPEECHNOTICE_SYSTEM_ASSISTANT_PROCESSED="governorspeechnotice_system_assistantprocessed";
+	
+	/**** Internal status ****/
+	public static final String GOVERNORSPEECHNOTICE_FINAL_ADMISSION="governorspeechnotice_final_admission";
+
+	public static final String GOVERNORSPEECHNOTICE_FINAL_REJECTION="governorspeechnotice_final_rejection";
+	
+	/**** Custom Parameters ****/
+	public static final String GOVERNORSPEECHNOTICE_OPTIONAL_FIELDS_IN_VALIDATION = "GOVERNORSPEECHNOTICE_OPTIONAL_FIELDS_IN_VALIDATION";
+	
+	public static final String GSN_TYPIST_AUTO_NUMBER_GENERATION_REQUIRED = "GSN_TYPIST_AUTO_NUMBER_GENERATION_REQUIRED";
+	
+	/**** Other ******/
+	public static final String GOVERNORSPEECHNOTICE_GET_REVISION = "GOVERNORSPEECHNOTICE_GET_REVISION";
+	
+	/**** Workflow ****/
+	public static final String GOVERNORSPEECHNOTICE_APPROVAL_WORKFLOW = "GOVERNORSPEECHNOTICE_APPROVAL_WORKFLOW";
+	
+	/**************** Governor Speech Notice Completed ********************/
 	
 	/** The Constant DEFAULT_MEMBER_TENURE_YEARS_UPPERHOUSE. */
 	public static final String DEFAULT_MEMBER_TENURE_YEARS_UPPERHOUSE="6";

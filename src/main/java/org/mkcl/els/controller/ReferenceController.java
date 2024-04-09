@@ -11914,4 +11914,65 @@ public class ReferenceController extends BaseController {
 	   return sessionDatesOrderOfTheDay;
 	} 
 	
+	
+	@RequestMapping(value="/governorspeechnotice/numberofnotices", method=RequestMethod.GET)
+	public @ResponseBody Boolean isGovernorSpeechNoticeSubmittedMoreThanCertainAmount (HttpServletRequest request, Locale locale) throws ParseException, UnsupportedEncodingException{
+		Boolean flag=false;
+		String sessionId = request.getParameter("sessionId");
+		String deviceType = request.getParameter("deviceType");
+		String strCreatedBy =request.getParameter("ugparam");
+		
+		
+		if(sessionId!=null && strCreatedBy!=null) {
+			
+			Session session = Session.findById(Session.class, Long.parseLong(sessionId));
+		      if(session != null) {
+		    	  String numberOfNotices = session.getParameter(deviceType+"_numberOfAcceptingNotices");
+		    	  int numberOfNoticesSubmittedByMember = GovernorSpeechNotice.findCountOfNoticesBySpecificMemberAndSecificSession(session,strCreatedBy,locale.toString());
+		    	  
+		    	  if(numberOfNotices != null) {
+		    		  if(numberOfNoticesSubmittedByMember <= Integer.parseInt(numberOfNotices)) {
+			    		  flag = false;
+			    	  } else {
+			    		  flag = true;
+			    	  }  
+		    	  } else {
+		    		  flag = false;
+		    	  }
+		    	  
+		    	  
+		      }
+		}
+		
+		return flag;
+	}
+	
+	
+	@RequestMapping(value="/governorspeechnotice/actors",method=RequestMethod.POST)
+	public @ResponseBody List<Reference> findGovernorSpeechActors(final HttpServletRequest request,
+			final ModelMap model, final Locale locale){
+		List<Reference> actors=new ArrayList<Reference>();
+		String strMotion=request.getParameter("motion");
+		String strInternalStatus=request.getParameter("status");
+		String strUserGroup=request.getParameter("usergroup");
+		String strLevel=request.getParameter("level");
+		if(strMotion!=null&&strInternalStatus!=null&&strUserGroup!=null&&strLevel!=null){
+			if((!strMotion.isEmpty())&&(!strInternalStatus.isEmpty())&&
+					(!strUserGroup.isEmpty())&&(!strLevel.isEmpty())){
+				Status internalStatus=Status.findById(Status.class,Long.parseLong(strInternalStatus));
+				GovernorSpeechNotice specialMentionNotice=GovernorSpeechNotice.findById(GovernorSpeechNotice.class,Long.parseLong(strMotion));
+				UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
+				try {
+					actors=WorkflowConfig.findGovernorSpeechNoticeActorsVO(specialMentionNotice,internalStatus,userGroup,Integer.parseInt(strLevel),locale.toString());
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return actors;
+	}
+	
+	
 }
