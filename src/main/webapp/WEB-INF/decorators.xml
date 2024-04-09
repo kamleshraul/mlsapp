@@ -660,6 +660,26 @@
 		<pattern>/apitoken/new</pattern>
 		<pattern>/apitoken/edit</pattern>
 		
+		<pattern>/membertempentry/personal/new</pattern>
+		<pattern>/membertempentry/personal/*/edit</pattern>
+		<pattern>/membertempentry/personal/*/delete</pattern>
+		<pattern>/membertempentry/personal</pattern>
+
+		<pattern>/membertempentry/contact/new</pattern>
+		<pattern>/membertempentry/contact/*/edit</pattern>
+		<pattern>/membertempentry/contact/*/delete</pattern>
+		<pattern>/membertempentry/contact</pattern>
+
+		<pattern>/membertempentry/other/new</pattern>
+		<pattern>/membertempentry/other/*/edit</pattern>
+		<pattern>/membertempentry/other/*/delete</pattern>
+		<pattern>/membertempentry/other</pattern>
+		
+		<pattern>/governorspeechnotice/new</pattern>
+		<pattern>/governorspeechnotice/*/edit</pattern>
+		<pattern>/governorspeechnotice/*/delete</pattern>
+		<pattern>/governorspeechnotice</pattern>
+		
 		<pattern>/poster_activities/update_decision/init</pattern>
 	</decorator>
 	<decorator name="mnu_form" page="mnu_form.jsp">
@@ -701,6 +721,31 @@
 		<pattern>/member/suspension/*/delete</pattern>
 		<pattern>/member/suspension</pattern>
 		
+		<pattern>/membertempentry/house/new</pattern>
+		<pattern>/membertempentry/house/*/edit</pattern>
+		<pattern>/membertempentry/house/*/delete</pattern>
+		<pattern>/membertempentry/house</pattern>
+
+		<pattern>/membertempentry/party/new</pattern>
+		<pattern>/membertempentry/party/*/edit</pattern>
+		<pattern>/membertempentry/party/*/delete</pattern>
+		<pattern>/membertempentry/party</pattern>
+
+		<pattern>/membertempentry/minister/new</pattern>
+		<pattern>/membertempentry/minister/*/edit</pattern>
+		<pattern>/membertempentry/minister/*/delete</pattern>
+		<pattern>/membertempentry/minister</pattern>
+
+		<pattern>/membertempentry/election/new</pattern>
+		<pattern>/membertempentry/election/*/edit</pattern>
+		<pattern>/membertempentry/election/*/delete</pattern>
+		<pattern>/membertempentry/election</pattern>
+		
+		<pattern>/membertempentry/suspension/new</pattern>
+		<pattern>/membertempentry/suspension/*/edit</pattern>
+		<pattern>/membertempentry/suspension/*/delete</pattern>
+		<pattern>/membertempentry/suspension</pattern>
+				
 		<pattern>/zillaparishad</pattern>
 		<pattern>/zillaparishad/new</pattern>
 		<pattern>/zillaparishad/*/edit</pattern>

@@ -2543,7 +2543,7 @@
 				</p>
 			</div>
 		</c:if>
-		
+			
 		<c:if test="${i.type eq 'motions_rules_suspension'}">					
 			<div id="motions_rules_suspension" class="formDiv">	
 				<p>
@@ -2639,6 +2639,23 @@
 						<%-- (<b>Format</b> = &nbsp;<spring:message code="generic.hour" text="hours"/> <b>:</b> <spring:message code="generic.minute" text="minutes"/>) --%>
 					</label>
 				</p>
+			</div>
+		</c:if>
+		
+		<c:if test="${i.type eq 'notices_governor_speech'}">
+			<div id="notices_governor_speech" class="formDiv">
+				<p >
+					<label class="small"><spring:message code="session.deviceType.submissionStartTime" text="Submission Start Time"></spring:message></label>
+					<input type="text" class="sText datetimemask" name="notices_governor_speech_submissionStartTime" id="notices_governor_speech_submissionStartTime" value="${notices_governor_speech_submissionstarttime}" />
+				</p>
+				<p >
+					<label class="small"><spring:message code="session.deviceType.submissionEndTime" text="Submission End Time"></spring:message></label>
+					<input type="text" class="sText datetimemask" name="notices_governor_speech_submissionEndTime" id="notices_governor_speech_submissionEndTime" value="${notices_governor_speech_submissionendtime}" />
+				</p>
+				<p>
+				     <label class="small"><spring:message code="session.deviceType.noticeAcceptance" text="Number of Notices Accepting from Members"></spring:message></label>
+				     <input type="text" class="sText integer" name="notices_governor_speech_numberOfAcceptingNotices" id="notices_governor_speech_numberOfAcceptingNotices" value="${notices_governor_speech_numberofacceptingnotices}" style="height: 24px;"/>
+				</p>				
 			</div>
 		</c:if>
 		
