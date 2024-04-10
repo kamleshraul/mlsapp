@@ -13,7 +13,7 @@ package org.mkcl.els.common.vo;
  * The Class ElectionVO.
  *
  * @author amitd
- * @author sandeeps
+ * @author sandeeps   Shubham
  * @since v1.0.0
  */
 public class ElectionVO {
